@@ -1,0 +1,63 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>Mocha Spec Runner</title>
+    <link rel="stylesheet" href="vendor/mocha/mocha.css">
+</head>
+<body>
+    <div id="mocha"></div>
+    <script src="vendor/mocha/mocha.js"></script>
+    <script>mocha.setup('bdd')</script>
+    <script src="vendor/chai/chai.js"></script>
+    <script src="vendor/sinon-chai/lib/sinon-chai.js"></script>
+    <script src="vendor/sinon/index.js"></script>
+    <script>
+        var assert = chai.assert;
+        var expect = chai.expect;
+        var should = chai.should();
+    </script>
+
+    <!-- include source files here... -->
+    <script src="../vendor/jquery/dist/jquery.min.js"></script>
+    <script src="../vendor/underscore/underscore.js"></script>
+
+    <script src="../src/util/query-util.js"></script>
+    <script src="../src/util/run-util.js"></script>
+    <script src="../src/service/url-config-service.js"></script>
+    <script src="../src/service/configuration-service.js"></script>
+    <script src="../src/transport/ajax-http-transport.js"></script>
+    <script src="../src/transport/http-transport-factory.js"></script>
+
+    <script src="../src/store/cookie-store.js"></script>
+    <script src="../src/store/store-factory.js"></script>
+    <script src="../src/service/data-api-service.js"></script>
+
+
+    <script src="../src/service/auth-api-service.js"></script>
+    <script src="../src/service/variables-api-service.js"></script>
+    <script src="../src/service/run-api-service.js"></script>
+
+    <!-- include spec files here... -->
+    <script src="spec/test-query-util.js"></script>
+    <script src="spec/test-run-util.js"></script>
+    <script src="spec/test-ajax-http-transport.js"></script>
+    <script src="spec/test-data-api-service.js"></script>
+
+    <script src="spec/test-auth-api-service.js"></script>
+    <script src="spec/test-run-api-service.js"></script>
+    <script src="spec/test-run-api-service-callbacks.js"></script>
+    <script src="spec/test-variables-api-service.js"></script>
+    <script src="spec/test-cookie-store.js"></script>
+
+    <script>
+    // If tests run in a real browser
+         // Can alternatively do a check on window.PHANTOMJS
+         if (navigator.userAgent.indexOf('PhantomJS') < 0) {
+             mocha
+                 .run();
+         }
+     </script>
+</body>
+</html>

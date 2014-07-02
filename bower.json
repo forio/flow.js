@@ -1,0 +1,24 @@
+{
+  "name": "flow.js",
+  "version": "0.0.0",
+  "homepage": "https://github.com/forio/flow.js",
+  "authors": [
+    "Naren Ranjit <narendran.ranjit@gmail.com>"
+  ],
+  "main": "src/index.js",
+  "moduleType": [
+    "node"
+  ],
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "public/vendor",
+    "test",
+    "tests"
+  ],
+  "devDependencies": {
+    "jquery": "~2.1.1"
+  }
+}
