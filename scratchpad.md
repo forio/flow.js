@@ -1,25 +1,3 @@
-
-<label> Hello </label>
-<input type="text" data-f-value="Price" value="4">
-<input type="radio" data-f-checked="Decision Value" data-f-value="Cost">
-
-<input type="text" data-f-value="Price | $##.00" value="4">
-<input type="text" data-f-value="Price" data-f-format="$##.00" value="4">
-
-
-<form data-f-format="$##.00">
-    <input type="text" data-f-value="Price1" value="4">
-    <input type="text" data-f-value="Price2" value="4">
-</form>
-
-<div data-f-class="toggle1">
-
-</div>
-<div data-f-class="toggle1 | classAdder">
-
-</div>
-
-
 - Need to identify where the value is coming from
     Model (Run)
     Model (Operation)
@@ -28,5 +6,30 @@
 
 - Can pipe values to filters
 
-    F.decisionize.formatters.upperCase = function () {}
+    F.flow.formatters.upperCase = function () {}
+
+
+
+
+Generator:
+    - Attaches itself to DOM elements with the right attributes
+    - On change figures out the right model variable name and value
+    - Passes on model variable name and value
+        ? trigger an update event on itself?
+        ? call attached channel instance with this?
+        ? Save to run api directly?
+
+    ^
+    |
+Channel
+
+
+    Triggers model.change with old value, new value
+
+    |
+    v
+
+Updater:
+    - Catches model.change events on DOM elements. Model.change will be triggered with variable name, value
+    - Update yourself with the right value
 
