@@ -1,0 +1,38 @@
+{
+    "browser": true,
+    "node": true,
+    "curly": true,
+    "camelcase": true,
+    "expr": true,
+    "eqeqeq": true,
+    "es3": false,
+    "forin": true,
+    "freeze": true,
+    "immed": true,
+    "indent": 4,
+    "latedef": "nofunc",
+    "newcap": true,
+    "noarg": true,
+    "noempty": false,
+    "nonbsp": true,
+    "nonew": false,
+    "plusplus": false,
+    "quotmark": "single",
+    "undef": true,
+    "unused": "vars",
+    "strict": true,
+    "trailing": true,
+    "eqnull": true,
+    "predef": [
+        "F",
+        "$",
+        "should",
+        "sinon",
+        "describe",         // Used by mocha
+        "it",               // Used by mocha
+        "before",           // Used by mocha
+        "beforeEach",           // Used by mocha
+        "after",            // Used by mocha
+        "afterEach"         // Used by mocha
+    ]
+}

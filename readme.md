@@ -28,6 +28,8 @@ all other tags * - sets the contents (or inner html)
 
 * web-components - flow.js recognizes webcomponents and does not attempt to update them.
 
+Have a default HTML element you'd rather handle yourself? Just add an attribute f-noop and flow.js will not attempt to update it. You will get a change event triggered on top of it to handle the update yourself.
+
 ##Other attribute bindings
 
 f-value works for values but sometimes you may want to do other things with your model value besides just printing it. For example, you may want to disable a button if a model value isn't set. In such cases, prefix the property you want to bind with "f-" and flow.js will take care of the rest.
@@ -42,15 +44,15 @@ Examples
 
 The following two sections of the code are equivalent.
 <select>
-    <option f-selected="Some_Decison"> 1 </option>
-    <option f-selected="Some_Decison"> 2 </option>
-    <option f-selected="Some_Decison"> 3 </option>
+    <option f-selected="Some_Decison" value="1"> 1 </option>
+    <option f-selected="Some_Decison" value="2"> 2 </option>
+    <option f-selected="Some_Decison" value="3"> 3 </option>
 </select>
 
 <select f-value="Some_Decision"> ## Short-hand for the above
-    <option> 1 </option>
-    <option> 2 </option>
-    <option> 3 </option>
+    <option value="1"> 1 </option>
+    <option value="2"> 2 </option>
+    <option value="3"> 3 </option>
 </select>
 
 Attribute bindings are especially useful while working with classes, as you can use them to show/hide things, move things around etc
@@ -59,11 +61,11 @@ Attribute bindings are especially useful while working with classes, as you can 
     .pricevariable {
         display: block;
     }
-    .pricevariable.1 { /* Value of toggleVariable1 is 1 */
+    .pricevariable. { /* Value of toggleVariable1 is 1 */
         display: none;
     }
 </style>
-<div f-class="toggleVariable1" class="pricevariable">
+<div f-class="toggleVariable1 |" class="pricevariable">
 
 </div>
 
@@ -74,7 +76,7 @@ use [] syntax for nested variables
 <input type="text" f-value="Price[2][1]" />
 
 Interpolate within f-value properties to get values based on others
-<input type="text" f-value="Price[<another_variable>][1]" />
+<input type="text" f-value="Price[<#another_variable>][1]" />
 
 
 ##Formatters
