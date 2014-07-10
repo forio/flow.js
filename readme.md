@@ -11,7 +11,8 @@ flow-dom-updaters.js
 f-value is an attribute on your HTML you use to set-up bi-directional binding of the element to your Epicenter model.
 
 e.g.,
-<input type="text" f-value="Price"/>
+<input type="text" id="xz" f-value="Price" f-noop/>
+
 <span f-value="Sales"> </span>
 
 Once your set the f-value Flow.js figures out the appropriate action to take based on the element type, and the data-response from your model.
@@ -40,7 +41,7 @@ Examples
 
 <input type="button" f-disabled="AllowedToAdvance" /> The button will be disabled unless the "AllowedToAdvance" returns a "truthy" value.
 
-<input type="radio" f-checked="HasBeenSelected" f-value="Cost" value="4" /> The checked state of the button will be based on the truthy value of "HasBeenSelected" in the model. When this radio is selected it sets "Cost" to "4". // Weird example, you probably won't do this
+<input type="radio" f-abc="HasBeenSelected" f-value="Cost" value="4" /> The checked state of the button will be based on the truthy value of "HasBeenSelected" in the model. When this radio is selected it sets "Cost" to "4". // Weird example, you probably won't do this
 
 The following two sections of the code are equivalent.
 <select>
@@ -58,14 +59,21 @@ The following two sections of the code are equivalent.
 Attribute bindings are especially useful while working with classes, as you can use them to show/hide things, move things around etc
 
 <style type="text/css">
-    .pricevariable {
-        display: block;
+    .pricevariable.0 {
+        visbility: visible;
     }
-    .pricevariable. { /* Value of toggleVariable1 is 1 */
-        display: none;
+    .pricevariable.1 { /* Value of toggleVariable1 is 1 */
+        visbility: hidden;
+    }
+    #xyz {
+
     }
 </style>
-<div f-class="toggleVariable1 |" class="pricevariable">
+<div id="xyz" f-class="toggleVariable1" class="pricevariable">
+
+</div>
+
+<div f-class="toggleVariable1" class="pricevariable ">
 
 </div>
 
@@ -76,7 +84,10 @@ use [] syntax for nested variables
 <input type="text" f-value="Price[2][1]" />
 
 Interpolate within f-value properties to get values based on others
+<input type="text" f-value="Price[<another_variable>][1]" />
+
 <input type="text" f-value="Price[<#another_variable>][1]" />
+
 
 
 ##Formatters
@@ -84,6 +95,10 @@ Interpolate within f-value properties to get values based on others
 ## All values can be piped to formatters. Alternatively define a formatter as a seperate attribute
 <input type="text" f-value="Price | $##.00" />
 <input type="text" f-value="Price" f-format="$##.00" />
+
+F.flow.formatters.mySut = function(value) {
+    return 'classname-' + value;
+};
 
 Available formatters:
 "dollar", "date"
