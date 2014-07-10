@@ -1,6 +1,8 @@
 module.exports = function (grunt) {
     'use strict';
 
+
+    grunt.loadNpmTasks('grunt-browserify2');
     grunt.loadNpmTasks('grunt-mocha');
     grunt.loadNpmTasks('grunt-contrib-uglify');
     grunt.loadNpmTasks('grunt-markdox');
@@ -12,13 +14,38 @@ module.exports = function (grunt) {
         watch: {
             source: {
                 files: ['src/**/*.js'],
-                tasks: ['mocha:test', 'uglify:production']
+                tasks: ['browserify2:dev']
             },
             tests: {
                 files: ['tests/spec/**/*.js'],
                 tasks: ['mocha:test']
             }
         },
+
+        browserify2: {
+            options: {
+                expose: {
+
+                },
+                entry: './src/app.js',
+                compile: './dist/flow.js'
+            },
+            dev: {
+                options: {
+                    debug: true
+                }
+            },
+            production: {
+                options: {
+                    debug: false
+                }
+                // afterHook: function(src) {
+                //     // var result = UglifyJS.minify(src, {fromString: true});
+                //     return result.code;
+                // }
+            }
+        },
+
         jshint : {
             options: {
                 jshintrc: true,

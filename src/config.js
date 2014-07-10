@@ -1,5 +1,5 @@
 module.exports = {
-    prefix: 'f-',
+    prefix: 'f',
     defaultAttr: 'value',
 
     events: {
