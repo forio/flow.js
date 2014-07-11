@@ -7,11 +7,28 @@ exports.handler = Backbone.View.extend({
 
     propertyChangeHandlers: {
         value: $.noop,
-        className: function(val) {
+        'class': function(val) {
             $.each(this.addedClasses, function (index, cls) {
                 this.$el.removeClass(cls);
             });
             this.$el.addClass(val);
+        },
+
+        //Booleans
+        disabled: function(val) {
+            this.$el.attr('disabled', !val);
+        },
+        checked: function(val) {
+            this.$el.attr('checked', !val);
+        },
+        readonly: function(val) {
+            this.$el.attr('readonly', !val);
+        },
+        selected: function(val) {
+            this.$el.attr('selected', !val);
+        },
+        required: function(val) {
+            this.$el.attr('required', !val);
         }
     },
     updateProperty: function(prop, val) {

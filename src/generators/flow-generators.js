@@ -37,13 +37,6 @@ module.exports = (function() {
                         });
                         console.log(view);
                     }
-                    // if (generator.test(element) === true) {
-
-                    //     generator.claim(element);
-                    //     var modelVars = generator.getModelVariables(element);
-
-                    //     channel.bind(modelVars, element);
-                    // }
                 });
             });
         }

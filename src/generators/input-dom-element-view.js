@@ -4,11 +4,11 @@ var BaseView = require('./dom-element-view.js');
 
 exports.selector = 'input';
 exports.handler = BaseView.handler.extend({
-    propertyChangeHandlers: {
+    propertyChangeHandlers: $.extend(BaseView.handler.prototype.propertyChangeHandlers, {
         value: function(val) {
             this.$el.val(val);
         }
-    },
+    }),
 
     uiChangeEvent: 'change',
     getUIValue: function () {
@@ -27,5 +27,4 @@ exports.handler = BaseView.handler.extend({
             this.$el.trigger(config.events.trigger, params);
         });
     }
-
 });
