@@ -36,11 +36,15 @@ module.exports = {
 
         $el.on('change', function() {
             var val = $el.val();
-            $(this).trigger(config.events.trigger, changeableValue, val);
+            var changeableProperty = $el.data(config.prefix + '-value');
+            var params = {};
+            params[changeableProperty] = val;
+
+            $(this).trigger(config.events.trigger, params);
         });
 
         $el.on(config.events.react, function(modelName, val) {
-            var propertyToUpdate = triggerers[modelName];
+            var propertyToUpdate = variableAttributeMap[modelName];
 
             if (propertyToUpdate === 'value') {
                 $(this).val(val);

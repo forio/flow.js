@@ -1,11 +1,11 @@
-module.exports = function() {
+module.exports = (function() {
     'use strict';
     var config = require('../config');
 
     var generators = [
         require('./input-text.js')
     ];
-    var channel;
+    var channel = require('../core/flow-monitor.js');
 
     //Jquery selector to return everything which has a f- property set
     $.expr[':'][config.prefix] = function(obj){
@@ -20,23 +20,22 @@ module.exports = function() {
     };
 
 
-
     var publicAPI = {
 
         initialize: function(root) {
             if (!root) {
                 root = 'body';
             }
-            //parse through dom and find everything with f- attribute
-            var matchedElements = $('body').find(':f');
+            //parse through dom and find everything with matching attributes
+            var matchedElements = $(root).find(':' + config.prefix);
 
             $.each(matchedElements, function(index, element) {
                 $.each(generators, function(index, generator) {
                     if (generator.test(element) === true) {
 
                         generator.claim(element);
-                        console.log(generator.getModelVariables());
-                        // channel.bind(generator.getModelName(element), element);
+                        var modelVars = generator.getModelVariables();
+                        channel.bind(modelVars, element);
                     }
                 });
             });
@@ -46,4 +45,4 @@ module.exports = function() {
     return publicAPI;
 
     // $.extend(this, publicAPI);
-}();
+}());
