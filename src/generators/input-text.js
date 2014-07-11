@@ -3,8 +3,7 @@
 var config = require('../config');
 
 
-var changeableValue;
-var triggerers = {};
+var variableAttributeMap = {};
 var addedClasses = [];
 
 module.exports = {
@@ -12,21 +11,25 @@ module.exports = {
     test: function(el) {
         return $(el).is('input:text');
     },
+
+    getModelVariables: function() {
+        return _.keys(variableAttributeMap);
+    },
+
     claim: function(el) {
         var $el = $(el);
         //Get everything this is listening to
-        $.each($el.data(), function(attr, val){
-            if (attr.indexOf(config.prefix) === 0) {
-                attr = attr.replace(config.prefix, '');
+        $(el.attributes).each(function(index, nodeMap){
+            var attr = nodeMap.nodeName;
+            var val = nodeMap.nodeValue;
+            if (attr.indexOf('data-' + config.prefix + '-') === 0) {
+                attr = attr.replace(config.prefix + '-', '');
 
                 if (val.indexOf(',') !== -1) {
                     // triggerers = triggerers.concat(val.split(','));
                 }
                 else {
-                    triggerers[val] = attr;
-                }
-                if (attr.indexOf(config.defaultAttr) === 0) {
-                    changeableValue = val;
+                    variableAttributeMap[val] = attr;
                 }
             }
         });

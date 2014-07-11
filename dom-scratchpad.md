@@ -32,6 +32,7 @@ Generator:
     :claim
 
     :getModelVariablesToListenFor
+
     :handleModelVariableUpdate(modelVariable)
         - See which property this variable has been bound to
         ?? Update property

@@ -23,17 +23,20 @@ module.exports = function() {
 
     var publicAPI = {
 
-        initialize: function() {
-
+        initialize: function(root) {
+            if (!root) {
+                root = 'body';
+            }
             //parse through dom and find everything with f- attribute
-            var matchedElements = [];
+            var matchedElements = $('body').find(':f');
 
             $.each(matchedElements, function(index, element) {
                 $.each(generators, function(index, generator) {
                     if (generator.test(element) === true) {
 
                         generator.claim(element);
-                        channel.bind(generator.getModelName(element), element);
+                        console.log(generator.getModelVariables());
+                        // channel.bind(generator.getModelName(element), element);
                     }
                 });
             });
