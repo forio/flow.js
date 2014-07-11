@@ -10,4 +10,6 @@
 </table>
 
 
-Should be able to call with a text - then should just populate and not bind (?)
+Should be able to call with text - then should just populate and not bind (?)
+
+Priorities for generators
