@@ -20,11 +20,12 @@ exports.handler = BaseView.handler.extend({
         var me = this;
         this.$el.on(this.uiChangeEvent, function () {
             var val = me.getUIValue();
+            var propName = me.$el.data(me.changeableProperty);
 
             var params = {};
-            params[this.changeableProperty] = val;
+            params[propName] = val;
 
-            this.$el.trigger(config.events.trigger, params);
+            me.$el.trigger(config.events.trigger, params);
         });
     }
 });

@@ -3,9 +3,13 @@ var config = require('../config');
 module.exports = (function() {
     'use strict';
 
-    // var rs = new F.service.Run();
+    var rs = new F.service.Run({
+        account: 'nranjit',
+        project: 'sales_forecaster',
+    });
     // var vs = rs.variables();
 
+    var created = false;
     var variableListenerMap = {};
     // var currentData;
 
@@ -13,25 +17,25 @@ module.exports = (function() {
     //     return a === b;
     // };
 
-    // var updateAllvariableListenerMap = function() {
-    //     // $.each(variableListenerMap, function(pro) {};)
-    //     var variableNames = _.keys(variableListenerMap);
-    //     rs.variables.query(variableNames).then(function(variables) {
-    //         console.log('Got variables', variables);
-    //         _(variables).each(function(vname) {
-    //             var oldValue = currentData[vname];
-    //             if (isEqual(variables[vname], oldValue)) {
-    //                 currentData[vname] = variables[vname];
+    var updateAllvariableListenerMap = function() {
+        // $.each(variableListenerMap, function(pro) {};)
+        var variableNames = _.keys(variableListenerMap);
+        rs.variables().query(variableNames).then(function(variables) {
+            console.log('Got variables', variables);
+            // _(variables).each(function(vname) {
+            //     var oldValue = currentData[vname];
+            //     if (isEqual(variables[vname], oldValue)) {
+            //         currentData[vname] = variables[vname];
 
-    //                 //let all variableListenerMap know
-    //                 $(variableListenerMap).each(function(target) {
-    //                     var fn = (target.trigger) ? target.trigger : $(target).trigger;
-    //                     fn(config.event.react, vname, variables[vname]);
-    //                 });
-    //             }
-    //         });
-    //     });
-    // };
+            //         //let all variableListenerMap know
+            //         $(variableListenerMap).each(function(target) {
+            //             var fn = (target.trigger) ? target.trigger : $(target).trigger;
+            //             fn(config.event.react, vname, variables[vname]);
+            //         });
+            //     }
+            // });
+        });
+    };
 
     var publicAPI = {
 
@@ -41,16 +45,23 @@ module.exports = (function() {
          */
         bind: function(properties, target) {
             this.bindOneWay.apply(this, arguments);
-            // $(target).on(config.events.trigger, function(evt, data) {
-            //     if (rs.id) {
-            //         vs.save(data).then(updateAllvariableListenerMap);
-            //     }
-            //     else {
-            //         rs.create().then(function() {
-            //             rs.variables().save(data).then(updateAllvariableListenerMap);
-            //         });
-            //     }
-            // });
+            $(target).on(config.events.trigger, function(evt, data) {
+                if (created) {
+                    rs.variables().save(data).then(updateAllvariableListenerMap);
+                }
+                else {
+                    rs
+                    .create({model: 'pdasim.vmf'})
+                    .then(function() {
+                        rs.do('start_game')
+                        .then(function() {
+                            created = true;
+                            rs.variables().save(data)
+                            .then(updateAllvariableListenerMap);
+                        });
+                    });
+                }
+            });
         },
 
         bindOneWay: function(properties, target) {

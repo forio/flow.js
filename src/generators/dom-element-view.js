@@ -34,6 +34,8 @@ exports.handler = Backbone.View.extend({
         }
     },
     updateProperty: function(prop, val) {
+        //TODO: Be smarter about knowing if we need to update or not
+
         var updateFn = this.propertyChangeHandlers[prop];
 
         if (updateFn) {

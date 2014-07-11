@@ -15,25 +15,12 @@ var modelVar = g.getModelVariables();
 channel.bind(modelVar, elem);
 
 
-var b = Backbone.Model.Extend({
-    defaults: {
-        displayPrice: "32",
+channel.addSource(collection)
+collection.on('add', function(mdl){
+    var variables = mdl.getBindings();
+    channel.bind(variables, model);
+});
 
-        fbind: {
-            'price': ['displayPrice']
-        }
-    },
-
-    initialize: function() {
-        channel.bind('price', this);
-        this.on('change:displayPrice', function() {
-
-        });
-        this.on('update.f.model', function(varList) {
-
-        });
-    }
-})
 
 var b = Backbone.View.extend({
     events: {
