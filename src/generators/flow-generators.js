@@ -3,9 +3,10 @@ module.exports = (function() {
     var config = require('../config');
 
     var generators = [
-        require('./input-dom-element-view')
+        require('./input-text-view'),
+        require('./dom-element-view')
     ];
-    // var channel = require('../core/flow-monitor.js');
+    var channel = require('../core/flow-monitor.js');
 
     //Jquery selector to return everything which has a f- property set
     $.expr[':'][config.prefix] = function(obj){
@@ -22,6 +23,8 @@ module.exports = (function() {
 
     var publicAPI = {
 
+        channel: channel,
+
         initialize: function(root) {
             if (!root) {
                 root = 'body';
@@ -33,9 +36,11 @@ module.exports = (function() {
                 $.each(generators, function(index, generator) {
                     if ($(element).is(generator.selector)) {
                         var view = new generator.handler({
-                            el: element
+                            el: element,
+                            channel: channel
                         });
-                        console.log(view);
+                        console.log(view, generator.selector);
+                        return false; //break loop
                     }
                 });
             });

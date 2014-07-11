@@ -4,7 +4,7 @@ var BaseView = require('./dom-element-view.js');
 
 exports.selector = 'input';
 exports.handler = BaseView.handler.extend({
-    propertyChangeHandlers: $.extend(BaseView.handler.prototype.propertyChangeHandlers, {
+    propertyChangeHandlers: $.extend({}, BaseView.handler.prototype.propertyChangeHandlers, {
         value: function(val) {
             this.$el.val(val);
         }

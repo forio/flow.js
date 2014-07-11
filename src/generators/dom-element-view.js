@@ -1,12 +1,14 @@
 'use strict';
 var config = require('../config');
 
-exports.selector = '';
+exports.selector = '*';
 exports.handler = Backbone.View.extend({
     addedClasses: [],
 
     propertyChangeHandlers: {
-        value: $.noop,
+        value: function(val) {
+            this.$el.html(val);
+        },
         'class': function(val) {
             $.each(this.addedClasses, function (index, cls) {
                 this.$el.removeClass(cls);
@@ -81,9 +83,12 @@ exports.handler = Backbone.View.extend({
         });
     },
 
-    initialize: function (argument) {
+    initialize: function (options) {
         this.variableAttributeMap = this.generateVariableAttributeMap();
+
         this.attachUIChangeHandler();
         this.attachModelChangeHandler();
+
+        options.channel.bind(Object.keys(this.variableAttributeMap), this.$el);
     }
 });
