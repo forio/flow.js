@@ -9,12 +9,13 @@ exports.handler = BaseView.handler.extend({
             this.$el.val(val);
         }
     },
-    changeableProperty: config.binderAttr,
+
     uiChangeEvent: 'change',
     getUIValue: function () {
         return this.$el.val();
     },
 
+    changeableProperty: config.binderAttr,
     attachUIChangeHandler: function () {
         var me = this;
         this.$el.on(this.uiChangeEvent, function () {

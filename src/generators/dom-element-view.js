@@ -18,7 +18,7 @@ exports.handler = Backbone.View.extend({
         var updateFn = this.propertyChangeHandlers[prop];
 
         if (updateFn) {
-            updateFn(val);
+            updateFn.call(this, val);
         }
         else {
             this.$el.prop(prop, val);
@@ -55,10 +55,12 @@ exports.handler = Backbone.View.extend({
 
     attachModelChangeHandler: function() {
         var me = this;
-        this.$el.on(config.events.react, function(modelName, value) {
-            //TODO: this could be an array
-            var propertyToUpdate = this.variableAttributeMap[modelName].toLowerCase();
-            me.updateProperty(propertyToUpdate, value);
+        this.$el.on(config.events.react, function(evt, data) {
+            $.each(data, function(variableName, value) {
+                //TODO: this could be an array
+                var propertyToUpdate = me.variableAttributeMap[variableName].toLowerCase();
+                me.updateProperty.call(me, propertyToUpdate, value);
+            });
         });
     },
 
