@@ -10,6 +10,45 @@
 
 
 
+var g = GeneratorFactory.get(elem);
+var modelVar = g.getModelVariables();
+channel.bind(modelVar, elem);
+
+
+var b = Backbone.Model.Extend({
+    defaults: {
+        displayPrice: "32",
+
+        fbind: {
+            'price': ['displayPrice']
+        }
+    },
+
+    initialize: function() {
+        channel.bind('price', this);
+        this.on('change:displayPrice', function() {
+
+        });
+        this.on('update.f.model', function(varList) {
+
+        });
+    }
+})
+
+var b = Backbone.View.extend({
+    events: {
+        'change #textbox'
+    },
+
+    initialize: fuction () {
+        channel.bind('price', this.handlePriceChange);
+    },
+
+    render: function(){
+        var rendered = this.tmpl();
+        Flow.bind(rendered);
+    }
+});
 
 Generator:
     - Attaches itself to DOM elements with the right attributes
