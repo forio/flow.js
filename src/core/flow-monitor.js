@@ -11,54 +11,70 @@ module.exports = (function() {
 
     var created = false;
     var variableListenerMap = {};
-    // var currentData;
+    var currentData = {};
 
-    // var isEqual = function(a, b) {
-    //     return a === b;
-    // };
+    var isEqual = function(a, b) {
+        return a === b;
+    };
 
-    var updateAllvariableListenerMap = function() {
-        // $.each(variableListenerMap, function(pro) {};)
-        var variableNames = _.keys(variableListenerMap);
-        rs.variables().query(variableNames).then(function(variables) {
-            console.log('Got variables', variables);
-            // _(variables).each(function(vname) {
-            //     var oldValue = currentData[vname];
-            //     if (isEqual(variables[vname], oldValue)) {
-            //         currentData[vname] = variables[vname];
 
-            //         //let all variableListenerMap know
-            //         $(variableListenerMap).each(function(target) {
-            //             var fn = (target.trigger) ? target.trigger : $(target).trigger;
-            //             fn(config.event.react, vname, variables[vname]);
-            //         });
-            //     }
-            // });
+    var initRun = function() {
+        var $d = $.Deferred();
+
+        rs.create({model: 'pdasim.vmf'}).then(function () {
+            rs.do('start_game').then(function () {
+                $d.resolve();
+            });
         });
+
+        return $d.promise();
     };
 
     var publicAPI = {
+
+        populate: function() {
+            var me = this;
+            var updateNow = function() {
+                // $.each(variableListenerMap, function(pro) {};)
+                var variableNames = _.keys(variableListenerMap);
+                rs.variables().query(variableNames).then(function(variables) {
+                    console.log('Got variables', variables);
+                    _(variables).each(function(vname) {
+                        var oldValue = currentData[vname];
+                        if (!isEqual(variables[vname], oldValue)) {
+                            currentData[vname] = variables[vname];
+
+                            me.updateListeners(vname, variables[vname]);
+                        }
+                    });
+                });
+            };
+
+            if (created) {
+                updateNow();
+            }
+            else {
+                initRun().then(updateNow);
+            }
+        },
 
         /**
          * @param  {String} property Model property to listen for changes on
          * @param  {Object|function} target If provided an object, it triggers a 'changed.flow' event on it. If a function, executes it when the property changes
          */
         bind: function(properties, target) {
+            var me = this;
             this.bindOneWay.apply(this, arguments);
             $(target).on(config.events.trigger, function(evt, data) {
                 if (created) {
-                    rs.variables().save(data).then(updateAllvariableListenerMap);
+                    rs.variables().save(data).then(me.populate);
                 }
                 else {
-                    rs
-                    .create({model: 'pdasim.vmf'})
+                    initRun()
                     .then(function() {
-                        rs.do('start_game')
-                        .then(function() {
-                            created = true;
-                            rs.variables().save(data)
-                            .then(updateAllvariableListenerMap);
-                        });
+                        created = true;
+                        rs.variables().save(data)
+                        .then(me.populate);
                     });
                 }
             });
@@ -82,7 +98,7 @@ module.exports = (function() {
 
         },
 
-        triggerUpdate: function(variable, value) {
+        updateListeners: function(variable, value) {
             var listeners  = variableListenerMap[variable];
 
             var params = {};
