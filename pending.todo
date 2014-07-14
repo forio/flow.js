@@ -1,9 +1,19 @@
 ISDC
-    Operations
-        - Call on load
-
     Interpolate variables in core
         - Do two passes, one to get inner variables, one to get outer
+        var main = {
+            'var[<time>]' : someelement
+        }
+        Does element care what time it is? Send it anyway
 
+        for outler loop, clean variables before sending
+        maintain clean-original list
+        trigger change event with original
 
     Populate initially
+
+
+Done
+    Operations
+        - call on button press
+        - Call on load

@@ -26,22 +26,24 @@ module.exports = (function() {
         channel: channel,
 
         initialize: function(root) {
-            if (!root) {
-                root = '*';
-            }
-            //parse through dom and find everything with matching attributes
-            var matchedElements = $(root).find(':' + config.prefix);
+            $(function(){
+                if (!root) {
+                    root = '*';
+                }
+                //parse through dom and find everything with matching attributes
+                var matchedElements = $(root).find(':' + config.prefix);
 
-            $.each(matchedElements, function(index, element) {
-                $.each(generators, function(index, generator) {
-                    if ($(element).is(generator.selector)) {
-                        var view = new generator.handler({
-                            el: element,
-                            channel: channel
-                        });
-                        console.log(view, generator.selector);
-                        return false; //break loop
-                    }
+                $.each(matchedElements, function(index, element) {
+                    $.each(generators, function(index, generator) {
+                        if ($(element).is(generator.selector)) {
+                            var view = new generator.handler({
+                                el: element,
+                                channel: channel
+                            });
+                            console.log(view, generator.selector);
+                            return false; //break loop
+                        }
+                    });
                 });
             });
         }

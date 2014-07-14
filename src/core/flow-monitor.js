@@ -10,11 +10,46 @@ module.exports = (function() {
     // var vs = rs.variables();
 
     var created = false;
+
     var variableListenerMap = {};
+
+    //Interpolated variables which need to be resolved before the outer ones can be
+    var innerVariablesList = [];
+
     var currentData = {};
 
     var isEqual = function(a, b) {
         return a === b;
+    };
+
+    var getInnerVariables = function(str) {
+        var inner = str.match(/<(.*?)>/g);
+        inner = _.map(inner, function(val){
+            return val.substring(1, val.length - 1);
+        });
+        return inner;
+    };
+
+    var interpolate = function(variablesToInterpolate, values) {
+        var interpolationMap = {};
+        var interpolated = {};
+
+        _.each(variablesToInterpolate, function (val, outerVariable) {
+            var inner = getInnerVariables(outerVariable);
+            var originalOuter = outerVariable;
+            $.each(inner, function(index, innerVariable) {
+                if (values[innerVariable]) {
+                    outerVariable = outerVariable.replace('<' + innerVariable + '>', values[innerVariable]);
+                }
+            });
+            interpolationMap[outerVariable] = originalOuter;
+            interpolated[outerVariable] = val;
+        });
+
+        return {
+            interpolated: interpolated,
+            interpolationMap: interpolationMap
+        };
     };
 
 
@@ -31,23 +66,34 @@ module.exports = (function() {
     };
 
     var publicAPI = {
+        getInnerVariables: getInnerVariables,
+        interpolate: interpolate,
 
         populate: function() {
             var me = this;
             var updateNow = function() {
                 // $.each(variableListenerMap, function(pro) {};)
                 var variableNames = _.keys(variableListenerMap);
-                rs.variables().query(variableNames).then(function(variables) {
-                    console.log('Got variables', variables);
-                    _(variables).each(function(vname) {
-                        var oldValue = currentData[vname];
-                        if (!isEqual(variables[vname], oldValue)) {
-                            currentData[vname] = variables[vname];
+                var vs = rs.variables();
 
-                            me.updateListeners(vname, variables[vname]);
-                        }
+                if (innerVariablesList.length) {
+                    vs.query(innerVariablesList).then(function (innerVariables) {
+                        var ip =  interpolate(variableNames, innerVariables);
+                        var outer = ip.interpolated;
+                        vs.query(outer).then(function(variables) {
+                            console.log('Got variables', variables);
+                            _(variables).each(function(vname) {
+                                var oldValue = currentData[vname];
+                                if (!isEqual(variables[vname], oldValue)) {
+                                    currentData[vname] = variables[vname];
+
+                                    var vn =  (ip[vname]) ? ip[vname] : vname;
+                                    me.updateListeners(vn, variables[vname]);
+                                }
+                            });
+                        });
                     });
-                });
+                }
             };
 
             if (created) {
@@ -96,6 +142,11 @@ module.exports = (function() {
             properties = [].concat(properties);
 
             $.each(properties, function(index, property) {
+                var inner = getInnerVariables(property);
+                if (inner.length) {
+                    innerVariablesList = innerVariablesList.concat(inner);
+                }
+
                 if (!variableListenerMap[property]) {
                     variableListenerMap[property] = [];
                 }
