@@ -49,15 +49,7 @@ module.exports = (function() {
 
 
     var initRun = function() {
-        var $d = $.Deferred();
-
-        rs.create({model: 'pdasim.vmf'}).then(function () {
-            rs.do('start_game').then(function () {
-                $d.resolve();
-            });
-        });
-
-        return $d.promise();
+        return rs.create({model: 'pdasim.vmf'});
     };
 
     var publicAPI = {
@@ -170,7 +162,17 @@ module.exports = (function() {
          * @param  {Object|function} context  The original context passed to bind
          */
         unbind: function(property, context) {
+            var listeners = this.variableListenerMap[property];
+            $.each(listeners, function(index, listener) {
+                if (!context || (context && isEqual(listener, context))) {
+                    //TODO: need to actually make isequal work
+                    listener.off('f.ui.operate');
+                    listener.off(config.events.trigger);
 
+                    listeners.splice(index, 1);
+                    return false;
+                }
+            });
         },
 
         unbindAll: function() {
