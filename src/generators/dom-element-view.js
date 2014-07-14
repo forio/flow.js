@@ -2,14 +2,17 @@
 var config = require('../config');
 var utils = require('../utils/dom');
 
+var defaultAttrHandlers = [
+    require('properties/class-attr'),
+    require('properties/boolean-attr'),
+    require('properties/default-attr')
+];
+
 exports.selector = '*';
 exports.handler = Backbone.View.extend({
-    addedClasses: [],
 
     propertyChangeHandlers: [
-        require('properties/class-attr'),
-        require('properties/boolean-attr'),
-        require('properties/default-attr')
+        require('properties/html-prop')
     ],
 
     updateProperty: function(prop, val) {
@@ -18,6 +21,18 @@ exports.handler = Backbone.View.extend({
                 handler.handle.call(this.$el, prop, val);
                 return false;
             }
+        });
+    },
+
+    //When model changes
+    attachModelChangeHandler: function() {
+        var me = this;
+        this.$el.on(config.events.react, function(evt, data) {
+            $.each(data, function(variableName, value) {
+                //TODO: this could be an array
+                var propertyToUpdate = me.variableAttributeMap[variableName].toLowerCase();
+                me.updateProperty.call(me, propertyToUpdate, value);
+            });
         });
     },
 
@@ -52,19 +67,11 @@ exports.handler = Backbone.View.extend({
     //For two way binding, only relevant for input handlers
     attachUIChangeHandler: $.noop,
 
-    //When model changes
-    attachModelChangeHandler: function() {
-        var me = this;
-        this.$el.on(config.events.react, function(evt, data) {
-            $.each(data, function(variableName, value) {
-                //TODO: this could be an array
-                var propertyToUpdate = me.variableAttributeMap[variableName].toLowerCase();
-                me.updateProperty.call(me, propertyToUpdate, value);
-            });
-        });
-    },
+
 
     initialize: function (options) {
+        this.propertyChangeHandlers = this.propertyChangeHandlers.concat(defaultAttrHandlers);
+
         this.variableAttributeMap = this.generateVariableAttributeMap();
 
         this.attachUIChangeHandler();

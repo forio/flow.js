@@ -7,6 +7,6 @@ module.exports = {
     },
 
     handle: function(prop, value) {
-        this.prop(prop, !value);
+        this.prop(prop, value);
     }
 };

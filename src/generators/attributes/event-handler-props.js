@@ -2,14 +2,16 @@
 
 module.exports = {
 
-    test: $.expr.match.bool,
+    test: function () {
+
+    },
 
     handle: function(prop, value) {
         var addedClasses = $(this).data('f-added-classes');
         $.each(addedClasses, function (index, cls) {
             $(this).removeClass(cls);
         });
-        $(this).data('f-added-classes', '');
+        $(this).data('f-added-classes', [value]);
         this.$el.addClass(value);
     }
 };
