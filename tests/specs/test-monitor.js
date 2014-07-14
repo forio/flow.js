@@ -119,12 +119,18 @@
                 channel.bindOneWay(['price'], {});
                 channel.variableListenerMap.should.eql({'price': [$({})]});
             });
-            it('should update inner variable dependencies', function () {
+            it('should update inner variable dependencies for single items', function () {
                 channel.bindOneWay(['price[<time>]'], {});
-                console.log(channel.private.variableListenerMap);
 
                 channel.variableListenerMap.should.eql({'price[<time>]': [$({})]});
-                // channel.private.innerVariablesList.should.eql(['price']);
+                channel.innerVariablesList.should.eql(['time']);
+            });
+
+            it('should update inner variable dependencies for multiple items', function () {
+                channel.bindOneWay(['price[<time>]', 'apples', 'sales[<step>]'], {});
+
+                channel.variableListenerMap.should.eql({'price[<time>]': [$({})], 'apples': [$({})], 'sales[<step>]': [$({})]});
+                channel.innerVariablesList.should.eql(['time', 'step']);
             });
         });
 
