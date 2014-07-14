@@ -3,22 +3,24 @@ var config = require('../config');
 var utils = require('../utils/dom');
 
 var defaultAttrHandlers = [
-    require('properties/class-attr'),
-    require('properties/boolean-attr'),
-    require('properties/default-attr')
+    require('./attributes/operation-handler-attr'),
+    require('./attributes/class-attr'),
+    require('./attributes/boolean-attr'),
+    require('./attributes/default-attr')
 ];
 
 exports.selector = '*';
 exports.handler = Backbone.View.extend({
 
     propertyChangeHandlers: [
-        require('properties/html-prop')
+        require('./attributes/html-prop')
     ],
 
     updateProperty: function(prop, val) {
+        var me = this;
         $.each(this.propertyChangeHandlers, function(index, handler) {
-            if (utils.match(handler.test, prop, this.$el)) {
-                handler.handle.call(this.$el, prop, val);
+            if (utils.match(handler.test, prop, me.$el)) {
+                handler.handle.call(me.$el, prop, val);
                 return false;
             }
         });
@@ -41,6 +43,8 @@ exports.handler = Backbone.View.extend({
     variableAttributeMap: {},
     generateVariableAttributeMap: function() {
         var el = this.el;
+        var $el = this.$el;
+        var me = this;
 
         var variableAttributeMap = {};
         //NOTE: looping through attributes instead of .data because .data automatically camelcases properties and make it hard to retrvieve
@@ -51,6 +55,12 @@ exports.handler = Backbone.View.extend({
             var wantedPrefix = 'data-' + config.prefix + '-';
             if (attr.indexOf(wantedPrefix) === 0) {
                 attr = attr.replace(wantedPrefix, '');
+
+                $.each(me.propertyChangeHandlers, function(index, handler) {
+                    if (utils.match(handler.test, attr, $el) && handler.init) {
+                        handler.init(attr, attrVal, $el);
+                    }
+                });
 
                 if (attrVal.indexOf(',') !== -1) {
                     //TODO
@@ -71,6 +81,8 @@ exports.handler = Backbone.View.extend({
 
     initialize: function (options) {
         this.propertyChangeHandlers = this.propertyChangeHandlers.concat(defaultAttrHandlers);
+
+
 
         this.variableAttributeMap = this.generateVariableAttributeMap();
 

@@ -79,13 +79,14 @@ module.exports = (function() {
                 }
             });
 
-            $(target).on('operate.f', function(evt, operation, data) {
-                initRun()
-                .then(function() {
-                    rs
-                    .do(operation, data)
-                    .then(me.populate);
-                });
+            $(target).on('f.ui.operate', function(evt, operation, data) {
+                console.log(arguments);
+                // initRun()
+                // .then(function() {
+                //     rs
+                //     .do(operation, data)
+                //     .then(me.populate);
+                // });
             });
         },
 
