@@ -66,20 +66,23 @@ module.exports = (function() {
     };
 
     var publicAPI = {
-        getInnerVariables: getInnerVariables,
-        interpolate: interpolate,
+        //for testing, to be removed later
+        private: {
+            getInnerVariables: getInnerVariables,
+            interpolate: interpolate
+        },
+
 
         populate: function() {
             var me = this;
             var updateNow = function() {
                 // $.each(variableListenerMap, function(pro) {};)
-                var variableNames = _.keys(variableListenerMap);
                 var vs = rs.variables();
 
                 if (innerVariablesList.length) {
                     vs.query(innerVariablesList).then(function (innerVariables) {
-                        var ip =  interpolate(variableNames, innerVariables);
-                        var outer = ip.interpolated;
+                        var ip =  interpolate(variableListenerMap, innerVariables);
+                        var outer = _.keys(ip.interpolated);
                         vs.query(outer).then(function(variables) {
                             console.log('Got variables', variables);
                             _(variables).each(function(vname) {

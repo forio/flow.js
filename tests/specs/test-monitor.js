@@ -5,7 +5,7 @@
         var core;
 
         before(function () {
-            core = Flow.channel;
+            core = Flow.channel.private;
         });
 
         after(function () {
