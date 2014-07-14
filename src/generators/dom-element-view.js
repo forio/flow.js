@@ -57,18 +57,23 @@ exports.handler = Backbone.View.extend({
             if (attr.indexOf(wantedPrefix) === 0) {
                 attr = attr.replace(wantedPrefix, '');
 
+                //Give handlers a chance to claim variables before sending it off
+                var claimed = false;
                 $.each(me.propertyChangeHandlers, function(index, handler) {
                     if (utils.match(handler.test, attr, $el) && handler.init) {
                         handler.init(attr, attrVal, $el);
+                        claimed = true;
                     }
                 });
 
-                if (attrVal.indexOf(',') !== -1) {
-                    //TODO
-                    // triggerers = triggerers.concat(val.split(','));
-                }
-                else {
-                    variableAttributeMap[attrVal] = attr;
+                if (!claimed) {
+                    if (attrVal.indexOf(',') !== -1) {
+                        //TODO
+                        // triggerers = triggerers.concat(val.split(','));
+                    }
+                    else {
+                        variableAttributeMap[attrVal] = attr;
+                    }
                 }
             }
         });

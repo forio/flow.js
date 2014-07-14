@@ -49,7 +49,17 @@ module.exports = (function() {
 
 
     var initRun = function() {
-        return rs.create({model: 'pdasim.vmf'});
+        var $d = $.Deferred();
+        if (!created) {
+            return rs.create({model: 'pdasim.vmf'}).then(function() {
+                created = true;
+            });
+        }
+        else {
+            $d.resolve();
+        }
+
+        return $d.promise();
     };
 
     var publicAPI = {
@@ -70,32 +80,33 @@ module.exports = (function() {
                 // $.each(variableListenerMap, function(pro) {};)
                 var vs = rs.variables();
 
-                if (this.innerVariablesList.length) {
-                    vs.query(this.innerVariablesList).then(function (innerVariables) {
-                        var ip =  interpolate(me.variableListenerMap, innerVariables);
-                        var outer = _.keys(ip.interpolated);
-                        vs.query(outer).then(function(variables) {
-                            console.log('Got variables', variables);
-                            _(variables).each(function(vname) {
-                                var oldValue = currentData[vname];
-                                if (!isEqual(variables[vname], oldValue)) {
-                                    currentData[vname] = variables[vname];
+                var getVariables = function(vars, ip) {
+                    return vs.query(vars).then(function(variables) {
+                        console.log('Got variables', variables);
+                        _(variables).each(function(vname) {
+                            var oldValue = currentData[vname];
+                            if (!isEqual(variables[vname], oldValue)) {
+                                currentData[vname] = variables[vname];
 
-                                    var vn =  (ip[vname]) ? ip[vname] : vname;
-                                    me.updateListeners(vn, variables[vname]);
-                                }
-                            });
+                                var vn = (ip && ip[vname]) ? ip[vname] : vname;
+                                me.updateListeners(vn, variables[vname]);
+                            }
                         });
                     });
+                };
+                if (me.innerVariablesList.length) {
+                    return vs.query(me.innerVariablesList).then(function (innerVariables) {
+                        var ip =  interpolate(me.variableListenerMap, innerVariables);
+                        var outer = _.keys(ip.interpolated);
+                        getVariables(outer, ip.interpolationMap);
+                    });
+                }
+                else {
+                    return getVariables(_.keys(me.variableListenerMap));
                 }
             };
 
-            if (created) {
-                updateNow();
-            }
-            else {
-                initRun().then(updateNow);
-            }
+            initRun().then(updateNow);
         },
 
         /**
@@ -113,27 +124,20 @@ module.exports = (function() {
 
             //Assume you won't be setting variables before calling any init functions
             target.on(config.events.trigger, function(evt, data) {
-                if (created) {
-                    rs.variables().save(data).then(me.populate);
-                }
-                else {
-                    initRun()
-                    .then(function() {
-                        created = true;
-                        rs.variables().save(data)
-                        .then(me.populate);
-                    });
-                }
+                initRun()
+                .then(function() {
+                    rs.variables().save(data)
+                    .then(me.populate.call(me));
+                });
             });
 
-            target.on('f.ui.operate', function(evt, operation, data) {
-                console.log(arguments);
-                // initRun()
-                // .then(function() {
-                //     rs
-                //     .do(operation, data)
-                //     .then(me.populate);
-                // });
+            target.on('f.ui.operate', function(evt, payload) {
+                initRun()
+                .then(function() {
+                    rs
+                    .do(payload.fn, payload.args)
+                    .then(me.populate.call(me));
+                });
             });
         },
 
