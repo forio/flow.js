@@ -3,7 +3,8 @@ var config = require('../config');
 var utils = require('../utils/dom');
 
 var defaultAttrHandlers = [
-    require('./attributes/operation-handler-attr'),
+    require('./attributes/init-operation-attr'),
+    require('./attributes/operation-attr'),
     require('./attributes/class-attr'),
     require('./attributes/boolean-attr'),
     require('./attributes/default-attr')

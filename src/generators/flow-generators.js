@@ -27,7 +27,7 @@ module.exports = (function() {
 
         initialize: function(root) {
             if (!root) {
-                root = 'body';
+                root = '*';
             }
             //parse through dom and find everything with matching attributes
             var matchedElements = $(root).find(':' + config.prefix);

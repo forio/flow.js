@@ -65,6 +65,8 @@ module.exports = (function() {
         bind: function(properties, target) {
             var me = this;
             this.bindOneWay.apply(this, arguments);
+
+            //Assume you won't be setting variables before calling any init functions
             $(target).on(config.events.trigger, function(evt, data) {
                 if (created) {
                     rs.variables().save(data).then(me.populate);
