@@ -78,6 +78,15 @@ module.exports = (function() {
                     });
                 }
             });
+
+            $(target).on('operate.f', function(evt, operation, data) {
+                initRun()
+                .then(function() {
+                    rs
+                    .do(operation, data)
+                    .then(me.populate);
+                });
+            });
         },
 
         bindOneWay: function(properties, target) {

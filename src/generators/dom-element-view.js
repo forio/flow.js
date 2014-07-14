@@ -1,79 +1,58 @@
 'use strict';
 var config = require('../config');
+var utils = require('../utils/dom');
 
 exports.selector = '*';
 exports.handler = Backbone.View.extend({
     addedClasses: [],
 
-    propertyChangeHandlers: {
-        value: function(val) {
-            this.$el.html(val);
-        },
-        'class': function(val) {
-            $.each(this.addedClasses, function (index, cls) {
-                this.$el.removeClass(cls);
-            });
-            this.$el.addClass(val);
-        },
+    propertyChangeHandlers: [
+        require('properties/class-attr'),
+        require('properties/boolean-attr'),
+        require('properties/default-attr')
+    ],
 
-        //Booleans
-        disabled: function(val) {
-            this.$el.attr('disabled', !val);
-        },
-        checked: function(val) {
-            this.$el.attr('checked', !val);
-        },
-        readonly: function(val) {
-            this.$el.attr('readonly', !val);
-        },
-        selected: function(val) {
-            this.$el.attr('selected', !val);
-        },
-        required: function(val) {
-            this.$el.attr('required', !val);
-        }
-    },
     updateProperty: function(prop, val) {
-        //TODO: Be smarter about knowing if we need to update or not
-
-        var updateFn = this.propertyChangeHandlers[prop];
-
-        if (updateFn) {
-            updateFn.call(this, val);
-        }
-        else {
-            this.$el.prop(prop, val);
-        }
+        $.each(this.propertyChangeHandlers, function(index, handler) {
+            if (utils.match(handler.test, prop, this.$el)) {
+                handler.handle.call(this.$el, prop, val);
+                return false;
+            }
+        });
     },
 
 
+    //Variable as key. List of attributes to be changed when the variable changes as value
     variableAttributeMap: {},
     generateVariableAttributeMap: function() {
         var el = this.el;
 
         var variableAttributeMap = {};
+        //NOTE: looping through attributes instead of .data because .data automatically camelcases properties and make it hard to retrvieve
         $(el.attributes).each(function(index, nodeMap){
             var attr = nodeMap.nodeName;
-            var val = nodeMap.nodeValue;
+            var attrVal = nodeMap.nodeValue;
 
-            if (attr.indexOf('data-' + config.prefix + '-') === 0) {
-                attr = attr.replace('data-', '');
-                attr = attr.replace(config.prefix + '-', '');
+            var wantedPrefix = 'data-' + config.prefix + '-';
+            if (attr.indexOf(wantedPrefix) === 0) {
+                attr = attr.replace(wantedPrefix, '');
 
-                if (val.indexOf(',') !== -1) {
+                if (attrVal.indexOf(',') !== -1) {
                     //TODO
                     // triggerers = triggerers.concat(val.split(','));
                 }
                 else {
-                    variableAttributeMap[val] = attr;
+                    variableAttributeMap[attrVal] = attr;
                 }
             }
         });
         return variableAttributeMap;
     },
 
+    //For two way binding, only relevant for input handlers
     attachUIChangeHandler: $.noop,
 
+    //When model changes
     attachModelChangeHandler: function() {
         var me = this;
         this.$el.on(config.events.react, function(evt, data) {

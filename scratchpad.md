@@ -9,6 +9,13 @@
     F.flow.formatters.upperCase = function () {}
 
 
+Flow.handlers.addNodeHandler('input:text', textHandler);
+
+Flow.handlers.addAttributeHandler('disabled', handleDisabled);
+Flow.handlers.addAttributeHandler('disabled', 'input:text', handleDisabled);
+Flow.handlers.addAttributeHandler('disabled', textHandler, handleDisabled);
+
+Flow.handlers.addAttributeHandler('on-load', initializer, handleDisabled);
 
 var g = GeneratorFactory.get(elem);
 var modelVar = g.getModelVariables();
