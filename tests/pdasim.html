@@ -1,0 +1,107 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+</head>
+<body>
+
+    <h1> PDA SIM </h1>
+    <nav>
+        <ul>
+            <li>
+                <a href="#">Financials </a>
+                <a href="#">Income </a>
+                <a href="#">Market Info </a>
+                <a href="#">Market </a>
+            </li>
+        </ul>
+    </nav>
+    <div class="container">
+        <div class="col-xs-8">
+            <h1 style="background-color:dark-blue;"> Financials </h1>
+        </div>
+        <div class="col-xs-4">
+            <h1 style="background-color:light-blue;"> Make Decisions </h1>
+
+            <h4> Set Product Prices </h4>
+            <span> between $1 and $999 </span>
+
+            <label> X5 Price </label>
+            <input type="text" data-f-value="price[<step>,1]">
+
+            <label> X6 Price </label>
+            <input type="text" data-f-value="price[<step>,2]">
+
+            <label> X7 Price </label>
+            <input type="text" data-f-value="price[<step>,3]">
+
+
+            <h4> Allocate your R&D budget </h4>
+            <span> All budgets should total 100% </span>
+
+            <label> X5 R&D Allocation </label>
+            <input type="text" data-f-value="r and d[<step>,1]">
+
+            <label> X6 R&D Allocation </label>
+            <input type="text" data-f-value="r and d[<step>,2]">
+
+            <label> X7 R&D Allocation </label>
+            <input type="text" data-f-value="r and d[<step>,3]">
+
+
+            <h4> Discontinue a Product </h4>
+            <input type="checkbox" data-f-value="shutdown[<step>, 1]" > <label> Discontinue selling X5 </label>
+            <input type="checkbox" data-f-value="shutdown[<step>, 2]" > <label> Discontinue selling X6 </label>
+            <input type="checkbox" data-f-value="shutdown[<step>, 3]" > <label> Discontinue selling X7 </label>
+
+            <button data-f-on-click="step()"> Submit Decisions </button>
+
+            <h1 style="background-color:light-green;"> Business Summary </h1>
+            <h4> Your score so far: </h4>
+            <span style="color:red;" data-f-value="Total Profit"> </span>
+
+            <table>
+                <tr>
+                    <td>
+                        <span data-f-value="time"> </span> X5 Profit
+                    </td>
+                    <td data-f-value="profit[<step>, 1]">
+
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <span data-f-value="time"> </span> X6 Profit
+                    </td>
+                    <td data-f-value="profit[<step>, 2]">
+
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <span data-f-value="time"> </span> X7 Profit
+                    </td>
+                    <td data-f-value="profit[<step>, 3]">
+
+                    </td>
+                </tr>
+            </table>
+
+        </div>
+    </div>
+
+
+    <script src="../vendor/jquery/dist/jquery.min.js"></script>
+    <script src="../vendor/lodash/dist/lodash.js"></script>
+    <script src="../vendor/backbone/backbone.js"></script>
+    <script src="../vendor/epicenter-js-libs/dist/epicenter.min.js"></script>
+    <script src="../dist/flow.js"></script>
+
+    <script>
+    $(function () {
+        Flow.initialize();
+    })
+    </script>
+</body>
+</html>
