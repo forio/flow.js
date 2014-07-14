@@ -11,11 +11,6 @@ module.exports = (function() {
 
     var created = false;
 
-    var variableListenerMap = {};
-
-    //Interpolated variables which need to be resolved before the outer ones can be
-    var innerVariablesList = [];
-
     var currentData = {};
 
     var isEqual = function(a, b) {
@@ -72,6 +67,10 @@ module.exports = (function() {
             interpolate: interpolate
         },
 
+        //Interpolated variables which need to be resolved before the outer ones can be
+        innerVariablesList: [],
+        variableListenerMap: {},
+
 
         populate: function() {
             var me = this;
@@ -79,9 +78,9 @@ module.exports = (function() {
                 // $.each(variableListenerMap, function(pro) {};)
                 var vs = rs.variables();
 
-                if (innerVariablesList.length) {
-                    vs.query(innerVariablesList).then(function (innerVariables) {
-                        var ip =  interpolate(variableListenerMap, innerVariables);
+                if (this.innerVariablesList.length) {
+                    vs.query(this.innerVariablesList).then(function (innerVariables) {
+                        var ip =  interpolate(me.variableListenerMap, innerVariables);
                         var outer = _.keys(ip.interpolated);
                         vs.query(outer).then(function(variables) {
                             console.log('Got variables', variables);
@@ -108,15 +107,20 @@ module.exports = (function() {
         },
 
         /**
-         * @param  {String} property Model property to listen for changes on
+         * @param  {String| Array} property Model property to listen for changes on
          * @param  {Object|function} target If provided an object, it triggers a 'changed.flow' event on it. If a function, executes it when the property changes
          */
         bind: function(properties, target) {
             var me = this;
-            this.bindOneWay.apply(this, arguments);
+
+            //use jquery to make event sink
+            if (!target.on) {
+                target = $(target);
+            }
+            this.bindOneWay.call(this, properties, target);
 
             //Assume you won't be setting variables before calling any init functions
-            $(target).on(config.events.trigger, function(evt, data) {
+            target.on(config.events.trigger, function(evt, data) {
                 if (created) {
                     rs.variables().save(data).then(me.populate);
                 }
@@ -130,7 +134,7 @@ module.exports = (function() {
                 }
             });
 
-            $(target).on('f.ui.operate', function(evt, operation, data) {
+            target.on('f.ui.operate', function(evt, operation, data) {
                 console.log(arguments);
                 // initRun()
                 // .then(function() {
@@ -143,29 +147,45 @@ module.exports = (function() {
 
         bindOneWay: function(properties, target) {
             properties = [].concat(properties);
+            //use jquery to make event sink
+            if (!target.on) {
+                target = $(target);
+            }
 
+            var me = this;
             $.each(properties, function(index, property) {
                 var inner = getInnerVariables(property);
                 if (inner.length) {
-                    innerVariablesList = innerVariablesList.concat(inner);
+                    me.innerVariablesList = me.innerVariablesList.concat(inner);
                 }
 
-                if (!variableListenerMap[property]) {
-                    variableListenerMap[property] = [];
+                if (!me.variableListenerMap[property]) {
+                    me.variableListenerMap[property] = [];
                 }
-                variableListenerMap[property] = variableListenerMap[property].concat(target);
+                me.variableListenerMap[property] = me.variableListenerMap[property].concat(target);
             });
         },
         /**
          * @param  {String} property Model property to stop listening to
          * @param  {Object|function} context  The original context passed to bind
          */
-        unbind: function() {
+        unbind: function(property, context) {
 
         },
 
+        unbindAll: function() {
+            _.each(this.variableListenerMap, function(listeners, variable) {
+                _.each(listeners, function(listener) {
+                    listener.off('f.ui.operate');
+                    listener.off(config.events.trigger);
+                });
+            });
+            this.variableListenerMap = {};
+            this.innerVariablesList = [];
+        },
+
         updateListeners: function(variable, value) {
-            var listeners  = variableListenerMap[variable];
+            var listeners  = this.variableListenerMap[variable];
 
             var params = {};
             params[variable] = value;

@@ -2,10 +2,11 @@
     'use strict';
 
     describe('Flow monitor', function () {
-        var core;
+        var core, channel;
 
         before(function () {
-            core = Flow.channel.private;
+            channel = Flow.channel;
+            core = channel.private;
         });
 
         after(function () {
@@ -95,6 +96,36 @@
 
             });
 
+        });
+
+        describe('#unbindAll', function () {
+            it('should clear out state variables', function() {
+                channel.bind(['price'], {});
+                channel.bind(['target'], {});
+
+                channel.unbindAll();
+                channel.variableListenerMap.should.eql({});
+                channel.innerVariablesList.should.eql([]);
+
+            });
+
+        });
+
+        describe('#bindOneWay', function () {
+            afterEach(function() {
+                channel.unbindAll();
+            });
+            it('should update variable listeners', function () {
+                channel.bindOneWay(['price'], {});
+                channel.variableListenerMap.should.eql({'price': [$({})]});
+            });
+            it('should update inner variable dependencies', function () {
+                channel.bindOneWay(['price[<time>]'], {});
+                console.log(channel.private.variableListenerMap);
+
+                channel.variableListenerMap.should.eql({'price[<time>]': [$({})]});
+                // channel.private.innerVariablesList.should.eql(['price']);
+            });
         });
 
     });
