@@ -15,3 +15,5 @@ Should be able to call with text - then should just populate and not bind (?)
 Priorities for generators
 
 Give all binders an object, and use an object.observer shim?
+
+Currently bind is the only 2 way attribute. Also make 'value', 'checked' two way
