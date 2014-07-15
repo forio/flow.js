@@ -7,7 +7,7 @@ module.exports = (function() {
         require('./input-checkbox-view'),
         require('./dom-element-view')
     ];
-    var channel = require('../core/flow-monitor.js');
+    var channel = require('../flow-channel');
 
     //Jquery selector to return everything which has a f- property set
     $.expr[':'][config.prefix] = function(obj){

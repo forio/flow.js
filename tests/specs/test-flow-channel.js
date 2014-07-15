@@ -1,7 +1,7 @@
 (function() {
     'use strict';
 
-    describe('Flow monitor', function () {
+    describe('Flow Channel', function () {
         var core, channel;
 
         before(function () {
@@ -98,12 +98,12 @@
 
         });
 
-        describe('#unbindAll', function () {
+        describe('#unsubscribeAll', function () {
             it('should clear out state variables', function() {
-                channel.bind(['price'], {});
-                channel.bind(['target'], {});
+                channel.subscribe(['price'], {});
+                channel.subscribe(['target'], {});
 
-                channel.unbindAll();
+                channel.unsubscribeAll();
                 channel.variableListenerMap.should.eql({});
                 channel.innerVariablesList.should.eql([]);
 
@@ -111,25 +111,25 @@
 
         });
 
-        describe('#bindOneWay', function () {
+        describe('#subscribe', function () {
             afterEach(function() {
-                channel.unbindAll();
+                channel.unsubscribeAll();
             });
             it('should update variable listeners', function () {
-                channel.bindOneWay(['price'], {});
-                channel.variableListenerMap.should.eql({'price': [$({})]});
+                channel.subscribe(['price'], {});
+                channel.variableListenerMap.should.have.key('price');
             });
             it('should update inner variable dependencies for single items', function () {
-                channel.bindOneWay(['price[<time>]'], {});
+                channel.subscribe(['price[<time>]'], {});
 
-                channel.variableListenerMap.should.eql({'price[<time>]': [$({})]});
+                channel.variableListenerMap.should.have.key('price[<time>]');
                 channel.innerVariablesList.should.eql(['time']);
             });
 
             it('should update inner variable dependencies for multiple items', function () {
-                channel.bindOneWay(['price[<time>]', 'apples', 'sales[<step>]'], {});
+                channel.subscribe(['price[<time>]', 'apples', 'sales[<step>]'], {});
 
-                channel.variableListenerMap.should.eql({'price[<time>]': [$({})], 'apples': [$({})], 'sales[<step>]': [$({})]});
+                channel.variableListenerMap.should.have.keys('price[<time>]', 'apples', 'sales[<step>]');
                 channel.innerVariablesList.should.eql(['time', 'step']);
             });
         });

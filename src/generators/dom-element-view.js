@@ -95,6 +95,6 @@ exports.handler = Backbone.View.extend({
         this.attachUIChangeHandler();
         this.attachModelChangeHandler();
 
-        options.channel.bind(Object.keys(this.variableAttributeMap), this.$el);
+        options.channel.subscribe(Object.keys(this.variableAttributeMap), this.$el);
     }
 });
