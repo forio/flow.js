@@ -3,7 +3,7 @@
 module.exports = {
 
     test: function (attr, $node) {
-        return (attr === 'value' && $node.prop('nodeName').toLowerCase() === 'input');
+        return (attr === 'bind' && $node.prop('nodeName').toLowerCase() === 'input');
     },
 
     handle: function(prop, value) {

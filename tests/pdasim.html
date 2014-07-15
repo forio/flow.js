@@ -28,62 +28,62 @@
             <span> between $1 and $999 </span>
 
             <label> X5 Price </label>
-            <input type="text" data-f-value="price[<step>,1]">
+            <input type="text" data-f-bind="price[<step>,1]">
 
             <label> X6 Price </label>
-            <input type="text" data-f-value="price[<step>,2]">
+            <input type="text" data-f-bind="price[<step>,2]">
 
             <label> X7 Price </label>
-            <input type="text" data-f-value="price[<step>,3]">
+            <input type="text" data-f-bind="price[<step>,3]">
 
 
             <h4> Allocate your R&D budget </h4>
             <span> All budgets should total 100% </span>
 
             <label> X5 R&D Allocation </label>
-            <input type="text" data-f-value="r and d[<step>,1]">
+            <input type="text" data-f-bind="r and d[<step>,1]">
 
 
             <label> X6 R&D Allocation </label>
-            <input type="text" data-f-value="r and d[<step>,2]">
+            <input type="text" data-f-bind="r and d[<step>,2]">
 
             <label> X7 R&D Allocation </label>
-            <input type="text" data-f-value="r and d[<step>,3]">
+            <input type="text" data-f-bind="r and d[<step>,3]">
 
 
             <h4> Discontinue a Product </h4>
-            <input type="checkbox" data-f-value="shutdown[<step>, 1]" > <label> Discontinue selling X5 </label>
-            <input type="checkbox" data-f-value="shutdown[<step>, 2]" > <label> Discontinue selling X6 </label>
-            <input type="checkbox" data-f-value="shutdown[<step>, 3]" > <label> Discontinue selling X7 </label>
+            <input type="checkbox" data-f-bind="shutdown[<step>, 1]" > <label> Discontinue selling X5 </label>
+            <input type="checkbox" data-f-bind="shutdown[<step>, 2]" > <label> Discontinue selling X6 </label>
+            <input type="checkbox" data-f-bind="shutdown[<step>, 3]" > <label> Discontinue selling X7 </label>
 
             <button data-f-on-click="step()"> Submit Decisions </button>
 
             <h1 style="background-color:light-green;"> Business Summary </h1>
             <h4> Your score so far: </h4>
-            <span style="color:red;" data-f-value="Total Profit"> </span>
+            <span style="color:red;" data-f-bind="Total Profit"> </span>
 
             <table>
                 <tr>
                     <td>
-                        <span data-f-value="time"> </span> X5 Profit
+                        <span data-f-bind="time"> </span> X5 Profit
                     </td>
-                    <td data-f-value="profit[<step>, 1]">
+                    <td data-f-bind="profit[<step>, 1]">
 
                     </td>
                 </tr>
                 <tr>
                     <td>
-                        <span data-f-value="time"> </span> X6 Profit
+                        <span data-f-bind="time"> </span> X6 Profit
                     </td>
-                    <td data-f-value="profit[<step>, 2]">
+                    <td data-f-bind="profit[<step>, 2]">
 
                     </td>
                 </tr>
                 <tr>
                     <td>
-                        <span data-f-value="time"> </span> X7 Profit
+                        <span data-f-bind="time"> </span> X7 Profit
                     </td>
-                    <td data-f-value="profit[<step>, 3]">
+                    <td data-f-bind="profit[<step>, 3]">
 
                     </td>
                 </tr>

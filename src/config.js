@@ -1,8 +1,8 @@
 module.exports = {
     prefix: 'f',
-    defaultAttr: 'value',
+    defaultAttr: 'bind',
 
-    binderAttr: 'f-value',
+    binderAttr: 'f-bind',
 
     events: {
         trigger: 'update.f.ui',

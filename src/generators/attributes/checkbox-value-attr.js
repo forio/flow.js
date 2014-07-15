@@ -3,7 +3,7 @@
 module.exports = {
 
     test: function (attr, $node) {
-        return (attr === 'value' && $node.is(':checkbox'));
+        return (attr === 'bind' && $node.is(':checkbox'));
     },
 
     handle: function(prop, value) {
