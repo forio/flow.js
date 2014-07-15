@@ -62,7 +62,7 @@ exports.handler = Backbone.View.extend({
                 var claimed = false;
                 $.each(me.propertyChangeHandlers, function(index, handler) {
                     if (utils.match(handler.test, attr, $el) && handler.init) {
-                        handler.init(attr, attrVal, $el);
+                        handler.init.call($el, attr, attrVal);
                         claimed = true;
                     }
                 });
