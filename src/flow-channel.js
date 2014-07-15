@@ -42,6 +42,9 @@ module.exports = (function() {
     var rs = new F.service.Run({
         account: 'nranjit',
         project: 'sales_forecaster',
+        server: {
+            host: 'epicenter-dev.foriodev.com'
+        }
     });
     var initRun = function() {
         var $d = $.Deferred();
@@ -102,10 +105,22 @@ module.exports = (function() {
 
         publish: function(variable, value) {
             //TODO: check if interpolated
+            var attrs;
+            if ($.isPlainObject(variable)) {
+                attrs = variable;
+            } else {
+                (attrs = {})[variable] = value;
+            }
+
+
             var args = arguments;
+            var me = this;
             return initRun().then(function() {
                 var vs = rs.variables();
-                vs.save.apply(vs, args);
+                vs.save.apply(vs, args)
+                    .then(function () {
+                        me.refresh.call(me);
+                    });
             });
         },
 
