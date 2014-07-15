@@ -4,7 +4,7 @@ var BaseView = require('./input-dom-element-view.js');
 exports.selector = 'input:checkbox';
 exports.handler = BaseView.handler.extend({
     propertyChangeHandlers: [
-        require('./attributes/checkbox-bind-attr')
+        require('./attributes/checked-bind-attr')
     ],
 
     getUIValue: function () {
