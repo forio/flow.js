@@ -5,7 +5,7 @@ var BaseView = require('./dom-element-view.js');
 exports.selector = 'input';
 exports.handler = BaseView.handler.extend({
     propertyChangeHandlers: [
-        require('./attributes/value-attr')
+        require('./attributes/input-bind-attr')
     ],
 
     uiChangeEvent: 'change',

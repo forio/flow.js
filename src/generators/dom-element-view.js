@@ -8,14 +8,14 @@ var defaultAttrHandlers = [
     require('./attributes/class-attr'),
     require('./attributes/positive-boolean-attr'),
     require('./attributes/negative-boolean-attr'),
-    require('./attributes/default-attr')
+    require('./attributes/default-bind-attr')
 ];
 
 exports.selector = '*';
 exports.handler = Backbone.View.extend({
 
     propertyChangeHandlers: [
-        require('./attributes/html-prop')
+        require('./attributes/default-bind-attr')
     ],
 
     updateProperty: function(prop, val) {
