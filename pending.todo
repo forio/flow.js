@@ -1,4 +1,8 @@
 ISDC
+    Populate initially
+
+
+Done
     Interpolate variables in core
         - Do two passes, one to get inner variables, one to get outer
         var main = {
@@ -10,10 +14,6 @@ ISDC
         maintain clean-original list
         trigger change event with original
 
-    Populate initially
-
-
-Done
     Operations
         - call on button press
         - Call on load

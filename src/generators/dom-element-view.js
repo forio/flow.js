@@ -6,7 +6,8 @@ var defaultAttrHandlers = [
     require('./attributes/init-operation-attr'),
     require('./attributes/operation-attr'),
     require('./attributes/class-attr'),
-    require('./attributes/boolean-attr'),
+    require('./attributes/positive-boolean-attr'),
+    require('./attributes/negative-boolean-attr'),
     require('./attributes/default-attr')
 ];
 
@@ -66,7 +67,8 @@ exports.handler = Backbone.View.extend({
                     }
                 });
 
-                if (!claimed) {
+                // if (!claimed)
+                {
                     if (attrVal.indexOf(',') !== -1) {
                         //TODO
                         // triggerers = triggerers.concat(val.split(','));
@@ -87,8 +89,6 @@ exports.handler = Backbone.View.extend({
 
     initialize: function (options) {
         this.propertyChangeHandlers = this.propertyChangeHandlers.concat(defaultAttrHandlers);
-
-
 
         this.variableAttributeMap = this.generateVariableAttributeMap();
 

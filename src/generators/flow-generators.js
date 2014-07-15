@@ -4,6 +4,7 @@ module.exports = (function() {
 
     var generators = [
         require('./input-text-view'),
+        require('./input-checkbox-view'),
         require('./dom-element-view')
     ];
     var channel = require('../core/flow-monitor.js');
