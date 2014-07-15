@@ -1,6 +1,7 @@
 'use strict';
 
-var VarChannel = require('./variable-channel');
+var VarsChannel = require('./variables-channel');
+var OperationsChannel = require('./operations-channel');
 
 module.exports = function(config) {
     if (!config) {
@@ -40,5 +41,6 @@ module.exports = function(config) {
 
 
     this.run = rs;
-    this.variable = new VarChannel({variables: vs});
+    this.variables = new VarsChannel({variables: vs});
+    this.operations = new OperationsChannel({run: rs});
 };
