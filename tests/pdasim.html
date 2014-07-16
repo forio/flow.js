@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
 </head>
-<body data-f-model='model.vmf' data-f-on-init='start_game'>
+<body data-f-on-init='start_game'>
 
     <h1> PDA SIM </h1>
     <nav>
@@ -28,33 +28,33 @@
             <span> between $1 and $999 </span>
 
             <label> X5 Price </label>
-            <input type="text" data-f-bind="price[<step>,1]">
+            <input type="text" data-f-bind="price[<currentstep>,X5]">
 
             <label> X6 Price </label>
-            <input type="text" data-f-bind="price[<step>,2]">
+            <input type="text" data-f-bind="price[<currentstep>,X6]">
 
             <label> X7 Price </label>
-            <input type="text" data-f-bind="price[<step>,3]">
+            <input type="text" data-f-bind="price[<currentstep>,X7]">
 
 
             <h4> Allocate your R&D budget </h4>
             <span> All budgets should total 100% </span>
 
-            <label> X5 R&D Allocation </label>
-            <input type="text" data-f-bind="r and d[<step>,1]">
+            <!-- <label> X5 R&D Allocation </label>
+            <input type="text" data-f-bind="r and d[<currentstep>,X5]">
 
 
             <label> X6 R&D Allocation </label>
-            <input type="text" data-f-bind="r and d[<step>,2]">
+            <input type="text" data-f-bind="r and d[<currentstep>,X6]">
 
             <label> X7 R&D Allocation </label>
-            <input type="text" data-f-bind="r and d[<step>,3]">
+            <input type="text" data-f-bind="r and d[<currentstep>,X7]"> -->
 
-
+<!--
             <h4> Discontinue a Product </h4>
-            <input type="checkbox" data-f-bind="shutdown[<step>, 1]" > <label> Discontinue selling X5 </label>
-            <input type="checkbox" data-f-bind="shutdown[<step>, 2]" > <label> Discontinue selling X6 </label>
-            <input type="checkbox" data-f-bind="shutdown[<step>, 3]" > <label> Discontinue selling X7 </label>
+            <input type="checkbox" data-f-bind="shutdown[<currentstep>, 1]" > <label> Discontinue selling X5 </label>
+            <input type="checkbox" data-f-bind="shutdown[<currentstep>, 2]" > <label> Discontinue selling X6 </label>
+            <input type="checkbox" data-f-bind="shutdown[<currentstep>, 3]" > <label> Discontinue selling X7 </label>
 
             <button data-f-on-click="step()"> Submit Decisions </button>
 
@@ -67,7 +67,7 @@
                     <td>
                         <span data-f-bind="time"> </span> X5 Profit
                     </td>
-                    <td data-f-bind="profit[<step>, 1]">
+                    <td data-f-bind="profit[<currentstep>, 1]">
 
                     </td>
                 </tr>
@@ -75,7 +75,7 @@
                     <td>
                         <span data-f-bind="time"> </span> X6 Profit
                     </td>
-                    <td data-f-bind="profit[<step>, 2]">
+                    <td data-f-bind="profit[<currentstep>, 2]">
 
                     </td>
                 </tr>
@@ -83,12 +83,12 @@
                     <td>
                         <span data-f-bind="time"> </span> X7 Profit
                     </td>
-                    <td data-f-bind="profit[<step>, 3]">
+                    <td data-f-bind="profit[<currentstep>, 3]">
 
                     </td>
                 </tr>
             </table>
-
+ -->
         </div>
     </div>
 

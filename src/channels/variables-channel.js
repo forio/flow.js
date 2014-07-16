@@ -4,8 +4,10 @@ module.exports = function(config) {
     if (!config) {
         config = {};
     }
-    var vs = config.variables;
+    var vs = config.run.variables();
 
+
+    window.vss = vs;
 
     var currentData = {};
 
@@ -29,8 +31,13 @@ module.exports = function(config) {
             var inner = getInnerVariables(outerVariable);
             var originalOuter = outerVariable;
             $.each(inner, function(index, innerVariable) {
-                if (values[innerVariable]) {
-                    outerVariable = outerVariable.replace('<' + innerVariable + '>', values[innerVariable]);
+                var thisval = values[innerVariable];
+                if (thisval !== null && thisval !== undefined) {
+                    if (_.isArray(thisval)) {
+                        //For arrayed things get the last one for interpolation purposes
+                        thisval = thisval[thisval.length -1];
+                    }
+                    outerVariable = outerVariable.replace('<' + innerVariable + '>', thisval);
                 }
             });
             interpolationMap[outerVariable] = originalOuter;
@@ -74,6 +81,7 @@ module.exports = function(config) {
             };
             if (me.innerVariablesList.length) {
                 return vs.query(me.innerVariablesList).then(function (innerVariables) {
+                    console.log('inner', innerVariables);
                     var ip =  interpolate(me.variableListenerMap, innerVariables);
                     var outer = _.keys(ip.interpolated);
                     getVariables(outer, ip.interpolationMap);
@@ -125,6 +133,7 @@ module.exports = function(config) {
                 if (inner.length) {
                     me.innerVariablesList = me.innerVariablesList.concat(inner);
                 }
+                me.innerVariablesList = _.uniq(me.innerVariablesList);
 
                 if (!me.variableListenerMap[property]) {
                     me.variableListenerMap[property] = [];

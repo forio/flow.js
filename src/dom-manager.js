@@ -64,7 +64,8 @@ module.exports = (function() {
                                         }
 
                                         if (isBindableAttr) {
-                                            if (attrVal.indexOf(',') !== -1) {
+                                            var commaRegex = /,(?![^\[]*\])/;
+                                            if (attrVal.split(commaRegex).length > 1) {
                                                 //TODO
                                                 // triggerers = triggerers.concat(val.split(','));
                                             }
@@ -105,6 +106,8 @@ module.exports = (function() {
                         }
                     });
                 });
+
+                // channel.variables.refresh();
             });
         }
     };
