@@ -2,9 +2,9 @@
 
 module.exports = {
 
-    test: function (attr, $node) {
-        return (attr === 'bind' && ($node.is(':checkbox') || $node.is(':radio')));
-    },
+    target: ':checkbox,:radio',
+
+    test: 'bind',
 
     handle: function(prop, value) {
         this.prop('checked', !!value);

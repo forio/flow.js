@@ -4,7 +4,7 @@ module.exports = {
 
     match: function(matchExpr, matchValue, context) {
         if (_.isString(matchExpr)) {
-            return (matchExpr.toLowerCase() === matchValue.toLowerCase());
+            return (matchExpr === '*' || (matchExpr.toLowerCase() === matchValue.toLowerCase()));
         }
         else if (_.isFunction(matchExpr)) {
             return matchExpr(matchValue, context);

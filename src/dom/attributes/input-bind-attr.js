@@ -2,9 +2,9 @@
 
 module.exports = {
 
-    test: function (attr, $node) {
-        return (attr === 'bind' && $node.prop('nodeName').toLowerCase() === 'input');
-    },
+    target: 'input',
+
+    test: 'bind',
 
     handle: function(prop, value) {
         this.val(value);

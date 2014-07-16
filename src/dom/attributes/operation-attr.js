@@ -2,6 +2,8 @@
 
 module.exports = {
 
+    name: 'on-',
+
     test: function (attr, $node) {
         return (attr.indexOf('on-') === 0);
     },

@@ -24,6 +24,8 @@ module.exports = (function() {
 
     var publicAPI = {
 
+        nodes: nodeManager,
+
         channel: channel,
 
         initialize: function(root) {
@@ -51,13 +53,17 @@ module.exports = (function() {
                             // console.log(view, generator.selector);
                             channel.variables.subscribe(Object.keys(varMap), $el);
 
+                            // view.propertyChangeHandlers = view.propertyChangeHandlers.concat(defaultAttrHandlers);
+
                             $el.on(config.events.react, function(evt, data) {
                                 var varmap = $(this).data('variable-attr-map');
                                 $.each(data, function(variableName, value) {
                                     //TODO: this could be an array
                                     var propertyToUpdate = varmap[variableName].toLowerCase();
                                     $.each(view.propertyChangeHandlers, function(index, handler) {
-                                        if (utils.match(handler.test, propertyToUpdate, $el)) {
+                                        var nodeTest = (!handler.target) || $el.is(handler.target);
+                                        var attrTest = utils.match(handler.test, propertyToUpdate, $el);
+                                        if (nodeTest && attrTest) {
                                             handler.handle.call($el, propertyToUpdate, value);
                                             return false;
                                         }

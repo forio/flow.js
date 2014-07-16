@@ -2,9 +2,7 @@
 
 module.exports = {
 
-    test: function () {
-        return true;
-    },
+    test: '*',
 
     handle: function(prop, value) {
         this.prop(prop, value);

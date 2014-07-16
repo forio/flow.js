@@ -9,9 +9,24 @@
     F.flow.formatters.upperCase = function () {}
 
 
-Flow.handlers.addNodeHandler('input:text', textHandler);
+* Flow.dom.nodes.register('contour-chart', {
+*     propertyHandlers : [
+*         {test: 'bind', handle: function (data){
+*             var time = data.time;
+*         } }
+*     ],
+*
+*     init: function() {
+*         $(this).on(f.model.update, function () {
+*
+*         });
+*     };
+* })
 
-Flow.dom.node.register
+Flow.dom.attributes.register('toggle', '*', function(prop, value) {
+    this.css(display, 'none');
+})
+
 
 Flow.dom.attributes.register('disabled', handleDisabled);
 Flow.dom.attributes.register('disabled', 'input:text', handleDisabled);

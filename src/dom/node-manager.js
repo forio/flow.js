@@ -1,12 +1,12 @@
 'use strict';
 
-var nodeHandlers = [
+var defaultHandlers = [
     require('../generators/input-text-view'),
     require('../generators/input-checkbox-view'),
     require('../generators/dom-element-view')
 ];
 
-// var nodeHandlers = [
+// var defaultHandlers = [
 //     require('./nodes/text-nodes'),
 //     require('./nodes/checkbox-nodes'),
 //     require('./nodes/default-node')
@@ -14,7 +14,7 @@ var nodeHandlers = [
 
 var nodeList = [];
 
-$.each(nodeHandlers, function(index, node) {
+$.each(defaultHandlers, function(index, node) {
     if (!node.selector) {
         node.selector = '*';
     }
@@ -40,3 +40,19 @@ module.exports = {
         nodeList.splice(existing, 1, {selector: selector, handler: handler});
     }
 };
+
+/**
+ * Flow.dom.nodes.register('contour-chart', {
+ *     propertyHandlers : [
+ *         {test: 'bind', handle: function (data){
+ *             var time = data.time;
+ *         } }
+ *     ],
+ *
+ *     init: function() {
+ *         $(this).on(f.model.update, function () {
+ *
+ *         });
+ *     };
+ * })
+ */
