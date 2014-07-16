@@ -5,7 +5,6 @@ module.exports = (function() {
 
     var nodeManager = require('../dom/node-manager.js');
 
-
     var FC = require('../channels/channel-manager.js');
     var channel = new FC({account: 'nranjit', project: 'sales_forecaster'});
 
@@ -69,6 +68,7 @@ module.exports = (function() {
                             $el.on(config.events.trigger, function(evt, data) {
                                 channel.variables.publish(data);
                             });
+                            //Attach event to publish to channel
 
                             return false; //break loop
                         }

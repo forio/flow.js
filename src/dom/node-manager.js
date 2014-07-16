@@ -12,20 +12,31 @@ var nodeHandlers = [
 //     require('./nodes/default-node')
 // ];
 
-var nodeList = {};
+var nodeList = [];
 
-var register = function (selector, handler) {
-    if (!selector) {
-        selector = '*';
+$.each(nodeHandlers, function(index, node) {
+    if (!node.selector) {
+        node.selector = '*';
     }
-    nodeList[selector] = handler;
-};
-
-$.each(nodeHandlers, function(index, handler) {
-    register(handler.selector, handler);
+    nodeList.push({selector: node.selector, handler: node.handler});
 });
 
 module.exports = {
     list: nodeList,
-    register: register
+    register: function (selector, handler) {
+        nodeList.unshift({selector: selector, handler: handler});
+    },
+
+    get: function(selector) {
+        return _.find(nodeList, function(node) {
+            return node.selector === selector;
+        });
+    },
+
+    replace: function(selector, handler) {
+        var existing = _.indexOf(nodeList, function(node) {
+            return node.selector === selector;
+        });
+        nodeList.splice(existing, 1, {selector: selector, handler: handler});
+    }
 };
