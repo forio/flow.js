@@ -3,11 +3,8 @@ module.exports = (function() {
     var config = require('../config');
     var utils = require('../utils/dom');
 
-    var generators = [
-        require('./input-text-view'),
-        require('./input-checkbox-view'),
-        require('./dom-element-view')
-    ];
+    var nodeManager = require('../dom/node-manager.js');
+
 
     var FC = require('../channels/channel-manager.js');
     var channel = new FC({account: 'nranjit', project: 'sales_forecaster'});
@@ -40,7 +37,7 @@ module.exports = (function() {
 
                 $.each(matchedElements, function(index, element) {
                     var $el = $(element);
-                    $.each(generators, function(index, generator) {
+                    $.each(nodeManager.list, function(index, generator) {
                         if ($el.is(generator.selector)) {
                             var view = new generator.handler({
                                 el: element

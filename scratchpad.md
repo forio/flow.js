@@ -11,9 +11,10 @@
 
 Flow.handlers.addNodeHandler('input:text', textHandler);
 
-Flow.handlers.addAttributeHandler('disabled', handleDisabled);
-Flow.handlers.addAttributeHandler('disabled', 'input:text', handleDisabled);
-Flow.handlers.addAttributeHandler('disabled', textHandler, handleDisabled);
+Flow.dom.node.register
+
+Flow.dom.attributes.register('disabled', handleDisabled);
+Flow.dom.attributes.register('disabled', 'input:text', handleDisabled);
 
 Flow.handlers.addAttributeHandler('on-load', initializer, handleDisabled);
 

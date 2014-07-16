@@ -1,17 +1,31 @@
 'use strict';
 
 var nodeHandlers = [
-    require('./nodes/text-nodes'),
-    require('./nodes/checkbox-nodes'),
-    require('./nodes/default-node')
+    require('../generators/input-text-view'),
+    require('../generators/input-checkbox-view'),
+    require('../generators/dom-element-view')
 ];
 
+// var nodeHandlers = [
+//     require('./nodes/text-nodes'),
+//     require('./nodes/checkbox-nodes'),
+//     require('./nodes/default-node')
+// ];
+
 var nodeList = {};
-$.each(nodeHandlers, function(index, handler) {
-    if (!handler.name) {
-        handler.name = (_.isString(handler.selector))? handler.selector: '*';
+
+var register = function (selector, handler) {
+    if (!selector) {
+        selector = '*';
     }
-    nodeList[handler.name] = handler;
+    nodeList[selector] = handler;
+};
+
+$.each(nodeHandlers, function(index, handler) {
+    register(handler.selector, handler);
 });
 
-module.exports = nodeList;
+module.exports = {
+    list: nodeList,
+    register: register
+};
