@@ -6,7 +6,7 @@ var defaultHandlers = [
     require('./attributes/class-attr'),
     require('./attributes/positive-boolean-attr'),
     require('./attributes/negative-boolean-attr'),
-    require('./attributes/default-bind-attr'),
+    require('./attributes/bind-attr'),
     require('./attributes/default-attr')
 ];
 
