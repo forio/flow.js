@@ -32,20 +32,15 @@ exports.handler = Backbone.View.extend({
     attachModelChangeHandler: function() {
         var me = this;
         this.$el.on(config.events.react, function(evt, data) {
+            var varmap = $(this).data('variable-attr-map');
             $.each(data, function(variableName, value) {
                 //TODO: this could be an array
-                var propertyToUpdate = me.variableAttributeMap[variableName].toLowerCase();
+                var propertyToUpdate = varmap[variableName].toLowerCase();
                 me.updateProperty.call(me, propertyToUpdate, value);
             });
         });
     },
 
-
-    //Variable as key. List of attributes to be changed when the variable changes as value
-    getVariables: function() {
-        var variableAttributeMap = this.generateVariableAttributeMap();
-        return Object.keys(variableAttributeMap);
-    },
     //For two way binding, only relevant for input handlers
     attachUIChangeHandler: $.noop,
 
@@ -55,6 +50,5 @@ exports.handler = Backbone.View.extend({
 
         this.attachUIChangeHandler();
         this.attachModelChangeHandler();
-
     }
 });
