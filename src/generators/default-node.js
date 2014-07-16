@@ -1,6 +1,6 @@
 'use strict';
 
-var BaseView = require('./base-view');
+var BaseView = require('./base-node');
 var attrManager = require('../dom/attribute-manager.js');
 
 exports.selector = '*';

@@ -1,23 +1,23 @@
 'use strict';
-var config = require('../../config');
 
-module.exports = {
-    selector: '*',
+var BaseView = require('./base-node');
+var attrManager = require('../attribute-manager.js');
 
-    getVariables: function() {
+exports.selector = '*';
+exports.handler = BaseView.extend({
+    propertyHandlers : [
+        {
+            test: 'bind',
+            target: '*',
+            handle: function (value){
+                this.val(value);
+            }
+        }
+    ],
 
-    },
-
-    init: function() {
-        var me = this;
-        this.on(config.events.react, function(evt, data) {
-            $.each(data, function(variableName, value) {
-                //TODO: this could be an array
-                var propertyToUpdate = me.variableAttributeMap[variableName].toLowerCase();
-                me.updateProperty.call(me, propertyToUpdate, value);
-            });
+    initialize: function () {
+        _.each(this.propertyHandlers, function(handler) {
+            attrManager.register(handler);
         });
-        //model changes
-        //ui changes
     }
-};
+}, {test:1});

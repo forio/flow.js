@@ -1,6 +1,6 @@
 'use strict';
-var config = require('../config');
-var BaseView = require('./dom-element-view.js').handler;
+var config = require('../../config');
+var BaseView = require('./default-node').handler;
 
 exports.selector = 'input';
 exports.handler = BaseView.extend( {

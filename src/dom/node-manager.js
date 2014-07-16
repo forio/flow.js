@@ -1,9 +1,9 @@
 'use strict';
 
 var defaultHandlers = [
-    require('../generators/input-checkbox-view'),
-    require('../generators/input-dom-element-view'),
-    require('../generators/dom-element-view')
+    require('./nodes/input-checkbox-node'),
+    require('./nodes/default-input-node'),
+    require('./nodes/default-node')
 ];
 
 // var defaultHandlers = [

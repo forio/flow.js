@@ -2,4 +2,4 @@
 
 // window.Flow = require('./dom-manager.js');
 window.Flow = {};
-Flow.dom = require('./generators/flow-generators.js');
+window.Flow.dom = require('./dom-manager');

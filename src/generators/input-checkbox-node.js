@@ -1,5 +1,5 @@
 'use strict';
-var BaseView = require('./input-dom-element-view.js').handler;
+var BaseView = require('./default-input-node').handler;
 
 exports.selector = 'input:checkbox';
 exports.handler = BaseView.extend({
