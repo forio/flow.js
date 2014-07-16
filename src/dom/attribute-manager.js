@@ -11,6 +11,7 @@ var attrHandlers = [
 
 var nodeAttrList = {};
 $.each(attrHandlers, function(index, handler) {
+    //TODO: attrfor immpl
     if (!handler.attrfor) {
         handler.attrfor = '*';
     }

@@ -41,10 +41,9 @@ module.exports = (function() {
                 $.each(matchedElements, function(index, element) {
                     var $el = $(element);
                     $.each(generators, function(index, generator) {
-                        if ($(element).is(generator.selector)) {
+                        if ($el.is(generator.selector)) {
                             var view = new generator.handler({
-                                el: element,
-                                channel: channel
+                                el: element
                             });
 
                             var varMap = $el.data('variable-attr-map');
@@ -55,6 +54,23 @@ module.exports = (function() {
 
                             // console.log(view, generator.selector);
                             channel.variables.subscribe(Object.keys(varMap), $el);
+
+                            $el.on(config.events.react, function(evt, data) {
+                                var varmap = $(this).data('variable-attr-map');
+                                $.each(data, function(variableName, value) {
+                                    //TODO: this could be an array
+                                    var propertyToUpdate = varmap[variableName].toLowerCase();
+                                    $.each(view.propertyChangeHandlers, function(index, handler) {
+                                        if (utils.match(handler.test, propertyToUpdate, $el)) {
+                                            handler.handle.call($el, propertyToUpdate, value);
+                                            return false;
+                                        }
+                                    });
+                                });
+                            });
+
+                            //Attach event to publish to channel
+
                             return false; //break loop
                         }
                     });
