@@ -1,4 +1,4 @@
 'use strict';
 
-window.Flow = require('./generators/flow-generators.js');
+window.Flow = require('./dom-manager.js');
 window.cm = require('./channels/channel-manager.js');

@@ -85,8 +85,6 @@ exports.handler = Backbone.View.extend({
     //For two way binding, only relevant for input handlers
     attachUIChangeHandler: $.noop,
 
-
-
     initialize: function (options) {
         this.propertyChangeHandlers = this.propertyChangeHandlers.concat(defaultAttrHandlers);
 
