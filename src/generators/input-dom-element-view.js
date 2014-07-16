@@ -1,9 +1,10 @@
 'use strict';
 var config = require('../config');
-var BaseView = require('./dom-element-view.js');
+var BaseView = require('./dom-element-view.js').handler;
 
 exports.selector = 'input';
-exports.handler = BaseView.handler.extend({}, {
+exports.handler = BaseView.extend( {
+    propertyHandlers : [],
 
     uiChangeEvent: 'change',
     getUIValue: function () {
@@ -25,5 +26,6 @@ exports.handler = BaseView.handler.extend({}, {
 
             me.$el.trigger(config.events.trigger, params);
         });
+        BaseView.prototype.initialize.apply(this, arguments);
     }
-});
+}, {test3:3, test: 3});

@@ -38,13 +38,12 @@ var extend = function(protoProps, staticProps) {
 var View = function(options) {
     this.$el = $(options.el);
     this.el = options.el;
-
     this.initialize.apply(this, arguments);
 
 };
 
 _.extend(View.prototype, {
-    initialize: function(){}
+    initialize: function(){},
 });
 
 View.extend = extend;

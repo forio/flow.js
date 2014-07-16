@@ -1,10 +1,23 @@
 'use strict';
 
 var BaseView = require('./base-view');
+var attrManager = require('../dom/attribute-manager.js');
 
 exports.selector = '*';
 exports.handler = BaseView.extend({
-    setValue: function(value) {
-        $(this).html(value);
+    propertyHandlers : [
+        {
+            test: 'bind',
+            target: '*',
+            handle: function (value){
+                this.val(value);
+            }
+        }
+    ],
+
+    initialize: function () {
+        _.each(this.propertyHandlers, function(handler) {
+            attrManager.register(handler);
+        });
     }
-});
+}, {test:1});

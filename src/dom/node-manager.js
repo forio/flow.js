@@ -1,8 +1,8 @@
 'use strict';
 
 var defaultHandlers = [
-    require('../generators/input-dom-element-view'),
     require('../generators/input-checkbox-view'),
+    require('../generators/input-dom-element-view'),
     require('../generators/dom-element-view')
 ];
 

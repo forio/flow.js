@@ -23,6 +23,11 @@
 *     };
 * })
 
+* Flow.dom.attributes.register('bind', 'contour-chart', function (data){
+*             var time = data.time;
+*         });
+
+
 Flow.dom.attributes.register('toggle', '*', function(prop, value) {
     this.css(display, 'none');
 })

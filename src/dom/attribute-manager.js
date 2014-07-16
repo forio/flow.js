@@ -35,8 +35,8 @@ $.each(defaultHandlers, function(index, handler) {
 
 module.exports = {
     list: handlersList,
-    register: function (name, test, target, handler) {
-        handlersList.unshift(addDefaults({name: name, test: test, target: target, handle: handler}));
+    register: function (handler) {
+        handlersList.unshift(addDefaults(handler));
     },
 
     get: function(name) {
