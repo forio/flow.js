@@ -86,21 +86,21 @@ module.exports = function(config) {
         },
 
         publish: function(variable, value) {
-            console.log('publish', arguments);
-            //TODO: check if interpolated
-            // var attrs;
-            // if ($.isPlainObject(variable)) {
-            //     attrs = variable;
-            // } else {
-            //     (attrs = {})[variable] = value;
-            // }
+            // console.log('publish', arguments);
+            // TODO: check if interpolated
+            var attrs;
+            if ($.isPlainObject(variable)) {
+                attrs = variable;
+            } else {
+                (attrs = {})[variable] = value;
+            }
 
-            // var args = arguments;
-            // var me = this;
-            // vs.save.apply(vs, args)
-            //     .then(function () {
-            //         me.refresh.call(me);
-            //     });
+            var args = arguments;
+            var me = this;
+            vs.save.apply(vs, args)
+                .then(function () {
+                    me.refresh.call(me);
+                });
         },
 
         subscribe: function(properties, subscriber) {

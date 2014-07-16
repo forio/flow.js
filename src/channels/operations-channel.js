@@ -16,14 +16,9 @@ module.exports = function(config) {
         },
 
         publish: function(operation, params) {
-            //TODO: check if interpolated
-            var attrs;
-            if ($.isPlainObject(operation)) {
-                attrs = operation;
-            } else {
-                (attrs = {})[operation] = params;
-            }
+            console.log('operations publish', operation, params);
 
+            //TODO: check if interpolated
             var me = this;
             run.do.apply(run, arguments)
                 .then(function (response) {
@@ -32,6 +27,7 @@ module.exports = function(config) {
         },
 
         subscribe: function(operations, subscriber) {
+            console.log('operations subscribe', operations, subscriber);
             operations = [].concat(operations);
             //use jquery to make event sink
             //TODO: subscriber can be a function

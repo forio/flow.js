@@ -47,14 +47,41 @@ module.exports = (function() {
 
                             var varMap = $el.data('variable-attr-map');
                             if (!varMap) {
-                                varMap = utils.generateVariableAttrMap(element);
+                                varMap = {};
+                                //NOTE: looping through attributes instead of .data because .data automatically camelcases properties and make it hard to retrvieve
+                                $(element.attributes).each(function(index, nodeMap){
+                                    var attr = nodeMap.nodeName;
+                                    var attrVal = nodeMap.nodeValue;
+
+                                    var wantedPrefix = 'data-f-';
+                                    if (attr.indexOf(wantedPrefix) === 0) {
+                                        attr = attr.replace(wantedPrefix, '');
+
+                                        var handler = attrManager.getHandler($el, attr);
+                                        var isBindableAttr = true;
+                                        if (handler && handler.init) {
+                                            isBindableAttr = handler.init.call($el, attr, attrVal);
+                                        }
+
+                                        if (isBindableAttr) {
+                                            if (attrVal.indexOf(',') !== -1) {
+                                                //TODO
+                                                // triggerers = triggerers.concat(val.split(','));
+                                            }
+                                            else {
+                                                varMap[attrVal] = attr;
+                                            }
+                                        }
+                                    }
+                                });
                                 $el.data('variable-attr-map', varMap);
                             }
 
                             // console.log(view, generator.selector);
-                            channel.variables.subscribe(Object.keys(varMap), $el);
-
-                            // view.propertyChangeHandlers = view.propertyChangeHandlers.concat(defaultAttrHandlers);
+                            var subscribable = Object.keys(varMap);
+                            if (subscribable.length) {
+                                channel.variables.subscribe(Object.keys(varMap), $el);
+                            }
 
                             $el.on(config.events.react, function(evt, data) {
                                 var varmap = $(this).data('variable-attr-map');
@@ -69,7 +96,10 @@ module.exports = (function() {
                             $el.on(config.events.trigger, function(evt, data) {
                                 channel.variables.publish(data);
                             });
-                            //Attach event to publish to channel
+
+                            $el.on('f.ui.operate', function(evt, data) {
+                                channel.operations.publish(data.fn, data.args);
+                            });
 
                             return false; //break loop
                         }
