@@ -103,6 +103,8 @@ module.exports = function(config) {
         },
 
         subscribe: function(properties, subscriber) {
+            console.log('subscribing', properties, subscriber);
+
             properties = [].concat(properties);
             //use jquery to make event sink
             //TODO: subscriber can be a function

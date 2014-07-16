@@ -1,13 +1,17 @@
 module.exports = (function() {
     'use strict';
     var config = require('../config');
+    var utils = require('../utils/dom');
 
     var generators = [
         require('./input-text-view'),
         require('./input-checkbox-view'),
         require('./dom-element-view')
     ];
-    var channel = require('../flow-channel');
+
+    var FC = require('../channels/channel-manager.js');
+    var channel = new FC({account: 'nranjit', project: 'sales_forecaster'});
+
 
     //Jquery selector to return everything which has a f- property set
     $.expr[':'][config.prefix] = function(obj){
@@ -35,13 +39,22 @@ module.exports = (function() {
                 var matchedElements = $(root).find(':' + config.prefix);
 
                 $.each(matchedElements, function(index, element) {
+                    var $el = $(element);
                     $.each(generators, function(index, generator) {
                         if ($(element).is(generator.selector)) {
                             var view = new generator.handler({
                                 el: element,
                                 channel: channel
                             });
-                            console.log(view, generator.selector);
+
+                            var varMap = $el.data('variable-attr-map');
+                            if (!varMap) {
+                                varMap = utils.generateVariableAttrMap(element);
+                                $el.data('variable-attr-map', varMap);
+                            }
+
+                            // console.log(view, generator.selector);
+                            channel.variables.subscribe(Object.keys(varMap), $el);
                             return false; //break loop
                         }
                     });
