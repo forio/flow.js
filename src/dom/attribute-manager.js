@@ -6,7 +6,8 @@ var defaultHandlers = [
     require('./attributes/class-attr'),
     require('./attributes/positive-boolean-attr'),
     require('./attributes/negative-boolean-attr'),
-    require('./attributes/default-bind-attr')
+    require('./attributes/default-bind-attr'),
+    require('./attributes/default-attr')
 ];
 
 // var defaultHandlers = [
@@ -15,7 +16,7 @@ var defaultHandlers = [
 //     require('./nodes/default-node')
 // ];
 
-var attrList = [];
+var handlersList = [];
 
 var addDefaults = function (handler) {
     //TODO: target immpl
@@ -23,32 +24,52 @@ var addDefaults = function (handler) {
         handler.target = '*';
     }
     if (!handler.name) {
-        handler.name = '*';
+        handler.name =  _.isString(handler.test) ? handler.test : '*';
     }
     return handler;
 };
 
 $.each(defaultHandlers, function(index, handler) {
-    attrList.push(addDefaults(handler));
+    handlersList.push(addDefaults(handler));
 });
 
 module.exports = {
-    list: attrList,
+    list: handlersList,
     register: function (name, test, target, handler) {
-        attrList.unshift(addDefaults({name: name, test: test, target: target, handle: handler}));
+        handlersList.unshift(addDefaults({name: name, test: test, target: target, handle: handler}));
     },
 
     get: function(name) {
-        return _.find(attrList, function(attr) {
+        return _.find(handlersList, function(attr) {
             return attr.name === name;
         });
     },
 
     replace: function(selector, handler) {
-        var existing = _.indexOf(attrList, function(node) {
+        var existing = _.indexOf(handlersList, function(node) {
             return node.selector === selector;
         });
-        attrList.splice(existing, 1, {selector: selector, handler: handler});
+        handlersList.splice(existing, 1, {selector: selector, handler: handler});
+    },
+
+    getHandler: function($el, property) {
+        return _.find(handlersList, function(handler) {
+            var elementMatch = $el.is(handler.target);
+            var matchExpr = handler.test;
+            var attrMatch;
+
+            if (_.isString(matchExpr)) {
+                attrMatch = (matchExpr === '*' || (matchExpr.toLowerCase() === property.toLowerCase()));
+            }
+            else if (_.isFunction(matchExpr)) {
+                attrMatch = matchExpr(property, $el);
+            }
+            else if (_.isRegExp(matchExpr)) {
+                attrMatch = property.match(matchExpr);
+            }
+
+            return elementMatch && attrMatch;
+        });
     }
 };
 

@@ -1,6 +1,4 @@
 'use strict';
-var config = require('../config');
-var utils = require('../utils/dom');
 
 var defaultAttrHandlers = [
     require('./attributes/init-operation-attr'),

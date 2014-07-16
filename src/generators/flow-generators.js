@@ -4,6 +4,7 @@ module.exports = (function() {
     var utils = require('../utils/dom');
 
     var nodeManager = require('../dom/node-manager.js');
+    var attrManager = require('../dom/attribute-manager.js');
 
     var FC = require('../channels/channel-manager.js');
     var channel = new FC({account: 'nranjit', project: 'sales_forecaster'});
@@ -60,14 +61,8 @@ module.exports = (function() {
                                 $.each(data, function(variableName, value) {
                                     //TODO: this could be an array
                                     var propertyToUpdate = varmap[variableName].toLowerCase();
-                                    $.each(view.propertyChangeHandlers, function(index, handler) {
-                                        var nodeTest = (!handler.target) || $el.is(handler.target);
-                                        var attrTest = utils.match(handler.test, propertyToUpdate, $el);
-                                        if (nodeTest && attrTest) {
-                                            handler.handle.call($el, propertyToUpdate, value);
-                                            return false;
-                                        }
-                                    });
+                                    var handler = attrManager.getHandler($el, propertyToUpdate);
+                                    handler.handle.call($el, propertyToUpdate, value);
                                 });
                             });
 
