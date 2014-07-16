@@ -69,7 +69,9 @@ module.exports = (function() {
                                 });
                             });
 
-                            //Attach event to publish to channel
+                            $el.on(config.events.trigger, function(evt, data) {
+                                channel.variables.publish(data);
+                            });
 
                             return false; //break loop
                         }
