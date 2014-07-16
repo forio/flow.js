@@ -1,18 +1,20 @@
 'use strict';
+var config = require('../config');
 
-module.exports = function(config) {
-    if (!config) {
-        config = {};
+module.exports = function(options) {
+    if (!options) {
+        options = {};
     }
-    var vs = config.run.variables();
+    var vs = options.run.variables();
 
 
     window.vss = vs;
 
     var currentData = {};
 
+    //TODO: actually compare objects and so on
     var isEqual = function(a, b) {
-        return a === b;
+        return false;
     };
 
     var getInnerVariables = function(str) {
@@ -68,15 +70,15 @@ module.exports = function(config) {
             var getVariables = function(vars, ip) {
                 return vs.query(vars).then(function(variables) {
                     console.log('Got variables', variables);
-                    // _(variables).each(function(vname) {
-                    //     var oldValue = currentData[vname];
-                    //     if (!isEqual(variables[vname], oldValue)) {
-                    //         currentData[vname] = variables[vname];
+                    _(variables).each(function(vname) {
+                        var oldValue = currentData[vname];
+                        if (!isEqual(variables[vname], oldValue)) {
+                            currentData[vname] = variables[vname];
 
-                    //         var vn = (ip && ip[vname]) ? ip[vname] : vname;
-                    //         me.updateListeners(vn, variables[vname]);
-                    //     }
-                    // });
+                            var vn = (ip && ip[vname]) ? ip[vname] : vname;
+                            me.notify(vn, variables[vname]);
+                        }
+                    });
                 });
             };
             if (me.innerVariablesList.length) {
@@ -91,6 +93,16 @@ module.exports = function(config) {
                 return getVariables(_.keys(me.variableListenerMap));
             }
 
+        },
+
+        notify: function (variable, value) {
+            var listeners = this.variableListenerMap[variable];
+            var params = {};
+            params[variable] = value;
+
+            _.each(listeners, function (listener){
+                listener.target.trigger(config.events.react, params);
+            });
         },
 
         publish: function(variable, value) {

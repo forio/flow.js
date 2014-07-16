@@ -6,7 +6,7 @@ module.exports = {
 
     test: /^(?:disabled|hidden|readonly)$/i,
 
-    handle: function(prop, value) {
+    handle: function(value, prop) {
         this.prop(prop, !value);
     }
 };

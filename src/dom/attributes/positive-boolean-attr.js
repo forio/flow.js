@@ -5,7 +5,7 @@ module.exports = {
 
     test: /^(?:checked|selected|async|autofocus|autoplay|controls|defer|ismap|loop|multiple|open|required|scoped)$/i,
 
-    handle: function(prop, value) {
+    handle: function(value, prop) {
         this.prop(prop, !!value);
     }
 };

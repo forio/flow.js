@@ -90,7 +90,7 @@ module.exports = (function() {
                                     //TODO: this could be an array
                                     var propertyToUpdate = varmap[variableName].toLowerCase();
                                     var handler = attrManager.getHandler($el, propertyToUpdate);
-                                    handler.handle.call($el, propertyToUpdate, value, view);
+                                    handler.handle.call($el, value, propertyToUpdate);
                                 });
                             });
 

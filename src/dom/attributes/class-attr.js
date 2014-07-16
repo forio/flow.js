@@ -4,7 +4,7 @@ module.exports = {
 
     test: 'class',
 
-    handle: function(prop, value) {
+    handle: function(value, prop) {
         this.prop('disabled', !value);
     }
 };
