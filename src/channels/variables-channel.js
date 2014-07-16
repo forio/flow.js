@@ -70,13 +70,13 @@ module.exports = function(options) {
             var getVariables = function(vars, ip) {
                 return vs.query(vars).then(function(variables) {
                     console.log('Got variables', variables);
-                    _(variables).each(function(vname) {
+                    _.each(variables, function(value, vname) {
                         var oldValue = currentData[vname];
-                        if (!isEqual(variables[vname], oldValue)) {
-                            currentData[vname] = variables[vname];
+                        if (!isEqual(value, oldValue)) {
+                            currentData[vname] = value;
 
                             var vn = (ip && ip[vname]) ? ip[vname] : vname;
-                            me.notify(vn, variables[vname]);
+                            me.notify(vn, value);
                         }
                     });
                 });

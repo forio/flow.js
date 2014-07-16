@@ -85,6 +85,7 @@ module.exports = (function() {
                             }
 
                             $el.on(config.events.react, function(evt, data) {
+                                evt.stopPropagation(); //TODO: Should I not be doing this?
                                 var varmap = $(this).data('variable-attr-map');
                                 $.each(data, function(variableName, value) {
                                     //TODO: this could be an array
