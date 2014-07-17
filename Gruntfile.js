@@ -8,6 +8,7 @@ module.exports = function (grunt) {
     grunt.loadNpmTasks('grunt-contrib-watch');
     grunt.loadNpmTasks('grunt-contrib-jshint');
     grunt.loadNpmTasks('grunt-jscs-checker');
+    var UglifyJS = require('uglify-js');
 
     grunt.initConfig({
         watch: {
@@ -36,12 +37,13 @@ module.exports = function (grunt) {
             },
             production: {
                 options: {
-                    debug: false
+                    debug: false,
+                    compile: './dist/flow.min.js'
+                },
+                afterHook: function(src) {
+                    var result = UglifyJS.minify(src, {fromString: true, warnings: true, mangle: true});
+                    return result.code;
                 }
-                // afterHook: function(src) {
-                //     // var result = UglifyJS.minify(src, {fromString: true});
-                //     return result.code;
-                // }
             }
         },
 
@@ -110,7 +112,7 @@ module.exports = function (grunt) {
     grunt.registerTask('test', ['mocha']);
     grunt.registerTask('documentation', ['markdox']);
     grunt.registerTask('validate', ['jshint:all', 'test']);
-    grunt.registerTask('production', [ 'validate', 'uglify:production', 'documentation']);
+    grunt.registerTask('production', ['browserify2:production']);
     grunt.registerTask('default', ['watch']);
 
 };
