@@ -15,58 +15,86 @@ var defaultHandlers = [
 
 var handlersList = [];
 
-var addDefaults = function (handler) {
-    //TODO: target immpl
-    if (!handler.target) {
-        handler.target = '*';
+var addDefaults = function (attributeMatcher, nodeMatcher, handler) {
+    if (!nodeMatcher) {
+        nodeMatcher = '*';
     }
-    if (!handler.name) {
-        handler.name =  _.isString(handler.test) ? handler.test : '*';
+    if (_.isFunction(handler)) {
+        handler = {
+            handle: handler
+        };
     }
-    return handler;
+    return $.extend({test: attributeMatcher, target: nodeMatcher}, handler);
 };
 
 $.each(defaultHandlers, function(index, handler) {
-    handlersList.push(addDefaults(handler));
+    handlersList.push(addDefaults(handler.test, handler.target, handler));
 });
+
+
+var matchAttr = function (matchExpr, attr, $el) {
+    var attrMatch;
+
+    if (_.isString(matchExpr)) {
+        attrMatch = (matchExpr === '*' || (matchExpr.toLowerCase() === attr.toLowerCase()));
+    }
+    else if (_.isFunction(matchExpr)) {
+        //TODO: remove element selectors from attributes
+        attrMatch = matchExpr(attr, $el);
+    }
+    else if (_.isRegExp(matchExpr)) {
+        attrMatch = attr.match(matchExpr);
+    }
+    return attrMatch;
+};
+
+var matchNode = function (target, nodeFilter) {
+    return (_.isString(nodeFilter)) ? (nodeFilter === target) : nodeFilter.is(target);
+};
 
 module.exports = {
     list: handlersList,
-    register: function (handler) {
-        handlersList.unshift(addDefaults(handler));
+    /**
+     * Add a new attribute handler
+     * @param  {string|function|regex} attributeMatcher Description of which attributes to match
+     * @param  {string} nodeMatcher      Which nodes to all attributes to. Use jquery Selector syntax
+     * @param  {function|object} handler    Handler can either be a function (The function will be called with $element as context, and attribute value + name), or an object with {init: fn,  handle: fn}. The init function will be called when page loads; use this to define event handlers
+     */
+    register: function (attributeMatcher, nodeMatcher, handler) {
+        //Handler can be function or it can be an object
+        //If object need to expose {handle, init}
+        handlersList.unshift(addDefaults.apply(null, arguments));
     },
 
-    get: function(name) {
-        return _.find(handlersList, function(attr) {
-            return attr.name === name;
+    /**
+     * Find an attribute matcher matching some criteria
+     * @param  {string} attrFilter attribute to match
+     * @param  {string | $el} nodeFilter node to match
+     * @return {array|null}
+     */
+    filter: function(attrFilter, nodeFilter) {
+        var filtered = _.select(handlersList, function (handler) {
+            return matchAttr(handler.test, attrFilter);
         });
+        if (nodeFilter) {
+            filtered = _.select(filtered, function (handler){
+                return matchNode(handler.target, nodeFilter);
+            });
+        }
+        return filtered;
     },
 
-    replace: function(selector, handler) {
-        var existing = _.indexOf(handlersList, function(node) {
-            return node.selector === selector;
+    replace: function(attrFilter, nodeFilter, handler) {
+        var existing = _.indexOf(handlersList, function(handler) {
+            return matchAttr(handler.test, attrFilter) && matchNode(handler.target, nodeFilter);
         });
-        handlersList.splice(existing, 1, {selector: selector, handler: handler});
+        handlersList.splice(existing, 1, addDefaults(attrFilter, nodeFilter, handler));
     },
 
     getHandler: function($el, property) {
-        return _.find(handlersList, function(handler) {
-            var elementMatch = $el.is(handler.target);
-            var matchExpr = handler.test;
-            var attrMatch;
-
-            if (_.isString(matchExpr)) {
-                attrMatch = (matchExpr === '*' || (matchExpr.toLowerCase() === property.toLowerCase()));
-            }
-            else if (_.isFunction(matchExpr)) {
-                attrMatch = matchExpr(property, $el);
-            }
-            else if (_.isRegExp(matchExpr)) {
-                attrMatch = property.match(matchExpr);
-            }
-
-            return elementMatch && attrMatch;
-        });
+        var filtered = this.filter(property, $el);
+        //There could be multiple matches, but the top first has the most priority
+        return filtered[0];
     }
 };
 
