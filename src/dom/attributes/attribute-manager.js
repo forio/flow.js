@@ -1,16 +1,16 @@
 'use strict';
 
 var defaultHandlers = [
-    require('./attributes/binds/checkbox-bind-attr'),
-    require('./attributes/binds/text-box-bind-attr'),
-    require('./attributes/events/init-event-attr'),
-    require('./attributes/events/default-event-attr'),
-    require('./attributes/class-attr'),
-    require('./attributes/positive-boolean-attr'),
-    require('./attributes/negative-boolean-attr'),
-    require('./attributes/model-attr'),
-    require('./attributes/binds/default-bind-attr'),
-    require('./attributes/default-attr')
+    require('./binds/checkbox-bind-attr'),
+    require('./binds/text-box-bind-attr'),
+    require('./events/init-event-attr'),
+    require('./events/default-event-attr'),
+    require('./class-attr'),
+    require('./positive-boolean-attr'),
+    require('./negative-boolean-attr'),
+    require('./model-attr'),
+    require('./binds/default-bind-attr'),
+    require('./default-attr')
 ];
 
 var handlersList = [];

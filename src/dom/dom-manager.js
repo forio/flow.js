@@ -1,9 +1,9 @@
 module.exports = (function() {
     'use strict';
-    var config = require('./config');
+    var config = require('../config');
 
-    var nodeManager = require('./dom/node-manager.js');
-    var attrManager = require('./dom/attribute-manager.js');
+    var nodeManager = require('./nodes/node-manager.js');
+    var attrManager = require('./attributes/attribute-manager.js');
 
     //Jquery selector to return everything which has a f- property set
     $.expr[':'][config.prefix] = function(obj){

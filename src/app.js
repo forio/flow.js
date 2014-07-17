@@ -1,6 +1,6 @@
 'use strict';
 
-var domManager = require('./dom-manager');
+var domManager = require('./dom/dom-manager');
 var Channel = require('./channels/channel-manager');
 
 

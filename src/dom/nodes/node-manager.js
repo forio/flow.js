@@ -1,16 +1,10 @@
 'use strict';
 
 var defaultHandlers = [
-    require('./nodes/input-checkbox-node'),
-    require('./nodes/default-input-node'),
-    require('./nodes/default-node')
+    require('./input-checkbox-node'),
+    require('./default-input-node'),
+    require('./default-node')
 ];
-
-// var defaultHandlers = [
-//     require('./nodes/text-nodes'),
-//     require('./nodes/checkbox-nodes'),
-//     require('./nodes/default-node')
-// ];
 
 var nodeList = [];
 
