@@ -5,14 +5,17 @@ module.exports = function(config) {
         config = {};
     }
     var run = config.run;
-
+    var vent = config.vent;
 
     var publicAPI = {
         listenerMap: {},
 
         //Check for updates
-        refresh: function() {
-
+        refresh: function(operation,response) {
+            var DIRTY_OPERATIONS = ['start_game', 'initialize', 'step'];
+            if (_.contains(DIRTY_OPERATIONS, operation)) {
+                $(vent).trigger('dirty', {opn: operation, response: response});
+            }
         },
 
         publish: function(operation, params) {
@@ -20,7 +23,7 @@ module.exports = function(config) {
 
             //TODO: check if interpolated
             var me = this;
-            run.do.apply(run, arguments)
+            return run.do.apply(run, arguments)
                 .then(function (response) {
                     me.refresh.call(me, operation, response);
                 });

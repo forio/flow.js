@@ -6,9 +6,7 @@ module.exports = function(options) {
         options = {};
     }
     var vs = options.run.variables();
-
-
-    window.vss = vs;
+    var vent  = options.vent;
 
     var currentData = {};
 
@@ -165,5 +163,10 @@ module.exports = function(options) {
             this.innerVariablesList = [];
         }
     };
-    return $.extend(this, publicAPI);
+
+    $.extend(this, publicAPI);
+    var me = this;
+    $(vent).on('dirty', function () {
+        me.refresh.apply(me, arguments);
+    });
 };

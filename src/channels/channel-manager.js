@@ -38,6 +38,6 @@ module.exports = function(config) {
     });
 
     this.run = rs;
-    this.variables = new VarsChannel({run: rs});
-    this.operations = new OperationsChannel({run: rs});
+    this.variables = new VarsChannel({run: rs, vent: this});
+    this.operations = new OperationsChannel({run: rs, vent: this});
 };
