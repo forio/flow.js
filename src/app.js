@@ -1,5 +1,25 @@
 'use strict';
 
-// window.Flow = require('./dom-manager.js');
-window.Flow = {};
-window.Flow.dom = require('./dom-manager');
+var domManager = require('./dom-manager');
+var Channel = require('./channels/channel-manager');
+
+
+
+window.Flow = {
+    dom: domManager,
+
+    initialize: function(options) {
+        var defaults = {
+            run: {
+                account: 'nranjit',
+                project: 'sales_forecaster'
+            }
+        };
+        $.extend(defaults, options);
+        this.channel = new Channel(defaults.run);
+
+        domManager.initialize({
+            channel: this.channel
+        });
+    }
+};

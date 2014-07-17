@@ -1,14 +1,9 @@
 module.exports = (function() {
     'use strict';
     var config = require('./config');
-    var utils = require('./utils/dom');
 
     var nodeManager = require('./dom/node-manager.js');
     var attrManager = require('./dom/attribute-manager.js');
-
-    var FC = require('./channels/channel-manager.js');
-    var channel = new FC({account: 'nranjit', project: 'sales_forecaster'});
-
 
     //Jquery selector to return everything which has a f- property set
     $.expr[':'][config.prefix] = function(obj){
@@ -27,15 +22,18 @@ module.exports = (function() {
 
         nodes: nodeManager,
 
-        channel: channel,
+        initialize: function(options) {
+            var defaults = {
+                root: '*',
+                channel: null
+            };
+            $.extend(defaults, options);
 
-        initialize: function(root) {
+            var channel = defaults.channel;
+
             $(function(){
-                if (!root) {
-                    root = '*';
-                }
                 //parse through dom and find everything with matching attributes
-                var matchedElements = $(root).find(':' + config.prefix);
+                var matchedElements = $(defaults.root).find(':' + config.prefix);
 
                 $.each(matchedElements, function(index, element) {
                     var $el = $(element);
@@ -107,13 +105,10 @@ module.exports = (function() {
                         }
                     });
                 });
-
                 // channel.variables.refresh();
             });
         }
     };
 
     return publicAPI;
-
-    // $.extend(this, publicAPI);
 }());
