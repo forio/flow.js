@@ -105,7 +105,15 @@
         channel: {
             model: 'pdasim2.vmf',
             account: 'nranjit',
-            project: 'sales_forecaster'
+            project: 'sales_forecaster',
+            transport: {
+                beforeSend: function () {
+                    $('body').addClass('loading');
+                },
+                complete: function () {
+                    $('body').removeClass('loading');
+                }
+            }
         }
     });
     </script>
