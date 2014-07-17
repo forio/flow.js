@@ -1,8 +1,7 @@
 'use strict';
-var BaseView = require('./default-input-node').handler;
+var BaseView = require('./default-input-node');
 
-exports.selector = 'input:checkbox';
-exports.handler = BaseView.extend({
+module.exports = BaseView.extend( {
 
     propertyHandlers : [
 
@@ -17,4 +16,4 @@ exports.handler = BaseView.extend({
     initialize: function () {
         BaseView.prototype.initialize.apply(this, arguments);
     }
-}, {test2:1, test:2});
+}, {selector: ':checkbox'});

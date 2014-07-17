@@ -3,8 +3,6 @@
 var domManager = require('./dom/dom-manager');
 var Channel = require('./channels/channel-manager');
 
-
-
 window.Flow = {
     dom: domManager,
 

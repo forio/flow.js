@@ -1,9 +1,8 @@
 'use strict';
 var config = require('../../config');
-var BaseView = require('./default-node').handler;
+var BaseView = require('./default-node');
 
-exports.selector = 'input';
-exports.handler = BaseView.extend( {
+module.exports = BaseView.extend( {
     propertyHandlers : [],
 
     uiChangeEvent: 'change',
@@ -28,4 +27,4 @@ exports.handler = BaseView.extend( {
         });
         BaseView.prototype.initialize.apply(this, arguments);
     }
-}, {test3:3, test: 3});
+}, {selector: 'input'});

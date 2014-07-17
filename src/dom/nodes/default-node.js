@@ -1,13 +1,12 @@
 'use strict';
 
-var BaseView = require('./base-node');
+var BaseView = require('./base');
 
-exports.selector = '*';
-exports.handler = BaseView.extend({
+module.exports = BaseView.extend( {
     propertyHandlers : [
 
     ],
 
     initialize: function () {
     }
-}, {test:1});
+}, {selector: '*'});

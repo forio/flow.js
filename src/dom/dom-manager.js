@@ -21,6 +21,7 @@ module.exports = (function() {
     var publicAPI = {
 
         nodes: nodeManager,
+        attributes: attrManager,
 
         initialize: function(options) {
             var defaults = {
@@ -39,7 +40,7 @@ module.exports = (function() {
                     var $el = $(element);
                     $.each(nodeManager.list, function(index, generator) {
                         if ($el.is(generator.selector)) {
-                            var view = new generator.handler({
+                            var view = new generator({
                                 el: element
                             });
 
@@ -107,12 +108,10 @@ module.exports = (function() {
                         }
                     });
                 });
-
-
-                // channel.variables.refresh();
             });
         }
     };
+
 
     return publicAPI;
 }());

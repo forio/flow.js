@@ -12,7 +12,7 @@ $.each(defaultHandlers, function(index, node) {
     if (!node.selector) {
         node.selector = '*';
     }
-    nodeList.push({selector: node.selector, handler: node.handler});
+    nodeList.push(node);
 });
 
 module.exports = {
