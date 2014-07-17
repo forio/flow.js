@@ -1,7 +1,6 @@
 module.exports = function (grunt) {
     'use strict';
 
-
     grunt.loadNpmTasks('grunt-browserify2');
     grunt.loadNpmTasks('grunt-mocha');
     grunt.loadNpmTasks('grunt-contrib-uglify');
