@@ -13,7 +13,7 @@ module.exports = function(config) {
     var rs = new F.service.Run(runparams);
 
     //TODO: store runid in token etc
-    var $creationPromise = rs.create({model: 'pdasim2.vmf'});
+    var $creationPromise = rs.create(config.model);
 
     var createAndThen = function(value, context) {
         return _.wrap(value, function(func) {

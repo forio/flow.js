@@ -8,18 +8,22 @@ var Channel = require('./channels/channel-manager');
 window.Flow = {
     dom: domManager,
 
-    initialize: function(options) {
+    initialize: function(config) {
         var defaults = {
-            run: {
+            channel: {
                 account: 'nranjit',
-                project: 'sales_forecaster'
+                project: 'sales_forecaster',
+                model: 'pdasim2.vmf'
+            },
+            dom: {
+
             }
         };
-        $.extend(defaults, options);
-        this.channel = new Channel(defaults.run);
+        var options = $.extend(true, {}, defaults, config);
+        this.channel = new Channel(options.channel);
 
-        domManager.initialize({
+        domManager.initialize($.extend(true, {
             channel: this.channel
-        });
+        }));
     }
 };

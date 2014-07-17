@@ -7,14 +7,9 @@ var defaultHandlers = [
     require('./attributes/positive-boolean-attr'),
     require('./attributes/negative-boolean-attr'),
     require('./attributes/bind-attr'),
+    require('./attributes/model-attr'),
     require('./attributes/default-attr')
 ];
-
-// var defaultHandlers = [
-//     require('./nodes/text-nodes'),
-//     require('./nodes/checkbox-nodes'),
-//     require('./nodes/default-node')
-// ];
 
 var handlersList = [];
 
