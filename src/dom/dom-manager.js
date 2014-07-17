@@ -17,6 +17,10 @@ module.exports = (function() {
         return !!(match);
     };
 
+    $.expr[':'].webcomponent = function(obj){
+        console.log(obj);
+        return obj.nodeName.indexOf('-') !== -1;
+    };
 
     var publicAPI = {
 
