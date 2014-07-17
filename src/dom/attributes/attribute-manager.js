@@ -24,7 +24,7 @@ var addDefaults = function (attributeMatcher, nodeMatcher, handler) {
             handle: handler
         };
     }
-    return $.extend({test: attributeMatcher, target: nodeMatcher}, handler);
+    return $.extend(handler, {test: attributeMatcher, target: nodeMatcher});
 };
 
 $.each(defaultHandlers, function(index, handler) {
@@ -61,8 +61,6 @@ module.exports = {
      * @param  {function|object} handler    Handler can either be a function (The function will be called with $element as context, and attribute value + name), or an object with {init: fn,  handle: fn}. The init function will be called when page loads; use this to define event handlers
      */
     register: function (attributeMatcher, nodeMatcher, handler) {
-        //Handler can be function or it can be an object
-        //If object need to expose {handle, init}
         handlersList.unshift(addDefaults.apply(null, arguments));
     },
 

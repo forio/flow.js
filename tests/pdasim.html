@@ -68,7 +68,7 @@
             <table>
                 <tr>
                     <td>
-                        <span data-f-bind="time"> </span> X5 Profit
+                        <span data-f-bind="time[<currentstep>]"> </span> X5 Profit
                     </td>
                     <td data-f-bind="profit[<currentstep>,X5]">
 
@@ -76,7 +76,7 @@
                 </tr>
                 <tr>
                     <td>
-                        <span data-f-bind="time"> </span> X6 Profit
+                        <span data-f-bind="time[<currentstep>]"> </span> X6 Profit
                     </td>
                     <td data-f-bind="profit[<currentstep>,X6]">
 
@@ -84,7 +84,7 @@
                 </tr>
                 <tr>
                     <td>
-                        <span data-f-bind="time"> </span> X7 Profit
+                        <span data-f-bind="time[<currentstep>]"> </span> X7 Profit
                     </td>
                     <td data-f-bind="profit[<currentstep>,X7]">
 
@@ -100,6 +100,14 @@
     <script src="../vendor/lodash/dist/lodash.js"></script>
     <script src="../vendor/epicenter-js-libs/dist/epicenter.min.js"></script>
     <script src="../dist/flow.js"></script>
-    <script src="../dist/flow-loader.js"></script>
+    <script>
+    Flow.initialize({
+        channel: {
+            model: 'pdasim2.vmf',
+            account: 'nranjit',
+            project: 'sales_forecaster'
+        }
+    });
+    </script>
 </body>
 </html>

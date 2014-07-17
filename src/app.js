@@ -7,11 +7,13 @@ window.Flow = {
     dom: domManager,
 
     initialize: function(config) {
+        var model = $('body').data('f-model');
+
         var defaults = {
             channel: {
-                account: 'nranjit',
-                project: 'sales_forecaster',
-                model: 'pdasim2.vmf'
+                account: '',
+                project: '',
+                model: model
             },
             dom: {
 

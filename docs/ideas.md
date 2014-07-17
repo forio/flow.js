@@ -1,3 +1,5 @@
+For all attribute matchers, give it an operation to continue propagation or just stop
+
 <table>
     <tr f-value="Price"> f-with?
         <td f-value="[1]">

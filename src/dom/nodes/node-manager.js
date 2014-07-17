@@ -17,7 +17,12 @@ $.each(defaultHandlers, function(index, node) {
 
 module.exports = {
     list: nodeList,
-    //handler should be new-able
+
+    /**
+     * Add a new node handler
+     * @param  {string} selector jQuery-compatible selector to use to match nodes
+     * @param  {function} handler  Handlers are new-able functions. They will be called with $el as context.? TODO: Think this through
+     */
     register: function (selector, handler) {
         handler.selector = selector;
         nodeList.unshift(handler);
