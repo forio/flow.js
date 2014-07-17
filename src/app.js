@@ -27,3 +27,6 @@ window.Flow = {
         }));
     }
 };
+
+
+// window.formatter = require('./transforms/numberformat.js');

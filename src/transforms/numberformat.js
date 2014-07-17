@@ -2,7 +2,7 @@
 module.exports = {
     test: '',
 
-    format: (function(value) {
+    transform: (function(value) {
         var scales = ['', 'K', 'M', 'B', 'T'];
 
         function getDigits(value, digits) {
