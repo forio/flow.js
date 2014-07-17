@@ -7,6 +7,10 @@ module.exports = {
     target: '*',
 
     handle: function(value, prop) {
-        this.prop('disabled', !value);
+        var addedClasses = this.data('added-classes');
+        this.removeClass(addedClasses);
+
+        this.addClass(value);
+        this.data('added-classes', value);
     }
 };
