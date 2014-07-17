@@ -1,7 +1,7 @@
 'use strict';
 
 module.exports = {
-    name: 'positive-boolean',
+    target: '*',
 
     test: /^(?:checked|selected|async|autofocus|autoplay|controls|defer|ismap|loop|multiple|open|required|scoped)$/i,
 

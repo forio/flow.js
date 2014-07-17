@@ -2,7 +2,7 @@
 
 module.exports = {
 
-    name: 'on-',
+    target: '*',
 
     test: function (attr, $node) {
         return (attr.indexOf('on-') === 0);

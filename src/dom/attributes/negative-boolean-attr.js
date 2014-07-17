@@ -2,7 +2,7 @@
 
 module.exports = {
 
-    name: 'negative-boolean',
+    target: '*',
 
     test: /^(?:disabled|hidden|readonly)$/i,
 

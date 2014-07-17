@@ -2,7 +2,7 @@
 
 module.exports = {
 
-    name: 'on-init',
+    target: '*',
 
     test: function (attr, $node) {
         return (attr.indexOf('on-init') === 0);
