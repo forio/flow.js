@@ -10,10 +10,6 @@ module.exports = BaseView.extend( {
         return this.$el.val();
     },
 
-    setValue: function(value) {
-        this.$el.val(value);
-    },
-
     initialize: function () {
         var me = this;
         this.$el.on(this.uiChangeEvent, function () {

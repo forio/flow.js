@@ -17,8 +17,10 @@ $.each(defaultHandlers, function(index, node) {
 
 module.exports = {
     list: nodeList,
+    //handler should be new-able
     register: function (selector, handler) {
-        nodeList.unshift({selector: selector, handler: handler});
+        handler.selector = selector;
+        nodeList.unshift(handler);
     },
 
     get: function(selector) {
@@ -31,7 +33,7 @@ module.exports = {
         var existing = _.indexOf(nodeList, function(node) {
             return node.selector === selector;
         });
-        nodeList.splice(existing, 1, {selector: selector, handler: handler});
+        nodeList.splice(existing, 1, handler);
     }
 };
 
