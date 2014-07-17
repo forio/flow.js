@@ -1,6 +1,8 @@
 'use strict';
 
 var defaultHandlers = [
+    require('./attributes/binds/checkbox'),
+    require('./attributes/binds/text-box'),
     require('./attributes/init-operation-attr'),
     require('./attributes/operation-attr'),
     require('./attributes/class-attr'),

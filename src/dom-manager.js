@@ -94,10 +94,12 @@ module.exports = (function() {
                             });
 
                             $el.on(config.events.trigger, function(evt, data) {
+                                evt.stopPropagation(); //TODO: Should I not be doing this?
                                 channel.variables.publish(data);
                             });
 
                             $el.on('f.ui.operate', function(evt, data) {
+                                evt.stopPropagation(); //TODO: Should I not be doing this?
                                 channel.operations.publish(data.fn, data.args);
                             });
 
@@ -105,6 +107,8 @@ module.exports = (function() {
                         }
                     });
                 });
+
+
                 // channel.variables.refresh();
             });
         }

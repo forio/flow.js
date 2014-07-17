@@ -23,6 +23,7 @@ module.exports = function(options) {
         return inner;
     };
 
+    //Replaces stubbed out keynames in variablestointerpolate with their corresponding calues
     var interpolate = function(variablesToInterpolate, values) {
         var interpolationMap = {};
         var interpolated = {};
@@ -82,6 +83,7 @@ module.exports = function(options) {
             if (me.innerVariablesList.length) {
                 return vs.query(me.innerVariablesList).then(function (innerVariables) {
                     console.log('inner', innerVariables);
+                    $.extend(currentData, innerVariables);
                     var ip =  interpolate(me.variableListenerMap, innerVariables);
                     var outer = _.keys(ip.interpolated);
                     getVariables(outer, ip.interpolationMap);
@@ -112,10 +114,10 @@ module.exports = function(options) {
             } else {
                 (attrs = {})[variable] = value;
             }
+            var interpolated = interpolate(attrs, currentData).interpolated;
 
-            var args = arguments;
             var me = this;
-            vs.save.apply(vs, args)
+            vs.save.call(vs, interpolated)
                 .then(function () {
                     me.refresh.call(me);
                 });

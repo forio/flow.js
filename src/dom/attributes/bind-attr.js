@@ -6,5 +6,7 @@ module.exports = {
 
     test: 'bind',
 
-    handle: $.noop
+    handle: function (val) {
+        this.html(val);
+    }
 };

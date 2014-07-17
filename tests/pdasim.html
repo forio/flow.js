@@ -50,24 +50,27 @@
             <label> X7 R&D Allocation </label>
             <input type="text" data-f-bind="r and d[<currentstep>,X7]"> -->
 
+            <!-- <span style="color:red;" data-f-bind="Total Profit"> </span> -->
+            <button data-f-on-click="step(1)"> Submit Decisions </button>
+
+
 <!--
             <h4> Discontinue a Product </h4>
             <input type="checkbox" data-f-bind="shutdown[<currentstep>, 1]" > <label> Discontinue selling X5 </label>
             <input type="checkbox" data-f-bind="shutdown[<currentstep>, 2]" > <label> Discontinue selling X6 </label>
             <input type="checkbox" data-f-bind="shutdown[<currentstep>, 3]" > <label> Discontinue selling X7 </label>
 
-            <button data-f-on-click="step()"> Submit Decisions </button>
-
+ -->
             <h1 style="background-color:light-green;"> Business Summary </h1>
             <h4> Your score so far: </h4>
-            <span style="color:red;" data-f-bind="Total Profit"> </span>
+            <!-- <span style="color:red;" data-f-bind="Total Profit"> </span> -->
 
             <table>
                 <tr>
                     <td>
                         <span data-f-bind="time"> </span> X5 Profit
                     </td>
-                    <td data-f-bind="profit[<currentstep>, 1]">
+                    <td data-f-bind="profit[<currentstep>,X5]">
 
                     </td>
                 </tr>
@@ -75,7 +78,7 @@
                     <td>
                         <span data-f-bind="time"> </span> X6 Profit
                     </td>
-                    <td data-f-bind="profit[<currentstep>, 2]">
+                    <td data-f-bind="profit[<currentstep>,X6]">
 
                     </td>
                 </tr>
@@ -83,12 +86,12 @@
                     <td>
                         <span data-f-bind="time"> </span> X7 Profit
                     </td>
-                    <td data-f-bind="profit[<currentstep>, 3]">
+                    <td data-f-bind="profit[<currentstep>,X7]">
 
                     </td>
                 </tr>
             </table>
- -->
+
         </div>
     </div>
 
