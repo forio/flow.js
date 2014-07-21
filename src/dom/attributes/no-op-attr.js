@@ -1,12 +1,12 @@
 'use strict';
 
+// Attributes which are just parameters to others and can just be ignored
 module.exports = {
 
     target: '*',
 
-    test: 'model',
+    test: /^(?:model|format)$/i,
 
-    //Nothing to do with this, assume someone else is handling it
     handle: $.noop,
 
     init: function() {

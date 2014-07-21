@@ -10,7 +10,7 @@
 
     Price[X6] <input type="text" value="1" data-f-bind="sales" data-f-disabled ='boolprop'>
 
-    Price[X6] <input type="checkbox" value="4" data-f-bind="boolprop"/>
+    Price[X6] <input type="checkbox" value="4" data-f-bind="boolprop" data-f-format="#,#"/>
 
     <div id="test">
         <span data-f-value="price"></span>
@@ -22,7 +22,24 @@
     <script src="../vendor/lodash/dist/lodash.js"></script>
     <script src="../vendor/epicenter-js-libs/dist/epicenter.min.js"></script>
     <script src="../dist/flow.js"></script>
-    <script src="../dist/flow-loader.js"></script>
+    <!-- <script src="../dist/flow-loader.js"></script> -->
 
+    <script>
+    Flow.initialize({
+        channel: {
+            model: 'pdasim2.vmf',
+            account: 'nranjit',
+            project: 'sales_forecaster',
+            transport: {
+                beforeSend: function () {
+                    $('body').addClass('loading');
+                },
+                complete: function () {
+                    $('body').removeClass('loading');
+                }
+            }
+        }
+    });
+    </script>
 </body>
 </html>

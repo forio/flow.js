@@ -10,7 +10,8 @@ module.exports = {
     test: 'bind',
 
     handle: function (val) {
-        val = transformer.transform(val, '#,###');
+        var format = this.data('f-format') || '#';
+        val = transformer.transform(val, format);
         this.html(val);
     }
 };
