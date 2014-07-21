@@ -2,14 +2,36 @@
     'use strict';
 
     describe('Flow Channel', function () {
-        var core, channel;
+        var core, channel, server;
 
         before(function () {
-            channel = Flow.channel;
+            server = sinon.fakeServer.create();
+            server.respondWith('PATCH',  /(.*)\/run\/(.*)\/(.*)/, function (xhr, id){
+                xhr.respond(200, { 'Content-Type': 'application/json'}, JSON.stringify({url: xhr.url}));
+            });
+            server.respondWith('GET',  /(.*)\/run\/(.*)\/(.*)/, function (xhr, id){
+                xhr.respond(200, { 'Content-Type': 'application/json'}, JSON.stringify({url: xhr.url}));
+            });
+            server.respondWith('POST',  /(.*)\/run\/(.*)\/(.*)/,  function (xhr, id){
+                var resp = {
+                    'id': '065dfe50-d29d-4b55-a0fd-30868d7dd26c',
+                    'model': 'model.vmf',
+                    'account': 'mit',
+                    'project': 'afv',
+                    'saved': false,
+                    'lastModified': '2014-06-20T04:09:45.738Z',
+                    'created': '2014-06-20T04:09:45.738Z'
+                };
+                xhr.respond(201, { 'Content-Type': 'application/json'}, JSON.stringify(resp));
+            });
+
+            Flow.initialize();
+            channel = Flow.channel.variables;
             core = channel.private;
         });
 
         after(function () {
+            server.restore();
         });
 
         describe('#getInnerVariables', function() {

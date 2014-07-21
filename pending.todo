@@ -1,20 +1,6 @@
 - Attrmap has duplicates, dedupe before adding
 - Listen on body instead of on each element?
 
-
-Done
-    Populate initially
-    Interpolate variables in core
-        - Do two passes, one to get inner variables, one to get outer
-        var main = {
-            'var[<time>]' : someelement
-        }
-        Does element care what time it is? Send it anyway
-
-        for outler loop, clean variables before sending
-        maintain clean-original list
-        trigger change event with original
-
-    Operations
-        - call on button press
-        - Call on load
+Formatting
+    - data-f-format
+    - pipe syntax for transforms
