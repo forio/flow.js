@@ -12,10 +12,10 @@ module.exports = function(config) {
 
         //Check for updates
         refresh: function(operation,response) {
-            var DIRTY_OPERATIONS = ['start_game', 'initialize', 'step'];
-            if (_.contains(DIRTY_OPERATIONS, operation)) {
-                $(vent).trigger('dirty', {opn: operation, response: response});
-            }
+            // var DIRTY_OPERATIONS = ['start_game', 'initialize', 'step'];
+            // if (_.contains(DIRTY_OPERATIONS, operation)) {
+            $(vent).trigger('dirty', {opn: operation, response: response});
+            // }
         },
 
         publish: function(operation, params) {
