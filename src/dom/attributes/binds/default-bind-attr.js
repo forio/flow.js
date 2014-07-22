@@ -9,9 +9,11 @@ module.exports = {
 
     test: 'bind',
 
-    handle: function (val) {
-        var format = this.data('f-format') || '#';
-        val = transformer.transform(val, format);
-        this.html(val);
+    handle: function (value) {
+        var format = this.data('f-format');
+        if (format) {
+            value = transformer.transform(value, format);
+        }
+        this.html(value);
     }
 };
