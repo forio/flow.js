@@ -1,0 +1,38 @@
+<!doctype html>
+<html>
+
+
+<body data-f-on-init="saveAll" data-f-model="hello_world_flow.jl">
+
+<p>Sample String: <input type="text" data-f-bind="sampleString"></input>
+
+<p>Sample Int: <input type="number" data-f-bind="sampleInt"></input>
+
+<p>Sample String in span: <span data-f-bind="sampleString"></span>
+
+<p>Call function resetInt: <button data-f-on-click="resetInt">Call function</button>
+
+<p>Call function addToInt(3): <button data-f-on-click="addToInt(3)">Call function</button>
+
+    <script src="../vendor/jquery/dist/jquery.min.js"></script>
+    <script src="../vendor/lodash/dist/lodash.js"></script>
+    <script src="../vendor/epicenter-js-libs/dist/epicenter.min.js"></script>
+    <script src="../dist/flow.js"></script>
+    <script>
+    
+    Flow.initialize({
+        channel: {
+            model: 'hello_world_flow.jl',
+            account: 'first-team',
+            project: 'hello-world-flow',
+            server: {host: 'api.epicenter-stable.foriodev.com'}
+        }
+    });
+
+    </script>
+
+</body>
+
+
+
+</html>
