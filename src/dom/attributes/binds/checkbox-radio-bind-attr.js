@@ -2,7 +2,7 @@
 
 module.exports = {
 
-    target: ':checkbox',
+    target: ':checkbox,:radio',
 
     test: 'bind',
 

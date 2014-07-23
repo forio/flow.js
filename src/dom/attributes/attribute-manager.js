@@ -4,7 +4,7 @@ var defaultHandlers = [
     require('./no-op-attr'),
     require('./events/init-event-attr'),
     require('./events/default-event-attr'),
-    require('./binds/checkbox-bind-attr'),
+    require('./binds/checkbox-radio-bind-attr'),
     require('./binds/input-bind-attr'),
     require('./class-attr'),
     require('./positive-boolean-attr'),
