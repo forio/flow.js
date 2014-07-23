@@ -1,0 +1,86 @@
+<!doctype html>
+<html>
+
+<head>
+    <title>Google Glass Simulation</title>
+</head>
+
+<!-- flow.js coding, step 2
+    To call a method from the model when the run is first created, add the attribute `data-f-on-init` to the <body> tag. Set the value to the name of the method.
+
+    For Vensim models, the `start_game` method is automatically provided, and initializes the model. 
+-->
+
+<body data-f-on-init="start_game" >
+
+
+<!-- flow.js coding, step 3
+    You can bind variables from the model in your interface by setting the `data-f-bind` attribute. This binding is bi-directional, meaning that as the model changes, the interface is automatically updated; and when users change values in the interface, the model is automatically updated.
+
+    Add the `data-f-bind` to any HTML element that normally takes a value. Set the value of `data-f-bind` to the name of the variable.
+
+    Use [] for arrays and <> to reference other variables.
+-->
+    <p>Sales[&lt;currentstep&gt;,X5]: <span data-f-bind="Sales[<currentstep>,X5]"></span></p>
+    <p>Sales[&lt;currentstep&gt;,X6]: <span data-f-bind="Sales[<currentstep>,X6]"></span></p>
+    <p>Sales[&lt;currentstep&gt;,X7]: <span data-f-bind="Sales[<currentstep>,X7]"></span></p>
+
+    <p>Change prices:</p>
+    <p>Price[&lt;currentstep&gt;,X5]: <input type="text" data-f-bind="Price[<currentstep>,X5]"/></p>
+    <p>Price[&lt;currentstep&gt;,X6]: <input type="text" data-f-bind="Price[<currentstep>,X6]"/></p>
+    <p>Price[&lt;currentstep&gt;,X7]: <input type="text" data-f-bind="Price[<currentstep>,X7]"/></p>
+
+<!-- flow.js coding, step 4
+    To call a method from the model at the user's request, add the `data-f-` prefix to an attribute of an element that accepts a user action. Set the value to the method call. For example, here we're adding `data-f-on-click` to a `<button>`. You could also add `data-f-on-submit` to a form, etc.
+-->
+
+    <button data-f-on-click="step(1)">Advance one time step</button>
+
+    <p>Current step is: <span data-f-bind="currentstep"></span></p>
+
+
+<!-- flow.js coding, step 0: 
+
+    Background: Flow.js provides a data binding between HTML elements in your user interface and variables and methods in your project's model. If you are most familiar with writing HTML and basic JavaScript, using flow.js can save you some development time as compared with the other Epicenter APIs. Using flow.js is also helpful for larger development teams (where the UI developers and the modelers are different people) because it most completely separates your project's model from its interface. 
+
+    To get started: Add the required libraries to your project. Flow.js requires the following files:
+    * [`jquery.js`](http://jquery.com): document manipulation, DOM element selection, and event handling used by flow.js
+    * [`lodash.js`](http://lodash.com): utilities and performance enhancements used by flow.js
+    * [`epicenter.js`](https://cdn.common.forio.com/js-libs/1.0/epicenter.min.js): Forio JavaScript library with services and utilities for connecting to project models using the underlying Epicenter RESTful APIs.
+
+    Finally, add flow.js to your project as well.
+-->
+
+    <script src="../vendor/jquery/dist/jquery.min.js"></script>
+    <script src="../vendor/lodash/dist/lodash.js"></script>
+    <script src="../vendor/epicenter-js-libs/dist/epicenter.min.js"></script>
+    <script src="../dist/flow.js"></script>
+    <script>
+
+/* flow.js coding, step 1:
+    
+    Create and initialize a run. (Runs are sets of particular user interactions with your project.)
+
+    Do this by calling the Flow.initialize() method. Pass in the `channel`. The `channel` is an object that takes the `account` (User ID or Team ID), `project` (project ID), and `model` (name of primary model file).
+
+*/
+    Flow.initialize({
+        channel: {
+            model: 'model.vmf',
+            account: 'first-team',
+            project: 'google-glass',
+            server: {host: 'api.epicenter-stable.foriodev.com'}
+        }
+    });
+
+    </script>
+
+<!-- flow.js coding, step 5: More information available at: forio.com/epicenter/docs/public/data_binding_flow_js/ -->
+
+</body>
+
+
+
+</html>
+
+

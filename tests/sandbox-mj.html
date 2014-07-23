@@ -3,9 +3,14 @@
 
 <head>
     <style type="text/css"> 
-        .fail {
-            color: red;
-        }
+        .fail { color: red; }
+        .pass { color: green; }
+        .North { color: red }
+        .South { color: green }
+        .East { color: blue }
+        .West { color: orange } 
+        .salesStyle.0 { visibility: hidden }
+        .salesStyle.1 { visibility: visible }
     </style>
 </head>
 
@@ -25,35 +30,35 @@
     <td>display_update</td>
     <td>data-f-bind string</td>
     <td>span: <span data-f-bind="sampleString"></span><br>input: <input type="text" data-f-bind="sampleString" /></td>
-    <td>pass</td>
+    <td class="pass">pass</td>
 <tr>
 
 <tr>
     <td>display_update</td>
     <td>data-f-bind int</td>
     <td>span: <span data-f-bind="sampleInt"></span><br>input: <input type="text" data-f-bind="sampleInt" /></td>
-    <td>pass</td>
+    <td class="pass">pass</td>
 <tr>
 
 <tr>
     <td>display_update</td>
     <td>data-f-bind object</td>
     <td>span: <span data-f-bind="salesMgr.region"></span><br>input: <input type="text" data-f-bind="salesMgr.region" /></td>
-    <td>pass</td>
+    <td class="pass">pass</td>
 <tr>    
 
 <tr>
     <td>display_update</td>
     <td>data-f-bind array</td>
     <td>span: <span data-f-bind="sales[3]"></span><br>input: <input type="text" data-f-bind="sales[3]" /></td>
-    <td class="fail">fail? span doesn't update when input is changed (which is what happens with scalar values)</td>
+    <td class="fail">fail, span doesn't update when input is changed (which is what happens with scalar values), but possible because of same int/string problem</td>
 <tr>
 
 <tr>
     <td>display_update</td>
     <td>data-f-bind array indexed by variable</td>
     <td>span: <span data-f-bind="sales[<sampleTruthy>]"></span><br>input: <input type="text" data-f-bind="sales[<sampleTruthy>]" /></td>
-    <td class="fail">fail? span doesn't update when input is changed</td>
+    <td class="fail">fail, span doesn't update when input is changed and span doesn't show (but that used to work?)</td>
 <tr>
 
 <tr>
@@ -65,142 +70,154 @@
 
 <tr>
     <td>display_update</td>
-    <td>data-f-bind radio selection</td>
-    <td></td>
-    <td></td>
+    <td>data-f-bind radio selection for truthy</td>
+    <td><input type="radio" data-f-bind="sampleTruthy"/>radio button, selected if sampleTruthy is 1. <br>sampleTruthy is: <span data-f-bind="sampleTruthy"></span></td>
+    <td class="fail">fail</td>
+<tr>
+
+<tr>
+    <td>display_update</td>
+    <td>data-f-bind radio selection with value</td>
+    <td><input type="radio" data-f-bind="sampleInt" value="8"/>radio button, selected if sampleInt is 8. <br>sampleInt is: <span data-f-bind="sampleInt"></span></td>
+    <td class="fail">only sometimes works: if manually change sampleInt to 8, is selected. if changed using resetInt() call, is not updated.</td>
 <tr>
 
 <tr>
     <td>display_update</td>
     <td>data-f-bind select element selection</td>
-    <td></td>
-    <td></td>
+    <td>values are 8, 10, 12, should select based on value of sampleInt, using data-f-bind only: 
+        <select data-f-bind="sampleInt">
+            <option value="8"> 8 </option>
+            <option value="10"> 10 </option>
+            <option value="12"> 12 </option>
+    </td>
+    <td class="pass">pass</td>
 <tr>
 
 <tr>
     <td>display_update</td>
     <td>data-f-bind checkbox selection</td>
-    <td></td>
-    <td></td>
+    <td>checkbox, should be checked because sampleBool is true: <input type="checkbox" data-f-bind="sampleBool" /></td>
+    <td class="fail">fail</td>
 <tr>    
 
 <tr>
     <td>special_handling</td>
     <td>data-f-checked</td>
-    <td></td>
-    <td></td>
+    <td>checkbox, should be checked because sampleBool is true <input type="checkbox" data-f-checked="sampleBool" /></td>
+    <td class="fail">fail</td>
 <tr>
 
 <tr>
     <td>special_handling</td>
     <td>data-f-disabled with "truthy" of 0,1</td>
-    <td></td>
-    <td></td>
+    <td>this button should be enabled because sampleTruthy=1: <button data-f-disabled="sampleTruthy">click me</button><br>confirm: sampleTruthy is currently: <span data-f-bind="sampleTruthy"></span></td>
+    <td class="pass">pass (confirm w/ Naren: disabled=true means enabled?)</td>
 <tr>
 
 <tr>
     <td>special_handling</td>
     <td>data-f-disabled with "truthy" of true, false</td>
-    <td></td>
-    <td></td>
+    <td>this button should be enabled because sampleBool=true: <button data-f-disabled="sampleBool">click me</button><br>confirm: sampleBool is currently: <span data-f-bind="sampleBool"></span>
+        <br><br> this button should be disabled because sampleFalseBool=false: <button data-f-disabled="sampleFalseBool">click me</button><br>confirm: sampleFalseBool is currently: <span data-f-bind="sampleFalseBool"></span>
+    </td>
+    <td class="pass">pass (confirm w/ Naren: disabled=false means disabled?)</td>
 <tr>
 
 <tr>
     <td>special_handling</td>
     <td>data-f-selected</td>
-    <td></td>
-    <td></td>
+    <td>values are 8, 10, 12, should select based on value of sampleInt, using data-f-selected for each option: 
+        <select>
+            <option data-f-selected="sampleInt" value="8"> 8 </option>
+            <option data-f-selected="sampleInt" value="10"> 10 </option>
+            <option data-f-selected="sampleInt" value="12"> 12 </option>
+    </td>
+    <td class="pass">pass</td>
 <tr>
 
 <tr>
     <td>formatting</td>
     <td>data-f-format numbers</td>
-    <td></td>
-    <td></td>
+    <td>sales[4] as a number: <span data-f-bind="sales[4]" data-f-format="#,###"></span></td>
+    <td class="pass">pass</td>
 <tr>    
 
 <tr>
     <td>formatting</td>
-    <td>data-f-format numbers</td>
-    <td></td>
-    <td></td>
-<tr>
-
-<tr>
-    <td>formatting</td>
     <td>data-f-format dollars and cents</td>
-    <td></td>
-    <td></td>
+    <td>sales[4] as dollars and cents: <span data-f-bind="sales[4]" data-f-format="$0.00"></span></td>
+    <td class="pass">pass</td>
 <tr>
 
 <tr>
     <td>formatting</td>
     <td>data-f-format dollars only</td>
-    <td></td>
-    <td></td>
+    <td>sales[4] as dollars only: <span data-f-bind="sales[4]" data-f-format="$0"></span></td>
+    <td class="pass">pass</td>
 <tr>
 
 <tr>
     <td>formatting</td>
     <td>data-f-format percent</td>
-    <td></td>
-    <td></td>
+    <td>sales[4] as percent: <span data-f-bind="sales[4]" data-f-format="0%"></span></td>
+    <td class="pass">pass</td>
 <tr>
 
 <tr>
-    <td>formatting (TODO in docs)</td>
+    <td>formatting</td>
     <td>formatting inheritance</td>
     <td></td>
-    <td></td>
+    <td>(TODO in docs)</td>
 <tr>
 
 <tr>
-    <td>formatting (TODO in docs)</td>
+    <td>formatting</td>
     <td>data-f-bind and | to format</td>
     <td></td>
-    <td></td>
+    <td>(TODO in docs)</td>
 <tr>
 
 <tr>
     <td>styling</td>
     <td>data-f-class only</td>
-    <td></td>
-    <td></td>
+    <td><div data-f-class="salesMgr.region">content colored by region, currently salesMgr.region is <span data-f-bind="salesMgr.region"></span></div></td>
+    <td class="pass">pass</td>
 <tr>
 
 <tr>
     <td>styling</td>
     <td>data-f-class and class</td>
     <td></td>
-    <td></td>
+    <td>(TODO in docs)</td>
 <tr>
 
 <tr>
     <td>writing_your_own</td>
     <td>data-f-noop (and nothing)</td>
     <td></td>
-    <td></td>
+    <td>(TODO in docs)</td>
 <tr>
 
 <tr>
     <td>writing_your_own</td>
     <td>data-f-noop (and own function)</td>
     <td></td>
-    <td></td>
+    <td>(TODO in docs)</td>
 <tr>
 
 <tr>
     <td>methods</td>
     <td>data-f-on-init</td>
     <td>added 'data-f-on-init="saveAll"' to body tag</td>
-    <td>pass (verified in postman)</td>
+    <td class="pass">pass (verified in postman)</td>
 <tr>
 
 <tr>
     <td>methods</td>
     <td>data-f-on-click method, no args</td>
     <td><button data-f-on-click="resetInt">Click to set sampleInt to 8</button><br>sampleInt = <span data-f-bind="sampleInt"></span></td>
-    <td>pass</td>
+    <td class="fail">only works sometimes ... works if first button pressed, but not if we've already changed sampleInt e.g. in the input at top of page?</td>
 <tr>
 
 <tr>
@@ -214,14 +231,14 @@
     <td>methods</td>
     <td>data-f-on-click method, one string arg</td>
     <td><button data-f-on-click="changeString(goodbye world)">Click to set sampleString to 'goodbye world'</button><br>sampleString = <span data-f-bind="sampleString"></span></td>
-    <td>pass</td>
+    <td class="pass">pass</td>
 <tr>
 
 <tr>
     <td>methods</td>
     <td>data-f-on-click method, one string arg</td>
     <td><button data-f-on-click="changeString(22)">Click to set sampleString to (string) 22</button><br>sampleString = <span data-f-bind="sampleString"></span></td>
-    <td>pass</td>
+    <td class="pass">pass</td>
 <tr>
 
 <tr>
@@ -234,8 +251,8 @@
 <tr>
     <td>methods</td>
     <td>data-f-on-click method, arg is other model variable</td>
-    <td><button data-f-on-click="changeString">in progress</button></td>
-    <td></td>
+    <td><button data-f-on-click="changeString(<salesMgr.region>)">Click to change sampleString to salesMgr.region</button><br>sampleString = <span data-f-bind="sampleString"></span></td>
+    <td class="fail">fail, but maybe this is an improvement request instead</td>
 <tr>
 
 </table>
