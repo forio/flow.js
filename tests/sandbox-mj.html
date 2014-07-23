@@ -1,18 +1,246 @@
 <!doctype html>
 <html>
 
+<head>
+    <style type="text/css"> 
+        .fail {
+            color: red;
+        }
+    </style>
+</head>
 
 <body data-f-on-init="saveAll" data-f-model="hello_world_flow.jl">
 
-<p>Sample String: <input type="text" data-f-bind="sampleString"></input>
 
-<p>Sample Int: <input type="number" data-f-bind="sampleInt"></input>
+<table border="1">
 
-<p>Sample String in span: <span data-f-bind="sampleString"></span>
+<tr>
+    <td>Docs section</td>
+    <td>Test case</td>
+    <td>Result</td>
+    <td>Notes</td>
+</tr>
 
-<p>Call function resetInt: <button data-f-on-click="resetInt">Call function</button>
+<tr>
+    <td>display_update</td>
+    <td>data-f-bind string</td>
+    <td>span: <span data-f-bind="sampleString"></span><br>input: <input type="text" data-f-bind="sampleString" /></td>
+    <td>pass</td>
+<tr>
 
-<p>Call function addToInt(3): <button data-f-on-click="addToInt(3)">Call function</button>
+<tr>
+    <td>display_update</td>
+    <td>data-f-bind int</td>
+    <td>span: <span data-f-bind="sampleInt"></span><br>input: <input type="text" data-f-bind="sampleInt" /></td>
+    <td>pass</td>
+<tr>
+
+<tr>
+    <td>display_update</td>
+    <td>data-f-bind object</td>
+    <td>span: <span data-f-bind="salesMgr.region"></span><br>input: <input type="text" data-f-bind="salesMgr.region" /></td>
+    <td>pass</td>
+<tr>    
+
+<tr>
+    <td>display_update</td>
+    <td>data-f-bind array</td>
+    <td>span: <span data-f-bind="sales[3]"></span><br>input: <input type="text" data-f-bind="sales[3]" /></td>
+    <td class="fail">fail? span doesn't update when input is changed (which is what happens with scalar values)</td>
+<tr>
+
+<tr>
+    <td>display_update</td>
+    <td>data-f-bind array indexed by variable</td>
+    <td>span: <span data-f-bind="sales[<sampleTruthy>]"></span><br>input: <input type="text" data-f-bind="sales[<sampleTruthy>]" /></td>
+    <td class="fail">fail? span doesn't update when input is changed</td>
+<tr>
+
+<tr>
+    <td>display_update</td>
+    <td>data-f-bind array indexed by expression</td>
+    <td>desired: data-f-bind="sales[&lt;sampleTruthy&gt;+1]" <!--span: <span data-f-bind="sales[<sampleTruthy>+1]"></span><br>input: <input type="text" data-f-bind="sales[<sampleTruthy>+1]" />--></td>
+    <td>FUTURE RELEASE (improvement request, doesn't work now)</td>
+<tr>
+
+<tr>
+    <td>display_update</td>
+    <td>data-f-bind radio selection</td>
+    <td></td>
+    <td></td>
+<tr>
+
+<tr>
+    <td>display_update</td>
+    <td>data-f-bind select element selection</td>
+    <td></td>
+    <td></td>
+<tr>
+
+<tr>
+    <td>display_update</td>
+    <td>data-f-bind checkbox selection</td>
+    <td></td>
+    <td></td>
+<tr>    
+
+<tr>
+    <td>special_handling</td>
+    <td>data-f-checked</td>
+    <td></td>
+    <td></td>
+<tr>
+
+<tr>
+    <td>special_handling</td>
+    <td>data-f-disabled with "truthy" of 0,1</td>
+    <td></td>
+    <td></td>
+<tr>
+
+<tr>
+    <td>special_handling</td>
+    <td>data-f-disabled with "truthy" of true, false</td>
+    <td></td>
+    <td></td>
+<tr>
+
+<tr>
+    <td>special_handling</td>
+    <td>data-f-selected</td>
+    <td></td>
+    <td></td>
+<tr>
+
+<tr>
+    <td>formatting</td>
+    <td>data-f-format numbers</td>
+    <td></td>
+    <td></td>
+<tr>    
+
+<tr>
+    <td>formatting</td>
+    <td>data-f-format numbers</td>
+    <td></td>
+    <td></td>
+<tr>
+
+<tr>
+    <td>formatting</td>
+    <td>data-f-format dollars and cents</td>
+    <td></td>
+    <td></td>
+<tr>
+
+<tr>
+    <td>formatting</td>
+    <td>data-f-format dollars only</td>
+    <td></td>
+    <td></td>
+<tr>
+
+<tr>
+    <td>formatting</td>
+    <td>data-f-format percent</td>
+    <td></td>
+    <td></td>
+<tr>
+
+<tr>
+    <td>formatting (TODO in docs)</td>
+    <td>formatting inheritance</td>
+    <td></td>
+    <td></td>
+<tr>
+
+<tr>
+    <td>formatting (TODO in docs)</td>
+    <td>data-f-bind and | to format</td>
+    <td></td>
+    <td></td>
+<tr>
+
+<tr>
+    <td>styling</td>
+    <td>data-f-class only</td>
+    <td></td>
+    <td></td>
+<tr>
+
+<tr>
+    <td>styling</td>
+    <td>data-f-class and class</td>
+    <td></td>
+    <td></td>
+<tr>
+
+<tr>
+    <td>writing_your_own</td>
+    <td>data-f-noop (and nothing)</td>
+    <td></td>
+    <td></td>
+<tr>
+
+<tr>
+    <td>writing_your_own</td>
+    <td>data-f-noop (and own function)</td>
+    <td></td>
+    <td></td>
+<tr>
+
+<tr>
+    <td>methods</td>
+    <td>data-f-on-init</td>
+    <td>added 'data-f-on-init="saveAll"' to body tag</td>
+    <td>pass (verified in postman)</td>
+<tr>
+
+<tr>
+    <td>methods</td>
+    <td>data-f-on-click method, no args</td>
+    <td><button data-f-on-click="resetInt">Click to set sampleInt to 8</button><br>sampleInt = <span data-f-bind="sampleInt"></span></td>
+    <td>pass</td>
+<tr>
+
+<tr>
+    <td>methods</td>
+    <td>data-f-on-click method, one int arg</td>
+    <td><button data-f-on-click="addToInt(3)">Click to add 3 to sampleInt</button><br>sampleInt = <span data-f-bind="sampleInt"></span></td>
+    <td class="fail">fail, request is passing {"arguments":["3"]} and getting no method</td>
+<tr>
+
+<tr>
+    <td>methods</td>
+    <td>data-f-on-click method, one string arg</td>
+    <td><button data-f-on-click="changeString(goodbye world)">Click to set sampleString to 'goodbye world'</button><br>sampleString = <span data-f-bind="sampleString"></span></td>
+    <td>pass</td>
+<tr>
+
+<tr>
+    <td>methods</td>
+    <td>data-f-on-click method, one string arg</td>
+    <td><button data-f-on-click="changeString(22)">Click to set sampleString to (string) 22</button><br>sampleString = <span data-f-bind="sampleString"></span></td>
+    <td>pass</td>
+<tr>
+
+<tr>
+    <td>methods</td>
+    <td>data-f-on-click method, two args</td>
+    <td><button data-f-on-click="updateTwoArrayVals(5,10)">Click to add 5 to sales[1] and 10 to sales[2]</button><br>sales[1] = <span data-f-bind="sales[1]"></span><br>sales[2] = <span data-f-bind="sales[2]"></span></td>
+    <td class="fail">fail, same as addToInt(3): request is passing {"arguments":["5","10"]} and getting no method</td>
+<tr>
+
+<tr>
+    <td>methods</td>
+    <td>data-f-on-click method, arg is other model variable</td>
+    <td><button data-f-on-click="changeString">in progress</button></td>
+    <td></td>
+<tr>
+
+</table>
+
+
 
 
 <select data-f-bind="sampleInt">
