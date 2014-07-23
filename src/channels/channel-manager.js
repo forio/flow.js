@@ -14,12 +14,14 @@ module.exports = function(config) {
 
     //TODO: store runid in token etc. But if you do this, make sure you remove token on reset
     var $creationPromise = rs.create(config.model);
+    rs.currentPromise = $creationPromise;
 
     var createAndThen = function(value, context) {
         return _.wrap(value, function(func) {
             var passedInParams = _.toArray(arguments).slice(1);
-            return $creationPromise.done(function (){
-                return func.apply(context, passedInParams);
+            return rs.currentPromise.then(function (){
+                rs.currentPromise = func.apply(context, passedInParams);
+                return rs.currentPromise;
             });
         });
     };
