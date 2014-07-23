@@ -4,7 +4,7 @@
 var transformer = require('../../../transforms/numberformat');
 
 module.exports = {
-    target: 'input',
+    target: 'input, select',
 
     test: 'bind',
 

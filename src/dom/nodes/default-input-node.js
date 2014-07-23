@@ -23,4 +23,4 @@ module.exports = BaseView.extend( {
         });
         BaseView.prototype.initialize.apply(this, arguments);
     }
-}, {selector: 'input'});
+}, {selector: 'input, select'});

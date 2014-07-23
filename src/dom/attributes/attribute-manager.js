@@ -5,7 +5,7 @@ var defaultHandlers = [
     require('./events/init-event-attr'),
     require('./events/default-event-attr'),
     require('./binds/checkbox-bind-attr'),
-    require('./binds/text-box-bind-attr'),
+    require('./binds/input-bind-attr'),
     require('./class-attr'),
     require('./positive-boolean-attr'),
     require('./negative-boolean-attr'),
