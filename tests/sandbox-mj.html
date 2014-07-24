@@ -13,6 +13,7 @@
         .salesStyle.1 { visibility: visible }
         .xx.East { color: purple }
         .xx.West { color: gray }
+        .xx.2 { color: red }
     </style>
 </head>
 
@@ -190,9 +191,20 @@
 
 <tr>
     <td>styling</td>
-    <td>data-f-class and class</td>
-    <td><div data-f-class="salesMgr.region" class="xx">content colored by xx.region, currently salesMgr.region is <span data-f-bind="salesMgr.region"></span></div></td>
-    <td class="pass">pass (TODO in docs)</td>
+    <td>data-f-class and class, for string</td>
+    <td>
+        <div data-f-class="salesMgr.region" class="xx">content colored by xx.region, currently salesMgr.region is <span data-f-bind="salesMgr.region"></span></div>
+    </td>
+    <td class="pass">pass</td>
+<tr>
+
+<tr>
+    <td>styling</td>
+    <td>data-f-class and class, for int</td>
+    <td>
+        <div data-f-class="salesMgr.num_reports" class="xx">content colored by xx.2, currently salesMgr.num_reports is <span data-f-bind="salesMgr.num_reports"></span></div>
+    </td>
+    <td class="fail">fail (not sure if this is expected to work? it was in the flow.js readme but that may be outdated)</td>
 <tr>
 
 <tr>
