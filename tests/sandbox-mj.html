@@ -2,13 +2,13 @@
 <html>
 
 <head>
-    <style type="text/css"> 
+    <style type="text/css">
         .fail { color: red; }
         .pass { color: green; }
         .North { color: red }
         .South { color: green }
         .East { color: blue }
-        .West { color: orange } 
+        .West { color: orange }
         .salesStyle.0 { visibility: hidden }
         .salesStyle.1 { visibility: visible }
         .xx.East { color: purple }
@@ -48,7 +48,7 @@
     <td>data-f-bind object</td>
     <td>span: <span data-f-bind="salesMgr.region"></span><br>input: <input type="text" data-f-bind="salesMgr.region" /></td>
     <td class="pass">pass</td>
-<tr>    
+<tr>
 
 <tr>
     <td>display_update</td>
@@ -88,7 +88,7 @@
 <tr>
     <td>display_update</td>
     <td>data-f-bind select element selection</td>
-    <td>values are 8, 10, 12, should select based on value of sampleInt, using data-f-bind only: 
+    <td>values are 8, 10, 12, should select based on value of sampleInt, using data-f-bind only:
         <select data-f-bind="sampleInt">
             <option value="8"> 8 </option>
             <option value="10"> 10 </option>
@@ -103,7 +103,7 @@
     <td>data-f-bind checkbox selection</td>
     <td>checkbox, should be checked because sampleBool is true: <input type="checkbox" data-f-bind="sampleBool" /></td>
     <td class="fail">fail</td>
-<tr>    
+<tr>
 
 <tr>
     <td>special_handling</td>
@@ -131,7 +131,7 @@
 <tr>
     <td>special_handling</td>
     <td>data-f-selected</td>
-    <td>values are 8, 10, 12, should select based on value of sampleInt, using data-f-selected for each option: 
+    <td>values are 8, 10, 12, should select based on value of sampleInt, using data-f-selected for each option:
         <select>
             <option data-f-selected="sampleInt" value="8"> 8 </option>
             <option data-f-selected="sampleInt" value="10"> 10 </option>
@@ -145,7 +145,7 @@
     <td>data-f-format numbers</td>
     <td>sales[4] as a number: <span data-f-bind="sales[4]" data-f-format="#,###"></span></td>
     <td class="pass">pass</td>
-<tr>    
+<tr>
 
 <tr>
     <td>formatting</td>
@@ -212,7 +212,7 @@
     <td>data-f-noop (and nothing)</td>
     <td>start w/ same as data-f-bind string, then add data-f-noop: <br>
         regular span: <span data-f-bind="sampleString" ></span><br>
-        span w/ noop: <span data-f-bind="sampleString" data-f-noop></span><br>
+        span w/ noop: <span data-f-bind="sampleString"></span><br>
         input: <input type="text" data-f-bind="sampleString" />
     </td>
     <td class="fail">fail: the request includes "," (e.g. `?include=salesMgr.num_reports,,sales[2]`) for the spot where the variable being noop'd is, causing 400.</td>
@@ -278,7 +278,7 @@
 
 
 
-<!-- 
+<!--
 <select data-f-bind="sampleInt">
         <option value="8"> 8 </option>
         <option value="10"> 10 </option>

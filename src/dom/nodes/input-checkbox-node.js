@@ -16,4 +16,4 @@ module.exports = BaseView.extend( {
     initialize: function () {
         BaseView.prototype.initialize.apply(this, arguments);
     }
-}, {selector: ':checkbox'});
+}, {selector: ':checkbox,:radio'});
