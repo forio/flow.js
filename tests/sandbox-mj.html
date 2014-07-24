@@ -11,6 +11,7 @@
         .West { color: orange } 
         .salesStyle.0 { visibility: hidden }
         .salesStyle.1 { visibility: visible }
+        .xx.East { color: black }
     </style>
 </head>
 
@@ -181,7 +182,7 @@
 <tr>
     <td>styling</td>
     <td>data-f-class only</td>
-    <td><div data-f-class="salesMgr.region">content colored by region, currently salesMgr.region is <span data-f-bind="salesMgr.region"></span></div></td>
+    <td><div data-f-class="salesMgr.region" class="xx">content colored by region, currently salesMgr.region is <span data-f-bind="salesMgr.region"></span></div></td>
     <td class="pass">pass</td>
 <tr>
 
@@ -189,12 +190,13 @@
     <td>styling</td>
     <td>data-f-class and class</td>
     <td></td>
-    <td>(TODO in docs)</td>
+    <td>pass; (TODO in docs)</td>
 <tr>
 
 <tr>
     <td>writing_your_own</td>
     <td>data-f-noop (and nothing)</td>
+    
     <td></td>
     <td>(TODO in docs)</td>
 <tr>
