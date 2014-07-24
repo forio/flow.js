@@ -210,8 +210,12 @@
 <tr>
     <td>writing_your_own</td>
     <td>data-f-noop (and nothing)</td>
-    <td></td>
-    <td>(TODO in docs)</td>
+    <td>start w/ same as data-f-bind string, then add data-f-noop: <br>
+        regular span: <span data-f-bind="sampleString" ></span><br>
+        span w/ noop: <span data-f-bind="sampleString" data-f-noop></span><br>
+        input: <input type="text" data-f-bind="sampleString" />
+    </td>
+    <td class="fail">fail: the request includes "," (e.g. `?include=salesMgr.num_reports,,sales[2]`) for the spot where the variable being noop'd is, causing 400.</td>
 <tr>
 
 <tr>
