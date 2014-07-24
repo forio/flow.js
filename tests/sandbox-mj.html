@@ -11,7 +11,8 @@
         .West { color: orange } 
         .salesStyle.0 { visibility: hidden }
         .salesStyle.1 { visibility: visible }
-        .xx.East { color: black }
+        .xx.East { color: purple }
+        .xx.West { color: gray }
     </style>
 </head>
 
@@ -52,7 +53,7 @@
     <td>display_update</td>
     <td>data-f-bind array</td>
     <td>span: <span data-f-bind="sales[3]"></span><br>input: <input type="text" data-f-bind="sales[3]" /></td>
-    <td class="fail">fail, span doesn't update when input is changed (which is what happens with scalar values), but possible because of same int/string problem</td>
+    <td class="fail">fail, request is passing int as string and getting no method</td>
 <tr>
 
 <tr>
@@ -66,7 +67,7 @@
     <td>display_update</td>
     <td>data-f-bind array indexed by expression</td>
     <td>desired: data-f-bind="sales[&lt;sampleTruthy&gt;+1]" <!--span: <span data-f-bind="sales[<sampleTruthy>+1]"></span><br>input: <input type="text" data-f-bind="sales[<sampleTruthy>+1]" />--></td>
-    <td>FUTURE RELEASE (improvement request, doesn't work now)</td>
+    <td>future release (improvement request, doesn't work now)</td>
 <tr>
 
 <tr>
@@ -91,6 +92,7 @@
             <option value="8"> 8 </option>
             <option value="10"> 10 </option>
             <option value="12"> 12 </option>
+        </select>
     </td>
     <td class="pass">pass</td>
 <tr>
@@ -113,7 +115,7 @@
     <td>special_handling</td>
     <td>data-f-disabled with "truthy" of 0,1</td>
     <td>this button should be enabled because sampleTruthy=1: <button data-f-disabled="sampleTruthy">click me</button><br>confirm: sampleTruthy is currently: <span data-f-bind="sampleTruthy"></span></td>
-    <td class="pass">pass (confirm w/ Naren: disabled=true means enabled?)</td>
+    <td class="pass">pass I think (Naren please review: disabled=true means enabled? this might be backwards)</td>
 <tr>
 
 <tr>
@@ -122,7 +124,7 @@
     <td>this button should be enabled because sampleBool=true: <button data-f-disabled="sampleBool">click me</button><br>confirm: sampleBool is currently: <span data-f-bind="sampleBool"></span>
         <br><br> this button should be disabled because sampleFalseBool=false: <button data-f-disabled="sampleFalseBool">click me</button><br>confirm: sampleFalseBool is currently: <span data-f-bind="sampleFalseBool"></span>
     </td>
-    <td class="pass">pass (confirm w/ Naren: disabled=false means disabled?)</td>
+    <td class="pass">pass I think (Naren please review: disabled=true means enabled, disabled=false means disabled? this might be backwards)</td>
 <tr>
 
 <tr>
@@ -169,34 +171,33 @@
     <td>formatting</td>
     <td>formatting inheritance</td>
     <td></td>
-    <td>(TODO in docs)</td>
+    <td>(TODO in implementation and docs)</td>
 <tr>
 
 <tr>
     <td>formatting</td>
     <td>data-f-bind and | to format</td>
     <td></td>
-    <td>(TODO in docs)</td>
+    <td>(TODO in implementation and docs)</td>
 <tr>
 
 <tr>
     <td>styling</td>
     <td>data-f-class only</td>
-    <td><div data-f-class="salesMgr.region" class="xx">content colored by region, currently salesMgr.region is <span data-f-bind="salesMgr.region"></span></div></td>
+    <td><div data-f-class="salesMgr.region">content colored by region, currently salesMgr.region is <span data-f-bind="salesMgr.region"></span></div></td>
     <td class="pass">pass</td>
 <tr>
 
 <tr>
     <td>styling</td>
     <td>data-f-class and class</td>
-    <td></td>
-    <td>pass; (TODO in docs)</td>
+    <td><div data-f-class="salesMgr.region" class="xx">content colored by xx.region, currently salesMgr.region is <span data-f-bind="salesMgr.region"></span></div></td>
+    <td class="pass">pass (TODO in docs)</td>
 <tr>
 
 <tr>
     <td>writing_your_own</td>
     <td>data-f-noop (and nothing)</td>
-    
     <td></td>
     <td>(TODO in docs)</td>
 <tr>
@@ -219,26 +220,26 @@
     <td>methods</td>
     <td>data-f-on-click method, no args</td>
     <td><button data-f-on-click="resetInt">Click to set sampleInt to 8</button><br>sampleInt = <span data-f-bind="sampleInt"></span></td>
-    <td class="fail">only works sometimes ... works if first button pressed, but not if we've already changed sampleInt e.g. in the input at top of page?</td>
+    <td class="fail">only works sometimes ... works if clicking is the first thing we do, but not if we've already changed sampleInt e.g. in the input at top of page</td>
 <tr>
 
 <tr>
     <td>methods</td>
     <td>data-f-on-click method, one int arg</td>
     <td><button data-f-on-click="addToInt(3)">Click to add 3 to sampleInt</button><br>sampleInt = <span data-f-bind="sampleInt"></span></td>
-    <td class="fail">fail, request is passing {"arguments":["3"]} and getting no method</td>
+    <td class="fail">fail, request is passing int as string and getting no method</td>
 <tr>
 
 <tr>
     <td>methods</td>
-    <td>data-f-on-click method, one string arg</td>
+    <td>data-f-on-click method, one string arg for string letters and spaces</td>
     <td><button data-f-on-click="changeString(goodbye world)">Click to set sampleString to 'goodbye world'</button><br>sampleString = <span data-f-bind="sampleString"></span></td>
     <td class="pass">pass</td>
 <tr>
 
 <tr>
     <td>methods</td>
-    <td>data-f-on-click method, one string arg</td>
+    <td>data-f-on-click method, one string arg for string all numbers</td>
     <td><button data-f-on-click="changeString(22)">Click to set sampleString to (string) 22</button><br>sampleString = <span data-f-bind="sampleString"></span></td>
     <td class="pass">pass</td>
 <tr>
@@ -247,7 +248,7 @@
     <td>methods</td>
     <td>data-f-on-click method, two args</td>
     <td><button data-f-on-click="updateTwoArrayVals(5,10)">Click to add 5 to sales[1] and 10 to sales[2]</button><br>sales[1] = <span data-f-bind="sales[1]"></span><br>sales[2] = <span data-f-bind="sales[2]"></span></td>
-    <td class="fail">fail, same as addToInt(3): request is passing {"arguments":["5","10"]} and getting no method</td>
+    <td class="fail">fail, request is passing int as string and getting no method</td>
 <tr>
 
 <tr>
@@ -261,7 +262,7 @@
 
 
 
-
+<!-- 
 <select data-f-bind="sampleInt">
         <option value="8"> 8 </option>
         <option value="10"> 10 </option>
@@ -279,7 +280,7 @@
 <input type="radio" data-f-bind="sampleInt" value="12" name="abc"/> 12
 
 <input type="checkbox" data-f-bind="sampleInt" value="10">should be 10?</input>
-
+-->
 
     <script src="../vendor/jquery/dist/jquery.min.js"></script>
     <script src="../vendor/lodash/dist/lodash.js"></script>
