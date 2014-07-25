@@ -27,18 +27,29 @@ module.exports = (function() {
         nodes: nodeManager,
         attributes: attrManager,
 
+        //utils for testing
+        private: {
+
+        },
+
         initialize: function(options) {
             var defaults = {
-                root: '*',
+                root: 'body',
                 channel: null
             };
             $.extend(defaults, options);
 
             var channel = defaults.channel;
+            var me = this;
 
             $(function(){
                 //parse through dom and find everything with matching attributes
                 var matchedElements = $(defaults.root).find(':' + config.prefix);
+                if ($(defaults.root).is(':' + config.prefix)) {
+                    matchedElements = matchedElements.add($(defaults.root));
+                }
+
+                me.private.matchedElements = matchedElements;
 
                 $.each(matchedElements, function(index, element) {
                     var $el = $(element);
