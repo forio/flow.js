@@ -17,8 +17,8 @@ module.exports = function (grunt) {
                 tasks: ['browserify2:dev']
             },
             tests: {
-                files: ['tests/spec/**/*.js'],
-                tasks: ['mocha:test']
+                files: ['tests/specs/**/*.js', 'tests/*.js'],
+                tasks: ['browserify2:tests:','mocha:test']
             }
         },
 
@@ -29,6 +29,14 @@ module.exports = function (grunt) {
                 },
                 entry: './src/app.js',
                 compile: './dist/flow.js'
+            },
+            tests: {
+                options: {
+
+                    entry: './tests/test-list.js',
+                    compile: './tests/tests-browserify-bundle.js',
+                    debug: true
+                }
             },
             dev: {
                 options: {
