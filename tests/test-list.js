@@ -3,4 +3,4 @@
  */
 
 
-require('./specs/dom/test-default-node');
+require('./specs/dom/test-default-input-node');
