@@ -3,4 +3,5 @@
  */
 
 
+require('./specs/dom/test-dom-manager');
 require('./specs/dom/test-default-input-node');
