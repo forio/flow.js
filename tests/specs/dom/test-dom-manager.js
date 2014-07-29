@@ -79,6 +79,34 @@
 
                     spy.should.have.been.called.once;
                 });
+
+                it('should bubble change events', function () {
+                    var node = make('<div data-f-a="a"> <div class="abc"> <input type="text" data-f-b="stuff"/> </div> <span> nothing </span> </div>');
+
+                    var $textNode = $(node).find(':text');
+
+                    domManager.initialize({
+                        root: node,
+                        channel: dummyChannelManager
+                    });
+                    // $(textNode).val(6);
+
+                    var textspy = sinon.spy();
+                    $textNode.on('update.f.ui', textspy);
+
+                    var parentSpy = sinon.spy();
+                    $(node).find('.abc').on('update.f.ui', parentSpy);
+
+                    var rootSpy = sinon.spy();
+                    $(node).on('update.f.ui', rootSpy);
+
+
+                    $textNode.trigger('change');
+
+                    textspy.should.have.been.called.once;
+                    parentSpy.should.have.been.called.once;
+                    rootSpy.should.have.been.called.once;
+                });
             });
 
             describe('Attribute Handlers', function () {
