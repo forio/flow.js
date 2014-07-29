@@ -107,6 +107,24 @@
                     parentSpy.should.have.been.called.once;
                     rootSpy.should.have.been.called.once;
                 });
+
+                it('should pass the right params to the event', function () {
+                    var $textNode = $(make('<input type="text" data-f-bind="stuff"/>'));
+                    domManager.initialize({
+                        root: $textNode,
+                        channel: dummyChannelManager
+                    });
+                    // $(textNode).val(6);
+
+                    var spy = sinon.spy();
+                    $textNode.on('update.f.ui', spy);
+                    $textNode.val(5);
+                    $textNode.trigger('change');
+
+                    spy.should.have.been.called.once;
+                    spy.args[0][1].should.eql({stuff: '5'});
+                });
+
             });
 
             describe('Attribute Handlers', function () {
