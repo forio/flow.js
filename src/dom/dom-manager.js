@@ -42,10 +42,11 @@ module.exports = (function() {
             var channel = defaults.channel;
             var me = this;
 
+            var $root = $(defaults.root);
             $(function(){
                 //parse through dom and find everything with matching attributes
-                var matchedElements = $(defaults.root).find(':' + config.prefix);
-                if ($(defaults.root).is(':' + config.prefix)) {
+                var matchedElements = $root.find(':' + config.prefix);
+                if ($root.is(':' + config.prefix)) {
                     matchedElements = matchedElements.add($(defaults.root));
                 }
 
@@ -98,30 +99,30 @@ module.exports = (function() {
                                 channel.variables.subscribe(Object.keys(varMap), $el);
                             }
 
-                            $el.on(config.events.react, function(evt, data) {
-                                evt.stopPropagation(); //TODO: Should I not be doing this?
-                                var varmap = $(this).data('variable-attr-map');
-                                $.each(data, function(variableName, value) {
-                                    //TODO: this could be an array
-                                    var propertyToUpdate = varmap[variableName].toLowerCase();
-                                    var handler = attrManager.getHandler($el, propertyToUpdate);
-                                    handler.handle.call($el, value, propertyToUpdate);
-                                });
-                            });
-
-                            $el.on(config.events.trigger, function(evt, data) {
-                                evt.stopPropagation(); //TODO: Should I not be doing this?
-                                channel.variables.publish(data);
-                            });
-
-                            $el.on('f.ui.operate', function(evt, data) {
-                                evt.stopPropagation(); //TODO: Should I not be doing this?
-                                channel.operations.publish(data.fn, data.args);
-                            });
-
                             return false; //break loop
                         }
                     });
+                });
+
+                //Attach listeners
+                $root.on(config.events.react, function(evt, data) {
+                    // console.log(evt.target, data, "root on");
+                    var $el = $(evt.target);
+                    var varmap = $el.data('variable-attr-map');
+                    $.each(data, function(variableName, value) {
+                        //TODO: this could be an array
+                        var propertyToUpdate = varmap[variableName].toLowerCase();
+                        var handler = attrManager.getHandler($el, propertyToUpdate);
+                        handler.handle.call($el, value, propertyToUpdate);
+                    });
+                });
+
+                $root.on(config.events.trigger, function(evt, data) {
+                    channel.variables.publish(data);
+                });
+
+                $root.on('f.ui.operate', function(evt, data) {
+                    channel.operations.publish(data.fn, data.args);
                 });
             });
         }

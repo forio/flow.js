@@ -1,30 +1,26 @@
 (function() {
     'use strict';
 
-    var NodeClass = require('../../../src/dom/attributes/binds/input-bind-attr');
     var make = require('../../testing-utils').create;
-
-
     var domManager = require('../../../src/dom/dom-manager');
-    window.cm = require('../../../src/channels/channel-manager');
 
     describe('DOM Manager', function () {
-        var makeView, dummyChannelManager;
+        var dummyChannelManager;
         before(function (){
             var dummyChannel = {
                 publish: $.noop,
                 subscribe: $.noop,
                 unsubscribe:  $.noop
             };
+
             dummyChannelManager = {
-                variables: dummyChannel,
-                operations: dummyChannel
+                variables: (dummyChannel),
+                operations: (dummyChannel)
             };
 
         });
 
         after(function (){
-            makeView = null;
         });
 
         describe('#initialize', function () {
@@ -68,6 +64,42 @@
                 });
             });
 
+            describe('UI Listeners', function () {
+                it('should trigger the right event on ui change', function () {
+                    var $textNode = $(make('<input type="text" data-f-bind="stuff"/>'));
+                    domManager.initialize({
+                        root: $textNode,
+                        channel: dummyChannelManager
+                    });
+                    // $(textNode).val(6);
+
+                    var spy = sinon.spy();
+                    $textNode.on('update.f.ui', spy);
+                    $textNode.trigger('change');
+
+                    spy.should.have.been.called.once;
+                });
+            });
+
+            describe('Attribute Handlers', function () {
+                var attrManager, initableHandler;
+                before(function () {
+                    initableHandler = {
+                        init: $.noop
+                    };
+
+                    attrManager = {
+                        getHandler: function () {
+                            return initableHandler;
+                        }
+                    };
+                });
+
+                it('should find a handler', function () {
+
+                });
+
+            });
         });
     });
 
