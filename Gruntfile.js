@@ -112,6 +112,7 @@ module.exports = function (grunt) {
                 src: ['tests/index.html'],
                 options: {
                     growlOnSuccess: false,
+                    reporter: 'Min',
                     run: true
                 }
             }
