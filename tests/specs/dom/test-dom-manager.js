@@ -121,7 +121,7 @@
                         $textNode.val(5);
                         $textNode.trigger('change');
 
-                        spy.args[0][1].should.eql({stuff: '5'});
+                        spy.getCall(0).args[1].should.eql({stuff: '5'});
                     });
                 });
 
@@ -156,7 +156,7 @@
                         $node.prop('checked', true);
                         $node.trigger('change');
 
-                        spy.args[0][1].should.eql({stuff: 1});
+                        spy.getCall(0).args[1].should.eql({stuff: 1});
                     });
                 });
 
