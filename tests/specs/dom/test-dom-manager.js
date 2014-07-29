@@ -65,21 +65,6 @@
             });
 
             describe('UI Listeners', function () {
-                it('should trigger the right event on ui change', function () {
-                    var $textNode = $(make('<input type="text" data-f-bind="stuff"/>'));
-                    domManager.initialize({
-                        root: $textNode,
-                        channel: dummyChannelManager
-                    });
-                    // $(textNode).val(6);
-
-                    var spy = sinon.spy();
-                    $textNode.on('update.f.ui', spy);
-                    $textNode.trigger('change');
-
-                    spy.should.have.been.called.once;
-                });
-
                 it('should bubble change events', function () {
                     var node = make('<div data-f-a="a"> <div class="abc"> <input type="text" data-f-b="stuff"/> </div> <span> nothing </span> </div>');
 
@@ -108,21 +93,71 @@
                     rootSpy.should.have.been.called.once;
                 });
 
-                it('should pass the right params to the event', function () {
-                    var $textNode = $(make('<input type="text" data-f-bind="stuff"/>'));
-                    domManager.initialize({
-                        root: $textNode,
-                        channel: dummyChannelManager
+
+                describe(':text', function () {
+                    it('should trigger the right event on ui change', function () {
+                        var $textNode = $(make('<input type="text" data-f-bind="stuff"/>'));
+                        domManager.initialize({
+                            root: $textNode,
+                            channel: dummyChannelManager
+                        });
+
+                        var spy = sinon.spy();
+                        $textNode.on('update.f.ui', spy);
+                        $textNode.trigger('change');
+
+                        spy.should.have.been.called.once;
                     });
-                    // $(textNode).val(6);
 
-                    var spy = sinon.spy();
-                    $textNode.on('update.f.ui', spy);
-                    $textNode.val(5);
-                    $textNode.trigger('change');
+                    it('should pass the right params to the event', function () {
+                        var $textNode = $(make('<input type="text" data-f-bind="stuff"/>'));
+                        domManager.initialize({
+                            root: $textNode,
+                            channel: dummyChannelManager
+                        });
 
-                    spy.should.have.been.called.once;
-                    spy.args[0][1].should.eql({stuff: '5'});
+                        var spy = sinon.spy();
+                        $textNode.on('update.f.ui', spy);
+                        $textNode.val(5);
+                        $textNode.trigger('change');
+
+                        spy.args[0][1].should.eql({stuff: '5'});
+                    });
+                });
+
+                describe(':checkbox', function () {
+                    it('should trigger the right event on ui change', function () {
+                        var $node = $(make('<input type="checkbox" data-f-bind="stuff"/>'));
+                        domManager.initialize({
+                            root: $node,
+                            channel: dummyChannelManager
+                        });
+
+                        var spy = sinon.spy();
+                        $node.on('update.f.ui', function(){
+                            //sinon doesn't like passing the spy directly with 'this' as context.
+                            spy.apply(null, arguments);
+                        });
+                        $node.trigger('change');
+                        spy.should.have.been.called.once;
+                    });
+
+                    it('should pass the right params to the event', function () {
+                        var $node = $(make('<input type="checkbox" data-f-bind="stuff"/>'));
+                        domManager.initialize({
+                            root: $node,
+                            channel: dummyChannelManager
+                        });
+
+                        var spy = sinon.spy();
+                        $node.on('update.f.ui', function(){
+                            spy.apply(null, arguments);
+                        });
+                        $node.prop('checked', true);
+                        $node.trigger('change');
+
+                        spy.args[0][1].should.eql({stuff: 1});
+                    });
                 });
 
             });

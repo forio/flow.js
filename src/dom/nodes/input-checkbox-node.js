@@ -9,8 +9,11 @@ module.exports = BaseView.extend( {
 
     getUIValue: function () {
         var $el = this.$el;
-        var offVal =  ($el.data('f-off')) ? $el.data('f-off') : 0;
-        var val = ($el.is(':checked')) ? $el.val() : offVal;
+        var offVal =  ($el.data('f-off') !== undefined ) ? $el.data('f-off') : 0;
+        //attr = initial value, prop = current value
+        var onVal = ($el.attr('value') !== undefined ) ? $el.prop('value'): 1;
+
+        var val = ($el.is(':checked')) ? onVal : offVal;
         return val;
     },
     initialize: function () {
