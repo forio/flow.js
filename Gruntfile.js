@@ -111,6 +111,7 @@ module.exports = function (grunt) {
             test: {
                 src: ['tests/index.html'],
                 options: {
+                    growlOnSuccess: false,
                     run: true
                 }
             }
