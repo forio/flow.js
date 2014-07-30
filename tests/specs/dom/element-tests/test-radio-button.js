@@ -8,7 +8,7 @@ module.exports = (function() {
             it('should trigger the right event on ui change', function () {
                 var nodes = [
                     '<input type="radio" name="a" id="x" data-f-bind="stuff" value="1" checked/>',
-                    '<input type="radio" name="a" id="y" data-f-bind="stuff" value"2"/>'
+                    '<input type="radio" name="a" id="y" data-f-bind="stuff" value="2"/>'
                 ].join('');
                 var $node1 = utils.initWithNode(nodes, domManager).filter('#x');
                 var $node2 = utils.initWithNode(nodes, domManager).filter('#y');
@@ -24,7 +24,7 @@ module.exports = (function() {
                 it('should pass the right value on check', function () {
                     var nodes = [
                         '<input type="radio" name="a" id="x" data-f-bind="stuff" value="8"/>',
-                        '<input type="radio" name="a" id="y" data-f-bind="stuff" value"2"/>'
+                        '<input type="radio" name="a" id="y" data-f-bind="stuff" value="2"/>'
                     ].join('');
                     var $node = utils.initWithNode(nodes, domManager).filter('#x');
 
@@ -52,6 +52,35 @@ module.exports = (function() {
                     $othernode.trigger('change');
 
                     spy.getCall(0).args[1].should.eql({stuff: '2'});
+                });
+            });
+        });
+        describe('Updaters', function () {
+            describe('with defaults', function () {
+                it('should select the right option which matches', function () {
+                    var nodes = [
+                        '<input type="radio" name="a" id="x" data-f-bind="stuff" value="8"/>',
+                        '<input type="radio" name="a" id="y" data-f-bind="stuff" value="2"/>'
+                    ].join('');
+
+                    var $nodes = utils.initWithNode(nodes, domManager);
+                    $nodes.trigger('update.f.model', {stuff: '8'});
+
+                    $nodes.filter('#x').prop('checked').should.equal(true);
+                    $nodes.filter('#y').prop('checked').should.equal(false);
+                });
+
+                it('should not select anything if it doesnt match', function () {
+                    var nodes = [
+                        '<input type="radio" name="a" id="x" data-f-bind="stuff" value="8"/>',
+                        '<input type="radio" name="a" id="y" data-f-bind="stuff" value="2"/>'
+                    ].join('');
+
+                    var $nodes = utils.initWithNode(nodes, domManager);
+                    $nodes.trigger('update.f.model', {stuff: true});
+
+                    $nodes.filter('#x').prop('checked').should.equal(false);
+                    $nodes.filter('#y').prop('checked').should.equal(false);
                 });
             });
         });
