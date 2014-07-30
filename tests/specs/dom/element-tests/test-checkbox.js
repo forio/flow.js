@@ -23,23 +23,76 @@ module.exports = (function() {
                 spy.should.have.been.called.once;
             });
 
-            it('should pass the right value on check', function () {
-                var $node = $(make('<input type="checkbox" data-f-bind="stuff"/>'));
-                domManager.initialize({
-                    root: $node,
-                    channel: dummyChannelManager
+            describe('On Check', function () {
+                it('should pass the right value on check - no default', function () {
+                    var $node = $(make('<input type="checkbox" data-f-bind="stuff"/>'));
+                    domManager.initialize({
+                        root: $node,
+                        channel: dummyChannelManager
+                    });
+
+                    var spy = sinon.spy();
+                    $node.on('update.f.ui', function(){
+                        spy.apply(null, arguments);
+                    });
+                    $node.prop('checked', true);
+                    $node.trigger('change');
+
+                    spy.getCall(0).args[1].should.eql({stuff: 1});
                 });
 
-                var spy = sinon.spy();
-                $node.on('update.f.ui', function(){
-                    spy.apply(null, arguments);
-                });
-                $node.prop('checked', true);
-                $node.trigger('change');
+                it('should pass the right value on check - default on', function () {
+                    var $node = $(make('<input type="checkbox" data-f-bind="stuff" value="4"/>'));
+                    domManager.initialize({
+                        root: $node,
+                        channel: dummyChannelManager
+                    });
 
-                spy.getCall(0).args[1].should.eql({stuff: 1});
+                    var spy = sinon.spy();
+                    $node.on('update.f.ui', function(){
+                        spy.apply(null, arguments);
+                    });
+                    $node.prop('checked', true);
+                    $node.trigger('change');
+
+                    spy.getCall(0).args[1].should.eql({stuff: '4'});
+                });
+            });
+            describe('On UnCheck', function () {
+                it('should pass the right value on check - no default', function () {
+                    var $node = $(make('<input type="checkbox" data-f-bind="stuff" checked/>'));
+                    domManager.initialize({
+                        root: $node,
+                        channel: dummyChannelManager
+                    });
+
+                    var spy = sinon.spy();
+                    $node.on('update.f.ui', function(){
+                        spy.apply(null, arguments);
+                    });
+                    $node.prop('checked', false);
+                    $node.trigger('change');
+
+                    spy.getCall(0).args[1].should.eql({stuff: 0});
+                });
+
+                it('should pass the right value on check - default off', function () {
+                    var $node = $(make('<input type="checkbox" data-f-bind="stuff" value="4" data-f-off="5" checked/>'));
+                    domManager.initialize({
+                        root: $node,
+                        channel: dummyChannelManager
+                    });
+
+                    var spy = sinon.spy();
+                    $node.on('update.f.ui', function(){
+                        spy.apply(null, arguments);
+                    });
+                    $node.prop('checked', false);
+                    $node.trigger('change');
+
+                    spy.getCall(0).args[1].should.eql({stuff: 5});
+                });
             });
         });
     });
-
 }());
