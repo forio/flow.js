@@ -67,12 +67,12 @@ module.exports = function (grunt) {
             },
             tests: {
                 files: {
-                    src: ['tests/spec/**/*.js']
+                    src: ['tests/specs/**/*.js']
                 }
             },
             all: {
                 files: {
-                    src: ['src/**/*.js', 'tests/spec/**/*.js']
+                    src: ['src/**/*.js', 'tests/specs/**/*.js']
                 }
             }
         },

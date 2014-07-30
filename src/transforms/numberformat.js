@@ -44,7 +44,7 @@ module.exports = {
             if (hasCommas) {
                 for (var iChar = numberTXT.length - 1; iChar > 0; iChar--) {
                     if (hasDecimals) {
-                        hasDecimals = !(numberTXT.charAt(iChar) === '.');
+                        hasDecimals = (numberTXT.charAt(iChar) !== '.');
                     } else {
                         iDec = (iDec + 1) % 3;
                         if (iDec === 0) {
@@ -107,8 +107,6 @@ module.exports = {
         }
 
         function format(number, formatTXT) {
-            var originalNumber = number,
-                originalFormat = formatTXT;
             if (!formatTXT || formatTXT.toLowerCase() === 'default') {
                 return number.toString();
             }
@@ -194,7 +192,7 @@ module.exports = {
                     var SUFFIX = getSuffix(formatTXT);
                     formatTXT = formatTXT.substr(0, formatTXT.length - SUFFIX.length);
 
-                    var valWithoutLeading = format(((sign == '') ? 1 : -1) * number, formatTXT) + scales[valScale] + SUFFIX;
+                    var valWithoutLeading = format(((sign === '') ? 1 : -1) * number, formatTXT) + scales[valScale] + SUFFIX;
                     if (isCurrency(leadingText) && sign !== '') {
                         valWithoutLeading = valWithoutLeading.substr(sign.length);
                         return sign + leadingText + valWithoutLeading;
