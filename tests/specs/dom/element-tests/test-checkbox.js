@@ -6,13 +6,21 @@ module.exports = (function() {
     var domManager = require('../../../../src/dom/dom-manager');
 
     describe(':checkbox', function () {
-        describe('input handlers', function () {
-            it('should trigger the right event on ui change', function () {
-                var $node = $(make('<input type="checkbox" data-f-bind="stuff"/>'));
+        var initWithNode;
+        before(function () {
+            initWithNode = function (str) {
+                var $node = $(make(str));
                 domManager.initialize({
                     root: $node,
                     channel: dummyChannelManager
                 });
+                return $node;
+            };
+        });
+
+        describe('input handlers', function () {
+            it('should trigger the right event on ui change', function () {
+                var $node = initWithNode('<input type="checkbox" data-f-bind="stuff"/>');
 
                 var spy = sinon.spy();
                 $node.on('update.f.ui', function(){
@@ -25,11 +33,7 @@ module.exports = (function() {
 
             describe('On Check', function () {
                 it('should pass the right value on check - no default', function () {
-                    var $node = $(make('<input type="checkbox" data-f-bind="stuff"/>'));
-                    domManager.initialize({
-                        root: $node,
-                        channel: dummyChannelManager
-                    });
+                    var $node = initWithNode('<input type="checkbox" data-f-bind="stuff"/>');
 
                     var spy = sinon.spy();
                     $node.on('update.f.ui', function(){
@@ -42,11 +46,7 @@ module.exports = (function() {
                 });
 
                 it('should pass the right value on check - default on', function () {
-                    var $node = $(make('<input type="checkbox" data-f-bind="stuff" value="4"/>'));
-                    domManager.initialize({
-                        root: $node,
-                        channel: dummyChannelManager
-                    });
+                    var $node = initWithNode('<input type="checkbox" data-f-bind="stuff" value="4"/>');
 
                     var spy = sinon.spy();
                     $node.on('update.f.ui', function(){
@@ -60,11 +60,7 @@ module.exports = (function() {
             });
             describe('On UnCheck', function () {
                 it('should pass the right value on check - no default', function () {
-                    var $node = $(make('<input type="checkbox" data-f-bind="stuff" checked/>'));
-                    domManager.initialize({
-                        root: $node,
-                        channel: dummyChannelManager
-                    });
+                    var $node = initWithNode('<input type="checkbox" data-f-bind="stuff" checked/>');
 
                     var spy = sinon.spy();
                     $node.on('update.f.ui', function(){
@@ -77,11 +73,7 @@ module.exports = (function() {
                 });
 
                 it('should pass the right value on check - default off', function () {
-                    var $node = $(make('<input type="checkbox" data-f-bind="stuff" value="4" data-f-off="5" checked/>'));
-                    domManager.initialize({
-                        root: $node,
-                        channel: dummyChannelManager
-                    });
+                    var $node = initWithNode('<input type="checkbox" data-f-bind="stuff" data-f-off="5" checked/>');
 
                     var spy = sinon.spy();
                     $node.on('update.f.ui', function(){
