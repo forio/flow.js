@@ -7,7 +7,7 @@ module.exports = {
     test: 'bind',
 
     handle: function (value) {
-        var settableValue = this.prop('value');
+        var settableValue = this.attr('value'); //initial value
         var isChecked = (settableValue !== undefined) ? (settableValue == value) : !!value;
         this.prop('checked', isChecked);
     }

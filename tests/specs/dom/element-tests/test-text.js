@@ -24,5 +24,15 @@ module.exports = (function() {
                 spy.getCall(0).args[1].should.eql({stuff: '5'});
             });
         });
+        describe('updaters', function () {
+            it('should update itself with values passed in', function () {
+                var $node = utils.initWithNode('<input type="text" data-f-bind="stuff" value="3"/>', domManager);
+                $node.trigger('update.f.model', {stuff: 5});
+
+                var val = $node.val();
+                val.should.equal('5');
+            });
+            //TODO: make it only take the last element of an array?
+        });
     });
 }());
