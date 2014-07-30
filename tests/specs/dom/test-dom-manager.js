@@ -77,7 +77,9 @@
                 });
 
                 require('./element-tests/test-checkbox');
+                require('./element-tests/test-radio-button');
                 require('./element-tests/test-text');
+                require('./element-tests/test-select');
             });
 
             describe('Attribute Handlers', function () {
