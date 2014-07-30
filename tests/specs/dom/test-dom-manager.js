@@ -1,28 +1,12 @@
 (function() {
     'use strict';
 
-    var make = require('../../testing-utils').create;
+    var utils = require('../../testing-utils');
+    var make = utils.create;
+    var dummyChannelManager = utils.createDummyChannel();
     var domManager = require('../../../src/dom/dom-manager');
 
     describe('DOM Manager', function () {
-        var dummyChannelManager;
-        before(function (){
-            var dummyChannel = {
-                publish: $.noop,
-                subscribe: $.noop,
-                unsubscribe:  $.noop
-            };
-
-            dummyChannelManager = {
-                variables: (dummyChannel),
-                operations: (dummyChannel)
-            };
-
-        });
-
-        after(function (){
-        });
-
         describe('#initialize', function () {
             describe('Selectors', function () {
                 afterEach(function () {

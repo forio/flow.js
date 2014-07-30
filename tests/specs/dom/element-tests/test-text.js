@@ -1,28 +1,11 @@
 module.exports = (function() {
     'use strict';
-    var make = require('../../../testing-utils').create;
+    var utils = require('../../../testing-utils');
+    var make = utils.create;
+    var dummyChannelManager = utils.createDummyChannel();
     var domManager = require('../../../../src/dom/dom-manager');
 
     describe(':text', function () {
-        var dummyChannelManager;
-        before(function (){
-            var dummyChannel = {
-                publish: $.noop,
-                subscribe: $.noop,
-                unsubscribe:  $.noop
-            };
-
-            dummyChannelManager = {
-                variables: (dummyChannel),
-                operations: (dummyChannel)
-            };
-
-        });
-
-        after(function (){
-
-        });
-
         describe('input handlers', function () {
             it('should trigger the right event on ui change', function () {
                 var $textNode = $(make('<input type="text" data-f-bind="stuff"/>'));
