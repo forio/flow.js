@@ -3,7 +3,7 @@ module.exports = (function() {
     var make = require('../../../testing-utils').create;
     var domManager = require('../../../../src/dom/dom-manager');
 
-    describe(':checkbox', function () {
+    describe(':text', function () {
         var dummyChannelManager;
         before(function (){
             var dummyChannel = {
@@ -25,38 +25,31 @@ module.exports = (function() {
 
         describe('input handlers', function () {
             it('should trigger the right event on ui change', function () {
-                var $node = $(make('<input type="checkbox" data-f-bind="stuff"/>'));
+                var $textNode = $(make('<input type="text" data-f-bind="stuff"/>'));
                 domManager.initialize({
-                    root: $node,
+                    root: $textNode,
                     channel: dummyChannelManager
                 });
 
                 var spy = sinon.spy();
-                $node.on('update.f.ui', function(){
-                    //sinon doesn't like passing the spy directly with 'this' as context.
-                    spy.apply(null, arguments);
-                });
-                $node.trigger('change');
+                $textNode.on('update.f.ui', spy);
+                $textNode.trigger('change');
+
                 spy.should.have.been.called.once;
             });
 
-            it('should pass the right value on check', function () {
-                var $node = $(make('<input type="checkbox" data-f-bind="stuff"/>'));
+            it('should pass the right params to the event', function () {
+                var $textNode = $(make('<input type="text" data-f-bind="stuff"/>'));
                 domManager.initialize({
-                    root: $node,
+                    root: $textNode,
                     channel: dummyChannelManager
                 });
-
                 var spy = sinon.spy();
-                $node.on('update.f.ui', function(){
-                    spy.apply(null, arguments);
-                });
-                $node.prop('checked', true);
-                $node.trigger('change');
-
-                spy.getCall(0).args[1].should.eql({stuff: 1});
+                $textNode.on('update.f.ui', spy);
+                $textNode.val(5);
+                $textNode.trigger('change');
+                spy.getCall(0).args[1].should.eql({stuff: '5'});
             });
         });
     });
-
 }());
