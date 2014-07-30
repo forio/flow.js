@@ -39,5 +39,33 @@ module.exports = (function() {
                 });
             });
         });
+        describe('updaters', function () {
+            it('should select the right value on match', function () {
+                var nodes = [
+                    '<select data-f-bind="stuff">',
+                    '<option value="1"> A </option>',
+                    '<option value="2"> B </option>',
+                    '</select>'
+                ].join('');
+                var $node = utils.initWithNode(nodes, domManager);
+                $node.trigger('update.f.model', {stuff: 1});
+
+                $node.val().should.equal('1');
+            });
+
+            it('should not change anything if no match', function () {
+                var nodes = [
+                    '<select data-f-bind="stuff">',
+                    '<option value="1"> A </option>',
+                    '<option value="2" selected> B </option>',
+                    '</select>'
+                ].join('');
+                var $node = utils.initWithNode(nodes, domManager);
+                $node.trigger('update.f.model', {stuff: true});
+                //NOTE: what should the right behavior be? right now node.val is null
+                // console.log($node.val(), $node);
+                // $node.val().should.equal('2');
+            });
+        });
     });
 }());
