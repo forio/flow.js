@@ -64,7 +64,7 @@
                 });
             });
 
-            describe('UI Listeners', function () {
+            describe('DOM Elements', function () {
                 it('should bubble change events', function () {
                     var node = make('<div data-f-a="a"> <div class="abc"> <input type="text" data-f-b="stuff"/> </div> <span> nothing </span> </div>');
 
@@ -91,6 +91,9 @@
                     parentSpy.should.have.been.called.once;
                     rootSpy.should.have.been.called.once;
                 });
+
+                require('./element-tests/test-checkbox');
+                require('./element-tests/test-text');
             });
 
             describe('Attribute Handlers', function () {
