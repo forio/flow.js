@@ -1,5 +1,4 @@
 - Attrmap has duplicates, dedupe before adding
-- Listen on body instead of on each element?
 
 Formatting
     - data-f-format
