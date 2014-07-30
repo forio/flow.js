@@ -124,42 +124,6 @@
                         spy.getCall(0).args[1].should.eql({stuff: '5'});
                     });
                 });
-
-                describe(':checkbox', function () {
-                    it('should trigger the right event on ui change', function () {
-                        var $node = $(make('<input type="checkbox" data-f-bind="stuff"/>'));
-                        domManager.initialize({
-                            root: $node,
-                            channel: dummyChannelManager
-                        });
-
-                        var spy = sinon.spy();
-                        $node.on('update.f.ui', function(){
-                            //sinon doesn't like passing the spy directly with 'this' as context.
-                            spy.apply(null, arguments);
-                        });
-                        $node.trigger('change');
-                        spy.should.have.been.called.once;
-                    });
-
-                    it('should pass the right params to the event', function () {
-                        var $node = $(make('<input type="checkbox" data-f-bind="stuff"/>'));
-                        domManager.initialize({
-                            root: $node,
-                            channel: dummyChannelManager
-                        });
-
-                        var spy = sinon.spy();
-                        $node.on('update.f.ui', function(){
-                            spy.apply(null, arguments);
-                        });
-                        $node.prop('checked', true);
-                        $node.trigger('change');
-
-                        spy.getCall(0).args[1].should.eql({stuff: 1});
-                    });
-                });
-
             });
 
             describe('Attribute Handlers', function () {
