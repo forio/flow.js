@@ -1,6 +1,8 @@
 (function() {
     'use strict';
 
+    var Channel = require('../../src/channels/variables-channel');
+
     describe('Flow Channel', function () {
         var core, channel, server;
 
@@ -25,8 +27,14 @@
                 xhr.respond(201, { 'Content-Type': 'application/json'}, JSON.stringify(resp));
             });
 
-            Flow.initialize();
-            channel = Flow.channel.variables;
+            channel = new Channel({vent: {}, run: {
+                variables: function () {
+                    return {
+                        query: $.noop,
+                        save: $.noop
+                    };
+                }
+            }});
             core = channel.private;
         });
 
@@ -179,8 +187,5 @@
 
             });
         });
-
-
-
     });
 }());
