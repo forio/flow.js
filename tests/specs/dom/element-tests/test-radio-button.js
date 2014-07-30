@@ -56,32 +56,30 @@ module.exports = (function() {
             });
         });
         describe('Updaters', function () {
-            describe('with defaults', function () {
-                it('should select the right option which matches', function () {
-                    var nodes = [
-                        '<input type="radio" name="a" id="x" data-f-bind="stuff" value="8"/>',
-                        '<input type="radio" name="a" id="y" data-f-bind="stuff" value="2"/>'
-                    ].join('');
+            it('should select the right option which matches', function () {
+                var nodes = [
+                    '<input type="radio" name="a" id="x" data-f-bind="stuff" value="8"/>',
+                    '<input type="radio" name="a" id="y" data-f-bind="stuff" value="2"/>'
+                ].join('');
 
-                    var $nodes = utils.initWithNode(nodes, domManager);
-                    $nodes.trigger('update.f.model', {stuff: '8'});
+                var $nodes = utils.initWithNode(nodes, domManager);
+                $nodes.trigger('update.f.model', {stuff: '8'});
 
-                    $nodes.filter('#x').prop('checked').should.equal(true);
-                    $nodes.filter('#y').prop('checked').should.equal(false);
-                });
+                $nodes.filter('#x').prop('checked').should.equal(true);
+                $nodes.filter('#y').prop('checked').should.equal(false);
+            });
 
-                it('should not select anything if it doesnt match', function () {
-                    var nodes = [
-                        '<input type="radio" name="a" id="x" data-f-bind="stuff" value="8"/>',
-                        '<input type="radio" name="a" id="y" data-f-bind="stuff" value="2"/>'
-                    ].join('');
+            it('should not select anything if it doesnt match', function () {
+                var nodes = [
+                    '<input type="radio" name="a" id="x" data-f-bind="stuff" value="8"/>',
+                    '<input type="radio" name="a" id="y" data-f-bind="stuff" value="2"/>'
+                ].join('');
 
-                    var $nodes = utils.initWithNode(nodes, domManager);
-                    $nodes.trigger('update.f.model', {stuff: true});
+                var $nodes = utils.initWithNode(nodes, domManager);
+                $nodes.trigger('update.f.model', {stuff: true});
 
-                    $nodes.filter('#x').prop('checked').should.equal(false);
-                    $nodes.filter('#y').prop('checked').should.equal(false);
-                });
+                $nodes.filter('#x').prop('checked').should.equal(false);
+                $nodes.filter('#y').prop('checked').should.equal(false);
             });
         });
     });
