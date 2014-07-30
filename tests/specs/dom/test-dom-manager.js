@@ -80,6 +80,7 @@
                 require('./element-tests/test-radio-button');
                 require('./element-tests/test-text');
                 require('./element-tests/test-select');
+                require('./element-tests/test-generic-dom');
             });
 
             describe('Attribute Handlers', function () {
