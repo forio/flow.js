@@ -22,7 +22,10 @@
                 cm.convert(1, 's').should.equal('1');
             });
             it('should convert with an array converters', function () {
-
+                cm.register('multiply', function (val) {
+                    return val * 3;
+                });
+                cm.convert('2', ['i', 'multiply']).should.equal(6);
             });
         });
         describe('#replace', function () {
