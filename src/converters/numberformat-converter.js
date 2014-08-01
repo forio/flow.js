@@ -2,7 +2,7 @@
 module.exports = {
     alias: function (name) {
         //TODO: Fancy regex to match number formats here
-        return (name.indexOf('#') !== -1);
+        return (name.indexOf('#') !== -1 || name.indexOf('0') !== -1 );
     },
 
     convert: (function(value) {

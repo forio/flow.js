@@ -82,6 +82,7 @@ module.exports = {
         return filtered;
     },
 
+    //FIXME: Add a test for this, probably broken
     replace: function(attrFilter, nodeFilter, handler) {
         var existing = _.indexOf(handlersList, function(handler) {
             return matchAttr(handler.test, attrFilter) && matchNode(handler.target, nodeFilter);

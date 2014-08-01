@@ -5,7 +5,7 @@ module.exports = {
 
     target: '*',
 
-    test: /^(?:model|format)$/i,
+    test: /^(?:model|convert)$/i,
 
     handle: $.noop,
 

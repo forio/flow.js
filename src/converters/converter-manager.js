@@ -67,12 +67,16 @@ module.exports = {
     },
 
     convert: function (value, list) {
+        if (!list || !list.length) {
+            return value;
+        }
+
         list = [].concat(list);
         var currentValue = value;
         var me = this;
         _.each(list, function (converterName){
             var converter = me.getConverter(converterName);
-            currentValue = converter.convert(currentValue);
+            currentValue = converter.convert(currentValue, converterName);
         });
         return currentValue;
     }

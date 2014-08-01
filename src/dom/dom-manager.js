@@ -4,6 +4,7 @@ module.exports = (function() {
 
     var nodeManager = require('./nodes/node-manager.js');
     var attrManager = require('./attributes/attribute-manager.js');
+    var converterManager = require('../converters/converter-manager.js');
 
     //Jquery selector to return everything which has a f- property set
     $.expr[':'][config.prefix] = function(obj){
@@ -109,11 +110,23 @@ module.exports = (function() {
                     // console.log(evt.target, data, "root on");
                     var $el = $(evt.target);
                     var varmap = $el.data('variable-attr-map');
+                    var converters = $el.data('fConvert');
+                    if (!converters) {
+                        var $parentEl = $el.closest('[data-f-convert]');
+                        if ($parentEl) {
+                            converters = $parentEl.data('fConvert');
+                        }
+                    }
+                    if (converters) {
+                        converters = converters.split('|');
+                    }
+
                     $.each(data, function(variableName, value) {
+                        var convertedValue = converterManager.convert(value, converters);
                         //TODO: this could be an array
                         var propertyToUpdate = varmap[variableName].toLowerCase();
                         var handler = attrManager.getHandler($el, propertyToUpdate);
-                        handler.handle.call($el, value, propertyToUpdate);
+                        handler.handle.call($el, convertedValue, propertyToUpdate);
                     });
                 });
 

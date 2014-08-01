@@ -28,13 +28,13 @@
             <span> between $1 and $999 </span>
 
             <label> X5 Price </label>
-            <input type="text" data-f-bind="price[<currentstep>,X5]" data-f-format="#,###">
+            <input type="text" data-f-bind="price[<currentstep>,X5]" data-f-convert="#,###">
 
             <label> X6 Price </label>
-            <input type="text" data-f-bind="price[<currentstep>,X6]" data-f-format="$0.00">
+            <input type="text" data-f-bind="price[<currentstep>,X6]" data-f-convert="$0.00">
 
             <label> X7 Price </label>
-            <input type="text" data-f-bind="price[<currentstep>,X7]" data-f-format="0%">
+            <input type="text" data-f-bind="price[<currentstep>,X7]" data-f-convert="0%">
 
 
             <h4> Allocate your R&D budget </h4>
@@ -65,7 +65,7 @@
             <h4> Your score so far: </h4>
             <!-- <span style="color:red;" data-f-bind="Total Profit"> </span> -->
 
-            <table>
+            <table data-f-convert="$#,###">
                 <tr>
                     <td>
                         <span data-f-bind="time[<currentstep>]"> </span> X5 Profit
@@ -76,9 +76,9 @@
                 </tr>
                 <tr>
                     <td>
-                        <span data-f-bind="time[<currentstep>]"> </span> X6 Profit
+                        <span data-f-bind="time[<currentstep>]" > </span> X6 Profit
                     </td>
-                    <td data-f-bind="profit[<currentstep>,X6]">
+                    <td data-f-bind="profit[<currentstep>,X6]" >
 
                     </td>
                 </tr>
