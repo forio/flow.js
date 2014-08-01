@@ -34,3 +34,4 @@ documentation/generated
 **/vendor/**
 
 dist/
+tests/tests-browserify-bundle.js
