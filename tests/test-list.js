@@ -4,5 +4,6 @@
 
 
 require('./specs/dom/test-dom-manager');
+require('./specs/converters/test-converter-manager');
 require('./specs/dom/test-default-input-node');
 require('./specs/test-variables-channel');
