@@ -6,11 +6,20 @@ var defaultconverters = [
     require('./numberformat-converter'),
 ];
 
-var convertersList = {};
+var convertersList = [];
 $.each(defaultconverters, function(index, converter) {
-    convertersList[converter.alias] = converter;
+    convertersList.push(converter);
 });
 
+var normalizeConverter = function (alias, converter) {
+    if (_.isFunction(converter)) {
+        return {
+            alias: alias,
+            convert: converter
+        };
+    }
+    return converter;
+};
 
 module.exports = {
     list: convertersList,
@@ -20,7 +29,7 @@ module.exports = {
      * @param  {function|object} converter    converter can either be a function, which will be called with the value, or an object with {alias: '', parse: $.noop, convert: $.noop}
      */
     register: function (alias, converter) {
-        convertersList[alias] = converter;
+        convertersList.unshift(normalizeConverter(alias, converter));
     },
 
     getConverter: function (alias) {

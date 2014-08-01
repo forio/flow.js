@@ -5,10 +5,15 @@
     describe('Converter Manager', function () {
         describe('#register', function () {
             it('Allows registering string converters', function () {
-                var currentRegisterList = Object.keys(cm.list).length;
+                var currentRegisterList = cm.list.length;
                 cm.register('abc', $.noop);
-                console.log(cm.list);
-                Object.keys(cm.list).length.should.equal(currentRegisterList + 1);
+                cm.list.length.should.equal(currentRegisterList + 1);
+            });
+        });
+        describe('#getConverter', function () {
+            it('matches default handlers', function () {
+                var def = cm.getConverter('s');
+                def.should.exist;
             });
         });
     });

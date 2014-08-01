@@ -1,7 +1,8 @@
 'use strict';
 module.exports = {
-    alias: function () {
+    alias: function (name) {
         //TODO: Fancy regex to match number formats here
+        return (name.indexOf('#') !== -1);
     },
 
     convert: (function(value) {
