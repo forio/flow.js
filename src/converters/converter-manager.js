@@ -66,14 +66,15 @@ module.exports = {
         });
     },
 
-    convert: function (value, convertersList) {
-        convertersList = [].concat(convertersList);
+    convert: function (value, list) {
+        list = [].concat(list);
         var currentValue = value;
         var me = this;
-        _.each(convertersList, function (converterName){
+        _.each(list, function (converterName){
             var converter = me.getConverter(converterName);
-            currentValue = converter(currentValue);
+            currentValue = converter.convert(currentValue);
         });
+        return currentValue;
     }
 };
 

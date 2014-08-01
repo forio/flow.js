@@ -16,6 +16,15 @@
                 def.should.exist;
             });
         });
+
+        describe('convert', function () {
+            it('should convert with a single converter', function () {
+                cm.convert(1, 's').should.equal('1');
+            });
+            it('should convert with an array converters', function () {
+
+            });
+        });
         describe('#replace', function () {
             it('should replace existing string converters with new ones', function () {
                 var conv = cm.getConverter('s');
