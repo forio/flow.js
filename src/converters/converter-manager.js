@@ -11,7 +11,7 @@ $.each(defaultconverters, function(index, converter) {
     convertersList.push(converter);
 });
 
-var normalizeConverter = function (alias, converter) {
+var normalize = function (alias, converter) {
     if (_.isFunction(converter)) {
         return {
             alias: alias,
@@ -21,7 +21,24 @@ var normalizeConverter = function (alias, converter) {
     return converter;
 };
 
+var matchConverter = function (alias, converter) {
+    if (_.isString(converter.alias)) {
+        return alias === converter.alias;
+    }
+    else if (_.isFunction(converter.alias)) {
+        return converter.alias(alias);
+    }
+    else if (_.isRegex(converter.alias)) {
+        return converter.alias.match(alias);
+    }
+    return false;
+};
+
 module.exports = {
+    private: {
+        matchConverter: matchConverter
+    },
+
     list: convertersList,
     /**
      * Add a new attribute converter
@@ -29,20 +46,23 @@ module.exports = {
      * @param  {function|object} converter    converter can either be a function, which will be called with the value, or an object with {alias: '', parse: $.noop, convert: $.noop}
      */
     register: function (alias, converter) {
-        convertersList.unshift(normalizeConverter(alias, converter));
+        convertersList.unshift(normalize(alias, converter));
+    },
+
+    replace: function(alias, converter) {
+        var index;
+        _.each(convertersList, function(currentConverter, i) {
+            if (matchConverter(alias, currentConverter)) {
+                index = i;
+                return false;
+            }
+        });
+        convertersList.splice(index, 1, normalize(alias, converter));
     },
 
     getConverter: function (alias) {
         return _.find(convertersList, function (converter) {
-            if (_.isString(converter.alias)) {
-                return alias === converter.alias;
-            }
-            else if (_.isFunction(converter.alias)) {
-                return converter.alias(alias);
-            }
-            else if (_.isRegex(converter.alias)) {
-                return converter.alias.match(alias);
-            }
+            return matchConverter(alias, converter);
         });
     },
 
