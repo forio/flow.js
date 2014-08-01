@@ -1,8 +1,10 @@
 'use strict';
 module.exports = {
-    test: '',
+    alias: function () {
+        //TODO: Fancy regex to match number formats here
+    },
 
-    transform: (function(value) {
+    convert: (function(value) {
         var scales = ['', 'K', 'M', 'B', 'T'];
 
         function getDigits(value, digits) {
