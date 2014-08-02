@@ -15,7 +15,7 @@ var defaultHandlers = [
 
 var handlersList = [];
 
-var addDefaults = function (attributeMatcher, nodeMatcher, handler) {
+var normalize = function (attributeMatcher, nodeMatcher, handler) {
     if (!nodeMatcher) {
         nodeMatcher = '*';
     }
@@ -28,7 +28,7 @@ var addDefaults = function (attributeMatcher, nodeMatcher, handler) {
 };
 
 $.each(defaultHandlers, function(index, handler) {
-    handlersList.push(addDefaults(handler.test, handler.target, handler));
+    handlersList.push(normalize(handler.test, handler.target, handler));
 });
 
 
@@ -61,7 +61,7 @@ module.exports = {
      * @param  {function|object} handler    Handler can either be a function (The function will be called with $element as context, and attribute value + name), or an object with {init: fn,  handle: fn}. The init function will be called when page loads; use this to define event handlers
      */
     register: function (attributeMatcher, nodeMatcher, handler) {
-        handlersList.unshift(addDefaults.apply(null, arguments));
+        handlersList.unshift(normalize.apply(null, arguments));
     },
 
     /**
@@ -87,7 +87,7 @@ module.exports = {
         var existing = _.indexOf(handlersList, function(handler) {
             return matchAttr(handler.test, attrFilter) && matchNode(handler.target, nodeFilter);
         });
-        handlersList.splice(existing, 1, addDefaults(attrFilter, nodeFilter, handler));
+        handlersList.splice(existing, 1, normalize(attrFilter, nodeFilter, handler));
     },
 
     getHandler: function($el, property) {
