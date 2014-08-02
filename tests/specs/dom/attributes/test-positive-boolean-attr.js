@@ -3,7 +3,7 @@ module.exports = (function() {
     var domManager = require('../../../../src/dom/dom-manager');
     var utils = require('../../../testing-utils');
 
-    describe('Negative Booleans', function () {
+    describe('Positive Booleans', function () {
         it('should set property to false for truthy values', function () {
             var $node = utils.initWithNode('<input type="checkbox" data-f-checked="canAdvance" data-f-bind="stuff"/>', domManager);
             $node.trigger('update.f.model', {canAdvance: '1'});
