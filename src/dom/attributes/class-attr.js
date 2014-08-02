@@ -8,9 +8,15 @@ module.exports = {
 
     handle: function(value, prop) {
         var addedClasses = this.data('added-classes');
-        this.removeClass(addedClasses);
+        if (!addedClasses) {
+            addedClasses = {};
+        }
+        if (addedClasses[prop]) {
+            this.removeClass(addedClasses[prop]);
+        }
+        addedClasses[prop] = value;
 
         this.addClass(value);
-        this.data('added-classes', value);
+        this.data('added-classes', addedClasses);
     }
 };
