@@ -83,17 +83,7 @@
             });
 
             describe('Attribute Handlers', function () {
-                it('should copy attributes for anything it doesn\'t understand', function () {
-                    var $node = $(make('<input type="text" data-f-fruit="apple" data-f-bind="stuff"/>'));
-                    domManager.initialize({
-                        root: $node,
-                        channel: dummyChannelManager
-                    });
-
-                    $node.trigger('update.f.model', {apple: 'sauce'});
-                    $node.prop('fruit').should.equal('sauce');
-                });
-
+                require('./attributes/test-default-attr');
                 require('./attributes/test-negative-boolean-attr');
                 require('./attributes/test-positive-boolean-attr');
                 require('./attributes/test-class-attr');
