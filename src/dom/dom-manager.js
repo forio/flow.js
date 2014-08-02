@@ -124,9 +124,12 @@ module.exports = (function() {
                     $.each(data, function(variableName, value) {
                         var convertedValue = converterManager.convert(value, converters);
                         //TODO: this could be an array
-                        var propertyToUpdate = varmap[variableName].toLowerCase();
-                        var handler = attrManager.getHandler(propertyToUpdate, $el);
-                        handler.handle.call($el, convertedValue, propertyToUpdate);
+                        var propertyToUpdate = varmap[variableName];
+                        if (propertyToUpdate){
+                            propertyToUpdate = propertyToUpdate.toLowerCase();
+                            var handler = attrManager.getHandler(propertyToUpdate, $el);
+                            handler.handle.call($el, convertedValue, propertyToUpdate);
+                        }
                     });
                 });
 

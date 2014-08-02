@@ -84,6 +84,7 @@
 
             describe('Attribute Handlers', function () {
                 require('./attributes/test-default-attr');
+                require('./attributes/test-no-op-attr');
                 require('./attributes/test-negative-boolean-attr');
                 require('./attributes/test-positive-boolean-attr');
                 require('./attributes/test-class-attr');
