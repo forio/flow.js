@@ -51,7 +51,6 @@
             describe('DOM Elements', function () {
                 it('should bubble change events', function () {
                     var node = make('<div data-f-a="a"> <div class="abc"> <input type="text" data-f-b="stuff"/> </div> <span> nothing </span> </div>');
-
                     var $textNode = $(node).find(':text');
 
                     domManager.initialize({
@@ -84,23 +83,16 @@
             });
 
             describe('Attribute Handlers', function () {
-                var attrManager, initableHandler;
-                before(function () {
-                    initableHandler = {
-                        init: $.noop
-                    };
+                it('should copy attributes for anything it doesn\'t understand', function () {
+                    var $node = $(make('<input type="text" data-f-fruit="apple" data-f-bind="stuff"/>'));
+                    domManager.initialize({
+                        root: $node,
+                        channel: dummyChannelManager
+                    });
 
-                    attrManager = {
-                        getHandler: function () {
-                            return initableHandler;
-                        }
-                    };
+                    $node.trigger('update.f.model', {apple: 'sauce'});
+                    $node.prop('fruit').should.equal('sauce');
                 });
-
-                it('should find a handler', function () {
-
-                });
-
             });
         });
     });
