@@ -82,12 +82,15 @@ module.exports = {
         return filtered;
     },
 
-    //FIXME: Add a test for this, probably broken
     replace: function(attrFilter, nodeFilter, handler) {
-        var existing = _.indexOf(handlersList, function(handler) {
-            return matchAttr(handler.test, attrFilter) && matchNode(handler.target, nodeFilter);
+        var index;
+        _.each(handlersList, function(currentHandler, i) {
+            if (matchAttr(currentHandler.test, attrFilter) && matchNode(currentHandler.target, nodeFilter)) {
+                index = i;
+                return false;
+            }
         });
-        handlersList.splice(existing, 1, normalize(attrFilter, nodeFilter, handler));
+        handlersList.splice(index, 1, normalize(attrFilter, nodeFilter, handler));
     },
 
     getHandler: function($el, property) {
