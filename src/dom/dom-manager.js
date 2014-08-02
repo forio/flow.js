@@ -73,7 +73,7 @@ module.exports = (function() {
                                     if (attr.indexOf(wantedPrefix) === 0) {
                                         attr = attr.replace(wantedPrefix, '');
 
-                                        var handler = attrManager.getHandler($el, attr);
+                                        var handler = attrManager.getHandler(attr, $el);
                                         var isBindableAttr = true;
                                         if (handler && handler.init) {
                                             isBindableAttr = handler.init.call($el, attr, attrVal);
@@ -125,7 +125,7 @@ module.exports = (function() {
                         var convertedValue = converterManager.convert(value, converters);
                         //TODO: this could be an array
                         var propertyToUpdate = varmap[variableName].toLowerCase();
-                        var handler = attrManager.getHandler($el, propertyToUpdate);
+                        var handler = attrManager.getHandler(propertyToUpdate, $el);
                         handler.handle.call($el, convertedValue, propertyToUpdate);
                     });
                 });

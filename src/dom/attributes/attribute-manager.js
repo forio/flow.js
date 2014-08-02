@@ -93,7 +93,7 @@ module.exports = {
         handlersList.splice(index, 1, normalize(attrFilter, nodeFilter, handler));
     },
 
-    getHandler: function($el, property) {
+    getHandler: function(property, $el) {
         var filtered = this.filter(property, $el);
         //There could be multiple matches, but the top first has the most priority
         return filtered[0];
