@@ -95,8 +95,7 @@
                 });
 
                 require('./attributes/test-negative-boolean-attr');
-
-
+                require('./attributes/test-positive-boolean-attr');
             });
 
         });
