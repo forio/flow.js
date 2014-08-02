@@ -93,28 +93,10 @@
                     $node.trigger('update.f.model', {apple: 'sauce'});
                     $node.prop('fruit').should.equal('sauce');
                 });
-                describe('Negative Booleans', function () {
-                    it('should set property to false for truthy values', function () {
-                        var $node = $(make('<input type="text" data-f-disabled="canAdvance" data-f-bind="stuff"/>'));
-                        domManager.initialize({
-                            root: $node,
-                            channel: dummyChannelManager
-                        });
 
-                        $node.trigger('update.f.model', {canAdvance: '1'});
-                        $node.prop('disabled').should.equal(false);
-                    });
-                    it('should set property to true for falsy values', function () {
-                        var $node = $(make('<input type="text" data-f-disabled="canAdvance" data-f-bind="stuff"/>'));
-                        domManager.initialize({
-                            root: $node,
-                            channel: dummyChannelManager
-                        });
+                require('./attributes/test-negative-boolean-attr');
 
-                        $node.trigger('update.f.model', {canAdvance: 0});
-                        $node.prop('disabled').should.equal(true);
-                    });
-                });
+
             });
 
         });
