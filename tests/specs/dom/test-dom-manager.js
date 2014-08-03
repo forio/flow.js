@@ -50,23 +50,26 @@
 
             describe('DOM Elements', function () {
                 it('should bubble change events', function () {
-                    var node = make('<div data-f-a="a"> <div class="abc"> <input type="text" data-f-b="stuff"/> </div> <span> nothing </span> </div>');
-                    var $textNode = $(node).find(':text');
+                    var nested = [
+                        '<div data-f-a="a">',
+                        '   <div class="abc">',
+                        '       <input type="text" data-f-b="stuff"/>',
+                        '   </div>',
+                        '   <span> nothing </span>',
+                        '</div>'
+                    ];
+                    var $node = utils.initWithNode(nested.join(), domManager);
 
-                    domManager.initialize({
-                        root: node,
-                        channel: dummyChannelManager
-                    });
-                    // $(textNode).val(6);
+                    var $textNode = $node.find(':text');
 
                     var textspy = sinon.spy();
                     $textNode.on('update.f.ui', textspy);
 
                     var parentSpy = sinon.spy();
-                    $(node).find('.abc').on('update.f.ui', parentSpy);
+                    $node.find('.abc').on('update.f.ui', parentSpy);
 
                     var rootSpy = sinon.spy();
-                    $(node).on('update.f.ui', rootSpy);
+                    $node.on('update.f.ui', rootSpy);
 
 
                     $textNode.trigger('change');
