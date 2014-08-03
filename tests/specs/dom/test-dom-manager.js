@@ -91,6 +91,29 @@
                 require('./attributes/test-negative-boolean-attr');
                 require('./attributes/test-positive-boolean-attr');
                 require('./attributes/test-class-attr');
+
+                it('should allow handling custom attributes', function () {
+                    var toggle = function (value) {
+                        if (value !== 1) {
+                            this.css('display', 'none');
+                        }
+                        else {
+                            this.css('display', 'block');
+                        }
+                    };
+                    var toggleSpy = sinon.spy(toggle);
+                    domManager.attributes.register('toggle', '*', toggleSpy);
+                    var $node = utils.initWithNode('<input type="text" data-f-toggle="shouldIHide" data-f-bind="stuff"/>', domManager);
+                    $node.trigger('update.f.model', {shouldIHide: 1});
+
+                    toggleSpy.should.have.been.called;
+                    toggleSpy.should.have.been.calledWith(1);
+
+                    $node.css('display').should.equal('block');
+
+                    $node.trigger('update.f.model', {shouldIHide: 0});
+                    $node.css('display').should.equal('none');
+                });
             });
 
         });
