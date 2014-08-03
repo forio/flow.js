@@ -6,17 +6,36 @@ var defaultHandlers = [
     require('./default-node')
 ];
 
-var nodeList = [];
+//{selector: '', handler: $.noop}
+var handlersList = [];
+var normalize = function (selector, handler) {
+    if (_.isFunction(handler)) {
+        handler = {
+            handle: handler
+        };
+    }
+    if (!selector) {
+        selector = '*';
+    }
+    handler.selector = selector;
+    return handler;
+};
 
 $.each(defaultHandlers, function(index, node) {
-    if (!node.selector) {
-        node.selector = '*';
-    }
-    nodeList.push(node);
+    handlersList.push(normalize(node.selector, node));
 });
 
+var match = function (toMatch, node) {
+    if (_.isString(toMatch)) {
+        return toMatch === node.selector;
+    }
+    else {
+        return $(toMatch).is(node.selector);
+    }
+};
+
 module.exports = {
-    list: nodeList,
+    list: handlersList,
 
     /**
      * Add a new node handler
@@ -24,36 +43,23 @@ module.exports = {
      * @param  {function} handler  Handlers are new-able functions. They will be called with $el as context.? TODO: Think this through
      */
     register: function (selector, handler) {
-        handler.selector = selector;
-        nodeList.unshift(handler);
+        handlersList.unshift(normalize(selector, handler));
     },
 
-    get: function(selector) {
-        return _.find(nodeList, function(node) {
-            return node.selector === selector;
+    getHandler: function(selector) {
+        return _.find(handlersList, function(node) {
+            return match(selector, node);
         });
     },
 
     replace: function(selector, handler) {
-        var existing = _.indexOf(nodeList, function(node) {
-            return node.selector === selector;
+        var index;
+        _.each(handlersList, function(currentHandler, i) {
+            if (selector === currentHandler.selector) {
+                index = i;
+                return false;
+            }
         });
-        nodeList.splice(existing, 1, handler);
+        handlersList.splice(index, 1, normalize(selector, handler));
     }
 };
-
-/**
- * Flow.dom.nodes.register('contour-chart', {
- *     propertyHandlers : [
- *         {test: 'bind', handle: function (data){
- *             var time = data.time;
- *         } }
- *     ],
- *
- *     init: function() {
- *         $(this).on(f.model.update, function () {
- *
- *         });
- *     };
- * })
- */

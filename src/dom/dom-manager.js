@@ -55,9 +55,9 @@ module.exports = (function() {
 
                 $.each(matchedElements, function(index, element) {
                     var $el = $(element);
-                    $.each(nodeManager.list, function(index, Node) {
-                        if ($el.is(Node.selector)) {
-                            new Node({
+                    $.each(nodeManager.list, function(index, node) {
+                        if ($el.is(node.selector)) {
+                            new node.handle({
                                 el: element
                             });
 
