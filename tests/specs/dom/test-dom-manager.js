@@ -116,6 +116,10 @@
                 });
             });
 
+            describe('Node Handlers', function () {
+
+                require('./nodes/test-node-manager');
+            });
         });
     });
 
