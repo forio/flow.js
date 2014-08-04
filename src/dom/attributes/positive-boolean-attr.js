@@ -7,7 +7,7 @@ module.exports = {
 
     handle: function(value, prop) {
         /*jslint eqeq: true*/
-        var val = (this.prop('value')) ? (value == this.prop('value')) : !!value;
+        var val = (this.attr('value')) ? (value == this.prop('value')) : !!value;
         this.prop(prop, val);
     }
 };
