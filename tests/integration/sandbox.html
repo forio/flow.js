@@ -1,0 +1,63 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+</head>
+<body data-f-on-init="start_game">
+
+    Price[X5] <input type="text" value="1" data-f-bind="price[x5]">
+
+    Price[X6] <input type="text" value="1" data-f-bind="sales" data-f-disabled ='boolprop'>
+
+    Price[X6] <input type="checkbox" value="4" data-f-bind="boolprop" data-f-format="#,#"/>
+
+    <div id="test">
+        <span data-f-value="price"></span>
+    </div>
+
+    <button data-f-on-click = "submit(apple,mango)"> Press </button>
+
+    <select data-f-bind="sampleInt">
+            <option value="8"> 8 </option>
+            <option value="10"> 10 </option>
+            <option value="12"> 12 </option>
+        </select>
+
+        <select>
+            <option data-f-selected="sampleInt" value="8"> 8 </option>
+            <option data-f-selected="sampleInt" value="10"> 10 </option>
+            <option data-f-selected="sampleInt" value="12"> 12 </option>
+            </select>
+
+    <input type="radio" data-f-bind="sampleInt" value="8" name="abc"/> 8
+    <input type="radio" data-f-bind="sampleInt" value="10" name="abc"/> 10
+    <input type="radio" data-f-bind="sampleInt" value="12" name="abc"/> 12
+
+    <input type="checkbox" data-f-bind="sampleInt" value="10">should be 10?</input>
+
+    <script src="../../vendor/jquery/dist/jquery.min.js"></script>
+    <script src="../../vendor/lodash/dist/lodash.js"></script>
+    <script src="../../vendor/epicenter-js-libs/dist/epicenter.min.js"></script>
+    <script src="../../dist/flow.js"></script>
+    <!-- <script src="../dist/flow-loader.js"></script> -->
+
+    <script>
+    Flow.initialize({
+        channel: {
+            model: 'pdasim2.vmf',
+            account: 'nranjit',
+            project: 'sales_forecaster',
+            transport: {
+                beforeSend: function () {
+                    $('body').addClass('loading');
+                },
+                complete: function () {
+                    $('body').removeClass('loading');
+                }
+            }
+        }
+    });
+    </script>
+</body>
+</html>
