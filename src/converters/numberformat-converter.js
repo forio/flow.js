@@ -6,6 +6,7 @@ module.exports = {
     },
 
     convert: (function(value) {
+
         var scales = ['', 'K', 'M', 'B', 'T'];
 
         function getDigits(value, digits) {
@@ -110,6 +111,10 @@ module.exports = {
         }
 
         function format(number, formatTXT) {
+            if (!_.isString(number) && !_.isNumber(number)) {
+                return number;
+            }
+
             if (!formatTXT || formatTXT.toLowerCase() === 'default') {
                 return number.toString();
             }

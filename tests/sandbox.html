@@ -1,63 +1,70 @@
+
 <!doctype html>
-<html>
-<head>
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+<html><head>
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <meta name="uibuilder:session" content="INITIAL">
+
+    <script src="https://forio.com/app/jaimedp/pda/bower_components/platform/platform.js"></script>
+
+    <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css">
+
+
+
+    <link rel="stylesheet" href="css/forio-epicenter.css">
+
+
+    <script src="//cdnjs.cloudflare.com/ajax/libs/lodash.js/2.4.1/lodash.min.js"></script>
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.2/jquery.min.js"></script>
+    <link rel="import" href="https://forio.com/app/jaimedp/pda/elements/contour-chart.html?v=123123">
 </head>
-<body data-f-on-init="start_game">
-
-    Price[X5] <input type="text" value="1" data-f-bind="price[x5]">
-
-    Price[X6] <input type="text" value="1" data-f-bind="sales" data-f-disabled ='boolprop'>
-
-    Price[X6] <input type="checkbox" value="4" data-f-bind="boolprop" data-f-format="#,#"/>
-
-    <div id="test">
-        <span data-f-value="price"></span>
+<body data-f-on-init="start_game" data-f-model="model.vmf" data-f-convert="#,###" class="">
+    <div class="content-wrapper"><div class="container">
+    <div class="row">
+        <div class="col-xs-7">
+        <contour-chart class="" data-f-source="Profit" yaxistitle="Profit" data-f-categories="Time" data-f-legend="Version"><line-chart></line-chart></contour-chart><table class="financial-table selected">
+    <thead>
+        <tr>
+            <th></th>
+            <th>This Year</th>
+            <th>Last Year</th>
+            <th>% Change</th>
+        </tr>
+    </thead>
+    <tbody><tr>
+    <td>Costs</td>
+    <td data-f-bind="Costs[<currentstep>,X5]" class="number"></td>
+    <td data-f-bind="Costs[<previousstep>,X5]" class="number"></td>
+    <td class="percent change"></td>
+</tr>
+<tr>
+    <td>Price</td>
+    <td data-f-bind="Price[<currentstep>,X5]" class="number"></td>
+    <td data-f-bind="Price[<previousstep>,X5]" class="number"></td>
+    <td class="percent change"></td>
+</tr>
+</tbody>
+</table></div>
+        <div class="col-xs-5 side-col">
+        <button class="btn btn-primary" data-f-on-click="step(1)">Advance</button></div>
     </div>
+</div></div>
 
-    <button data-f-on-click = "submit(apple,mango)"> Press </button>
-
-    <select data-f-bind="sampleInt">
-            <option value="8"> 8 </option>
-            <option value="10"> 10 </option>
-            <option value="12"> 12 </option>
-        </select>
-
-        <select>
-            <option data-f-selected="sampleInt" value="8"> 8 </option>
-            <option data-f-selected="sampleInt" value="10"> 10 </option>
-            <option data-f-selected="sampleInt" value="12"> 12 </option>
-            </select>
-
-    <input type="radio" data-f-bind="sampleInt" value="8" name="abc"/> 8
-    <input type="radio" data-f-bind="sampleInt" value="10" name="abc"/> 10
-    <input type="radio" data-f-bind="sampleInt" value="12" name="abc"/> 12
-
-    <input type="checkbox" data-f-bind="sampleInt" value="10">should be 10?</input>
-
-    <script src="../vendor/jquery/dist/jquery.min.js"></script>
-    <script src="../vendor/lodash/dist/lodash.js"></script>
-    <script src="../vendor/epicenter-js-libs/dist/epicenter.min.js"></script>
+    <script src="//forio.com/tools/js-libs/1.0/epicenter.min.js"></script>
     <script src="../dist/flow.js"></script>
-    <!-- <script src="../dist/flow-loader.js"></script> -->
-
+    <div class="loading-indicator">Processing...</div>
     <script>
+
     Flow.initialize({
         channel: {
-            model: 'pdasim2.vmf',
-            account: 'nranjit',
-            project: 'sales_forecaster',
-            transport: {
-                beforeSend: function () {
-                    $('body').addClass('loading');
-                },
-                complete: function () {
-                    $('body').removeClass('loading');
-                }
-            }
+            account: 'jaimedp',
+            project: 'pda',
+            server: {host: 'api.forio.com'}
+
         }
     });
+
     </script>
-</body>
-</html>
+
+</body></html>
