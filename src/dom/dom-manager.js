@@ -68,7 +68,13 @@ module.exports = (function() {
                         //NOTE: looping through attributes instead of .data because .data automatically camelcases properties and make it hard to retrvieve
                         $(element.attributes).each(function(index, nodeMap){
                             var attr = nodeMap.nodeName;
-                            var attrVal = nodeMap.nodeValue;
+                            var attrVal = nodeMap.value;
+
+                            var withConv = attrVal.split('|');
+                            if (withConv.length > 1) {
+                                attrVal = withConv.shift();
+                                $el.data('f-converters-' + attr, withConv);
+                            }
 
                             var wantedPrefix = 'data-f-';
                             if (attr.indexOf(wantedPrefix) === 0) {
@@ -107,22 +113,26 @@ module.exports = (function() {
                     // console.log(evt.target, data, "root on");
                     var $el = $(evt.target);
                     var varmap = $el.data('variable-attr-map');
-                    var converters = $el.data('fConvert');
-                    if (!converters) {
-                        var $parentEl = $el.closest('[data-f-convert]');
-                        if ($parentEl) {
-                            converters = $parentEl.data('fConvert');
-                        }
-                    }
-                    if (converters) {
-                        converters = converters.split('|');
-                    }
 
                     $.each(data, function(variableName, value) {
-                        var convertedValue = converterManager.convert(value, converters);
-                        //TODO: this could be an array
                         var propertyToUpdate = varmap[variableName];
                         if (propertyToUpdate){
+                            var attrConverters;
+                            if (propertyToUpdate === 'bind') {
+                                attrConverters = $el.data('f-convert');
+                                if (!attrConverters) {
+                                    var $parentEl = $el.closest('[data-f-convert]');
+                                    if ($parentEl) {
+                                        attrConverters = $parentEl.data('f-convert');
+                                    }
+                                }
+                            }
+                            else {
+                                attrConverters = $el.data('f-converters-' + propertyToUpdate);
+                            }
+                            var converters = (attrConverters) ? attrConverters.split('|') : [];
+                            var convertedValue = converterManager.convert(value, converters);
+
                             propertyToUpdate = propertyToUpdate.toLowerCase();
                             var handler = attrManager.getHandler(propertyToUpdate, $el);
                             handler.handle.call($el, convertedValue, propertyToUpdate);
