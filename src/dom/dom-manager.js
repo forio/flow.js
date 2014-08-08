@@ -109,7 +109,7 @@ module.exports = (function() {
                 });
 
                 //Attach listeners
-                $root.on(config.events.react, function(evt, data) {
+                $root.off(config.events.react).on(config.events.react, function(evt, data) {
                     // console.log(evt.target, data, "root on");
                     var $el = $(evt.target);
                     var varmap = $el.data('variable-attr-map');
@@ -141,11 +141,11 @@ module.exports = (function() {
                     });
                 });
 
-                $root.on(config.events.trigger, function(evt, data) {
+                $root.off(config.events.trigger).on(config.events.trigger, function(evt, data) {
                     channel.variables.publish(data);
                 });
 
-                $root.on('f.ui.operate', function(evt, data) {
+                $root.off('f.ui.operate').on('f.ui.operate', function(evt, data) {
                     channel.operations.publish(data.fn, data.args);
                 });
             });
