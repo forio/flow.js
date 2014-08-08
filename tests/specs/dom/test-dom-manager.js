@@ -21,27 +21,27 @@
                 });
 
                 it('should select single nodes', function () {
-                    var textNode = make('<input type="text" data-f-bind="stuff"/>');
+                    var node = make('<input type="text" data-f-bind="stuff"/>');
                     domManager.initialize({
-                        root: textNode,
+                        root: node,
                         channel: dummyChannelManager
                     });
                     domManager.private.matchedElements.length.should.equal(1);
                 });
 
                 it('should select nested nodes', function () {
-                    var textNode = make('<div data-f-bind="a"> <input type="text" data-f-bind="stuff"/> <span> nothing </span> </div>');
+                    var node = make('<div data-f-bind="a"> <input type="text" data-f-bind="stuff"/> <span> nothing </span> </div>');
                     domManager.initialize({
-                        root: textNode,
+                        root: node,
                         channel: dummyChannelManager
                     });
                     domManager.private.matchedElements.length.should.equal(2);
                 });
 
                 it('should select nested nodes with diff F attrs', function () {
-                    var textNode = make('<div data-f-a="a"> <input type="text" data-f-b="stuff"/> <span> nothing </span> </div>');
+                    var node = make('<div data-f-a="a"> <input type="text" data-f-b="stuff"/> <span> nothing </span> </div>');
                     domManager.initialize({
-                        root: textNode,
+                        root: node,
                         channel: dummyChannelManager
                     });
                     domManager.private.matchedElements.length.should.equal(2);
@@ -119,6 +119,18 @@
             describe('Node Handlers', function () {
 
                 require('./nodes/test-node-manager');
+            });
+
+            describe('converters', function () {
+                describe('pipes', function () {
+                    it('should format values with single converters', function () {
+                        var $node = utils.initWithNode('<input type="text" data-f-bind="apple | titleCase"/>', domManager);
+                        $node.trigger('update.f.model', {apple: 'sauce'});
+
+                        $node.val().should.equal('Sauce');
+
+                    });
+                });
             });
         });
     });

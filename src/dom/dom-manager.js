@@ -70,15 +70,15 @@ module.exports = (function() {
                             var attr = nodeMap.nodeName;
                             var attrVal = nodeMap.value;
 
-                            var withConv = _.invoke(attrVal.split('|'), 'trim');
-                            if (withConv.length > 1) {
-                                attrVal = withConv.shift();
-                                $el.data('f-converters-' + attr, withConv);
-                            }
-
                             var wantedPrefix = 'data-f-';
                             if (attr.indexOf(wantedPrefix) === 0) {
                                 attr = attr.replace(wantedPrefix, '');
+
+                                var withConv = _.invoke(attrVal.split('|'), 'trim');
+                                if (withConv.length > 1) {
+                                    attrVal = withConv.shift();
+                                    $el.data('f-converters-' + attr, withConv);
+                                }
 
                                 var handler = attrManager.getHandler(attr, $el);
                                 var isBindableAttr = true;
@@ -117,8 +117,9 @@ module.exports = (function() {
                     $.each(data, function(variableName, value) {
                         var propertyToUpdate = varmap[variableName.trim()];
                         if (propertyToUpdate){
-                            var attrConverters;
-                            if (propertyToUpdate === 'bind') {
+                            var attrConverters = $el.data('f-converters-' + propertyToUpdate);
+
+                            if (!attrConverters && propertyToUpdate === 'bind') {
                                 attrConverters = $el.data('f-convert');
                                 if (!attrConverters) {
                                     var $parentEl = $el.closest('[data-f-convert]');
@@ -126,12 +127,12 @@ module.exports = (function() {
                                         attrConverters = $parentEl.data('f-convert');
                                     }
                                 }
+
+                                if (attrConverters) {
+                                    attrConverters = attrConverters.split('|');
+                                }
                             }
-                            else {
-                                attrConverters = $el.data('f-converters-' + propertyToUpdate);
-                            }
-                            var converters = (attrConverters) ? attrConverters.split('|') : [];
-                            var convertedValue = converterManager.convert(value, converters);
+                            var convertedValue = converterManager.convert(value, attrConverters);
 
                             propertyToUpdate = propertyToUpdate.toLowerCase();
                             var handler = attrManager.getHandler(propertyToUpdate, $el);
