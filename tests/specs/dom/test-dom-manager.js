@@ -172,6 +172,38 @@
 
                         $node.val().should.equal('ecuaS');
                     });
+                    it('should work if specified on parent', function () {
+                        var nested = [
+                            '<div data-f-convert="titleCase | flip">',
+                            '   <div class="abc">',
+                            '       <input type="text" data-f-bind="apple"/>',
+                            '   </div>',
+                            '   <span> nothing </span>',
+                            '</div>'
+                        ];
+                        var $node = utils.initWithNode(nested.join(), domManager);
+                        var $textNode = $node.find(':text');
+
+                        $textNode.trigger('update.f.model', {apple: 'sauce'});
+
+                        $textNode.val().should.equal('ecuaS');
+                    });
+                    it('should local converters should override parent', function () {
+                        var nested = [
+                            '<div data-f-convert="titleCase">',
+                            '   <div class="abc">',
+                            '       <input type="text" data-f-bind="apple" data-f-convert="flip"/>',
+                            '   </div>',
+                            '   <span> nothing </span>',
+                            '</div>'
+                        ];
+                        var $node = utils.initWithNode(nested.join(), domManager);
+                        var $textNode = $node.find(':text');
+
+                        $textNode.trigger('update.f.model', {apple: 'sauce'});
+
+                        $textNode.val().should.equal('ecuas');
+                    });
                 });
             });
         });
