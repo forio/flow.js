@@ -122,6 +122,11 @@
             });
 
             describe('converters', function () {
+                before(function () {
+                    domManager.converters.register('flip', function (val) {
+                        return val.split('').reverse().join('');
+                    });
+                });
                 describe('pipes', function () {
                     describe('bind', function () {
                         it('should convert values with single converters', function () {
@@ -152,16 +157,20 @@
 
                         });
                         it('should convert values with multiple converters', function () {
-                            domManager.converters.register('flip', function (val) {
-                                return val.split('').reverse().join('');
-                            });
-
                             var $node = utils.initWithNode('<input type="text" data-f-stuff="apple | titleCase | flip"/>', domManager);
                             $node.trigger('update.f.model', {apple: 'sauce'});
 
                             $node.prop('stuff').should.equal('ecuaS');
 
                         });
+                    });
+                });
+                describe('f-convert', function () {
+                    it('should work if specified directly on the element', function () {
+                        var $node = utils.initWithNode('<input type="text" data-f-bind="apple" data-f-convert="titleCase | flip"/>', domManager);
+                        $node.trigger('update.f.model', {apple: 'sauce'});
+
+                        $node.val().should.equal('ecuaS');
                     });
                 });
             });
