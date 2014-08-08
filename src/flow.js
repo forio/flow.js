@@ -19,8 +19,14 @@ module.exports = {
 
             }
         };
+
         var options = $.extend(true, {}, defaults, config);
-        this.channel = new Channel(options.channel);
+        if (config && config.channel && (config.channel instanceof Channel)) {
+            this.channel = config.channel;
+        }
+        else {
+            this.channel = new Channel(options.channel);
+        }
 
         domManager.initialize($.extend(true, {
             channel: this.channel
