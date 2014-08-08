@@ -3,3 +3,4 @@
 Formatting
     - data-f-format
     - pipe syntax for transforms
+    - Async formatters

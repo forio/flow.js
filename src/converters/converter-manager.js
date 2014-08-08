@@ -3,6 +3,7 @@
 var defaultconverters = [
     require('./number-converter'),
     require('./string-converter'),
+    require('./title-case-converter'),
     require('./numberformat-converter'),
 ];
 
@@ -72,6 +73,8 @@ module.exports = {
         }
 
         list = [].concat(list);
+        list = _.invoke(list, 'trim');
+
         var currentValue = value;
         var me = this;
         _.each(list, function (converterName){
