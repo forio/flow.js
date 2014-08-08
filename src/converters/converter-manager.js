@@ -73,6 +73,8 @@ module.exports = {
         }
 
         list = [].concat(list);
+        list = _.invoke(list, 'trim');
+
         var currentValue = value;
         var me = this;
         _.each(list, function (converterName){
