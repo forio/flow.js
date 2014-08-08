@@ -70,7 +70,7 @@ module.exports = (function() {
                             var attr = nodeMap.nodeName;
                             var attrVal = nodeMap.value;
 
-                            var withConv = attrVal.split('|');
+                            var withConv = _.invoke(attrVal.split('|'), 'trim');
                             if (withConv.length > 1) {
                                 attrVal = withConv.shift();
                                 $el.data('f-converters-' + attr, withConv);
@@ -115,7 +115,7 @@ module.exports = (function() {
                     var varmap = $el.data('variable-attr-map');
 
                     $.each(data, function(variableName, value) {
-                        var propertyToUpdate = varmap[variableName];
+                        var propertyToUpdate = varmap[variableName.trim()];
                         if (propertyToUpdate){
                             var attrConverters;
                             if (propertyToUpdate === 'bind') {
