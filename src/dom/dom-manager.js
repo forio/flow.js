@@ -27,7 +27,7 @@ module.exports = (function() {
 
         nodes: nodeManager,
         attributes: attrManager,
-
+        converters: converterManager,
         //utils for testing
         private: {
 

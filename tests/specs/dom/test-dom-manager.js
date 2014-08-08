@@ -123,11 +123,22 @@
 
             describe('converters', function () {
                 describe('pipes', function () {
-                    it('should format values with single converters', function () {
+                    it('should convert values with single converters', function () {
                         var $node = utils.initWithNode('<input type="text" data-f-bind="apple | titleCase"/>', domManager);
                         $node.trigger('update.f.model', {apple: 'sauce'});
 
                         $node.val().should.equal('Sauce');
+
+                    });
+                    it('should convert values with multiple converters', function () {
+                        domManager.converters.register('flip', function (val) {
+                            return val.split('').reverse().join('');
+                        });
+
+                        var $node = utils.initWithNode('<input type="text" data-f-bind="apple | titleCase | flip"/>', domManager);
+                        $node.trigger('update.f.model', {apple: 'sauce'});
+
+                        $node.val().should.equal('ecuaS');
 
                     });
                 });
