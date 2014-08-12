@@ -14,8 +14,12 @@ module.exports = {
         if (addedClasses[prop]) {
             this.removeClass(addedClasses[prop]);
         }
-        addedClasses[prop] = value;
 
+        if (_.isNumber(value)) {
+            value = 'value-' + value;
+        }
+        addedClasses[prop] = value;
+        //Fixme: prop is always "class"
         this.addClass(value);
         this.data('added-classes', addedClasses);
     }
