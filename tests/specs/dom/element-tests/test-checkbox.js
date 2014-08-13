@@ -19,7 +19,6 @@ module.exports = (function() {
 
                     $node.prop('checked', true).trigger('change');
 
-                    //TODO: file a issue for the vensim manager to convert trues to 1s
                     channel.variables.publish.should.have.been.calledWith({stuff: 1});
                 });
 
