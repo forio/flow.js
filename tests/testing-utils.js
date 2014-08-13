@@ -7,9 +7,9 @@ var utils = {
     },
     createDummyChannel: function () {
         var dummyChannel = {
-            publish: $.noop,
-            subscribe: $.noop,
-            unsubscribe:  $.noop
+            publish: sinon.spy(),
+            subscribe: sinon.spy(),
+            unsubscribe:  sinon.spy()
         };
 
         var dummyChannelManager = {
@@ -20,12 +20,15 @@ var utils = {
         return dummyChannelManager;
     },
 
-    initWithNode: function(str, domManager) {
+    initWithNode: function(str, domManager, channel) {
+        if (!channel) {
+            channel = utils.createDummyChannel();
+        }
         var $node = $(utils.create(str));
 
         domManager.initialize({
             root: $node,
-            channel: utils.createDummyChannel()
+            channel: channel
         });
         return $node;
     },

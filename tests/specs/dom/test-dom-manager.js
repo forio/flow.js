@@ -53,7 +53,7 @@
                     var nested = [
                         '<div data-f-a="a">',
                         '   <div class="abc">',
-                        '       <input type="text" data-f-b="stuff"/>',
+                        '       <input type="text" data-f-bind="stuff"/>',
                         '   </div>',
                         '   <span> nothing </span>',
                         '</div>'

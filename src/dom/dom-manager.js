@@ -6,6 +6,8 @@ module.exports = (function() {
     var attrManager = require('./attributes/attribute-manager.js');
     var converterManager = require('../converters/converter-manager.js');
 
+    var parseUtils = require('../utils/parse-utils');
+
     //Jquery selector to return everything which has a f- property set
     $.expr[':'][config.prefix] = function(obj){
         var $this = $(obj);
@@ -142,6 +144,9 @@ module.exports = (function() {
                 });
 
                 $root.off(config.events.trigger).on(config.events.trigger, function(evt, data) {
+                    _.each(data, function (val, key) {
+                        data[key] = parseUtils.toImplicitType(val);
+                    });
                     channel.variables.publish(data);
                 });
 
