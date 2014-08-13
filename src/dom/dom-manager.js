@@ -111,6 +111,7 @@ module.exports = (function() {
                 });
 
                 //Attach listeners
+                //TODO: split initialize into multiple sub events, at least Add & then attach handlers
                 $root.off(config.events.react).on(config.events.react, function(evt, data) {
                     // console.log(evt.target, data, "root on");
                     var $el = $(evt.target);
@@ -144,6 +145,7 @@ module.exports = (function() {
                 });
 
                 $root.off(config.events.trigger).on(config.events.trigger, function(evt, data) {
+                    data = $.extend(true, {}, data); //if not all subsequent listeners will get the modified data
                     _.each(data, function (val, key) {
                         data[key] = parseUtils.toImplicitType(val);
                     });
@@ -158,5 +160,5 @@ module.exports = (function() {
     };
 
 
-    return publicAPI;
+    return $.extend(this, publicAPI);
 }());
