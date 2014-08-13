@@ -62,9 +62,7 @@ module.exports = (function() {
                 ].join('');
                 var $node = utils.initWithNode(nodes, domManager);
                 $node.trigger('update.f.model', {stuff: true});
-                //NOTE: what should the right behavior be? right now node.val is null
-                // console.log($node.val(), $node);
-                // $node.val().should.equal('2');
+                should.not.exist($node.val());
             });
         });
     });
