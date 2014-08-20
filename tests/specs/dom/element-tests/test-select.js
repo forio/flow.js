@@ -15,32 +15,32 @@ module.exports = (function() {
                 var $node = utils.initWithNode(nodes, domManager);
 
                 var spy = utils.spyOnNode($node);
-                $node.trigger('change')
-                ;
+                $node.trigger('change');
                 spy.should.have.been.called.once;
             });
 
 
             it('should pass the right value on change', function () {
+                var channel = utils.createDummyChannel();
+
                 var nodes = [
                     '<select data-f-bind="stuff">',
                     '<option value="1" selected> A </option>',
-                    '<option value="2"> B </option>',
+                    '<option value="B"> B </option>',
                     '</select>'
                 ].join('');
-                var $node = utils.initWithNode(nodes, domManager);
+                var $node = utils.initWithNode(nodes, domManager, channel);
 
-                var spy = utils.spyOnNode($node);
-                $node.val(2);
-                $node.trigger('change');
+                $node.val(1).trigger('change');
+                channel.variables.publish.should.have.been.calledWith({stuff: 1});
 
-                spy.getCall(0).args[1].should.eql({
-                    stuff: '2'
-                });
+                $node.val('B').trigger('change');
+                channel.variables.publish.should.have.been.calledWith({stuff: 'B'});
             });
         });
         describe('updaters', function () {
             it('should select the right value on match', function () {
+
                 var nodes = [
                     '<select data-f-bind="stuff">',
                     '<option value="1"> A </option>',
@@ -62,9 +62,7 @@ module.exports = (function() {
                 ].join('');
                 var $node = utils.initWithNode(nodes, domManager);
                 $node.trigger('update.f.model', {stuff: true});
-                //NOTE: what should the right behavior be? right now node.val is null
-                // console.log($node.val(), $node);
-                // $node.val().should.equal('2');
+                should.not.exist($node.val());
             });
         });
     });

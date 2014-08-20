@@ -14,44 +14,38 @@ module.exports = (function() {
 
             describe('On Check', function () {
                 it('should pass the right value on check - no default', function () {
-                    var $node = utils.initWithNode('<input type="checkbox" data-f-bind="stuff"/>', domManager);
-                    var spy = utils.spyOnNode($node);
+                    var channel = utils.createDummyChannel();
+                    var $node = utils.initWithNode('<input type="checkbox" data-f-bind="stuff"/>', domManager, channel);
 
-                    $node.prop('checked', true);
-                    $node.trigger('change');
+                    $node.prop('checked', true).trigger('change');
 
-                    spy.getCall(0).args[1].should.eql({stuff: 1});
+                    channel.variables.publish.should.have.been.calledWith({stuff: 1});
                 });
 
                 it('should pass the right value on check - default on', function () {
-                    var $node = utils.initWithNode('<input type="checkbox" data-f-bind="stuff" value="4"/>', domManager);
-                    var spy = utils.spyOnNode($node);
+                    var channel = utils.createDummyChannel();
+                    var $node = utils.initWithNode('<input type="checkbox" data-f-bind="stuff" value="4"/>', domManager, channel);
 
-                    $node.prop('checked', true);
-                    $node.trigger('change');
+                    $node.prop('checked', true).trigger('change');
 
-                    spy.getCall(0).args[1].should.eql({stuff: '4'});
+                    channel.variables.publish.should.have.been.calledWith({stuff: 4});
                 });
             });
             describe('On UnCheck', function () {
                 it('should pass the right value on uncheck - no default', function () {
-                    var $node = utils.initWithNode('<input type="checkbox" data-f-bind="stuff" checked/>', domManager);
-                    var spy = utils.spyOnNode($node);
+                    var channel = utils.createDummyChannel();
+                    var $node = utils.initWithNode('<input type="checkbox" data-f-bind="stuff" checked/>', domManager, channel);
 
-                    $node.prop('checked', false);
-                    $node.trigger('change');
-
-                    spy.getCall(0).args[1].should.eql({stuff: 0});
+                    $node.prop('checked', false).trigger('change');
+                    channel.variables.publish.should.have.been.calledWith({stuff: 0});
                 });
 
                 it('should pass the right value on uncheck - default off', function () {
-                    var $node = utils.initWithNode('<input type="checkbox" data-f-bind="stuff" data-f-off="5" checked/>', domManager);
-                    var spy = utils.spyOnNode($node);
+                    var channel = utils.createDummyChannel();
+                    var $node = utils.initWithNode('<input type="checkbox" data-f-bind="stuff" data-f-off="5" checked/>', domManager, channel);
 
-                    $node.prop('checked', false);
-                    $node.trigger('change');
-
-                    spy.getCall(0).args[1].should.eql({stuff: 5});
+                    $node.prop('checked', false).trigger('change');
+                    channel.variables.publish.should.have.been.calledWith({stuff: 5});
                 });
             });
         });

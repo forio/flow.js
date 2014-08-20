@@ -22,47 +22,47 @@ module.exports = (function() {
 
             describe('On Check', function () {
                 it('should pass the right value on check', function () {
+                    var channel = utils.createDummyChannel();
+
                     var nodes = [
                         '<input type="radio" name="a" id="x" data-f-bind="stuff" value="8"/>',
                         '<input type="radio" name="a" id="y" data-f-bind="stuff" value="2"/>'
                     ].join('');
-                    var $node = utils.initWithNode(nodes, domManager).filter('#x');
+                    var $node = utils.initWithNode(nodes, domManager, channel).filter('#x');
+                    $node.prop('checked', true).trigger('change');
 
-                    var spy = utils.spyOnNode($node);
-                    $node.prop('checked', true);
-                    $node.trigger('change');
-
-                    spy.getCall(0).args[1].should.eql({stuff: '8'});
+                    channel.variables.publish.should.have.been.calledWith({stuff: 8});
                 });
             });
             describe('On UnCheck', function () {
                 it('should pass the right value on uncheck', function () {
+                    var channel = utils.createDummyChannel();
+
                     var nodes = [
                         '<input type="radio" name="a" id="x" data-f-bind="stuff" value="8" checked/>',
                         '<input type="radio" name="a" id="y" data-f-bind="stuff" value="2"/>'
                     ].join('');
-                    var $node = utils.initWithNode(nodes, domManager).filter('#x');
-                    var $othernode = utils.initWithNode(nodes, domManager).filter('#y');
+                    var $node = utils.initWithNode(nodes, domManager, channel).filter('#x');
+                    var $othernode = utils.initWithNode(nodes, domManager, channel).filter('#y');
 
                     //not entirely sure this is simulating well enough
-                    var spy = utils.spyOnNode($othernode);
                     $node.prop('checked', false);
-                    $othernode.prop('checked', true);
+                    $othernode.prop('checked', true).trigger('change');
 
-                    $othernode.trigger('change');
-
-                    spy.getCall(0).args[1].should.eql({stuff: '2'});
+                    channel.variables.publish.should.have.been.calledWith({stuff: 2});
                 });
             });
         });
         describe('Updaters', function () {
             it('should select the right option which matches', function () {
+                var channel = utils.createDummyChannel();
+
                 var nodes = [
                     '<input type="radio" name="a" id="x" data-f-bind="stuff" value="8"/>',
                     '<input type="radio" name="a" id="y" data-f-bind="stuff" value="2"/>'
                 ].join('');
 
-                var $nodes = utils.initWithNode(nodes, domManager);
+                var $nodes = utils.initWithNode(nodes, domManager, channel);
                 $nodes.trigger('update.f.model', {stuff: '8'});
 
                 $nodes.filter('#x').prop('checked').should.equal(true);
@@ -70,12 +70,14 @@ module.exports = (function() {
             });
 
             it('should not select anything if it doesnt match', function () {
+                var channel = utils.createDummyChannel();
+
                 var nodes = [
                     '<input type="radio" name="a" id="x" data-f-bind="stuff" value="8"/>',
                     '<input type="radio" name="a" id="y" data-f-bind="stuff" value="2"/>'
                 ].join('');
 
-                var $nodes = utils.initWithNode(nodes, domManager);
+                var $nodes = utils.initWithNode(nodes, domManager, channel);
                 $nodes.trigger('update.f.model', {stuff: true});
 
                 $nodes.filter('#x').prop('checked').should.equal(false);
