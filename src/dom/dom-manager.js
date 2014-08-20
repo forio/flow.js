@@ -153,6 +153,10 @@ module.exports = (function() {
                 });
 
                 $root.off('f.ui.operate').on('f.ui.operate', function(evt, data) {
+                    data = $.extend(true, {}, data); //if not all subsequent listeners will get the modified data
+                    data.args = _.map(data.args, function (val) {
+                        return parseUtils.toImplicitType($.trim(val));
+                    });
                     channel.operations.publish(data.fn, data.args);
                 });
             });
