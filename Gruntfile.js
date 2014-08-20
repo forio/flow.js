@@ -122,7 +122,8 @@ module.exports = function (grunt) {
     grunt.registerTask('test', ['mocha']);
     grunt.registerTask('documentation', ['markdox']);
     grunt.registerTask('validate', ['jshint:all', 'test']);
-    grunt.registerTask('production', ['browserify2', 'browserify2:production']);
+    grunt.registerTask('generateDev', ['browserify2:dev']);
+    grunt.registerTask('production', ['generateDev', 'browserify2:production']);
     grunt.registerTask('default', ['watch']);
 
 };
