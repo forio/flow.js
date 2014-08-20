@@ -40,6 +40,16 @@ module.exports = (function() {
 
                 channel.operations.publish.should.have.been.calledWith('step', [1, '2']);
             });
+
+            //FIXME: this work won't yet
+            it.skip('should call operation with double params with no, object', function () {
+                var channel = utils.createDummyChannel();
+                var $node = utils.initWithNode('<input type="button" data-f-on-click="step(1, {\"hello\": \'world\'})"/>', domManager, channel);
+
+                $node.trigger('click');
+
+                channel.operations.publish.should.have.been.calledWith('step', [1, {hello: 'world'}]);
+            });
         });
     });
 }());
