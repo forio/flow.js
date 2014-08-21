@@ -47,7 +47,14 @@ module.exports = {
      * @param  {function|object} converter    converter can either be a function, which will be called with the value, or an object with {alias: '', parse: $.noop, convert: $.noop}
      */
     register: function (alias, converter) {
-        convertersList.unshift(normalize(alias, converter));
+        if (_.isObject(alias)) {
+            _.each(alias, function (val, key) {
+                convertersList.unshift(normalize(key, val));
+            });
+        }
+        else {
+            convertersList.unshift(normalize(alias, converter));
+        }
     },
 
     replace: function(alias, converter) {

@@ -1,8 +1,6 @@
 - Attrmap has duplicates, dedupe before adding
 
 Formatting
-    - data-f-format
-    - pipe syntax for transforms
     - Async formatters
 
 toImplicitType - doesn't work great with objects

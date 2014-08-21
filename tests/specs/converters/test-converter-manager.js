@@ -9,6 +9,16 @@
                 cm.register('abc', $.noop);
                 cm.list.length.should.equal(currentRegisterList + 1);
             });
+
+            it('Allows registesting object converters', function () {
+                var currentRegisterList = cm.list.length;
+                var convSpy = sinon.spy();
+                cm.register({'def': $.noop, 'ghi': convSpy});
+                cm.list.length.should.equal(currentRegisterList + 2);
+
+                cm.convert(2, 'ghi');
+                convSpy.should.have.been.calledWith(2);
+            });
         });
         describe('#getConverter', function () {
             it('matches default handlers', function () {
