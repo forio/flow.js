@@ -51,5 +51,9 @@
                 conv.convert(1).should.equal('applesauce');
             });
         });
+
+        describe('default converters', function () {
+            require('./test-string-converters');
+        });
     });
 }());

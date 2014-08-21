@@ -97,11 +97,10 @@ var converterManager = {
 var defaultconverters = [
     require('./number-converter'),
     require('./string-converter'),
-    require('./title-case-converter'),
     require('./numberformat-converter'),
 ];
 
-$.each(defaultconverters, function(index, converter) {
+$.each(defaultconverters.reverse(), function(index, converter) {
     converterManager.register(converter);
 });
 
