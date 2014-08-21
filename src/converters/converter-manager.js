@@ -1,25 +1,31 @@
 'use strict';
 
-var defaultconverters = [
-    require('./number-converter'),
-    require('./string-converter'),
-    require('./title-case-converter'),
-    require('./numberformat-converter'),
-];
-
-var convertersList = [];
-$.each(defaultconverters, function(index, converter) {
-    convertersList.push(converter);
-});
 
 var normalize = function (alias, converter) {
+    var ret = [];
+    //nomalize('flip', fn)
     if (_.isFunction(converter)) {
-        return {
+        ret.push({
             alias: alias,
             convert: converter
-        };
+        });
     }
-    return converter;
+    else if(_.isObject(alias)) {
+        //normalize({alias: 'flip', convert: function})
+        if (alias.convert) {
+            ret.push(alias);
+        }
+        else {
+            // normalize({flip: fun})
+            $.each(alias, function (key, val) {
+                ret.push({
+                    alias: key,
+                    convert: val
+                });
+            });
+        }
+    }
+    return ret;
 };
 
 var matchConverter = function (alias, converter) {
@@ -35,41 +41,35 @@ var matchConverter = function (alias, converter) {
     return false;
 };
 
-module.exports = {
+var converterManager = {
     private: {
         matchConverter: matchConverter
     },
 
-    list: convertersList,
+    list: [],
     /**
      * Add a new attribute converter
      * @param  {string|function|regex} alias formatter name
      * @param  {function|object} converter    converter can either be a function, which will be called with the value, or an object with {alias: '', parse: $.noop, convert: $.noop}
      */
     register: function (alias, converter) {
-        if (_.isObject(alias)) {
-            _.each(alias, function (val, key) {
-                convertersList.unshift(normalize(key, val));
-            });
-        }
-        else {
-            convertersList.unshift(normalize(alias, converter));
-        }
+        var normalized = normalize(alias, converter);
+        this.list = normalized.concat(this.list);
     },
 
     replace: function(alias, converter) {
         var index;
-        _.each(convertersList, function(currentConverter, i) {
+        _.each(this.list, function(currentConverter, i) {
             if (matchConverter(alias, currentConverter)) {
                 index = i;
                 return false;
             }
         });
-        convertersList.splice(index, 1, normalize(alias, converter));
+        this.list.splice(index, 1, normalize(alias, converter)[0]);
     },
 
     getConverter: function (alias) {
-        return _.find(convertersList, function (converter) {
+        return _.find(this.list, function (converter) {
             return matchConverter(alias, converter);
         });
     },
@@ -92,3 +92,17 @@ module.exports = {
     }
 };
 
+
+//Bootstrap
+var defaultconverters = [
+    require('./number-converter'),
+    require('./string-converter'),
+    require('./title-case-converter'),
+    require('./numberformat-converter'),
+];
+
+$.each(defaultconverters, function(index, converter) {
+    converterManager.register(converter);
+});
+
+module.exports = converterManager;
