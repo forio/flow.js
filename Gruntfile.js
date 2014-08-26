@@ -1,4 +1,4 @@
-module.exports = function (grunt) {
+module.exports = function(grunt) {
     'use strict';
 
     grunt.loadNpmTasks('grunt-browserify2');
@@ -15,124 +15,126 @@ module.exports = function (grunt) {
     var UglifyJS = require('uglify-js');
 
     grunt.initConfig({
-        pkg: grunt.file.readJSON('package.json'),
+        pkg: grunt.file.readJSON('package.json')
+    });
 
-        watch: {
-            source: {
-                files: ['src/**/*.js'],
-                tasks: ['browserify2:dev', 'browserify2:tests:']
-            },
-            tests: {
-                files: ['tests/specs/**/*.js', 'tests/*.js'],
-                tasks: ['browserify2:tests:','mocha:test']
-            }
+    grunt.config.set('watch', {
+        source: {
+            files: ['src/**/*.js'],
+            tasks: ['browserify2:dev', 'browserify2:tests:']
         },
+        tests: {
+            files: ['tests/specs/**/*.js', 'tests/*.js'],
+            tasks: ['browserify2:tests:', 'mocha:test']
+        }
+    });
 
-        changelog: {
-            release: {
-                options: {
-                    version: '0.1.0',
-                    changelog: 'dist/CHANGELOG.md',
-                    labels: ['added', 'fixed'],
-                    template: 'simple'
-                }
-            }
-        },
-
-        // changelog: {
-        //     options: {
-        //         dest: 'dist/CHANGELOG.md',
-        //         editor: 'sublime -w'
-        //     }
-        // },
-        browserify2: {
+    grunt.config.set('changelog', {
+        release: {
             options: {
-                expose: {
+                version: '0.1.0',
+                changelog: 'dist/CHANGELOG.md',
+                labels: ['added', 'fixed'],
+                template: 'simple'
+            }
+        }
+    });
 
-                },
-                entry: './src/app.js'
-            },
-            tests: {
-                options: {
 
-                    entry: './tests/test-list.js',
-                    compile: './tests/tests-browserify-bundle.js',
-                    debug: true
-                }
+    grunt.config.set('browserify2', {
+        options: {
+            expose: {
+
             },
-            edge: {
-                options: {
-                    debug: true,
-                    compile: './dist/flow-edge.js'
-                }
-            },
-            mapped: {
-                options: {
-                    debug: true,
-                    compile: './dist/flow.js'
-                }
-            },
-            min: {
-                options: {
-                    debug: false,
-                    compile: './dist/flow.min.js'
-                },
-                afterHook: function(src) {
-                    var result = UglifyJS.minify(src, {fromString: true, warnings: true, mangle: true});
-                    return result.code;
-                }
+            entry: './src/app.js'
+        },
+        tests: {
+            options: {
+
+                entry: './tests/test-list.js',
+                compile: './tests/tests-browserify-bundle.js',
+                debug: true
             }
         },
-
-        jshint : {
+        edge: {
             options: {
-                jshintrc: true,
-                reporter: require('jshint-stylish')
-            },
-            source: {
-                files: {
-                    src: ['src/**/*.js']
-                }
-            },
-            tests: {
-                files: {
-                    src: ['tests/specs/**/*.js']
-                }
-            },
-            all: {
-                files: {
-                    src: ['src/**/*.js', 'tests/specs/**/*.js']
-                }
+                debug: true,
+                compile: './dist/flow-edge.js'
             }
         },
-        uglify: {
+        mapped: {
             options: {
-                compress: false,
-                sourceMap: false,
+                debug: true,
+                compile: './dist/flow.js'
+            }
+        },
+        min: {
+            options: {
+                debug: false,
+                compile: './dist/flow.min.js'
+            },
+            afterHook: function(src) {
+                var result = UglifyJS.minify(src, {
+                    fromString: true,
+                    warnings: true,
+                    mangle: true
+                });
+                return result.code;
+            }
+        }
+    });
+
+    grunt.config.set('jshint', {
+        options: {
+            jshintrc: true,
+            reporter: require('jshint-stylish')
+        },
+        source: {
+            files: {
+                src: ['src/**/*.js']
+            }
+        },
+        tests: {
+            files: {
+                src: ['tests/specs/**/*.js']
+            }
+        },
+        all: {
+            files: {
+                src: ['src/**/*.js', 'tests/specs/**/*.js']
+            }
+        }
+    });
+
+    grunt.config.set('uglify', {
+        options: {
+            compress: false,
+            sourceMap: false,
+            sourceMapIncludeSources: true
+        },
+        dev: {
+            files: []
+        },
+        production: {
+            options: {
+                compress: true,
+                sourceMap: true,
                 sourceMapIncludeSources: true
             },
-            dev: {
-                files: []
-            },
-            production: {
-                options: {
-                    compress: true,
-                    sourceMap: true,
-                    sourceMapIncludeSources: true
-                },
-                files: {
+            files: {
 
-                }
             }
-        },
-        mocha: {
-            test: {
-                src: ['tests/index.html'],
-                options: {
-                    growlOnSuccess: false,
-                    reporter: 'Min',
-                    run: true
-                }
+        }
+    });
+
+
+    grunt.config.set('mocha', {
+        test: {
+            src: ['tests/index.html'],
+            options: {
+                growlOnSuccess: false,
+                reporter: 'Min',
+                run: true
             }
         }
     });
