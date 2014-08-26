@@ -111,7 +111,9 @@ var converterManager = {
         var me = this;
         _.each(list, function (converterName){
             var converter = me.getConverter(converterName);
-            currentValue = converter.parse(currentValue, converterName);
+            if (converter.parse) {
+                currentValue = converter.parse(currentValue, converterName);
+            }
         });
         return currentValue;
     }
