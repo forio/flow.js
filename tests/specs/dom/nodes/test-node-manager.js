@@ -3,9 +3,10 @@
     var nm = require('../../../../src/dom/nodes/node-manager');
 
     describe('Node Manager', function () {
-        var defaultHandlers = nm.list.splice();
+        var defaultHandlers = nm.list.slice();
+
         afterEach(function () {
-            nm.list = defaultHandlers;
+            nm.list = defaultHandlers.slice();
         });
 
         describe('#register', function () {
