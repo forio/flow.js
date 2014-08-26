@@ -9,6 +9,8 @@ module.exports = function (grunt) {
     grunt.loadNpmTasks('grunt-jscs-checker');
     grunt.loadNpmTasks('grunt-bump');
 
+    // grunt.loadNpmTasks('grunt-conventional-changelog');
+    grunt.loadNpmTasks('grunt-templated-changelog');
 
     var UglifyJS = require('uglify-js');
 
@@ -26,6 +28,23 @@ module.exports = function (grunt) {
             }
         },
 
+        changelog: {
+            release: {
+                options: {
+                    version: '0.1.0',
+                    changelog: 'dist/CHANGELOG.md',
+                    labels: ['added', 'fixed'],
+                    template: 'simple'
+                }
+            }
+        },
+
+        // changelog: {
+        //     options: {
+        //         dest: 'dist/CHANGELOG.md',
+        //         editor: 'sublime -w'
+        //     }
+        // },
         browserify2: {
             options: {
                 expose: {
