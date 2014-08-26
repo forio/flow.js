@@ -9,8 +9,6 @@ module.exports = function(grunt) {
     grunt.loadNpmTasks('grunt-jscs-checker');
     grunt.loadNpmTasks('grunt-bump');
 
-    // grunt.loadNpmTasks('grunt-conventional-changelog');
-    grunt.loadNpmTasks('grunt-templated-changelog');
 
     var UglifyJS = require('uglify-js');
 
@@ -29,17 +27,25 @@ module.exports = function(grunt) {
         }
     });
 
+    grunt.loadNpmTasks('grunt-templated-changelog');
     grunt.config.set('changelog', {
         release: {
             options: {
                 version: grunt.config.get('pkg').version,
                 changelog: 'dist/CHANGELOG.md',
-                labels: ['added', 'fixed'],
+                // labels: ['refactor'],
                 template: 'simple'
             }
         }
     });
 
+    // grunt.loadNpmTasks('grunt-conventional-changelog');
+    // grunt.config.set('changelog', {
+    //     options: {
+    //         dest: 'dist/CHANGELOG.md',
+    //         editor: 'sublime -w'
+    //     }
+    // });
 
     grunt.config.set('browserify2', {
         options: {
