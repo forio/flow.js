@@ -4,8 +4,9 @@
 
     describe('Node Manager', function () {
         var defaultHandlers = nm.list.slice();
+
         afterEach(function () {
-            nm.list = defaultHandlers;
+            nm.list = defaultHandlers.slice();
         });
 
         describe('#register', function () {
