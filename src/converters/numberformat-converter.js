@@ -5,8 +5,40 @@ module.exports = {
         return (name.indexOf('#') !== -1 || name.indexOf('0') !== -1 );
     },
 
-    convert: (function(value) {
+    parse: function (val) {
+        val+= '';
+        var isNegative = val.charAt(0) === '-';
 
+        val  = val.replace(/,/g, '');
+        var floatMatcher = /([-+]?[0-9]*\.?[0-9]+)(K?M?B?)/i;
+        var results = floatMatcher.exec(val);
+        var number, suffix = '';
+        if(results && results[1]){
+            number = results[1];
+        }
+        if(results && results[2]){
+            suffix = results[2].toLowerCase();
+        }
+
+        switch(suffix){
+            case 'k':
+                number = number * 1000;
+                break;
+            case 'm':
+                number = number * 1000000;
+                break;
+            case 'b':
+                number = number * 1000000000;
+                break;
+        }
+        number = parseFloat(number);
+        if(isNegative && number > 0) {
+            number = number * -1;
+        }
+        return number;
+    },
+
+    convert: (function(value) {
         var scales = ['', 'K', 'M', 'B', 'T'];
 
         function getDigits(value, digits) {

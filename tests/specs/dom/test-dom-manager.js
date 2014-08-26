@@ -119,95 +119,10 @@
             });
 
             describe('Node Handlers', function () {
-
                 require('./nodes/test-node-manager');
             });
 
-            describe('converters', function () {
-                before(function () {
-                    domManager.converters.register('flip', function (val) {
-                        return val.split('').reverse().join('');
-                    });
-                });
-                describe('pipes', function () {
-                    describe('bind', function () {
-                        it('should convert values with single converters', function () {
-                            var $node = utils.initWithNode('<input type="text" data-f-bind="apple | titleCase"/>', domManager);
-                            $node.trigger('update.f.model', {apple: 'sauce'});
-
-                            $node.val().should.equal('Sauce');
-
-                        });
-                        it('should convert values with multiple converters', function () {
-                            domManager.converters.register('flip', function (val) {
-                                return val.split('').reverse().join('');
-                            });
-
-                            var $node = utils.initWithNode('<input type="text" data-f-bind="apple | titleCase | flip"/>', domManager);
-                            $node.trigger('update.f.model', {apple: 'sauce'});
-
-                            $node.val().should.equal('ecuaS');
-
-                        });
-                    });
-                    describe('other attributes', function () {
-                        it('should convert values with single converters', function () {
-                            var $node = utils.initWithNode('<input type="text" data-f-stuff="apple | titleCase"/>', domManager);
-                            $node.trigger('update.f.model', {apple: 'sauce'});
-
-                            $node.prop('stuff').should.equal('Sauce');
-
-                        });
-                        it('should convert values with multiple converters', function () {
-                            var $node = utils.initWithNode('<input type="text" data-f-stuff="apple | titleCase | flip"/>', domManager);
-                            $node.trigger('update.f.model', {apple: 'sauce'});
-
-                            $node.prop('stuff').should.equal('ecuaS');
-
-                        });
-                    });
-                });
-                describe('f-convert', function () {
-                    it('should work if specified directly on the element', function () {
-                        var $node = utils.initWithNode('<input type="text" data-f-bind="apple" data-f-convert="titleCase | flip"/>', domManager);
-                        $node.trigger('update.f.model', {apple: 'sauce'});
-
-                        $node.val().should.equal('ecuaS');
-                    });
-                    it('should work if specified on parent', function () {
-                        var nested = [
-                            '<div data-f-convert="titleCase | flip">',
-                            '   <div class="abc">',
-                            '       <input type="text" data-f-bind="apple"/>',
-                            '   </div>',
-                            '   <span> nothing </span>',
-                            '</div>'
-                        ];
-                        var $node = utils.initWithNode(nested.join(), domManager);
-                        var $textNode = $node.find(':text');
-
-                        $textNode.trigger('update.f.model', {apple: 'sauce'});
-
-                        $textNode.val().should.equal('ecuaS');
-                    });
-                    it('should local converters should override parent', function () {
-                        var nested = [
-                            '<div data-f-convert="titleCase">',
-                            '   <div class="abc">',
-                            '       <input type="text" data-f-bind="apple" data-f-convert="flip"/>',
-                            '   </div>',
-                            '   <span> nothing </span>',
-                            '</div>'
-                        ];
-                        var $node = utils.initWithNode(nested.join(), domManager);
-                        var $textNode = $node.find(':text');
-
-                        $textNode.trigger('update.f.model', {apple: 'sauce'});
-
-                        $textNode.val().should.equal('ecuas');
-                    });
-                });
-            });
+            require('./test-dom-converters');
         });
     });
 

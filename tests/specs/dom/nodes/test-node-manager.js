@@ -3,9 +3,10 @@
     var nm = require('../../../../src/dom/nodes/node-manager');
 
     describe('Node Manager', function () {
-        var defaultHandlers = nm.list.splice();
+        var defaultHandlers = nm.list.slice();
+
         afterEach(function () {
-            nm.list = defaultHandlers;
+            nm.list = defaultHandlers.slice();
         });
 
         describe('#register', function () {
@@ -33,7 +34,6 @@
                 nm.replace('input, select', {apple: 'sauce', handle: $.noop});
 
                 conv = nm.getHandler('input, select');
-                console.log(conv);
                 conv.apple.should.equal('sauce');
             });
         });
