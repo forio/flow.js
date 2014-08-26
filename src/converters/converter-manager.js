@@ -78,7 +78,6 @@ var converterManager = {
         if (!list || !list.length) {
             return value;
         }
-
         list = [].concat(list);
         list = _.invoke(list, 'trim');
 
@@ -87,6 +86,28 @@ var converterManager = {
         _.each(list, function (converterName){
             var converter = me.getConverter(converterName);
             currentValue = converter.convert(currentValue, converterName);
+        });
+        return currentValue;
+    },
+
+    /**
+     * Counter-part to 'convert'. Translates converted values back to their original form
+     * @param  {String} value Value to parse
+     * @param  {String | Array} list  List of parsers to run this through. Outermost is invoked first
+     * @return {*}
+     */
+    parse: function (value, list) {
+        if (!list || !list.length) {
+            return value;
+        }
+        list = [].concat(list).reverse();
+        list = _.invoke(list, 'trim');
+
+        var currentValue = value;
+        var me = this;
+        _.each(list, function (converterName){
+            var converter = me.getConverter(converterName);
+            currentValue = converter.parse(currentValue, converterName);
         });
         return currentValue;
     }
