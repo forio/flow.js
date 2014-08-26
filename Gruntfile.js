@@ -159,7 +159,15 @@ module.exports = function(grunt) {
     grunt.registerTask('test', ['mocha']);
     grunt.registerTask('validate', ['jshint:all', 'test']);
     grunt.registerTask('generateDev', ['browserify2:edge']);
-    grunt.registerTask('production', ['validate', 'generateDev', 'browserify2:mapped', 'browserify2:min']);
+    grunt.registerTask('production', ['generateDev', 'browserify2:mapped', 'browserify2:min']);
+
+    grunt.registerTask('release', function (type) {
+        type = type ? type : 'patch';
+        ['validate', 'production', 'bump-only:' + type, 'changelog', 'bump-commit'].forEach(function (task) {
+            grunt.task.run(task);
+        });
+    });
+
     grunt.registerTask('default', ['watch', 'generateDev']);
 
 };
