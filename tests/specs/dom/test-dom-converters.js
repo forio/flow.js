@@ -122,49 +122,88 @@ module.exports = (function() {
             });
         });
         describe('f-convert', function() {
-            it('should work if specified directly on the element', function() {
-                var $node = utils.initWithNode('<input type="text" data-f-bind="apple" data-f-convert="titleCase | flip"/>', domManager);
-                $node.trigger('update.f.model', {
-                    apple: 'sauce'
-                });
+            describe('convert', function() {
+                it('should work if specified directly on the element', function() {
+                    var $node = utils.initWithNode('<input type="text" data-f-bind="apple" data-f-convert="titleCase | flip"/>', domManager);
+                    $node.trigger('update.f.model', {
+                        apple: 'sauce'
+                    });
 
-                $node.val().should.equal('ecuaS');
+                    $node.val().should.equal('ecuaS');
+                });
+                it('should work if specified on parent', function() {
+                    var nested = [
+                        '<div data-f-convert="titleCase | flip">',
+                        '   <div class="abc">',
+                        '       <input type="text" data-f-bind="apple"/>',
+                        '   </div>',
+                        '   <span> nothing </span>',
+                        '</div>'
+                    ];
+                    var $node = utils.initWithNode(nested.join(), domManager);
+                    var $textNode = $node.find(':text');
+
+                    $textNode.trigger('update.f.model', {
+                        apple: 'sauce'
+                    });
+
+                    $textNode.val().should.equal('ecuaS');
+                });
+                it('should allow local converters to override parent', function() {
+                    var nested = [
+                        '<div data-f-convert="titleCase">',
+                        '   <div class="abc">',
+                        '       <input type="text" data-f-bind="apple" data-f-convert="flip"/>',
+                        '   </div>',
+                        '   <span> nothing </span>',
+                        '</div>'
+                    ];
+                    var $node = utils.initWithNode(nested.join(), domManager);
+                    var $textNode = $node.find(':text');
+
+                    $textNode.trigger('update.f.model', {
+                        apple: 'sauce'
+                    });
+
+                    $textNode.val().should.equal('ecuas');
+                });
             });
-            it('should work if specified on parent', function() {
-                var nested = [
-                    '<div data-f-convert="titleCase | flip">',
-                    '   <div class="abc">',
-                    '       <input type="text" data-f-bind="apple"/>',
-                    '   </div>',
-                    '   <span> nothing </span>',
-                    '</div>'
-                ];
-                var $node = utils.initWithNode(nested.join(), domManager);
-                var $textNode = $node.find(':text');
+            describe('parse', function() {
+                it('should convert values with multiple converters', function() {
+                    domManager.converters.register('flip', {
+                        parse: function(val) {
+                            return val.split('').reverse().join('');
+                        },
+                        convert: function(val) {
+                            return val.split('').reverse().join('');
+                        }
+                    });
 
-                $textNode.trigger('update.f.model', {
-                    apple: 'sauce'
+                    var channel = utils.createDummyChannel();
+                    var $node = utils.initWithNode('<input type="text" data-f-bind="price" data-f-convert="$#,### | flip"/>', domManager, channel);
+                    $node.val('$2,345').trigger('change');
+                    channel.variables.publish.should.have.been.calledWith({
+                        price: 5432
+                    });
                 });
+                it('should allow parse nested converters', function() {
+                    var nested = [
+                        '<div data-f-convert="$#,### | flip">',
+                        '   <div class="abc">',
+                        '       <input type="text" data-f-bind="price"/>',
+                        '   </div>',
+                        '   <span> nothing </span>',
+                        '</div>'
+                    ];
+                    var channel = utils.createDummyChannel();
+                    var $node = utils.initWithNode(nested.join(), domManager, channel);
+                    var $textNode = $node.find(':text');
 
-                $textNode.val().should.equal('ecuaS');
-            });
-            it('should local converters should override parent', function() {
-                var nested = [
-                    '<div data-f-convert="titleCase">',
-                    '   <div class="abc">',
-                    '       <input type="text" data-f-bind="apple" data-f-convert="flip"/>',
-                    '   </div>',
-                    '   <span> nothing </span>',
-                    '</div>'
-                ];
-                var $node = utils.initWithNode(nested.join(), domManager);
-                var $textNode = $node.find(':text');
-
-                $textNode.trigger('update.f.model', {
-                    apple: 'sauce'
+                    $textNode.val('$2,345').trigger('change');
+                    channel.variables.publish.should.have.been.calledWith({
+                        price: 5432
+                    });
                 });
-
-                $textNode.val().should.equal('ecuas');
             });
         });
     });
