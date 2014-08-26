@@ -174,6 +174,37 @@
                                 channel.variables.publish.should.have.been.calledWith({price: 5432});
 
                             });
+
+                            it('should respect order of converters', function () {
+                                domManager.converters.register('flips', {
+                                    parse: function (val) {
+                                        return 'abc';
+                                    },
+                                    convert: function (val) {
+                                        val = val + '';
+                                        return val.split('').reverse().join('');
+                                    }
+                                });
+
+                                var channel = utils.createDummyChannel();
+                                var $node = utils.initWithNode('<input type="text" data-f-bind="price | flips | $#,### "/>', domManager, channel);
+                                $node.val('$2,345').trigger('change');
+                                channel.variables.publish.should.have.been.calledWith({price: 'abc'});
+                            });
+
+
+                            it('should pass through values for converters without a parser', function () {
+                                domManager.converters.register('flip', {
+                                    convert: function (val) {
+                                        return val.split('').reverse().join('');
+                                    }
+                                });
+
+                                var channel = utils.createDummyChannel();
+                                var $node = utils.initWithNode('<input type="text" data-f-bind="price | flip | $#,### "/>', domManager, channel);
+                                $node.val('$2,345').trigger('change');
+                                channel.variables.publish.should.have.been.calledWith({price: 2345});
+                            });
                         });
                     });
                     describe('other attributes', function () {
