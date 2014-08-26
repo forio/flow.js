@@ -8,9 +8,14 @@ module.exports = function (grunt) {
     grunt.loadNpmTasks('grunt-contrib-watch');
     grunt.loadNpmTasks('grunt-contrib-jshint');
     grunt.loadNpmTasks('grunt-jscs-checker');
+    grunt.loadNpmTasks('grunt-bump');
+
+
     var UglifyJS = require('uglify-js');
 
     grunt.initConfig({
+        pkg: grunt.file.readJSON('package.json'),
+
         watch: {
             source: {
                 files: ['src/**/*.js'],
@@ -27,8 +32,7 @@ module.exports = function (grunt) {
                 expose: {
 
                 },
-                entry: './src/app.js',
-                compile: './dist/flow.js'
+                entry: './src/app.js'
             },
             tests: {
                 options: {
@@ -38,12 +42,19 @@ module.exports = function (grunt) {
                     debug: true
                 }
             },
-            dev: {
+            edge: {
                 options: {
-                    debug: true
+                    debug: true,
+                    compile: './dist/flow-edge.js'
                 }
             },
-            production: {
+            mapped: {
+                options: {
+                    debug: true,
+                    compile: './dist/flow.js'
+                }
+            },
+            min: {
                 options: {
                     debug: false,
                     compile: './dist/flow.min.js'
@@ -122,8 +133,8 @@ module.exports = function (grunt) {
     grunt.registerTask('test', ['mocha']);
     grunt.registerTask('documentation', ['markdox']);
     grunt.registerTask('validate', ['jshint:all', 'test']);
-    grunt.registerTask('generateDev', ['browserify2:dev']);
-    grunt.registerTask('production', ['generateDev', 'browserify2:production']);
-    grunt.registerTask('default', ['watch']);
+    grunt.registerTask('generateDev', ['browserify2:edge']);
+    grunt.registerTask('production', ['validate', 'generateDev', 'browserify2:mapped', 'browserify2:min']);
+    grunt.registerTask('default', ['watch', 'browserify2:edge']);
 
 };
