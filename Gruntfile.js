@@ -4,7 +4,6 @@ module.exports = function (grunt) {
     grunt.loadNpmTasks('grunt-browserify2');
     grunt.loadNpmTasks('grunt-mocha');
     grunt.loadNpmTasks('grunt-contrib-uglify');
-    grunt.loadNpmTasks('grunt-markdox');
     grunt.loadNpmTasks('grunt-contrib-watch');
     grunt.loadNpmTasks('grunt-contrib-jshint');
     grunt.loadNpmTasks('grunt-jscs-checker');
@@ -107,17 +106,6 @@ module.exports = function (grunt) {
                 }
             }
         },
-        markdox: {
-            options: {
-                // Task-specific options go here.
-                template: 'documentation/template.ejs'
-            },
-            target: {
-                files:  [
-
-                ]
-            }
-        },
         mocha: {
             test: {
                 src: ['tests/index.html'],
@@ -131,10 +119,9 @@ module.exports = function (grunt) {
     });
 
     grunt.registerTask('test', ['mocha']);
-    grunt.registerTask('documentation', ['markdox']);
     grunt.registerTask('validate', ['jshint:all', 'test']);
     grunt.registerTask('generateDev', ['browserify2:edge']);
     grunt.registerTask('production', ['validate', 'generateDev', 'browserify2:mapped', 'browserify2:min']);
-    grunt.registerTask('default', ['watch', 'browserify2:edge']);
+    grunt.registerTask('default', ['watch', 'generateDev']);
 
 };
