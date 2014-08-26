@@ -33,7 +33,6 @@
                 nm.replace('input, select', {apple: 'sauce', handle: $.noop});
 
                 conv = nm.getHandler('input, select');
-                console.log(conv);
                 conv.apple.should.equal('sauce');
             });
         });
