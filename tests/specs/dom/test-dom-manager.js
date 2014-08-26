@@ -155,20 +155,25 @@
                                 var channel = utils.createDummyChannel();
                                 var $node = utils.initWithNode('<input type="text" data-f-bind="price | $#,### "/>', domManager, channel);
                                 $node.val('2,345').trigger('change');
-                                channel.variables.publish.should.have.been.called;
+                                channel.variables.publish.should.have.been.calledWith({price: 2345});
                             });
 
-                            // it('should convert values with multiple converters', function () {
-                            //     domManager.converters.register('flip', function (val) {
-                            //         return val.split('').reverse().join('');
-                            //     });
+                            it('should convert values with multiple converters', function () {
+                                domManager.converters.register('flip', {
+                                    parse: function (val) {
+                                        return val.split('').reverse().join('');
+                                    },
+                                    convert: function (val) {
+                                        return val.split('').reverse().join('');
+                                    }
+                                });
 
-                            //     var $node = utils.initWithNode('<input type="text" data-f-bind="apple | titleCase | flip"/>', domManager);
-                            //     $node.trigger('update.f.model', {apple: 'sauce'});
+                                var channel = utils.createDummyChannel();
+                                var $node = utils.initWithNode('<input type="text" data-f-bind="price | $#,### | flip"/>', domManager, channel);
+                                $node.val('$2,345').trigger('change');
+                                channel.variables.publish.should.have.been.calledWith({price: 5432});
 
-                            //     $node.val().should.equal('ecuaS');
-
-                            // });
+                            });
                         });
                     });
                     describe('other attributes', function () {
