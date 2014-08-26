@@ -38,26 +38,14 @@ module.exports = function(grunt) {
         }
     });
 
-    grunt.loadNpmTasks('grunt-templated-changelog');
+    //loq --first-parent --no-merges
+    grunt.loadNpmTasks('grunt-conventional-changelog');
     grunt.config.set('changelog', {
-        release: {
-            options: {
-                version: grunt.config.get('pkg').version,
-                changelog: 'dist/CHANGELOG.md',
-                // labels: ['refactor'],
-                template: 'simple'
-            }
+        options: {
+            dest: 'dist/CHANGELOG.md',
+            editor: 'sublime -w'
         }
     });
-
-    //loq --first-parent --no-merges
-    // grunt.loadNpmTasks('grunt-conventional-changelog');
-    // grunt.config.set('changelog', {
-    //     options: {
-    //         dest: 'dist/CHANGELOG.md',
-    //         editor: 'sublime -w'
-    //     }
-    // });
 
     grunt.config.set('browserify2', {
         options: {
