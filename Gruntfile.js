@@ -16,6 +16,16 @@ module.exports = function(grunt) {
         pkg: grunt.file.readJSON('package.json')
     });
 
+
+    grunt.config.set('bump', {
+        options: {
+            files: ['package.json', 'bower.json'],
+            updateConfigs: 'pkg',
+            commitFiles: ['-a']
+
+        }
+    });
+
     grunt.config.set('watch', {
         source: {
             files: ['src/**/*.js'],
@@ -39,6 +49,7 @@ module.exports = function(grunt) {
         }
     });
 
+    //loq --first-parent --no-merges
     // grunt.loadNpmTasks('grunt-conventional-changelog');
     // grunt.config.set('changelog', {
     //     options: {
@@ -133,7 +144,6 @@ module.exports = function(grunt) {
         }
     });
 
-
     grunt.config.set('mocha', {
         test: {
             src: ['tests/index.html'],
@@ -144,6 +154,7 @@ module.exports = function(grunt) {
             }
         }
     });
+
 
     grunt.registerTask('test', ['mocha']);
     grunt.registerTask('validate', ['jshint:all', 'test']);
