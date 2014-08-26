@@ -10,6 +10,10 @@ var normalize = function (alias, converter) {
             convert: converter
         });
     }
+    else if (_.isObject(converter) && converter.convert) {
+        converter.alias = alias;
+        ret.push(converter);
+    }
     else if(_.isObject(alias)) {
         //normalize({alias: 'flip', convert: function})
         if (alias.convert) {
