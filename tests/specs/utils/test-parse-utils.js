@@ -27,6 +27,8 @@ describe('parse utils', function () {
             u.toImplicitType('[]').should.eql([]);
             u.toImplicitType('[1,2,4]').should.eql([1,2,4]);
             u.toImplicitType('[1,"2",4]').should.eql([1,'2',4]);
+
+            /*jshint quotmark:false */
             u.toImplicitType("[1,\"2\",4]").should.eql([1,'2',4]);
         });
 
