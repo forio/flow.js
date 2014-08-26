@@ -32,7 +32,7 @@ module.exports = function(grunt) {
     grunt.config.set('changelog', {
         release: {
             options: {
-                version: '0.1.0',
+                version: grunt.config.get('pkg').version,
                 changelog: 'dist/CHANGELOG.md',
                 labels: ['added', 'fixed'],
                 template: 'simple'
