@@ -1,6 +1,6 @@
 {
   "name": "flow.js",
-  "version": "0.0.0",
+  "version": "0.8.0",
   "homepage": "https://github.com/forio/flow.js",
   "authors": [
     "Naren Ranjit <narendran.ranjit@gmail.com>"
@@ -9,7 +9,6 @@
   "moduleType": [
     "node"
   ],
-  "license": "MIT",
   "ignore": [
     "**/.*",
     "node_modules",
@@ -21,7 +20,6 @@
   "devDependencies": {
     "epicenter-js-libs": "https://github.com/forio/epicenter-js-libs.git",
     "jquery": "~2.1.1",
-    "underscore": "~1.6.0",
     "lodash": "~2.4.1"
   }
 }

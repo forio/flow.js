@@ -33,5 +33,5 @@ node_modules
 documentation/generated
 **/vendor/**
 
-dist/
+dist/flow-edge.js
 tests/tests-browserify-bundle.js

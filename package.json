@@ -1,13 +1,13 @@
 {
   "name": "flow.js",
-  "version": "0.0.0",
-  "description": "Data binding library for Epicenter",
+  "version": "0.8.0",
+  "description": "Data binding library",
   "main": "Gruntfile.js",
   "directories": {
     "test": "tests"
   },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "grunt test"
   },
   "repository": {
     "type": "git",
@@ -17,6 +17,7 @@
     "growl": "^1.8.1",
     "grunt": "^0.4.5",
     "grunt-browserify2": "^0.1.8",
+    "grunt-bump": "0.0.15",
     "grunt-contrib-jshint": "^0.10.0",
     "grunt-contrib-uglify": "^0.5.0",
     "grunt-contrib-watch": "^0.6.1",
@@ -28,7 +29,6 @@
     "uglify-js": "^2.4.15"
   },
   "author": "",
-  "license": "ISC",
   "bugs": {
     "url": "https://github.com/forio/flow.js/issues"
   },
