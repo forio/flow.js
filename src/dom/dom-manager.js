@@ -120,6 +120,7 @@ module.exports = (function() {
                     $.each(data, function(variableName, value) {
                         var propertyToUpdate = varmap[variableName.trim()];
                         if (propertyToUpdate){
+                            //f-converters-* is already set while parsing the varmap, as an array to boot
                             var attrConverters = $el.data('f-converters-' + propertyToUpdate);
 
                             if (!attrConverters && propertyToUpdate === 'bind') {
@@ -145,11 +146,31 @@ module.exports = (function() {
                 });
 
                 $root.off(config.events.trigger).on(config.events.trigger, function(evt, data) {
-                    data = $.extend(true, {}, data); //if not all subsequent listeners will get the modified data
+                    var parsedData = {}; //if not all subsequent listeners will get the modified data
+
+                    var $el = $(evt.target);
+
+                    //f-converters-* is already set while parsing the varmap, as an array to boot
+                    var attrConverters = $el.data('f-converters-bind');
+                    if (!attrConverters) {
+                        attrConverters = $el.data('f-convert');
+                        if (!attrConverters) {
+                            var $parentEl = $el.closest('[data-f-convert]');
+                            if ($parentEl) {
+                                attrConverters = $parentEl.data('f-convert');
+                            }
+                        }
+                        if (attrConverters) {
+                            attrConverters = attrConverters.split('|');
+                        }
+                    }
+
                     _.each(data, function (val, key) {
-                        data[key] = parseUtils.toImplicitType(val);
+                        key = key.split('|')[0].trim(); //in case the pipe formatting syntax was used
+                        val = converterManager.parse(val, attrConverters);
+                        parsedData[key] = parseUtils.toImplicitType(val);
                     });
-                    channel.variables.publish(data);
+                    channel.variables.publish(parsedData);
                 });
 
                 $root.off('f.ui.operate').on('f.ui.operate', function(evt, data) {

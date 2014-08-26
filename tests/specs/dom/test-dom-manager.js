@@ -119,7 +119,6 @@
             });
 
             describe('Node Handlers', function () {
-
                 require('./nodes/test-node-manager');
             });
 
@@ -131,23 +130,45 @@
                 });
                 describe('pipes', function () {
                     describe('bind', function () {
-                        it('should convert values with single converters', function () {
-                            var $node = utils.initWithNode('<input type="text" data-f-bind="apple | titleCase"/>', domManager);
-                            $node.trigger('update.f.model', {apple: 'sauce'});
+                        describe('convert', function () {
+                            it('should convert values with single converters', function () {
+                                var $node = utils.initWithNode('<input type="text" data-f-bind="apple | titleCase"/>', domManager);
+                                $node.trigger('update.f.model', {apple: 'sauce'});
 
-                            $node.val().should.equal('Sauce');
+                                $node.val().should.equal('Sauce');
 
+                            });
+                            it('should convert values with multiple converters', function () {
+                                domManager.converters.register('flip', function (val) {
+                                    return val.split('').reverse().join('');
+                                });
+
+                                var $node = utils.initWithNode('<input type="text" data-f-bind="apple | titleCase | flip"/>', domManager);
+                                $node.trigger('update.f.model', {apple: 'sauce'});
+
+                                $node.val().should.equal('ecuaS');
+
+                            });
                         });
-                        it('should convert values with multiple converters', function () {
-                            domManager.converters.register('flip', function (val) {
-                                return val.split('').reverse().join('');
+                        describe('parse', function () {
+                            it('should convert values with single converters', function () {
+                                var channel = utils.createDummyChannel();
+                                var $node = utils.initWithNode('<input type="text" data-f-bind="price | $#,### "/>', domManager, channel);
+                                $node.val('2,345').trigger('change');
+                                channel.variables.publish.should.have.been.called;
                             });
 
-                            var $node = utils.initWithNode('<input type="text" data-f-bind="apple | titleCase | flip"/>', domManager);
-                            $node.trigger('update.f.model', {apple: 'sauce'});
+                            // it('should convert values with multiple converters', function () {
+                            //     domManager.converters.register('flip', function (val) {
+                            //         return val.split('').reverse().join('');
+                            //     });
 
-                            $node.val().should.equal('ecuaS');
+                            //     var $node = utils.initWithNode('<input type="text" data-f-bind="apple | titleCase | flip"/>', domManager);
+                            //     $node.trigger('update.f.model', {apple: 'sauce'});
 
+                            //     $node.val().should.equal('ecuaS');
+
+                            // });
                         });
                     });
                     describe('other attributes', function () {
