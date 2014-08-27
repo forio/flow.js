@@ -1,6 +1,0 @@
-- Attrmap has duplicates, dedupe before adding
-
-Formatting
-    - Async formatters
-
-toImplicitType - doesn't work great with objects
