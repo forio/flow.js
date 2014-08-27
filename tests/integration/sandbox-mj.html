@@ -33,35 +33,35 @@
     <td>display_update</td>
     <td>data-f-bind string</td>
     <td>span: <span data-f-bind="sampleString"></span><br>input: <input type="text" data-f-bind="sampleString" /></td>
-    <td class="pass">pass</td>
+    <td class="pass">pass (0.6.0)</td>
 <tr>
 
 <tr>
     <td>display_update</td>
     <td>data-f-bind int</td>
     <td>span: <span data-f-bind="sampleInt"></span><br>input: <input type="text" data-f-bind="sampleInt" /></td>
-    <td class="pass">pass</td>
+    <td class="pass">pass (0.6.0)<br>Notes: also works for reals, e.g. 8.5. Probably because of the Julia model not being strict about what kind of number this is.</td>
 <tr>
 
 <tr>
     <td>display_update</td>
     <td>data-f-bind object</td>
     <td>span: <span data-f-bind="salesMgr.region"></span><br>input: <input type="text" data-f-bind="salesMgr.region" /></td>
-    <td class="pass">pass</td>
+    <td class="pass">pass (0.6.0)</td>
 <tr>
 
 <tr>
     <td>display_update</td>
     <td>data-f-bind array</td>
     <td>span: <span data-f-bind="sales[3]"></span><br>input: <input type="text" data-f-bind="sales[3]" /></td>
-    <td class="fail">fail, request is passing int as string and getting no method</td>
+    <td class="pass">pass (0.6.0)</td>
 <tr>
 
 <tr>
     <td>display_update</td>
     <td>data-f-bind array indexed by variable</td>
     <td>span: <span data-f-bind="sales[<sampleTruthy>]"></span><br>input: <input type="text" data-f-bind="sales[<sampleTruthy>]" /></td>
-    <td class="fail">fail, span doesn't update when input is changed and span doesn't show (but that used to work?)</td>
+    <td class="fail">fail (0.6.0), span does not show value and input does not update value.</td>
 <tr>
 
 <tr>
@@ -75,14 +75,14 @@
     <td>display_update</td>
     <td>data-f-bind radio selection for truthy</td>
     <td><input type="radio" data-f-bind="sampleTruthy"/>radio button, selected if sampleTruthy is 1. <br>sampleTruthy is: <span data-f-bind="sampleTruthy"></span></td>
-    <td class="fail">fail</td>
+    <td class="pass">pass (0.6.0)</td>
 <tr>
 
 <tr>
     <td>display_update</td>
     <td>data-f-bind radio selection with value</td>
     <td><input type="radio" data-f-bind="sampleInt" value="8"/>radio button, selected if sampleInt is 8. <br>sampleInt is: <span data-f-bind="sampleInt"></span></td>
-    <td class="fail">only sometimes works: if manually change sampleInt to 8, is selected. if changed using resetInt() call, is not updated.</td>
+    <td class="fail">only sometimes works in 0.6.0: if manually change sampleInt to 8, is selected. if changed using resetInt() call, is not updated.</td>
 <tr>
 
 <tr>
@@ -95,28 +95,30 @@
             <option value="12"> 12 </option>
         </select>
     </td>
-    <td class="pass">pass</td>
+    <td class="pass">pass (0.6.0)</td>
 <tr>
 
 <tr>
     <td>display_update</td>
     <td>data-f-bind checkbox selection</td>
-    <td>checkbox, should be checked because sampleBool is true: <input type="checkbox" data-f-bind="sampleBool" /></td>
-    <td class="fail">fail</td>
+    <td>checkbox, should be checked because sampleBool is true: <input type="checkbox" data-f-bind="sampleBool" /><br>
+        checkbox, should be unchecked because sampleFalseBool is false: <input type="checkbox" data-f-bind="sampleFalseBool" /></td>
+    <td class="pass">pass (0.6.0)</td>
 <tr>
 
 <tr>
     <td>special_handling</td>
     <td>data-f-checked</td>
-    <td>checkbox, should be checked because sampleBool is true <input type="checkbox" data-f-checked="sampleBool" /></td>
-    <td class="fail">fail</td>
+    <td>checkbox, should be checked because sampleBool is true <input type="checkbox" data-f-checked="sampleBool" /><br>
+        checkbox, should be unchecked because sampleFalseBool is false: <input type="checkbox" data-f-checked="sampleFalseBool" /></td>
+    <td class="pass">pass (0.6.0)</td>
 <tr>
 
 <tr>
     <td>special_handling</td>
     <td>data-f-disabled with "truthy" of 0,1</td>
     <td>this button should be enabled because sampleTruthy=1: <button data-f-disabled="sampleTruthy">click me</button><br>confirm: sampleTruthy is currently: <span data-f-bind="sampleTruthy"></span></td>
-    <td class="pass">pass I think (Naren please review: disabled=true means enabled? this might be backwards)</td>
+    <td class="pass">pass (0.6.0) (disabled=1/true means enabled b/c flow inverts; disabled=0/false means disabled b/c flow inverts)</td>
 <tr>
 
 <tr>
@@ -125,7 +127,7 @@
     <td>this button should be enabled because sampleBool=true: <button data-f-disabled="sampleBool">click me</button><br>confirm: sampleBool is currently: <span data-f-bind="sampleBool"></span>
         <br><br> this button should be disabled because sampleFalseBool=false: <button data-f-disabled="sampleFalseBool">click me</button><br>confirm: sampleFalseBool is currently: <span data-f-bind="sampleFalseBool"></span>
     </td>
-    <td class="pass">pass I think (Naren please review: disabled=true means enabled, disabled=false means disabled? this might be backwards)</td>
+    <td class="pass">pass (0.6.0) (disabled=1/true means enabled b/c flow inverts; disabled=0/false means disabled b/c flow inverts)</td>
 <tr>
 
 <tr>
@@ -137,56 +139,91 @@
             <option data-f-selected="sampleInt" value="10"> 10 </option>
             <option data-f-selected="sampleInt" value="12"> 12 </option>
     </td>
-    <td class="pass">pass</td>
+    <td class="pass">pass (0.6.0)</td>
 <tr>
 
 <tr>
     <td>formatting</td>
-    <td>data-f-format numbers</td>
-    <td>sales[4] as a number: <span data-f-bind="sales[4]" data-f-format="#,###"></span></td>
-    <td class="pass">pass</td>
+    <td>data-f-convert numbers</td>
+    <td>sales[4] as a number: <span data-f-bind="sales[4]" data-f-convert="#,###"></span></td>
+    <td class="pass">pass (0.6.0)</td>
 <tr>
 
 <tr>
     <td>formatting</td>
-    <td>data-f-format dollars and cents</td>
-    <td>sales[4] as dollars and cents: <span data-f-bind="sales[4]" data-f-format="$0.00"></span></td>
-    <td class="pass">pass</td>
+    <td>data-f-convert dollars and cents</td>
+    <td>sales[4] as dollars and cents: <span data-f-bind="sales[4]" data-f-convert="$0.00"></span></td>
+    <td class="pass">pass (0.6.0)</td>
 <tr>
 
 <tr>
     <td>formatting</td>
-    <td>data-f-format dollars only</td>
-    <td>sales[4] as dollars only: <span data-f-bind="sales[4]" data-f-format="$0"></span></td>
-    <td class="pass">pass</td>
+    <td>data-f-convert dollars only</td>
+    <td>sales[4] as dollars only: <span data-f-bind="sales[4]" data-f-convert="$0"></span></td>
+    <td class="pass">pass (0.6.0)</td>
 <tr>
 
 <tr>
     <td>formatting</td>
-    <td>data-f-format percent</td>
-    <td>sales[4] as percent: <span data-f-bind="sales[4]" data-f-format="0%"></span></td>
-    <td class="pass">pass</td>
+    <td>data-f-convert percent</td>
+    <td>sales[4] as percent: <span data-f-bind="sales[4]" data-f-convert="0%"></span></td>
+    <td class="pass">pass (0.6.0)</td>
 <tr>
 
 <tr>
     <td>formatting</td>
     <td>formatting inheritance</td>
     <td></td>
-    <td>(TODO in implementation and docs)</td>
+    <td>(TODO in testing and docs)</td>
 <tr>
 
 <tr>
     <td>formatting</td>
-    <td>data-f-bind and | to format</td>
+    <td>data-f-bind and | to upperCase</td>
+    <td>sampleString in upperCase <span data-f-bind="sampleString | upperCase"/></td>
+    <td class="pass">pass (0.6.0)</td>
+<tr>
+
+<tr>
+    <td>formatting</td>
+    <td>data-f-bind and | to lowerCase</td>
+    <td>sampleString in lowerCase <span data-f-bind="sampleString | lowerCase"/></td>
+    <td class="pass">pass (0.6.0)</td>
+<tr>
+
+<tr>
+    <td>formatting</td>
+    <td>data-f-bind and | to titleCase</td>
+    <td>sampleString in titleCase <span data-f-bind="sampleString | titleCase"/></td>
+    <td class="pass">pass (0.6.0)</td>
+<tr>
+
+<tr>
+    <td>formatting</td>
+    <td>data-f-bind and | to i</td>
+    <td>sampleInt in integer <span data-f-bind="sampleInt | i"/></td>
+    <td class="fail">fail (0.6.0): if manually set sampleInt to 10.5, appears here as 10.5</td>
+<tr>
+
+<tr>
+    <td>formatting</td>
+    <td>data-f-bind and | to s</td>
+    <td>sampleInt in string <span data-f-bind="sampleInt | s"/></td>
+    <td class="pass">pass (0.6.0)</td>
+<tr>
+
+<tr>
+    <td>TODO</td>
+    <td>Converters &amp; Two-way converters</td>
     <td></td>
-    <td>(TODO in implementation and docs)</td>
+    <td>(TODO in testing and docs, see 0.6.0 release notes)</td>
 <tr>
 
 <tr>
     <td>styling</td>
     <td>data-f-class only</td>
     <td><div data-f-class="salesMgr.region">content colored by region, currently salesMgr.region is <span data-f-bind="salesMgr.region"></span></div></td>
-    <td class="pass">pass</td>
+    <td class="pass">pass (0.6.0)</td>
 <tr>
 
 <tr>
@@ -195,7 +232,7 @@
     <td>
         <div data-f-class="salesMgr.region" class="xx">content colored by xx.region, currently salesMgr.region is <span data-f-bind="salesMgr.region"></span></div>
     </td>
-    <td class="pass">pass</td>
+    <td class="pass">pass (0.6.0)</td>
 <tr>
 
 <tr>
@@ -204,7 +241,7 @@
     <td>
         <div data-f-class="salesMgr.num_reports" class="xx">content colored by xx.2, currently salesMgr.num_reports is <span data-f-bind="salesMgr.num_reports"></span></div>
     </td>
-    <td class="fail">fail (not sure if this is expected to work? it was in the flow.js readme but that may be outdated)</td>
+    <td class="fail">fail (0.6.0) (not sure if this is expected to work? it was in the flow.js readme but that may be outdated)</td>
 <tr>
 
 <tr>
@@ -212,104 +249,85 @@
     <td>data-f-noop (and nothing)</td>
     <td>start w/ same as data-f-bind string, then add data-f-noop: <br>
         regular span: <span data-f-bind="sampleString" ></span><br>
-        span w/ noop: <span data-f-bind="sampleString"></span><br>
+        span w/ noop: <span data-f-noop="sampleString"></span><br>
         input: <input type="text" data-f-bind="sampleString" />
     </td>
-    <td class="fail">fail: the request includes "," (e.g. `?include=salesMgr.num_reports,,sales[2]`) for the spot where the variable being noop'd is, causing 400.</td>
+    <td class="pass">pass (0.6.0)</td>
 <tr>
 
 <tr>
     <td>writing_your_own</td>
     <td>data-f-noop (and own function)</td>
     <td></td>
-    <td>(TODO in docs)</td>
+    <td>(TODO in testing and docs)</td>
 <tr>
 
 <tr>
     <td>methods</td>
     <td>data-f-on-init</td>
     <td>added 'data-f-on-init="saveAll"' to body tag</td>
-    <td class="pass">pass (verified in postman)</td>
+    <td class="pass">pass (0.6.0) (verified in postman)</td>
 <tr>
 
 <tr>
     <td>methods</td>
     <td>data-f-on-click method, no args</td>
-    <td><button data-f-on-click="resetInt">Click to set sampleInt to 8</button><br>sampleInt = <span data-f-bind="sampleInt"></span></td>
-    <td class="fail">only works sometimes ... works if clicking is the first thing we do, but not if we've already changed sampleInt e.g. in the input at top of page</td>
+    <td><button data-f-on-click="resetInt()">Click to set sampleInt to 8</button><br>sampleInt = <span data-f-bind="sampleInt"></span></td>
+    <td class="fail">fail (0.6.0) only works sometimes: works if clicking is the only thing we do, but not if we've already changed sampleInt e.g. in the input at top of page (but if we change sampleInt only with buttons, this continues to work...)</td>
 <tr>
 
 <tr>
     <td>methods</td>
     <td>data-f-on-click method, one int arg</td>
     <td><button data-f-on-click="addToInt(3)">Click to add 3 to sampleInt</button><br>sampleInt = <span data-f-bind="sampleInt"></span></td>
-    <td class="fail">fail, request is passing int as string and getting no method</td>
+    <td class="fail">fail (0.6.0), only works sometimes: works if clicking is the only thing we do, but not if we've already changed sampleInt e.g. in the input at top of page (but if we change sampleInt only with buttons, this continues to work...)</td>
 <tr>
 
 <tr>
     <td>methods</td>
     <td>data-f-on-click method, one string arg for string letters and spaces</td>
     <td><button data-f-on-click="changeString(goodbye world)">Click to set sampleString to 'goodbye world'</button><br>sampleString = <span data-f-bind="sampleString"></span></td>
-    <td class="pass">pass</td>
+    <td class="fail">fail (0.6.0) only works sometimes: works if clicking is the only thing we do, but not if we've already changed sampleString e.g. in the input at top of page (but if we change sampleString only with buttons, this continues to work...)</td>
 <tr>
 
 <tr>
     <td>methods</td>
     <td>data-f-on-click method, one string arg for string all numbers</td>
     <td><button data-f-on-click="changeString(22)">Click to set sampleString to (string) 22</button><br>sampleString = <span data-f-bind="sampleString"></span></td>
-    <td class="pass">pass</td>
+    <td class="fail">fail (0.6.0) only works sometimes: works if clicking is the only thing we do, but not if we've already changed sampleString e.g. in the input at top of page (but if we change sampleString only with buttons, this continues to work...)</td>
 <tr>
 
 <tr>
     <td>methods</td>
     <td>data-f-on-click method, two args</td>
-    <td><button data-f-on-click="updateTwoArrayVals(5,10)">Click to add 5 to sales[1] and 10 to sales[2]</button><br>sales[1] = <span data-f-bind="sales[1]"></span><br>sales[2] = <span data-f-bind="sales[2]"></span></td>
-    <td class="fail">fail, request is passing int as string and getting no method</td>
+    <td><button data-f-on-click="updateTwoArrayVals(5,10)">Click to add 5 to sales[1] and 10 to sales[3]</button><br>sales[1] = <span data-f-bind="sales[1]"></span><br>sales[3] = <span data-f-bind="sales[3]"></span></td>
+    <td class="pass">pass (0.6.0) Notes: weird that this works and the other ones don't</td>
 <tr>
 
 <tr>
     <td>methods</td>
     <td>data-f-on-click method, arg is other model variable</td>
     <td><button data-f-on-click="changeString(<salesMgr.region>)">Click to change sampleString to salesMgr.region</button><br>sampleString = <span data-f-bind="sampleString"></span></td>
-    <td class="fail">fail, but maybe this is an improvement request instead</td>
+    <td class="fail">future release (improvement request, doesn't work now)</td>
 <tr>
 
 </table>
 
 
-
-<!--
-<select data-f-bind="sampleInt">
-        <option value="8"> 8 </option>
-        <option value="10"> 10 </option>
-        <option value="12"> 12 </option>
-    </select>
-
-    <select>
-        <option data-f-selected="sampleInt" value="8"> 8 </option>
-        <option data-f-selected="sampleInt" value="10"> 10 </option>
-        <option data-f-selected="sampleInt" value="12"> 12 </option>
-        </select>
-
-<input type="radio" data-f-bind="sampleInt" value="8" name="abc"/> 8
-<input type="radio" data-f-bind="sampleInt" value="10" name="abc"/> 10
-<input type="radio" data-f-bind="sampleInt" value="12" name="abc"/> 12
-
-<input type="checkbox" data-f-bind="sampleInt" value="10">should be 10?</input>
--->
-
     <script src="../../vendor/jquery/dist/jquery.min.js"></script>
     <script src="../../vendor/lodash/dist/lodash.js"></script>
     <script src="../../vendor/epicenter-js-libs/dist/epicenter.min.js"></script>
-    <script src="../../dist/flow.js"></script>
+    <script src="../../dist/flow-edge.js"></script>
     <script>
 
     Flow.initialize({
         channel: {
             model: 'hello_world_flow.jl',
-            account: 'first-team',
+            //account: 'first-team',
+            account: 'mjones',
             project: 'hello-world-flow',
-            server: {host: 'api.epicenter-stable.foriodev.com'}
+            //server: {host: 'api.epicenter-stable.foriodev.com'}
+            server: {host: 'api.forio.com'}
         }
     });
 
