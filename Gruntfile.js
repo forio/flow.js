@@ -167,7 +167,7 @@ module.exports = function(grunt) {
     grunt.registerTask('release', function (type) {
         //TODO: Integrate 'changelog' in here when it's stable
         type = type ? type : 'patch';
-        ['validate', 'production', 'bump-only:' + type, 'bump-commit'].forEach(function (task) {
+        ['validate', 'production', 'bump-only:' + type, 'incrementVersion', 'bump-commit'].forEach(function (task) {
             grunt.task.run(task);
         });
     });
