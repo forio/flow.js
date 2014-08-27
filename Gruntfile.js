@@ -150,6 +150,12 @@ module.exports = function(grunt) {
     grunt.registerTask('generateDev', ['browserify2:edge']);
     grunt.registerTask('production', ['generateDev', 'browserify2:mapped', 'browserify2:min']);
 
+    grunt.registerTask('incrementVersion', function () {
+        var mainFile = grunt.file.read('./src/app.js');
+        var updated = grunt.template.process(mainFile, {data: grunt.config('pkg')});
+        grunt.file.write('./src/app.js', updated);
+    });
+
     grunt.registerTask('release', function (type) {
         //TODO: Integrate 'changelog' in here when it's stable
         type = type ? type : 'patch';
