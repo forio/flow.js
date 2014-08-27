@@ -144,6 +144,11 @@ module.exports = function(grunt) {
         }
     });
 
+    grunt.config.set('incrementVersion', {
+        options: {
+            files: ['./src/app.js']
+        }
+    });
 
     grunt.registerTask('test', ['mocha']);
     grunt.registerTask('validate', ['jshint:all', 'test']);
@@ -151,6 +156,7 @@ module.exports = function(grunt) {
     grunt.registerTask('production', ['generateDev', 'browserify2:mapped', 'browserify2:min']);
 
     grunt.registerTask('incrementVersion', function () {
+        console.log(this);
         var mainFile = grunt.file.read('./src/app.js');
         var updated = grunt.template.process(mainFile, {data: grunt.config('pkg')});
         grunt.file.write('./src/app.js', updated);
