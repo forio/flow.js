@@ -146,7 +146,7 @@ module.exports = function(grunt) {
 
     grunt.config.set('incrementVersion', {
         options: {
-            files: ['./src/app.js']
+            files:  ['./dist/*.js']
         }
     });
 
@@ -156,10 +156,12 @@ module.exports = function(grunt) {
     grunt.registerTask('production', ['generateDev', 'browserify2:mapped', 'browserify2:min']);
 
     grunt.registerTask('incrementVersion', function () {
-        console.log(this);
-        var mainFile = grunt.file.read('./src/app.js');
-        var updated = grunt.template.process(mainFile, {data: grunt.config('pkg')});
-        grunt.file.write('./src/app.js', updated);
+        var files = this.options().files;
+        grunt.file.expand(files).forEach(function (file) {
+            var mainFile = grunt.file.read(file);
+            var updated = grunt.template.process(mainFile, {data: grunt.file.readJSON('package.json')});
+            grunt.file.write(file, updated);
+        });
     });
 
     grunt.registerTask('release', function (type) {
