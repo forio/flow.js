@@ -3,7 +3,8 @@ LICENSE
 
 Forio Corporation (Forio) hereby gives you a non-exclusive license to use the software Flow.JS (the Software). 
 
-This license is granted for use in developing online applications that interact with Forio servers and server software.  Typically the Software will be used to create analytic web applications that are served from as Forio Epicenter or Forio Simulate.   
+This license is granted for use in developing online applications that interact with Forio servers and server software.  Typically the Software will be used to create analytic web applications that are hosted by Forio Epicenter or Forio Simulate.   As part of this license you may freely download the complete distribution from the following URL.
+https://github.com/forio/flow.js
  
 You may:  
 - use the Software on any computer for the purposes of developing an online application.
