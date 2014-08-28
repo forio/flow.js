@@ -8,7 +8,7 @@ If you are most familiar with writing HTML and basic JavaScript, using flow.js c
 
 See the full [documentation](https://forio.com/epicenter/docs/public/data_binding_flow_js/) for more details.
 
-Questions?  Contact us at support@forio.com.
+Questions?  Contact us at support@forio.com or file an issue on github!
 
 ## Getting started with development
 
