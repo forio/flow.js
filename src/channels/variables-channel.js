@@ -68,7 +68,7 @@ module.exports = function(options) {
 
             var getVariables = function(vars, ip) {
                 return vs.query(vars).then(function(variables) {
-                    console.log('Got variables', variables);
+                    // console.log('Got variables', variables);
                     _.each(variables, function(value, vname) {
                         var oldValue = currentData[vname];
                         if (!isEqual(value, oldValue)) {
@@ -124,7 +124,7 @@ module.exports = function(options) {
         },
 
         subscribe: function(properties, subscriber) {
-            console.log('subscribing', properties, subscriber);
+            // console.log('subscribing', properties, subscriber);
 
             properties = [].concat(properties);
             //use jquery to make event sink
