@@ -1,13 +1,15 @@
 module.exports = function(grunt) {
     'use strict';
 
+    require('time-grunt')(grunt);
+
     grunt.loadNpmTasks('grunt-browserify2');
     grunt.loadNpmTasks('grunt-mocha');
-    grunt.loadNpmTasks('grunt-contrib-uglify');
     grunt.loadNpmTasks('grunt-contrib-watch');
     grunt.loadNpmTasks('grunt-contrib-jshint');
     grunt.loadNpmTasks('grunt-jscs-checker');
     grunt.loadNpmTasks('grunt-bump');
+    grunt.loadNpmTasks('grunt-concurrent');
 
 
     var UglifyJS = require('uglify-js');
@@ -115,27 +117,6 @@ module.exports = function(grunt) {
         }
     });
 
-    grunt.config.set('uglify', {
-        options: {
-            compress: false,
-            sourceMap: false,
-            sourceMapIncludeSources: true
-        },
-        dev: {
-            files: []
-        },
-        production: {
-            options: {
-                compress: true,
-                sourceMap: true,
-                sourceMapIncludeSources: true
-            },
-            files: {
-
-            }
-        }
-    });
-
     grunt.config.set('mocha', {
         test: {
             src: ['tests/index.html'],
@@ -151,6 +132,10 @@ module.exports = function(grunt) {
         options: {
             files:  ['./dist/*.js']
         }
+    });
+
+    grunt.config.set('concurrent', {
+        production: ['browserify2:edge', 'browserify2:mapped', 'browserify2:min']
     });
 
     grunt.registerTask('test', ['mocha']);
@@ -170,7 +155,8 @@ module.exports = function(grunt) {
     grunt.registerTask('release', function (type) {
         //TODO: Integrate 'changelog' in here when it's stable
         type = type ? type : 'patch';
-        ['validate', 'production', 'bump-only:' + type, 'incrementVersion', 'bump-commit'].forEach(function (task) {
+        ['validate', 'production', 'incrementVersion'].forEach(function (task) {
+        // ['validate', 'production', 'bump-only:' + type, 'incrementVersion', 'bump-commit'].forEach(function (task) {
             grunt.task.run(task);
         });
     });
