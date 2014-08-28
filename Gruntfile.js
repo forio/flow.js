@@ -9,7 +9,6 @@ module.exports = function(grunt) {
     grunt.loadNpmTasks('grunt-contrib-jshint');
     grunt.loadNpmTasks('grunt-jscs-checker');
     grunt.loadNpmTasks('grunt-bump');
-    grunt.loadNpmTasks('grunt-concurrent');
 
 
     var UglifyJS = require('uglify-js');
@@ -134,10 +133,6 @@ module.exports = function(grunt) {
         }
     });
 
-    grunt.config.set('concurrent', {
-        production: ['browserify2:edge', 'browserify2:mapped', 'browserify2:min']
-    });
-
     grunt.registerTask('test', ['mocha']);
     grunt.registerTask('validate', ['jshint:all', 'test']);
     grunt.registerTask('generateDev', ['browserify2:edge']);
@@ -155,8 +150,7 @@ module.exports = function(grunt) {
     grunt.registerTask('release', function (type) {
         //TODO: Integrate 'changelog' in here when it's stable
         type = type ? type : 'patch';
-        ['validate', 'production', 'incrementVersion'].forEach(function (task) {
-        // ['validate', 'production', 'bump-only:' + type, 'incrementVersion', 'bump-commit'].forEach(function (task) {
+        ['validate', 'production', 'bump-only:' + type, 'incrementVersion', 'bump-commit'].forEach(function (task) {
             grunt.task.run(task);
         });
     });
