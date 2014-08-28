@@ -83,7 +83,10 @@ module.exports = function(grunt) {
                 var result = UglifyJS.minify(src, {
                     fromString: true,
                     warnings: true,
-                    mangle: true
+                    mangle: true,
+                    compress:{
+                        pure_funcs: [ 'console.log' ]
+                    }
                 });
                 return result.code;
             }
