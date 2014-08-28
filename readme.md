@@ -1,6 +1,5 @@
 # Flow.js - Forio's Data-Binding Library
 
-
 Flow.js provides a data binding between HTML elements in your user interface and variables and methods in your project's model.
 
 In particular, flow.js provides a channel between your model and your interface components. You can add model variables directly into your HTML files, as nodes or attributes that are part of the DOM (document object model). Additionally, the values automatically update in your HTML file as the model changes; flow.js takes care of all of the details.
@@ -11,5 +10,17 @@ See the full [documentation](https://forio.com/epicenter/docs/public/data_bindin
 
 Questions?  Contact us at support@forio.com.
 
-===
+## Getting started with development
+
+To run locally
+```
+    npm install
+    bower install
+    cd tests
+    bower install
+
+    grunt
+```
+This will create a ```flow-edge.js``` file in ```dist/```. When you're happy with your changes do ```grunt release``` to increment version numbers and push.
+
 &copy; Forio Corporation 2014.  All rights reserved.

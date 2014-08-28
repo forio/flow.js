@@ -144,16 +144,30 @@ module.exports = function(grunt) {
         }
     });
 
+    grunt.config.set('incrementVersion', {
+        options: {
+            files:  ['./dist/*.js']
+        }
+    });
 
     grunt.registerTask('test', ['mocha']);
     grunt.registerTask('validate', ['jshint:all', 'test']);
     grunt.registerTask('generateDev', ['browserify2:edge']);
     grunt.registerTask('production', ['generateDev', 'browserify2:mapped', 'browserify2:min']);
 
+    grunt.registerTask('incrementVersion', function () {
+        var files = this.options().files;
+        grunt.file.expand(files).forEach(function (file) {
+            var mainFile = grunt.file.read(file);
+            var updated = grunt.template.process(mainFile, {data: grunt.file.readJSON('package.json')});
+            grunt.file.write(file, updated);
+        });
+    });
+
     grunt.registerTask('release', function (type) {
         //TODO: Integrate 'changelog' in here when it's stable
         type = type ? type : 'patch';
-        ['validate', 'production', 'bump-only:' + type, 'bump-commit'].forEach(function (task) {
+        ['validate', 'production', 'bump-only:' + type, 'incrementVersion', 'bump-commit'].forEach(function (task) {
             grunt.task.run(task);
         });
     });
