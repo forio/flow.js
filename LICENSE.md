@@ -8,12 +8,13 @@ https://github.com/forio/flow.js
  
 You may:  
 - use the Software on any computer for the purposes of developing an online application.
-- upload the "dist" folder of the Software to any server controlled by Forio Corporation or any server that is running software provided by Forio.
+- upload the contents of the "dist" folder of the Software to any server controlled by Forio Corporation or any server that is running software provided by Forio.
 - link to the Software from a web application as long as the purpose of the web application is to interact with Forio servers or Forio server software.
 - copy the Software for archival purposes, provided any copy contains all of the original Software's proprietary notices.  
  
 You may not:  
-- redistribute the Software except as allowed above.
+- redistribute the Software except as allowed above
+- include the Software or any files from the Software in a web application except for the contents of the "dist" folder as noted above.
 - permit other individuals to use the Software except under the terms listed above;  
 - modify, translate, reverse engineer, decompile, disassemble (except to the extent applicable laws specifically prohibit such restriction),  
 - create derivative works based on the Software;  
