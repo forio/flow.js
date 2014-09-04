@@ -61,14 +61,14 @@
     <td>display_update</td>
     <td>data-f-bind array indexed by variable</td>
     <td>span: <span data-f-bind="sales[<sampleTruthy>]"></span><br>input: <input type="text" data-f-bind="sales[<sampleTruthy>]" /></td>
-    <td class="fail">fail (0.6.0), span does not show value and input does not update value.</td>
+    <td class="fail">fail (0.6.0), span does not show value and input does not update value. <a href="https://github.com/forio/flow.js/issues/9">issue #9.</a></td>
 <tr>
 
 <tr>
     <td>display_update</td>
     <td>data-f-bind array indexed by expression</td>
     <td>desired: data-f-bind="sales[&lt;sampleTruthy&gt;+1]" <!--span: <span data-f-bind="sales[<sampleTruthy>+1]"></span><br>input: <input type="text" data-f-bind="sales[<sampleTruthy>+1]" />--></td>
-    <td>future release (improvement request, doesn't work now)</td>
+    <td>future release (improvement request, doesn't work now), see <a href="https://github.com/forio/flow.js/issues/11">issue #11</a></td>
 <tr>
 
 <tr>
@@ -82,7 +82,7 @@
     <td>display_update</td>
     <td>data-f-bind radio selection with value</td>
     <td><input type="radio" data-f-bind="sampleInt" value="8"/>radio button, selected if sampleInt is 8. <br>sampleInt is: <span data-f-bind="sampleInt"></span></td>
-    <td class="fail">only sometimes works in 0.6.0: if manually change sampleInt to 8, is selected. if changed using resetInt() call, is not updated.</td>
+    <td class="fail">only sometimes works in 0.6.0, see <a href="https://github.com/forio/flow.js/issues/10">issue #10</a>: if manually change sampleInt to 8, is selected. if changed using resetInt() call, is not updated.</td>
 <tr>
 
 <tr>
@@ -158,9 +158,10 @@
 
 <tr>
     <td>formatting</td>
-    <td>data-f-convert dollars only</td>
-    <td>sales[4] as dollars only: <span data-f-bind="sales[4]" data-f-convert="$0"></span></td>
-    <td class="pass">pass (0.6.0)</td>
+    <td>data-f-convert dollars only, also issue #1</td>
+    <td>sales[4] as dollars only: <span data-f-bind="sales[4]" data-f-convert="$0"></span>
+        <br> sales[4] update, also using dollars: <input type="text" data-f-bind="sales[4]" data-f-convert="$0"></input></td>
+    <td class="pass">pass (0.6.2)</td>
 <tr>
 
 <tr>
@@ -202,7 +203,7 @@
     <td>formatting</td>
     <td>data-f-bind and | to i</td>
     <td>sampleInt in integer <span data-f-bind="sampleInt | i"/></td>
-    <td class="fail">fail (0.6.0): if manually set sampleInt to 10.5, appears here as 10.5</td>
+    <td>TODO for testing (this allows 10.5, which apparently is expected; haven't tested further)</td>
 <tr>
 
 <tr>
@@ -241,7 +242,7 @@
     <td>
         <div data-f-class="salesMgr.num_reports" class="xx">content colored by xx.2, currently salesMgr.num_reports is <span data-f-bind="salesMgr.num_reports"></span></div>
     </td>
-    <td class="fail">fail (0.6.0) (not sure if this is expected to work? it was in the flow.js readme but that may be outdated)</td>
+    <td class="fail">fail (0.6.0), see <a href="https://github.com/forio/flow.js/issues/13">issue #13</a> (not sure if this is expected to work? it was in the flow.js readme but that may be outdated)</td>
 <tr>
 
 <tr>
@@ -273,28 +274,28 @@
     <td>methods</td>
     <td>data-f-on-click method, no args</td>
     <td><button data-f-on-click="resetInt()">Click to set sampleInt to 8</button><br>sampleInt = <span data-f-bind="sampleInt"></span></td>
-    <td class="fail">fail (0.6.0) only works sometimes: works if clicking is the only thing we do, but not if we've already changed sampleInt e.g. in the input at top of page (but if we change sampleInt only with buttons, this continues to work...)</td>
+    <td class="fail">fail (0.6.0) only works sometimes, see <a href="https://github.com/forio/flow.js/issues/10">issue #10</a>: works if clicking is the only thing we do, but not if we've already changed sampleInt e.g. in the input at top of page (but if we change sampleInt only with buttons, this continues to work...)</td>
 <tr>
 
 <tr>
     <td>methods</td>
     <td>data-f-on-click method, one int arg</td>
     <td><button data-f-on-click="addToInt(3)">Click to add 3 to sampleInt</button><br>sampleInt = <span data-f-bind="sampleInt"></span></td>
-    <td class="fail">fail (0.6.0), only works sometimes: works if clicking is the only thing we do, but not if we've already changed sampleInt e.g. in the input at top of page (but if we change sampleInt only with buttons, this continues to work...)</td>
+    <td class="fail">fail (0.6.0), only works sometimes, see <a href="https://github.com/forio/flow.js/issues/10">issue #10</a>: works if clicking is the only thing we do, but not if we've already changed sampleInt e.g. in the input at top of page (but if we change sampleInt only with buttons, this continues to work...)</td>
 <tr>
 
 <tr>
     <td>methods</td>
     <td>data-f-on-click method, one string arg for string letters and spaces</td>
     <td><button data-f-on-click="changeString(goodbye world)">Click to set sampleString to 'goodbye world'</button><br>sampleString = <span data-f-bind="sampleString"></span></td>
-    <td class="fail">fail (0.6.0) only works sometimes: works if clicking is the only thing we do, but not if we've already changed sampleString e.g. in the input at top of page (but if we change sampleString only with buttons, this continues to work...)</td>
+    <td class="fail">fail (0.6.0) only works sometimes, see <a href="https://github.com/forio/flow.js/issues/10">issue #10</a>: works if clicking is the only thing we do, but not if we've already changed sampleString e.g. in the input at top of page (but if we change sampleString only with buttons, this continues to work...)</td>
 <tr>
 
 <tr>
     <td>methods</td>
     <td>data-f-on-click method, one string arg for string all numbers</td>
     <td><button data-f-on-click="changeString(22)">Click to set sampleString to (string) 22</button><br>sampleString = <span data-f-bind="sampleString"></span></td>
-    <td class="fail">fail (0.6.0) only works sometimes: works if clicking is the only thing we do, but not if we've already changed sampleString e.g. in the input at top of page (but if we change sampleString only with buttons, this continues to work...)</td>
+    <td class="fail">fail (0.6.0) only works sometimes, see <a href="https://github.com/forio/flow.js/issues/10">issue #10</a>: works if clicking is the only thing we do, but not if we've already changed sampleString e.g. in the input at top of page (but if we change sampleString only with buttons, this continues to work...)</td>
 <tr>
 
 <tr>
@@ -308,8 +309,24 @@
     <td>methods</td>
     <td>data-f-on-click method, arg is other model variable</td>
     <td><button data-f-on-click="changeString(<salesMgr.region>)">Click to change sampleString to salesMgr.region</button><br>sampleString = <span data-f-bind="sampleString"></span></td>
-    <td class="fail">future release (improvement request, doesn't work now)</td>
+    <td>future release (improvement request, doesn't work now), see <a href="https://github.com/forio/flow.js/issues/12">issue #12</a></td>
 <tr>
+
+<tr>
+    <td>issue #8</td>
+    <td>When I use data-f-convert="#.#%" and type in 1.5%
+in the field, an incorrect value of 1.5 is sent to Julia, and the resulting value is
+displayed as 150%.</td>
+    <td>span: <span data-f-bind="sampleInt"></span> <br> input: <input type="text" data-f-bind="sampleInt" data-f-convert="#.#%"/></td>
+    <td class="pass">pass in 0.6.2</td>
+</tr>
+<tr>
+    <td>issue #2</td>
+    <td>I have a variable in my Julia model which is a Float64. The variable is bound via data-f-bind to a input tag in the UI. It works fine for displaying, but when a user changes the value, the new value is sent back to Julia as a string, and throws an error when it tries to squeeze into the Float64.</td>
+    <td>span: <span data-f-bind="sample64"></span> <br> <button data-f-on-click="addTo64(2.71828)">Click to add 2.71828 to sample64</button>
+        <br> input: <input type="text" data-f-bind="sample64"></input></td>
+    <td class="pass">pass in 0.6.2 I think (no errors putting the value back; but full testing may be blocked by the data-f-on-click method tests until I make a better Julia model?)</td>
+</tr>
 
 </table>
 
@@ -317,7 +334,7 @@
     <script src="../../vendor/jquery/dist/jquery.min.js"></script>
     <script src="../../vendor/lodash/dist/lodash.js"></script>
     <script src="../../vendor/epicenter-js-libs/dist/epicenter.min.js"></script>
-    <script src="../../dist/flow-edge.js"></script>
+    <script src="../../dist/flow.js"></script>
     <script>
 
     Flow.initialize({
