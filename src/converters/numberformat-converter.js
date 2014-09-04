@@ -10,7 +10,7 @@ module.exports = {
         var isNegative = val.charAt(0) === '-';
 
         val  = val.replace(/,/g, '');
-        var floatMatcher = /([-+]?[0-9]*\.?[0-9]+)(K?M?B?)/i;
+        var floatMatcher = /([-+]?[0-9]*\.?[0-9]+)(K?M?B?%?)/i;
         var results = floatMatcher.exec(val);
         var number, suffix = '';
         if(results && results[1]){
@@ -21,6 +21,9 @@ module.exports = {
         }
 
         switch(suffix){
+            case '%':
+                number = number / 100;
+                break;
             case 'k':
                 number = number * 1000;
                 break;

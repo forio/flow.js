@@ -15,6 +15,11 @@ module.exports = (function () {
             cm.parse('1,000,000.01', '$###.00').should.equal(1000000.01);
         });
 
+        it('should convert percents to decimals', function () {
+            cm.parse('1%', '$###').should.equal(0.01);
+            cm.parse('1.5%', '$###').should.equal(0.015);
+        });
+
         it('should convert strings with short units', function () {
             cm.parse('1K', '$###.00').should.equal(1000);
             cm.parse('1k', '$###.00').should.equal(1000);
