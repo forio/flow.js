@@ -3,19 +3,15 @@ module.exports = function(grunt) {
 
     grunt.loadNpmTasks('grunt-browserify2');
     grunt.loadNpmTasks('grunt-mocha');
-    grunt.loadNpmTasks('grunt-contrib-uglify');
     grunt.loadNpmTasks('grunt-contrib-watch');
     grunt.loadNpmTasks('grunt-contrib-jshint');
-    grunt.loadNpmTasks('grunt-jscs-checker');
     grunt.loadNpmTasks('grunt-bump');
-
 
     var UglifyJS = require('uglify-js');
 
     grunt.initConfig({
         pkg: grunt.file.readJSON('package.json')
     });
-
 
     grunt.config.set('bump', {
         options: {
@@ -83,7 +79,10 @@ module.exports = function(grunt) {
                 var result = UglifyJS.minify(src, {
                     fromString: true,
                     warnings: true,
-                    mangle: true
+                    mangle: true,
+                    compress:{
+                        pure_funcs: [ 'console.log' ]
+                    }
                 });
                 return result.code;
             }
@@ -108,27 +107,6 @@ module.exports = function(grunt) {
         all: {
             files: {
                 src: ['src/**/*.js', 'tests/specs/**/*.js']
-            }
-        }
-    });
-
-    grunt.config.set('uglify', {
-        options: {
-            compress: false,
-            sourceMap: false,
-            sourceMapIncludeSources: true
-        },
-        dev: {
-            files: []
-        },
-        production: {
-            options: {
-                compress: true,
-                sourceMap: true,
-                sourceMapIncludeSources: true
-            },
-            files: {
-
             }
         }
     });

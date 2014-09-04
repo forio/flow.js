@@ -21,7 +21,6 @@ module.exports = (function() {
     };
 
     $.expr[':'].webcomponent = function(obj){
-        console.log(obj);
         return obj.nodeName.indexOf('-') !== -1;
     };
 
@@ -58,7 +57,6 @@ module.exports = (function() {
                 $.each(matchedElements, function(index, element) {
                     var $el = $(element);
                     var Handler = nodeManager.getHandler($el);
-                    console.log(element, Handler.selector);
                     new Handler.handle({
                         el: element
                     });
@@ -103,7 +101,6 @@ module.exports = (function() {
                         $el.data('variable-attr-map', varMap);
                     }
 
-                    // console.log(view, node.selector);
                     var subscribable = Object.keys(varMap);
                     if (subscribable.length) {
                         channel.variables.subscribe(Object.keys(varMap), $el);

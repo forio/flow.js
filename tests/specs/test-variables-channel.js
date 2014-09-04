@@ -182,7 +182,6 @@
                 channel.variableListenerMap.apples.should.exist;
 
                 channel.unsubscribe(token);
-                console.log(               channel.variableListenerMap.apples);
                 // channel.variableListenerMap.apples.should.eql([]);
 
             });
