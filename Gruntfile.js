@@ -1,22 +1,17 @@
 module.exports = function(grunt) {
     'use strict';
 
-    require('time-grunt')(grunt);
-
     grunt.loadNpmTasks('grunt-browserify2');
     grunt.loadNpmTasks('grunt-mocha');
     grunt.loadNpmTasks('grunt-contrib-watch');
     grunt.loadNpmTasks('grunt-contrib-jshint');
-    grunt.loadNpmTasks('grunt-jscs-checker');
     grunt.loadNpmTasks('grunt-bump');
-
 
     var UglifyJS = require('uglify-js');
 
     grunt.initConfig({
         pkg: grunt.file.readJSON('package.json')
     });
-
 
     grunt.config.set('bump', {
         options: {

@@ -21,12 +21,9 @@
     "grunt-contrib-jshint": "^0.10.0",
     "grunt-contrib-watch": "^0.6.1",
     "grunt-conventional-changelog": "^1.1.0",
-    "grunt-jscs-checker": "^0.6.1",
-    "grunt-markdox": "^1.2.1",
     "grunt-mocha": "^0.4.11",
     "husky": "^0.5.1",
     "jshint-stylish": "^0.2.0",
-    "time-grunt": "^1.0.0",
     "uglify-js": "^2.4.15"
   },
   "author": "",
