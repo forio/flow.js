@@ -74,12 +74,6 @@ module.exports = (function() {
                             if (attr.indexOf(wantedPrefix) === 0) {
                                 attr = attr.replace(wantedPrefix, '');
 
-                                var withConv = _.invoke(attrVal.split('|'), 'trim');
-                                if (withConv.length > 1) {
-                                    attrVal = withConv.shift();
-                                    $el.data('f-converters-' + attr, withConv);
-                                }
-
                                 var handler = attrManager.getHandler(attr, $el);
                                 var isBindableAttr = true;
                                 if (handler && handler.init) {
@@ -87,6 +81,13 @@ module.exports = (function() {
                                 }
 
                                 if (isBindableAttr) {
+                                    //Convert pipes to converter attrs
+                                    var withConv = _.invoke(attrVal.split('|'), 'trim');
+                                    if (withConv.length > 1) {
+                                        attrVal = withConv.shift();
+                                        $el.data('f-converters-' + attr, withConv);
+                                    }
+
                                     var commaRegex = /,(?![^\[]*\])/;
                                     if (attrVal.split(commaRegex).length > 1) {
                                         //TODO
@@ -172,10 +173,12 @@ module.exports = (function() {
 
                 $root.off('f.ui.operate').on('f.ui.operate', function(evt, data) {
                     data = $.extend(true, {}, data); //if not all subsequent listeners will get the modified data
-                    data.args = _.map(data.args, function (val) {
-                        return parseUtils.toImplicitType($.trim(val));
+                    _.each(data.operations, function (opn) {
+                       opn.params = _.map(opn.params, function (val) {
+                           return parseUtils.toImplicitType($.trim(val));
+                       });
                     });
-                    channel.operations.publish(data.fn, data.args);
+                    channel.operations.publish(data);
                 });
             });
         }
