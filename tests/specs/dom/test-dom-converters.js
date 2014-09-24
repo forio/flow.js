@@ -21,6 +21,7 @@ module.exports = (function() {
                         $node.val().should.equal('Sauce');
 
                     });
+
                     it('should convert values with multiple converters', function() {
                         domManager.converters.register('flip', function(val) {
                             return val.split('').reverse().join('');
@@ -30,9 +31,28 @@ module.exports = (function() {
                         $node.trigger('update.f.model', {
                             apple: 'sauce'
                         });
-
                         $node.val().should.equal('ecuaS');
+                    });
 
+                    describe('arrays', function () {
+                        it('should convert arrays into values without converters', function() {
+                            var $node = utils.initWithNode('<input type="text" data-f-bind="apple"/>', domManager);
+                            $node.trigger('update.f.model', {
+                                apple: [1,2,3]
+                            });
+                            $node.val().should.equal('3');
+                        });
+
+                        it('should pass arrays into converters if defined', function() {
+                            var spy = sinon.spy();
+                            domManager.converters.register('spy', spy);
+                            var $node = utils.initWithNode('<input type="text" data-f-bind="apple | spy"/>', domManager);
+                            $node.trigger('update.f.model', {
+                                apple: [1,2,3]
+                            });
+
+                            spy.should.have.been.calledWith([1,2,3]);
+                        });
                     });
                 });
                 describe('parse', function() {

@@ -124,6 +124,7 @@ var converterManager = {
 var defaultconverters = [
     require('./number-converter'),
     require('./string-converter'),
+    require('./array-converter'),
     require('./numberformat-converter'),
 ];
 

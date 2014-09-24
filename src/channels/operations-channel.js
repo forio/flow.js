@@ -18,15 +18,29 @@ module.exports = function(config) {
             // }
         },
 
+        /**
+         * Operation name & parameters to send to operations API
+         * @param  {string | object} operation Name of Operation. If array, needs to be in {operations: [{name: opn, params:[]}], serial: boolean}] format
+         * @param  {*} params (optional)   params to send to opertaion
+         * @return {$promise}
+         */
         publish: function(operation, params) {
-            // console.log('operations publish', operation, params);
-
-            //TODO: check if interpolated
             var me = this;
-            return run.do.apply(run, arguments)
-                .then(function (response) {
-                    me.refresh.call(me, operation, response);
-                });
+            if (operation.operations) {
+                var fn = (operation.serial) ? run.serial : run.parallel;
+                return fn.call(run, operation.operations)
+                        .then(function (response) {
+                            me.refresh.call(me, _(operation.operations).pluck('name'), response);
+                        });
+            }
+            else {
+                //TODO: check if interpolated
+                return run.do.apply(run, arguments)
+                    .then(function (response) {
+                        me.refresh.call(me, operation, response);
+                    });
+            }
+            // console.log('operations publish', operation, params);
         },
 
         subscribe: function(operations, subscriber) {

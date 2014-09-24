@@ -54,6 +54,7 @@
 
         describe('default converters', function () {
             require('./test-string-converters');
+            require('./test-array-converters');
             require('./test-numberformat-converters');
         });
     });
