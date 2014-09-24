@@ -11,7 +11,7 @@ module.exports = (function() {
 
                 $node.trigger('click');
 
-                channel.operations.publish.should.have.been.calledWith('step', [1]);
+                channel.operations.publish.should.have.been.calledWith({operations: [{ name: 'step', params: [1] }], serial: true});
             });
 
             it('should call operation with double params', function () {
@@ -20,7 +20,7 @@ module.exports = (function() {
 
                 $node.trigger('click');
 
-                channel.operations.publish.should.have.been.calledWith('step', [1, 2]);
+                channel.operations.publish.should.have.been.calledWith({operations: [{ name: 'step', params: [1, 2] }], serial: true});
             });
 
             it('should call operation with double params with no, string ', function () {
@@ -29,7 +29,7 @@ module.exports = (function() {
 
                 $node.trigger('click');
 
-                channel.operations.publish.should.have.been.calledWith('step', [1, 'abc']);
+                channel.operations.publish.should.have.been.calledWith({operations: [{ name: 'step', params: [1, 'abc'] }], serial: true});
             });
 
             it('should call operation with double params with no, implied string ', function () {
@@ -38,7 +38,18 @@ module.exports = (function() {
 
                 $node.trigger('click');
 
-                channel.operations.publish.should.have.been.calledWith('step', [1, '2']);
+                channel.operations.publish.should.have.been.calledWith({operations: [{ name: 'step', params: [1, '2'] }], serial: true});
+            });
+
+            it('should call operations in serial with |', function () {
+                var channel = utils.createDummyChannel();
+                var $node = utils.initWithNode('<input type="button" data-f-on-click="step(1, 2) | reset()"/>', domManager, channel);
+
+                $node.trigger('click');
+
+                channel.operations.publish.should.have.been.calledWith({operations: [
+                    { name: 'step', params: [1, 2] },
+                    {name: 'reset', params: []}], serial: true});
             });
 
             //FIXME: this work won't yet
@@ -48,7 +59,7 @@ module.exports = (function() {
 
                 $node.trigger('click');
 
-                channel.operations.publish.should.have.been.calledWith('step', [1, {hello: 'world'}]);
+                channel.operations.publish.should.have.been.calledWith({operations: [{ name: 'step', params: [1, {hello: 'world'}] }], serial: true});
             });
         });
     });
