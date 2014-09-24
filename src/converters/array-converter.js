@@ -1,5 +1,8 @@
 'use strict';
 module.exports = {
+    list: function (val) {
+        return [].concat(val);
+    },
     last: function (val) {
         val = [].concat(val);
         return val[val.length - 1];

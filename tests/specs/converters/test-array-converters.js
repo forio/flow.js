@@ -2,6 +2,15 @@
 module.exports = (function () {
     var cm = require('../../../src/converters/converter-manager.js');
 
+    describe('#list', function () {
+        it('should strings to arrays', function () {
+            cm.convert(1, 'list').should.eql([1]);
+        });
+        it('should leave arrays as-is', function () {
+            cm.convert([1, 2], 'list').should.eql([1,2]);
+        });
+    });
+
     describe('#last', function () {
         it('should return the last item in array with multiple items', function () {
             cm.convert([1,2,3], 'last').should.equal(3);
