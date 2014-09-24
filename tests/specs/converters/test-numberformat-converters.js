@@ -34,4 +34,13 @@ module.exports = (function () {
             cm.parse('1,123.01k', '$###.00').should.equal(1123010);
         });
     });
+
+    describe('#convert', function () {
+        it('should convert strings to formatted strings', function () {
+            cm.convert('1000000', '$###.00').should.equal('$1,000,000.00');
+        });
+        it('should convert numbers to formatted strings', function () {
+            cm.convert(1000000, '$###.00').should.equal('$1,000,000.00');
+        });
+    });
 }());
