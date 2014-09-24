@@ -42,5 +42,8 @@ module.exports = (function () {
         it('should convert numbers to formatted strings', function () {
             cm.convert(1000000, '$###.00').should.equal('$1,000,000.00');
         });
+        it('should convert last item in array to formatted strings', function () {
+            cm.convert([2, 100, 1000000], '$###.00').should.equal('$1,000,000.00');
+        });
     });
 }());

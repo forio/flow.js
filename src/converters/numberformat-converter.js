@@ -146,6 +146,9 @@ module.exports = {
         }
 
         function format(number, formatTXT) {
+            if (_.isArray(number)) {
+                number = number[number.length - 1];
+            }
             if (!_.isString(number) && !_.isNumber(number)) {
                 return number;
             }
