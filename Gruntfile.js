@@ -13,6 +13,7 @@ module.exports = function(grunt) {
         pkg: grunt.file.readJSON('package.json')
     });
 
+
     grunt.config.set('bump', {
         options: {
             files: ['package.json', 'bower.json'],
@@ -68,6 +69,11 @@ module.exports = function(grunt) {
             options: {
                 debug: true,
                 compile: './dist/flow.js'
+            },
+            afterHook: function(src) {
+                var banner = grunt.file.read('./banner.js');
+                banner = grunt.template.process(banner, {data: grunt.file.readJSON('package.json')});
+                return banner + src;
             }
         },
         min: {
@@ -84,7 +90,10 @@ module.exports = function(grunt) {
                         pure_funcs: [ 'console.log' ]
                     }
                 });
-                return result.code;
+                var code = result.code;
+                var banner = grunt.file.read('./banner.js');
+                banner = grunt.template.process(banner, {data: grunt.file.readJSON('package.json')});
+                return banner + code;
             }
         }
     });
