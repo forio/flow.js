@@ -13,7 +13,7 @@
         .salesStyle.1 { visibility: visible }
         .xx.East { color: purple }
         .xx.West { color: gray }
-        .xx.2 { color: red }
+        .xx.value-2 { color: red }
     </style>
 </head>
 
@@ -60,8 +60,10 @@
 <tr>
     <td>display_update</td>
     <td>data-f-bind array indexed by variable</td>
-    <td>span: <span data-f-bind="sales[<sampleTruthy>]"></span><br>input: <input type="text" data-f-bind="sales[<sampleTruthy>]" /></td>
-    <td class="fail">fail (0.6.0), span does not show value and input does not update value. <a href="https://github.com/forio/flow.js/issues/9">issue #9.</a></td>
+    <td>span: <span data-f-bind="sales[<sampleTruthy>]"></span><br>input: <input type="text" data-f-bind="sales[<sampleTruthy>]" />
+        <br> check: sampleTruthy is <span data-f-bind="sampleTruthy"></span> and sales[1] is <span data-f-bind="sales[1]"></span>
+    </td>
+    <td class="fail">fail (0.6.3), span does not show value and input does not update value. <a href="https://github.com/forio/flow.js/issues/9">issue #9.</a></td>
 <tr>
 
 <tr>
@@ -237,12 +239,12 @@
 <tr>
 
 <tr>
-    <td>styling</td>
+    <td>styling, issue #13</td>
     <td>data-f-class and class, for int</td>
     <td>
-        <div data-f-class="salesMgr.num_reports" class="xx">content colored by xx.2, currently salesMgr.num_reports is <span data-f-bind="salesMgr.num_reports"></span></div>
+        <div data-f-class="salesMgr.num_reports" class="xx">content colored by xx.value-2, currently salesMgr.num_reports is <span data-f-bind="salesMgr.num_reports"></span></div>
     </td>
-    <td class="fail">fail (0.6.0), see <a href="https://github.com/forio/flow.js/issues/13">issue #13</a> (not sure if this is expected to work? it was in the flow.js readme but that may be outdated)</td>
+    <td class="pass">pass (0.6.3)</td>
 <tr>
 
 <tr>
