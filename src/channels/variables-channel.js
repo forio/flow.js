@@ -2,11 +2,21 @@
 var config = require('../config');
 
 module.exports = function(options) {
-    if (!options) {
-        options = {};
-    }
-    var vs = options.run.variables();
-    var vent  = options.vent;
+    var defaults = {
+            /**
+             * Determine when to trigger the refresh event. This is useful if you know before-hand which variables need to update dependencies in the UI
+             * @type {String | Array }  Possible options are
+             *       - all: Trigger a refresh when any variable changes
+             *       - none: Never trigger a refresh
+             *       - variableName: trigger a refresh when specific variable changes
+             *       - [variableNames..]: trigger a refresh when the following variables change
+             */
+            refresh: 'all'
+    };
+
+    var channelOptions = $.extend(true, {}, defaults, options);
+    var vs = channelOptions.run.variables();
+    var vent = channelOptions.vent;
 
     var currentData = {};
 
@@ -63,8 +73,16 @@ module.exports = function(options) {
         variableListenerMap: {},
 
         //Check for updates
-        refresh: function() {
+        refresh: function(changedVariable, changedValue) {
             var me = this;
+
+            var isStringRefreshMatch = _.isString(channelOptions.refresh) && channelOptions.refresh.toLowerCase() === changedVariable.toLowerCase();
+            var isArrayRefreshMatch = _.isArray(channelOptions.refresh) && _.contains(channelOptions.refresh, changedVariable);
+            var needsRefresh = (channelOptions.refresh === 'all' || isStringRefreshMatch || isArrayRefreshMatch);
+
+            if (!needsRefresh) {
+                return $.Deferred().resolve().promise();
+            }
 
             var getVariables = function(vars, ip) {
                 return vs.query(vars).then(function(variables) {
@@ -119,7 +137,7 @@ module.exports = function(options) {
             var me = this;
             vs.save.call(vs, interpolated)
                 .then(function () {
-                    me.refresh.call(me);
+                    me.refresh.call(me, variable, value);
                 });
         },
 
