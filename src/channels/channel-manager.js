@@ -5,10 +5,12 @@ var OperationsChannel = require('./operations-channel');
 
 module.exports = function(config) {
     if (!config) {
-        config = {};
+        config = {
+            run: {}
+        };
     }
 
-    var runparams = config;
+    var runparams = config.run;
 
     var rs = new F.service.Run(runparams);
 
@@ -41,6 +43,6 @@ module.exports = function(config) {
     });
 
     this.run = rs;
-    this.variables = new VarsChannel({run: rs, vent: this});
-    this.operations = new OperationsChannel({run: rs, vent: this});
+    this.variables = new VarsChannel($.extend(true, {}, runparams.variables, {run: rs, vent: this}));
+    this.operations = new OperationsChannel($.extend(true, {}, runparams.operations, {run: rs, vent: this}));
 };

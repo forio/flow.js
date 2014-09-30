@@ -11,9 +11,11 @@ module.exports = {
 
         var defaults = {
             channel: {
-                account: '',
-                project: '',
-                model: model
+                run: {
+                    account: '',
+                    project: '',
+                    model: model
+                }
             },
             dom: {
 
