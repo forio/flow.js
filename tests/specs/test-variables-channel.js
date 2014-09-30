@@ -4,7 +4,7 @@
     var Channel = require('../../src/channels/variables-channel');
 
     describe('Flow Channel', function () {
-        var core, channel, server;
+        var core, channel, server, mockVariables, mockRun;
 
         before(function () {
             server = sinon.fakeServer.create();
@@ -27,14 +27,20 @@
                 xhr.respond(201, { 'Content-Type': 'application/json'}, JSON.stringify(resp));
             });
 
-            channel = new Channel({vent: {}, run: {
+            mockVariables = {
+                query: sinon.spy(function () {
+                    return $.Deferred().resolve().promise();
+                }),
+                save: sinon.spy(function () {
+                    return $.Deferred().resolve().promise();
+                })
+            };
+            mockRun = {
                 variables: function () {
-                    return {
-                        query: $.noop,
-                        save: $.noop
-                    };
+                    return mockVariables;
                 }
-            }});
+            };
+            channel = new Channel({vent: {}, run: mockRun});
             core = channel.private;
         });
 
@@ -163,6 +169,23 @@
                 channel.innerVariablesList.should.eql(['time', 'step']);
             });
 
+        });
+
+        describe('#publish', function () {
+            it('should publish values to the variables service', function () {
+                channel.publish({price: 23});
+                mockVariables.save.should.have.been.calledWith({price: 23});
+            });
+            it('should call refresh after publish', function () {
+                var originalRefresh = channel.refresh;
+                var refSpy = sinon.spy(originalRefresh);
+                channel.refresh = refSpy;
+
+                channel.publish({price: 23});
+                refSpy.should.have.been.called;
+
+                channel.refresh = originalRefresh;
+            });
         });
 
         describe('tokens', function () {
