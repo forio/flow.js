@@ -3,6 +3,7 @@ var config = require('../config');
 
 module.exports = function(options) {
     var defaults = {
+        refresh: {
             /**
              * Determine when to trigger the refresh event. This is useful if you know before-hand which variables need to update dependencies in the UI
              * @type {String | Array }  Possible options are
@@ -11,7 +12,14 @@ module.exports = function(options) {
              *       - variableName: trigger a refresh when specific variable changes
              *       - [variableNames..]: trigger a refresh when the following variables change
              */
-            refresh: 'all'
+            on: 'all',
+
+            /**
+             * Exclude the following variables from triggering a refresh operation
+             * @type {Array} List of variable names to exclude
+             */
+            except: []
+        }
     };
 
     var channelOptions = $.extend(true, {}, defaults, options);
@@ -75,10 +83,12 @@ module.exports = function(options) {
         //Check for updates
         refresh: function(changedVariable, changedValue) {
             var me = this;
+            var refreshOn = channelOptions.refresh.on;
 
-            var isStringRefreshMatch = _.isString(channelOptions.refresh) && channelOptions.refresh.toLowerCase() === changedVariable.toLowerCase();
-            var isArrayRefreshMatch = _.isArray(channelOptions.refresh) && _.contains(channelOptions.refresh, changedVariable);
-            var needsRefresh = (channelOptions.refresh === 'all' || isStringRefreshMatch || isArrayRefreshMatch);
+            var isStringRefreshMatch = changedVariable && _.isString(refreshOn) && refreshOn === changedVariable;
+            var isArrayRefreshMatch = changedVariable && _.isArray(refreshOn) && _.contains(refreshOn, changedVariable);
+            var isExcluded = changedVariable && _.contains(refreshOn.exclude, changedVariable);
+            var needsRefresh = (!isExcluded && (refreshOn === 'all' || isStringRefreshMatch || isArrayRefreshMatch));
 
             if (!needsRefresh) {
                 return $.Deferred().resolve().promise();
@@ -187,6 +197,6 @@ module.exports = function(options) {
     $.extend(this, publicAPI);
     var me = this;
     $(vent).on('dirty', function () {
-        me.refresh.apply(me, arguments);
+        me.refresh.call(me);
     });
 };

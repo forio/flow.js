@@ -1,21 +1,46 @@
 'use strict';
 
-module.exports = function(config) {
-    if (!config) {
-        config = {};
-    }
-    var run = config.run;
-    var vent = config.vent;
+module.exports = function(options) {
+    var defaults = {
+        refresh: {
+            /**
+             * Determine when to trigger the refresh event. This is useful if you know before-hand which operations need to update dependencies in the UI
+             * @type {String | Array }  Possible options are
+             *       - all: Trigger a refresh on any operation
+             *       - none: Never trigger a refresh
+             *       - operationName: trigger a refresh on a specific operation
+             *       - [operations..]: trigger a refresh when the following opertions happen
+             */
+
+            on: 'all',
+
+            /**
+             * Exclude the following variables from triggering a refresh operation
+             * @type {Array} List of variable names to exclude
+             */
+            except: []
+        }
+    };
+
+    var channelOptions = $.extend(true, {}, defaults, options);
+    var run = channelOptions.run;
+    var vent = channelOptions.vent;
 
     var publicAPI = {
         listenerMap: {},
 
         //Check for updates
         refresh: function(operation,response) {
-            // var DIRTY_OPERATIONS = ['start_game', 'initialize', 'step'];
-            // if (_.contains(DIRTY_OPERATIONS, operation)) {
-            $(vent).trigger('dirty', {opn: operation, response: response});
-            // }
+            var refreshOn = channelOptions.refresh.on;
+
+            var isStringRefreshMatch = operation && _.isString(refreshOn) && refreshOn === operation;
+            var isArrayRefreshMatch = operation && _.isArray(refreshOn) && _.contains(refreshOn, operation);
+            var isExcluded = operation && _.contains(refreshOn.exclude, operation);
+            var needsRefresh = (!isExcluded && (refreshOn === 'all' || isStringRefreshMatch || isArrayRefreshMatch));
+
+            if (needsRefresh) {
+                $(vent).trigger('dirty', {opn: operation, response: response});
+            }
         },
 
         /**
