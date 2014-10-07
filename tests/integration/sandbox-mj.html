@@ -33,59 +33,60 @@
     <td>display_update</td>
     <td>data-f-bind string</td>
     <td>span: <span data-f-bind="sampleString"></span><br>input: <input type="text" data-f-bind="sampleString" /></td>
-    <td class="pass">pass (0.6.0)</td>
-<tr>
+    <td class="pass">pass (0.6.3)</td>
+</tr>
 
 <tr>
     <td>display_update</td>
     <td>data-f-bind int</td>
     <td>span: <span data-f-bind="sampleInt"></span><br>input: <input type="text" data-f-bind="sampleInt" /></td>
-    <td class="pass">pass (0.6.0)<br>Notes: also works for reals, e.g. 8.5. Probably because of the Julia model not being strict about what kind of number this is.</td>
-<tr>
+    <td class="pass">pass (0.6.3)<br>Notes: also works for reals, e.g. 8.5 and -10. Probably because of the Julia model not being strict about what kind of number this is.</td>
+</tr>
 
 <tr>
     <td>display_update</td>
     <td>data-f-bind object</td>
     <td>span: <span data-f-bind="salesMgr.region"></span><br>input: <input type="text" data-f-bind="salesMgr.region" /></td>
-    <td class="pass">pass (0.6.0)</td>
-<tr>
+    <td class="pass">pass (0.6.3)</td>
+</tr>
 
 <tr>
     <td>display_update</td>
     <td>data-f-bind array</td>
     <td>span: <span data-f-bind="sales[3]"></span><br>input: <input type="text" data-f-bind="sales[3]" /></td>
-    <td class="pass">pass (0.6.0)</td>
-<tr>
+    <td class="pass">pass (0.6.3)</td>
+</tr>
 
 <tr>
     <td>display_update</td>
     <td>data-f-bind array indexed by variable</td>
-    <td>span: <span data-f-bind="sales[<sampleTruthy>]"></span><br>input: <input type="text" data-f-bind="sales[<sampleTruthy>]" />
-        <br> check: sampleTruthy is <span data-f-bind="sampleTruthy"></span> and sales[1] is <span data-f-bind="sales[1]"></span>
+    <td>span: <span data-f-bind="sales[<sampleTruthy>]"></span>
+        <br>input: <input type="text" data-f-bind="sales[<sampleTruthy>]" />
+        <br>check: sampleTruthy is <span data-f-bind="sampleTruthy"></span> and sales[1] is <span data-f-bind="sales[1]"></span>
     </td>
-    <td class="fail">fail (0.6.3), span does not show value and input does not update value. <a href="https://github.com/forio/flow.js/issues/9">issue #9.</a></td>
-<tr>
+    <td class="fail">fail (0.6.3), span does not show value, but input updates value. <a href="https://github.com/forio/flow.js/issues/9">issue #9.</a></td>
+</tr>
 
 <tr>
     <td>display_update</td>
     <td>data-f-bind array indexed by expression</td>
     <td>desired: data-f-bind="sales[&lt;sampleTruthy&gt;+1]" <!--span: <span data-f-bind="sales[<sampleTruthy>+1]"></span><br>input: <input type="text" data-f-bind="sales[<sampleTruthy>+1]" />--></td>
     <td>future release (improvement request, doesn't work now), see <a href="https://github.com/forio/flow.js/issues/11">issue #11</a></td>
-<tr>
+</tr>
 
 <tr>
     <td>display_update</td>
     <td>data-f-bind radio selection for truthy</td>
     <td><input type="radio" data-f-bind="sampleTruthy"/>radio button, selected if sampleTruthy is 1. <br>sampleTruthy is: <span data-f-bind="sampleTruthy"></span></td>
-    <td class="pass">pass (0.6.0)</td>
-<tr>
+    <td class="pass">pass (0.6.3)</td>
+</tr>
 
 <tr>
     <td>display_update</td>
     <td>data-f-bind radio selection with value</td>
     <td><input type="radio" data-f-bind="sampleInt" value="8"/>radio button, selected if sampleInt is 8. <br>sampleInt is: <span data-f-bind="sampleInt"></span></td>
-    <td class="fail">only sometimes works in 0.6.0, see <a href="https://github.com/forio/flow.js/issues/10">issue #10</a>: if manually change sampleInt to 8, is selected. if changed using resetInt() call, is not updated.</td>
-<tr>
+    <td class="fail">only sometimes works in 0.6.3, see <a href="https://github.com/forio/flow.js/issues/10">issue #10</a>: if manually change sampleInt to 8, is selected. if changed using resetInt() call, is updated only if the resetInt() call is the first thing we do on the page.</td>
+</tr>
 
 <tr>
     <td>display_update</td>
@@ -97,31 +98,31 @@
             <option value="12"> 12 </option>
         </select>
     </td>
-    <td class="pass">pass (0.6.0)</td>
-<tr>
+    <td class="pass">pass (0.6.3)</td>
+</tr>
 
 <tr>
     <td>display_update</td>
     <td>data-f-bind checkbox selection</td>
     <td>checkbox, should be checked because sampleBool is true: <input type="checkbox" data-f-bind="sampleBool" /><br>
         checkbox, should be unchecked because sampleFalseBool is false: <input type="checkbox" data-f-bind="sampleFalseBool" /></td>
-    <td class="pass">pass (0.6.0)</td>
-<tr>
+    <td class="pass">pass (0.6.3)</td>
+</tr>
 
 <tr>
     <td>special_handling</td>
     <td>data-f-checked</td>
     <td>checkbox, should be checked because sampleBool is true <input type="checkbox" data-f-checked="sampleBool" /><br>
         checkbox, should be unchecked because sampleFalseBool is false: <input type="checkbox" data-f-checked="sampleFalseBool" /></td>
-    <td class="pass">pass (0.6.0)</td>
-<tr>
+    <td class="pass">pass (0.6.3)</td>
+</tr>
 
 <tr>
     <td>special_handling</td>
     <td>data-f-disabled with "truthy" of 0,1</td>
     <td>this button should be enabled because sampleTruthy=1: <button data-f-disabled="sampleTruthy">click me</button><br>confirm: sampleTruthy is currently: <span data-f-bind="sampleTruthy"></span></td>
-    <td class="pass">pass (0.6.0) (disabled=1/true means enabled b/c flow inverts; disabled=0/false means disabled b/c flow inverts)</td>
-<tr>
+    <td class="pass">pass (0.6.3) (disabled=1/true means enabled b/c flow inverts; disabled=0/false means disabled b/c flow inverts)</td>
+</tr>
 
 <tr>
     <td>special_handling</td>
@@ -129,8 +130,8 @@
     <td>this button should be enabled because sampleBool=true: <button data-f-disabled="sampleBool">click me</button><br>confirm: sampleBool is currently: <span data-f-bind="sampleBool"></span>
         <br><br> this button should be disabled because sampleFalseBool=false: <button data-f-disabled="sampleFalseBool">click me</button><br>confirm: sampleFalseBool is currently: <span data-f-bind="sampleFalseBool"></span>
     </td>
-    <td class="pass">pass (0.6.0) (disabled=1/true means enabled b/c flow inverts; disabled=0/false means disabled b/c flow inverts)</td>
-<tr>
+    <td class="pass">pass (0.6.3) (disabled=1/true means enabled b/c flow inverts; disabled=0/false means disabled b/c flow inverts)</td>
+</tr>
 
 <tr>
     <td>special_handling</td>
@@ -140,94 +141,107 @@
             <option data-f-selected="sampleInt" value="8"> 8 </option>
             <option data-f-selected="sampleInt" value="10"> 10 </option>
             <option data-f-selected="sampleInt" value="12"> 12 </option>
+        </select>
     </td>
-    <td class="pass">pass (0.6.0)</td>
-<tr>
+    <td class="fail">fail (0.6.3): when sampleInt is 11, the value selected is the last value selected, rather than 'unselected'. see <a href="https://github.com/forio/flow.js/issues/16">issue #16</a> </td>
+</tr>
 
 <tr>
     <td>formatting</td>
     <td>data-f-convert numbers</td>
     <td>sales[4] as a number: <span data-f-bind="sales[4]" data-f-convert="#,###"></span></td>
-    <td class="pass">pass (0.6.0)</td>
-<tr>
+    <td class="pass">pass (0.6.3)</td>
+</tr>
 
 <tr>
     <td>formatting</td>
     <td>data-f-convert dollars and cents</td>
     <td>sales[4] as dollars and cents: <span data-f-bind="sales[4]" data-f-convert="$0.00"></span></td>
-    <td class="pass">pass (0.6.0)</td>
-<tr>
+    <td class="pass">pass (0.6.3)</td>
+</tr>
 
 <tr>
     <td>formatting</td>
-    <td>data-f-convert dollars only, also issue #1</td>
+    <td>data-f-convert dollars only, also regression testing: issue #1</td>
     <td>sales[4] as dollars only: <span data-f-bind="sales[4]" data-f-convert="$0"></span>
         <br> sales[4] update, also using dollars: <input type="text" data-f-bind="sales[4]" data-f-convert="$0"></input></td>
-    <td class="pass">pass (0.6.2)</td>
-<tr>
+    <td class="pass">pass (0.6.3)</td>
+</tr>
 
 <tr>
     <td>formatting</td>
     <td>data-f-convert percent</td>
     <td>sales[4] as percent: <span data-f-bind="sales[4]" data-f-convert="0%"></span></td>
-    <td class="pass">pass (0.6.0)</td>
-<tr>
+    <td class="pass">pass (0.6.3)</td>
+</tr>
 
 <tr>
     <td>formatting</td>
     <td>formatting inheritance</td>
     <td></td>
     <td>(TODO in testing and docs)</td>
-<tr>
+</tr>
 
 <tr>
     <td>formatting</td>
     <td>data-f-bind and | to upperCase</td>
     <td>sampleString in upperCase <span data-f-bind="sampleString | upperCase"/></td>
-    <td class="pass">pass (0.6.0)</td>
-<tr>
+    <td class="pass">pass (0.6.3)</td>
+</tr>
 
 <tr>
     <td>formatting</td>
     <td>data-f-bind and | to lowerCase</td>
     <td>sampleString in lowerCase <span data-f-bind="sampleString | lowerCase"/></td>
-    <td class="pass">pass (0.6.0)</td>
-<tr>
+    <td class="pass">pass (0.6.3)</td>
+</tr>
 
 <tr>
     <td>formatting</td>
     <td>data-f-bind and | to titleCase</td>
     <td>sampleString in titleCase <span data-f-bind="sampleString | titleCase"/></td>
-    <td class="pass">pass (0.6.0)</td>
-<tr>
+    <td class="pass">pass (0.6.3)</td>
+</tr>
 
 <tr>
     <td>formatting</td>
     <td>data-f-bind and | to i</td>
     <td>sampleInt in integer <span data-f-bind="sampleInt | i"/></td>
-    <td>TODO for testing (this allows 10.5, which apparently is expected; haven't tested further)</td>
-<tr>
+    <td class="pass"> pass (0.6.3)</td>
+</tr>
 
 <tr>
     <td>formatting</td>
     <td>data-f-bind and | to s</td>
     <td>sampleInt in string <span data-f-bind="sampleInt | s"/></td>
-    <td class="pass">pass (0.6.0)</td>
+    <td class="pass">pass (0.6.3)</td>
+</tr>
+
 <tr>
+    <td>formatting</td>
+    <td>converters for arrays (introduced 0.6.3)</td>
+    <td>use converters to select first, last, and previous:
+        <br>sales | first: <span data-f-bind="sales | first"></span>
+        <br>sales | last: <span data-f-bind="sales | last"></span>
+        <br>sales | previous: <span data-f-bind="sales | previous"></span>
+        <br> for reference: print out sales[1]-sales[4]: <span data-f-bind="sales[1]"></span>, <span data-f-bind="sales[2]"></span>, <span data-f-bind="sales[3]"></span>, <span data-f-bind="sales[4]"></span>.
+    </td>
+    <td class="pass">pass (0.6.3). note that this only works for span, not for input (i'm assuming that's by design).</td>
+</tr>
 
 <tr>
     <td>TODO</td>
     <td>Converters &amp; Two-way converters</td>
     <td></td>
     <td>(TODO in testing and docs, see 0.6.0 release notes)</td>
-<tr>
+</tr>
 
 <tr>
     <td>styling</td>
     <td>data-f-class only</td>
     <td><div data-f-class="salesMgr.region">content colored by region, currently salesMgr.region is <span data-f-bind="salesMgr.region"></span></div></td>
-    <td class="pass">pass (0.6.0)</td>
-<tr>
+    <td class="pass">pass (0.6.3)</td>
+</tr>
 
 <tr>
     <td>styling</td>
@@ -235,17 +249,17 @@
     <td>
         <div data-f-class="salesMgr.region" class="xx">content colored by xx.region, currently salesMgr.region is <span data-f-bind="salesMgr.region"></span></div>
     </td>
-    <td class="pass">pass (0.6.0)</td>
-<tr>
+    <td class="pass">pass (0.6.3)</td>
+</tr>
 
 <tr>
-    <td>styling, issue #13</td>
+    <td>styling, regression testing: issue #13</td>
     <td>data-f-class and class, for int</td>
     <td>
         <div data-f-class="salesMgr.num_reports" class="xx">content colored by xx.value-2, currently salesMgr.num_reports is <span data-f-bind="salesMgr.num_reports"></span></div>
     </td>
     <td class="pass">pass (0.6.3)</td>
-<tr>
+</tr>
 
 <tr>
     <td>writing_your_own</td>
@@ -255,79 +269,97 @@
         span w/ noop: <span data-f-noop="sampleString"></span><br>
         input: <input type="text" data-f-bind="sampleString" />
     </td>
-    <td class="pass">pass (0.6.0)</td>
-<tr>
+    <td class="pass">pass (0.6.3)</td>
+</tr>
 
 <tr>
     <td>writing_your_own</td>
     <td>data-f-noop (and own function)</td>
     <td></td>
     <td>(TODO in testing and docs)</td>
-<tr>
+</tr>
 
 <tr>
     <td>methods</td>
     <td>data-f-on-init</td>
     <td>added 'data-f-on-init="saveAll"' to body tag</td>
-    <td class="pass">pass (0.6.0) (verified in postman)</td>
-<tr>
+    <td class="pass">pass (0.6.3) (verified in postman)</td>
+</tr>
 
 <tr>
     <td>methods</td>
     <td>data-f-on-click method, no args</td>
     <td><button data-f-on-click="resetInt()">Click to set sampleInt to 8</button><br>sampleInt = <span data-f-bind="sampleInt"></span></td>
-    <td class="fail">fail (0.6.0) only works sometimes, see <a href="https://github.com/forio/flow.js/issues/10">issue #10</a>: works if clicking is the only thing we do, but not if we've already changed sampleInt e.g. in the input at top of page (but if we change sampleInt only with buttons, this continues to work...)</td>
-<tr>
+    <td class="fail">fail (0.6.3) only works sometimes, see <a href="https://github.com/forio/flow.js/issues/10">issue #10</a>: works if clicking is the only thing we do, but not if we've already changed sampleInt e.g. in the input at top of page (but if we change sampleInt only with buttons, this continues to work...)</td>
+</tr>
 
 <tr>
     <td>methods</td>
     <td>data-f-on-click method, one int arg</td>
     <td><button data-f-on-click="addToInt(3)">Click to add 3 to sampleInt</button><br>sampleInt = <span data-f-bind="sampleInt"></span></td>
-    <td class="fail">fail (0.6.0), only works sometimes, see <a href="https://github.com/forio/flow.js/issues/10">issue #10</a>: works if clicking is the only thing we do, but not if we've already changed sampleInt e.g. in the input at top of page (but if we change sampleInt only with buttons, this continues to work...)</td>
-<tr>
+    <td class="fail">fail (0.6.3), only works sometimes, see <a href="https://github.com/forio/flow.js/issues/10">issue #10</a>: works if clicking is the only thing we do, but not if we've already changed sampleInt e.g. in the input at top of page (but if we change sampleInt only with buttons, this continues to work...)</td>
+</tr>
 
 <tr>
     <td>methods</td>
     <td>data-f-on-click method, one string arg for string letters and spaces</td>
     <td><button data-f-on-click="changeString(goodbye world)">Click to set sampleString to 'goodbye world'</button><br>sampleString = <span data-f-bind="sampleString"></span></td>
-    <td class="fail">fail (0.6.0) only works sometimes, see <a href="https://github.com/forio/flow.js/issues/10">issue #10</a>: works if clicking is the only thing we do, but not if we've already changed sampleString e.g. in the input at top of page (but if we change sampleString only with buttons, this continues to work...)</td>
-<tr>
+    <td class="fail">fail (0.6.3) only works sometimes, see <a href="https://github.com/forio/flow.js/issues/10">issue #10</a>: works if clicking is the only thing we do, but not if we've already changed sampleString e.g. in the input at top of page (but if we change sampleString only with buttons, this continues to work...)</td>
+</tr>
 
 <tr>
     <td>methods</td>
     <td>data-f-on-click method, one string arg for string all numbers</td>
     <td><button data-f-on-click="changeString(22)">Click to set sampleString to (string) 22</button><br>sampleString = <span data-f-bind="sampleString"></span></td>
-    <td class="fail">fail (0.6.0) only works sometimes, see <a href="https://github.com/forio/flow.js/issues/10">issue #10</a>: works if clicking is the only thing we do, but not if we've already changed sampleString e.g. in the input at top of page (but if we change sampleString only with buttons, this continues to work...)</td>
-<tr>
+    <td class="fail">fail (0.6.3) only works sometimes, see <a href="https://github.com/forio/flow.js/issues/10">issue #10</a>: works if clicking is the only thing we do, but not if we've already changed sampleString e.g. in the input at top of page (but if we change sampleString only with buttons, this continues to work...)</td>
+</tr>
 
 <tr>
     <td>methods</td>
     <td>data-f-on-click method, two args</td>
     <td><button data-f-on-click="updateTwoArrayVals(5,10)">Click to add 5 to sales[1] and 10 to sales[3]</button><br>sales[1] = <span data-f-bind="sales[1]"></span><br>sales[3] = <span data-f-bind="sales[3]"></span></td>
-    <td class="pass">pass (0.6.0) Notes: weird that this works and the other ones don't</td>
-<tr>
+    <td class="pass">pass (0.6.3) Notes: weird that this works and the other ones don't</td>
+</tr>
 
 <tr>
     <td>methods</td>
     <td>data-f-on-click method, arg is other model variable</td>
     <td><button data-f-on-click="changeString(<salesMgr.region>)">Click to change sampleString to salesMgr.region</button><br>sampleString = <span data-f-bind="sampleString"></span></td>
     <td>future release (improvement request, doesn't work now), see <a href="https://github.com/forio/flow.js/issues/12">issue #12</a></td>
-<tr>
+</tr>
 
 <tr>
-    <td>issue #8</td>
+    <td>methods</td>
+    <td>chaining method calls</td>
+    <td><button data-f-on-click="addToInt(3) | addToInt(5)">Click to add 3, then add 5 to sampleInt</button><br>sampleInt = <span data-f-bind="sampleInt"></span></td>
+    <td class="fail">fail (0.6.3), only works sometimes, see <a href="https://github.com/forio/flow.js/issues/10">issue #10</a>: works if clicking is the only thing we do, but not if we've already changed sampleInt e.g. in the input at top of page (but if we change sampleInt only with buttons, this continues to work...)</td>
+</tr>
+
+<tr>
+    <td>regression testing: issue #8</td>
     <td>When I use data-f-convert="#.#%" and type in 1.5%
 in the field, an incorrect value of 1.5 is sent to Julia, and the resulting value is
 displayed as 150%.</td>
     <td>span: <span data-f-bind="sampleInt"></span> <br> input: <input type="text" data-f-bind="sampleInt" data-f-convert="#.#%"/></td>
-    <td class="pass">pass in 0.6.2</td>
+    <td class="pass">pass in 0.6.3</td>
 </tr>
+
 <tr>
-    <td>issue #2</td>
+    <td>regression testing: issue #2</td>
     <td>I have a variable in my Julia model which is a Float64. The variable is bound via data-f-bind to a input tag in the UI. It works fine for displaying, but when a user changes the value, the new value is sent back to Julia as a string, and throws an error when it tries to squeeze into the Float64.</td>
     <td>span: <span data-f-bind="sample64"></span> <br> <button data-f-on-click="addTo64(2.71828)">Click to add 2.71828 to sample64</button>
         <br> input: <input type="text" data-f-bind="sample64"></input></td>
-    <td class="pass">pass in 0.6.2 I think (no errors putting the value back; but full testing may be blocked by the data-f-on-click method tests until I make a better Julia model?)</td>
+    <td class="pass">pass in 0.6.3 (Note: can only update using button once, see <a href="https://github.com/forio/flow.js/issues/10">issue #10</a>.</td>
+</tr>
+
+<tr>
+    <td>regression testing: issue #14</td>
+    <td>take an array variable, pipe it to a converter that works across the array (e.g. "max"), then pipe it to a formatter that works on one array element (e.g. "s0"). expected result: both piped operations are applied, serially (e.g. the largest element of the array is formatted, rather than the last)</td>
+    <td>span, print out sales[1]-sales[4]: <span data-f-bind="sales[1]"></span>, <span data-f-bind="sales[2]"></span>, <span data-f-bind="sales[3]"></span>, <span data-f-bind="sales[4]"></span>.
+        <br><br>
+        span, print out sales | max | $x,xxx: <span data-f-bind="sales | max | $#,###"></span>
+    </td>
+    <td class="pass">pass in 0.6.3</td>
 </tr>
 
 </table>
@@ -348,6 +380,10 @@ displayed as 150%.</td>
             //server: {host: 'api.epicenter-stable.foriodev.com'}
             server: {host: 'api.forio.com'}
         }
+    });
+
+    Flow.dom.converters.register('max', function (value) {
+        return _.max(value);
     });
 
     </script>
