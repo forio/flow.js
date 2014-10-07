@@ -82,7 +82,7 @@ module.exports = function(options) {
             };
             if (me.innerVariablesList.length) {
                 return vs.query(me.innerVariablesList).then(function (innerVariables) {
-                    console.log('inner', innerVariables);
+                    //console.log('inner', innerVariables);
                     $.extend(currentData, innerVariables);
                     var ip =  interpolate(me.variableListenerMap, innerVariables);
                     var outer = _.keys(ip.interpolated);
