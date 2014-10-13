@@ -8,4 +8,5 @@ require('./specs/converters/test-converter-manager');
 require('./specs/dom/attributes/test-attribute-manager');
 require('./specs/dom/test-default-input-node');
 require('./specs/utils/test-parse-utils');
-require('./specs/test-variables-channel');
+require('./specs/channels/test-variables-channel');
+require('./specs/channels/test-operations-channel');
