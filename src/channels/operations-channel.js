@@ -99,7 +99,7 @@ module.exports = function(options) {
             });
         },
         unsubscribeAll: function() {
-            this.listenerMap = [];
+            this.listenerMap = {};
         }
     };
     return $.extend(this, publicAPI);

@@ -80,18 +80,16 @@
         });
 
 
-        // describe('#unsubscribeAll', function () {
-        //     it('should clear out state variables', function() {
-        //         channel.subscribe(['price'], {});
-        //         channel.subscribe(['target'], {});
+        describe('#unsubscribeAll', function () {
+            it('should clear out state variables', function() {
+                channel.subscribe(['step'], {});
+                channel.subscribe(['reset'], {});
 
-        //         channel.unsubscribeAll();
-        //         channel.listenerMap.should.eql({});
-        //         channel.innerVariablesList.should.eql([]);
+                channel.unsubscribeAll();
+                channel.listenerMap.should.eql({});
+            });
 
-        //     });
-
-        // });
+        });
 
         describe('#subscribe', function () {
             afterEach(function() {
