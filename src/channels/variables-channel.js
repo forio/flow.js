@@ -80,14 +80,20 @@ module.exports = function(options) {
         innerVariablesList: [],
         variableListenerMap: {},
 
-        //Check for updates
-        refresh: function(changedVariable, changedValue) {
+        /**
+         * Check and notify all listeners
+         * @param  {Object} changeObj key-value pairs of changed variables
+         */
+        refresh: function(changeObj) {
             var me = this;
             var refreshOn = channelOptions.refresh.on;
+            var refreshExcept= channelOptions.refresh.except;
 
-            var isStringRefreshMatch = changedVariable && _.isString(refreshOn) && refreshOn === changedVariable;
-            var isArrayRefreshMatch = changedVariable && _.isArray(refreshOn) && _.contains(refreshOn, changedVariable);
-            var isExcluded = changedVariable && _.contains(refreshOn.exclude, changedVariable);
+            var changedVariables = _.keys(changeObj);
+            var isStringRefreshMatch = changedVariables && _.isString(refreshOn) && _.contains(changedVariables, refreshOn);
+            var isArrayRefreshMatch = changedVariables && _.isArray(refreshOn) && _.intersection(refreshOn, changedVariables).length >= 1;
+
+            var isExcluded = changeObj && (_.intersection(refreshExcept, changedVariables).length === changedVariables.length);
             var needsRefresh = (!isExcluded && (refreshOn === 'all' || isStringRefreshMatch || isArrayRefreshMatch));
 
             if (!needsRefresh) {
@@ -147,7 +153,7 @@ module.exports = function(options) {
             var me = this;
             vs.save.call(vs, interpolated)
                 .then(function () {
-                    me.refresh.call(me, variable, value);
+                    me.refresh.call(me, attrs);
                 });
         },
 

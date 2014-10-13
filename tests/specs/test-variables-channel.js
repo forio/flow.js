@@ -11,8 +11,12 @@
             server.respondWith('PATCH',  /(.*)\/run\/(.*)\/(.*)/, function (xhr, id){
                 xhr.respond(200, { 'Content-Type': 'application/json'}, JSON.stringify({url: xhr.url}));
             });
-            server.respondWith('GET',  /(.*)\/run\/(.*)\/(.*)/, function (xhr, id){
-                xhr.respond(200, { 'Content-Type': 'application/json'}, JSON.stringify({url: xhr.url}));
+            server.respondWith('GET',  /(.*)\/run\/(.*)\/variables/, function (xhr, id){
+                xhr.respond(200, { 'Content-Type': 'application/json'}, JSON.stringify({url: xhr.url,
+                    price: 23,
+                    sales: 30,
+                    priceArray: [20, 30]
+                }));
             });
             server.respondWith('POST',  /(.*)\/run\/(.*)\/(.*)/,  function (xhr, id){
                 var resp = {
@@ -29,7 +33,11 @@
 
             mockVariables = {
                 query: sinon.spy(function () {
-                    return $.Deferred().resolve().promise();
+                    return $.Deferred().resolve({
+                        price: 23,
+                        sales: 30,
+                        priceArray: [20, 30]
+                    }).promise();
                 }),
                 save: sinon.spy(function () {
                     return $.Deferred().resolve().promise();
@@ -185,6 +193,87 @@
                 refSpy.should.have.been.called;
 
                 channel.refresh = originalRefresh;
+            });
+        });
+
+        describe('#refresh', function () {
+            it('should call if no rules are specified', function () {
+                var channel = new Channel({vent: {}, run: mockRun});
+                var modelChangeSpy = sinon.spy();
+
+                var $sink = $({a:1});
+                channel.subscribe('price', $sink);
+                $sink.on('update.f.model', modelChangeSpy);
+
+                channel.publish({price: 24});
+
+                modelChangeSpy.should.have.been.called;
+            });
+
+            it('should not call refresh if exceptions are noted', function () {
+                var channel = new Channel({vent: {}, run: mockRun, refresh: {
+                    except: ['price']
+                }});
+                var modelChangeSpy = sinon.spy();
+
+                var $sink = $({a:1});
+                channel.subscribe('price', $sink);
+                $sink.on('update.f.model', modelChangeSpy);
+
+                channel.publish({price: 24});
+
+                modelChangeSpy.should.not.have.been.called;
+            });
+            it('should treat \'on\' as a whitelist for single-item arrays', function () {
+                var channel = new Channel({vent: {}, run: mockRun, refresh: {
+                    on: ['price']
+                }});
+                var modelChangeSpy = sinon.spy();
+
+                var $sink = $({a:1});
+                channel.subscribe('price', $sink);
+                $sink.on('update.f.model', modelChangeSpy);
+
+                channel.publish({price: 24});
+
+                modelChangeSpy.should.have.been.calledOnce;
+
+                channel.publish({stuff: 24});
+                modelChangeSpy.should.have.been.calledOnce;
+            });
+            it('should treat \'on\' as a whitelist for multi-item arrays', function () {
+                var channel = new Channel({vent: {}, run: mockRun, refresh: {
+                    on: ['price', 'somethingelse']
+                }});
+                var modelChangeSpy = sinon.spy();
+
+                var $sink = $({a:1});
+                channel.subscribe('price', $sink);
+                $sink.on('update.f.model', modelChangeSpy);
+
+                channel.publish({price: 24});
+
+                modelChangeSpy.should.have.been.calledOnce;
+
+                channel.publish({stuff: 24});
+                modelChangeSpy.should.have.been.calledOnce;
+            });
+            it('should treat \'on\' as a whitelist for strings', function () {
+                var channel = new Channel({vent: {}, run: mockRun, refresh: {
+                    on: 'price'
+                }});
+                var modelChangeSpy = sinon.spy();
+
+                var $sink = $({a:1});
+                channel.subscribe('price', $sink);
+                $sink.on('update.f.model', modelChangeSpy);
+
+                channel.publish({price: 24});
+
+                modelChangeSpy.should.have.been.calledOnce;
+
+                channel.publish({stuff: 24});
+                modelChangeSpy.should.have.been.calledOnce;
             });
         });
 

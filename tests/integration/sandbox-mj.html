@@ -337,16 +337,22 @@ displayed as 150%.</td>
     <script src="../../dist/flow.js"></script>
     <script>
 
-    Flow.initialize({
-        channel: {
-            model: 'hello_world_flow.jl',
-            //account: 'first-team',
-            account: 'mjones',
-            project: 'hello-world-flow',
-            //server: {host: 'api.epicenter-stable.foriodev.com'}
-            server: {host: 'api.forio.com'}
-        }
-    });
+        $("body").on('f.ui.operate', function() {
+            console.log(arguments);
+        });
+
+        Flow.initialize({
+            channel: {
+                model: 'hello_world_flow.jl',
+                //account: 'first-team',
+                account: 'mjones',
+                project: 'hello-world-flow',
+                //server: {host: 'api.epicenter-stable.foriodev.com'}
+                server: {host: 'api.forio.com'}
+            }
+        });
+
+
 
     </script>
 
