@@ -5,18 +5,18 @@
 
     describe('Flow Channel', function () {
         var core, channel, server, mockRun;
-
+        var sampleResponse = {
+                        message: 'operation Complete',
+                        stuff: 1,
+                        data: [1,2]
+                    };
         before(function () {
             server = sinon.fakeServer.create();
             server.respondWith('PATCH',  /(.*)\/run\/(.*)\/(.*)/, function (xhr, id){
                 xhr.respond(200, { 'Content-Type': 'application/json'}, JSON.stringify({url: xhr.url}));
             });
             server.respondWith('GET',  /(.*)\/run\/(.*)\/variables/, function (xhr, id){
-                xhr.respond(200, { 'Content-Type': 'application/json'}, JSON.stringify({url: xhr.url,
-                    message: 'operation Complete',
-                    stuff: 1,
-                    data: [1,2]
-                }));
+                xhr.respond(200, { 'Content-Type': 'application/json'}, JSON.stringify(sampleResponse));
             });
             server.respondWith('POST',  /(.*)\/run\/(.*)\/(.*)/,  function (xhr, id){
                 var resp = {
@@ -33,11 +33,13 @@
 
             mockRun = {
                 do: sinon.spy(function () {
-                    return $.Deferred().resolve({
-                        message: 'operation Complete',
-                        stuff: 1,
-                        data: [1,2]
-                    }).promise();
+                    return $.Deferred().resolve(sampleResponse).promise();
+                }),
+                serial: sinon.spy(function () {
+                    return $.Deferred().resolve(sampleResponse).promise();
+                }),
+                parallel: sinon.spy(function () {
+                    return $.Deferred().resolve(sampleResponse).promise();
                 })
             };
             channel = new Channel({vent: {}, run: mockRun});
@@ -50,10 +52,21 @@
 
 
         describe('#publish', function () {
-            it('should publish values to the run service', function () {
+            it('should publish single to the run service', function () {
                 channel.publish('step', 1);
                 mockRun.do.should.have.been.calledWith('step', 1);
             });
+
+            it('should publish multiple parallel values to the run service', function () {
+                channel.publish({operations: [{name: 'step', params: ['1']}], serial:false});
+                mockRun.parallel.should.have.been.calledWith([{name: 'step', params: ['1']}]);
+            });
+            it('should publish multiple serial values to the run service', function () {
+                channel.publish({operations: [{name: 'step', params: ['1']}], serial:true});
+                mockRun.serial.should.have.been.calledWith([{name: 'step', params: ['1']}]);
+            });
+
+
             // it('should call refresh after publish', function () {
             //     var originalRefresh = channel.refresh;
             //     var refSpy = sinon.spy(originalRefresh);
