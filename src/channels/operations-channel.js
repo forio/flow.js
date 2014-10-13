@@ -85,13 +85,16 @@ module.exports = function(options) {
 
             var me = this;
             $.each(operations, function(index, opn) {
+                if (!me.listenerMap[opn]) {
+                    me.listenerMap[opn] = [];
+                }
                 me.listenerMap[opn] = me.listenerMap[opn].concat(data);
             });
 
             return id;
         },
-        unsubscribe: function(variable, token) {
-            this.listenerMap = _.reject(this.listenerMap, function(subs) {
+        unsubscribe: function(operation, token) {
+            this.listenerMap[operation] = _.reject(this.listenerMap[operation], function(subs) {
                 return subs.id === token;
             });
         },

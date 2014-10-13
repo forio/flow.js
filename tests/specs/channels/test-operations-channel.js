@@ -93,51 +93,51 @@
 
         // });
 
-        // describe('#subscribe', function () {
-        //     afterEach(function() {
-        //         channel.unsubscribeAll();
-        //     });
-        //     it('should update operation listeners', function () {
-        //         channel.subscribe(['reset'], {});
-        //         channel.listenerMap.should.have.key('reset');
-        //     });
-        //     // it('should update inner operation dependencies for single items', function () {
-        //     //     channel.subscribe(['price[<time>]'], {});
+        describe('#subscribe', function () {
+            afterEach(function() {
+                channel.unsubscribeAll();
+            });
+            it('should update operation listeners', function () {
+                channel.subscribe('reset', {});
+                channel.listenerMap.should.have.key('reset');
+            });
+            // it('should update inner operation dependencies for single items', function () {
+            //     channel.subscribe(['price[<time>]'], {});
 
-        //     //     channel.listenerMap.should.have.key('price[<time>]');
-        //     //     channel.innerVariablesList.should.eql(['time']);
-        //     // });
+            //     channel.listenerMap.should.have.key('price[<time>]');
+            //     channel.innerVariablesList.should.eql(['time']);
+            // });
 
-        //     // it('should update inner operation dependencies for multiple items', function () {
-        //     //     channel.subscribe(['price[<time>]', 'apples', 'sales[<step>]'], {});
+            // it('should update inner operation dependencies for multiple items', function () {
+            //     channel.subscribe(['price[<time>]', 'apples', 'sales[<step>]'], {});
 
-        //     //     channel.listenerMap.should.have.keys('price[<time>]', 'apples', 'sales[<step>]');
-        //     //     channel.innerVariablesList.should.eql(['time', 'step']);
-        //     // });
+            //     channel.listenerMap.should.have.keys('price[<time>]', 'apples', 'sales[<step>]');
+            //     channel.innerVariablesList.should.eql(['time', 'step']);
+            // });
 
-        // });
+        });
 
 
-        // describe('tokens', function () {
-        //     afterEach(function() {
-        //         channel.unsubscribeAll();
-        //     });
+        describe('tokens', function () {
+            afterEach(function() {
+                channel.unsubscribeAll();
+            });
 
-        //     it('should generate a token', function () {
-        //         var dummyObject = {a: 1};
-        //         var token = channel.subscribe(['price[<time>]', 'apples', 'sales[<step>]'], dummyObject);
-        //         token.should.exist;
-        //     });
+            it('should generate a token', function () {
+                var dummyObject = {a: 1};
+                var token = channel.subscribe(['step', 'something', 'else'], dummyObject);
+                token.should.exist;
+            });
 
-        //     it('should use the token to unsubscribe', function () {
-        //         var dummyObject = {a: 1};
-        //         var token = channel.subscribe(['price[<time>]', 'apples', 'sales[<step>]'], dummyObject);
-        //         channel.listenerMap.apples.should.exist;
+            it('should use the token to unsubscribe', function () {
+                var dummyObject = {a: 1};
+                var token = channel.subscribe(['step', 'something', 'else'], dummyObject);
+                channel.listenerMap.step.length.should.equal(1);
 
-        //         channel.unsubscribe(token);
-        //         // channel.listenerMap.apples.should.eql([]);
+                channel.unsubscribe('step', token);
+                channel.listenerMap.step.should.eql([]);
 
-        //     });
-        // });
+            });
+        });
     });
 }());
