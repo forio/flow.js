@@ -4,8 +4,8 @@
     var Channel = require('../../../src/channels/operations-channel');
 
     describe('Flow Channel', function () {
-        var core, channel, server, mockRun;
-        var sampleResponse = {
+        var core, channel, server, mockRun, mockRunChannel;
+        var mockOperationsResponse = {
                         message: 'operation Complete',
                         stuff: 1,
                         data: [1,2]
@@ -16,7 +16,14 @@
                 xhr.respond(200, { 'Content-Type': 'application/json'}, JSON.stringify({url: xhr.url}));
             });
             server.respondWith('GET',  /(.*)\/run\/(.*)\/variables/, function (xhr, id){
-                xhr.respond(200, { 'Content-Type': 'application/json'}, JSON.stringify(sampleResponse));
+                xhr.respond(200, { 'Content-Type': 'application/json'}, JSON.stringify({url: xhr.url,
+                    price: 23,
+                    sales: 30,
+                    priceArray: [20, 30]
+                }));
+            });
+            server.respondWith('GET',  /(.*)\/run\/(.*)\/operations/, function (xhr, id){
+                xhr.respond(200, { 'Content-Type': 'application/json'}, JSON.stringify(mockOperationsResponse));
             });
             server.respondWith('POST',  /(.*)\/run\/(.*)\/(.*)/,  function (xhr, id){
                 var resp = {
@@ -33,16 +40,30 @@
 
             mockRun = {
                 do: sinon.spy(function () {
-                    return $.Deferred().resolve(sampleResponse).promise();
+                    return $.Deferred().resolve(mockOperationsResponse).promise();
                 }),
                 serial: sinon.spy(function () {
-                    return $.Deferred().resolve(sampleResponse).promise();
+                    return $.Deferred().resolve(mockOperationsResponse).promise();
                 }),
                 parallel: sinon.spy(function () {
-                    return $.Deferred().resolve(sampleResponse).promise();
+                    return $.Deferred().resolve(mockOperationsResponse).promise();
                 })
             };
-            channel = new Channel({vent: {}, run: mockRun});
+
+            mockRunChannel = {
+                variables: {
+                    refresh: sinon.spy(),
+                    query: sinon.spy(function () {
+                        return $.Deferred().resolve({
+                            price: 23,
+                            sales: 30,
+                            priceArray: [20, 30]
+                        }).promise();
+                    })
+                }
+            };
+
+            channel = new Channel({vent: mockRunChannel, run: mockRun});
             core = channel.private;
         });
 
@@ -67,18 +88,100 @@
             });
 
 
-            // it('should call refresh after publish', function () {
-            //     var originalRefresh = channel.refresh;
-            //     var refSpy = sinon.spy(originalRefresh);
-            //     channel.refresh = refSpy;
+            it('should call refresh after publish', function () {
+                var originalRefresh = channel.refresh;
+                var refSpy = sinon.spy(originalRefresh);
+                channel.refresh = refSpy;
 
-            //     channel.publish({price: 23});
-            //     refSpy.should.have.been.called;
+                channel.publish('step', 1);
+                refSpy.should.have.been.called;
 
-            //     channel.refresh = originalRefresh;
-            // });
+                channel.refresh = originalRefresh;
+            });
         });
 
+        describe('#refresh', function () {
+            var vent = $({});
+
+            afterEach(function() {
+                $(vent).off('dirty');
+            });
+
+
+            it('should call if no rules are specified', function () {
+                var channel = new Channel({vent: vent, run: mockRun});
+                var spy = sinon.spy();
+                $(vent).on('dirty', spy);
+
+                channel.publish('step', 1);
+
+                spy.should.have.been.calledOnce;
+                spy.getCall(0).args[1].should.eql({opn: 'step', response: mockOperationsResponse});
+            });
+
+            it('should not call refresh if exceptions are noted', function () {
+                var channel = new Channel({vent: vent, run: mockRun, refresh: {
+                    except: 'step'
+                }});
+                var spy = sinon.spy();
+                $(vent).on('dirty', spy);
+
+                channel.publish('step', 1);
+
+                spy.should.not.have.been.called;
+            });
+            // it('should treat \'on\' as a whitelist for single-item arrays', function () {
+            //     var channel = new Channel({vent: {}, run: mockRun, refresh: {
+            //         on: ['price']
+            //     }});
+            //     var modelChangeSpy = sinon.spy();
+
+            //     var $sink = $({a:1});
+            //     channel.subscribe('price', $sink);
+            //     $sink.on('update.f.model', modelChangeSpy);
+
+            //     channel.publish({price: 24});
+
+            //     modelChangeSpy.should.have.been.calledOnce;
+
+            //     channel.publish({stuff: 24});
+            //     modelChangeSpy.should.have.been.calledOnce;
+            // });
+            // it('should treat \'on\' as a whitelist for multi-item arrays', function () {
+            //     var channel = new Channel({vent: {}, run: mockRun, refresh: {
+            //         on: ['price', 'somethingelse']
+            //     }});
+            //     var modelChangeSpy = sinon.spy();
+
+            //     var $sink = $({a:1});
+            //     channel.subscribe('price', $sink);
+            //     $sink.on('update.f.model', modelChangeSpy);
+
+            //     channel.publish({price: 24});
+
+            //     modelChangeSpy.should.have.been.calledOnce;
+
+            //     channel.publish({stuff: 24});
+            //     modelChangeSpy.should.have.been.calledOnce;
+            // });
+            // it('should treat \'on\' as a whitelist for strings', function () {
+            //     var channel = new Channel({vent: {}, run: mockRun, refresh: {
+            //         on: 'price'
+            //     }});
+            //     var modelChangeSpy = sinon.spy();
+
+            //     var $sink = $({a:1});
+            //     channel.subscribe('price', $sink);
+            //     $sink.on('update.f.model', modelChangeSpy);
+
+            //     channel.publish({price: 24});
+
+            //     modelChangeSpy.should.have.been.calledOnce;
+
+            //     channel.publish({stuff: 24});
+            //     modelChangeSpy.should.have.been.calledOnce;
+            // });
+        });
 
         describe('#unsubscribeAll', function () {
             it('should clear out state variables', function() {
@@ -99,20 +202,6 @@
                 channel.subscribe('reset', {});
                 channel.listenerMap.should.have.key('reset');
             });
-            // it('should update inner operation dependencies for single items', function () {
-            //     channel.subscribe(['price[<time>]'], {});
-
-            //     channel.listenerMap.should.have.key('price[<time>]');
-            //     channel.innerVariablesList.should.eql(['time']);
-            // });
-
-            // it('should update inner operation dependencies for multiple items', function () {
-            //     channel.subscribe(['price[<time>]', 'apples', 'sales[<step>]'], {});
-
-            //     channel.listenerMap.should.have.keys('price[<time>]', 'apples', 'sales[<step>]');
-            //     channel.innerVariablesList.should.eql(['time', 'step']);
-            // });
-
         });
 
 

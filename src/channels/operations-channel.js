@@ -30,16 +30,23 @@ module.exports = function(options) {
         listenerMap: {},
 
         //Check for updates
-        refresh: function(operation,response) {
+        /**
+         * Triggers update on sibling variables channel
+         * @param  {string|array} executedOpns operations which just happened
+         * @param  {*} response  response from the operation
+         */
+        refresh: function(executedOpns,response) {
             var refreshOn = channelOptions.refresh.on;
+            var refreshExcept= channelOptions.refresh.except;
 
-            var isStringRefreshMatch = operation && _.isString(refreshOn) && refreshOn === operation;
-            var isArrayRefreshMatch = operation && _.isArray(refreshOn) && _.contains(refreshOn, operation);
-            var isExcluded = operation && _.contains(refreshOn.exclude, operation);
+            var isStringRefreshMatch = executedOpns && _.isString(refreshOn) && _.contains(executedOpns, refreshOn);
+            var isArrayRefreshMatch = executedOpns && _.isArray(refreshOn) && _.intersection(refreshOn, executedOpns).length >= 1;
+
+            var isExcluded = executedOpns && (_.intersection(refreshExcept, executedOpns).length === executedOpns.length);
             var needsRefresh = (!isExcluded && (refreshOn === 'all' || isStringRefreshMatch || isArrayRefreshMatch));
 
             if (needsRefresh) {
-                $(vent).trigger('dirty', {opn: operation, response: response});
+                $(vent).trigger('dirty', {opn: executedOpns, response: response});
             }
         },
 
