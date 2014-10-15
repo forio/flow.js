@@ -8,10 +8,8 @@ module.exports = function(config) {
         config = {};
     }
 
-    var rs = new F.service.Run(config.run);
-
-    config.run = rs;
     var rm = new F.manager.RunManager(config);
+    var rs = rm.run;
 
     var $creationPromise = rm.getRun();
     rs.currentPromise = $creationPromise;
