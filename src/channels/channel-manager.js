@@ -8,13 +8,12 @@ module.exports = function(config) {
         config = {};
     }
 
-    var runparams = config;
+    var rs = new F.service.Run(config.run);
 
-    var rs = new F.service.Run(runparams);
+    config.run = rs;
+    var rm = new F.manager.RunManager(config);
 
-    window.run = rs;
-    //TODO: store runid in token etc. But if you do this, make sure you remove token on reset
-    var $creationPromise = rs.create(config.model);
+    var $creationPromise = rm.getRun();
     rs.currentPromise = $creationPromise;
 
     var createAndThen = function(value, context) {
