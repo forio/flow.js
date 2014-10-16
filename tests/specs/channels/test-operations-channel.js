@@ -124,63 +124,51 @@
                     except: ['step']
                 }});
                 var spy = sinon.spy();
-                $(vent).off('dirty').on('dirty', spy);
+                $(vent).on('dirty', spy);
 
                 channel.publish('step', 1);
 
                 spy.should.not.have.been.called;
             });
-            // it('should treat \'on\' as a whitelist for single-item arrays', function () {
-            //     var channel = new Channel({vent: {}, run: mockRun, refresh: {
-            //         on: ['price']
-            //     }});
-            //     var modelChangeSpy = sinon.spy();
+            it('should treat \'on\' as a whitelist for single-item arrays', function () {
+                var channel = new Channel({vent: vent, run: mockRun, refresh: {
+                    on: ['step']
+                }});
+                var spy = sinon.spy();
+                $(vent).on('dirty', spy);
 
-            //     var $sink = $({a:1});
-            //     channel.subscribe('price', $sink);
-            //     $sink.on('update.f.model', modelChangeSpy);
+                channel.publish('step', 1);
+                spy.should.have.been.calledOnce;
 
-            //     channel.publish({price: 24});
+                channel.publish('reset');
+                spy.should.have.been.calledOnce;
+            });
+            it('should treat \'on\' as a whitelist for multi-item arrays', function () {
+               var channel = new Channel({vent: vent, run: mockRun, refresh: {
+                    on: ['step', 'somethingelse']
+                }});
+                var spy = sinon.spy();
+                $(vent).on('dirty', spy);
 
-            //     modelChangeSpy.should.have.been.calledOnce;
+                channel.publish('step', 1);
+                spy.should.have.been.calledOnce;
 
-            //     channel.publish({stuff: 24});
-            //     modelChangeSpy.should.have.been.calledOnce;
-            // });
-            // it('should treat \'on\' as a whitelist for multi-item arrays', function () {
-            //     var channel = new Channel({vent: {}, run: mockRun, refresh: {
-            //         on: ['price', 'somethingelse']
-            //     }});
-            //     var modelChangeSpy = sinon.spy();
+                channel.publish('reset');
+                spy.should.have.been.calledOnce;
+            });
+            it('should treat \'on\' as a whitelist for strings', function () {
+                var channel = new Channel({vent: vent, run: mockRun, refresh: {
+                     on: 'step'
+                 }});
+                 var spy = sinon.spy();
+                 $(vent).on('dirty', spy);
 
-            //     var $sink = $({a:1});
-            //     channel.subscribe('price', $sink);
-            //     $sink.on('update.f.model', modelChangeSpy);
+                 channel.publish('step', 1);
+                 spy.should.have.been.calledOnce;
 
-            //     channel.publish({price: 24});
-
-            //     modelChangeSpy.should.have.been.calledOnce;
-
-            //     channel.publish({stuff: 24});
-            //     modelChangeSpy.should.have.been.calledOnce;
-            // });
-            // it('should treat \'on\' as a whitelist for strings', function () {
-            //     var channel = new Channel({vent: {}, run: mockRun, refresh: {
-            //         on: 'price'
-            //     }});
-            //     var modelChangeSpy = sinon.spy();
-
-            //     var $sink = $({a:1});
-            //     channel.subscribe('price', $sink);
-            //     $sink.on('update.f.model', modelChangeSpy);
-
-            //     channel.publish({price: 24});
-
-            //     modelChangeSpy.should.have.been.calledOnce;
-
-            //     channel.publish({stuff: 24});
-            //     modelChangeSpy.should.have.been.calledOnce;
-            // });
+                 channel.publish('reset');
+                 spy.should.have.been.calledOnce;
+             });
         });
 
         describe('#unsubscribeAll', function () {
