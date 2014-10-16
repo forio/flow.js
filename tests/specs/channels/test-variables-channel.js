@@ -176,6 +176,11 @@
                 channel.variableListenerMap.should.have.keys('price[<time>]', 'apples', 'sales[<step>]');
                 channel.innerVariablesList.should.eql(['time', 'step']);
             });
+            it('should generate a token', function () {
+                var dummyObject = {a: 1};
+                var token = channel.subscribe(['price[<time>]', 'apples', 'sales[<step>]'], dummyObject);
+                token.should.exist;
+            });
 
         });
 
@@ -277,25 +282,18 @@
             });
         });
 
-        describe('tokens', function () {
+        describe('#unsubscribe', function () {
             afterEach(function() {
                 channel.unsubscribeAll();
-            });
-
-            it('should generate a token', function () {
-                var dummyObject = {a: 1};
-                var token = channel.subscribe(['price[<time>]', 'apples', 'sales[<step>]'], dummyObject);
-                token.should.exist;
             });
 
             it('should use the token to unsubscribe', function () {
                 var dummyObject = {a: 1};
                 var token = channel.subscribe(['price[<time>]', 'apples', 'sales[<step>]'], dummyObject);
-                channel.variableListenerMap.apples.should.exist;
+                channel.variableListenerMap.apples.length.should.eql(1);
 
-                channel.unsubscribe(token);
-                // channel.variableListenerMap.apples.should.eql([]);
-
+                channel.unsubscribe('apples', token);
+                channel.variableListenerMap.apples.should.eql([]);
             });
         });
     });

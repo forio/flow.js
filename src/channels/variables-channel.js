@@ -190,7 +190,7 @@ module.exports = function(options) {
             return id;
         },
         unsubscribe: function(variable, token) {
-            this.variableListenerMap = _.reject(this.variableListenerMap, function(subs) {
+            this.variableListenerMap[variable] = _.reject(this.variableListenerMap[variable], function(subs) {
                 return subs.id === token;
             });
         },

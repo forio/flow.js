@@ -190,21 +190,20 @@
                 channel.subscribe('reset', {});
                 channel.listenerMap.should.have.key('reset');
             });
+            it('should return a token', function () {
+                var token = channel.subscribe('reset', {});
+                should.exist(token);
+                channel.listenerMap.should.have.key('reset');
+            });
         });
 
 
-        describe('tokens', function () {
+        describe('#unsubscribe', function () {
             afterEach(function() {
                 channel.unsubscribeAll();
             });
 
-            it('should generate a token', function () {
-                var dummyObject = {a: 1};
-                var token = channel.subscribe(['step', 'something', 'else'], dummyObject);
-                token.should.exist;
-            });
-
-            it('should use the token to unsubscribe', function () {
+            it('should allow using a token to unsubscribe', function () {
                 var dummyObject = {a: 1};
                 var token = channel.subscribe(['step', 'something', 'else'], dummyObject);
                 channel.listenerMap.step.length.should.equal(1);
