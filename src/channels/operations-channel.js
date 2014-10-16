@@ -37,7 +37,7 @@ module.exports = function(options) {
          */
         refresh: function(executedOpns,response) {
             var refreshOn = channelOptions.refresh.on;
-            var refreshExcept= channelOptions.refresh.except;
+            var refreshExcept= [].concat(channelOptions.refresh.except);
 
             var isStringRefreshMatch = executedOpns && _.isString(refreshOn) && _.contains(executedOpns, refreshOn);
             var isArrayRefreshMatch = executedOpns && _.isArray(refreshOn) && _.intersection(refreshOn, executedOpns).length >= 1;
@@ -69,7 +69,7 @@ module.exports = function(options) {
                 //TODO: check if interpolated
                 return run.do.apply(run, arguments)
                     .then(function (response) {
-                        me.refresh.call(me, operation, response);
+                        me.refresh.call(me, [operation], response);
                     });
             }
             // console.log('operations publish', operation, params);

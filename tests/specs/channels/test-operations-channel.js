@@ -116,15 +116,15 @@
                 channel.publish('step', 1);
 
                 spy.should.have.been.calledOnce;
-                spy.getCall(0).args[1].should.eql({opn: 'step', response: mockOperationsResponse});
+                spy.getCall(0).args[1].should.eql({opn: ['step'], response: mockOperationsResponse});
             });
 
             it('should not call refresh if exceptions are noted', function () {
                 var channel = new Channel({vent: vent, run: mockRun, refresh: {
-                    except: 'step'
+                    except: ['step']
                 }});
                 var spy = sinon.spy();
-                $(vent).on('dirty', spy);
+                $(vent).off('dirty').on('dirty', spy);
 
                 channel.publish('step', 1);
 
