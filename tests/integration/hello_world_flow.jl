@@ -1,4 +1,4 @@
-# last update 9/4/2014
+# last update 10/7/2014
 
 
 module hello_world_flow
@@ -30,7 +30,7 @@ salesMgr = mgrType()
   salesMgr.num_reports = 2
   salesMgr.name = "John Smith"
   salesMgr.region = "West"
-sales = [100, 200, 300, 400]
+sales = {100, 400, 300, 200}
 sample64 = 3.14159
 
 ## run api displays this as [1,2,3,4,5,6]

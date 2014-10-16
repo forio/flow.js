@@ -1,3 +1,67 @@
+<a name="0.6.4"></a>
+## 0.6.4 (2014-10-13)
+
+#### Enhancements
+
+* Flowjs now has a logo! Thanks @andrewnatt
+
+#### Bug fixes
+
+* Resolved #18
+
+<a name="0.6.3"></a>
+## 0.6.3 (2014-09-24)
+
+#### New Features
+
+##### Array Converters
+Flow.js now has Array converters for selecting particular elements of array variables from the models. The three new converters added are:
+
+* first
+* last
+* previous
+
+Example:
+```html
+ <div data-f-bind="somearray | last"> </div> <!-- print out last element of the array -->
+```
+
+If you don't specify any converters, flow.js prints out the last item of the array by default. This is useful if you're working with system dynamics models, since the last item in the array is typically the value for the current step.
+
+However, any custom converters you apply to an array variable pipe receive the entire array.
+
+Example:
+```html
+ <div data-f-bind="somearray | myCustomConverter"> </div> <!-- myCustomConverter receives entire array -->
+```
+
+##### Piping operations
+You can now pipe operations similar to piping converters.
+
+Example:
+```html
+<body data-f-on-init="start_game | step(10)">
+```
+`step` will be executed after the `start_game` completes.
+
+
+<a name="0.6.2"></a>
+## 0.6.2 (2014-09=03)
+
+Bug fix for issue #8: Numbers with % are now divided by 100 during parse
+
+
+<a name="0.6.1"></a>
+## 0.6.1 (2014-08-27)
+
+Enhancements release to remove a few annoyances
+
+#### Enhancements
+
+* Flow.version now reports the version of flow.js you're using
+* We now strip out all the console.logs in the generated files so flow.js will now be much less noisier
+
+
 <a name="0.6.0"></a>
 ## 0.6.0 (2014-08-26)
 
