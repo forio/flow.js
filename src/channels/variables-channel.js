@@ -70,10 +70,11 @@ module.exports = function(options) {
     };
 
     var publicAPI = {
-        //for testing, to be removed later
+        //for testing
         private: {
             getInnerVariables: getInnerVariables,
-            interpolate: interpolate
+            interpolate: interpolate,
+            options: channelOptions
         },
 
         //Interpolated variables which need to be resolved before the outer ones can be

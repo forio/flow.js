@@ -3,7 +3,7 @@
 
     var Channel = require('../../../src/channels/operations-channel');
 
-    describe('Flow Channel', function () {
+    describe('Operations Channel', function () {
         var core, channel, server, mockRun, mockRunChannel;
         var mockOperationsResponse = {
                         message: 'operation Complete',

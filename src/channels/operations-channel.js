@@ -27,6 +27,11 @@ module.exports = function(options) {
     var vent = channelOptions.vent;
 
     var publicAPI = {
+        //for testing
+        private: {
+            options: channelOptions
+        },
+
         listenerMap: {},
 
         //Check for updates

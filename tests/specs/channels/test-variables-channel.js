@@ -3,7 +3,7 @@
 
     var Channel = require('../../../src/channels/variables-channel');
 
-    describe('Flow Channel', function () {
+    describe('Variables Channel', function () {
         var core, channel, server, mockVariables, mockRun;
 
         before(function () {
