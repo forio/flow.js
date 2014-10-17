@@ -19,7 +19,7 @@
                 <h3 class="" data-ub-component="Subheading" data-ub-version="0.0.1" style="color: rgb(51, 51, 51);">Google Glass Sales Simulation</h3>
                 <img src="https://forio.com/app/jaimedp/glasses/glass.jpg" style="max-width: 100%;" alt="Alt Text" class="" data-ub-component="Image" data-ub-version="0.0.1">
                 <p class="" data-ub-component="Text Block" data-ub-version="0.0.1" style="color: rgb(51, 51, 51);">
-                    Google is aiming for an early to mid-2014 debut of the gadget to the general public, and has already released a Glass Development Kit or GDK to app developers. Despite the clunkiness and awkwardness of the early beta version of Glass, we think computerized glasses will establish themselves in certain professional niches and gradually become a mainstream product. Early adopters will use them for medical training, scientific exploration, and photography. They in turn will popularize Glass and other smart eyewear among wider populations still unsure about the appeal.
+                    Note: Run as local.forio.com after changing vhosts. localhost won't work with run manager
                 </p>
                 <div class="form-horizontal decisions-form" role="form" data-ub-component="Decisions" data-ub-version="0.0.1">
                     <div class="form-group">
@@ -29,6 +29,7 @@
                     </div>
                 </div>
                 <button class="btn btn-primary" data-ub-component="Button" data-ub-version="0.0.1" data-f-on-click="step(1)" style="color: rgb(255, 255, 255);">Advance</button>
+                <button class="btn" data-ub-component="Button" data-ub-version="0.0.1" data-f-on-click="reset | start_game" style="color: rgb(255, 255, 255);">Reset</button>
             </div>
             <div class="col-xs-8">
                 <span class="label-comp" data-ub-component="Label" data-ub-version="0.0.1" style="color: rgb(51, 51, 51);">Current Year:</span>
@@ -67,9 +68,13 @@
             <script>
             Flow.initialize({
                 channel: {
+                    strategy: 'new-if-persisted',
                     run: {
                         account: 'jaimedp',
                         project: 'glasses',
+                        server: {
+                            'host': 'api.forio.com'
+                        },
                         transport: {
                             beforeSend: function () {
                                 $('body').addClass('loading');
