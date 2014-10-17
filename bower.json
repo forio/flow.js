@@ -18,7 +18,7 @@
     "tests"
   ],
   "devDependencies": {
-    "epicenter-js-libs": "https://github.com/forio/epicenter-js-libs.git#master",
+    "epicenter-js-libs": "forio/epicenter-js-libs",
     "jquery": "~2.1.1",
     "lodash": "~2.4.1"
   }
