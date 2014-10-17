@@ -26,7 +26,7 @@ module.exports = function(config) {
 
     //Make sure nothing happens before the run is created
     _.each(rs, function(value, name) {
-        if ($.isFunction(value) && name !== 'variables') {
+        if ($.isFunction(value) && name !== 'variables'  && name !== 'create') {
             rs[name] = createAndThen(value, rs);
         }
     });
