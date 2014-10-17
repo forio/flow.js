@@ -1,6 +1,6 @@
 {
   "name": "flow.js",
-  "version": "0.6.4",
+  "version": "0.6.5",
   "description": "Data binding library",
   "main": "Gruntfile.js",
   "directories": {
