@@ -362,23 +362,46 @@ displayed as 150%.</td>
     <td class="pass">pass in 0.6.3</td>
 </tr>
 
+<tr>
+    <td>display_only; regression testing: issue #18</td>
+    <td>flow.js attempts to bind two-way even when data-f-bind not specified</td>
+    <td>this input uses data-f-value: <input data-f-value="sampleString"></input>
+        <br>this input uses data-f-bind: <input data-f-bind="sampleString"></input>
+        <br>the value of sampleString is: <span data-f-bind="sampleString"> and should update ONLY when the second input is changed by the user, NOT the first</span>
+    </td>
+    <td class="pass">pass in 0.7.0</td>
+</tr>
+
+<tr>
+    <td>regression testing: issue #15</td>
+    <td>When data-f-value is used instead of data-f-bind, data-f-convert is ignored</td>
+    <td>sampleString in upperCase, using data-f-bind <span data-f-bind="sampleString | upperCase"></span><br>
+        sampleString in upperCase, using data-f-value and data-f-convert <input data-f-value="sampleString" data-f-convert="upperCase"></input>
+    </td>
+    <td class="fail">fail in 0.7.0, see <a href="https://github.com/forio/flow.js/issues/15"></a></td>
+</tr>
+
 </table>
+
 
 
     <script src="../../vendor/jquery/dist/jquery.min.js"></script>
     <script src="../../vendor/lodash/dist/lodash.js"></script>
-    <script src="../../vendor/epicenter-js-libs/dist/epicenter.min.js"></script>
-    <script src="../../dist/flow.js"></script>
+    <script src="../../vendor/epicenter-js-libs/dist/epicenter.js"></script>
+                <script src="../../dist/flow.js"></script>
     <script>
 
     Flow.initialize({
         channel: {
-            model: 'hello_world_flow.jl',
+            strategy: 'new-if-persisted',
+            run: {
+                model: 'hello_world_flow.jl',
             //account: 'first-team',
-            account: 'mjones',
-            project: 'hello-world-flow',
+                account: 'mjones',
+                project: 'hello-world-flow',
             //server: {host: 'api.epicenter-stable.foriodev.com'}
-            server: {host: 'api.forio.com'}
+                server: {host: 'api.forio.com'}
+            }
         }
     });
 
