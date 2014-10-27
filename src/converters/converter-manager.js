@@ -1,5 +1,6 @@
 'use strict';
 
+//TODO: Make all underscore filters available
 
 var normalize = function (alias, converter) {
     var ret = [];
