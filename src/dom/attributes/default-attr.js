@@ -6,7 +6,7 @@ module.exports = {
 
     target: '*',
 
-    handle: function(value, prop) {
+    handle: function (value, prop) {
         this.prop(prop, value);
     }
 };

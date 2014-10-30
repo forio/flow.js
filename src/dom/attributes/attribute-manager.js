@@ -19,15 +19,15 @@ var normalize = function (attributeMatcher, nodeMatcher, handler) {
     if (!nodeMatcher) {
         nodeMatcher = '*';
     }
-    if (_.isFunction(handler)) {
+    if (_.isfunction (handler)) {
         handler = {
             handle: handler
         };
     }
-    return $.extend(handler, {test: attributeMatcher, target: nodeMatcher});
+    return $.extend(handler, { test: attributeMatcher, target: nodeMatcher });
 };
 
-$.each(defaultHandlers, function(index, handler) {
+$.each(defaultHandlers, function (index, handler) {
     handlersList.push(normalize(handler.test, handler.target, handler));
 });
 
@@ -37,12 +37,10 @@ var matchAttr = function (matchExpr, attr, $el) {
 
     if (_.isString(matchExpr)) {
         attrMatch = (matchExpr === '*' || (matchExpr.toLowerCase() === attr.toLowerCase()));
-    }
-    else if (_.isFunction(matchExpr)) {
+    } else if (_.isfunction (matchExpr)) {
         //TODO: remove element selectors from attributes
         attrMatch = matchExpr(attr, $el);
-    }
-    else if (_.isRegExp(matchExpr)) {
+    } else if (_.isRegExp(matchExpr)) {
         attrMatch = attr.match(matchExpr);
     }
     return attrMatch;
@@ -70,21 +68,21 @@ module.exports = {
      * @param  {string | $el} nodeFilter node to match
      * @return {array|null}
      */
-    filter: function(attrFilter, nodeFilter) {
+    filter: function (attrFilter, nodeFilter) {
         var filtered = _.select(handlersList, function (handler) {
             return matchAttr(handler.test, attrFilter);
         });
         if (nodeFilter) {
-            filtered = _.select(filtered, function (handler){
+            filtered = _.select(filtered, function (handler) {
                 return matchNode(handler.target, nodeFilter);
             });
         }
         return filtered;
     },
 
-    replace: function(attrFilter, nodeFilter, handler) {
+    replace: function (attrFilter, nodeFilter, handler) {
         var index;
-        _.each(handlersList, function(currentHandler, i) {
+        _.each(handlersList, function (currentHandler, i) {
             if (matchAttr(currentHandler.test, attrFilter) && matchNode(currentHandler.target, nodeFilter)) {
                 index = i;
                 return false;
@@ -93,7 +91,7 @@ module.exports = {
         handlersList.splice(index, 1, normalize(attrFilter, nodeFilter, handler));
     },
 
-    getHandler: function(property, $el) {
+    getHandler: function (property, $el) {
         var filtered = this.filter(property, $el);
         //There could be multiple matches, but the top first has the most priority
         return filtered[0];

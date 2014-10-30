@@ -1,7 +1,7 @@
 'use strict';
 var config = require('../config');
 
-module.exports = function(options) {
+module.exports = function (options) {
     if (!options) {
         options = {};
     }
@@ -11,32 +11,32 @@ module.exports = function(options) {
     var currentData = {};
 
     //TODO: actually compare objects and so on
-    var isEqual = function(a, b) {
+    var isEqual = function (a, b) {
         return false;
     };
 
-    var getInnerVariables = function(str) {
+    var getInnerVariables = function (str) {
         var inner = str.match(/<(.*?)>/g);
-        inner = _.map(inner, function(val){
+        inner = _.map(inner, function (val) {
             return val.substring(1, val.length - 1);
         });
         return inner;
     };
 
     //Replaces stubbed out keynames in variablestointerpolate with their corresponding calues
-    var interpolate = function(variablesToInterpolate, values) {
+    var interpolate = function (variablesToInterpolate, values) {
         var interpolationMap = {};
         var interpolated = {};
 
         _.each(variablesToInterpolate, function (val, outerVariable) {
             var inner = getInnerVariables(outerVariable);
             var originalOuter = outerVariable;
-            $.each(inner, function(index, innerVariable) {
+            $.each(inner, function (index, innerVariable) {
                 var thisval = values[innerVariable];
                 if (thisval !== null && thisval !== undefined) {
                     if (_.isArray(thisval)) {
                         //For arrayed things get the last one for interpolation purposes
-                        thisval = thisval[thisval.length -1];
+                        thisval = thisval[thisval.length - 1];
                     }
                     outerVariable = outerVariable.replace('<' + innerVariable + '>', thisval);
                 }
@@ -63,13 +63,13 @@ module.exports = function(options) {
         variableListenerMap: {},
 
         //Check for updates
-        refresh: function() {
+        refresh: function () {
             var me = this;
 
-            var getVariables = function(vars, ip) {
-                return vs.query(vars).then(function(variables) {
+            var getVariables = function (vars, ip) {
+                return vs.query(vars).then(function (variables) {
                     // console.log('Got variables', variables);
-                    _.each(variables, function(value, vname) {
+                    _.each(variables, function (value, vname) {
                         var oldValue = currentData[vname];
                         if (!isEqual(value, oldValue)) {
                             currentData[vname] = value;
@@ -88,8 +88,7 @@ module.exports = function(options) {
                     var outer = _.keys(ip.interpolated);
                     getVariables(outer, ip.interpolationMap);
                 });
-            }
-            else {
+            } else {
                 return getVariables(_.keys(me.variableListenerMap));
             }
 
@@ -100,12 +99,12 @@ module.exports = function(options) {
             var params = {};
             params[variable] = value;
 
-            _.each(listeners, function (listener){
+            _.each(listeners, function (listener) {
                 listener.target.trigger(config.events.react, params);
             });
         },
 
-        publish: function(variable, value) {
+        publish: function (variable, value) {
             // console.log('publish', arguments);
             // TODO: check if interpolated
             var attrs;
@@ -123,7 +122,7 @@ module.exports = function(options) {
                 });
         },
 
-        subscribe: function(properties, subscriber) {
+        subscribe: function (properties, subscriber) {
             // console.log('subscribing', properties, subscriber);
 
             properties = [].concat(properties);
@@ -140,7 +139,7 @@ module.exports = function(options) {
             };
 
             var me = this;
-            $.each(properties, function(index, property) {
+            $.each(properties, function (index, property) {
                 var inner = getInnerVariables(property);
                 if (inner.length) {
                     me.innerVariablesList = me.innerVariablesList.concat(inner);
@@ -155,12 +154,12 @@ module.exports = function(options) {
 
             return id;
         },
-        unsubscribe: function(variable, token) {
-            this.variableListenerMap = _.reject(this.variableListenerMap, function(subs) {
+        unsubscribe: function (variable, token) {
+            this.variableListenerMap = _.reject(this.variableListenerMap, function (subs) {
                 return subs.id === token;
             });
         },
-        unsubscribeAll: function() {
+        unsubscribeAll: function () {
             this.variableListenerMap = {};
             this.innerVariablesList = [];
         }

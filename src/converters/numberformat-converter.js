@@ -2,7 +2,7 @@
 module.exports = {
     alias: function (name) {
         //TODO: Fancy regex to match number formats here
-        return (name.indexOf('#') !== -1 || name.indexOf('0') !== -1 );
+        return (name.indexOf('#') !== -1 || name.indexOf('0') !== -1);
     },
 
     parse: function (val) {
@@ -13,14 +13,14 @@ module.exports = {
         var floatMatcher = /([-+]?[0-9]*\.?[0-9]+)(K?M?B?%?)/i;
         var results = floatMatcher.exec(val);
         var number, suffix = '';
-        if(results && results[1]){
+        if (results && results[1]) {
             number = results[1];
         }
-        if(results && results[2]){
+        if (results && results[2]) {
             suffix = results[2].toLowerCase();
         }
 
-        switch(suffix){
+        switch (suffix) {
             case '%':
                 number = number / 100;
                 break;
@@ -35,13 +35,13 @@ module.exports = {
                 break;
         }
         number = parseFloat(number);
-        if(isNegative && number > 0) {
+        if (isNegative && number > 0) {
             number = number * -1;
         }
         return number;
     },
 
-    convert: (function(value) {
+    convert: (function (value) {
         var scales = ['', 'K', 'M', 'B', 'T'];
 
         function getDigits(value, digits) {
@@ -220,15 +220,13 @@ module.exports = {
                     if (number < Math.pow(10, limitDigits)) {
                         if (isCurrency(leadingText)) {
                             return sign + leadingText + getDigits(number, Number(rightOfPrefix)) + scales[valScale];
-                        }
-                        else {
+                        } else {
                             return leadingText + sign + getDigits(number, Number(rightOfPrefix)) + scales[valScale];
                         }
                     } else {
                         if (isCurrency(leadingText)) {
                             return sign + leadingText + Math.round(number) + scales[valScale];
-                        }
-                        else {
+                        } else {
                             return leadingText + sign + Math.round(number) + scales[valScale];
                         }
                     }
@@ -264,7 +262,7 @@ module.exports = {
             var suffix = (fixesTXT.length > 1) ? fixesTXT[1].toString() : '';
 
             number = number * ((formatTXT.split('%').length > 1) ? 100 : 1);
-            //            if(formatTXT.indexOf('%') !== -1) number = number * 100;
+            //            if (formatTXT.indexOf('%') !== -1) number = number * 100;
             number = roundTo(number, decimals);
 
             sign = (number === 0) ? '' : sign;

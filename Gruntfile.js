@@ -13,6 +13,10 @@ module.exports = function(grunt) {
         pkg: grunt.file.readJSON('package.json')
     });
 
+    grunt.loadNpmTasks('grunt-jscs');
+    grunt.config.set('jscs', {
+        src: ['src/*.js', 'src/**/*.js']
+    });
 
     grunt.config.set('bump', {
         options: {
@@ -146,7 +150,7 @@ module.exports = function(grunt) {
         var files = this.options().files;
         grunt.file.expand(files).forEach(function (file) {
             var mainFile = grunt.file.read(file);
-            var updated = grunt.template.process(mainFile, {data: grunt.file.readJSON('package.json')});
+            var updated = grunt.template.process(mainFile, { data: grunt.file.readJSON('package.json') });
             grunt.file.write(file, updated);
         });
     });

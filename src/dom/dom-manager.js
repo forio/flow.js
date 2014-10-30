@@ -1,4 +1,4 @@
-module.exports = (function() {
+module.exports = (function () {
     'use strict';
     var config = require('../config');
 
@@ -9,7 +9,7 @@ module.exports = (function() {
     var parseUtils = require('../utils/parse-utils');
 
     //Jquery selector to return everything which has a f- property set
-    $.expr[':'][config.prefix] = function(obj){
+    $.expr[':'][config.prefix] = function (obj) {
         var $this = $(obj);
         var dataprops = _.keys($this.data());
 
@@ -20,7 +20,7 @@ module.exports = (function() {
         return !!(match);
     };
 
-    $.expr[':'].webcomponent = function(obj){
+    $.expr[':'].webcomponent = function (obj) {
         return obj.nodeName.indexOf('-') !== -1;
     };
 
@@ -34,7 +34,7 @@ module.exports = (function() {
 
         },
 
-        initialize: function(options) {
+        initialize: function (options) {
             var defaults = {
                 root: 'body',
                 channel: null
@@ -45,7 +45,7 @@ module.exports = (function() {
             var me = this;
 
             var $root = $(defaults.root);
-            $(function(){
+            $(function () {
                 //parse through dom and find everything with matching attributes
                 var matchedElements = $root.find(':' + config.prefix);
                 if ($root.is(':' + config.prefix)) {
@@ -54,7 +54,7 @@ module.exports = (function() {
 
                 me.private.matchedElements = matchedElements;
 
-                $.each(matchedElements, function(index, element) {
+                $.each(matchedElements, function (index, element) {
                     var $el = $(element);
                     var Handler = nodeManager.getHandler($el);
                     new Handler.handle({
@@ -66,7 +66,7 @@ module.exports = (function() {
                     if (!varMap) {
                         varMap = {};
                         //NOTE: looping through attributes instead of .data because .data automatically camelcases properties and make it hard to retrvieve
-                        $(element.attributes).each(function(index, nodeMap){
+                        $(element.attributes).each(function (index, nodeMap) {
                             var attr = nodeMap.nodeName;
                             var attrVal = nodeMap.value;
 
@@ -92,8 +92,7 @@ module.exports = (function() {
                                     if (attrVal.split(commaRegex).length > 1) {
                                         //TODO
                                         // triggerers = triggerers.concat(val.split(','));
-                                    }
-                                    else {
+                                    } else {
                                         varMap[attrVal] = attr;
                                     }
                                 }
@@ -110,14 +109,14 @@ module.exports = (function() {
 
                 //Attach listeners
                 //TODO: split initialize into multiple sub events, at least Add & then attach handlers
-                $root.off(config.events.react).on(config.events.react, function(evt, data) {
+                $root.off(config.events.react).on(config.events.react, function (evt, data) {
                     // console.log(evt.target, data, "root on");
                     var $el = $(evt.target);
                     var varmap = $el.data('variable-attr-map');
 
-                    $.each(data, function(variableName, value) {
+                    $.each(data, function (variableName, value) {
                         var propertyToUpdate = varmap[variableName.trim()];
-                        if (propertyToUpdate){
+                        if (propertyToUpdate) {
                             //f-converters-* is already set while parsing the varmap, as an array to boot
                             var attrConverters = $el.data('f-converters-' + propertyToUpdate);
 
@@ -143,7 +142,7 @@ module.exports = (function() {
                     });
                 });
 
-                $root.off(config.events.trigger).on(config.events.trigger, function(evt, data) {
+                $root.off(config.events.trigger).on(config.events.trigger, function (evt, data) {
                     var parsedData = {}; //if not all subsequent listeners will get the modified data
 
                     var $el = $(evt.target);
@@ -171,7 +170,7 @@ module.exports = (function() {
                     channel.variables.publish(parsedData);
                 });
 
-                $root.off('f.ui.operate').on('f.ui.operate', function(evt, data) {
+                $root.off('f.ui.operate').on('f.ui.operate', function (evt, data) {
                     data = $.extend(true, {}, data); //if not all subsequent listeners will get the modified data
                     _.each(data.operations, function (opn) {
                        opn.params = _.map(opn.params, function (val) {

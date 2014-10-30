@@ -1,7 +1,7 @@
 'use strict';
 
 var normalize = function (selector, handler) {
-    if (_.isFunction(handler)) {
+    if (_.isfunction (handler)) {
         handler = {
             handle: handler
         };
@@ -16,8 +16,7 @@ var normalize = function (selector, handler) {
 var match = function (toMatch, node) {
     if (_.isString(toMatch)) {
         return toMatch === node.selector;
-    }
-    else {
+    } else {
         return $(toMatch).is(node.selector);
     }
 };
@@ -34,15 +33,15 @@ var nodeManager = {
         this.list.unshift(normalize(selector, handler));
     },
 
-    getHandler: function(selector) {
-        return _.find(this.list, function(node) {
+    getHandler: function (selector) {
+        return _.find(this.list, function (node) {
             return match(selector, node);
         });
     },
 
-    replace: function(selector, handler) {
+    replace: function (selector, handler) {
         var index;
-        _.each(this.list, function(currentHandler, i) {
+        _.each(this.list, function (currentHandler, i) {
             if (selector === currentHandler.selector) {
                 index = i;
                 return false;
@@ -58,7 +57,7 @@ var defaultHandlers = [
     require('./default-input-node'),
     require('./default-node')
 ];
-_.each(defaultHandlers.reverse(), function(handler) {
+_.each(defaultHandlers.reverse(), function (handler) {
     nodeManager.register(handler.selector, handler);
 });
 
