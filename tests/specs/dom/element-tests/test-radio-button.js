@@ -1,4 +1,4 @@
-module.exports = (function() {
+module.exports = (function () {
     'use strict';
     var utils = require('../../../testing-utils');
     var domManager = require('../../../../src/dom/dom-manager');
@@ -31,7 +31,7 @@ module.exports = (function() {
                     var $node = utils.initWithNode(nodes, domManager, channel).filter('#x');
                     $node.prop('checked', true).trigger('change');
 
-                    channel.variables.publish.should.have.been.calledWith({stuff: 8});
+                    channel.variables.publish.should.have.been.calledWith({ stuff: 8 });
                 });
             });
             describe('On UnCheck', function () {
@@ -49,7 +49,7 @@ module.exports = (function() {
                     $node.prop('checked', false);
                     $othernode.prop('checked', true).trigger('change');
 
-                    channel.variables.publish.should.have.been.calledWith({stuff: 2});
+                    channel.variables.publish.should.have.been.calledWith({ stuff: 2 });
                 });
             });
         });
@@ -63,7 +63,7 @@ module.exports = (function() {
                 ].join('');
 
                 var $nodes = utils.initWithNode(nodes, domManager, channel);
-                $nodes.trigger('update.f.model', {stuff: '8'});
+                $nodes.trigger('update.f.model', { stuff: '8' });
 
                 $nodes.filter('#x').prop('checked').should.equal(true);
                 $nodes.filter('#y').prop('checked').should.equal(false);
@@ -78,7 +78,7 @@ module.exports = (function() {
                 ].join('');
 
                 var $nodes = utils.initWithNode(nodes, domManager, channel);
-                $nodes.trigger('update.f.model', {stuff: true});
+                $nodes.trigger('update.f.model', { stuff: true });
 
                 $nodes.filter('#x').prop('checked').should.equal(false);
                 $nodes.filter('#y').prop('checked').should.equal(false);

@@ -1,4 +1,4 @@
-(function() {
+(function () {
     'use strict';
 
     var NodeClass = require('../../../src/dom/nodes/default-input-node');
@@ -6,17 +6,17 @@
 
     describe('Input node', function () {
         var textNode, makeView;
-        before(function (){
+        before(function () {
             textNode = make('<input type="text" data-f-bind="stuff"/>');
 
             makeView = function (str) {
                 var node = make(str);
-                var nodeView = new NodeClass({el: node});
+                var nodeView = new NodeClass({ el: node });
                 return nodeView;
             };
         });
 
-        after(function (){
+        after(function () {
             textNode = makeView = null;
         });
 

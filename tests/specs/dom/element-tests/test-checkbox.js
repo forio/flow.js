@@ -1,4 +1,4 @@
-module.exports = (function() {
+module.exports = (function () {
     'use strict';
     var utils = require('../../../testing-utils');
     var domManager = require('../../../../src/dom/dom-manager');
@@ -19,7 +19,7 @@ module.exports = (function() {
 
                     $node.prop('checked', true).trigger('change');
 
-                    channel.variables.publish.should.have.been.calledWith({stuff: 1});
+                    channel.variables.publish.should.have.been.calledWith({ stuff: 1 });
                 });
 
                 it('should pass the right value on check - default on', function () {
@@ -28,7 +28,7 @@ module.exports = (function() {
 
                     $node.prop('checked', true).trigger('change');
 
-                    channel.variables.publish.should.have.been.calledWith({stuff: 4});
+                    channel.variables.publish.should.have.been.calledWith({ stuff: 4 });
                 });
             });
             describe('On UnCheck', function () {
@@ -37,7 +37,7 @@ module.exports = (function() {
                     var $node = utils.initWithNode('<input type="checkbox" data-f-bind="stuff" checked/>', domManager, channel);
 
                     $node.prop('checked', false).trigger('change');
-                    channel.variables.publish.should.have.been.calledWith({stuff: 0});
+                    channel.variables.publish.should.have.been.calledWith({ stuff: 0 });
                 });
 
                 it('should pass the right value on uncheck - default off', function () {
@@ -45,7 +45,7 @@ module.exports = (function() {
                     var $node = utils.initWithNode('<input type="checkbox" data-f-bind="stuff" data-f-off="5" checked/>', domManager, channel);
 
                     $node.prop('checked', false).trigger('change');
-                    channel.variables.publish.should.have.been.calledWith({stuff: 5});
+                    channel.variables.publish.should.have.been.calledWith({ stuff: 5 });
                 });
             });
         });
@@ -54,21 +54,21 @@ module.exports = (function() {
             describe('with default value', function () {
                 it('should check itself if the value matches', function () {
                     var $node = utils.initWithNode('<input type="checkbox" data-f-bind="stuff" value="3"/>', domManager);
-                    $node.trigger('update.f.model', {stuff: 3});
+                    $node.trigger('update.f.model', { stuff: 3 });
 
                     var val = $node.prop('checked');
                     val.should.equal(true);
                 });
                 it('should not check itself if the value doesn\'t match', function () {
                     var $node = utils.initWithNode('<input type="checkbox" data-f-bind="stuff" value="3"/>', domManager);
-                    $node.trigger('update.f.model', {stuff: 4});
+                    $node.trigger('update.f.model', { stuff: 4 });
 
                     var val = $node.prop('checked');
                     val.should.equal(false);
                 });
                 it('should uncheck itself if the value doesn\'t match', function () {
                     var $node = utils.initWithNode('<input type="checkbox" data-f-bind="stuff" value="3" checked/>', domManager);
-                    $node.trigger('update.f.model', {stuff: 5});
+                    $node.trigger('update.f.model', { stuff: 5 });
 
                     var val = $node.prop('checked');
                     val.should.equal(false);
@@ -77,21 +77,21 @@ module.exports = (function() {
             describe('without default value', function () {
                 it('should check itself if the value is truthy', function () {
                     var $node = utils.initWithNode('<input type="checkbox" data-f-bind="stuff"/>', domManager);
-                    $node.trigger('update.f.model', {stuff: 3});
+                    $node.trigger('update.f.model', { stuff: 3 });
 
                     var val = $node.prop('checked');
                     val.should.equal(true);
                 });
                 it('should not check itself if the value isn\'t truthy', function () {
                     var $node = utils.initWithNode('<input type="checkbox" data-f-bind="stuff"/>', domManager);
-                    $node.trigger('update.f.model', {stuff: 0});
+                    $node.trigger('update.f.model', { stuff: 0 });
 
                     var val = $node.prop('checked');
                     val.should.equal(false);
                 });
                 it('should uncheck itself if the value isn\'t truthy', function () {
                     var $node = utils.initWithNode('<input type="checkbox" data-f-bind="stuff" checked/>', domManager);
-                    $node.trigger('update.f.model', {stuff: 0});
+                    $node.trigger('update.f.model', { stuff: 0 });
 
                     var val = $node.prop('checked');
                     val.should.equal(false);
