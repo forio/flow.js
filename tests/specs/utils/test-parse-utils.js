@@ -28,8 +28,7 @@ describe('parse utils', function () {
             u.toImplicitType('[1,2,4]').should.eql([1,2,4]);
             u.toImplicitType('[1,"2",4]').should.eql([1,'2',4]);
 
-            /*jshint quotmark:false */
-            u.toImplicitType("[1,\"2\",4]").should.eql([1,'2',4]);
+            u.toImplicitType(JSON.stringify([1,'2',4])).should.eql([1,'2',4]);
         });
 
         it('identifies nulls', function () {
@@ -41,8 +40,8 @@ describe('parse utils', function () {
 
         it('identifies objs', function () {
             u.toImplicitType('{}').should.eql({});
-            u.toImplicitType('{"a": "abc"}').should.eql({a:'abc'});
-            u.toImplicitType('{"a": "abc", "b": 2, "c": "2"}').should.eql({a:'abc', b:2, c:'2'});
+            u.toImplicitType('{"a": "abc"}').should.eql({ a:'abc' });
+            u.toImplicitType('{"a": "abc", "b": 2, "c": "2"}').should.eql({ a:'abc', b:2, c:'2' });
         });
     });
 });

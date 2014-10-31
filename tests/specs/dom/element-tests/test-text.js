@@ -1,4 +1,4 @@
-module.exports = (function() {
+module.exports = (function () {
     'use strict';
     var utils = require('../../../testing-utils');
     var domManager = require('../../../../src/dom/dom-manager');
@@ -21,7 +21,7 @@ module.exports = (function() {
                 $node.val(5);
                 $node.trigger('change');
 
-                spy.getCall(0).args[1].should.eql({stuff: '5'});
+                spy.getCall(0).args[1].should.eql({ stuff: '5' });
             });
 
             it('should pass the correct converted values to the channel', function () {
@@ -29,25 +29,25 @@ module.exports = (function() {
                 var $node = utils.initWithNode('<input type="text" data-f-bind="stuff" value="3"/>', domManager, channel);
 
                 $node.val(5).trigger('change');
-                channel.variables.publish.should.have.been.calledWith({'stuff': 5});
+                channel.variables.publish.should.have.been.calledWith({ 'stuff': 5 });
 
                 $node.val('5').trigger('change');
-                channel.variables.publish.should.have.been.calledWith({'stuff': 5});
+                channel.variables.publish.should.have.been.calledWith({ 'stuff': 5 });
 
                 $node.val('"5"').trigger('change');
-                channel.variables.publish.should.have.been.calledWith({'stuff': '5'});
+                channel.variables.publish.should.have.been.calledWith({ 'stuff': '5' });
 
                 $node.val('abc').trigger('change');
-                channel.variables.publish.should.have.been.calledWith({'stuff': 'abc'});
+                channel.variables.publish.should.have.been.calledWith({ 'stuff': 'abc' });
 
                 $node.val('true').trigger('change');
-                channel.variables.publish.should.have.been.calledWith({'stuff': true});
+                channel.variables.publish.should.have.been.calledWith({ 'stuff': true });
             });
         });
         describe('updaters', function () {
             it('should update itself with values passed in', function () {
                 var $node = utils.initWithNode('<input type="text" data-f-bind="stuff" value="3"/>', domManager);
-                $node.trigger('update.f.model', {stuff: 5});
+                $node.trigger('update.f.model', { stuff: 5 });
 
                 var val = $node.val();
                 val.should.equal('5');

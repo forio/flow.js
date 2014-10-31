@@ -2,22 +2,20 @@
 
 module.exports = {
 
-    match: function(matchExpr, matchValue, context) {
+    match: function (matchExpr, matchValue, context) {
         if (_.isString(matchExpr)) {
             return (matchExpr === '*' || (matchExpr.toLowerCase() === matchValue.toLowerCase()));
-        }
-        else if (_.isFunction(matchExpr)) {
+        } else if (_.isfunction (matchExpr)) {
             return matchExpr(matchValue, context);
-        }
-        else if (_.isRegExp(matchExpr)) {
+        } else if (_.isRegExp(matchExpr)) {
             return matchValue.match(matchExpr);
         }
     },
 
-    generateVariableAttrMap: function(el) {
+    generateVariableAttrMap: function (el) {
         var variableAttributeMap = {};
         //NOTE: looping through attributes instead of .data because .data automatically camelcases properties and make it hard to retrvieve
-        $(el.attributes).each(function(index, nodeMap){
+        $(el.attributes).each(function (index, nodeMap) {
             var attr = nodeMap.nodeName;
             var attrVal = nodeMap.nodeValue;
 
@@ -28,8 +26,7 @@ module.exports = {
                 if (attrVal.indexOf(',') !== -1) {
                     //TODO
                     // triggerers = triggerers.concat(val.split(','));
-                }
-                else {
+                } else {
                     variableAttributeMap[attrVal] = attr;
                 }
             }

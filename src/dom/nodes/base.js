@@ -1,6 +1,6 @@
 'use strict';
 
-var extend = function(protoProps, staticProps) {
+var extend = function (protoProps, staticProps) {
     var parent = this;
     var child;
 
@@ -10,7 +10,7 @@ var extend = function(protoProps, staticProps) {
     if (protoProps && _.has(protoProps, 'constructor')) {
         child = protoProps.constructor;
     } else {
-        child = function(){ return parent.apply(this, arguments); };
+        child = function () { return parent.apply(this, arguments); };
     }
 
     // Add static properties to the constructor function, if supplied.
@@ -18,7 +18,7 @@ var extend = function(protoProps, staticProps) {
 
     // Set the prototype chain to inherit from `parent`, without calling
     // `parent`'s constructor function.
-    var Surrogate = function(){ this.constructor = child; };
+    var Surrogate = function () { this.constructor = child; };
     Surrogate.prototype = parent.prototype;
     child.prototype = new Surrogate();
 
@@ -35,7 +35,7 @@ var extend = function(protoProps, staticProps) {
     return child;
 };
 
-var View = function(options) {
+var View = function (options) {
     this.$el = $(options.el);
     this.el = options.el;
     this.initialize.apply(this, arguments);
@@ -43,7 +43,7 @@ var View = function(options) {
 };
 
 _.extend(View.prototype, {
-    initialize: function(){},
+    initialize: function () {},
 });
 
 View.extend = extend;

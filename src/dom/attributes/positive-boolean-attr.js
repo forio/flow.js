@@ -5,7 +5,7 @@ module.exports = {
 
     test: /^(?:checked|selected|async|autofocus|autoplay|controls|defer|ismap|loop|multiple|open|required|scoped)$/i,
 
-    handle: function(value, prop) {
+    handle: function (value, prop) {
         if (_.isArray(value)) {
             value = value[value.length - 1];
         }

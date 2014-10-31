@@ -1,11 +1,5 @@
-module.exports = function(grunt) {
+module.exports = function (grunt) {
     'use strict';
-
-    grunt.loadNpmTasks('grunt-browserify2');
-    grunt.loadNpmTasks('grunt-mocha');
-    grunt.loadNpmTasks('grunt-contrib-watch');
-    grunt.loadNpmTasks('grunt-contrib-jshint');
-    grunt.loadNpmTasks('grunt-bump');
 
     var UglifyJS = require('uglify-js');
 
@@ -13,17 +7,7 @@ module.exports = function(grunt) {
         pkg: grunt.file.readJSON('package.json')
     });
 
-
-    grunt.config.set('bump', {
-        options: {
-            files: ['package.json', 'bower.json'],
-            pushTo: 'master',
-            updateConfigs: ['pkg'],
-            commitFiles: ['-a']
-
-        }
-    });
-
+    grunt.loadNpmTasks('grunt-contrib-watch');
     grunt.config.set('watch', {
         source: {
             files: ['src/**/*.js'],
@@ -35,15 +19,7 @@ module.exports = function(grunt) {
         }
     });
 
-    //loq --first-parent --no-merges
-    grunt.loadNpmTasks('grunt-conventional-changelog');
-    grunt.config.set('changelog', {
-        options: {
-            dest: 'dist/CHANGELOG.md',
-            editor: 'sublime -w'
-        }
-    });
-
+    grunt.loadNpmTasks('grunt-browserify2');
     grunt.config.set('browserify2', {
         options: {
             expose: {
@@ -70,9 +46,9 @@ module.exports = function(grunt) {
                 debug: true,
                 compile: './dist/flow.js'
             },
-            afterHook: function(src) {
+            afterHook: function (src) {
                 var banner = grunt.file.read('./banner.js');
-                banner = grunt.template.process(banner, {data: grunt.file.readJSON('package.json')});
+                banner = grunt.template.process(banner, { data: grunt.file.readJSON('package.json') });
                 return banner + src;
             }
         },
@@ -81,7 +57,7 @@ module.exports = function(grunt) {
                 debug: false,
                 compile: './dist/flow.min.js'
             },
-            afterHook: function(src) {
+            afterHook: function (src) {
                 var result = UglifyJS.minify(src, {
                     fromString: true,
                     warnings: true,
@@ -92,12 +68,25 @@ module.exports = function(grunt) {
                 });
                 var code = result.code;
                 var banner = grunt.file.read('./banner.js');
-                banner = grunt.template.process(banner, {data: grunt.file.readJSON('package.json')});
+                banner = grunt.template.process(banner, { data: grunt.file.readJSON('package.json') });
                 return banner + code;
             }
         }
     });
 
+    grunt.loadNpmTasks('grunt-mocha');
+    grunt.config.set('mocha', {
+        test: {
+            src: ['tests/index.html'],
+            options: {
+                growlOnSuccess: false,
+                reporter: 'Min',
+                run: true
+            }
+        }
+    });
+
+    grunt.loadNpmTasks('grunt-contrib-jshint');
     grunt.config.set('jshint', {
         options: {
             jshintrc: true,
@@ -120,16 +109,11 @@ module.exports = function(grunt) {
         }
     });
 
-    grunt.config.set('mocha', {
-        test: {
-            src: ['tests/index.html'],
-            options: {
-                growlOnSuccess: false,
-                reporter: 'Min',
-                run: true
-            }
-        }
+    grunt.loadNpmTasks('grunt-jscs');
+    grunt.config.set('jscs', {
+        src: ['src/*.js', 'src/**/*.js', 'tests/specs/*.js', 'tests/specs/**/*.js']
     });
+
 
     grunt.config.set('incrementVersion', {
         options: {
@@ -137,8 +121,28 @@ module.exports = function(grunt) {
         }
     });
 
+    //loq --first-parent --no-merges
+    grunt.loadNpmTasks('grunt-conventional-changelog');
+    grunt.config.set('changelog', {
+        options: {
+            dest: 'dist/CHANGELOG.md',
+            editor: 'sublime -w'
+        }
+    });
+
+    grunt.loadNpmTasks('grunt-bump');
+    grunt.config.set('bump', {
+        options: {
+            files: ['package.json', 'bower.json'],
+            pushTo: 'master',
+            updateConfigs: ['pkg'],
+            commitFiles: ['-a']
+
+        }
+    });
+
     grunt.registerTask('test', ['mocha']);
-    grunt.registerTask('validate', ['jshint:all', 'test']);
+    grunt.registerTask('validate', ['test', 'jshint:all', 'jscs']);
     grunt.registerTask('generateDev', ['browserify2:edge']);
     grunt.registerTask('production', ['generateDev', 'browserify2:mapped', 'browserify2:min']);
 
@@ -146,7 +150,7 @@ module.exports = function(grunt) {
         var files = this.options().files;
         grunt.file.expand(files).forEach(function (file) {
             var mainFile = grunt.file.read(file);
-            var updated = grunt.template.process(mainFile, {data: grunt.file.readJSON('package.json')});
+            var updated = grunt.template.process(mainFile, { data: grunt.file.readJSON('package.json') });
             grunt.file.write(file, updated);
         });
     });

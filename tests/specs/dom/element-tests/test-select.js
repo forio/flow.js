@@ -1,4 +1,4 @@
-module.exports = (function() {
+module.exports = (function () {
     'use strict';
     var utils = require('../../../testing-utils');
     var domManager = require('../../../../src/dom/dom-manager');
@@ -32,10 +32,10 @@ module.exports = (function() {
                 var $node = utils.initWithNode(nodes, domManager, channel);
 
                 $node.val(1).trigger('change');
-                channel.variables.publish.should.have.been.calledWith({stuff: 1});
+                channel.variables.publish.should.have.been.calledWith({ stuff: 1 });
 
                 $node.val('B').trigger('change');
-                channel.variables.publish.should.have.been.calledWith({stuff: 'B'});
+                channel.variables.publish.should.have.been.calledWith({ stuff: 'B' });
             });
         });
         describe('updaters', function () {
@@ -48,7 +48,7 @@ module.exports = (function() {
                     '</select>'
                 ].join('');
                 var $node = utils.initWithNode(nodes, domManager);
-                $node.trigger('update.f.model', {stuff: 1});
+                $node.trigger('update.f.model', { stuff: 1 });
 
                 $node.val().should.equal('1');
             });
@@ -61,7 +61,7 @@ module.exports = (function() {
                     '</select>'
                 ].join('');
                 var $node = utils.initWithNode(nodes, domManager);
-                $node.trigger('update.f.model', {stuff: true});
+                $node.trigger('update.f.model', { stuff: true });
                 should.not.exist($node.val());
             });
         });

@@ -2,8 +2,8 @@
 var config = require('../../config');
 var BaseView = require('./default-node');
 
-module.exports = BaseView.extend( {
-    propertyHandlers : [],
+module.exports = BaseView.extend({
+    propertyHandlers: [],
 
     uiChangeEvent: 'change',
     getUIValue: function () {
@@ -27,4 +27,4 @@ module.exports = BaseView.extend( {
 
         BaseView.prototype.initialize.apply(this, arguments);
     }
-}, {selector: 'input, select'});
+}, { selector: 'input, select' });

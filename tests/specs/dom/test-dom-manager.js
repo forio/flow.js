@@ -1,4 +1,4 @@
-(function() {
+(function () {
     'use strict';
 
     var utils = require('../../testing-utils');
@@ -98,22 +98,21 @@
                     var toggle = function (value) {
                         if (value !== 1) {
                             this.css('display', 'none');
-                        }
-                        else {
+                        } else {
                             this.css('display', 'block');
                         }
                     };
                     var toggleSpy = sinon.spy(toggle);
                     domManager.attributes.register('toggle', '*', toggleSpy);
                     var $node = utils.initWithNode('<input type="text" data-f-toggle="shouldIHide" data-f-bind="stuff"/>', domManager);
-                    $node.trigger('update.f.model', {shouldIHide: 1});
+                    $node.trigger('update.f.model', { shouldIHide: 1 });
 
                     toggleSpy.should.have.been.called;
                     toggleSpy.should.have.been.calledWith(1);
 
                     $node.css('display').should.equal('block');
 
-                    $node.trigger('update.f.model', {shouldIHide: 0});
+                    $node.trigger('update.f.model', { shouldIHide: 0 });
                     $node.css('display').should.equal('none');
                 });
             });

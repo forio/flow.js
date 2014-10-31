@@ -12,6 +12,6 @@ module.exports = {
     },
     titleCase: function (val) {
         val = val + '';
-        return val.replace(/\w\S*/g, function(txt){return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();});
+        return val.replace(/\w\S*/g, function (txt) {return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();});
     }
 };

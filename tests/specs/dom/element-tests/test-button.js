@@ -1,4 +1,4 @@
-module.exports = (function() {
+module.exports = (function () {
     'use strict';
     var utils = require('../../../testing-utils');
     var domManager = require('../../../../src/dom/dom-manager');
@@ -11,7 +11,7 @@ module.exports = (function() {
 
                 $node.trigger('click');
 
-                channel.operations.publish.should.have.been.calledWith({operations: [{ name: 'step', params: [1] }], serial: true});
+                channel.operations.publish.should.have.been.calledWith({ operations: [{ name: 'step', params: [1] }], serial: true });
             });
 
             it('should call operation with double params', function () {
@@ -20,7 +20,7 @@ module.exports = (function() {
 
                 $node.trigger('click');
 
-                channel.operations.publish.should.have.been.calledWith({operations: [{ name: 'step', params: [1, 2] }], serial: true});
+                channel.operations.publish.should.have.been.calledWith({ operations: [{ name: 'step', params: [1, 2] }], serial: true });
             });
 
             it('should call operation with double params with no, string ', function () {
@@ -29,7 +29,7 @@ module.exports = (function() {
 
                 $node.trigger('click');
 
-                channel.operations.publish.should.have.been.calledWith({operations: [{ name: 'step', params: [1, 'abc'] }], serial: true});
+                channel.operations.publish.should.have.been.calledWith({ operations: [{ name: 'step', params: [1, 'abc'] }], serial: true });
             });
 
             it('should call operation with double params with no, implied string ', function () {
@@ -38,7 +38,7 @@ module.exports = (function() {
 
                 $node.trigger('click');
 
-                channel.operations.publish.should.have.been.calledWith({operations: [{ name: 'step', params: [1, '2'] }], serial: true});
+                channel.operations.publish.should.have.been.calledWith({ operations: [{ name: 'step', params: [1, '2'] }], serial: true });
             });
 
             it('should call operations in serial with |', function () {
@@ -47,19 +47,19 @@ module.exports = (function() {
 
                 $node.trigger('click');
 
-                channel.operations.publish.should.have.been.calledWith({operations: [
+                channel.operations.publish.should.have.been.calledWith({ operations: [
                     { name: 'step', params: [1, 2] },
-                    {name: 'reset', params: []}], serial: true});
+                    { name: 'reset', params: [] }], serial: true });
             });
 
             //FIXME: this work won't yet
             it.skip('should call operation with double params with no, object', function () {
                 var channel = utils.createDummyChannel();
-                var $node = utils.initWithNode('<input type="button" data-f-on-click="step(1, {\"hello\": \'world\'})"/>', domManager, channel);
+                var $node = utils.initWithNode('<input type="button" data-f-on-click="step(1, {\"hello\": \'world\' })"/>', domManager, channel);
 
                 $node.trigger('click');
 
-                channel.operations.publish.should.have.been.calledWith({operations: [{ name: 'step', params: [1, {hello: 'world'}] }], serial: true});
+                channel.operations.publish.should.have.been.calledWith({ operations: [{ name: 'step', params: [1, { hello: 'world' }] }], serial: true });
             });
         });
     });

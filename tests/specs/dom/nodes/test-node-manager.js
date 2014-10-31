@@ -1,5 +1,5 @@
 'use strict';
-(function() {
+(function () {
     var nm = require('../../../../src/dom/nodes/node-manager');
 
     describe('Node Manager', function () {
@@ -18,7 +18,7 @@
         });
         describe('#getHandler', function () {
             it('matches default handlers', function () {
-                nm.register(':radio', {handle: $.noop});
+                nm.register(':radio', { handle: $.noop });
 
                 var def = nm.getHandler(':radio');
                 def.should.exist;
@@ -31,7 +31,7 @@
                 var conv = nm.getHandler('input, select');
                 should.not.exist(conv.apple);
 
-                nm.replace('input, select', {apple: 'sauce', handle: $.noop});
+                nm.replace('input, select', { apple: 'sauce', handle: $.noop });
 
                 conv = nm.getHandler('input, select');
                 conv.apple.should.equal('sauce');

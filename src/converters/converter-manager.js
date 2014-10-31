@@ -5,22 +5,19 @@
 var normalize = function (alias, converter) {
     var ret = [];
     //nomalize('flip', fn)
-    if (_.isFunction(converter)) {
+    if (_.isfunction (converter)) {
         ret.push({
             alias: alias,
             convert: converter
         });
-    }
-    else if (_.isObject(converter) && converter.convert) {
+    } else if (_.isObject(converter) && converter.convert) {
         converter.alias = alias;
         ret.push(converter);
-    }
-    else if(_.isObject(alias)) {
+    } else if (_.isObject(alias)) {
         //normalize({alias: 'flip', convert: function})
         if (alias.convert) {
             ret.push(alias);
-        }
-        else {
+        } else {
             // normalize({flip: fun})
             $.each(alias, function (key, val) {
                 ret.push({
@@ -36,11 +33,9 @@ var normalize = function (alias, converter) {
 var matchConverter = function (alias, converter) {
     if (_.isString(converter.alias)) {
         return alias === converter.alias;
-    }
-    else if (_.isFunction(converter.alias)) {
+    } else if (_.isfunction (converter.alias)) {
         return converter.alias(alias);
-    }
-    else if (_.isRegex(converter.alias)) {
+    } else if (_.isRegex(converter.alias)) {
         return converter.alias.match(alias);
     }
     return false;
@@ -62,9 +57,9 @@ var converterManager = {
         this.list = normalized.concat(this.list);
     },
 
-    replace: function(alias, converter) {
+    replace: function (alias, converter) {
         var index;
-        _.each(this.list, function(currentConverter, i) {
+        _.each(this.list, function (currentConverter, i) {
             if (matchConverter(alias, currentConverter)) {
                 index = i;
                 return false;
@@ -88,7 +83,7 @@ var converterManager = {
 
         var currentValue = value;
         var me = this;
-        _.each(list, function (converterName){
+        _.each(list, function (converterName) {
             var converter = me.getConverter(converterName);
             currentValue = converter.convert(currentValue, converterName);
         });
@@ -110,7 +105,7 @@ var converterManager = {
 
         var currentValue = value;
         var me = this;
-        _.each(list, function (converterName){
+        _.each(list, function (converterName) {
             var converter = me.getConverter(converterName);
             if (converter.parse) {
                 currentValue = converter.parse(currentValue, converterName);
@@ -129,7 +124,7 @@ var defaultconverters = [
     require('./numberformat-converter'),
 ];
 
-$.each(defaultconverters.reverse(), function(index, converter) {
+$.each(defaultconverters.reverse(), function (index, converter) {
     converterManager.register(converter);
 });
 

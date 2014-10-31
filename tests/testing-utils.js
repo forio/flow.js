@@ -20,7 +20,7 @@ var utils = {
         return dummyChannelManager;
     },
 
-    initWithNode: function(str, domManager, channel) {
+    initWithNode: function (str, domManager, channel) {
         if (!channel) {
             channel = utils.createDummyChannel();
         }
@@ -36,7 +36,7 @@ var utils = {
         if (!spy) {
             spy = sinon.spy();
         }
-        $node.on('update.f.ui', function(){
+        $node.on('update.f.ui', function () {
             //sinon doesn't like passing the spy directly with 'this' as context.
             spy.apply(null, arguments);
         });

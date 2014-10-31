@@ -2,11 +2,11 @@
 
 var BaseView = require('./base');
 
-module.exports = BaseView.extend( {
-    propertyHandlers : [
+module.exports = BaseView.extend({
+    propertyHandlers: [
 
     ],
 
     initialize: function () {
     }
-}, {selector: '*'});
+}, { selector: '*' });
