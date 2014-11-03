@@ -1,7 +1,7 @@
 'use strict';
 
 var normalize = function (selector, handler) {
-    if (_.isfunction (handler)) {
+    if (_.isFunction(handler)) {
         handler = {
             handle: handler
         };

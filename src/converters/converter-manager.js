@@ -5,7 +5,7 @@
 var normalize = function (alias, converter) {
     var ret = [];
     //nomalize('flip', fn)
-    if (_.isfunction (converter)) {
+    if (_.isFunction(converter)) {
         ret.push({
             alias: alias,
             convert: converter
@@ -33,7 +33,7 @@ var normalize = function (alias, converter) {
 var matchConverter = function (alias, converter) {
     if (_.isString(converter.alias)) {
         return alias === converter.alias;
-    } else if (_.isfunction (converter.alias)) {
+    } else if (_.isFunction(converter.alias)) {
         return converter.alias(alias);
     } else if (_.isRegex(converter.alias)) {
         return converter.alias.match(alias);
