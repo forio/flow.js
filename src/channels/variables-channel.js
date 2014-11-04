@@ -39,10 +39,11 @@ module.exports = function (options) {
                             //For arrayed things get the last one for interpolation purposes
                             thisval = thisval[thisval.length - 1];
                         }
+                        //TODO: Regex to match spaces and so on
                         outerVariable = outerVariable.replace('<' + innerVariable + '>', thisval);
                     }
                 });
-                interpolationMap[outerVariable] = originalOuter;
+                interpolationMap[outerVariable] = (interpolationMap[outerVariable]) ? [originalOuter].concat(interpolationMap[outerVariable]) : originalOuter;
                 interpolated[outerVariable] = val;
             }
         });
@@ -68,7 +69,7 @@ module.exports = function (options) {
         refresh: function () {
             var me = this;
 
-            var getVariables = function (vars, ip) {
+            var getVariables = function (vars, interpolationMap) {
                 return vs.query(vars).then(function (variables) {
                     // console.log('Got variables', variables);
                     _.each(variables, function (value, vname) {
@@ -80,9 +81,14 @@ module.exports = function (options) {
                                 //is anyone lisenting for this value explicitly
                                 me.notify(vname, value);
                             }
-                            if (ip && ip[vname] && me.variableListenerMap[ip[vname]]) {
-                                //is anyone lisenting for the interpolated value
-                                me.notify(ip[vname], value);
+                            if (interpolationMap && interpolationMap[vname]) {
+                                var map = [].concat(interpolationMap[vname]);
+                                _.each(map, function (interpolatedName) {
+                                    if (me.variableListenerMap[interpolatedName]) {
+                                        //is anyone lisenting for the interpolated value
+                                        me.notify(interpolatedName, value);
+                                    }
+                                });
                             }
                         }
                     });
