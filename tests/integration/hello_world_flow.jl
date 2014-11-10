@@ -1,4 +1,4 @@
-# last update 10/7/2014
+# last update 11/3/2014
 
 
 module hello_world_flow
@@ -7,7 +7,7 @@ using Epicenter
 
 
 #variables
-export sampleString, sampleInt, sampleTruthy, sampleBool, sampleFalseBool, salesMgr, sales, sample2d, sample64
+export sampleString, sampleInt, sampleTruthy, anotherTruthy, sampleBool, sampleFalseBool, salesMgr, sales, sample2d, sample64
 
 #operations
 export saveAll, changeString, addToInt, changeTruthy, changeBool, changeObjSubfield, appendToArray, updateFirstArrayVal, subtractFromArray, resetInt, updateTwoArrayVals, addTo64
@@ -24,6 +24,7 @@ end
 sampleString = "hello world flow"
 sampleInt = 10
 sampleTruthy = 1
+anotherTruthy = 1
 sampleBool = true
 sampleFalseBool = false
 salesMgr = mgrType()

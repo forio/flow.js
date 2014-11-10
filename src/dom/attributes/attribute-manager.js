@@ -19,7 +19,7 @@ var normalize = function (attributeMatcher, nodeMatcher, handler) {
     if (!nodeMatcher) {
         nodeMatcher = '*';
     }
-    if (_.isfunction (handler)) {
+    if (_.isFunction(handler)) {
         handler = {
             handle: handler
         };
@@ -37,7 +37,7 @@ var matchAttr = function (matchExpr, attr, $el) {
 
     if (_.isString(matchExpr)) {
         attrMatch = (matchExpr === '*' || (matchExpr.toLowerCase() === attr.toLowerCase()));
-    } else if (_.isfunction (matchExpr)) {
+    } else if (_.isFunction(matchExpr)) {
         //TODO: remove element selectors from attributes
         attrMatch = matchExpr(attr, $el);
     } else if (_.isRegExp(matchExpr)) {

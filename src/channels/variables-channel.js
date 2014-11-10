@@ -23,26 +23,29 @@ module.exports = function (options) {
         return inner;
     };
 
-    //Replaces stubbed out keynames in variablestointerpolate with their corresponding calues
+    //Replaces stubbed out keynames in variablestointerpolate with their corresponding values
     var interpolate = function (variablesToInterpolate, values) {
         var interpolationMap = {};
         var interpolated = {};
 
         _.each(variablesToInterpolate, function (val, outerVariable) {
             var inner = getInnerVariables(outerVariable);
-            var originalOuter = outerVariable;
-            $.each(inner, function (index, innerVariable) {
-                var thisval = values[innerVariable];
-                if (thisval !== null && thisval !== undefined) {
-                    if (_.isArray(thisval)) {
-                        //For arrayed things get the last one for interpolation purposes
-                        thisval = thisval[thisval.length - 1];
+            if (inner && inner.length) {
+                var originalOuter = outerVariable;
+                $.each(inner, function (index, innerVariable) {
+                    var thisval = values[innerVariable];
+                    if (thisval !== null && thisval !== undefined) {
+                        if (_.isArray(thisval)) {
+                            //For arrayed things get the last one for interpolation purposes
+                            thisval = thisval[thisval.length - 1];
+                        }
+                        //TODO: Regex to match spaces and so on
+                        outerVariable = outerVariable.replace('<' + innerVariable + '>', thisval);
                     }
-                    outerVariable = outerVariable.replace('<' + innerVariable + '>', thisval);
-                }
-            });
-            interpolationMap[outerVariable] = originalOuter;
-            interpolated[outerVariable] = val;
+                });
+                interpolationMap[outerVariable] = (interpolationMap[outerVariable]) ? [originalOuter].concat(interpolationMap[outerVariable]) : originalOuter;
+                interpolated[outerVariable] = val;
+            }
         });
 
         return {
@@ -66,7 +69,7 @@ module.exports = function (options) {
         refresh: function () {
             var me = this;
 
-            var getVariables = function (vars, ip) {
+            var getVariables = function (vars, interpolationMap) {
                 return vs.query(vars).then(function (variables) {
                     // console.log('Got variables', variables);
                     _.each(variables, function (value, vname) {
@@ -74,8 +77,19 @@ module.exports = function (options) {
                         if (!isEqual(value, oldValue)) {
                             currentData[vname] = value;
 
-                            var vn = (ip && ip[vname]) ? ip[vname] : vname;
-                            me.notify(vn, value);
+                            if (me.variableListenerMap[vname]) {
+                                //is anyone lisenting for this value explicitly
+                                me.notify(vname, value);
+                            }
+                            if (interpolationMap && interpolationMap[vname]) {
+                                var map = [].concat(interpolationMap[vname]);
+                                _.each(map, function (interpolatedName) {
+                                    if (me.variableListenerMap[interpolatedName]) {
+                                        //is anyone lisenting for the interpolated value
+                                        me.notify(interpolatedName, value);
+                                    }
+                                });
+                            }
                         }
                     });
                 });

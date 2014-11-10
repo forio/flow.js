@@ -124,6 +124,20 @@
                     interpolationMap.should.eql({ 'price[1,2,2]': 'price[<time>,2,<times>]', 'sales[1]': 'sales[<time>]' });
                 });
 
+                it('should handle mixed items', function () {
+                    var result = core.interpolate({ 'price[<time>]': 1, 'price[1]': 1 }, { time: 1 });
+                    var interpolationMap = result.interpolationMap;
+
+                    interpolationMap.should.eql({ 'price[1]': 'price[<time>]' });
+                });
+
+                it('should handle a variable being interpolated with different items with same value', function () {
+                    var result = core.interpolate({ 'price[<time>]': 1, 'price[1]': 1, 'price[<stuff>]': 1 }, { time: 1, stuff: 1 });
+                    var interpolationMap = result.interpolationMap;
+
+                    interpolationMap.should.eql({ 'price[1]': ['price[<stuff>]', 'price[<time>]'] });
+                });
+
             });
 
         });

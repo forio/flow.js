@@ -68,6 +68,19 @@
 </tr>
 
 <tr>
+    <td> Multiple Interpolations</td>
+    <td>
+
+    </td>
+    <td>
+        input sales[anotherTruthy]: <input type="text" data-f-bind="sales[<anotherTruthy>]" />
+        and sales[1] is <span data-f-bind="sales[1]"></span>
+        and sales[sampletruthy] is <span data-f-bind="sales[<sampleTruthy>]"></span>
+    </td>
+
+</tr>
+
+<tr>
     <td>display_update</td>
     <td>data-f-bind array indexed by expression</td>
     <td>desired: data-f-bind="sales[&lt;sampleTruthy&gt;+1]" <!--span: <span data-f-bind="sales[<sampleTruthy>+1]"></span><br>input: <input type="text" data-f-bind="sales[<sampleTruthy>+1]" />--></td>
@@ -368,17 +381,19 @@ displayed as 150%.</td>
     <script src="../../vendor/jquery/dist/jquery.min.js"></script>
     <script src="../../vendor/lodash/dist/lodash.js"></script>
     <script src="../../vendor/epicenter-js-libs/dist/epicenter.min.js"></script>
-    <script src="../../dist/flow.js"></script>
+    <script src="../../dist/flow-edge.js"></script>
     <script>
 
     Flow.initialize({
         channel: {
-            model: 'hello_world_flow.jl',
-            //account: 'first-team',
-            account: 'mjones',
-            project: 'hello-world-flow',
-            //server: {host: 'api.epicenter-stable.foriodev.com'}
-            server: {host: 'api.forio.com'}
+           run: {
+                model: 'hello_world_flow.jl',
+                //account: 'first-team',
+                account: 'mjones',
+                project: 'hello-world-flow',
+                //server: {host: 'api.epicenter-stable.foriodev.com'}
+                server: {host: 'api.forio.com'}
+           }
         }
     });
 
