@@ -3,7 +3,13 @@ var config = require('../config');
 
 module.exports = function (options) {
     var defaults = {
-        refresh: {
+        silent: {
+            /**
+             * Exclude the following variables from triggering a refresh operation
+             * @type {Array} List of variable names to exclude
+             */
+            on: [],
+
             /**
              * Determine when to trigger the refresh event. This is useful if you know before-hand which variables need to update dependencies in the UI
              * @type {String | Array }  Possible options are
@@ -12,13 +18,7 @@ module.exports = function (options) {
              *       - variableName: trigger a refresh when specific variable changes
              *       - [variableNames..]: trigger a refresh when the following variables change
              */
-            on: 'all',
-
-            /**
-             * Exclude the following variables from triggering a refresh operation
-             * @type {Array} List of variable names to exclude
-             */
-            except: []
+            except: 'all'
         }
     };
 
@@ -92,15 +92,15 @@ module.exports = function (options) {
          */
         refresh: function (changeObj) {
             var me = this;
-            var refreshOn = channelOptions.refresh.on;
-            var refreshExcept = channelOptions.refresh.except;
+            var silenceBlacklist = channelOptions.silent.except;
+            var silenceWhitelist = channelOptions.silent.on;
 
             var changedVariables = _.keys(changeObj);
-            var isStringRefreshMatch = changedVariables && _.isString(refreshOn) && _.contains(changedVariables, refreshOn);
-            var isArrayRefreshMatch = changedVariables && _.isArray(refreshOn) && _.intersection(refreshOn, changedVariables).length >= 1;
+            var isStringRefreshMatch = changedVariables && _.isString(silenceBlacklist) && _.contains(changedVariables, silenceBlacklist);
+            var isArrayRefreshMatch = changedVariables && _.isArray(silenceBlacklist) && _.intersection(silenceBlacklist, changedVariables).length >= 1;
 
-            var isExcluded = changeObj && (_.intersection(refreshExcept, changedVariables).length === changedVariables.length);
-            var needsRefresh = (!isExcluded && (refreshOn === 'all' || isStringRefreshMatch || isArrayRefreshMatch));
+            var isExcluded = changeObj && (_.intersection(silenceWhitelist, changedVariables).length === changedVariables.length);
+            var needsRefresh = (!isExcluded && (silenceBlacklist === 'all' || isStringRefreshMatch || isArrayRefreshMatch));
 
             if (!needsRefresh) {
                 return $.Deferred().resolve().promise();

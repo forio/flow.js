@@ -245,8 +245,8 @@
             });
 
             it('should not call refresh if exceptions are noted', function () {
-                var channel = new Channel({ vent: {}, run: mockRun, refresh: {
-                    except: ['price']
+                var channel = new Channel({ vent: {}, run: mockRun, silent: {
+                    on: ['price']
                 }  });
                 var modelChangeSpy = sinon.spy();
 
@@ -258,9 +258,9 @@
 
                 modelChangeSpy.should.not.have.been.called;
             });
-            it('should treat \'on\' as a whitelist for single-item arrays', function () {
-                var channel = new Channel({ vent: {}, run: mockRun, refresh: {
-                    on: ['price']
+            it('should treat \'except\' as a whitelist for single-item arrays', function () {
+                var channel = new Channel({ vent: {}, run: mockRun, silent: {
+                    except: ['price']
                 } });
                 var modelChangeSpy = sinon.spy();
 
@@ -275,9 +275,9 @@
                 channel.publish({ stuff: 24 });
                 modelChangeSpy.should.have.been.calledOnce;
             });
-            it('should treat \'on\' as a whitelist for multi-item arrays', function () {
-                var channel = new Channel({ vent: {}, run: mockRun, refresh: {
-                    on: ['price', 'somethingelse']
+            it('should treat \'except\' as a whitelist for multi-item arrays', function () {
+                var channel = new Channel({ vent: {}, run: mockRun, silent: {
+                    except: ['price', 'somethingelse']
                 } });
                 var modelChangeSpy = sinon.spy();
 
@@ -292,9 +292,9 @@
                 channel.publish({ stuff: 24 });
                 modelChangeSpy.should.have.been.calledOnce;
             });
-            it('should treat \'on\' as a whitelist for strings', function () {
-                var channel = new Channel({ vent: {}, run: mockRun, refresh: {
-                    on: 'price'
+            it('should treat \'except\' as a whitelist for strings', function () {
+                var channel = new Channel({ vent: {}, run: mockRun, silent: {
+                    except: 'price'
                 } });
                 var modelChangeSpy = sinon.spy();
 
