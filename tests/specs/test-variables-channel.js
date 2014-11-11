@@ -79,6 +79,13 @@
 
                     interpolated.should.eql({ 'price[<time>,2,<step>]': 1 });
                 });
+
+                it('should not interpolate if there\'s nothing to interpolate', function () {
+                    var result = core.interpolate({ 'price[<time>]': 1, 'sales[1]': 1, 'cost[<x>]': 2 }, { time: 1 });
+                    var interpolated = result.interpolated;
+
+                    interpolated.should.eql({ 'price[1]': 1, 'sales[1]': 1, 'cost[<x>]': 2 });
+                });
                 it('should not do substrings', function () {
                     var result = core.interpolate({ 'price[<time>,2,<times>]': 1 }, { time: 1, times: 2 });
                     var interpolated = result.interpolated;
@@ -111,6 +118,13 @@
 
                     interpolationMap.should.eql({ 'price[<time>,2,<step>]': 'price[<time>,2,<step>]' });
                 });
+                it('should not interpolate if there\'s nothing to interpolate', function () {
+                    var result = core.interpolate({ 'price[<time>]': 1, 'sales[1]': 1, 'cost[<x>]': 2 }, { time: 1 });
+                    var interpolationMap = result.interpolationMap;
+
+                    interpolationMap.should.eql({ 'price[1]': 'price[<time>]', 'cost[<x>]': 'cost[<x>]' });
+                });
+
                 it('should not do substrings', function () {
                     var result = core.interpolate({ 'price[<time>,2,<times>]': 1 }, { time: 1, times: 2 });
                     var interpolationMap = result.interpolationMap;

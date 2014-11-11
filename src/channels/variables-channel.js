@@ -25,7 +25,9 @@ module.exports = function (options) {
 
     //Replaces stubbed out keynames in variablestointerpolate with their corresponding values
     var interpolate = function (variablesToInterpolate, values) {
+        //{price[1]: price[<time>]}
         var interpolationMap = {};
+        //{price[1]: 1}
         var interpolated = {};
 
         _.each(variablesToInterpolate, function (val, outerVariable) {
@@ -44,8 +46,8 @@ module.exports = function (options) {
                     }
                 });
                 interpolationMap[outerVariable] = (interpolationMap[outerVariable]) ? [originalOuter].concat(interpolationMap[outerVariable]) : originalOuter;
-                interpolated[outerVariable] = val;
             }
+            interpolated[outerVariable] = val;
         });
 
         return {
