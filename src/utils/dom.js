@@ -12,25 +12,24 @@ module.exports = {
         }
     },
 
-    generateVariableAttrMap: function (el) {
-        var variableAttributeMap = {};
-        //NOTE: looping through attributes instead of .data because .data automatically camelcases properties and make it hard to retrvieve
-        $(el.attributes).each(function (index, nodeMap) {
-            var attr = nodeMap.nodeName;
-            var attrVal = nodeMap.nodeValue;
+    getConvertersList: function ($el, property) {
+        var attrConverters = $el.data('f-converters-' + property);
 
-            var wantedPrefix = 'data-f-';
-            if (attr.indexOf(wantedPrefix) === 0) {
-                attr = attr.replace(wantedPrefix, '');
-
-                if (attrVal.indexOf(',') !== -1) {
-                    //TODO
-                    // triggerers = triggerers.concat(val.split(','));
-                } else {
-                    variableAttributeMap[attrVal] = attr;
+        if (!attrConverters && property === 'bind') {
+            //Only bind inherits from parents
+            attrConverters = $el.data('f-convert');
+            if (!attrConverters) {
+                var $parentEl = $el.closest('[data-f-convert]');
+                if ($parentEl) {
+                    attrConverters = $parentEl.data('f-convert');
                 }
             }
-        });
-        return variableAttributeMap;
+
+            if (attrConverters) {
+                attrConverters = attrConverters.split('|');
+            }
+        }
+
+        return attrConverters;
     }
 };
