@@ -3,23 +3,15 @@ var config = require('../config');
 
 module.exports = function (options) {
     var defaults = {
-        silent: {
-            /**
-             * Exclude the following variables from triggering a refresh operation
-             * @type {Array} List of variable names to exclude
-             */
-            on: [],
-
-            /**
-             * Determine when to trigger the refresh event. This is useful if you know before-hand which variables need to update dependencies in the UI
-             * @type {String | Array }  Possible options are
-             *       - all: Trigger a refresh when any variable changes
-             *       - none: Never trigger a refresh
-             *       - variableName: trigger a refresh when specific variable changes
-             *       - [variableNames..]: trigger a refresh when the following variables change
-             */
-            except: 'all'
-        }
+        /**
+         * Determine when to the rest of the variables
+         * @type {String | Array | Object} Possible options are
+         *       - true: never trigger any updates. Use this if you know your model state won't change based on other variables
+         *       - false: always trigger updates.
+         *       - [array of variable names]: Variables in this array will not trigger updates, everything else will
+         *       - { except: [array of variables]}: Variables in this array will trigger updates, nothing else will
+         */
+        silent: false
     };
 
     var channelOptions = $.extend(true, {}, defaults, options);
@@ -92,17 +84,18 @@ module.exports = function (options) {
          */
         refresh: function (changeObj) {
             var me = this;
-            var silenceBlacklist = channelOptions.silent.except;
-            var silenceWhitelist = channelOptions.silent.on;
-
+            var silent = channelOptions.silent;
             var changedVariables = _.keys(changeObj);
-            var isStringRefreshMatch = changedVariables && _.isString(silenceBlacklist) && _.contains(changedVariables, silenceBlacklist);
-            var isArrayRefreshMatch = changedVariables && _.isArray(silenceBlacklist) && _.intersection(silenceBlacklist, changedVariables).length >= 1;
 
-            var isExcluded = changeObj && (_.intersection(silenceWhitelist, changedVariables).length === changedVariables.length);
-            var needsRefresh = (!isExcluded && (silenceBlacklist === 'all' || isStringRefreshMatch || isArrayRefreshMatch));
+            var shouldSilence = silent === true;
+            if (_.isArray(silent) && changedVariables) {
+                shouldSilence = _.intersection(silent, changedVariables).length >= 1;
+            }
+            if ($.isPlainObject(silent) && changedVariables) {
+                shouldSilence = _.intersection(silent.except, changedVariables).length !== changedVariables.length;
+            }
 
-            if (!needsRefresh) {
+            if (shouldSilence) {
                 return $.Deferred().resolve().promise();
             }
 

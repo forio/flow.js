@@ -254,10 +254,8 @@
                 modelChangeSpy.should.have.been.called;
             });
 
-            it('should not call refresh if exceptions are noted', function () {
-                var channel = new Channel({ vent: {}, run: mockRun, silent: {
-                    on: ['price']
-                }  });
+            it('should not call refresh if silent is true', function () {
+                var channel = new Channel({ vent: {}, run: mockRun, silent: true });
                 var modelChangeSpy = sinon.spy();
 
                 var $sink = $({ a:1 });
@@ -265,55 +263,56 @@
                 $sink.on('update.f.model', modelChangeSpy);
 
                 channel.publish({ price: 24 });
-
                 modelChangeSpy.should.not.have.been.called;
             });
-            it('should treat \'except\' as a whitelist for single-item arrays', function () {
+
+            it('should call refresh if silent is false', function () {
+                var channel = new Channel({ vent: {}, run: mockRun, silent: false });
+
+                var modelChangeSpy = sinon.spy();
+
+                var $sink = $({ a:1 });
+                channel.subscribe('price', $sink);
+                $sink.on('update.f.model', modelChangeSpy);
+
+                channel.publish({ price: 24 });
+                modelChangeSpy.should.have.been.calledOnce;
+
+                channel.publish({ stuff: 24 });
+                modelChangeSpy.should.have.been.calledTwice;
+
+            });
+
+            it('should not call refresh if silent whitelist match', function () {
+                var channel = new Channel({ vent: {}, run: mockRun, silent: ['price'] });
+
+                var modelChangeSpy = sinon.spy();
+
+                var $sink = $({ a:1 });
+                channel.subscribe('price', $sink);
+                channel.subscribe('stuff', $sink);
+                $sink.on('update.f.model', modelChangeSpy);
+
+                channel.publish({ price: 24 });
+                modelChangeSpy.should.not.have.been.called;
+
+                channel.publish({ stuff: 24 });
+                modelChangeSpy.should.have.been.calledOnce;
+            });
+
+            it('should call refresh if silent blacklist match', function () {
                 var channel = new Channel({ vent: {}, run: mockRun, silent: {
                     except: ['price']
                 } });
+
                 var modelChangeSpy = sinon.spy();
 
                 var $sink = $({ a:1 });
                 channel.subscribe('price', $sink);
+                channel.subscribe('stuff', $sink);
                 $sink.on('update.f.model', modelChangeSpy);
 
                 channel.publish({ price: 24 });
-
-                modelChangeSpy.should.have.been.calledOnce;
-
-                channel.publish({ stuff: 24 });
-                modelChangeSpy.should.have.been.calledOnce;
-            });
-            it('should treat \'except\' as a whitelist for multi-item arrays', function () {
-                var channel = new Channel({ vent: {}, run: mockRun, silent: {
-                    except: ['price', 'somethingelse']
-                } });
-                var modelChangeSpy = sinon.spy();
-
-                var $sink = $({ a:1 });
-                channel.subscribe('price', $sink);
-                $sink.on('update.f.model', modelChangeSpy);
-
-                channel.publish({ price: 24 });
-
-                modelChangeSpy.should.have.been.calledOnce;
-
-                channel.publish({ stuff: 24 });
-                modelChangeSpy.should.have.been.calledOnce;
-            });
-            it('should treat \'except\' as a whitelist for strings', function () {
-                var channel = new Channel({ vent: {}, run: mockRun, silent: {
-                    except: 'price'
-                } });
-                var modelChangeSpy = sinon.spy();
-
-                var $sink = $({ a:1 });
-                channel.subscribe('price', $sink);
-                $sink.on('update.f.model', modelChangeSpy);
-
-                channel.publish({ price: 24 });
-
                 modelChangeSpy.should.have.been.calledOnce;
 
                 channel.publish({ stuff: 24 });
