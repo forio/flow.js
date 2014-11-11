@@ -2,7 +2,7 @@
 
 module.exports = function (options) {
     var defaults = {
-        refresh: {
+        silent: {
             /**
              * Determine when to trigger the refresh event. This is useful if you know before-hand which operations need to update dependencies in the UI
              * @type {String | Array }  Possible options are
@@ -11,14 +11,13 @@ module.exports = function (options) {
              *       - operationName: trigger a refresh on a specific operation
              *       - [operations..]: trigger a refresh when the following opertions happen
              */
-
-            on: 'all',
+            except: 'all',
 
             /**
              * Exclude the following variables from triggering a refresh operation
              * @type {Array} List of variable names to exclude
              */
-            except: []
+            on: []
         }
     };
 
@@ -41,14 +40,14 @@ module.exports = function (options) {
          * @param  {*} response  response from the operation
          */
         refresh: function (executedOpns,response) {
-            var refreshOn = channelOptions.refresh.on;
-            var refreshExcept = [].concat(channelOptions.refresh.except);
+            var silenceBlacklist = channelOptions.silent.except;
+            var silenceWhitelist = [].concat(channelOptions.silent.on);
 
-            var isStringRefreshMatch = executedOpns && _.isString(refreshOn) && _.contains(executedOpns, refreshOn);
-            var isArrayRefreshMatch = executedOpns && _.isArray(refreshOn) && _.intersection(refreshOn, executedOpns).length >= 1;
+            var isStringRefreshMatch = executedOpns && _.isString(silenceBlacklist) && _.contains(executedOpns, silenceBlacklist);
+            var isArrayRefreshMatch = executedOpns && _.isArray(silenceBlacklist) && _.intersection(silenceBlacklist, executedOpns).length >= 1;
 
-            var isExcluded = executedOpns && (_.intersection(refreshExcept, executedOpns).length === executedOpns.length);
-            var needsRefresh = (!isExcluded && (refreshOn === 'all' || isStringRefreshMatch || isArrayRefreshMatch));
+            var isExcluded = executedOpns && (_.intersection(silenceWhitelist, executedOpns).length === executedOpns.length);
+            var needsRefresh = (!isExcluded && (silenceBlacklist === 'all' || isStringRefreshMatch || isArrayRefreshMatch));
 
             if (needsRefresh) {
                 $(vent).trigger('dirty', { opn: executedOpns, response: response });
