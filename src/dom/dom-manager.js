@@ -138,17 +138,18 @@ module.exports = (function () {
                         val = converterManager.parse(val, attrConverters);
                         parsedData[key] = parseUtils.toImplicitType(val);
 
+                        $el.trigger('f.convert', { bind: val });
                     });
+
                     channel.variables.publish(parsedData);
                 });
 
+                // data = {proptoupdate: value}
                 $root.off('f.convert').on('f.convert', function (evt, data) {
-                    // data = {proptoupdate: value}
                     var $el = $(evt.target);
 
                     _.each(data, function (val, prop) {
                         prop = prop.toLowerCase();
-
                         var attrConverters =  domUtils.getConvertersList($el, prop);
                         var handler = attrManager.getHandler(prop, $el);
                         var convertedValue = converterManager.convert(val, attrConverters);

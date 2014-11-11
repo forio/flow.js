@@ -107,7 +107,7 @@ module.exports = (function () {
                     it('should pass through values for converters without a parser', function () {
                         domManager.converters.register('flip', {
                             convert: function (val) {
-                                return val.split('').reverse().join('');
+                                return (val + '').split('').reverse().join('');
                             }
                         });
 
