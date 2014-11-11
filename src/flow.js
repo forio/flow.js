@@ -6,7 +6,7 @@ var Channel = require('./channels/run-channel');
 module.exports = {
     dom: domManager,
 
-    initialize: function(config) {
+    initialize: function (config) {
         var model = $('body').data('f-model');
 
         var defaults = {
@@ -25,8 +25,7 @@ module.exports = {
         var options = $.extend(true, {}, defaults, config);
         if (config && config.channel && (config.channel instanceof Channel)) {
             this.channel = config.channel;
-        }
-        else {
+        } else {
             this.channel = new Channel(options.channel);
         }
 

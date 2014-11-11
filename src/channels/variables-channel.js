@@ -1,7 +1,7 @@
 'use strict';
 var config = require('../config');
 
-module.exports = function(options) {
+module.exports = function (options) {
     var defaults = {
         refresh: {
             /**
@@ -29,38 +29,41 @@ module.exports = function(options) {
     var currentData = {};
 
     //TODO: actually compare objects and so on
-    var isEqual = function(a, b) {
+    var isEqual = function (a, b) {
         return false;
     };
 
-    var getInnerVariables = function(str) {
+    var getInnerVariables = function (str) {
         var inner = str.match(/<(.*?)>/g);
-        inner = _.map(inner, function(val){
+        inner = _.map(inner, function (val) {
             return val.substring(1, val.length - 1);
         });
         return inner;
     };
 
-    //Replaces stubbed out keynames in variablestointerpolate with their corresponding calues
-    var interpolate = function(variablesToInterpolate, values) {
+    //Replaces stubbed out keynames in variablestointerpolate with their corresponding values
+    var interpolate = function (variablesToInterpolate, values) {
         var interpolationMap = {};
         var interpolated = {};
 
         _.each(variablesToInterpolate, function (val, outerVariable) {
             var inner = getInnerVariables(outerVariable);
-            var originalOuter = outerVariable;
-            $.each(inner, function(index, innerVariable) {
-                var thisval = values[innerVariable];
-                if (thisval !== null && thisval !== undefined) {
-                    if (_.isArray(thisval)) {
-                        //For arrayed things get the last one for interpolation purposes
-                        thisval = thisval[thisval.length -1];
+            if (inner && inner.length) {
+                var originalOuter = outerVariable;
+                $.each(inner, function (index, innerVariable) {
+                    var thisval = values[innerVariable];
+                    if (thisval !== null && thisval !== undefined) {
+                        if (_.isArray(thisval)) {
+                            //For arrayed things get the last one for interpolation purposes
+                            thisval = thisval[thisval.length - 1];
+                        }
+                        //TODO: Regex to match spaces and so on
+                        outerVariable = outerVariable.replace('<' + innerVariable + '>', thisval);
                     }
-                    outerVariable = outerVariable.replace('<' + innerVariable + '>', thisval);
-                }
-            });
-            interpolationMap[outerVariable] = originalOuter;
-            interpolated[outerVariable] = val;
+                });
+                interpolationMap[outerVariable] = (interpolationMap[outerVariable]) ? [originalOuter].concat(interpolationMap[outerVariable]) : originalOuter;
+                interpolated[outerVariable] = val;
+            }
         });
 
         return {
@@ -85,10 +88,10 @@ module.exports = function(options) {
          * Check and notify all listeners
          * @param  {Object} changeObj key-value pairs of changed variables
          */
-        refresh: function(changeObj) {
+        refresh: function (changeObj) {
             var me = this;
             var refreshOn = channelOptions.refresh.on;
-            var refreshExcept= channelOptions.refresh.except;
+            var refreshExcept = channelOptions.refresh.except;
 
             var changedVariables = _.keys(changeObj);
             var isStringRefreshMatch = changedVariables && _.isString(refreshOn) && _.contains(changedVariables, refreshOn);
@@ -101,16 +104,27 @@ module.exports = function(options) {
                 return $.Deferred().resolve().promise();
             }
 
-            var getVariables = function(vars, ip) {
-                return vs.query(vars).then(function(variables) {
+            var getVariables = function (vars, interpolationMap) {
+                return vs.query(vars).then(function (variables) {
                     // console.log('Got variables', variables);
-                    _.each(variables, function(value, vname) {
+                    _.each(variables, function (value, vname) {
                         var oldValue = currentData[vname];
                         if (!isEqual(value, oldValue)) {
                             currentData[vname] = value;
 
-                            var vn = (ip && ip[vname]) ? ip[vname] : vname;
-                            me.notify(vn, value);
+                            if (me.variableListenerMap[vname]) {
+                                //is anyone lisenting for this value explicitly
+                                me.notify(vname, value);
+                            }
+                            if (interpolationMap && interpolationMap[vname]) {
+                                var map = [].concat(interpolationMap[vname]);
+                                _.each(map, function (interpolatedName) {
+                                    if (me.variableListenerMap[interpolatedName]) {
+                                        //is anyone lisenting for the interpolated value
+                                        me.notify(interpolatedName, value);
+                                    }
+                                });
+                            }
                         }
                     });
                 });
@@ -123,8 +137,7 @@ module.exports = function(options) {
                     var outer = _.keys(ip.interpolated);
                     getVariables(outer, ip.interpolationMap);
                 });
-            }
-            else {
+            } else {
                 return getVariables(_.keys(me.variableListenerMap));
             }
 
@@ -135,12 +148,12 @@ module.exports = function(options) {
             var params = {};
             params[variable] = value;
 
-            _.each(listeners, function (listener){
+            _.each(listeners, function (listener) {
                 listener.target.trigger(config.events.react, params);
             });
         },
 
-        publish: function(variable, value) {
+        publish: function (variable, value) {
             // console.log('publish', arguments);
             // TODO: check if interpolated
             var attrs;
@@ -158,7 +171,7 @@ module.exports = function(options) {
                 });
         },
 
-        subscribe: function(properties, subscriber) {
+        subscribe: function (properties, subscriber) {
             // console.log('subscribing', properties, subscriber);
 
             properties = [].concat(properties);
@@ -175,7 +188,7 @@ module.exports = function(options) {
             };
 
             var me = this;
-            $.each(properties, function(index, property) {
+            $.each(properties, function (index, property) {
                 var inner = getInnerVariables(property);
                 if (inner.length) {
                     me.innerVariablesList = me.innerVariablesList.concat(inner);
@@ -190,12 +203,12 @@ module.exports = function(options) {
 
             return id;
         },
-        unsubscribe: function(variable, token) {
-            this.variableListenerMap[variable] = _.reject(this.variableListenerMap[variable], function(subs) {
+        unsubscribe: function (variable, token) {
+            this.variableListenerMap[variable] = _.reject(this.variableListenerMap[variable], function (subs) {
                 return subs.id === token;
             });
         },
-        unsubscribeAll: function() {
+        unsubscribeAll: function () {
             this.variableListenerMap = {};
             this.innerVariablesList = [];
         }

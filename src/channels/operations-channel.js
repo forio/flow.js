@@ -1,6 +1,6 @@
 'use strict';
 
-module.exports = function(options) {
+module.exports = function (options) {
     var defaults = {
         refresh: {
             /**
@@ -40,9 +40,9 @@ module.exports = function(options) {
          * @param  {string|array} executedOpns operations which just happened
          * @param  {*} response  response from the operation
          */
-        refresh: function(executedOpns,response) {
+        refresh: function (executedOpns,response) {
             var refreshOn = channelOptions.refresh.on;
-            var refreshExcept= [].concat(channelOptions.refresh.except);
+            var refreshExcept = [].concat(channelOptions.refresh.except);
 
             var isStringRefreshMatch = executedOpns && _.isString(refreshOn) && _.contains(executedOpns, refreshOn);
             var isArrayRefreshMatch = executedOpns && _.isArray(refreshOn) && _.intersection(refreshOn, executedOpns).length >= 1;
@@ -51,7 +51,7 @@ module.exports = function(options) {
             var needsRefresh = (!isExcluded && (refreshOn === 'all' || isStringRefreshMatch || isArrayRefreshMatch));
 
             if (needsRefresh) {
-                $(vent).trigger('dirty', {opn: executedOpns, response: response});
+                $(vent).trigger('dirty', { opn: executedOpns, response: response });
             }
         },
 
@@ -61,7 +61,7 @@ module.exports = function(options) {
          * @param  {*} params (optional)   params to send to opertaion
          * @return {$promise}
          */
-        publish: function(operation, params) {
+        publish: function (operation, params) {
             var me = this;
             if (operation.operations) {
                 var fn = (operation.serial) ? run.serial : run.parallel;
@@ -69,8 +69,7 @@ module.exports = function(options) {
                         .then(function (response) {
                             me.refresh.call(me, _(operation.operations).pluck('name'), response);
                         });
-            }
-            else {
+            } else {
                 //TODO: check if interpolated
                 return run.do.apply(run, arguments)
                     .then(function (response) {
@@ -80,7 +79,7 @@ module.exports = function(options) {
             // console.log('operations publish', operation, params);
         },
 
-        subscribe: function(operations, subscriber) {
+        subscribe: function (operations, subscriber) {
             // console.log('operations subscribe', operations, subscriber);
             operations = [].concat(operations);
             //use jquery to make event sink
@@ -96,7 +95,8 @@ module.exports = function(options) {
             };
 
             var me = this;
-            $.each(operations, function(index, opn) {
+
+            $.each(operations, function (index, opn) {
                 if (!me.listenerMap[opn]) {
                     me.listenerMap[opn] = [];
                 }
@@ -105,12 +105,12 @@ module.exports = function(options) {
 
             return id;
         },
-        unsubscribe: function(operation, token) {
-            this.listenerMap[operation] = _.reject(this.listenerMap[operation], function(subs) {
+        unsubscribe: function (operation, token) {
+            this.listenerMap[operation] = _.reject(this.listenerMap[operation], function (subs) {
                 return subs.id === token;
             });
         },
-        unsubscribeAll: function() {
+        unsubscribeAll: function () {
             this.listenerMap = {};
         }
     };

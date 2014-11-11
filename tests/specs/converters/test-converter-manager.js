@@ -1,5 +1,5 @@
 'use strict';
-(function() {
+(function () {
     var cm = require('../../../src/converters/converter-manager.js');
 
     describe('Converter Manager', function () {
@@ -13,7 +13,7 @@
             it('Allows registesting object converters', function () {
                 var currentRegisterList = cm.list.length;
                 var convSpy = sinon.spy();
-                cm.register({'def': $.noop, 'ghi': convSpy});
+                cm.register({ 'def': $.noop, 'ghi': convSpy });
                 cm.list.length.should.equal(currentRegisterList + 2);
 
                 cm.convert(2, 'ghi');

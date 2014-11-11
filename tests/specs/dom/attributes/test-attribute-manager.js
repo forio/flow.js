@@ -1,5 +1,5 @@
 'use strict';
-(function() {
+(function () {
     var am = require('../../../../src/dom/attributes/attribute-manager.js');
 
     describe('Attribute Manager', function () {
@@ -17,7 +17,7 @@
         });
         describe('#getHandler', function () {
             it('matches default handlers', function () {
-                am.register('def', '*', {handle: $.noop});
+                am.register('def', '*', { handle: $.noop });
 
                 var def = am.getHandler('def', '*');
                 def.should.exist;
@@ -30,7 +30,7 @@
                 var conv = am.getHandler('class', '*');
                 should.not.exist(conv.apple);
 
-                am.replace('class', '*', {apple: 'sauce', handle: $.noop});
+                am.replace('class', '*', { apple: 'sauce', handle: $.noop });
 
                 conv = am.getHandler('class', '*');
                 conv.apple.should.equal('sauce');

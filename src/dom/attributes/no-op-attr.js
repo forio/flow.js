@@ -9,7 +9,7 @@ module.exports = {
 
     handle: $.noop,
 
-    init: function() {
+    init: function () {
         return false;
     }
 };
