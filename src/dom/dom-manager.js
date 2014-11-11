@@ -119,12 +119,10 @@ module.exports = (function () {
                     $.each(data, function (variableName, value) {
                         var propertyToUpdate = varmap[variableName.trim()];
                         if (propertyToUpdate) {
-                            var attrConverters =  domUtils.getConvertersList($el, propertyToUpdate);
-                            var convertedValue = converterManager.convert(value, attrConverters);
+                            var data = {};
+                            data[propertyToUpdate] = value;
 
-                            propertyToUpdate = propertyToUpdate.toLowerCase();
-                            var handler = attrManager.getHandler(propertyToUpdate, $el);
-                            handler.handle.call($el, convertedValue, propertyToUpdate);
+                            $el.trigger('f.convert', data);
                         }
                     });
                 });
@@ -139,8 +137,23 @@ module.exports = (function () {
                         key = key.split('|')[0].trim(); //in case the pipe formatting syntax was used
                         val = converterManager.parse(val, attrConverters);
                         parsedData[key] = parseUtils.toImplicitType(val);
+
                     });
                     channel.variables.publish(parsedData);
+                });
+
+                $root.off('f.convert').on('f.convert', function (evt, data) {
+                    // data = {proptoupdate: value}
+                    var $el = $(evt.target);
+
+                    _.each(data, function (val, prop) {
+                        prop = prop.toLowerCase();
+
+                        var attrConverters =  domUtils.getConvertersList($el, prop);
+                        var handler = attrManager.getHandler(prop, $el);
+                        var convertedValue = converterManager.convert(val, attrConverters);
+                        handler.handle.call($el, convertedValue, prop);
+                    });
                 });
 
                 $root.off('f.ui.operate').on('f.ui.operate', function (evt, data) {
