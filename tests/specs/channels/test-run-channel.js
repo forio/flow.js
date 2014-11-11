@@ -1,4 +1,4 @@
-(function() {
+(function () {
     'use strict';
 
     var Channel = require('../../../src/channels/run-channel');
@@ -23,7 +23,7 @@
                     refresh: refreshOptions
                 };
                 var c = new Channel({
-                    run: {operations: options}
+                    run: { operations: options }
                 });
                 c.operations.private.options.refresh.should.eql(refreshOptions);
             });

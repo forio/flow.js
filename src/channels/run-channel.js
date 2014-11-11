@@ -3,10 +3,18 @@
 var VarsChannel = require('./variables-channel');
 var OperationsChannel = require('./operations-channel');
 
-module.exports = function (config) {
-    if (!config) {
-        config = {};
-    }
+module.exports = function (options) {
+    var defaults = {
+        run: {
+            variables: {
+
+            },
+            operations: {
+
+            }
+        }
+    };
+    var config = $.extend(true, {}, defaults, options);
 
     var rm = new F.manager.RunManager(config);
     var rs = rm.run;
@@ -38,6 +46,6 @@ module.exports = function (config) {
     });
 
     this.run = rs;
-    this.variables = new VarsChannel({ run: rs, vent: this });
-    this.operations = new OperationsChannel({ run: rs, vent: this });
+    this.variables = new VarsChannel($.extend(true, {}, config.run.variables, { run: rs, vent: this }));
+    this.operations = new OperationsChannel($.extend(true, {}, config.run.operations, { run: rs, vent: this }));
 };
