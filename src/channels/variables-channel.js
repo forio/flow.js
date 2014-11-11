@@ -155,12 +155,20 @@ module.exports = function (options) {
             });
         },
 
-        publish: function (variable, value) {
+        /**
+         * Variable name & parameters to send variables API
+         * @param  {string | object} variable string or {variablename: value}
+         * @param  {*} value (optional)   value of variable if previous arg was a string
+         * @param {object} options Supported options: {silent: Boolean}
+         * @return {$promise}
+         */
+        publish: function (variable, value, options) {
             // console.log('publish', arguments);
             // TODO: check if interpolated
             var attrs;
             if ($.isPlainObject(variable)) {
                 attrs = variable;
+                options = value;
             } else {
                 (attrs = {})[variable] = value;
             }
@@ -169,7 +177,9 @@ module.exports = function (options) {
             var me = this;
             vs.save.call(vs, interpolated)
                 .then(function () {
-                    me.refresh.call(me, attrs);
+                    if (!options || !options.silent) {
+                        me.refresh.call(me, attrs);
+                    }
                 });
         },
 
