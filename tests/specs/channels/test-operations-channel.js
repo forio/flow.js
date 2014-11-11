@@ -1,4 +1,4 @@
-(function() {
+(function () {
     'use strict';
 
     var Channel = require('../../../src/channels/operations-channel');
@@ -12,20 +12,20 @@
                     };
         before(function () {
             server = sinon.fakeServer.create();
-            server.respondWith('PATCH',  /(.*)\/run\/(.*)\/(.*)/, function (xhr, id){
-                xhr.respond(200, { 'Content-Type': 'application/json'}, JSON.stringify({url: xhr.url}));
+            server.respondWith('PATCH',  /(.*)\/run\/(.*)\/(.*)/, function (xhr, id) {
+                xhr.respond(200, { 'Content-Type': 'application/json' }, JSON.stringify({ url: xhr.url }));
             });
-            server.respondWith('GET',  /(.*)\/run\/(.*)\/variables/, function (xhr, id){
-                xhr.respond(200, { 'Content-Type': 'application/json'}, JSON.stringify({url: xhr.url,
+            server.respondWith('GET',  /(.*)\/run\/(.*)\/variables/, function (xhr, id) {
+                xhr.respond(200, { 'Content-Type': 'application/json' }, JSON.stringify({ url: xhr.url,
                     price: 23,
                     sales: 30,
                     priceArray: [20, 30]
                 }));
             });
-            server.respondWith('GET',  /(.*)\/run\/(.*)\/operations/, function (xhr, id){
-                xhr.respond(200, { 'Content-Type': 'application/json'}, JSON.stringify(mockOperationsResponse));
+            server.respondWith('GET',  /(.*)\/run\/(.*)\/operations/, function (xhr, id) {
+                xhr.respond(200, { 'Content-Type': 'application/json' }, JSON.stringify(mockOperationsResponse));
             });
-            server.respondWith('POST',  /(.*)\/run\/(.*)\/(.*)/,  function (xhr, id){
+            server.respondWith('POST',  /(.*)\/run\/(.*)\/(.*)/,  function (xhr, id) {
                 var resp = {
                     'id': '065dfe50-d29d-4b55-a0fd-30868d7dd26c',
                     'model': 'model.vmf',
@@ -35,7 +35,7 @@
                     'lastModified': '2014-06-20T04:09:45.738Z',
                     'created': '2014-06-20T04:09:45.738Z'
                 };
-                xhr.respond(201, { 'Content-Type': 'application/json'}, JSON.stringify(resp));
+                xhr.respond(201, { 'Content-Type': 'application/json' }, JSON.stringify(resp));
             });
 
             mockRun = {
@@ -63,7 +63,7 @@
                 }
             };
 
-            channel = new Channel({vent: mockRunChannel, run: mockRun});
+            channel = new Channel({ vent: mockRunChannel, run: mockRun });
             core = channel.private;
         });
 
@@ -79,12 +79,12 @@
             });
 
             it('should publish multiple parallel values to the run service', function () {
-                channel.publish({operations: [{name: 'step', params: ['1']}], serial:false});
-                mockRun.parallel.should.have.been.calledWith([{name: 'step', params: ['1']}]);
+                channel.publish({ operations: [{ name: 'step', params: ['1'] }], serial:false });
+                mockRun.parallel.should.have.been.calledWith([{ name: 'step', params: ['1'] }]);
             });
             it('should publish multiple serial values to the run service', function () {
-                channel.publish({operations: [{name: 'step', params: ['1']}], serial:true});
-                mockRun.serial.should.have.been.calledWith([{name: 'step', params: ['1']}]);
+                channel.publish({ operations: [{ name: 'step', params: ['1'] }], serial:true });
+                mockRun.serial.should.have.been.calledWith([{ name: 'step', params: ['1'] }]);
             });
 
 
@@ -98,31 +98,65 @@
 
                 channel.refresh = originalRefresh;
             });
+
+            describe('silent:true', function () {
+                it('should not call refresh after publish as string', function () {
+                    var originalRefresh = channel.refresh;
+                    var refSpy = sinon.spy(originalRefresh);
+                    channel.refresh = refSpy;
+
+                    channel.publish('step', 1, { silent: true });
+                    refSpy.should.not.have.been.called;
+
+                    channel.refresh = originalRefresh;
+                });
+                it('should not call refresh after publish as object', function () {
+                    var originalRefresh = channel.refresh;
+                    var refSpy = sinon.spy(originalRefresh);
+                    channel.refresh = refSpy;
+
+                    channel.publish({ step: 1 }, { silent: true });
+                    refSpy.should.not.have.been.called;
+
+                    channel.refresh = originalRefresh;
+                });
+                it('should not call refresh after publish as object with operations', function () {
+                    var originalRefresh = channel.refresh;
+                    var refSpy = sinon.spy(originalRefresh);
+                    channel.refresh = refSpy;
+
+                    channel.publish({ operations: [{ name: 'step', params: ['1'] }], serial:false }, { silent: true });
+                    refSpy.should.not.have.been.called;
+
+                    channel.refresh = originalRefresh;
+                });
+
+            });
         });
 
         describe('#refresh', function () {
             var vent = $({});
 
-            afterEach(function() {
+            afterEach(function () {
                 $(vent).off('dirty');
             });
 
 
             it('should call if no rules are specified', function () {
-                var channel = new Channel({vent: vent, run: mockRun});
+                var channel = new Channel({ vent: vent, run: mockRun });
                 var spy = sinon.spy();
                 $(vent).on('dirty', spy);
 
                 channel.publish('step', 1);
 
                 spy.should.have.been.calledOnce;
-                spy.getCall(0).args[1].should.eql({opn: ['step'], response: mockOperationsResponse});
+                spy.getCall(0).args[1].should.eql({ opn: ['step'], response: mockOperationsResponse });
             });
 
             it('should not call refresh if exceptions are noted', function () {
-                var channel = new Channel({vent: vent, run: mockRun, silent: {
+                var channel = new Channel({ vent: vent, run: mockRun, silent: {
                     on: ['step']
-                }});
+                } });
                 var spy = sinon.spy();
                 $(vent).on('dirty', spy);
 
@@ -131,9 +165,9 @@
                 spy.should.not.have.been.called;
             });
             it('should treat \'except\' as a whitelist for single-item arrays', function () {
-                var channel = new Channel({vent: vent, run: mockRun, silent: {
+                var channel = new Channel({ vent: vent, run: mockRun, silent: {
                     except: ['step']
-                }});
+                } });
                 var spy = sinon.spy();
                 $(vent).on('dirty', spy);
 
@@ -144,9 +178,9 @@
                 spy.should.have.been.calledOnce;
             });
             it('should treat \'except\' as a whitelist for multi-item arrays', function () {
-               var channel = new Channel({vent: vent, run: mockRun, silent: {
+               var channel = new Channel({ vent: vent, run: mockRun, silent: {
                     except: ['step', 'somethingelse']
-                }});
+                } });
                 var spy = sinon.spy();
                 $(vent).on('dirty', spy);
 
@@ -157,9 +191,9 @@
                 spy.should.have.been.calledOnce;
             });
             it('should treat \'except\' as a whitelist for strings', function () {
-                var channel = new Channel({vent: vent, run: mockRun, silent: {
+                var channel = new Channel({ vent: vent, run: mockRun, silent: {
                      except: 'step'
-                 }});
+                 } });
                  var spy = sinon.spy();
                  $(vent).on('dirty', spy);
 
@@ -172,7 +206,7 @@
         });
 
         describe('#unsubscribeAll', function () {
-            it('should clear out state variables', function() {
+            it('should clear out state variables', function () {
                 channel.subscribe(['step'], {});
                 channel.subscribe(['reset'], {});
 
@@ -183,7 +217,7 @@
         });
 
         describe('#subscribe', function () {
-            afterEach(function() {
+            afterEach(function () {
                 channel.unsubscribeAll();
             });
             it('should update operation listeners', function () {
@@ -199,12 +233,12 @@
 
 
         describe('#unsubscribe', function () {
-            afterEach(function() {
+            afterEach(function () {
                 channel.unsubscribeAll();
             });
 
             it('should allow using a token to unsubscribe', function () {
-                var dummyObject = {a: 1};
+                var dummyObject = { a: 1 };
                 var token = channel.subscribe(['step', 'something', 'else'], dummyObject);
                 channel.listenerMap.step.length.should.equal(1);
 

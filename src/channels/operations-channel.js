@@ -39,7 +39,7 @@ module.exports = function (options) {
          * @param  {string|array} executedOpns operations which just happened
          * @param  {*} response  response from the operation
          */
-        refresh: function (executedOpns,response) {
+        refresh: function (executedOpns, response) {
             var silenceBlacklist = channelOptions.silent.except;
             var silenceWhitelist = [].concat(channelOptions.silent.on);
 
@@ -58,21 +58,27 @@ module.exports = function (options) {
          * Operation name & parameters to send to operations API
          * @param  {string | object} operation Name of Operation. If array, needs to be in {operations: [{name: opn, params:[]}], serial: boolean}] format
          * @param  {*} params (optional)   params to send to opertaion
+         * @param {option} options Supported options: {silent: Boolean}
          * @return {$promise}
          */
-        publish: function (operation, params) {
+        publish: function (operation, params, options) {
             var me = this;
-            if (operation.operations) {
+            if ($.isPlainObject(operation) && operation.operations) {
                 var fn = (operation.serial) ? run.serial : run.parallel;
                 return fn.call(run, operation.operations)
                         .then(function (response) {
-                            me.refresh.call(me, _(operation.operations).pluck('name'), response);
+                            if (!params || !params.silent) {
+                                me.refresh.call(me, _(operation.operations).pluck('name'), response);
+                            }
                         });
             } else {
                 //TODO: check if interpolated
+                var opts = ($.isPlainObject(operation)) ? params : options;
                 return run.do.apply(run, arguments)
                     .then(function (response) {
-                        me.refresh.call(me, [operation], response);
+                        if (!opts || !opts.silent) {
+                            me.refresh.call(me, [operation], response);
+                        }
                     });
             }
             // console.log('operations publish', operation, params);

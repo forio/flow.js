@@ -228,6 +228,16 @@
 
                 channel.refresh = originalRefresh;
             });
+            it('should not call refresh if silenced', function () {
+                var originalRefresh = channel.refresh;
+                var refSpy = sinon.spy(originalRefresh);
+                channel.refresh = refSpy;
+
+                channel.publish({ price: 23 }, { silent: true });
+                refSpy.should.not.have.been.called;
+
+                channel.refresh = originalRefresh;
+            });
         });
 
         describe('#refresh', function () {
