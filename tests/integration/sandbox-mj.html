@@ -688,11 +688,12 @@ displayed as 150%.
 <script src="../../vendor/epicenter-js-libs/dist/epicenter.js"></script>
 <script src="../../dist/flow-edge.js"></script>
 <script>
+    'use strict';
+    $('body').on('f.ui.operate', function () {
+        console.log(arguments);
+    });
 
-        $("body").on('f.ui.operate', function() {
-            console.log(arguments);
-        });
-    Flow.initialize({
+    var options = {
         channel: {
             strategy: 'new-if-persisted',
             run: {
@@ -701,16 +702,26 @@ displayed as 150%.
                 account: 'mjones',
                 project: 'hello-world-flow',
             //server: {host: 'api.epicenter-stable.foriodev.com'}
-                server: {host: 'api.forio.com'}
+                server: { host: 'api.forio.com' }
             }
         }
-    });
+    }
+    if (window.location.search.indexOf('silent=variables') !== -1) {
+        console.warn('Silencing variables. There should be no GET to variables API when inputs change');
+        options.channel.run.variables = { silent: true};
+    }
+    if (window.location.search.indexOf('silent=operations') !== -1) {
+        console.warn('Silencing variables. There should be no GET to variables API when inputs change');
+        options.channel.run.operations = { silent: true};
+    }
+
+    Flow.initialize(options);
 
     Flow.dom.converters.register('max', function (value) {
         return _.max(value);
     });
 
-    </script>
+</script>
 
 </body>
 
