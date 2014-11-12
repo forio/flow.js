@@ -1,7 +1,7 @@
 'use strict';
 
 var domManager = require('./dom/dom-manager');
-var Channel = require('./channels/channel-manager');
+var Channel = require('./channels/run-channel');
 
 module.exports = {
     dom: domManager,
@@ -18,7 +18,7 @@ module.exports = {
                 }
             },
             dom: {
-
+                root: 'body'
             }
         };
 
@@ -31,6 +31,6 @@ module.exports = {
 
         domManager.initialize($.extend(true, {
             channel: this.channel
-        }));
+        }, options.dom));
     }
 };

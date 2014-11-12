@@ -15,7 +15,7 @@ module.exports = BaseView.extend({
         var propName = this.$el.data(config.binderAttr);
 
         if (propName) {
-            this.$el.on(this.uiChangeEvent, function () {
+            this.$el.off(this.uiChangeEvent).on(this.uiChangeEvent, function () {
                 var val = me.getUIValue();
 
                 var params = {};
@@ -24,7 +24,6 @@ module.exports = BaseView.extend({
                 me.$el.trigger(config.events.trigger, params);
             });
         }
-
         BaseView.prototype.initialize.apply(this, arguments);
     }
 }, { selector: 'input, select' });

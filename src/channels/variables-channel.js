@@ -2,11 +2,21 @@
 var config = require('../config');
 
 module.exports = function (options) {
-    if (!options) {
-        options = {};
-    }
-    var vs = options.run.variables();
-    var vent  = options.vent;
+    var defaults = {
+        /**
+         * Determine when to update state
+         * @type {String | Array | Object} Possible options are
+         *       - true: never trigger any updates. Use this if you know your model state won't change based on other variables
+         *       - false: always trigger updates.
+         *       - [array of variable names]: Variables in this array will not trigger updates, everything else will
+         *       - { except: [array of variables]}: Variables in this array will trigger updates, nothing else will
+         */
+        silent: false
+    };
+
+    var channelOptions = $.extend(true, {}, defaults, options);
+    var vs = channelOptions.run.variables();
+    var vent = channelOptions.vent;
 
     var currentData = {};
 
@@ -57,19 +67,37 @@ module.exports = function (options) {
     };
 
     var publicAPI = {
-        //for testing, to be removed later
+        //for testing
         private: {
             getInnerVariables: getInnerVariables,
-            interpolate: interpolate
+            interpolate: interpolate,
+            options: channelOptions
         },
 
         //Interpolated variables which need to be resolved before the outer ones can be
         innerVariablesList: [],
         variableListenerMap: {},
 
-        //Check for updates
-        refresh: function () {
+        /**
+         * Check and notify all listeners
+         * @param  {Object} changeObj key-value pairs of changed variables
+         */
+        refresh: function (changeObj, force) {
             var me = this;
+            var silent = channelOptions.silent;
+            var changedVariables = _.keys(changeObj);
+
+            var shouldSilence = silent === true;
+            if (_.isArray(silent) && changedVariables) {
+                shouldSilence = _.intersection(silent, changedVariables).length >= 1;
+            }
+            if ($.isPlainObject(silent) && changedVariables) {
+                shouldSilence = _.intersection(silent.except, changedVariables).length !== changedVariables.length;
+            }
+
+            if (shouldSilence && force !== true) {
+                return $.Deferred().resolve().promise();
+            }
 
             var getVariables = function (vars, interpolationMap) {
                 return vs.query(vars).then(function (variables) {
@@ -120,12 +148,20 @@ module.exports = function (options) {
             });
         },
 
-        publish: function (variable, value) {
+        /**
+         * Variable name & parameters to send variables API
+         * @param  {string | object} variable string or {variablename: value}
+         * @param  {*} value (optional)   value of variable if previous arg was a string
+         * @param {object} options Supported options: {silent: Boolean}
+         * @return {$promise}
+         */
+        publish: function (variable, value, options) {
             // console.log('publish', arguments);
             // TODO: check if interpolated
             var attrs;
             if ($.isPlainObject(variable)) {
                 attrs = variable;
+                options = value;
             } else {
                 (attrs = {})[variable] = value;
             }
@@ -134,7 +170,9 @@ module.exports = function (options) {
             var me = this;
             vs.save.call(vs, interpolated)
                 .then(function () {
-                    me.refresh.call(me);
+                    if (!options || !options.silent) {
+                        me.refresh.call(me, attrs);
+                    }
                 });
         },
 
@@ -171,7 +209,7 @@ module.exports = function (options) {
             return id;
         },
         unsubscribe: function (variable, token) {
-            this.variableListenerMap = _.reject(this.variableListenerMap, function (subs) {
+            this.variableListenerMap[variable] = _.reject(this.variableListenerMap[variable], function (subs) {
                 return subs.id === token;
             });
         },
@@ -184,6 +222,6 @@ module.exports = function (options) {
     $.extend(this, publicAPI);
     var me = this;
     $(vent).on('dirty', function () {
-        me.refresh.apply(me, arguments);
+        me.refresh.call(me, null, true);
     });
 };

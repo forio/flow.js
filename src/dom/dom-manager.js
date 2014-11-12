@@ -2,11 +2,12 @@ module.exports = (function () {
     'use strict';
     var config = require('../config');
 
-    var nodeManager = require('./nodes/node-manager.js');
-    var attrManager = require('./attributes/attribute-manager.js');
-    var converterManager = require('../converters/converter-manager.js');
+    var nodeManager = require('./nodes/node-manager');
+    var attrManager = require('./attributes/attribute-manager');
+    var converterManager = require('../converters/converter-manager');
 
     var parseUtils = require('../utils/parse-utils');
+    var domUtils = require('../utils/dom');
 
     //Jquery selector to return everything which has a f- property set
     $.expr[':'][config.prefix] = function (obj) {
@@ -31,7 +32,7 @@ module.exports = (function () {
         converters: converterManager,
         //utils for testing
         private: {
-
+            matchedElements: []
         },
 
         initialize: function (options) {
@@ -109,6 +110,7 @@ module.exports = (function () {
 
                 //Attach listeners
                 //TODO: split initialize into multiple sub events, at least Add & then attach handlers
+                // Listen for changes to event and publish to api
                 $root.off(config.events.react).on(config.events.react, function (evt, data) {
                     // console.log(evt.target, data, "root on");
                     var $el = $(evt.target);
@@ -117,27 +119,10 @@ module.exports = (function () {
                     $.each(data, function (variableName, value) {
                         var propertyToUpdate = varmap[variableName.trim()];
                         if (propertyToUpdate) {
-                            //f-converters-* is already set while parsing the varmap, as an array to boot
-                            var attrConverters = $el.data('f-converters-' + propertyToUpdate);
+                            var data = {};
+                            data[propertyToUpdate] = value;
 
-                            if (!attrConverters && propertyToUpdate === 'bind') {
-                                attrConverters = $el.data('f-convert');
-                                if (!attrConverters) {
-                                    var $parentEl = $el.closest('[data-f-convert]');
-                                    if ($parentEl) {
-                                        attrConverters = $parentEl.data('f-convert');
-                                    }
-                                }
-
-                                if (attrConverters) {
-                                    attrConverters = attrConverters.split('|');
-                                }
-                            }
-                            var convertedValue = converterManager.convert(value, attrConverters);
-
-                            propertyToUpdate = propertyToUpdate.toLowerCase();
-                            var handler = attrManager.getHandler(propertyToUpdate, $el);
-                            handler.handle.call($el, convertedValue, propertyToUpdate);
+                            $el.trigger('f.convert', data);
                         }
                     });
                 });
@@ -146,28 +131,30 @@ module.exports = (function () {
                     var parsedData = {}; //if not all subsequent listeners will get the modified data
 
                     var $el = $(evt.target);
-
-                    //f-converters-* is already set while parsing the varmap, as an array to boot
-                    var attrConverters = $el.data('f-converters-bind');
-                    if (!attrConverters) {
-                        attrConverters = $el.data('f-convert');
-                        if (!attrConverters) {
-                            var $parentEl = $el.closest('[data-f-convert]');
-                            if ($parentEl) {
-                                attrConverters = $parentEl.data('f-convert');
-                            }
-                        }
-                        if (attrConverters) {
-                            attrConverters = attrConverters.split('|');
-                        }
-                    }
+                    var attrConverters =  domUtils.getConvertersList($el, 'bind');
 
                     _.each(data, function (val, key) {
                         key = key.split('|')[0].trim(); //in case the pipe formatting syntax was used
                         val = converterManager.parse(val, attrConverters);
                         parsedData[key] = parseUtils.toImplicitType(val);
+
+                        $el.trigger('f.convert', { bind: val });
                     });
+
                     channel.variables.publish(parsedData);
+                });
+
+                // data = {proptoupdate: value}
+                $root.off('f.convert').on('f.convert', function (evt, data) {
+                    var $el = $(evt.target);
+
+                    _.each(data, function (val, prop) {
+                        prop = prop.toLowerCase();
+                        var attrConverters =  domUtils.getConvertersList($el, prop);
+                        var handler = attrManager.getHandler(prop, $el);
+                        var convertedValue = converterManager.convert(val, attrConverters);
+                        handler.handle.call($el, convertedValue, prop);
+                    });
                 });
 
                 $root.off('f.ui.operate').on('f.ui.operate', function (evt, data) {
