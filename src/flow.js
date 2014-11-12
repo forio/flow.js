@@ -18,7 +18,7 @@ module.exports = {
                 }
             },
             dom: {
-
+                root: 'body'
             }
         };
 
@@ -31,6 +31,6 @@ module.exports = {
 
         domManager.initialize($.extend(true, {
             channel: this.channel
-        }));
+        }, options.dom));
     }
 };
