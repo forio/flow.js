@@ -4,7 +4,7 @@ var config = require('../config');
 module.exports = function (options) {
     var defaults = {
         /**
-         * Determine when to the rest of the variables
+         * Determine when to update state
          * @type {String | Array | Object} Possible options are
          *       - true: never trigger any updates. Use this if you know your model state won't change based on other variables
          *       - false: always trigger updates.

@@ -153,15 +153,31 @@
                 spy.getCall(0).args[1].should.eql({ opn: ['step'], response: mockOperationsResponse });
             });
 
-            it('should not call refresh if exceptions are noted', function () {
-                var channel = new Channel({ vent: vent, run: mockRun, silent: {
-                    on: ['step']
-                } });
+
+            it('should not call refresh if silent is true', function () {
+                var channel = new Channel({ vent: vent, run: mockRun, silent: true });
                 var spy = sinon.spy();
                 $(vent).on('dirty', spy);
 
                 channel.publish('step', 1);
+                spy.should.not.have.been.called;
+            });
 
+            it('should call refresh if silent is true', function () {
+                var channel = new Channel({ vent: vent, run: mockRun, silent: false });
+                var spy = sinon.spy();
+                $(vent).on('dirty', spy);
+
+                channel.publish('step', 1);
+                spy.should.have.been.calledOnce;
+            });
+
+            it('should not call refresh if exceptions are noted', function () {
+                var channel = new Channel({ vent: vent, run: mockRun, silent: ['step'] });
+                var spy = sinon.spy();
+                $(vent).on('dirty', spy);
+
+                channel.publish('step', 1);
                 spy.should.not.have.been.called;
             });
             it('should treat \'except\' as a whitelist for single-item arrays', function () {
@@ -177,32 +193,6 @@
                 channel.publish('reset');
                 spy.should.have.been.calledOnce;
             });
-            it('should treat \'except\' as a whitelist for multi-item arrays', function () {
-               var channel = new Channel({ vent: vent, run: mockRun, silent: {
-                    except: ['step', 'somethingelse']
-                } });
-                var spy = sinon.spy();
-                $(vent).on('dirty', spy);
-
-                channel.publish('step', 1);
-                spy.should.have.been.calledOnce;
-
-                channel.publish('reset');
-                spy.should.have.been.calledOnce;
-            });
-            it('should treat \'except\' as a whitelist for strings', function () {
-                var channel = new Channel({ vent: vent, run: mockRun, silent: {
-                     except: 'step'
-                 } });
-                 var spy = sinon.spy();
-                 $(vent).on('dirty', spy);
-
-                 channel.publish('step', 1);
-                 spy.should.have.been.calledOnce;
-
-                 channel.publish('reset');
-                 spy.should.have.been.calledOnce;
-             });
         });
 
         describe('#unsubscribeAll', function () {

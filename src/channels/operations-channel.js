@@ -2,23 +2,15 @@
 
 module.exports = function (options) {
     var defaults = {
-        silent: {
-            /**
-             * Determine when to trigger the refresh event. This is useful if you know before-hand which operations need to update dependencies in the UI
-             * @type {String | Array }  Possible options are
-             *       - all: Trigger a refresh on any operation
-             *       - none: Never trigger a refresh
-             *       - operationName: trigger a refresh on a specific operation
-             *       - [operations..]: trigger a refresh when the following opertions happen
-             */
-            except: 'all',
-
-            /**
-             * Exclude the following variables from triggering a refresh operation
-             * @type {Array} List of variable names to exclude
-             */
-            on: []
-        }
+        /**
+         * Determine when to update state
+         * @type {String | Array | Object} Possible options are
+         *       - true: never trigger any updates. Use this if you know your model state won't change based on operations
+         *       - false: always trigger updates.
+         *       - [array of variable names]: Variables in this array will not trigger updates, everything else will
+         *       - { except: [array of operations]}: Variables in this array will trigger updates, nothing else will
+         */
+        silent: false
     };
 
     var channelOptions = $.extend(true, {}, defaults, options);
@@ -40,16 +32,17 @@ module.exports = function (options) {
          * @param  {*} response  response from the operation
          */
         refresh: function (executedOpns, response) {
-            var silenceBlacklist = channelOptions.silent.except;
-            var silenceWhitelist = [].concat(channelOptions.silent.on);
+            var silent = channelOptions.silent;
 
-            var isStringRefreshMatch = executedOpns && _.isString(silenceBlacklist) && _.contains(executedOpns, silenceBlacklist);
-            var isArrayRefreshMatch = executedOpns && _.isArray(silenceBlacklist) && _.intersection(silenceBlacklist, executedOpns).length >= 1;
+            var shouldSilence = silent === true;
+            if (_.isArray(silent) && executedOpns) {
+                shouldSilence = _.intersection(silent, executedOpns).length >= 1;
+            }
+            if ($.isPlainObject(silent) && executedOpns) {
+                shouldSilence = _.intersection(silent.except, executedOpns).length !== executedOpns.length;
+            }
 
-            var isExcluded = executedOpns && (_.intersection(silenceWhitelist, executedOpns).length === executedOpns.length);
-            var needsRefresh = (!isExcluded && (silenceBlacklist === 'all' || isStringRefreshMatch || isArrayRefreshMatch));
-
-            if (needsRefresh) {
+            if (!shouldSilence) {
                 $(vent).trigger('dirty', { opn: executedOpns, response: response });
             }
         },
