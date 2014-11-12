@@ -11,3 +11,5 @@ require('./specs/utils/test-parse-utils');
 require('./specs/channels/test-run-channel');
 require('./specs/channels/test-variables-channel');
 require('./specs/channels/test-operations-channel');
+
+require('./specs/test-flow');
