@@ -7,6 +7,19 @@
             on: 'stuff',
             except: ['otherStuff']
         };
+
+        var server;
+        before(function () {
+            server = sinon.fakeServer.create();
+            server.respondWith(/(.*)\/run\/(.*)\/(.*)/, function (xhr, id) {
+                xhr.respond(200, { 'Content-Type': 'application/json' }, JSON.stringify({ url: xhr.url }));
+            });
+        });
+
+        after(function () {
+            server.restore();
+        });
+
         describe('options', function () {
 
             it('should pass options to the variables service', function () {
