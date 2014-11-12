@@ -30,8 +30,9 @@ module.exports = function (options) {
          * Triggers update on sibling variables channel
          * @param  {string|array} executedOpns operations which just happened
          * @param  {*} response  response from the operation
+         * @param  {boolean} force  ignore all silence options and force refresh
          */
-        refresh: function (executedOpns, response) {
+        refresh: function (executedOpns, response, force) {
             var silent = channelOptions.silent;
 
             var shouldSilence = silent === true;
@@ -42,7 +43,7 @@ module.exports = function (options) {
                 shouldSilence = _.intersection(silent.except, executedOpns).length !== executedOpns.length;
             }
 
-            if (!shouldSilence) {
+            if (!shouldSilence || force === true) {
                 $(vent).trigger('dirty', { opn: executedOpns, response: response });
             }
         },

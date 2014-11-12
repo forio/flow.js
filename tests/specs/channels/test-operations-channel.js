@@ -180,6 +180,19 @@
                 channel.publish('step', 1);
                 spy.should.not.have.been.called;
             });
+
+            it('should refresh when the force flag is sent regardless of options', function () {
+                var channel = new Channel({ vent: vent, run: mockRun, silent: ['step'] });
+                var spy = sinon.spy();
+                $(vent).on('dirty', spy);
+
+                channel.publish('step', 1);
+                spy.should.not.have.been.called;
+
+                channel.refresh(['step'], null, true);
+                spy.should.have.been.calledOnce;
+            });
+
             it('should treat \'except\' as a whitelist for single-item arrays', function () {
                 var channel = new Channel({ vent: vent, run: mockRun, silent: {
                     except: ['step']

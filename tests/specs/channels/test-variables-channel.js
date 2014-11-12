@@ -266,6 +266,22 @@
                 modelChangeSpy.should.not.have.been.called;
             });
 
+            it('should call refresh if forced', function () {
+                var channel = new Channel({ vent: {}, run: mockRun, silent: true });
+                var modelChangeSpy = sinon.spy();
+
+                var $sink = $({ a:1 });
+                channel.subscribe('price', $sink);
+                $sink.on('update.f.model', modelChangeSpy);
+
+                channel.publish({ price: 24 });
+                modelChangeSpy.should.not.have.been.called;
+
+                channel.refresh({ price: 23 }, true);
+                modelChangeSpy.should.have.been.calledOnce;
+            });
+
+
             it('should call refresh if silent is false', function () {
                 var channel = new Channel({ vent: {}, run: mockRun, silent: false });
 

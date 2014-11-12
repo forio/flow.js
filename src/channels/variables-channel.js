@@ -82,7 +82,7 @@ module.exports = function (options) {
          * Check and notify all listeners
          * @param  {Object} changeObj key-value pairs of changed variables
          */
-        refresh: function (changeObj) {
+        refresh: function (changeObj, force) {
             var me = this;
             var silent = channelOptions.silent;
             var changedVariables = _.keys(changeObj);
@@ -95,7 +95,7 @@ module.exports = function (options) {
                 shouldSilence = _.intersection(silent.except, changedVariables).length !== changedVariables.length;
             }
 
-            if (shouldSilence) {
+            if (shouldSilence && force !== true) {
                 return $.Deferred().resolve().promise();
             }
 
@@ -222,6 +222,6 @@ module.exports = function (options) {
     $.extend(this, publicAPI);
     var me = this;
     $(vent).on('dirty', function () {
-        me.refresh.call(me);
+        me.refresh.call(me, null, true);
     });
 };
