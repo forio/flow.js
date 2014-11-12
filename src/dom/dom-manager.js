@@ -32,7 +32,7 @@ module.exports = (function () {
         converters: converterManager,
         //utils for testing
         private: {
-
+            matchedElements: []
         },
 
         initialize: function (options) {
