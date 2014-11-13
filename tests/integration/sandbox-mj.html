@@ -388,10 +388,11 @@ displayed as 150%.</td>
 <tr>
     <td>regression testing: issue #15</td>
     <td>When data-f-value is used instead of data-f-bind, data-f-convert is ignored</td>
-    <td>sampleString in upperCase, using data-f-bind <span data-f-bind="sampleString | upperCase"></span><br>
-        sampleString in upperCase, using data-f-value and data-f-convert <input data-f-value="sampleString" data-f-convert="upperCase"></input>
+    <td>sampleString in upperCase, using data-f-bind and | <span data-f-bind="sampleString | upperCase"></span><br>
+        sampleString in upperCase, using data-f-bind and data-f-convert <span data-f-bind="sampleString" data-f-convert="upperCase"></span><br>
+        sampleString in upperCase, using data-f-value and | <input data-f-value="sampleString | upperCase"></input>
     </td>
-    <td class="fail">fail in 0.7.0, see <a href="https://github.com/forio/flow.js/issues/15"></a></td>
+    <td class="pass">pass in 0.7.0</td>
 </tr>
 
 </table>
