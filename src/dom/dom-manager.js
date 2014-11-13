@@ -109,24 +109,23 @@ module.exports = (function () {
                 });
 
                 //Attach listeners
-                //TODO: split initialize into multiple sub events, at least Add & then attach handlers
-                // Listen for changes to event and publish to api
+                // Listen for changes from api and update ui
                 $root.off(config.events.react).on(config.events.react, function (evt, data) {
                     // console.log(evt.target, data, "root on");
                     var $el = $(evt.target);
                     var varmap = $el.data('variable-attr-map');
 
+                    var convertible = {};
                     $.each(data, function (variableName, value) {
                         var propertyToUpdate = varmap[variableName.trim()];
                         if (propertyToUpdate) {
-                            var data = {};
-                            data[propertyToUpdate] = value;
-
-                            $el.trigger('f.convert', data);
+                            convertible[propertyToUpdate] = value;
                         }
                     });
+                    $el.trigger('f.convert', convertible);
                 });
 
+                // Listen for changes to ui and publish to api
                 $root.off(config.events.trigger).on(config.events.trigger, function (evt, data) {
                     var parsedData = {}; //if not all subsequent listeners will get the modified data
 
@@ -147,14 +146,19 @@ module.exports = (function () {
                 // data = {proptoupdate: value}
                 $root.off('f.convert').on('f.convert', function (evt, data) {
                     var $el = $(evt.target);
-
-                    _.each(data, function (val, prop) {
+                    var convert = function (val, prop) {
                         prop = prop.toLowerCase();
                         var attrConverters =  domUtils.getConvertersList($el, prop);
                         var handler = attrManager.getHandler(prop, $el);
                         var convertedValue = converterManager.convert(val, attrConverters);
                         handler.handle.call($el, convertedValue, prop);
-                    });
+                    };
+
+                    if ($.isPlainObject(data)) {
+                        _.each(data, convert);
+                    } else {
+                        convert(data, 'bind');
+                    }
                 });
 
                 $root.off('f.ui.operate').on('f.ui.operate', function (evt, data) {
