@@ -1,3 +1,40 @@
+<a name="0.7"></a>
+## 0.7 (2014-10-17)
+
+Flow.js now integrates with the Run Manager from the <a href="https://github.com/forio/epicenter-js-libs">Epicenter JS Libs </a>
+
+#### Breaking Change
+Documentation for the Run Manager itself is pending, but the immediate *breaking change* is the syntax for Flow.js initialization.
+
+Before:
+
+```javascript
+Flow.initialize({
+    channel: {
+        account: 'bond',
+        project: 'topsecret'
+    }
+});
+```
+
+Now:
+
+```javascript
+Flow.initialize({
+    channel: {
+        strategy: 'new-if-persisted',
+        run: {
+            account: 'bond',
+            project: 'topsecret'
+        }
+    }
+});
+```
+
+The channel options have now been moved into a 'run' key. You can pass in <a href="https://forio.com/epicenter/docs/public/api_adapters/generated/run-api-service/"> any parameter the Run Service takes </a> here. There is also a top-level 'strategy' field [Documentation forthcoming]
+
+You should not see a noticeable difference in behavior if you're already using flow.js with an existing model - you'll get a new run each time you refresh. But now you can change that! Passing in a 'new-if-persisted' will re-use your existing run each time you refresh.
+
 <a name="0.6.4"></a>
 ## 0.6.4 (2014-10-13)
 

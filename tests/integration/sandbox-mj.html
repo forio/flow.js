@@ -668,15 +668,12 @@ displayed as 150%.
             When data-f-value is used instead of data-f-bind, data-f-convert is ignored
         </td>
         <td>
-            sampleString in upperCase, using data-f-bind
-            <span data-f-bind="sampleString | upperCase"></span>
-            <br>
-            sampleString in upperCase, using data-f-value and data-f-convert
-            <input data-f-value="sampleString" data-f-convert="upperCase"/>
+            sampleString in upperCase, using data-f-bind and | <span data-f-bind="sampleString | upperCase"></span> <br>
+            sampleString in upperCase, using data-f-bind and data-f-convert <span data-f-bind="sampleString" data-f-convert="upperCase"></span><br>
+            sampleString in upperCase, using data-f-value and | <input data-f-value="sampleString | upperCase"/>
         </td>
-        <td class="fail">
-            fail in 0.7.0, see
-            <a href="https://github.com/forio/flow.js/issues/15"></a>
+        <td class="pass">
+            pass in 0.7.0
         </td>
     </tr>
 
@@ -704,14 +701,14 @@ displayed as 150%.
                 server: { host: 'api.forio.com' }
             }
         }
-    }
+    };
     if (window.location.search.indexOf('silent=variables') !== -1) {
         console.warn('Silencing variables. There should be no GET to variables API when inputs change');
-        options.channel.run.variables = { silent: true};
+        options.channel.run.variables = { silent: true };
     }
     if (window.location.search.indexOf('silent=operations') !== -1) {
         console.warn('Silencing variables. There should be no GET to variables API when inputs change');
-        options.channel.run.operations = { silent: true};
+        options.channel.run.operations = { silent: true };
     }
 
     Flow.initialize(options);
