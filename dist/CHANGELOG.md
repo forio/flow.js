@@ -1,3 +1,81 @@
+<a name="0.8.0"></a>
+## 0.8.0 (2014-11-13)
+
+#### New features
+
+Flow.js now includes a 'silent mode' to allow more granular control over when UI updates happen. This can be controlled through the following ways
+
+###### Silencing Channels
+
+Each channel now takes in a 'silent' flag. For e.g.,
+
+```javascript
+Flow.initialize({
+   channel: {
+        run: {
+            variables: {
+                silent: true
+            }
+        }
+   }
+});
+```
+The value for `silent` can be one of a few different formats
+
+- `silent: true` Never update the UI based on changes on this channel
+- `silent: false` Always update the UI for *any* changes on this channel (Default behavior)
+- `silent: ['price', 'sales']` Don't update the UI if `price` or `sales` change, but update on everything else. This is helpful if you know changing `price` or `sales` won't impact anything else in the UI directly
+- `silent: { except: ['price', 'sales'] }` Converse of the above. Update UI when everything except `price` and `sales` change.
+
+You can combine different update strategies across different channels. For instance, if you have a vensim model your outputs will typically only change when you step/reset/do some other operation, and not when a variables change. In such cases you can set it up as
+
+```javascript
+Flow.initialize({
+   channel: {
+        run: {
+            variables: {
+                silent: true
+            },
+            operations: {
+                silent: false
+            }
+        }
+   }
+});
+```
+
+##### Silencing Updates
+
+The `publish` method for each channel also takes in a options flag which lets you specific a `silent` flag. For e.g
+
+```javascript
+Flow.channel.variables.publish({ sales: 32 }, { silent: true })
+```
+
+Note that this can only be `true` or `false, since the first parameter convers the specificity.
+
+##### f.convert event
+
+There is now a new event you can trigger on elements to set values and trigger conversions. This has two forms:
+
+````html
+<input type="text" id="element" data-f-bind="price | $#,###.00" data-f-someattr="initialPrice | $#,###.00">
+````
+```javascript
+$("#element").trigger('f.convert', 2000)
+console.log($("#element").val()); //Will be $2,000.00.
+
+$("#element").trigger('f.convert', {someattr: 2000})
+console.log($("#element").prop('someattr')); //Will be $2,000.00.
+```
+
+This is useful if you want to update the UI element 'manually' without having to wait for a response from the model.
+
+#### Bug fixes
+- Issue 9: Issue with display interpolated and non-interpolated variables simultaneously
+- Dom options are now correctly passed to the Dom Manager
+
+
 <a name="0.7"></a>
 ## 0.7 (2014-10-17)
 
