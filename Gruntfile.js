@@ -157,7 +157,7 @@ module.exports = function (grunt) {
 
     grunt.registerTask('release', function (type) {
         type = type ? type : 'patch';
-        ['validate', 'production', 'bump-only:' + type, 'incrementVersion', 'changelog', 'bump-commit'].forEach(function (task) {
+        ['validate', 'bump-only:' + type, 'incrementVersion', 'changelog', 'production', 'bump-commit'].forEach(function (task) {
             grunt.task.run(task);
         });
     });
