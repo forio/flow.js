@@ -162,5 +162,5 @@ module.exports = function (grunt) {
         });
     });
 
-    grunt.registerTask('default', ['watch', 'generateDev']);
+    grunt.registerTask('default', ['generateDev', 'test', 'watch']);
 };
