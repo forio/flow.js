@@ -191,6 +191,7 @@
 
                 channel.refresh(['step'], null, true);
                 spy.should.have.been.calledOnce;
+                spy.should.have.been.calledWith('step');
             });
 
             it('should treat \'except\' as a whitelist for single-item arrays', function () {

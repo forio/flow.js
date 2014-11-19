@@ -62,7 +62,7 @@ module.exports = function (options) {
                 return fn.call(run, operation.operations)
                         .then(function (response) {
                             if (!params || !params.silent) {
-                                me.refresh.call(me, _(operation.operations).pluck('name'), response);
+                                me.refresh.call(me, _.pluck(operation.operations, 'name'), response);
                             }
                         });
             } else {
