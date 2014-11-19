@@ -95,6 +95,7 @@
 
                 channel.publish('step', 1);
                 refSpy.should.have.been.called;
+                refSpy.should.have.been.calledWith(['step']);
 
                 channel.refresh = originalRefresh;
             });
@@ -191,7 +192,6 @@
 
                 channel.refresh(['step'], null, true);
                 spy.should.have.been.calledOnce;
-                spy.should.have.been.calledWith('step');
             });
 
             it('should treat \'except\' as a whitelist for single-item arrays', function () {
