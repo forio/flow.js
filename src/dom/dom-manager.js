@@ -43,8 +43,10 @@ module.exports = (function () {
             $.extend(defaults, options);
 
             var channel = defaults.channel;
-            var me = this;
 
+            this.options = defaults;
+
+            var me = this;
             var $root = $(defaults.root);
             $(function () {
                 //parse through dom and find everything with matching attributes
@@ -107,6 +109,7 @@ module.exports = (function () {
                         channel.variables.subscribe(Object.keys(varMap), $el);
                     }
                 });
+                $root.trigger('f.domready');
 
                 //Attach listeners
                 // Listen for changes from api and update ui
@@ -173,7 +176,6 @@ module.exports = (function () {
             });
         }
     };
-
 
     return $.extend(this, publicAPI);
 }());
