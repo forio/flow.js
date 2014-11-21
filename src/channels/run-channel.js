@@ -22,8 +22,8 @@ module.exports = function (options) {
     var $creationPromise = rm.getRun();
     rs.currentPromise = $creationPromise;
 
-    var createAndThen = function (value, context) {
-        return _.wrap(value, function (func) {
+    var createAndThen = function (fn, context) {
+        return _.wrap(fn, function (func) {
             var passedInParams = _.toArray(arguments).slice(1);
             return rs.currentPromise.then(function () {
                 rs.currentPromise = func.apply(context, passedInParams);
