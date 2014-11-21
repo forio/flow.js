@@ -1,27 +1,27 @@
 'use strict';
-module.exports = (function() {
+module.exports = (function () {
     var Flow = require('../../src/flow');
 
-    describe('Flow Epicenter integration', function() {
+    describe('Flow Epicenter integration', function () {
         var server, channelOpts, $el;
-        before(function() {
+        before(function () {
             server = sinon.fakeServer.create();
 
-            server.respondWith('GET', /(.*)/, function(xhr, id) {
+            server.respondWith('GET', /(.*)/, function (xhr, id) {
                 xhr.respond(200, {
                     'Content-Type': 'application/json'
                 }, JSON.stringify({
                     price: 1
                 }));
             });
-            server.respondWith('PATCH', /(.*)\/run\/(.*)\/variables\/(.*)/, function(xhr, id) {
+            server.respondWith('PATCH', /(.*)\/run\/(.*)\/variables\/(.*)/, function (xhr, id) {
                 xhr.respond(201, {
                     'Content-Type': 'application/json'
                 }, JSON.stringify({
                     url: xhr.url
                 }));
             });
-            server.respondWith('POST', /(.*)\/run/, function(xhr, id) {
+            server.respondWith('POST', /(.*)\/run/, function (xhr, id) {
                 var resp = {
                     'id': '065dfe50-d29d-4b55-a0fd-30868d7dd26c',
                     'model': 'model.vmf',
@@ -53,11 +53,11 @@ module.exports = (function() {
             ].join(''));
         });
 
-        after(function() {
+        after(function () {
             server.restore();
         });
 
-        it('should create a new run on initialize', function() {
+        it('should create a new run on initialize', function () {
             Flow.initialize({
                 channel: channelOpts
             });
@@ -70,11 +70,11 @@ module.exports = (function() {
             }));
         });
 
-        describe('Setting variables', function() {
-            afterEach(function() {
+        describe('Setting variables', function () {
+            afterEach(function () {
                 server.requests = [];
             });
-            it('should PATCH variables API on change', function() {
+            it('should PATCH variables API on change', function () {
                 Flow.initialize({
                     channel: channelOpts,
                     dom: {
@@ -91,7 +91,7 @@ module.exports = (function() {
                 }));
             });
 
-            it('should re-fetch variables after change', function() {
+            it('should re-fetch variables after change', function () {
                 Flow.initialize({
                     channel: channelOpts,
                     dom: {
@@ -107,7 +107,7 @@ module.exports = (function() {
                 req.method.toUpperCase().should.equal('GET');
             });
 
-            it('should not re-fetch variables after change if set to silent mode', function() {
+            it('should not re-fetch variables after change if set to silent mode', function () {
                 Flow.initialize({
                     channel: $.extend(true, {
                         run: {
@@ -127,8 +127,8 @@ module.exports = (function() {
             });
         });
 
-        describe('Fetch variables on load', function() {
-            it('should fetch variables if there is no default init operation', function() {
+        describe('Fetch variables on load', function () {
+            it('should fetch variables if there is no default init operation', function () {
                 Flow.initialize({
                     channel: $.extend(true, {}, channelOpts),
                     dom: {
@@ -142,7 +142,7 @@ module.exports = (function() {
                 server.requests[0].method.toUpperCase().should.equal('POST');
                 server.requests[1].method.toUpperCase().should.equal('GET');
             });
-            it('should fetch variables if operations is set to silent', function() {
+            it('should fetch variables if operations is set to silent', function () {
                 server.requests = [];
 
                 Flow.initialize({
@@ -165,8 +165,8 @@ module.exports = (function() {
                 server.requests[1].method.toUpperCase().should.equal('GET');
             });
 
-            it('should not fetch variables if there is an init operation', function() {
-                var $el =$([
+            it('should not fetch variables if there is an init operation', function () {
+                var $el = $([
                 '<div data-f-on-init="stuff">',
                 '   <input type="text" data-f-bind="price" />',
                 '   <span data-f-bind="price"> X </span>',
