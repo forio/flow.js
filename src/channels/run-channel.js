@@ -38,12 +38,17 @@ module.exports = function (options) {
             rs[name] = createAndThen(value, rs);
         }
     });
-    var vs = rs.variables();
-    _.each(vs, function (value, name) {
-        if (_.isFunction(value)) {
-            vs[name] = createAndThen(value, vs);
-        }
-    });
+
+    var originalVariablesFn = rs.variables;
+    rs.variables = function () {
+        var vs = originalVariablesFn.apply(rs, arguments);
+        _.each(vs, function (value, name) {
+            if (_.isFunction(value)) {
+                vs[name] = createAndThen(value, vs);
+            }
+        });
+        return vs;
+    };
 
     this.run = rs;
     this.variables = new VarsChannel($.extend(true, {}, config.run.variables, { run: rs, vent: this }));
