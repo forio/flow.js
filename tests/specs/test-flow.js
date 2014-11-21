@@ -6,15 +6,16 @@ module.exports = (function() {
         var server, channelOpts, $el;
         before(function() {
             server = sinon.fakeServer.create();
-            server.respondWith('PATCH', /(.*)\/run\/(.*)\/variables\/(.*)/, function(xhr, id) {
-                xhr.respond(201, {
+
+            server.respondWith('GET', /(.*)/, function(xhr, id) {
+                xhr.respond(200, {
                     'Content-Type': 'application/json'
                 }, JSON.stringify({
-                    url: xhr.url
+                    price: 1
                 }));
             });
-            server.respondWith('GET', /(.*)\/run\/(.*)\/variables\/(.*)/, function(xhr, id) {
-                xhr.respond(200, {
+            server.respondWith('PATCH', /(.*)\/run\/(.*)\/variables\/(.*)/, function(xhr, id) {
+                xhr.respond(201, {
                     'Content-Type': 'application/json'
                 }, JSON.stringify({
                     url: xhr.url
@@ -123,6 +124,69 @@ module.exports = (function() {
 
                 server.respond();
                 server.requests.length.should.equal(3); //POST, GET, PATCH
+            });
+        });
+
+        describe('Fetch variables on load', function() {
+            it('should fetch variables if there is no default init operation', function() {
+                Flow.initialize({
+                    channel: $.extend(true, {}, channelOpts),
+                    dom: {
+                        root: $el
+                    }
+                });
+
+                server.respond();
+                server.requests.length.should.equal(2); //POST, GET
+
+                server.requests[0].method.toUpperCase().should.equal('POST');
+                server.requests[1].method.toUpperCase().should.equal('GET');
+            });
+            it('should fetch variables if operations is set to silent', function() {
+                server.requests = [];
+
+                Flow.initialize({
+                    channel: $.extend(true, {
+                        run: {
+                            operations: {
+                                silent: true
+                            }
+                        }
+                    }, channelOpts),
+                    dom: {
+                        root: $el
+                    }
+                });
+
+                server.respond();
+                server.requests.length.should.equal(2); //POST, GET
+
+                server.requests[0].method.toUpperCase().should.equal('POST');
+                server.requests[1].method.toUpperCase().should.equal('GET');
+            });
+
+            it('should not fetch variables if there is an init operation', function() {
+                var $el =$([
+                '<div data-f-on-init="stuff">',
+                '   <input type="text" data-f-bind="price" />',
+                '   <span data-f-bind="price"> X </span>',
+                '</div>'].join(''));
+                server.requests = [];
+
+                Flow.initialize({
+                    channel: $.extend(true, {}, channelOpts),
+                    dom: {
+                        root: $el
+                    }
+                });
+
+                server.respond();
+                server.respond();
+                server.requests.length.should.equal(3); //POST, POST, GET
+
+                server.requests[0].method.toUpperCase().should.equal('POST');
+                server.requests[1].method.toUpperCase().should.equal('POST');
+                server.requests[2].method.toUpperCase().should.equal('GET');
             });
         });
     });
