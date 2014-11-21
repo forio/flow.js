@@ -1,3 +1,11 @@
+<a name="0.8.1"></a>
+### 0.8.1 (2014-11-21)
+
+#### Bug fixes
+
+Fixed #21 - variables weren't getting fetched without an init operation.
+Fixed bug where `except` wasn't working on the Operations channel
+
 <a name="0.8.0"></a>
 ## 0.8.0 (2014-11-13)
 
