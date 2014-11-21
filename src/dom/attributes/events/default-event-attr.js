@@ -11,7 +11,7 @@ module.exports = {
     init: function (attr, value) {
         attr = attr.replace('on-', '');
         var me = this;
-        this.on(attr, function () {
+        this.off(attr).on(attr, function () {
             var listOfOperations = _.invoke(value.split('|'), 'trim');
             listOfOperations = listOfOperations.map(function (value) {
                 var fnName = value.split('(')[0];

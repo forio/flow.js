@@ -142,7 +142,6 @@
                 $(vent).off('dirty');
             });
 
-
             it('should call if no rules are specified', function () {
                 var channel = new Channel({ vent: vent, run: mockRun });
                 var spy = sinon.spy();

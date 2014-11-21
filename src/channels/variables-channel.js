@@ -221,7 +221,7 @@ module.exports = function (options) {
 
     $.extend(this, publicAPI);
     var me = this;
-    $(vent).on('dirty', function () {
+    $(vent).off('dirty').on('dirty', function () {
         me.refresh.call(me, null, true);
     });
 };
