@@ -210,6 +210,18 @@
                 token.should.exist;
             });
 
+            describe('functions', function () {
+               it('should allow subscribing functions to single variables', function () {
+                   var cb = sinon.spy();
+                   channel.subscribe(['price'], cb);
+                   channel.variableListenerMap.should.have.key('price');
+
+                   channel.publish('price', 32);
+                   cb.should.have.been.called.calledOnce;
+                   cb.should.have.been.calledWith({ price: 23 }); // mock server always returns 23
+
+               });
+            });
         });
 
         describe('#publish', function () {
