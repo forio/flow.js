@@ -190,7 +190,6 @@ module.exports = function (options) {
 
             properties = [].concat(properties);
             //use jquery to make event sink
-            //TODO: subscriber can be a function
             if (!subscriber.on && !_.isFunction(subscriber)) {
                 subscriber = $(subscriber);
             }
