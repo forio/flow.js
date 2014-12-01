@@ -1,4 +1,5 @@
 'use strict';
+var config = require('../config');
 
 module.exports = function (options) {
     var defaults = {
@@ -45,7 +46,30 @@ module.exports = function (options) {
 
             if (!shouldSilence || force === true) {
                 $(vent).trigger('dirty', { opn: executedOpns, response: response });
+                var me = this;
+                _.each(executedOpns, function (opn) {
+                    me.notify(opn, response);
+                });
             }
+        },
+
+        notify: function (operation, value) {
+            var listeners = this.listenerMap[operation];
+            var params = {};
+            params[operation] = value;
+
+            _.each(listeners, function (listener) {
+                var target = listener.target;
+                if (_.isFunction(target)) {
+                    target.call(null, params);
+                }
+                else if (target.trigger) {
+                    listener.target.trigger(config.events.react, params);
+                }
+                else {
+                    throw new Error('Unknown listerer format for ' + operation);
+                }
+            });
         },
 
         /**
@@ -83,7 +107,7 @@ module.exports = function (options) {
             operations = [].concat(operations);
             //use jquery to make event sink
             //TODO: subscriber can be a function
-            if (!subscriber.on) {
+            if (!subscriber.on && !_.isFunction(subscriber)) {
                 subscriber = $(subscriber);
             }
 

@@ -232,6 +232,18 @@
                 should.exist(token);
                 channel.listenerMap.should.have.key('reset');
             });
+
+            describe('functions', function () {
+               it('should allow subscribing functions to single variables', function () {
+                   var cb = sinon.spy();
+                   channel.subscribe('step', cb);
+                   channel.listenerMap.should.have.key('step');
+
+                   channel.publish('step', 32);
+                   cb.should.have.been.called.calledOnce;
+                   cb.should.have.been.calledWith({ step: mockOperationsResponse });
+               });
+            });
         });
 
 
