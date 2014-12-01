@@ -213,8 +213,20 @@
             describe('functions', function () {
                it('should allow subscribing functions to single variables', function () {
                    var cb = sinon.spy();
-                   channel.subscribe(['price'], cb);
+                   channel.subscribe('price', cb);
                    channel.variableListenerMap.should.have.key('price');
+
+                   channel.publish('price', 32);
+                   cb.should.have.been.called.calledOnce;
+                   cb.should.have.been.calledWith({ price: 23 }); // mock server always returns 23
+
+               });
+
+               //TODO: this will be called twice because the channel can't tell if things have changed or not
+               it.skip('should allow subscribing functions to multi variables', function () {
+                   var cb = sinon.spy();
+                   channel.subscribe(['price', 'sales'], cb);
+                   channel.variableListenerMap.should.have.keys(['price', 'sales']);
 
                    channel.publish('price', 32);
                    cb.should.have.been.called.calledOnce;
