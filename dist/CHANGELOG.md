@@ -1,3 +1,14 @@
+<a name="0.8.2"></a>
+### 0.8.2 (2014-12-01)
+#### Bug fixes
+Fixed #7 - `subscribe` on variables and operations channel now allow passing functions. Fpr e.g.,
+
+```javascript
+Flow.channel.variables.subscribe("sales", function(data) {
+    console.log("Your sales is ", data.sales);
+})
+```
+
 <a name="0.8.1"></a>
 ### 0.8.1 (2014-11-21)
 
