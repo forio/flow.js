@@ -147,11 +147,9 @@ module.exports = function (options) {
                 var target = listener.target;
                 if (_.isFunction(target)) {
                     target.call(null, params);
-                }
-                else if (target.trigger) {
+                } else if (target.trigger) {
                     listener.target.trigger(config.events.react, params);
-                }
-                else {
+                } else {
                     throw new Error('Unknown listerer format for ' + variable);
                 }
             });
