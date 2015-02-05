@@ -151,24 +151,12 @@ module.exports = function (grunt) {
             function () {
             var instrumentor = new istanbul.Instrumenter();
             var file = fs.readFileSync(__dirname + '/tests/tests-browserify-bundle.js', 'utf8');
-            instrumentor.instrument(file,
-                 'tests/tests-browserify-bundle-instrument.js', function (err, code) {
-                     if (err) {
-                         throw err;
-                     }
-                     fs.writeFileSync(__dirname + '/tests/tests-browserify-bundle-instrument.js', code);
+            instrumentor.instrument(file, __dirname +
+                 '/tests/tests-browserify-bundle.js',
+            function (err, code) {
+                fs.writeFileSync(__dirname + '/tests/tests-browserify-bundle-instrument.js', code);
             });
     });
-
-    // grunt.loadNpmTasks('grunt-shell');
-    // grunt.config.set('shell', {
-    //     instrument: {
-    //         command: 'istanbul instrument tests/tests-browserify-bundle.js -o tests/tests-browserify-bundle-instrument.js'
-    //     },
-    //     report: {
-    //         command: 'istanbul report'
-    //     }
-    // });
 
     grunt.registerTask('coverage-report',
         'uses istanbul to generate new report',
@@ -176,8 +164,10 @@ module.exports = function (grunt) {
             var collector = new istanbul.Collector();
             var reporter = new istanbul.Reporter(false, 'coverage');
             collector.add(JSON.parse(fs.readFileSync('coverage.json', 'utf8')));
-            reporter.addAll(['html', 'text', 'json']);
-            reporter.write(collector, true);
+            reporter.add('html');
+            reporter.write(collector, true, function () {
+                //empty callback so it doesnt error out
+            });
     });
 
     grunt.registerTask('test', ['browserify2:tests:', 'instrument', 'mocha','coverage-report']);
