@@ -1,9 +1,0 @@
-"use strict";
-var __cov_S1bBXr0$gOwclPZefTebeA = (Function('return this'))();
-if (!__cov_S1bBXr0$gOwclPZefTebeA.__coverage__) { __cov_S1bBXr0$gOwclPZefTebeA.__coverage__ = {}; }
-__cov_S1bBXr0$gOwclPZefTebeA = __cov_S1bBXr0$gOwclPZefTebeA.__coverage__;
-if (!(__cov_S1bBXr0$gOwclPZefTebeA['/Users/jzhang/Documents/libraries/flow.js/src/dom/attributes/binds/input-bind-attr.js'])) {
-   __cov_S1bBXr0$gOwclPZefTebeA['/Users/jzhang/Documents/libraries/flow.js/src/dom/attributes/binds/input-bind-attr.js'] = {"path":"/Users/jzhang/Documents/libraries/flow.js/src/dom/attributes/binds/input-bind-attr.js","s":{"1":0,"2":0,"3":0,"4":0},"b":{"1":[0,0]},"f":{"1":0},"fnMap":{"1":{"name":"(anonymous_1)","line":8,"loc":{"start":{"line":8,"column":12},"end":{"line":8,"column":29}}}},"statementMap":{"1":{"start":{"line":3,"column":0},"end":{"line":14,"column":2}},"2":{"start":{"line":9,"column":8},"end":{"line":11,"column":9}},"3":{"start":{"line":10,"column":12},"end":{"line":10,"column":44}},"4":{"start":{"line":12,"column":8},"end":{"line":12,"column":24}}},"branchMap":{"1":{"line":9,"type":"if","locations":[{"start":{"line":9,"column":8},"end":{"line":9,"column":8}},{"start":{"line":9,"column":8},"end":{"line":9,"column":8}}]}}};
-}
-__cov_S1bBXr0$gOwclPZefTebeA = __cov_S1bBXr0$gOwclPZefTebeA['/Users/jzhang/Documents/libraries/flow.js/src/dom/attributes/binds/input-bind-attr.js'];
-__cov_S1bBXr0$gOwclPZefTebeA.s['1']++;module.exports={target:'input, select',test:'bind',handle:function(value){__cov_S1bBXr0$gOwclPZefTebeA.f['1']++;__cov_S1bBXr0$gOwclPZefTebeA.s['2']++;if(_.isArray(value)){__cov_S1bBXr0$gOwclPZefTebeA.b['1'][0]++;__cov_S1bBXr0$gOwclPZefTebeA.s['3']++;value=value[value.length-1];}else{__cov_S1bBXr0$gOwclPZefTebeA.b['1'][1]++;}__cov_S1bBXr0$gOwclPZefTebeA.s['4']++;this.val(value);}};

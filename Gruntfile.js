@@ -147,14 +147,14 @@ module.exports = function (grunt) {
     grunt.loadNpmTasks('grunt-shell');
     grunt.config.set('shell', {
         instrument: {
-            command: 'istanbul instrument src -o tests/instrument'
+            command: 'istanbul instrument tests/tests-browserify-bundle.js -o tests/tests-browserify-bundle-instrument.js'
         },
         report: {
             command: 'istanbul report'
         }
     });
 
-    grunt.registerTask('test', ['shell:instrument','mocha', 'shell:report']);
+    grunt.registerTask('test', ['browserify2:tests:', 'shell:instrument','mocha', 'shell:report']);
     grunt.registerTask('validate', ['test', 'jshint:all', 'jscs']);
     grunt.registerTask('generateDev', ['browserify2:edge']);
     grunt.registerTask('production', ['generateDev', 'browserify2:mapped', 'browserify2:min']);
