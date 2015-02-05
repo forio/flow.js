@@ -1,6 +1,7 @@
 module.exports = function (grunt) {
     'use strict';
     var fs = require('fs');
+    var istanbul = require('istanbul');
 
     var UglifyJS = require('uglify-js');
 
@@ -148,7 +149,7 @@ module.exports = function (grunt) {
     grunt.registerTask('instrument',
         'using isntanbul to instrument sourcefile',
             function () {
-            var instrumentor = new istanbul.Instrumenter({coverageVariable: 'coverage'});
+            var instrumentor = new istanbul.Instrumenter();
             var file = fs.readFileSync(__dirname + '/tests/tests-browserify-bundle.js', 'utf8');
             instrumentor.instrument(file,
                  'tests/tests-browserify-bundle-instrument.js', function (err, code) {
@@ -159,17 +160,27 @@ module.exports = function (grunt) {
             });
     });
 
+    // grunt.loadNpmTasks('grunt-shell');
+    // grunt.config.set('shell', {
+    //     instrument: {
+    //         command: 'istanbul instrument tests/tests-browserify-bundle.js -o tests/tests-browserify-bundle-instrument.js'
+    //     },
+    //     report: {
+    //         command: 'istanbul report'
+    //     }
+    // });
+
     grunt.registerTask('coverage-report',
         'uses istanbul to generate new report',
         function () {
-            // var collector = new istanbul.Collector();
-            // var reporter = new istanbul.Reporter(false, 'coverage');
-            // collector.add(JSON.parse(fs.readFileSync('coverage.json', 'utf8')));
-            // reporter.addAll(['html']);
-            // reporter.write(collector, true);
+            var collector = new istanbul.Collector();
+            var reporter = new istanbul.Reporter(false, 'coverage');
+            collector.add(JSON.parse(fs.readFileSync('coverage.json', 'utf8')));
+            reporter.addAll(['html', 'text', 'json']);
+            reporter.write(collector, true);
     });
 
-    grunt.registerTask('test', ['browserify2:tests:',  'mocha','coverage-report']);
+    grunt.registerTask('test', ['browserify2:tests:', 'instrument', 'mocha','coverage-report']);
     grunt.registerTask('validate', ['test', 'jshint:all', 'jscs']);
     grunt.registerTask('generateDev', ['browserify2:edge']);
     grunt.registerTask('production', ['generateDev', 'browserify2:mapped', 'browserify2:min']);
