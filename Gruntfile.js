@@ -74,14 +74,17 @@ module.exports = function (grunt) {
         }
     });
 
-    grunt.loadNpmTasks('grunt-mocha');
+    grunt.loadNpmTasks('grunt-mocha-phantom-istanbul');
     grunt.config.set('mocha', {
         test: {
             src: ['tests/index.html'],
             options: {
                 growlOnSuccess: false,
                 reporter: 'Min',
-                run: true
+                run: true,
+                coverage: {
+                    coverageFile: 'coverage.json'
+                }
             }
         }
     });
@@ -141,7 +144,17 @@ module.exports = function (grunt) {
         }
     });
 
-    grunt.registerTask('test', ['mocha']);
+    grunt.loadNpmTasks('grunt-shell');
+    grunt.config.set('shell', {
+        instrument: {
+            command: 'istanbul instrument src -o tests/instrument'
+        },
+        report: {
+            command: 'istanbul report'
+        }
+    });
+
+    grunt.registerTask('test', ['shell:instrument','mocha', 'shell:report']);
     grunt.registerTask('validate', ['test', 'jshint:all', 'jscs']);
     grunt.registerTask('generateDev', ['browserify2:edge']);
     grunt.registerTask('production', ['generateDev', 'browserify2:mapped', 'browserify2:min']);
