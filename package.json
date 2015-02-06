@@ -14,6 +14,8 @@
     "url": "https://github.com/forio/flow.js.git"
   },
   "devDependencies": {
+    "file": "^0.2.2",
+    "fs-walk": "0.0.1",
     "growl": "^1.8.1",
     "grunt": "^0.4.5",
     "grunt-browserify2": "^0.1.8",

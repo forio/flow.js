@@ -2,8 +2,8 @@ module.exports = function (grunt) {
     'use strict';
     var fs = require('fs');
     var istanbul = require('istanbul');
-
     var UglifyJS = require('uglify-js');
+    var walk = require('fs-walk');
 
     grunt.initConfig({
         pkg: grunt.file.readJSON('package.json')
@@ -149,14 +149,30 @@ module.exports = function (grunt) {
     grunt.registerTask('instrument',
         'using isntanbul to instrument sourcefile',
             function () {
-            var instrumentor = new istanbul.Instrumenter();
-            var file = fs.readFileSync(__dirname + '/tests/tests-browserify-bundle.js', 'utf8');
-            instrumentor.instrument(file, __dirname +
-                 '/tests/tests-browserify-bundle.js',
-            function (err, code) {
-                fs.writeFileSync(__dirname + '/tests/tests-browserify-bundle-instrument.js', code);
-            });
+                var instrumenter = new istanbul.Instrumenter();
+                var instrumentFile = function (dir, fileName, stat) {
+                    var newDir = dir.replace(/src/, 'instrument');
+                    if(!fs.existsSync(newDir)) {
+                        fs.mkdirSync(newDir);
+                    }
+                    if (stat.isDirectory() && !fs.existsSync(newDir + fileName)){
+                        fs.mkdirSync(newDir + fileName);
+                    }
+                    if (stat.isFile()){
+                        var file = fs.readFileSync(dir + '/' + fileName, 'utf8');
+                        instrumenter.instrument(file, dir + '/' + fileName,
+                            function (err, code) {
+                                fs.writeFileSync(newDir + '/' + fileName, code);
+                            });
+                    }
+                };
+                walk.walkSync( __dirname + '/src/',
+                    function (basedir, filename, stat) {
+                        instrumentFile(basedir, filename, stat);
+                });
     });
+
+
 
     grunt.registerTask('coverage-report',
         'uses istanbul to generate new report',
@@ -170,7 +186,7 @@ module.exports = function (grunt) {
             });
     });
 
-    grunt.registerTask('test', ['browserify2:tests:', 'instrument', 'mocha','coverage-report']);
+    grunt.registerTask('test', ['instrument', 'browserify2:tests:', 'mocha','coverage-report']);
     grunt.registerTask('validate', ['test', 'jshint:all', 'jscs']);
     grunt.registerTask('generateDev', ['browserify2:edge']);
     grunt.registerTask('production', ['generateDev', 'browserify2:mapped', 'browserify2:min']);

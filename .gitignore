@@ -38,6 +38,6 @@ tests/tests-browserify-bundle.js
 
 # instrumented files by Istanbul and coveragefiles
 .DS_Store
-tests/tests-browserify-bundle-instrument.js
+instrument/
 coverage.json
 coverage/
