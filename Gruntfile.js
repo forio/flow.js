@@ -1,6 +1,5 @@
 module.exports = function (grunt) {
     'use strict';
-    var fs = require('fs');
     var istanbul = require('istanbul');
     var UglifyJS = require('uglify-js');
     var walk = require('fs-walk');
