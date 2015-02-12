@@ -1,7 +1,8 @@
 module.exports = function (grunt) {
     'use strict';
-
+    var istanbul = require('istanbul');
     var UglifyJS = require('uglify-js');
+    var walk = require('fs-walk');
 
     grunt.initConfig({
         pkg: grunt.file.readJSON('package.json')
@@ -74,14 +75,17 @@ module.exports = function (grunt) {
         }
     });
 
-    grunt.loadNpmTasks('grunt-mocha');
+    grunt.loadNpmTasks('grunt-mocha-phantom-istanbul');
     grunt.config.set('mocha', {
         test: {
             src: ['tests/index.html'],
             options: {
                 growlOnSuccess: false,
                 reporter: 'Min',
-                run: true
+                run: true,
+                coverage: {
+                    coverageFile: 'coverage.json'
+                }
             }
         }
     });
@@ -141,7 +145,47 @@ module.exports = function (grunt) {
         }
     });
 
-    grunt.registerTask('test', ['mocha']);
+    grunt.registerTask('instrument',
+        'using isntanbul to instrument sourcefile',
+            function () {
+                var instrumenter = new istanbul.Instrumenter();
+                var instrumentFile = function (dir, fileName, stat) {
+                    var newDir = dir.replace(/src/, 'instrument');
+                    if(!fs.existsSync(newDir)) {
+                        fs.mkdirSync(newDir);
+                    }
+                    if (stat.isDirectory() && !fs.existsSync(newDir + fileName)){
+                        fs.mkdirSync(newDir + fileName);
+                    }
+                    if (stat.isFile()){
+                        var file = fs.readFileSync(dir + '/' + fileName, 'utf8');
+                        instrumenter.instrument(file, dir + '/' + fileName,
+                            function (err, code) {
+                                fs.writeFileSync(newDir + '/' + fileName, code);
+                            });
+                    }
+                };
+                walk.walkSync( __dirname + '/src/',
+                    function (basedir, filename, stat) {
+                        instrumentFile(basedir, filename, stat);
+                });
+    });
+
+
+
+    grunt.registerTask('coverage-report',
+        'uses istanbul to generate new report',
+        function () {
+            var collector = new istanbul.Collector();
+            var reporter = new istanbul.Reporter(false, 'coverage');
+            collector.add(JSON.parse(fs.readFileSync('coverage.json', 'utf8')));
+            reporter.add('html');
+            reporter.write(collector, true, function () {
+                //empty callback so it doesnt error out
+            });
+    });
+
+    grunt.registerTask('test', ['instrument', 'browserify2:tests:', 'mocha','coverage-report']);
     grunt.registerTask('validate', ['test', 'jshint:all', 'jscs']);
     grunt.registerTask('generateDev', ['browserify2:edge']);
     grunt.registerTask('production', ['generateDev', 'browserify2:mapped', 'browserify2:min']);

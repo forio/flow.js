@@ -1,6 +1,6 @@
 'use strict';
 module.exports = (function () {
-    var Flow = require('../../src/flow');
+    var Flow = require('../../instrument/flow');
 
     describe('Flow Epicenter integration', function () {
         var server, channelOpts, $el;
