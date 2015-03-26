@@ -9,10 +9,10 @@ module.exports = function (grunt) {
         require('./' + task)(grunt);
     });
 
-    grunt.registerTask('test', ['instrument', 'browserify2:tests:', 'mocha','coverage-report']);
+    grunt.registerTask('test', ['instrument', 'browserify:tests:', 'mocha','coverage-report']);
     grunt.registerTask('validate', ['test', 'jshint:all', 'jscs']);
-    grunt.registerTask('generateDev', ['browserify2:edge']);
-    grunt.registerTask('production', ['generateDev', 'browserify2:mapped', 'browserify2:min']);
+    grunt.registerTask('generateDev', ['browserify:edge']);
+    grunt.registerTask('production', ['generateDev', 'browserify:mapped', 'browserify:min']);
 
     grunt.registerTask('release', function (type) {
         type = type ? type : 'patch';

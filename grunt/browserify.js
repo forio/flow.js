@@ -1,60 +1,53 @@
 'use strict';
-var UglifyJS = require('uglify-js');
+var minifyify = require('minifyify');
 
 module.exports = function (grunt) {
-    grunt.loadNpmTasks('grunt-browserify2');
-    grunt.config.set('browserify2', {
+    grunt.loadNpmTasks('grunt-browserify');
+    grunt.config.set('browserify', {
         options: {
-            expose: {
-
+            browserifyOptions: {
+                debug: true
             },
-            entry: './src/app.js'
+            postBundleCB: function (err, buffer, next) {
+                var code = grunt.template.process(buffer.toString(), { data: grunt.file.readJSON('package.json') });
+                next(err, code);
+            }
         },
         tests: {
-            options: {
-
-                entry: './tests/test-list.js',
-                compile: './tests/tests-browserify-bundle.js',
-                debug: true
+            files: {
+                './tests/tests-browserify-bundle.js': './tests/test-list.js'
             }
         },
         edge: {
-            options: {
-                debug: true,
-                compile: './dist/flow-edge.js'
+            files: {
+                './dist/flow-edge.js': './src/flow.js'
             }
         },
         mapped: {
-            options: {
-                debug: true,
-                compile: './dist/flow.js'
-            },
-            afterHook: function (src) {
-                var banner = grunt.file.read('./banner.js');
-                banner = grunt.template.process(banner, { data: grunt.file.readJSON('package.json') });
-                return banner + src;
+            files: {
+                './dist/flow.js': './src/flow.js'
             }
         },
         min: {
-            options: {
-                debug: false,
-                compile: './dist/flow.min.js'
+            files: {
+                './dist/flow.min.js': './src/flow.js'
             },
-            afterHook: function (src) {
-                var result = UglifyJS.minify(src, {
-                    fromString: true,
-                    warnings: true,
-                    mangle: true,
-                    compress:{
-                        pure_funcs: [ 'console.log' ]
-                    }
-                });
-                var code = result.code;
-                var banner = grunt.file.read('./banner.js');
-                banner = grunt.template.process(banner, { data: grunt.file.readJSON('package.json') });
-                return banner + code;
+            options: {
+                preBundleCB: function (b) {
+                    b.plugin(minifyify, {
+                        map: 'flow.min.js.map',
+                        output: 'dist/flow.min.js.map',
+                        uglify: {
+                            mangle: false,
+                            warnings: true,
+                            compress:{
+                                screw_ie8: true,
+                                join_vars: false
+                            }
+                        }
+                    });
+                }
             }
         }
     });
-
 };
