@@ -1,5 +1,6 @@
 'use strict';
 var minifyify = require('minifyify');
+var istanbul = require('browserify-istanbul');
 
 module.exports = function (grunt) {
     grunt.loadNpmTasks('grunt-browserify');
@@ -13,6 +14,7 @@ module.exports = function (grunt) {
                 next(err, code);
             }
         },
+
         tests: {
             files: {
                 './tests/tests-browserify-bundle.js': './tests/test-list.js'
@@ -21,6 +23,15 @@ module.exports = function (grunt) {
         edge: {
             files: {
                 './dist/flow-edge.js': './src/flow.js'
+            }
+        },
+        instrumented: {
+            files: {
+                './dist/flow-edge-instrumented.js': './src/flow.js'
+            },
+            options: {
+                transform: [istanbul],
+                debug: false
             }
         },
         mapped: {

@@ -34,10 +34,10 @@ documentation/generated
 **/vendor/**
 
 dist/flow-edge.js
+dist/flow-edge-instrumented.js
 tests/tests-browserify-bundle.js
 
 # instrumented files by Istanbul and coveragefiles
 .DS_Store
 instrument/
-coverage.json
 coverage/

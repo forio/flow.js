@@ -10,7 +10,7 @@ module.exports = function (grunt) {
                 reporter: 'Min',
                 run: true,
                 coverage: {
-                    coverageFile: 'coverage.json'
+                    coverageFile: 'coverage/coverage.json'
                 }
             }
         }
