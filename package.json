@@ -17,6 +17,7 @@
     "fs-walk": "0.0.1",
     "growl": "^1.8.1",
     "grunt": "^0.4.5",
+    "grunt-browserify": "^3.5.1",
     "grunt-browserify2": "^0.1.8",
     "grunt-bump": "0.0.15",
     "grunt-contrib-jscs": "^0.1.8",
