@@ -9,17 +9,17 @@ module.exports = function (grunt) {
         require('./' + task)(grunt);
     });
 
-    grunt.registerTask('test', ['instrument', 'browserify:tests:', 'mocha','coverage-report']);
-    grunt.registerTask('validate', ['test', 'jshint:all', 'jscs']);
-    grunt.registerTask('generateDev', ['browserify:edge']);
-    grunt.registerTask('production', ['generateDev', 'browserify:mapped', 'browserify:min']);
+    grunt.registerTask('generateDev', ['browserify:edge', 'browserify:instrumented']);
+    grunt.registerTask('test', ['generateDev', 'browserify:tests', 'mocha','coverage-report']);
+    grunt.registerTask('validate', ['jshint:all', 'jscs', 'test']);
+    grunt.registerTask('production', ['validate', 'browserify:mapped', 'browserify:min']);
 
     grunt.registerTask('release', function (type) {
         type = type ? type : 'patch';
-        ['validate', 'bump-only:' + type, 'production', 'incrementVersion', 'changelog', 'bump-commit'].forEach(function (task) {
+        ['bump-only:' + type, 'production', 'incrementVersion', 'changelog', 'bump-commit'].forEach(function (task) {
             grunt.task.run(task);
         });
     });
 
-    grunt.registerTask('default', ['generateDev', 'test', 'watch']);
+    grunt.registerTask('default', ['generateDev', 'watch']);
 };
