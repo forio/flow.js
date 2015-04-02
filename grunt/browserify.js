@@ -22,12 +22,12 @@ module.exports = function (grunt) {
         },
         edge: {
             files: {
-                './dist/flow-edge.js': './src/flow.js'
+                './dist/flow-edge.js': './src/app.js'
             }
         },
         instrumented: {
             files: {
-                './dist/flow-edge-instrumented.js': './src/flow.js'
+                './dist/flow-edge-instrumented.js': './src/app.js'
             },
             options: {
                 transform: [istanbul],
@@ -36,12 +36,12 @@ module.exports = function (grunt) {
         },
         mapped: {
             files: {
-                './dist/flow.js': './src/flow.js'
+                './dist/flow.js': './src/app.js'
             }
         },
         min: {
             files: {
-                './dist/flow.min.js': './src/flow.js'
+                './dist/flow.min.js': './src/app.js'
             },
             options: {
                 preBundleCB: function (b) {
