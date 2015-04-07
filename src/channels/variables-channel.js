@@ -175,7 +175,7 @@ module.exports = function (options) {
             var interpolated = interpolate(attrs, currentData).interpolated;
 
             var me = this;
-            vs.save.call(vs, interpolated)
+            return vs.save.call(vs, interpolated)
                 .then(function () {
                     if (!options || !options.silent) {
                         me.refresh.call(me, attrs);
