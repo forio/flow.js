@@ -9,8 +9,8 @@ module.exports = function (grunt) {
         require('./' + task)(grunt);
     });
 
-    grunt.registerTask('generateDev', ['browserify:edge', 'browserify:instrumented']);
-    grunt.registerTask('test', ['generateDev', 'browserify:tests', 'mocha','coverage-report']);
+    grunt.registerTask('generateDev', ['browserify:edge']);
+    grunt.registerTask('test', ['generateDev', 'browserify:tests', 'browserify:instrumented', 'mocha', 'coverage-report']);
     grunt.registerTask('validate', ['jshint:all', 'jscs', 'test']);
     grunt.registerTask('production', ['validate', 'browserify:mapped', 'browserify:min']);
 

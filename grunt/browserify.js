@@ -32,7 +32,7 @@ module.exports = function (grunt) {
         },
         instrumented: {
             files: {
-                './tests/tests-browserify-bundle-instrumented.js': './src/app.js'
+                './tests/tests-browserify-bundle-instrumented.js': './tests/test-list.js'
             },
             options: {
                 transform: [istanbul],

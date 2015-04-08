@@ -2,7 +2,6 @@
  * List of tests to be required by browserify
  */
 
-
 require('./specs/dom/test-dom-manager');
 require('./specs/converters/test-converter-manager');
 require('./specs/dom/attributes/test-attribute-manager');
