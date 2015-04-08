@@ -14,7 +14,7 @@ module.exports = {
         // Add to parent
         //
         var $parent = this.parent();
-        var $me = this;
+        var $me = this.remove();
         _.each(value, function (dataval, datakey) {
             var newNode = $me.clone();
             _.each(newNode.data(), function (val, key) {
