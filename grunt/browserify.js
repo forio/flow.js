@@ -1,6 +1,7 @@
 'use strict';
 var minifyify = require('minifyify');
 var istanbul = require('browserify-istanbul');
+var remapify = require('remapify');
 
 module.exports = function (grunt) {
     grunt.loadNpmTasks('grunt-browserify');
@@ -18,6 +19,15 @@ module.exports = function (grunt) {
         tests: {
             files: {
                 './tests/tests-browserify-bundle.js': './tests/test-list.js'
+            },
+            options: {
+                preBundleCB: function (b) {
+                    b.plugin(remapify, {
+                        src: '**/*.js',
+                        cwd: './src/',
+                        expose: 'src'
+                    });
+                }
             }
         },
         edge: {
