@@ -1,7 +1,7 @@
 (function () {
     'use strict';
 
-    var Channel = require('../../../src/channels/run-channel');
+    var Channel = require('src/channels/run-channel');
     describe('Run Channel', function () {
         var refreshOptions = {
             on: 'stuff',

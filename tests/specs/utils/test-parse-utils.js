@@ -1,6 +1,6 @@
 'use strict';
 
-var u = require('../../../src/utils/parse-utils');
+var u = require('src/utils/parse-utils');
 
 describe('parse utils', function () {
     describe('#toImplicitType', function () {

@@ -1,7 +1,7 @@
 (function () {
     'use strict';
 
-    var Channel = require('../../../src/channels/operations-channel');
+    var Channel = require('src/channels/operations-channel');
 
     describe('Operations Channel', function () {
         var core, channel, server, mockRun, mockRunChannel;

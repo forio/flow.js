@@ -1,210 +1,25 @@
 module.exports = function (grunt) {
     'use strict';
-    var istanbul = require('istanbul');
-    var UglifyJS = require('uglify-js');
-    var walk = require('fs-walk');
 
     grunt.initConfig({
         pkg: grunt.file.readJSON('package.json')
     });
 
-    grunt.loadNpmTasks('grunt-contrib-watch');
-    grunt.config.set('watch', {
-        source: {
-            files: ['src/**/*.js'],
-            tasks: ['browserify2:edge', 'browserify2:tests:', 'mocha:test']
-        },
-        tests: {
-            files: ['tests/specs/**/*.js', 'tests/specs/*.js', 'tests/*.js'],
-            tasks: ['browserify2:tests:', 'mocha:test']
-        }
+    grunt.file.expand('grunt/*.js').forEach(function (task) {
+        require('./' + task)(grunt);
     });
 
-    grunt.loadNpmTasks('grunt-browserify2');
-    grunt.config.set('browserify2', {
-        options: {
-            expose: {
-
-            },
-            entry: './src/app.js'
-        },
-        tests: {
-            options: {
-
-                entry: './tests/test-list.js',
-                compile: './tests/tests-browserify-bundle.js',
-                debug: true
-            }
-        },
-        edge: {
-            options: {
-                debug: true,
-                compile: './dist/flow-edge.js'
-            }
-        },
-        mapped: {
-            options: {
-                debug: true,
-                compile: './dist/flow.js'
-            },
-            afterHook: function (src) {
-                var banner = grunt.file.read('./banner.js');
-                banner = grunt.template.process(banner, { data: grunt.file.readJSON('package.json') });
-                return banner + src;
-            }
-        },
-        min: {
-            options: {
-                debug: false,
-                compile: './dist/flow.min.js'
-            },
-            afterHook: function (src) {
-                var result = UglifyJS.minify(src, {
-                    fromString: true,
-                    warnings: true,
-                    mangle: true,
-                    compress:{
-                        pure_funcs: [ 'console.log' ]
-                    }
-                });
-                var code = result.code;
-                var banner = grunt.file.read('./banner.js');
-                banner = grunt.template.process(banner, { data: grunt.file.readJSON('package.json') });
-                return banner + code;
-            }
-        }
-    });
-
-    grunt.loadNpmTasks('grunt-mocha-phantom-istanbul');
-    grunt.config.set('mocha', {
-        test: {
-            src: ['tests/index.html'],
-            options: {
-                growlOnSuccess: false,
-                reporter: 'Min',
-                run: true,
-                coverage: {
-                    coverageFile: 'coverage.json'
-                }
-            }
-        }
-    });
-
-    grunt.loadNpmTasks('grunt-contrib-jshint');
-    grunt.config.set('jshint', {
-        options: {
-            jshintrc: true,
-            reporter: require('jshint-stylish')
-        },
-        source: {
-            files: {
-                src: ['src/**/*.js']
-            }
-        },
-        tests: {
-            files: {
-                src: ['tests/specs/**/*.js']
-            }
-        },
-        all: {
-            files: {
-                src: ['src/**/*.js', 'tests/specs/**/*.js']
-            }
-        }
-    });
-
-    grunt.loadNpmTasks('grunt-jscs');
-    grunt.config.set('jscs', {
-        src: ['src/*.js', 'src/**/*.js', 'tests/specs/*.js', 'tests/specs/**/*.js']
-    });
-
-
-    grunt.config.set('incrementVersion', {
-        options: {
-            files:  ['./dist/*.js']
-        }
-    });
-
-    //loq --first-parent --no-merges
-    grunt.loadNpmTasks('grunt-conventional-changelog');
-    grunt.config.set('changelog', {
-        options: {
-            dest: 'dist/CHANGELOG.md',
-            editor: 'sublime -w'
-        }
-    });
-
-    grunt.loadNpmTasks('grunt-bump');
-    grunt.config.set('bump', {
-        options: {
-            files: ['package.json', 'bower.json'],
-            pushTo: 'master',
-            updateConfigs: ['pkg'],
-            commitFiles: ['-a']
-
-        }
-    });
-
-    grunt.registerTask('instrument',
-        'using isntanbul to instrument sourcefile',
-            function () {
-                var instrumenter = new istanbul.Instrumenter();
-                var instrumentFile = function (dir, fileName, stat) {
-                    var newDir = dir.replace(/src/, 'instrument');
-                    if(!fs.existsSync(newDir)) {
-                        fs.mkdirSync(newDir);
-                    }
-                    if (stat.isDirectory() && !fs.existsSync(newDir + fileName)){
-                        fs.mkdirSync(newDir + fileName);
-                    }
-                    if (stat.isFile()){
-                        var file = fs.readFileSync(dir + '/' + fileName, 'utf8');
-                        instrumenter.instrument(file, dir + '/' + fileName,
-                            function (err, code) {
-                                fs.writeFileSync(newDir + '/' + fileName, code);
-                            });
-                    }
-                };
-                walk.walkSync( __dirname + '/src/',
-                    function (basedir, filename, stat) {
-                        instrumentFile(basedir, filename, stat);
-                });
-    });
-
-
-
-    grunt.registerTask('coverage-report',
-        'uses istanbul to generate new report',
-        function () {
-            var collector = new istanbul.Collector();
-            var reporter = new istanbul.Reporter(false, 'coverage');
-            collector.add(JSON.parse(fs.readFileSync('coverage.json', 'utf8')));
-            reporter.add('html');
-            reporter.write(collector, true, function () {
-                //empty callback so it doesnt error out
-            });
-    });
-
-    grunt.registerTask('test', ['instrument', 'browserify2:tests:', 'mocha','coverage-report']);
-    grunt.registerTask('validate', ['test', 'jshint:all', 'jscs']);
-    grunt.registerTask('generateDev', ['browserify2:edge']);
-    grunt.registerTask('production', ['generateDev', 'browserify2:mapped', 'browserify2:min']);
-
-    grunt.registerTask('incrementVersion', function () {
-        var files = this.options().files;
-        grunt.file.expand(files).forEach(function (file) {
-            var mainFile = grunt.file.read(file);
-            var updated = grunt.template.process(mainFile, { data: grunt.file.readJSON('package.json') });
-            grunt.file.write(file, updated);
-        });
-    });
+    grunt.registerTask('generateDev', ['browserify:edge']);
+    grunt.registerTask('test', ['generateDev', 'browserify:tests', 'browserify:instrumented', 'mocha', 'coverage-report']);
+    grunt.registerTask('validate', ['jshint:all', 'jscs', 'test']);
+    grunt.registerTask('production', ['validate', 'browserify:mapped', 'browserify:min']);
 
     grunt.registerTask('release', function (type) {
         type = type ? type : 'patch';
-        ['validate', 'bump-only:' + type, 'production', 'incrementVersion', 'changelog', 'bump-commit'].forEach(function (task) {
+        ['bump-only:' + type, 'production', 'incrementVersion', 'changelog', 'bump-commit'].forEach(function (task) {
             grunt.task.run(task);
         });
     });
 
-    grunt.registerTask('default', ['generateDev', 'test', 'watch']);
+    grunt.registerTask('default', ['generateDev', 'watch']);
 };

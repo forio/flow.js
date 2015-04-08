@@ -1,7 +1,7 @@
 module.exports = (function () {
     'use strict';
     var utils = require('../../../testing-utils');
-    var domManager = require('../../../../src/dom/dom-manager');
+    var domManager = require('src/dom/dom-manager');
 
     describe('all dom nodes', function () {
         it('should update itself with values passed in', function () {

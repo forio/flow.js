@@ -1,7 +1,7 @@
 'use strict';
 (function () {
 
-    var Channel = require('../../../src/channels/variables-channel');
+    var Channel = require('src/channels/variables-channel');
 
     describe('Variables Channel', function () {
         var core, channel, server, mockVariables, mockRun;

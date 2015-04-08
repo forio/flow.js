@@ -38,7 +38,7 @@ module.exports = function (options) {
 
             var shouldSilence = silent === true;
             if (_.isArray(silent) && executedOpns) {
-                shouldSilence = _.intersection(silent, executedOpns).length >= 1;
+                shouldSilence = _.intersection(silent, executedOpns).length === silent.length;
             }
             if ($.isPlainObject(silent) && executedOpns) {
                 shouldSilence = _.intersection(silent.except, executedOpns).length !== executedOpns.length;

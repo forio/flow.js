@@ -4,7 +4,7 @@
     var utils = require('../../testing-utils');
     var make = utils.create;
     var dummyChannelManager = utils.createDummyChannel();
-    var domManager = require('../../../src/dom/dom-manager');
+    var domManager = require('src/dom/dom-manager');
 
     describe('DOM Manager', function () {
         describe('#initialize', function () {

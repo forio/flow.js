@@ -14,10 +14,11 @@
     "url": "https://github.com/forio/flow.js.git"
   },
   "devDependencies": {
+    "browserify-istanbul": "^0.2.1",
     "fs-walk": "0.0.1",
     "growl": "^1.8.1",
     "grunt": "^0.4.5",
-    "grunt-browserify2": "^0.1.8",
+    "grunt-browserify": "^3.3.0",
     "grunt-bump": "0.0.15",
     "grunt-contrib-jscs": "^0.1.8",
     "grunt-contrib-jshint": "^0.10.0",
@@ -27,6 +28,8 @@
     "husky": "^0.5.1",
     "istanbul": "~0.3.5",
     "jshint-stylish": "^0.2.0",
+    "minifyify": "^6.3.2",
+    "remapify": "^2.0.0",
     "uglify-js": "^2.4.15"
   },
   "author": "",

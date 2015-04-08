@@ -1,6 +1,6 @@
 module.exports = (function () {
     'use strict';
-    var domManager = require('../../../../src/dom/dom-manager');
+    var domManager = require('src/dom/dom-manager');
     var utils = require('../../../testing-utils');
 
     describe('Negative Booleans', function () {

@@ -1,6 +1,6 @@
 'use strict';
 (function () {
-    var nm = require('../../../../src/dom/nodes/node-manager');
+    var nm = require('src/dom/nodes/node-manager');
 
     describe('Node Manager', function () {
         var defaultHandlers = nm.list.slice();
