@@ -30,20 +30,28 @@ module.exports = function (grunt) {
                 }
             }
         },
+        instrumented: {
+            files: {
+                './tests/tests-browserify-bundle-instrumented.js': './src/app.js'
+            },
+            options: {
+                transform: [istanbul],
+                debug: false,
+                preBundleCB: function (b) {
+                    b.plugin(remapify, {
+                        src: '**/*.js',
+                        cwd: './instrument/',
+                        expose: 'src'
+                    });
+                }
+            }
+        },
         edge: {
             files: {
                 './dist/flow-edge.js': './src/app.js'
             }
         },
-        instrumented: {
-            files: {
-                './dist/flow-edge-instrumented.js': './src/app.js'
-            },
-            options: {
-                transform: [istanbul],
-                debug: false
-            }
-        },
+
         mapped: {
             files: {
                 './dist/flow.js': './src/app.js'
