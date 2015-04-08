@@ -27,7 +27,8 @@ module.exports = function (grunt) {
                         cwd: './src/',
                         expose: 'src'
                     });
-                }
+                },
+                postBundleCB: null
             }
         },
         instrumented: {
@@ -43,7 +44,8 @@ module.exports = function (grunt) {
                         cwd: './instrument/',
                         expose: 'src'
                     });
-                }
+                },
+                postBundleCB: null
             }
         },
         edge: {
