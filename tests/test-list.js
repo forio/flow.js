@@ -11,4 +11,6 @@ require('./specs/channels/test-run-channel');
 require('./specs/channels/test-variables-channel');
 require('./specs/channels/test-operations-channel');
 
+require('./specs/dom/attributes/test-default-foreach-attr');
+
 require('./specs/test-flow');
