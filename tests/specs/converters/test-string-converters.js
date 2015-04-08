@@ -1,6 +1,6 @@
 'use strict';
 module.exports = (function () {
-    var cm = require('../../../src/converters/converter-manager.js');
+    var cm = require('src/converters/converter-manager.js');
 
     describe('upperCase', function () {
         it('should convert strings to upper case', function () {

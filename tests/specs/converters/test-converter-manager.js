@@ -1,6 +1,6 @@
 'use strict';
 (function () {
-    var cm = require('../../../src/converters/converter-manager.js');
+    var cm = require('src/converters/converter-manager.js');
 
     describe('Converter Manager', function () {
         describe('#register', function () {

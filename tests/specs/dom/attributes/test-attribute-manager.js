@@ -1,6 +1,6 @@
 'use strict';
 (function () {
-    var am = require('../../../../src/dom/attributes/attribute-manager.js');
+    var am = require('src/dom/attributes/attribute-manager.js');
 
     describe('Attribute Manager', function () {
         var defaultHandlers = am.list.splice();

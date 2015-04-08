@@ -1,6 +1,6 @@
 'use strict';
 module.exports = (function () {
-    var cm = require('../../../src/converters/converter-manager.js');
+    var cm = require('src/converters/converter-manager.js');
 
     describe('#list', function () {
         it('should strings to arrays', function () {
