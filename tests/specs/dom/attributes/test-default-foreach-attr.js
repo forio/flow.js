@@ -14,6 +14,17 @@ module.exports = (function () {
                 var newChildren = $rootNode.children();
                 newChildren.length.should.equal(4);
             });
+            it('should replace templated data attributes', function () {
+                var $rootNode = $('<ul> <li data-stuff="<%=i%>" data-y="4"> </li> </ul>');
+                var targetData = [5,3,6,1];
+
+                foreachHandler.handle.call($rootNode.find('li:first'), targetData);
+                var newChildren = $rootNode.children();
+                newChildren.each(function (index) {
+                   var data = $(this).data('stuff');
+                   data.should.equal(targetData[index] + '');
+                });
+            });
         });
     });
 }());
