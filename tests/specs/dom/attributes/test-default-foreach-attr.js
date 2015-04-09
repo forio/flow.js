@@ -7,18 +7,18 @@ module.exports = (function () {
 
     describe('Default Foreach', function () {
         describe('Arrays', function () {
-            it('should clone itself for arrays and attach to parent', function () {
+            it('should clone children for arrays', function () {
                 var $rootNode = $('<ul> <li> </li> </ul>');
 
-                foreachHandler.handle.call($rootNode.find('li:first'), [1,2,3,4]);
+                foreachHandler.handle.call($rootNode, [1,2,3,4]);
                 var newChildren = $rootNode.children();
                 newChildren.length.should.equal(4);
             });
-            it('should replace templated data attributes', function () {
+            it('should replace templated data attributes for children', function () {
                 var $rootNode = $('<ul> <li data-stuff="<%=i%>" data-y="4"> </li> </ul>');
                 var targetData = [5,3,6,1];
 
-                foreachHandler.handle.call($rootNode.find('li:first'), targetData);
+                foreachHandler.handle.call($rootNode, targetData);
                 var newChildren = $rootNode.children();
                 newChildren.each(function (index) {
                    var data = $(this).data('stuff');
@@ -26,11 +26,11 @@ module.exports = (function () {
                 });
             });
 
-            it('should replace templated inner html', function () {
+            it('should replace templated inner html for children', function () {
                 var $rootNode = $('<ul> <li data-stuff="<%=i%>" data-y="4"> <%= i %> </li> </ul>');
                 var targetData = [5,3,6,1];
 
-                foreachHandler.handle.call($rootNode.find('li:first'), targetData);
+                foreachHandler.handle.call($rootNode, targetData);
                 var newChildren = $rootNode.children();
                 newChildren.each(function (index) {
                    var data = $(this).html().trim();
