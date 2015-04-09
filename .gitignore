@@ -34,8 +34,7 @@ documentation/generated
 **/vendor/**
 
 dist/flow-edge.js
-tests/tests-browserify-bundle.js
-tests/tests-browserify-bundle-instrumented.js
+tests/dist/*
 
 # instrumented files by Istanbul and coveragefiles
 .DS_Store

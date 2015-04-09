@@ -18,7 +18,7 @@ module.exports = function (grunt) {
 
         tests: {
             files: {
-                './tests/tests-browserify-bundle.js': './tests/test-list.js'
+                './tests/dist/tests-browserify-bundle.js': './tests/test-list.js'
             },
             options: {
                 preBundleCB: function (b) {
@@ -33,7 +33,7 @@ module.exports = function (grunt) {
         },
         instrumented: {
             files: {
-                './tests/tests-browserify-bundle-instrumented.js': './tests/test-list.js'
+                './tests/dist/tests-browserify-bundle-instrumented.js': './tests/test-list.js'
             },
             options: {
                 transform: [istanbul],
