@@ -20,8 +20,9 @@ module.exports = {
             _.each(newNode.data(), function (val, key) {
                 newNode.data(key, _.template(val, { i: dataval, key: datakey }));
             });
+            var cleanedHTML = newNode.html().replace('&lt;', '<').replace('&gt;', '>');
+            newNode.html(_.template(cleanedHTML, { i: dataval, key: datakey }));
             $parent.append(newNode);
-            // newNode.html( _.template(new) );
         });
     }
 };

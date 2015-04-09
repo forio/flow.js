@@ -25,6 +25,18 @@ module.exports = (function () {
                    data.should.equal(targetData[index] + '');
                 });
             });
+
+            it('should replace templated inner html', function () {
+                var $rootNode = $('<ul> <li data-stuff="<%=i%>" data-y="4"> <%= i %> </li> </ul>');
+                var targetData = [5,3,6,1];
+
+                foreachHandler.handle.call($rootNode.find('li:first'), targetData);
+                var newChildren = $rootNode.children();
+                newChildren.each(function (index) {
+                   var data = $(this).html().trim();
+                   data.should.equal(targetData[index] + '');
+                });
+            });
         });
     });
 }());
