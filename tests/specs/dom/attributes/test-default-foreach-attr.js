@@ -50,6 +50,15 @@ module.exports = (function () {
 
                     newChildren.data('value').should.equal('3');
                 });
+                it('should print out undefineds when passed those in', function () {
+                    var $rootNode = $('<ul> <li data-value="<%= value %>"> </li> </ul>');
+
+                    foreachHandler.handle.call($rootNode, undefined);
+                    var newChildren = $rootNode.children();
+                    newChildren.length.should.equal(1);
+
+                    newChildren.data('value').should.equal('undefined');
+                });
             });
         });
         describe('integration', function () {
