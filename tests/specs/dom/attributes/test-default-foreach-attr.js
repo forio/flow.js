@@ -60,9 +60,31 @@ module.exports = (function () {
                     newChildren.data('value').should.equal('undefined');
                 });
             });
+            describe('Objects', function () {
+                it('should clone children for objects', function () {
+                    var $rootNode = $('<ul> <li> </li> </ul>');
+
+                    foreachHandler.handle.call($rootNode, { a:3, b:4, d:6 });
+                    var newChildren = $rootNode.children();
+                    newChildren.length.should.equal(3);
+                });
+                it('should replace templated inner html for children', function () {
+                    var $rootNode = $('<ul> <li data-stuff="<%=key%>"> <%= value %> </li> </ul>');
+                    var targetData = { a:3, b:4 };
+
+                    foreachHandler.handle.call($rootNode, targetData);
+                    var newChildren = $rootNode.children();
+                    newChildren.each(function (index) {
+                       var val = $(this).html().trim();
+                       var key = $(this).data('stuff');
+
+                       targetData[key].should.equal(+val);
+                    });
+                });
+            });
         });
         describe('integration', function () {
-            it('should loop through children for elems with foreach=variable', function () {
+            it('should loop through children for elems with foreach=variableArray', function () {
                 var targetData = [5,3,6,1];
 
                 var $node = utils.initWithNode('<ul data-f-foreach="somearray"> <li data-stuff="<%=index%>"> <%= value %> </li> </ul>', domManager);
@@ -75,6 +97,20 @@ module.exports = (function () {
 
                    var indexVal = $(this).data('stuff');
                    indexVal.should.equal(index + '');
+                });
+            });
+            it('should loop through children for elems with foreach=variableObject', function () {
+                var targetData = { a:3, b:4 };
+
+                var $node = utils.initWithNode('<ul data-f-foreach="someobject"> <li data-stuff="<%=index%>"> <%= value %> </li> </ul>', domManager);
+                $node.trigger('update.f.model', { someobject: targetData });
+
+                var newChildren = $node.children();
+                newChildren.each(function (index) {
+                   var val = $(this).html().trim();
+                   var key = $(this).data('stuff');
+
+                   targetData[key].should.equal(+val);
                 });
             });
         });

@@ -7,7 +7,7 @@ module.exports = {
     target: '*',
 
     handle: function (value, prop) {
-        value = [].concat(value);
+        value = (_.isObject(value) ? value : [].concat(value));
         var $children = this.children();
         var $me = this.empty();
         _.each(value, function (dataval, datakey) {
