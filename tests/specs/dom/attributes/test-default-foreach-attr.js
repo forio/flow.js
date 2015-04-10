@@ -27,7 +27,7 @@ module.exports = (function () {
             });
 
             it('should replace templated inner html for children', function () {
-                var $rootNode = $('<ul> <li data-stuff="<%=value%>" data-y="4"> <%= value %> </li> </ul>');
+                var $rootNode = $('<ul> <li data-stuff="<%=index%>" data-y="4"> <%= value %> </li> </ul>');
                 var targetData = [5,3,6,1];
 
                 foreachHandler.handle.call($rootNode, targetData);
@@ -35,6 +35,9 @@ module.exports = (function () {
                 newChildren.each(function (index) {
                    var data = $(this).html().trim();
                    data.should.equal(targetData[index] + '');
+
+                   var indexVal = $(this).data('stuff');
+                   indexVal.should.equal(index + '');
                 });
             });
         });
