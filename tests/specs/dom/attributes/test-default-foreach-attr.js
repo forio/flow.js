@@ -82,6 +82,36 @@ module.exports = (function () {
                     });
                 });
             });
+
+            describe('Update behavior', function () {
+                it('should not grow exponentially when called multiple times', function () {
+                    var $rootNode = $('<ul> <li> </li> </ul>');
+
+                    foreachHandler.handle.call($rootNode, [1,2,3,4]);
+                    var newChildren = $rootNode.children();
+                    newChildren.length.should.equal(4);
+
+                    foreachHandler.handle.call($rootNode, [1,2,3,4]);
+                    newChildren = $rootNode.children();
+                    newChildren.length.should.equal(4);
+                });
+                it('should replace older values with new ones', function () {
+                    var $rootNode = $('<ul> <li data-stuff="<%=index%>"> <%= value %> </li> </ul>');
+
+                    foreachHandler.handle.call($rootNode, [1,2,3,4]);
+                    var targetData = [5,3,6,1];
+                    foreachHandler.handle.call($rootNode, targetData);
+
+                    var newChildren = $rootNode.children();
+                    newChildren.each(function (index) {
+                       var data = $(this).html().trim();
+                       data.should.equal(targetData[index] + '');
+
+                       var indexVal = $(this).data('stuff');
+                       indexVal.should.equal(index + '');
+                    });
+                });
+            });
         });
         describe('integration', function () {
             it('should loop through children for elems with foreach=variableArray', function () {

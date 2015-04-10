@@ -8,11 +8,15 @@ module.exports = {
 
     handle: function (value, prop) {
         value = (_.isObject(value) ? value : [].concat(value));
-        var $children = this.children();
+        var $loopTemplate = this.data('foreach-template');
+        if (!$loopTemplate) {
+            $loopTemplate = this.children();
+            this.data('foreach-template', $loopTemplate);
+        }
         var $me = this.empty();
         _.each(value, function (dataval, datakey) {
             dataval = dataval + '';
-            var newNode = $children.clone();
+            var newNode = $loopTemplate.clone();
             _.each(newNode.data(), function (val, key) {
                 newNode.data(key, _.template(val, { value: dataval, index: datakey, key: datakey }));
             });
