@@ -13,10 +13,10 @@ module.exports = {
         _.each(value, function (dataval, datakey) {
             var newNode = $children.clone();
             _.each(newNode.data(), function (val, key) {
-                newNode.data(key, _.template(val, { i: dataval, key: datakey }));
+                newNode.data(key, _.template(val, { value: dataval, index: datakey, key: datakey }));
             });
             var cleanedHTML = newNode.html().replace('&lt;', '<').replace('&gt;', '>');
-            var templated = _.template(cleanedHTML, { i: dataval, key: datakey });
+            var templated = _.template(cleanedHTML, { value: dataval, key: datakey, index: datakey });
             newNode.html(templated);
             $me.append(newNode);
         });

@@ -15,7 +15,7 @@ module.exports = (function () {
                 newChildren.length.should.equal(4);
             });
             it('should replace templated data attributes for children', function () {
-                var $rootNode = $('<ul> <li data-stuff="<%=i%>" data-y="4"> </li> </ul>');
+                var $rootNode = $('<ul> <li data-stuff="<%=value%>" data-y="4"> </li> </ul>');
                 var targetData = [5,3,6,1];
 
                 foreachHandler.handle.call($rootNode, targetData);
@@ -27,7 +27,7 @@ module.exports = (function () {
             });
 
             it('should replace templated inner html for children', function () {
-                var $rootNode = $('<ul> <li data-stuff="<%=i%>" data-y="4"> <%= i %> </li> </ul>');
+                var $rootNode = $('<ul> <li data-stuff="<%=value%>" data-y="4"> <%= value %> </li> </ul>');
                 var targetData = [5,3,6,1];
 
                 foreachHandler.handle.call($rootNode, targetData);
