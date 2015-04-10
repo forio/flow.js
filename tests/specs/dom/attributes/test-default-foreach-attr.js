@@ -41,6 +41,15 @@ module.exports = (function () {
                        indexVal.should.equal(index + '');
                     });
                 });
+                it('should treat single values as arrays with 1 iteam', function () {
+                    var $rootNode = $('<ul> <li data-value="<%= value %>"> </li> </ul>');
+
+                    foreachHandler.handle.call($rootNode, 3);
+                    var newChildren = $rootNode.children();
+                    newChildren.length.should.equal(1);
+
+                    newChildren.data('value').should.equal('3');
+                });
             });
         });
         describe('integration', function () {

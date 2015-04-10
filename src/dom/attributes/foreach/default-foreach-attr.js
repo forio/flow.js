@@ -8,8 +8,8 @@ module.exports = {
 
     handle: function (value, prop) {
         value = [].concat(value);
-        var $children = this.children().remove();
-        var $me = this;
+        var $children = this.children();
+        var $me = this.empty();
         _.each(value, function (dataval, datakey) {
             var newNode = $children.clone();
             _.each(newNode.data(), function (val, key) {
