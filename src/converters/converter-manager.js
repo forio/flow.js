@@ -2,27 +2,31 @@
 
 //TODO: Make all underscore filters available
 
-var normalize = function (alias, converter) {
+var normalize = function (alias, converter, isList) {
     var ret = [];
     //nomalize('flip', fn)
     if (_.isFunction(converter)) {
         ret.push({
             alias: alias,
-            convert: converter
+            convert: converter,
+            isList: isList
         });
     } else if (_.isObject(converter) && converter.convert) {
         converter.alias = alias;
+        converter.isList = isList;
         ret.push(converter);
     } else if (_.isObject(alias)) {
         //normalize({alias: 'flip', convert: function})
         if (alias.convert) {
+            alias.isList = isList;
             ret.push(alias);
         } else {
             // normalize({flip: fun})
             $.each(alias, function (key, val) {
                 ret.push({
                     alias: key,
-                    convert: val
+                    convert: val,
+                    isList: isList
                 });
             });
         }
@@ -51,9 +55,10 @@ var converterManager = {
      * Add a new attribute converter
      * @param  {string|function|regex} alias formatter name
      * @param  {function|object} converter    converter can either be a function, which will be called with the value, or an object with {alias: '', parse: $.noop, convert: $.noop}
+     * @param {Boolean} isList decides if the converter is a 'list' converter or not; list converters take in arrays as inputs, others expect single values.
      */
-    register: function (alias, converter) {
-        var normalized = normalize(alias, converter);
+    register: function (alias, converter, isList) {
+        var normalized = normalize(alias, converter, isList);
         this.list = normalized.concat(this.list);
     },
 
@@ -74,6 +79,12 @@ var converterManager = {
         });
     },
 
+    /**
+     * Pipes the value sequentially through a list of provided converters
+     * @param  {*} value Input for the converter to tag
+     * @param  {Array|Object} list  list of converters (maps to converter alias)
+     * @return {*}       converted value
+     */
     convert: function (value, list) {
         if (!list || !list.length) {
             return value;

@@ -10,6 +10,12 @@
                 cm.list.length.should.equal(currentRegisterList + 1);
             });
 
+            it('should carry on the \'isList\' property', function () {
+                cm.register('listconv', $.noop, true);
+                var registered = cm.getConverter('listconv');
+                registered.isList.should.be.true;
+            });
+
             it('Allows registesting object converters', function () {
                 var currentRegisterList = cm.list.length;
                 var convSpy = sinon.spy();
