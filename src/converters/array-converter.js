@@ -2,14 +2,14 @@
 module.exports = [
     {
         alias: 'list',
-        isList: true,
+        acceptList: true,
         convert: function (val) {
             return [].concat(val);
         }
     },
     {
         alias: 'last',
-        isList: true,
+        acceptList: true,
         convert: function (val) {
             val = [].concat(val);
             return val[val.length - 1];
@@ -17,7 +17,7 @@ module.exports = [
     },
     {
         alias: 'first',
-        isList: true,
+        acceptList: true,
         convert: function (val) {
             val = [].concat(val);
             return val[0];
@@ -25,7 +25,7 @@ module.exports = [
     },
     {
         alias: 'previous',
-        isList: true,
+        acceptList: true,
         convert: function (val) {
             val = [].concat(val);
             return (val.length <= 1) ? val[0] : val[val.length - 2];

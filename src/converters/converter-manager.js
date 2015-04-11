@@ -2,18 +2,18 @@
 
 //TODO: Make all underscore filters available
 
-var normalize = function (alias, converter, isList) {
+var normalize = function (alias, converter, acceptList) {
     var ret = [];
     //nomalize('flip', fn)
     if (_.isFunction(converter)) {
         ret.push({
             alias: alias,
             convert: converter,
-            isList: isList
+            acceptList: acceptList
         });
     } else if (_.isObject(converter) && converter.convert) {
         converter.alias = alias;
-        converter.isList = isList;
+        converter.acceptList = acceptList;
         ret.push(converter);
     } else if (_.isObject(alias)) {
         //normalize({alias: 'flip', convert: function})
@@ -25,7 +25,7 @@ var normalize = function (alias, converter, isList) {
                 ret.push({
                     alias: key,
                     convert: val,
-                    isList: isList
+                    acceptList: acceptList
                 });
             });
         }
@@ -54,10 +54,10 @@ var converterManager = {
      * Add a new attribute converter
      * @param  {string|function|regex} alias formatter name
      * @param  {function|object} converter    converter can either be a function, which will be called with the value, or an object with {alias: '', parse: $.noop, convert: $.noop}
-     * @param {Boolean} isList decides if the converter is a 'list' converter or not; list converters take in arrays as inputs, others expect single values.
+     * @param {Boolean} acceptList decides if the converter is a 'list' converter or not; list converters take in arrays as inputs, others expect single values.
      */
-    register: function (alias, converter, isList) {
-        var normalized = normalize(alias, converter, isList);
+    register: function (alias, converter, acceptList) {
+        var normalized = normalize(alias, converter, acceptList);
         this.list = normalized.concat(this.list);
     },
 
@@ -95,7 +95,7 @@ var converterManager = {
         var me = this;
         _.each(list, function (converterName) {
             var converter = me.getConverter(converterName);
-            if (_.isArray(currentValue) && converter.isList !== true) {
+            if (_.isArray(currentValue) && converter.acceptList !== true) {
                 currentValue = _.map(currentValue, function (v) {
                     return converter.convert(v, converterName);
                 });

@@ -10,10 +10,10 @@
                 cm.list.length.should.equal(currentRegisterList + 1);
             });
 
-            it('should carry on the \'isList\' property', function () {
+            it('should carry on the \'acceptList\' property', function () {
                 cm.register('listconv', $.noop, true);
                 var registered = cm.getConverter('listconv');
-                registered.isList.should.be.true;
+                registered.acceptList.should.be.true;
             });
 
             it('Allows registesting object converters', function () {
