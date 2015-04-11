@@ -44,7 +44,7 @@ module.exports = (function () {
 
                         it('should pass arrays into converters if defined', function () {
                             var spy = sinon.spy();
-                            domManager.converters.register('spy', spy);
+                            domManager.converters.register('spy', spy, true);
                             var $node = utils.initWithNode('<input type="text" data-f-bind="apple | spy"/>', domManager);
                             $node.trigger('update.f.model', {
                                 apple: [1,2,3]

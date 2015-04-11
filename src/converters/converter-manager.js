@@ -18,7 +18,6 @@ var normalize = function (alias, converter, isList) {
     } else if (_.isObject(alias)) {
         //normalize({alias: 'flip', convert: function})
         if (alias.convert) {
-            alias.isList = isList;
             ret.push(alias);
         } else {
             // normalize({flip: fun})
@@ -96,7 +95,13 @@ var converterManager = {
         var me = this;
         _.each(list, function (converterName) {
             var converter = me.getConverter(converterName);
-            currentValue = converter.convert(currentValue, converterName);
+            if (_.isArray(currentValue) && converter.isList !== true) {
+                currentValue = _.map(currentValue, function (v) {
+                    return converter.convert(v, converterName);
+                });
+            } else {
+                currentValue = converter.convert(currentValue, converterName);
+            }
         });
         return currentValue;
     },
@@ -136,7 +141,13 @@ var defaultconverters = [
 ];
 
 $.each(defaultconverters.reverse(), function (index, converter) {
-    converterManager.register(converter);
+    if (_.isArray(converter)) {
+        _.each(converter, function (c) {
+           converterManager.register(c);
+        });
+    } else {
+        converterManager.register(converter);
+    }
 });
 
 module.exports = converterManager;
