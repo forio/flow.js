@@ -35,6 +35,61 @@ module.exports = (function () {
             matchedElements: []
         },
 
+        bindElement: function (element, channel) {
+            this.private.matchedElements = this.private.matchedElements.concat(element);
+
+            //Send to node manager to handle ui changes
+            var $el = $(element);
+            var Handler = nodeManager.getHandler($el);
+            new Handler.handle({
+                el: element
+            });
+
+            var varMap = $el.data('variable-attr-map');
+            if (!varMap) {
+                varMap = {};
+                //NOTE: looping through attributes instead of .data because .data automatically camelcases properties and make it hard to retrvieve
+                $(element.attributes).each(function (index, nodeMap) {
+                    var attr = nodeMap.nodeName;
+                    var attrVal = nodeMap.value;
+
+                    var wantedPrefix = 'data-f-';
+                    if (attr.indexOf(wantedPrefix) === 0) {
+                        attr = attr.replace(wantedPrefix, '');
+
+                        var handler = attrManager.getHandler(attr, $el);
+                        var isBindableAttr = true;
+                        if (handler && handler.init) {
+                            isBindableAttr = handler.init.call($el, attr, attrVal);
+                        }
+
+                        if (isBindableAttr) {
+                            //Convert pipes to converter attrs
+                            var withConv = _.invoke(attrVal.split('|'), 'trim');
+                            if (withConv.length > 1) {
+                                attrVal = withConv.shift();
+                                $el.data('f-convert-' + attr, withConv);
+                            }
+
+                            var commaRegex = /,(?![^\[]*\])/;
+                            if (attrVal.split(commaRegex).length > 1) {
+                                //TODO
+                                // triggerers = triggerers.concat(val.split(','));
+                            } else {
+                                varMap[attrVal] = attr;
+                            }
+                        }
+                    }
+                });
+                $el.data('variable-attr-map', varMap);
+
+                var subscribable = Object.keys(varMap);
+                if (subscribable.length) {
+                    channel.subscribe(Object.keys(varMap), $el);
+                }
+            }
+        },
+
         initialize: function (options) {
             var defaults = {
                 root: 'body',
@@ -54,60 +109,8 @@ module.exports = (function () {
                 if ($root.is(':' + config.prefix)) {
                     matchedElements = matchedElements.add($(defaults.root));
                 }
-
-                me.private.matchedElements = matchedElements;
-
                 $.each(matchedElements, function (index, element) {
-                    var $el = $(element);
-                    var Handler = nodeManager.getHandler($el);
-                    new Handler.handle({
-                        el: element
-                    });
-
-
-                    var varMap = $el.data('variable-attr-map');
-                    if (!varMap) {
-                        varMap = {};
-                        //NOTE: looping through attributes instead of .data because .data automatically camelcases properties and make it hard to retrvieve
-                        $(element.attributes).each(function (index, nodeMap) {
-                            var attr = nodeMap.nodeName;
-                            var attrVal = nodeMap.value;
-
-                            var wantedPrefix = 'data-f-';
-                            if (attr.indexOf(wantedPrefix) === 0) {
-                                attr = attr.replace(wantedPrefix, '');
-
-                                var handler = attrManager.getHandler(attr, $el);
-                                var isBindableAttr = true;
-                                if (handler && handler.init) {
-                                    isBindableAttr = handler.init.call($el, attr, attrVal);
-                                }
-
-                                if (isBindableAttr) {
-                                    //Convert pipes to converter attrs
-                                    var withConv = _.invoke(attrVal.split('|'), 'trim');
-                                    if (withConv.length > 1) {
-                                        attrVal = withConv.shift();
-                                        $el.data('f-convert-' + attr, withConv);
-                                    }
-
-                                    var commaRegex = /,(?![^\[]*\])/;
-                                    if (attrVal.split(commaRegex).length > 1) {
-                                        //TODO
-                                        // triggerers = triggerers.concat(val.split(','));
-                                    } else {
-                                        varMap[attrVal] = attr;
-                                    }
-                                }
-                            }
-                        });
-                        $el.data('variable-attr-map', varMap);
-                    }
-
-                    var subscribable = Object.keys(varMap);
-                    if (subscribable.length) {
-                        channel.variables.subscribe(Object.keys(varMap), $el);
-                    }
+                    me.bindElement.call(me, element, channel.variables);
                 });
                 $root.trigger('f.domready');
 
