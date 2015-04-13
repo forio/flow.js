@@ -35,6 +35,35 @@ module.exports = (function () {
             matchedElements: []
         },
 
+        unbindElement: function (element, channel) {
+            var $el = $(element);
+
+            //FIXME: have to readd events to be able to remove them. Ugly
+            var Handler = nodeManager.getHandler($el);
+            var h = new Handler.handle({
+                el: element
+            });
+            h.removeEvents();
+
+            $(element.attributes).each(function (index, nodeMap) {
+                var attr = nodeMap.nodeName;
+                var wantedPrefix = 'data-f-';
+                if (attr.indexOf(wantedPrefix) === 0) {
+                    attr = attr.replace(wantedPrefix, '');
+
+                    var handler = attrManager.getHandler(attr, $el);
+                    if (handler.detach) {
+                        handler.detach.call($el, attr);
+                    }
+                }
+            });
+
+            var subsid = $el.data('f-subscription-id');
+            if (subsid) {
+                channel.unsubscribe(subsid);
+            }
+        },
+
         bindElement: function (element, channel) {
             this.private.matchedElements = this.private.matchedElements.concat(element);
 
@@ -85,7 +114,8 @@ module.exports = (function () {
 
                 var subscribable = Object.keys(varMap);
                 if (subscribable.length) {
-                    channel.subscribe(Object.keys(varMap), $el);
+                    var subsid = channel.subscribe(Object.keys(varMap), $el);
+                    $el.data('f-subscription-id', subsid);
                 }
             }
         },
