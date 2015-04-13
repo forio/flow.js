@@ -88,7 +88,7 @@ module.exports = (function () {
                                     var withConv = _.invoke(attrVal.split('|'), 'trim');
                                     if (withConv.length > 1) {
                                         attrVal = withConv.shift();
-                                        $el.data('f-converters-' + attr, withConv);
+                                        $el.data('f-convert-' + attr, withConv);
                                     }
 
                                     var commaRegex = /,(?![^\[]*\])/;
