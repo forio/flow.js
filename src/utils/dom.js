@@ -26,7 +26,7 @@ module.exports = {
             }
 
             if (attrConverters) {
-                attrConverters = attrConverters.split('|');
+                attrConverters = _.invoke(attrConverters.split('|'), 'trim');
             }
         }
 
