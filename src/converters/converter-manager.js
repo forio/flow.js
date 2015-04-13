@@ -2,16 +2,18 @@
 
 //TODO: Make all underscore filters available
 
-var normalize = function (alias, converter) {
+var normalize = function (alias, converter, acceptList) {
     var ret = [];
     //nomalize('flip', fn)
     if (_.isFunction(converter)) {
         ret.push({
             alias: alias,
-            convert: converter
+            convert: converter,
+            acceptList: acceptList
         });
     } else if (_.isObject(converter) && converter.convert) {
         converter.alias = alias;
+        converter.acceptList = acceptList;
         ret.push(converter);
     } else if (_.isObject(alias)) {
         //normalize({alias: 'flip', convert: function})
@@ -22,7 +24,8 @@ var normalize = function (alias, converter) {
             $.each(alias, function (key, val) {
                 ret.push({
                     alias: key,
-                    convert: val
+                    convert: val,
+                    acceptList: acceptList
                 });
             });
         }
@@ -51,9 +54,10 @@ var converterManager = {
      * Add a new attribute converter
      * @param  {string|function|regex} alias formatter name
      * @param  {function|object} converter    converter can either be a function, which will be called with the value, or an object with {alias: '', parse: $.noop, convert: $.noop}
+     * @param {Boolean} acceptList decides if the converter is a 'list' converter or not; list converters take in arrays as inputs, others expect single values.
      */
-    register: function (alias, converter) {
-        var normalized = normalize(alias, converter);
+    register: function (alias, converter, acceptList) {
+        var normalized = normalize(alias, converter, acceptList);
         this.list = normalized.concat(this.list);
     },
 
@@ -74,6 +78,12 @@ var converterManager = {
         });
     },
 
+    /**
+     * Pipes the value sequentially through a list of provided converters
+     * @param  {*} value Input for the converter to tag
+     * @param  {Array|Object} list  list of converters (maps to converter alias)
+     * @return {*}       converted value
+     */
     convert: function (value, list) {
         if (!list || !list.length) {
             return value;
@@ -85,7 +95,13 @@ var converterManager = {
         var me = this;
         _.each(list, function (converterName) {
             var converter = me.getConverter(converterName);
-            currentValue = converter.convert(currentValue, converterName);
+            if (_.isArray(currentValue) && converter.acceptList !== true) {
+                currentValue = _.map(currentValue, function (v) {
+                    return converter.convert(v, converterName);
+                });
+            } else {
+                currentValue = converter.convert(currentValue, converterName);
+            }
         });
         return currentValue;
     },
@@ -125,7 +141,13 @@ var defaultconverters = [
 ];
 
 $.each(defaultconverters.reverse(), function (index, converter) {
-    converterManager.register(converter);
+    if (_.isArray(converter)) {
+        _.each(converter, function (c) {
+           converterManager.register(c);
+        });
+    } else {
+        converterManager.register(converter);
+    }
 });
 
 module.exports = converterManager;

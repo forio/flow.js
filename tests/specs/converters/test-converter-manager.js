@@ -10,6 +10,12 @@
                 cm.list.length.should.equal(currentRegisterList + 1);
             });
 
+            it('should carry on the \'acceptList\' property', function () {
+                cm.register('listconv', $.noop, true);
+                var registered = cm.getConverter('listconv');
+                registered.acceptList.should.be.true;
+            });
+
             it('Allows registesting object converters', function () {
                 var currentRegisterList = cm.list.length;
                 var convSpy = sinon.spy();
@@ -31,11 +37,23 @@
             it('should convert with a single converter', function () {
                 cm.convert(1, 's').should.equal('1');
             });
-            it('should convert with an array converters', function () {
+            it('should convert with an array of converters', function () {
                 cm.register('multiply', function (val) {
                     return val * 3;
                 });
                 cm.convert('2', ['i', 'multiply']).should.equal(6);
+            });
+            it('should apply converter to each item in an array if provided an array + non-list converter', function () {
+                cm.register('multiply', function (val) {
+                    return val * 3;
+                });
+                cm.convert(['2', '3', '4'], ['i', 'multiply']).should.eql([6, 9, 12]);
+            });
+            it('should apply converter to entire array if provided an array + list converter', function () {
+                cm.register('zefirst', function (val) {
+                    return val[0];
+                }, true);
+                cm.convert(['2', '3', '4'], ['zefirst']).should.eql('2');
             });
         });
         describe('#replace', function () {

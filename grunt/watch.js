@@ -8,7 +8,7 @@ module.exports = function (grunt) {
             tasks: ['browserify:edge', 'browserify:tests:', 'browserify:instrumented:','mocha:test', 'coverage-report']
         },
         tests: {
-            files: ['tests/specs/**/*.js', 'tests/specs/*.js', 'tests/*.js'],
+            files: ['tests/specs/**/*.js', 'tests/specs/*.js', 'tests/*.js', '!tests/dist/*'],
             tasks: ['browserify:tests:', 'browserify:instrumented:', 'mocha:test', 'coverage-report']
         }
     });

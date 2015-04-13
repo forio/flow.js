@@ -18,7 +18,7 @@ module.exports = function (grunt) {
 
         tests: {
             files: {
-                './tests/tests-browserify-bundle.js': './tests/test-list.js'
+                './tests/dist/tests-browserify-bundle.js': './tests/test-list.js'
             },
             options: {
                 preBundleCB: function (b) {
@@ -27,12 +27,13 @@ module.exports = function (grunt) {
                         cwd: './src/',
                         expose: 'src'
                     });
-                }
+                },
+                postBundleCB: null
             }
         },
         instrumented: {
             files: {
-                './tests/tests-browserify-bundle-instrumented.js': './tests/test-list.js'
+                './tests/dist/tests-browserify-bundle-instrumented.js': './tests/test-list.js'
             },
             options: {
                 transform: [istanbul],
@@ -43,7 +44,8 @@ module.exports = function (grunt) {
                         cwd: './instrument/',
                         expose: 'src'
                     });
-                }
+                },
+                postBundleCB: null
             }
         },
         edge: {
