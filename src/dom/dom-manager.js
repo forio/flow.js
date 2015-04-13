@@ -52,8 +52,8 @@ module.exports = (function () {
                     attr = attr.replace(wantedPrefix, '');
 
                     var handler = attrManager.getHandler(attr, $el);
-                    if (handler.detach) {
-                        handler.detach.call($el, attr);
+                    if (handler.stopListening) {
+                        handler.stopListening.call($el, attr);
                     }
                 }
             });

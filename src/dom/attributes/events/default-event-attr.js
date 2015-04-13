@@ -8,7 +8,7 @@ module.exports = {
         return (attr.indexOf('on-') === 0);
     },
 
-    detach: function (attr, value) {
+    stopListening: function (attr) {
         attr = attr.replace('on-', '');
         this.off(attr);
     },
