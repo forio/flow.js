@@ -36,8 +36,13 @@ module.exports = (function () {
         },
 
         unbindElement: function (element, channel) {
-            var $el = $(element);
+            this.private.matchedElements = _.without(this.private.matchedElements, element);
 
+            if (!channel) {
+                channel = this.options.channel.variables;
+            }
+
+            var $el = $(element);
             //FIXME: have to readd events to be able to remove them. Ugly
             var Handler = nodeManager.getHandler($el);
             var h = new Handler.handle({
@@ -65,7 +70,10 @@ module.exports = (function () {
         },
 
         bindElement: function (element, channel) {
-            this.private.matchedElements = this.private.matchedElements.concat(element);
+            this.private.matchedElements.push(element);
+            if (!channel) {
+                channel = this.options.channel.variables;
+            }
 
             //Send to node manager to handle ui changes
             var $el = $(element);
@@ -128,22 +136,14 @@ module.exports = (function () {
             if ($root.is(':' + config.prefix)) {
                 matchedElements = matchedElements.add($(this.options.root));
             }
-            me.matchedElements = matchedElements;
             $.each(matchedElements, function (index, element) {
                 me.bindElement.call(me, element, me.options.channel.variables);
             });
             $root.trigger('f.domready');
         },
         unbindAll: function () {
-            var $root = $(this.options.root);
             var me = this;
-            //parse through dom and find everything with matching attributes
-            var matchedElements = $root.find(':' + config.prefix);
-            if ($root.is(':' + config.prefix)) {
-                matchedElements = matchedElements.add($(this.options.root));
-            }
-            me.matchedElements = [];
-            $.each(matchedElements, function (index, element) {
+            $.each(this.private.matchedElements, function (index, element) {
                 me.unbindElement.call(me, element, me.options.channel.variables);
             });
         },

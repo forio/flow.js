@@ -7,11 +7,11 @@
     var domManager = require('src/dom/dom-manager');
 
     describe('DOM Manager', function () {
+        afterEach(function () {
+            domManager.private.matchedElements = [];
+        });
         describe('#initialize', function () {
             describe('Selectors', function () {
-                afterEach(function () {
-                    domManager.private.matchedElements = [];
-                });
 
                 it('should select nothing by default', function () {
                     domManager.initialize({
@@ -125,8 +125,79 @@
             require('./test-dom-converters');
         });
 
-        describe('unbindElement', function () {
+        describe('#bindElement', function () {
+            it('should bind elements added to the dom', function () {
+                var node = make('<div data-f-bind="a"> </div>');
+                domManager.initialize({
+                    root: node,
+                    channel: dummyChannelManager
+                });
 
+                $(node).append('<input type="text" data-f-bind="boo" />');
+                var addedNode = $(node).find(':text');
+
+                var textspy = sinon.spy();
+                $(addedNode).on('update.f.ui', textspy);
+
+                $(addedNode).val('hello').trigger('change');
+                textspy.should.not.have.been.called;
+
+                domManager.bindElement(addedNode);
+
+                $(addedNode).val('hello1').trigger('change');
+                textspy.should.have.been.calledOnce;
+            });
+
+            it('should update list of added items', function () {
+                var node = make('<div data-f-bind="a"> </div>');
+                domManager.initialize({
+                    root: node,
+                    channel: dummyChannelManager
+                });
+
+                $(node).append('<input type="text" data-f-bind="boo" />');
+                var addedNode = $(node).find(':text');
+
+                domManager.private.matchedElements.length.should.equal(1);
+                domManager.bindElement(addedNode);
+                domManager.private.matchedElements.length.should.equal(2);
+            });
+        });
+
+        describe('#unbindElement', function () {
+            it('should unbindElement elements added to the dom', function () {
+                var node = make('<div data-f-bind="a"> <input type="text" data-f-bind="boo" /> </div>');
+                domManager.initialize({
+                    root: node,
+                    channel: dummyChannelManager
+                });
+
+                var addedNode = $(node).find(':text');
+
+                var textspy = sinon.spy();
+                $(addedNode).on('update.f.ui', textspy);
+
+                $(addedNode).val('hello').trigger('change');
+                textspy.should.have.been.calledOnce;
+
+                domManager.unbindElement(addedNode.get(0));
+
+                $(addedNode).val('hello1').trigger('change');
+                textspy.should.have.been.calledOnce;
+            });
+            it('should update list of added items', function () {
+                var node = make('<div data-f-bind="a"> <input type="text" data-f-bind="boo" /> </div>');
+                domManager.initialize({
+                    root: node,
+                    channel: dummyChannelManager
+                });
+
+                var addedNode = $(node).find(':text');
+
+                domManager.private.matchedElements.length.should.equal(2);
+                domManager.unbindElement(addedNode.get(0));
+                domManager.private.matchedElements.length.should.equal(1);
+            });
         });
     });
 
