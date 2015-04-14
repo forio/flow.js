@@ -25,6 +25,14 @@ module.exports = (function () {
         return obj.nodeName.indexOf('-') !== -1;
     };
 
+    var getMatchingElements = function ($root) {
+        var matchedElements = $root.find(':' + config.prefix);
+        if ($root.is(':' + config.prefix)) {
+            matchedElements = matchedElements.add($(this.options.root));
+        }
+        return matchedElements;
+    };
+
     var publicAPI = {
 
         nodes: nodeManager,
@@ -130,19 +138,23 @@ module.exports = (function () {
             }
         },
 
-        bindAll: function () {
-            var $root = $(this.options.root);
+        /**
+         * Bind all provided elements
+         * @param  {Array|jQuerySelector} elementsToBind
+         */
+        bindAll: function (elementsToBind) {
+            if (!elementsToBind) {
+                elementsToBind = getMatchingElements($(this.options.root));
+            } else if (!_.isArray(elementsToBind)) {
+                elementsToBind = getMatchingElements(elementsToBind);
+            }
+
             var me = this;
             this.private.matchedElements = [];
             //parse through dom and find everything with matching attributes
-            var matchedElements = $root.find(':' + config.prefix);
-            if ($root.is(':' + config.prefix)) {
-                matchedElements = matchedElements.add($(this.options.root));
-            }
-            $.each(matchedElements, function (index, element) {
+            $.each(elementsToBind, function (index, element) {
                 me.bindElement.call(me, element, me.options.channel.variables);
             });
-            $root.trigger('f.domready');
         },
         unbindAll: function () {
             var me = this;
@@ -166,6 +178,7 @@ module.exports = (function () {
             var $root = $(defaults.root);
             $(function () {
                 me.bindAll();
+                $root.trigger('f.domready');
 
                 //Attach listeners
                 // Listen for changes from api and update ui

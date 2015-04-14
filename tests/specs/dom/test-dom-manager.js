@@ -234,7 +234,7 @@
             });
         });
         describe('#bindAll', function () {
-            it('should bind elements added to the dom', function () {
+            it('should bind elements from the root if no selector is provided', function () {
                 var node = make('<div data-f-bind="a"> </div>');
                 domManager.initialize({
                     root: node,
@@ -262,12 +262,25 @@
                     root: node,
                     channel: dummyChannelManager
                 });
+                domManager.private.matchedElements.length.should.equal(1);
 
                 $(node).append('<input type="text" data-f-bind="boo" />');
-                domManager.private.matchedElements.length.should.equal(1);
                 domManager.bindAll();
                 domManager.private.matchedElements.length.should.equal(2);
             });
+
+            // it('should allow providing list of elements to bind', function () {
+            //     var node = make('<div data-f-bind="a"> </div>');
+            //     domManager.initialize({
+            //         root: node,
+            //         channel: dummyChannelManager
+            //     });
+            //     domManager.private.matchedElements.length.should.equal(1);
+
+            //     $(node).append('<input type="text" data-f-bind="boo" /> <input type="text" data-f-bind="boos" /> <input type="text" data-f-bind="booss" />');
+            //     domManager.bindAll($(node).find(':text').get().slice(0,2));
+            //     domManager.private.matchedElements.length.should.equal(3);
+            // });
         });
 
     });
