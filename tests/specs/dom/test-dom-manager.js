@@ -269,18 +269,18 @@
                 domManager.private.matchedElements.length.should.equal(2);
             });
 
-            // it('should allow providing list of elements to bind', function () {
-            //     var node = make('<div data-f-bind="a"> </div>');
-            //     domManager.initialize({
-            //         root: node,
-            //         channel: dummyChannelManager
-            //     });
-            //     domManager.private.matchedElements.length.should.equal(1);
+            it('should allow providing list of elements to bind', function () {
+                var node = make('<div data-f-bind="a"> </div>');
+                domManager.initialize({
+                    root: node,
+                    channel: dummyChannelManager
+                });
+                domManager.private.matchedElements.length.should.equal(1);
 
-            //     $(node).append('<input type="text" data-f-bind="boo" /> <input type="text" data-f-bind="boos" /> <input type="text" data-f-bind="booss" />');
-            //     domManager.bindAll($(node).find(':text').get().slice(0,2));
-            //     domManager.private.matchedElements.length.should.equal(3);
-            // });
+                $(node).append('<input type="text" data-f-bind="boo" /> <input type="text" data-f-bind="boos" /> <input type="text" data-f-bind="booss" />');
+                domManager.bindAll($(node).find(':text').get().slice(0,2));
+                domManager.private.matchedElements.length.should.equal(3);
+            });
         });
 
     });

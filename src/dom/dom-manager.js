@@ -25,10 +25,11 @@ module.exports = (function () {
         return obj.nodeName.indexOf('-') !== -1;
     };
 
-    var getMatchingElements = function ($root) {
+    var getMatchingElements = function (root) {
+        var $root = $(root);
         var matchedElements = $root.find(':' + config.prefix);
         if ($root.is(':' + config.prefix)) {
-            matchedElements = matchedElements.add($(this.options.root));
+            matchedElements = matchedElements.add($root);
         }
         return matchedElements;
     };
@@ -80,9 +81,11 @@ module.exports = (function () {
         },
 
         bindElement: function (element, channel) {
-            this.private.matchedElements.push(element);
             if (!channel) {
                 channel = this.options.channel.variables;
+            }
+            if (!_.contains(this.private.matchedElements, element)) {
+                this.private.matchedElements.push(element);
             }
 
             //Send to node manager to handle ui changes
@@ -144,13 +147,12 @@ module.exports = (function () {
          */
         bindAll: function (elementsToBind) {
             if (!elementsToBind) {
-                elementsToBind = getMatchingElements($(this.options.root));
+                elementsToBind = getMatchingElements(this.options.root);
             } else if (!_.isArray(elementsToBind)) {
                 elementsToBind = getMatchingElements(elementsToBind);
             }
 
             var me = this;
-            this.private.matchedElements = [];
             //parse through dom and find everything with matching attributes
             $.each(elementsToBind, function (index, element) {
                 me.bindElement.call(me, element, me.options.channel.variables);
