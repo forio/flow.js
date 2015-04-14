@@ -199,6 +199,77 @@
                 domManager.private.matchedElements.length.should.equal(1);
             });
         });
+
+        describe('#unbindAll', function () {
+            it('should unbindElement all elements added to the dom', function () {
+                var node = make('<div data-f-bind="a"> <input type="text" data-f-bind="boo" /> </div>');
+                domManager.initialize({
+                    root: node,
+                    channel: dummyChannelManager
+                });
+
+                var addedNode = $(node).find(':text');
+
+                var textspy = sinon.spy();
+                $(addedNode).on('update.f.ui', textspy);
+
+                $(addedNode).val('hello').trigger('change');
+                textspy.should.have.been.calledOnce;
+
+                domManager.unbindAll();
+
+                $(addedNode).val('hello1').trigger('change');
+                textspy.should.have.been.calledOnce;
+            });
+            it('should update list of added items', function () {
+                var node = make('<div data-f-bind="a"> <input type="text" data-f-bind="boo" /> </div>');
+                domManager.initialize({
+                    root: node,
+                    channel: dummyChannelManager
+                });
+
+                domManager.private.matchedElements.length.should.equal(2);
+                domManager.unbindAll();
+                domManager.private.matchedElements.length.should.equal(0);
+            });
+        });
+        describe('#bindAll', function () {
+            it('should bind elements added to the dom', function () {
+                var node = make('<div data-f-bind="a"> </div>');
+                domManager.initialize({
+                    root: node,
+                    channel: dummyChannelManager
+                });
+
+                $(node).append('<input type="text" data-f-bind="boo" />');
+                var addedNode = $(node).find(':text');
+
+                var textspy = sinon.spy();
+                $(addedNode).on('update.f.ui', textspy);
+
+                $(addedNode).val('hello').trigger('change');
+                textspy.should.not.have.been.called;
+
+                domManager.bindAll();
+
+                $(addedNode).val('hello1').trigger('change');
+                textspy.should.have.been.calledOnce;
+            });
+
+            it('should update list of added items', function () {
+                var node = make('<div data-f-bind="a"> </div>');
+                domManager.initialize({
+                    root: node,
+                    channel: dummyChannelManager
+                });
+
+                $(node).append('<input type="text" data-f-bind="boo" />');
+                domManager.private.matchedElements.length.should.equal(1);
+                domManager.bindAll();
+                domManager.private.matchedElements.length.should.equal(2);
+            });
+        });
+
     });
 
 }());

@@ -48,7 +48,9 @@ module.exports = (function () {
             var h = new Handler.handle({
                 el: element
             });
-            h.removeEvents();
+            if (h.removeEvents) {
+                h.removeEvents();
+            }
 
             $(element.attributes).each(function (index, nodeMap) {
                 var attr = nodeMap.nodeName;
@@ -131,6 +133,7 @@ module.exports = (function () {
         bindAll: function () {
             var $root = $(this.options.root);
             var me = this;
+            this.private.matchedElements = [];
             //parse through dom and find everything with matching attributes
             var matchedElements = $root.find(':' + config.prefix);
             if ($root.is(':' + config.prefix)) {
