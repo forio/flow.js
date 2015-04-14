@@ -120,6 +120,34 @@ module.exports = (function () {
             }
         },
 
+        bindAll: function () {
+            var $root = $(this.options.root);
+            var me = this;
+            //parse through dom and find everything with matching attributes
+            var matchedElements = $root.find(':' + config.prefix);
+            if ($root.is(':' + config.prefix)) {
+                matchedElements = matchedElements.add($(this.options.root));
+            }
+            me.matchedElements = matchedElements;
+            $.each(matchedElements, function (index, element) {
+                me.bindElement.call(me, element, me.options.channel.variables);
+            });
+            $root.trigger('f.domready');
+        },
+        unbindAll: function () {
+            var $root = $(this.options.root);
+            var me = this;
+            //parse through dom and find everything with matching attributes
+            var matchedElements = $root.find(':' + config.prefix);
+            if ($root.is(':' + config.prefix)) {
+                matchedElements = matchedElements.add($(this.options.root));
+            }
+            me.matchedElements = [];
+            $.each(matchedElements, function (index, element) {
+                me.unbindElement.call(me, element, me.options.channel.variables);
+            });
+        },
+
         initialize: function (options) {
             var defaults = {
                 root: 'body',
@@ -134,15 +162,7 @@ module.exports = (function () {
             var me = this;
             var $root = $(defaults.root);
             $(function () {
-                //parse through dom and find everything with matching attributes
-                var matchedElements = $root.find(':' + config.prefix);
-                if ($root.is(':' + config.prefix)) {
-                    matchedElements = matchedElements.add($(defaults.root));
-                }
-                $.each(matchedElements, function (index, element) {
-                    me.bindElement.call(me, element, channel.variables);
-                });
-                $root.trigger('f.domready');
+                me.bindAll();
 
                 //Attach listeners
                 // Listen for changes from api and update ui
