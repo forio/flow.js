@@ -232,6 +232,17 @@
                 domManager.unbindAll();
                 domManager.private.matchedElements.length.should.equal(0);
             });
+            it('should allow unbinding specified array of elements', function () {
+                var node = make('<div data-f-bind="a"> <input type="text" data-f-bind="boo" />  <input type="text" data-f-bind="boos" /> </div>');
+                domManager.initialize({
+                    root: node,
+                    channel: dummyChannelManager
+                });
+
+                domManager.private.matchedElements.length.should.equal(3);
+                domManager.unbindAll([$(node).find(':text').get(0)]);
+                domManager.private.matchedElements.length.should.equal(2);
+            });
         });
         describe('#bindAll', function () {
             it('should bind elements from the root if no selector is provided', function () {
@@ -279,6 +290,18 @@
 
                 $(node).append('<input type="text" data-f-bind="boo" /> <input type="text" data-f-bind="boos" /> <input type="text" data-f-bind="booss" />');
                 domManager.bindAll($(node).find(':text').get().slice(0,2));
+                domManager.private.matchedElements.length.should.equal(3);
+            });
+            it('should allow providing jquery selector', function () {
+                var node = make('<div data-f-bind="a"> </div>');
+                domManager.initialize({
+                    root: node,
+                    channel: dummyChannelManager
+                });
+                domManager.private.matchedElements.length.should.equal(1);
+
+                $(node).append('<div> <input type="text" data-f-bind="boo" /> <input type="text" data-f-bind="boos" /> </div> <div> <input type="text" data-f-bind="booss" /> </div>');
+                domManager.bindAll($(node).find('div').get(0));
                 domManager.private.matchedElements.length.should.equal(3);
             });
         });

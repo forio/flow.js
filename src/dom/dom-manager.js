@@ -143,7 +143,7 @@ module.exports = (function () {
 
         /**
          * Bind all provided elements
-         * @param  {Array|jQuerySelector} elementsToBind
+         * @param  {Array|jQuerySelector} elementsToBind (Optional) If not provided uses the default root provided at initialization
          */
         bindAll: function (elementsToBind) {
             if (!elementsToBind) {
@@ -158,9 +158,16 @@ module.exports = (function () {
                 me.bindElement.call(me, element, me.options.channel.variables);
             });
         },
-        unbindAll: function () {
+        /**
+         * Unbind provided elements
+         * @param  {Array} elementsToUnbind (Optional). If not provided unbinds everything
+         */
+        unbindAll: function (elementsToUnbind) {
             var me = this;
-            $.each(this.private.matchedElements, function (index, element) {
+            if (!elementsToUnbind) {
+                elementsToUnbind = this.private.matchedElements;
+            }
+            $.each(elementsToUnbind, function (index, element) {
                 me.unbindElement.call(me, element, me.options.channel.variables);
             });
         },
