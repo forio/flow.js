@@ -20,6 +20,22 @@
             textNode = makeView = null;
         });
 
+        describe('#initialize', function () {
+            it('should attach event handlers if \'bind\' is specified', function () {
+                var $el = $('<input type="text" data-f-bind="stuff" />');
+                new NodeClass({
+                    $el: $el
+                });
+
+                var s = sinon.spy();
+                $el.on('update.f.ui', s);
+
+                $el.val('hello').trigger('change');
+
+                s.should.have.been.called;
+            });
+        });
+
         describe('selector', function () {
             it('should claim input nodes', function () {
                 var claimed = $(textNode).is(NodeClass.selector);
