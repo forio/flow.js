@@ -77,7 +77,6 @@ module.exports = function (options) {
 
         //Interpolated variables which need to be resolved before the outer ones can be
         innerVariablesList: [],
-        variableListenerMap: {},
 
         subscriptions: [],
 
@@ -243,11 +242,6 @@ module.exports = function (options) {
                 if (inner.length) {
                     me.innerVariablesList = _.uniq(me.innerVariablesList.concat(inner));
                 }
-
-                if (!me.variableListenerMap[property]) {
-                    me.variableListenerMap[property] = [];
-                }
-                me.variableListenerMap[property] = me.variableListenerMap[property].concat(data);
             });
 
             return id;
@@ -255,15 +249,11 @@ module.exports = function (options) {
 
 
         unsubscribe: function (variable, token) {
-            this.variableListenerMap[variable] = _.reject(this.variableListenerMap[variable], function (subs) {
-                return subs.id === token;
-            });
             this.subscriptions = _.reject(this.subscriptions, function (subs) {
                 return subs.id === token;
             });
         },
         unsubscribeAll: function () {
-            this.variableListenerMap = {};
             this.innerVariablesList = [];
             this.subscriptions = [];
         }
