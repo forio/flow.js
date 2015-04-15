@@ -118,7 +118,6 @@ module.exports = function (options) {
                     _.each(variables, function (value, vname) {
                         var oldValue = currentData[vname];
                         if (!isEqual(value, oldValue)) {
-                            currentData[vname] = value;
                             changeSet[vname] = value;
                             if (interpolationMap && interpolationMap[vname]) {
                                 var map = [].concat(interpolationMap[vname]);
@@ -129,6 +128,7 @@ module.exports = function (options) {
                         }
                     });
                     me.notify(changeSet);
+                    $.extend(currentData, changeSet);
                 });
             };
             if (me.innerVariablesList.length) {

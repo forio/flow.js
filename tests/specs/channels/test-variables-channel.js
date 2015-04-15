@@ -235,6 +235,7 @@
                    channel.getSubscribers('sales').length.should.equal(1);
 
                    channel.publish('price', 32);
+
                    cb.should.have.been.called.calledOnce;
                    cb.should.have.been.calledWith({ price: 23 }); // mock server always returns 23
 
@@ -246,6 +247,13 @@
             it('should publish values to the variables service', function () {
                 channel.publish({ price: 23 });
                 mockVariables.save.should.have.been.calledWith({ price: 23 });
+
+            });
+            //Skipping till we figure out a way to set the interpolation map
+            it.skip('should interpolate variables', function () {
+                // channel.interpolationMap.time = 1;
+                channel.publish({ 'price[<time>]': 23 });
+                mockVariables.save.should.have.been.calledWith({ 'price[1]': 23 });
 
             });
             it('should call refresh after publish', function () {
