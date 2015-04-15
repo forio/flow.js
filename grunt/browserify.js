@@ -4,7 +4,7 @@ var istanbul = require('browserify-istanbul');
 var remapify = require('remapify');
 
 module.exports = function (grunt) {
-    grunt.loadNpmTasks('grunt-browserify');
+    // grunt.loadNpmTasks('grunt-browserify');
     grunt.config.set('browserify', {
         options: {
             browserifyOptions: {
