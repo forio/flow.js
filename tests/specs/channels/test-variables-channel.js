@@ -176,9 +176,8 @@
                 channel.subscribe(['target'], {});
 
                 channel.unsubscribeAll();
-                channel.variableListenerMap.should.eql({});
                 channel.innerVariablesList.should.eql([]);
-
+                channel.subscriptions.should.eql([]);
             });
 
         });
@@ -189,19 +188,24 @@
             });
             it('should update variable listeners', function () {
                 channel.subscribe(['price'], {});
-                channel.variableListenerMap.should.have.key('price');
+
+                channel.getSubscribersFor('price').length.should.equal(1);
             });
             it('should update inner variable dependencies for single items', function () {
                 channel.subscribe(['price[<time>]'], {});
 
-                channel.variableListenerMap.should.have.key('price[<time>]');
+                var subs = channel.getSubscribersFor('price[<time>]');
+                subs.length.should.equal(1);
                 channel.innerVariablesList.should.eql(['time']);
             });
 
             it('should update inner variable dependencies for multiple items', function () {
                 channel.subscribe(['price[<time>]', 'apples', 'sales[<step>]'], {});
 
-                channel.variableListenerMap.should.have.keys('price[<time>]', 'apples', 'sales[<step>]');
+                channel.getSubscribersFor('price[<time>]').length.should.equal(1);
+                channel.getSubscribersFor('apples').length.should.equal(1);
+                channel.getSubscribersFor('sales[<step>]').length.should.equal(1);
+
                 channel.innerVariablesList.should.eql(['time', 'step']);
             });
             it('should generate a token', function () {
@@ -214,7 +218,7 @@
                it('should allow subscribing functions to single variables', function () {
                    var cb = sinon.spy();
                    channel.subscribe('price', cb);
-                   channel.variableListenerMap.should.have.key('price');
+                   channel.getSubscribersFor('price').length.should.equal(1);
 
                    channel.publish('price', 32);
                    cb.should.have.been.called.calledOnce;
@@ -226,7 +230,9 @@
                it.skip('should allow subscribing functions to multi variables', function () {
                    var cb = sinon.spy();
                    channel.subscribe(['price', 'sales'], cb);
-                   channel.variableListenerMap.should.have.keys(['price', 'sales']);
+
+                   channel.getSubscribersFor('price').length.should.equal(1);
+                   channel.getSubscribersFor('sales').length.should.equal(1);
 
                    channel.publish('price', 32);
                    cb.should.have.been.called.calledOnce;
@@ -448,10 +454,11 @@
             it('should use the token to unsubscribe', function () {
                 var dummyObject = { a: 1 };
                 var token = channel.subscribe(['price[<time>]', 'apples', 'sales[<step>]'], dummyObject);
-                channel.variableListenerMap.apples.length.should.eql(1);
+
+                channel.getSubscribersFor('apples').length.should.equal(1);
 
                 channel.unsubscribe('apples', token);
-                channel.variableListenerMap.apples.should.eql([]);
+                channel.getSubscribersFor('apples').should.eql([]);
             });
         });
     });

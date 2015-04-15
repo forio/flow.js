@@ -80,6 +80,14 @@ module.exports = function (options) {
 
         subscriptions: [],
 
+        getSubscribersFor: function (topic) {
+            if (topic) {
+                return this.variableListenerMap[topic];
+            } else {
+                return _.flatten(_.values(this.variableListenerMap));
+            }
+        },
+
         /**
          * Check and notify all listeners
          * @param  {Object} changeObj key-value pairs of changed variables
@@ -160,9 +168,9 @@ module.exports = function (options) {
             _.each(this.subscriptions, function (subscription) {
                 var target = subscription.target;
                 if (subscription.batch) {
-                    var params = _.pick(topics, subscription.topics);
-                    if (_.size(params) === _.size(subscription.topics)) {
-                        callTarget(target, params);
+                    var matchingTopics = _.pick(topics, subscription.topics);
+                    if (_.size(matchingTopics) === _.size(subscription.topics)) {
+                        callTarget(target, matchingTopics);
                     }
                 } else {
                     _.each(subscription.topics, function (topic) {
@@ -247,14 +255,20 @@ module.exports = function (options) {
 
             return id;
         },
+
+
         unsubscribe: function (variable, token) {
             this.variableListenerMap[variable] = _.reject(this.variableListenerMap[variable], function (subs) {
+                return subs.id === token;
+            });
+            this.subscriptions = _.reject(this.subscriptions, function (subs) {
                 return subs.id === token;
             });
         },
         unsubscribeAll: function () {
             this.variableListenerMap = {};
             this.innerVariablesList = [];
+            this.subscriptions = [];
         }
     };
 
