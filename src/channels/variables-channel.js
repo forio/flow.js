@@ -80,7 +80,7 @@ module.exports = function (options) {
 
         subscriptions: [],
 
-        getSubscribersFor: function (topic) {
+        getSubscribers: function (topic) {
             if (topic) {
                 return this.variableListenerMap[topic];
             } else {
