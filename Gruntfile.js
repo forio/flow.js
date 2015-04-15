@@ -2,7 +2,9 @@ module.exports = function (grunt) {
     'use strict';
 
     require('time-grunt')(grunt);
-    require('jit-grunt')(grunt);
+    require('jit-grunt')(grunt, {
+        mocha: 'grunt-mocha-phantom-istanbul'
+    });
 
     grunt.initConfig({
         pkg: grunt.file.readJSON('package.json')
