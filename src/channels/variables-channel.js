@@ -102,6 +102,7 @@ module.exports = function (options) {
             var getVariables = function (vars, interpolationMap) {
                 return vs.query(vars).then(function (variables) {
                     // console.log('Got variables', variables);
+                    var changeSet = {};
                     _.each(variables, function (value, vname) {
                         var oldValue = currentData[vname];
                         if (!isEqual(value, oldValue)) {
@@ -110,6 +111,7 @@ module.exports = function (options) {
                             if (me.variableListenerMap[vname]) {
                                 //is anyone lisenting for this value explicitly
                                 me.notify(vname, value);
+                                changeSet[vname] = value;
                             }
                             if (interpolationMap && interpolationMap[vname]) {
                                 var map = [].concat(interpolationMap[vname]);
@@ -117,11 +119,14 @@ module.exports = function (options) {
                                     if (me.variableListenerMap[interpolatedName]) {
                                         //is anyone lisenting for the interpolated value
                                         me.notify(interpolatedName, value);
+                                        changeSet[interpolatedName] = value;
                                     }
                                 });
                             }
                         }
                     });
+
+                    // me.notify(changeSet);
                 });
             };
             if (me.innerVariablesList.length) {
@@ -138,21 +143,31 @@ module.exports = function (options) {
 
         },
 
-        notify: function (variable, value) {
-            var listeners = this.variableListenerMap[variable];
-            var params = {};
-            params[variable] = value;
+        notify: function (topics, value) {
+            var notifySingle = function (item, val) {
+                var listeners = this.variableListenerMap[item];
+                var params = {};
+                params[item] = val;
 
-            _.each(listeners, function (listener) {
-                var target = listener.target;
-                if (_.isFunction(target)) {
-                    target.call(null, params);
-                } else if (target.trigger) {
-                    listener.target.trigger(config.events.react, params);
-                } else {
-                    throw new Error('Unknown listerer format for ' + variable);
-                }
-            });
+                _.each(listeners, function (listener) {
+                    var target = listener.target;
+                    if (_.isFunction(target)) {
+                        target.call(null, params);
+                    } else if (target.trigger) {
+                        listener.target.trigger(config.events.react, params);
+                    } else {
+                        throw new Error('Unknown listener format for ' + item);
+                    }
+                });
+            };
+            var me = this;
+            if ($.isPlainObject(topics)) {
+                _.each(topics, function (value, key) {
+                    notifySingle.call(me, key, value);
+                });
+            } else {
+                notifySingle.call(this, topics, value);
+            }
         },
 
         /**
@@ -183,23 +198,33 @@ module.exports = function (options) {
                 });
         },
 
-        subscribe: function (properties, subscriber) {
-            // console.log('subscribing', properties, subscriber);
+        /**
+         * Subscribe to changes on a channel
+         * @param  {Array|String} topics List of tasks
+         * @param  {function|object} subscriber
+         * @param  {Object} options  (Optional)
+         * @return {String}            Subscription ID
+         */
+        subscribe: function (topics, subscriber, options) {
+            // console.log('subscribing', topics, subscriber);
+            var defaults = {
+                batch: false
+            };
 
-            properties = [].concat(properties);
+            topics = [].concat(topics);
             //use jquery to make event sink
             if (!subscriber.on && !_.isFunction(subscriber)) {
                 subscriber = $(subscriber);
             }
 
             var id  = _.uniqueId('epichannel.variable');
-            var data = {
+            var data = $.extend({
                 id: id,
                 target: subscriber
-            };
+            }, defaults, options);
 
             var me = this;
-            $.each(properties, function (index, property) {
+            $.each(topics, function (index, property) {
                 var inner = getInnerVariables(property);
                 if (inner.length) {
                     me.innerVariablesList = me.innerVariablesList.concat(inner);

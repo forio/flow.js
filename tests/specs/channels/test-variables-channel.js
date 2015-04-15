@@ -360,6 +360,22 @@
             });
         });
 
+        describe('#notify', function () {
+            afterEach(function () {
+                channel.unsubscribeAll();
+            });
+            it('should notify listeners when provided a variable and value', function () {
+                var channel = new Channel({ run: mockRun });
+                var spy = sinon.spy();
+                channel.subscribe('price', spy);
+                channel.subscribe('stuff', spy);
+
+                channel.notify('price', 2);
+
+                spy.should.have.been.calledOnce;
+
+            });
+        });
         describe('#unsubscribe', function () {
             afterEach(function () {
                 channel.unsubscribeAll();
