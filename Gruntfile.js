@@ -1,7 +1,7 @@
 module.exports = function (grunt) {
     'use strict';
 
-    require('time-grunt')(grunt);
+    // require('time-grunt')(grunt);
     require('jit-grunt')(grunt, {
         mocha: 'grunt-mocha-phantom-istanbul'
     });
