@@ -76,91 +76,91 @@
         describe('#interpolate', function () {
             describe('.interpolated', function () {
                 it('should interpolate single variable', function () {
-                    var result = core.interpolate({ 'price[<time>]': 1 }, { time: 1 });
+                    var result = core.interpolate(['price[<time>]'], { time: 1 });
                     var interpolated = result.interpolated;
 
-                    interpolated.should.eql({ 'price[1]': 1 });
+                    interpolated.should.eql(['price[1]']);
                 });
                 it('should interpolate multiple variables', function () {
-                    var result = core.interpolate({ 'price[<time>,2,<step>]': 1 }, { time: 1, step: 4 });
+                    var result = core.interpolate(['price[<time>,2,<step>]'], { time: 1, step: 4 });
                     var interpolated = result.interpolated;
 
-                    interpolated.should.eql({ 'price[1,2,4]': 1 });
+                    interpolated.should.eql(['price[1,2,4]']);
                 });
                 it('should not interpolate if it finds nothing', function () {
-                    var result = core.interpolate({ 'price[<time>,2,<step>]': 1 }, {});
+                    var result = core.interpolate(['price[<time>,2,<step>]'], {});
                     var interpolated = result.interpolated;
 
-                    interpolated.should.eql({ 'price[<time>,2,<step>]': 1 });
+                    interpolated.should.eql(['price[<time>,2,<step>]']);
                 });
 
                 it('should not interpolate if there\'s nothing to interpolate', function () {
-                    var result = core.interpolate({ 'price[<time>]': 1, 'sales[1]': 1, 'cost[<x>]': 2 }, { time: 1 });
+                    var result = core.interpolate(['price[<time>]', 'sales[1]', 'cost[<x>]'], { time: 1 });
                     var interpolated = result.interpolated;
 
-                    interpolated.should.eql({ 'price[1]': 1, 'sales[1]': 1, 'cost[<x>]': 2 });
+                    interpolated.should.eql(['price[1]',  'sales[1]', 'cost[<x>]']);
                 });
                 it('should not do substrings', function () {
-                    var result = core.interpolate({ 'price[<time>,2,<times>]': 1 }, { time: 1, times: 2 });
+                    var result = core.interpolate(['price[<time>,2,<times>]'], { time: 1, times: 2 });
                     var interpolated = result.interpolated;
 
-                    interpolated.should.eql({ 'price[1,2,2]': 1 });
+                    interpolated.should.eql(['price[1,2,2]']);
                 });
                 it('should do multiples', function () {
-                    var result = core.interpolate({ 'price[<time>,2,<times>]': 1, 'sales[<time>]': 1 }, { time: 1, times: 2 });
+                    var result = core.interpolate(['price[<time>,2,<times>]', 'sales[<time>]'], { time: 1, times: 2 });
                     var interpolated = result.interpolated;
 
-                    interpolated.should.eql({ 'price[1,2,2]': 1, 'sales[1]': 1 });
+                    interpolated.should.eql(['price[1,2,2]', 'sales[1]']);
                 });
             });
             describe('.interpolationMap', function () {
                 it('should interpolate single variable', function () {
-                    var result = core.interpolate({ 'price[<time>]': 1 }, { time: 1 });
+                    var result = core.interpolate(['price[<time>]'], { time: 1 });
                     var interpolationMap = result.interpolationMap;
 
                     interpolationMap.should.eql({ 'price[1]': 'price[<time>]' });
                 });
                 it('should interpolate multiple variables', function () {
-                    var result = core.interpolate({ 'price[<time>,2,<step>]': 1 }, { time: 1, step: 4 });
+                    var result = core.interpolate(['price[<time>,2,<step>]'], { time: 1, step: 4 });
                     var interpolationMap = result.interpolationMap;
 
                     interpolationMap.should.eql({ 'price[1,2,4]': 'price[<time>,2,<step>]' });
                 });
                 it('should not interpolate if it finds nothing', function () {
-                    var result = core.interpolate({ 'price[<time>,2,<step>]': 1 }, {});
+                    var result = core.interpolate(['price[<time>,2,<step>]'], {});
                     var interpolationMap = result.interpolationMap;
 
                     interpolationMap.should.eql({ 'price[<time>,2,<step>]': 'price[<time>,2,<step>]' });
                 });
                 it('should not interpolate if there\'s nothing to interpolate', function () {
-                    var result = core.interpolate({ 'price[<time>]': 1, 'sales[1]': 1, 'cost[<x>]': 2 }, { time: 1 });
+                    var result = core.interpolate(['price[<time>]', 'sales[1]', 'cost[<x>]'], { time: 1 });
                     var interpolationMap = result.interpolationMap;
 
                     interpolationMap.should.eql({ 'price[1]': 'price[<time>]', 'cost[<x>]': 'cost[<x>]' });
                 });
 
                 it('should not do substrings', function () {
-                    var result = core.interpolate({ 'price[<time>,2,<times>]': 1 }, { time: 1, times: 2 });
+                    var result = core.interpolate(['price[<time>,2,<times>]'], { time: 1, times: 2 });
                     var interpolationMap = result.interpolationMap;
 
                     interpolationMap.should.eql({ 'price[1,2,2]': 'price[<time>,2,<times>]' });
                 });
                 it('should do multiples', function () {
-                    var result = core.interpolate({ 'price[<time>,2,<times>]': 1, 'sales[<time>]': 1 }, { time: 1, times: 2 });
+                    var result = core.interpolate(['price[<time>,2,<times>]', 'sales[<time>]'], { time: 1, times: 2 });
                     var interpolationMap = result.interpolationMap;
 
                     interpolationMap.should.eql({ 'price[1,2,2]': 'price[<time>,2,<times>]', 'sales[1]': 'sales[<time>]' });
                 });
 
                 it('should handle mixed items', function () {
-                    var result = core.interpolate({ 'price[<time>]': 1, 'price[1]': 1 }, { time: 1 });
+                    var result = core.interpolate(['price[<time>]', 'price[1]'], { time: 1 });
                     var interpolationMap = result.interpolationMap;
 
                     interpolationMap.should.eql({ 'price[1]': 'price[<time>]' });
                 });
 
                 it('should handle a variable being interpolated with different items with same value', function () {
-                    var result = core.interpolate({ 'price[<time>]': 1, 'price[1]': 1, 'price[<stuff>]': 1 }, { time: 1, stuff: 1 });
+                    var result = core.interpolate(['price[<time>]', 'price[1]', 'price[<stuff>]'], { time: 1, stuff: 1 });
                     var interpolationMap = result.interpolationMap;
 
                     interpolationMap.should.eql({ 'price[1]': ['price[<stuff>]', 'price[<time>]'] });
