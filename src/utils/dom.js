@@ -13,7 +13,7 @@ module.exports = {
     },
 
     getConvertersList: function ($el, property) {
-        var attrConverters = $el.data('f-converters-' + property);
+        var attrConverters = $el.data('f-convert-' + property);
 
         if (!attrConverters && property === 'bind') {
             //Only bind inherits from parents
@@ -26,7 +26,7 @@ module.exports = {
             }
 
             if (attrConverters) {
-                attrConverters = attrConverters.split('|');
+                attrConverters = _.invoke(attrConverters.split('|'), 'trim');
             }
         }
 

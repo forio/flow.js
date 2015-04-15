@@ -36,7 +36,7 @@ var extend = function (protoProps, staticProps) {
 };
 
 var View = function (options) {
-    this.$el = $(options.el);
+    this.$el = (options.$el) || $(options.el);
     this.el = options.el;
     this.initialize.apply(this, arguments);
 

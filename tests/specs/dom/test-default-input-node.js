@@ -20,6 +20,55 @@
             textNode = makeView = null;
         });
 
+        describe('#initialize', function () {
+            it('should attach event handlers if \'bind\' is specified', function () {
+                var $el = $('<input type="text" data-f-bind="stuff" />');
+                new NodeClass({
+                    $el: $el
+                });
+
+                var s = sinon.spy();
+                $el.on('update.f.ui', s);
+
+                $el.val('hello').trigger('change');
+
+                s.should.have.been.called;
+            });
+
+            it('should not attach event handlers if \'bind\' is not specified', function () {
+                var $el = $('<input type="text" value="4" />');
+                new NodeClass({
+                    $el: $el
+                });
+
+                var s = sinon.spy();
+                $el.on('update.f.ui', s);
+
+                $el.val('hello').trigger('change');
+
+                s.should.not.have.been.called;
+            });
+        });
+
+        describe('#removeEvents', function () {
+            it('should remove events', function () {
+                var $el = $('<input type="text" data-f-bind="stuff" />');
+                var n = new NodeClass({
+                    $el: $el
+                });
+
+                var s = sinon.spy();
+                $el.on('update.f.ui', s);
+                $el.val('hello').trigger('change');
+
+                s.should.have.been.calledOnce;
+                n.removeEvents();
+
+                $el.val('hello').trigger('change');
+                s.should.have.been.calledOnce;
+            });
+        });
+
         describe('selector', function () {
             it('should claim input nodes', function () {
                 var claimed = $(textNode).is(NodeClass.selector);

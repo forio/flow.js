@@ -8,6 +8,11 @@ module.exports = {
         return (attr.indexOf('on-') === 0);
     },
 
+    stopListening: function (attr) {
+        attr = attr.replace('on-', '');
+        this.off(attr);
+    },
+
     init: function (attr, value) {
         attr = attr.replace('on-', '');
         var me = this;

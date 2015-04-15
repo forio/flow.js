@@ -25,6 +25,15 @@ module.exports = (function () {
         return obj.nodeName.indexOf('-') !== -1;
     };
 
+    var getMatchingElements = function (root) {
+        var $root = $(root);
+        var matchedElements = $root.find(':' + config.prefix);
+        if ($root.is(':' + config.prefix)) {
+            matchedElements = matchedElements.add($root);
+        }
+        return matchedElements;
+    };
+
     var publicAPI = {
 
         nodes: nodeManager,
@@ -33,6 +42,134 @@ module.exports = (function () {
         //utils for testing
         private: {
             matchedElements: []
+        },
+
+        unbindElement: function (element, channel) {
+            this.private.matchedElements = _.without(this.private.matchedElements, element);
+
+            if (!channel) {
+                channel = this.options.channel.variables;
+            }
+
+            var $el = $(element);
+            //FIXME: have to readd events to be able to remove them. Ugly
+            var Handler = nodeManager.getHandler($el);
+            var h = new Handler.handle({
+                el: element
+            });
+            if (h.removeEvents) {
+                h.removeEvents();
+            }
+
+            $(element.attributes).each(function (index, nodeMap) {
+                var attr = nodeMap.nodeName;
+                var wantedPrefix = 'data-f-';
+                if (attr.indexOf(wantedPrefix) === 0) {
+                    attr = attr.replace(wantedPrefix, '');
+
+                    var handler = attrManager.getHandler(attr, $el);
+                    if (handler.stopListening) {
+                        handler.stopListening.call($el, attr);
+                    }
+                }
+            });
+
+            var subsid = $el.data('f-subscription-id');
+            if (subsid) {
+                channel.unsubscribe(subsid);
+            }
+        },
+
+        bindElement: function (element, channel) {
+            if (!channel) {
+                channel = this.options.channel.variables;
+            }
+            if (!_.contains(this.private.matchedElements, element)) {
+                this.private.matchedElements.push(element);
+            }
+
+            //Send to node manager to handle ui changes
+            var $el = $(element);
+            var Handler = nodeManager.getHandler($el);
+            new Handler.handle({
+                el: element
+            });
+
+            var varMap = $el.data('variable-attr-map');
+            if (!varMap) {
+                varMap = {};
+                //NOTE: looping through attributes instead of .data because .data automatically camelcases properties and make it hard to retrvieve
+                $(element.attributes).each(function (index, nodeMap) {
+                    var attr = nodeMap.nodeName;
+                    var attrVal = nodeMap.value;
+
+                    var wantedPrefix = 'data-f-';
+                    if (attr.indexOf(wantedPrefix) === 0) {
+                        attr = attr.replace(wantedPrefix, '');
+
+                        var handler = attrManager.getHandler(attr, $el);
+                        var isBindableAttr = true;
+                        if (handler && handler.init) {
+                            isBindableAttr = handler.init.call($el, attr, attrVal);
+                        }
+
+                        if (isBindableAttr) {
+                            //Convert pipes to converter attrs
+                            var withConv = _.invoke(attrVal.split('|'), 'trim');
+                            if (withConv.length > 1) {
+                                attrVal = withConv.shift();
+                                $el.data('f-convert-' + attr, withConv);
+                            }
+
+                            var commaRegex = /,(?![^\[]*\])/;
+                            if (attrVal.split(commaRegex).length > 1) {
+                                //TODO
+                                // triggerers = triggerers.concat(val.split(','));
+                            } else {
+                                varMap[attrVal] = attr;
+                            }
+                        }
+                    }
+                });
+                $el.data('variable-attr-map', varMap);
+
+                var subscribable = Object.keys(varMap);
+                if (subscribable.length) {
+                    var subsid = channel.subscribe(Object.keys(varMap), $el);
+                    $el.data('f-subscription-id', subsid);
+                }
+            }
+        },
+
+        /**
+         * Bind all provided elements
+         * @param  {Array|jQuerySelector} elementsToBind (Optional) If not provided uses the default root provided at initialization
+         */
+        bindAll: function (elementsToBind) {
+            if (!elementsToBind) {
+                elementsToBind = getMatchingElements(this.options.root);
+            } else if (!_.isArray(elementsToBind)) {
+                elementsToBind = getMatchingElements(elementsToBind);
+            }
+
+            var me = this;
+            //parse through dom and find everything with matching attributes
+            $.each(elementsToBind, function (index, element) {
+                me.bindElement.call(me, element, me.options.channel.variables);
+            });
+        },
+        /**
+         * Unbind provided elements
+         * @param  {Array} elementsToUnbind (Optional). If not provided unbinds everything
+         */
+        unbindAll: function (elementsToUnbind) {
+            var me = this;
+            if (!elementsToUnbind) {
+                elementsToUnbind = this.private.matchedElements;
+            }
+            $.each(elementsToUnbind, function (index, element) {
+                me.unbindElement.call(me, element, me.options.channel.variables);
+            });
         },
 
         initialize: function (options) {
@@ -49,66 +186,7 @@ module.exports = (function () {
             var me = this;
             var $root = $(defaults.root);
             $(function () {
-                //parse through dom and find everything with matching attributes
-                var matchedElements = $root.find(':' + config.prefix);
-                if ($root.is(':' + config.prefix)) {
-                    matchedElements = matchedElements.add($(defaults.root));
-                }
-
-                me.private.matchedElements = matchedElements;
-
-                $.each(matchedElements, function (index, element) {
-                    var $el = $(element);
-                    var Handler = nodeManager.getHandler($el);
-                    new Handler.handle({
-                        el: element
-                    });
-
-
-                    var varMap = $el.data('variable-attr-map');
-                    if (!varMap) {
-                        varMap = {};
-                        //NOTE: looping through attributes instead of .data because .data automatically camelcases properties and make it hard to retrvieve
-                        $(element.attributes).each(function (index, nodeMap) {
-                            var attr = nodeMap.nodeName;
-                            var attrVal = nodeMap.value;
-
-                            var wantedPrefix = 'data-f-';
-                            if (attr.indexOf(wantedPrefix) === 0) {
-                                attr = attr.replace(wantedPrefix, '');
-
-                                var handler = attrManager.getHandler(attr, $el);
-                                var isBindableAttr = true;
-                                if (handler && handler.init) {
-                                    isBindableAttr = handler.init.call($el, attr, attrVal);
-                                }
-
-                                if (isBindableAttr) {
-                                    //Convert pipes to converter attrs
-                                    var withConv = _.invoke(attrVal.split('|'), 'trim');
-                                    if (withConv.length > 1) {
-                                        attrVal = withConv.shift();
-                                        $el.data('f-converters-' + attr, withConv);
-                                    }
-
-                                    var commaRegex = /,(?![^\[]*\])/;
-                                    if (attrVal.split(commaRegex).length > 1) {
-                                        //TODO
-                                        // triggerers = triggerers.concat(val.split(','));
-                                    } else {
-                                        varMap[attrVal] = attr;
-                                    }
-                                }
-                            }
-                        });
-                        $el.data('variable-attr-map', varMap);
-                    }
-
-                    var subscribable = Object.keys(varMap);
-                    if (subscribable.length) {
-                        channel.variables.subscribe(Object.keys(varMap), $el);
-                    }
-                });
+                me.bindAll();
                 $root.trigger('f.domready');
 
                 //Attach listeners

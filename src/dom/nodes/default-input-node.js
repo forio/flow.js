@@ -10,6 +10,10 @@ module.exports = BaseView.extend({
         return this.$el.val();
     },
 
+    removeEvents: function () {
+        this.$el.off(this.uiChangeEvent);
+    },
+
     initialize: function () {
         var me = this;
         var propName = this.$el.data(config.binderAttr);
