@@ -78,6 +78,8 @@ module.exports = function (options) {
         innerVariablesList: [],
         variableListenerMap: {},
 
+        subscriptions: [],
+
         /**
          * Check and notify all listeners
          * @param  {Object} changeObj key-value pairs of changed variables
@@ -144,29 +146,33 @@ module.exports = function (options) {
         },
 
         notify: function (topics, value) {
-            var notifySingle = function (item, val) {
-                var listeners = this.variableListenerMap[item];
-                var params = {};
-                params[item] = val;
+            var callTarget = function (target, params) {
+                if (_.isFunction(target)) {
+                    target.call(null, params);
+                } else {
+                    target.trigger(config.events.react, params);
+                }
+            };
 
-                _.each(listeners, function (listener) {
-                    var target = listener.target;
-                    if (_.isFunction(target)) {
-                        target.call(null, params);
-                    } else if (target.trigger) {
-                        listener.target.trigger(config.events.react, params);
+            if ($.isPlainObject(topics)) {
+                _.each(this.subscriptions, function (subscription) {
+                    var target = subscription.target;
+                    if (subscription.batch) {
+                        var params = _.pick(topics, subscription.topics);
+                        callTarget(target, params);
                     } else {
-                        throw new Error('Unknown listener format for ' + item);
+                        _.each(subscription.topics, function (topic) {
+                            callTarget(target, _.pick(topics, topic));
+                        });
                     }
                 });
-            };
-            var me = this;
-            if ($.isPlainObject(topics)) {
-                _.each(topics, function (value, key) {
-                    notifySingle.call(me, key, value);
-                });
             } else {
-                notifySingle.call(this, topics, value);
+                var listeners = this.variableListenerMap[topics];
+                var params = {};
+                params[topics] = value;
+                _.each(listeners, function (listener) {
+                    callTarget(listener.target, params);
+                });
             }
         },
 
@@ -220,8 +226,11 @@ module.exports = function (options) {
             var id  = _.uniqueId('epichannel.variable');
             var data = $.extend({
                 id: id,
+                topics: topics,
                 target: subscriber
             }, defaults, options);
+
+            this.subscriptions.push(data);
 
             var me = this;
             $.each(topics, function (index, property) {

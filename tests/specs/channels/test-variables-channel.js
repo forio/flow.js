@@ -412,6 +412,33 @@
                 spy1.should.have.been.calledWith({ price: 2 });
                 spy2.should.have.been.calledWith({ stuff: 1 });
             });
+            describe('batch', function () {
+                it('should batch calls if subscribe is called with batch:true', function () {
+                    var channel = new Channel({ run: mockRun });
+                    var spy1 = sinon.spy();
+                    var spy2 = sinon.spy();
+                    channel.subscribe(['price', 'cost'], spy1, { batch: true });
+                    channel.subscribe(['price', 'cost'], spy2, { batch: false });
+
+                    channel.notify({ price: 2, cost: 1 });
+
+                    spy1.should.have.been.calledOnce;
+                    spy2.should.have.been.calledTwice;
+                });
+                it('should pass the correct parameters to batched calls', function () {
+                    var channel = new Channel({ run: mockRun });
+                    var spy1 = sinon.spy();
+                    var spy2 = sinon.spy();
+                    channel.subscribe(['price', 'cost'], spy1, { batch: true });
+                    channel.subscribe(['price', 'cost'], spy2, { batch: false });
+
+                    channel.notify({ price: 2, cost: 1 });
+
+                    spy1.should.have.been.calledWith({ price: 2, cost: 1 });
+                    spy2.getCall(0).args[0].should.eql({ price: 2 });
+                    spy2.getCall(1).args[0].should.eql({ cost: 1 });
+                });
+            });
         });
         describe('#unsubscribe', function () {
             afterEach(function () {
