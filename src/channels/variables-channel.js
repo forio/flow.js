@@ -154,26 +154,25 @@ module.exports = function (options) {
                 }
             };
 
-            if ($.isPlainObject(topics)) {
-                _.each(this.subscriptions, function (subscription) {
-                    var target = subscription.target;
-                    if (subscription.batch) {
-                        var params = _.pick(topics, subscription.topics);
-                        callTarget(target, params);
-                    } else {
-                        _.each(subscription.topics, function (topic) {
-                            callTarget(target, _.pick(topics, topic));
-                        });
-                    }
-                });
-            } else {
-                var listeners = this.variableListenerMap[topics];
-                var params = {};
-                params[topics] = value;
-                _.each(listeners, function (listener) {
-                    callTarget(listener.target, params);
-                });
+            if (!$.isPlainObject(topics)) {
+                topics = _.object([topics], [value]);
             }
+            _.each(this.subscriptions, function (subscription) {
+                var target = subscription.target;
+                if (subscription.batch) {
+                    var params = _.pick(topics, subscription.topics);
+                    if (_.size(params) === _.size(subscription.topics)) {
+                        callTarget(target, params);
+                    }
+                } else {
+                    _.each(subscription.topics, function (topic) {
+                        var matchingTopics = _.pick(topics, topic);
+                        if (_.size(matchingTopics)) {
+                            callTarget(target, matchingTopics);
+                        }
+                    });
+                }
+            });
         },
 
         /**
