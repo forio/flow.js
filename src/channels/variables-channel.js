@@ -82,9 +82,11 @@ module.exports = function (options) {
 
         getSubscribers: function (topic) {
             if (topic) {
-                return this.variableListenerMap[topic];
+                return _.filter(this.subscriptions, function (subs) {
+                    return _.contains(subs.topics, topic);
+                });
             } else {
-                return _.flatten(_.values(this.variableListenerMap));
+                return this.subscriptions;
             }
         },
 
