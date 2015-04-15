@@ -375,6 +375,43 @@
                 spy.should.have.been.calledOnce;
 
             });
+
+            it('should notify listeners with the changed value if listener is a function', function () {
+                var channel = new Channel({ run: mockRun });
+                var spy = sinon.spy();
+                channel.subscribe('price', spy);
+
+                channel.notify('price', 2);
+
+                spy.should.have.been.calledWith({ price: 2 });
+
+            });
+            it('should trigger an event if listener is a sink', function () {
+                var channel = new Channel({ run: mockRun });
+                var modelChangeSpy = sinon.spy();
+
+                var $sink = $({ a:1 });
+                channel.subscribe('price', $sink);
+                channel.subscribe('stuff', $sink);
+                $sink.on('update.f.model', modelChangeSpy);
+
+                channel.notify('price', 2);
+
+                modelChangeSpy.should.have.been.calledOnce;
+                modelChangeSpy.getCall(0).args[1].should.eql({ price: 2 });
+            });
+            it('should notify multiple times if passed an object', function () {
+                var channel = new Channel({ run: mockRun });
+                var spy1 = sinon.spy();
+                var spy2 = sinon.spy();
+                channel.subscribe('price', spy1);
+                channel.subscribe('stuff', spy2);
+
+                channel.notify({ price: 2, stuff: 1 });
+
+                spy1.should.have.been.calledWith({ price: 2 });
+                spy2.should.have.been.calledWith({ stuff: 1 });
+            });
         });
         describe('#unsubscribe', function () {
             afterEach(function () {
