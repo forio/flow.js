@@ -106,4 +106,30 @@ module.exports = (function () {
             channel.operations.publish.should.have.been.calledWith({ operations: [{ name: 'stuff', params: [1, 0] }], serial: true });
         });
     });
+
+    describe('update.f.ui', function () {
+        it('should call the variables channel', function () {
+            var channel = utils.createDummyChannel();
+            var $node = utils.initWithNode('<input type="text" data-f-bind="apple"/>', domManager, channel);
+
+            $node.trigger('update.f.ui', { apple: 2 });
+            channel.variables.publish.should.have.been.calledOnce;
+        });
+        it('should pass the right parameters to the variables channel', function () {
+            var channel = utils.createDummyChannel();
+            var $node = utils.initWithNode('<input type="text" data-f-bind="apple"/>', domManager, channel);
+
+            var payload = { apple: 2 };
+            $node.trigger('update.f.ui', payload);
+            channel.variables.publish.should.have.been.calledWith(payload);
+        });
+        it('should implicitly convert parameters to send to the variables channel', function () {
+            var channel = utils.createDummyChannel();
+            var $node = utils.initWithNode('<input type="text" data-f-bind="apple"/>', domManager, channel);
+
+            var payload = { apple: '2' };
+            $node.trigger('update.f.ui', payload);
+            channel.variables.publish.should.have.been.calledWith({ apple: 2 });
+        });
+    });
 }());
