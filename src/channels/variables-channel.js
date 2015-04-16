@@ -248,7 +248,7 @@ module.exports = function (options) {
         },
 
 
-        unsubscribe: function (variable, token) {
+        unsubscribe: function (token) {
             this.subscriptions = _.reject(this.subscriptions, function (subs) {
                 return subs.id === token;
             });

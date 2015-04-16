@@ -128,8 +128,10 @@ module.exports = (function () {
                                 var subsid = channel.subscribe(varsToBind, $el, { batch: true });
                                 var newsubs = ($el.data('f-subscription-id') || []).concat(subsid);
                                 $el.data('f-subscription-id', newsubs);
-                                //TODO
-                                // triggerers = triggerers.concat(val.split(','));
+
+                                _.each(varsToBind, function (variable) {
+                                    varMap[variable] = attr;
+                                });
                             } else {
                                 varMap[attrVal] = attr;
                             }

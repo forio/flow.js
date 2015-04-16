@@ -476,8 +476,8 @@
 
                 channel.getSubscribers('apples').length.should.equal(1);
 
-                channel.unsubscribe('apples', token);
-                channel.getSubscribers('apples').should.eql([]);
+                channel.unsubscribe(token);
+                channel.getSubscribers().should.eql([]);
             });
         });
     });
