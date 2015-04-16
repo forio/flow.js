@@ -48,7 +48,7 @@ module.exports = (function () {
             });
         });
     });
-    describe('f.convert event', function () {
+    describe('f.convert', function () {
         it('should work if triggered with objects', function () {
             var channel = utils.createDummyChannel();
             var $node = utils.initWithNode('<input type="text" data-f-bind="price" data-f-stuff="43 | $0.00" />', domManager, channel);
@@ -78,6 +78,32 @@ module.exports = (function () {
             var data = { a: 1, b: 2 };
             $node.trigger('f.convert', { stuff: data });
             $node.prop('stuff').should.eql({ a: '1', b: '2' });
+        });
+    });
+
+    describe('f.ui.operate', function () {
+        it('should call the operations channel', function () {
+            var channel = utils.createDummyChannel();
+            var $node = utils.initWithNode('<button data-f-on-click="reset"> Click </button>', domManager, channel);
+
+            $node.trigger('f.ui.operate', { operations: [{ name: 'stuff', params: [] }], serial: true });
+            channel.operations.publish.should.have.been.calledOnce;
+        });
+        it('should pass the right parameters to the operations channel', function () {
+            var channel = utils.createDummyChannel();
+            var $node = utils.initWithNode('<button data-f-on-click="reset"> Click </button>', domManager, channel);
+
+            var payload = { operations: [{ name: 'stuff', params: [] }], serial: true };
+            $node.trigger('f.ui.operate', payload);
+            channel.operations.publish.should.have.been.calledWith(payload);
+        });
+        it('should implicitly convert parameters to send to the operations channel', function () {
+            var channel = utils.createDummyChannel();
+            var $node = utils.initWithNode('<button data-f-on-click="reset"> Click </button>', domManager, channel);
+
+            var payload = { operations: [{ name: 'stuff', params: ['1', 0] }], serial: true };
+            $node.trigger('f.ui.operate', payload);
+            channel.operations.publish.should.have.been.calledWith({ operations: [{ name: 'stuff', params: [1, 0] }], serial: true });
         });
     });
 }());
