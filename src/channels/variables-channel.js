@@ -38,9 +38,9 @@ module.exports = function (options) {
         //{price[1]: price[<time>]}
         var interpolationMap = {};
         //{price[1]: 1}
-        var interpolated = {};
+        var interpolated = [];
 
-        _.each(variablesToInterpolate, function (val, outerVariable) {
+        _.each(variablesToInterpolate, function (outerVariable) {
             var inner = getInnerVariables(outerVariable);
             if (inner && inner.length) {
                 var originalOuter = outerVariable;
@@ -57,13 +57,14 @@ module.exports = function (options) {
                 });
                 interpolationMap[outerVariable] = (interpolationMap[outerVariable]) ? [originalOuter].concat(interpolationMap[outerVariable]) : originalOuter;
             }
-            interpolated[outerVariable] = val;
+            interpolated.push(outerVariable);
         });
 
-        return {
+        var op = {
             interpolated: interpolated,
             interpolationMap: interpolationMap
         };
+        return op;
     };
 
     var publicAPI = {
@@ -76,9 +77,18 @@ module.exports = function (options) {
 
         //Interpolated variables which need to be resolved before the outer ones can be
         innerVariablesList: [],
-        variableListenerMap: {},
 
         subscriptions: [],
+
+        getSubscribers: function (topic) {
+            if (topic) {
+                return _.filter(this.subscriptions, function (subs) {
+                    return _.contains(subs.topics, topic);
+                });
+            } else {
+                return this.subscriptions;
+            }
+        },
 
         /**
          * Check and notify all listeners
@@ -108,39 +118,30 @@ module.exports = function (options) {
                     _.each(variables, function (value, vname) {
                         var oldValue = currentData[vname];
                         if (!isEqual(value, oldValue)) {
-                            currentData[vname] = value;
-
-                            if (me.variableListenerMap[vname]) {
-                                //is anyone lisenting for this value explicitly
-                                me.notify(vname, value);
-                                changeSet[vname] = value;
-                            }
+                            changeSet[vname] = value;
                             if (interpolationMap && interpolationMap[vname]) {
                                 var map = [].concat(interpolationMap[vname]);
                                 _.each(map, function (interpolatedName) {
-                                    if (me.variableListenerMap[interpolatedName]) {
-                                        //is anyone lisenting for the interpolated value
-                                        me.notify(interpolatedName, value);
-                                        changeSet[interpolatedName] = value;
-                                    }
+                                    changeSet[interpolatedName] = value;
                                 });
                             }
                         }
                     });
-
-                    // me.notify(changeSet);
+                    me.notify(changeSet);
+                    $.extend(currentData, changeSet);
                 });
             };
             if (me.innerVariablesList.length) {
                 return vs.query(me.innerVariablesList).then(function (innerVariables) {
                     //console.log('inner', innerVariables);
                     $.extend(currentData, innerVariables);
-                    var ip =  interpolate(me.variableListenerMap, innerVariables);
-                    var outer = _.keys(ip.interpolated);
-                    getVariables(outer, ip.interpolationMap);
+                    var variables = _(me.subscriptions).pluck('topics').flatten().uniq().value();
+                    var ip =  interpolate(variables, innerVariables);
+                    getVariables(ip.interpolated, ip.interpolationMap);
                 });
             } else {
-                return getVariables(_.keys(me.variableListenerMap));
+                var variables = _(me.subscriptions).pluck('topics').flatten().uniq().value();
+                return getVariables(variables);
             }
 
         },
@@ -154,26 +155,25 @@ module.exports = function (options) {
                 }
             };
 
-            if ($.isPlainObject(topics)) {
-                _.each(this.subscriptions, function (subscription) {
-                    var target = subscription.target;
-                    if (subscription.batch) {
-                        var params = _.pick(topics, subscription.topics);
-                        callTarget(target, params);
-                    } else {
-                        _.each(subscription.topics, function (topic) {
-                            callTarget(target, _.pick(topics, topic));
-                        });
-                    }
-                });
-            } else {
-                var listeners = this.variableListenerMap[topics];
-                var params = {};
-                params[topics] = value;
-                _.each(listeners, function (listener) {
-                    callTarget(listener.target, params);
-                });
+            if (!$.isPlainObject(topics)) {
+                topics = _.object([topics], [value]);
             }
+            _.each(this.subscriptions, function (subscription) {
+                var target = subscription.target;
+                if (subscription.batch) {
+                    var matchingTopics = _.pick(topics, subscription.topics);
+                    if (_.size(matchingTopics) === _.size(subscription.topics)) {
+                        callTarget(target, matchingTopics);
+                    }
+                } else {
+                    _.each(subscription.topics, function (topic) {
+                        var matchingTopics = _.pick(topics, topic);
+                        if (_.size(matchingTopics)) {
+                            callTarget(target, matchingTopics);
+                        }
+                    });
+                }
+            });
         },
 
         /**
@@ -185,7 +185,6 @@ module.exports = function (options) {
          */
         publish: function (variable, value, options) {
             // console.log('publish', arguments);
-            // TODO: check if interpolated
             var attrs;
             if ($.isPlainObject(variable)) {
                 attrs = variable;
@@ -193,10 +192,15 @@ module.exports = function (options) {
             } else {
                 (attrs = {})[variable] = value;
             }
-            var interpolated = interpolate(attrs, currentData).interpolated;
+            var it = interpolate(_.keys(attrs), currentData);
 
+            var toSave = {};
+            _.each(attrs, function (val, attr) {
+               var key = (it.interpolationMap[attr]) ? it.interpolationMap[attr] : attr;
+               toSave[key] = val;
+            });
             var me = this;
-            return vs.save.call(vs, interpolated)
+            return vs.save.call(vs, toSave)
                 .then(function () {
                     if (!options || !options.silent) {
                         me.refresh.call(me, attrs);
@@ -236,26 +240,22 @@ module.exports = function (options) {
             $.each(topics, function (index, property) {
                 var inner = getInnerVariables(property);
                 if (inner.length) {
-                    me.innerVariablesList = me.innerVariablesList.concat(inner);
+                    me.innerVariablesList = _.uniq(me.innerVariablesList.concat(inner));
                 }
-                me.innerVariablesList = _.uniq(me.innerVariablesList);
-
-                if (!me.variableListenerMap[property]) {
-                    me.variableListenerMap[property] = [];
-                }
-                me.variableListenerMap[property] = me.variableListenerMap[property].concat(data);
             });
 
             return id;
         },
+
+
         unsubscribe: function (variable, token) {
-            this.variableListenerMap[variable] = _.reject(this.variableListenerMap[variable], function (subs) {
+            this.subscriptions = _.reject(this.subscriptions, function (subs) {
                 return subs.id === token;
             });
         },
         unsubscribeAll: function () {
-            this.variableListenerMap = {};
             this.innerVariablesList = [];
+            this.subscriptions = [];
         }
     };
 
