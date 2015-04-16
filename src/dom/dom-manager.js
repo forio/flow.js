@@ -95,11 +95,10 @@ module.exports = (function () {
                 el: element
             });
 
-            var varMap = $el.data('variable-attr-map');
-            var attrBindings = [];
+            var attrBindings = $el.data('attr-bindings') || [];
 
-            if (!varMap) {
-                varMap = {};
+            if (!attrBindings.length) {
+                var nonBatchableVariables = [];
                 //NOTE: looping through attributes instead of .data because .data automatically camelcases properties and make it hard to retrvieve
                 $(element.attributes).each(function (index, nodeMap) {
                     var attr = nodeMap.nodeName;
@@ -124,37 +123,28 @@ module.exports = (function () {
                             }
 
                             var commaRegex = /,(?![^\[]*\])/;
+                            var binding = {
+                                attr: attr
+                            };
                             if (attrVal.split(commaRegex).length > 1) {
                                 var varsToBind = _.invoke(attrVal.split(commaRegex), 'trim');
 
                                 var subsid = channel.subscribe(varsToBind, $el, { batch: true });
                                 var newsubs = ($el.data('f-subscription-id') || []).concat(subsid);
                                 $el.data('f-subscription-id', newsubs);
-
-                                _.each(varsToBind, function (variable) {
-                                    varMap[variable] = attr;
-                                });
-
-                                attrBindings.push({
-                                    attr: attr,
-                                    topics: varsToBind
-                                });
+                                binding.topics = varsToBind;
                             } else {
-                                attrBindings.push({
-                                    attr: attr,
-                                    topics: [attrVal]
-                                });
-                                varMap[attrVal] = attr;
+                                binding.topics = [attrVal];
+                                nonBatchableVariables.push(attrVal);
                             }
+                            attrBindings.push(binding);
                         }
                     }
                 });
-                $el.data('variable-attr-map', varMap);
                 $el.data('attr-bindings', attrBindings);
 
-                var subscribable = Object.keys(varMap);
-                if (subscribable.length) {
-                    var subsid = channel.subscribe(Object.keys(varMap), $el);
+                if (nonBatchableVariables.length) {
+                    var subsid = channel.subscribe(nonBatchableVariables, $el);
                     var newsubs = ($el.data('f-subscription-id') || []).concat(subsid);
                     $el.data('f-subscription-id', newsubs);
                 }
