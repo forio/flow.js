@@ -452,6 +452,17 @@
                     spy2.getCall(0).args[0].should.eql({ price: 2 });
                     spy2.getCall(1).args[0].should.eql({ cost: 1 });
                 });
+
+                it('should not re-tigger non-batched calls', function () {
+                    var channel = new Channel({ run: mockRun });
+                    var spy1 = sinon.spy();
+                    channel.subscribe(['price', 'cost'], spy1, { batch: true });
+                    channel.subscribe(['something', 'else'], spy1, { batch: false });
+
+                    channel.notify({ price: 2, cost: 1 });
+
+                    spy1.should.have.been.calledOnce;
+                });
             });
         });
         describe('#unsubscribe', function () {
