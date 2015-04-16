@@ -96,6 +96,8 @@ module.exports = (function () {
             });
 
             var varMap = $el.data('variable-attr-map');
+            var attrBindings = [];
+
             if (!varMap) {
                 varMap = {};
                 //NOTE: looping through attributes instead of .data because .data automatically camelcases properties and make it hard to retrvieve
@@ -123,7 +125,7 @@ module.exports = (function () {
 
                             var commaRegex = /,(?![^\[]*\])/;
                             if (attrVal.split(commaRegex).length > 1) {
-                                var varsToBind = attrVal.split(commaRegex);
+                                var varsToBind = _.invoke(attrVal.split(commaRegex), 'trim');
 
                                 var subsid = channel.subscribe(varsToBind, $el, { batch: true });
                                 var newsubs = ($el.data('f-subscription-id') || []).concat(subsid);
@@ -132,13 +134,23 @@ module.exports = (function () {
                                 _.each(varsToBind, function (variable) {
                                     varMap[variable] = attr;
                                 });
+
+                                attrBindings.push({
+                                    attr: attr,
+                                    topics: varsToBind
+                                });
                             } else {
+                                attrBindings.push({
+                                    attr: attr,
+                                    topics: [attrVal]
+                                });
                                 varMap[attrVal] = attr;
                             }
                         }
                     }
                 });
                 $el.data('variable-attr-map', varMap);
+                $el.data('attr-bindings', attrBindings);
 
                 var subscribable = Object.keys(varMap);
                 if (subscribable.length) {
@@ -220,18 +232,21 @@ module.exports = (function () {
                 $root.off(config.events.react).on(config.events.react, function (evt, data) {
                     // console.log(evt.target, data, "root on");
                     var $el = $(evt.target);
-                    var varmap = $el.data('variable-attr-map');
+                    var bindings = $el.data('attr-bindings');
 
-                    //Need to group data by attribute
-                    //
-                    var convertible = {};
+                    var toconvert = {};
                     $.each(data, function (variableName, value) {
-                        var propertyToUpdate = varmap[variableName.trim()];
-                        if (propertyToUpdate) {
-                            convertible[propertyToUpdate] = value;
-                        }
+                        _.each(bindings, function (binding) {
+                            if (_.contains(binding.topics, variableName)) {
+                                if (binding.topics.length > 1) {
+                                    toconvert[binding.attr] = _.pick(data, binding.topics);
+                                } else {
+                                    toconvert[binding.attr] = value;
+                                }
+                            }
+                        });
                     });
-                    $el.trigger('f.convert', convertible);
+                    $el.trigger('f.convert', toconvert);
                 });
 
                 // data = {proptoupdate: value} || just a value (assumes 'bind' if so)

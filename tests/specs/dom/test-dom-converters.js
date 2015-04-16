@@ -63,7 +63,6 @@ module.exports = (function () {
                             price: 2345
                         });
                     });
-
                     it('should convert values with multiple converters', function () {
                         domManager.converters.register('flip', {
                             parse: function (val) {
@@ -80,9 +79,7 @@ module.exports = (function () {
                         channel.variables.publish.should.have.been.calledWith({
                             price: 5432
                         });
-
                     });
-
                     it('should respect order of converters', function () {
                         domManager.converters.register('flips', {
                             parse: function (val) {
