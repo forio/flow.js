@@ -131,5 +131,26 @@ module.exports = (function () {
             $node.trigger('update.f.ui', payload);
             channel.variables.publish.should.have.been.calledWith({ apple: 2 });
         });
+
+        it('should run values through parsers before sending to the variables channel', function () {
+            var channel = utils.createDummyChannel();
+            var $node = utils.initWithNode('<input type="text" data-f-bind="apple | $#,###.00"/>', domManager, channel);
+
+            var payload = { apple: '$20,000.00' };
+            $node.trigger('update.f.ui', payload);
+            channel.variables.publish.should.have.been.calledWith({ apple: 20000 });
+        });
+        it('should trigger f.convert to convert values', function () {
+            var channel = utils.createDummyChannel();
+            var $node = utils.initWithNode('<input type="text" data-f-bind="apple | $#,###.00"/>', domManager, channel);
+            var spy = sinon.spy();
+            $node.on('f.convert', spy);
+
+            var payload = { apple: '20000' };
+            $node.trigger('update.f.ui', payload);
+
+            spy.should.have.been.calledOnce;
+            spy.getCall(0).args[1].should.eql(20000);
+        });
     });
 }());
