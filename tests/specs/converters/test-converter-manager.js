@@ -34,26 +34,36 @@
         });
 
         describe('convert', function () {
-            it('should convert with a single converter', function () {
-                cm.convert(1, 's').should.equal('1');
-            });
-            it('should convert with an array of converters', function () {
-                cm.register('multiply', function (val) {
-                    return val * 3;
+            describe('Single values', function () {
+                it('should convert with a single converter', function () {
+                    cm.convert(1, 's').should.equal('1');
                 });
-                cm.convert('2', ['i', 'multiply']).should.equal(6);
-            });
-            it('should apply converter to each item in an array if provided an array + non-list converter', function () {
-                cm.register('multiply', function (val) {
-                    return val * 3;
+                it('should convert with an array of converters', function () {
+                    cm.register('multiply', function (val) {
+                        return val * 3;
+                    });
+                    cm.convert('2', ['i', 'multiply']).should.equal(6);
                 });
-                cm.convert(['2', '3', '4'], ['i', 'multiply']).should.eql([6, 9, 12]);
             });
-            it('should apply converter to entire array if provided an array + list converter', function () {
-                cm.register('zefirst', function (val) {
-                    return val[0];
-                }, true);
-                cm.convert(['2', '3', '4'], ['zefirst']).should.eql('2');
+            describe('Arrays', function () {
+                it('should apply converter to each item in an array if provided an array + non-list converter', function () {
+                    cm.register('multiply', function (val) {
+                        return val * 3;
+                    });
+                    cm.convert(['2', '3', '4'], ['i', 'multiply']).should.eql([6, 9, 12]);
+                });
+                it('should apply converter to entire array if provided an array + list converter', function () {
+                    cm.register('zefirst', function (val) {
+                        return val[0];
+                    }, true);
+                    cm.convert(['2', '3', '4'], ['zefirst']).should.eql('2');
+                });
+            });
+
+            describe('Objects', function () {
+                it('should convert objects with single values', function () {
+                    cm.convert({ a: 1, b: 2 }, 's').should.eql({ a: '1', b: '2' });
+                });
             });
         });
         describe('#replace', function () {
