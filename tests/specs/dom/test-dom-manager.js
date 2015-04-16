@@ -306,6 +306,51 @@
             });
         });
 
-    });
 
+        describe('multi-bind', function () {
+            it('should update multiple attributes if provided an object with multiple keys', function () {
+                var $node = utils.initWithNode('<input type="text" data-f-stuff="apple" data-f-other="orange"/>', domManager);
+                var spy = sinon.spy();
+                $node.on('f.convert', spy);
+
+                $node.trigger('update.f.model', {
+                    apple: 'sauce',
+                    orange: 'pie'
+                });
+
+                spy.should.have.been.calledOnce;
+                spy.getCall(0).args[1].should.eql({
+                    'stuff': 'sauce',
+                    'other': 'pie'
+                });
+            });
+            it('should update multiple attributes if provided an object with same keys', function () {
+                var $node = utils.initWithNode('<input type="text" data-f-stuff="apple" data-f-other="apple"/>', domManager);
+                var spy = sinon.spy();
+                $node.on('f.convert', spy);
+
+                $node.trigger('update.f.model', {
+                    apple: 'sauce'
+                });
+                spy.getCall(0).args[1].should.eql({
+                    'stuff': 'sauce',
+                    'other': 'sauce'
+                });
+            });
+            it('should update a single attributes if provided an object with multiple keys', function () {
+                var $node = utils.initWithNode('<input type="text" data-f-stuff="apple, orange"/>', domManager);
+                var spy = sinon.spy();
+                $node.on('f.convert', spy);
+
+                var data = {
+                    apple: 'sauce',
+                    orange: 'pie'
+                };
+                $node.trigger('update.f.model', data);
+                spy.getCall(0).args[1].should.eql({
+                    'stuff': data
+                });
+            });
+        });
+    });
 }());

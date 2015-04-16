@@ -198,22 +198,6 @@ module.exports = (function () {
                 $root.trigger('f.domready');
 
                 //Attach listeners
-                // Listen for changes from api and update ui
-                $root.off(config.events.react).on(config.events.react, function (evt, data) {
-                    // console.log(evt.target, data, "root on");
-                    var $el = $(evt.target);
-                    var varmap = $el.data('variable-attr-map');
-
-                    var convertible = {};
-                    $.each(data, function (variableName, value) {
-                        var propertyToUpdate = varmap[variableName.trim()];
-                        if (propertyToUpdate) {
-                            convertible[propertyToUpdate] = value;
-                        }
-                    });
-                    $el.trigger('f.convert', convertible);
-                });
-
                 // Listen for changes to ui and publish to api
                 $root.off(config.events.trigger).on(config.events.trigger, function (evt, data) {
                     var parsedData = {}; //if not all subsequent listeners will get the modified data
@@ -230,6 +214,24 @@ module.exports = (function () {
                     });
 
                     channel.variables.publish(parsedData);
+                });
+
+                // Listen for changes from api and update ui
+                $root.off(config.events.react).on(config.events.react, function (evt, data) {
+                    // console.log(evt.target, data, "root on");
+                    var $el = $(evt.target);
+                    var varmap = $el.data('variable-attr-map');
+
+                    //Need to group data by attribute
+                    //
+                    var convertible = {};
+                    $.each(data, function (variableName, value) {
+                        var propertyToUpdate = varmap[variableName.trim()];
+                        if (propertyToUpdate) {
+                            convertible[propertyToUpdate] = value;
+                        }
+                    });
+                    $el.trigger('f.convert', convertible);
                 });
 
                 // data = {proptoupdate: value} || just a value (assumes 'bind' if so)

@@ -249,6 +249,14 @@ module.exports = (function () {
                 $node.trigger('f.convert', { stuff: data });
                 $node.prop('stuff').should.eql(data);
             });
+            it('should work if triggered with value objects piped to converters', function () {
+                var channel = utils.createDummyChannel();
+                var $node = utils.initWithNode('<input type="text" data-f-bind="price" data-f-stuff="a,b | s" />', domManager, channel);
+
+                var data = { a: 1, b: 2 };
+                $node.trigger('f.convert', { stuff: data });
+                $node.prop('stuff').should.eql({ a: '1', b: '2' });
+            });
         });
     });
 }());
