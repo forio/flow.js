@@ -150,7 +150,7 @@ module.exports = (function () {
             $node.trigger('update.f.ui', payload);
 
             spy.should.have.been.calledOnce;
-            spy.getCall(0).args[1].should.eql(20000);
+            spy.getCall(0).args[1].should.eql({ bind: 20000 });
         });
     });
 }());

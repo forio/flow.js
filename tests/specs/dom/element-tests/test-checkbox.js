@@ -16,36 +16,44 @@ module.exports = (function () {
                 it('should pass the right value on check - no default', function () {
                     var channel = utils.createDummyChannel();
                     var $node = utils.initWithNode('<input type="checkbox" data-f-bind="stuff"/>', domManager, channel);
+                    var spy = sinon.spy();
+                    $node.on('update.f.ui', spy);
 
                     $node.prop('checked', true).trigger('change');
 
-                    channel.variables.publish.should.have.been.calledWith({ stuff: 1 });
+                    spy.getCall(0).args[1].should.eql({ stuff: 1 });
                 });
 
                 it('should pass the right value on check - default on', function () {
                     var channel = utils.createDummyChannel();
                     var $node = utils.initWithNode('<input type="checkbox" data-f-bind="stuff" value="4"/>', domManager, channel);
+                    var spy = sinon.spy();
+                    $node.on('update.f.ui', spy);
 
                     $node.prop('checked', true).trigger('change');
 
-                    channel.variables.publish.should.have.been.calledWith({ stuff: 4 });
+                    spy.getCall(0).args[1].should.eql({ stuff: '4' });
                 });
             });
             describe('On UnCheck', function () {
                 it('should pass the right value on uncheck - no default', function () {
                     var channel = utils.createDummyChannel();
                     var $node = utils.initWithNode('<input type="checkbox" data-f-bind="stuff" checked/>', domManager, channel);
+                    var spy = sinon.spy();
+                    $node.on('update.f.ui', spy);
 
                     $node.prop('checked', false).trigger('change');
-                    channel.variables.publish.should.have.been.calledWith({ stuff: 0 });
+                    spy.getCall(0).args[1].should.eql({ stuff: 0 });
                 });
 
                 it('should pass the right value on uncheck - default off', function () {
                     var channel = utils.createDummyChannel();
                     var $node = utils.initWithNode('<input type="checkbox" data-f-bind="stuff" data-f-off="5" checked/>', domManager, channel);
+                    var spy = sinon.spy();
+                    $node.on('update.f.ui', spy);
 
                     $node.prop('checked', false).trigger('change');
-                    channel.variables.publish.should.have.been.calledWith({ stuff: 5 });
+                    spy.getCall(0).args[1].should.eql({ stuff: 5 });
                 });
             });
         });
