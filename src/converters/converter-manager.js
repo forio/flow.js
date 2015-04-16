@@ -11,11 +11,11 @@ var normalize = function (alias, converter, acceptList) {
             convert: converter,
             acceptList: acceptList
         });
-    } else if (_.isObject(converter) && converter.convert) {
+    } else if ($.isPlainObject(converter) && converter.convert) {
         converter.alias = alias;
         converter.acceptList = acceptList;
         ret.push(converter);
-    } else if (_.isObject(alias)) {
+    } else if ($.isPlainObject(alias)) {
         //normalize({alias: 'flip', convert: function})
         if (alias.convert) {
             ret.push(alias);
