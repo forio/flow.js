@@ -29,9 +29,11 @@ module.exports = (function () {
                         '<input type="radio" name="a" id="y" data-f-bind="stuff" value="2"/>'
                     ].join('');
                     var $node = utils.initWithNode(nodes, domManager, channel).filter('#x');
-                    $node.prop('checked', true).trigger('change');
+                    var spy = sinon.spy();
+                    $node.on('update.f.ui', spy);
 
-                    channel.variables.publish.should.have.been.calledWith({ stuff: 8 });
+                   $node.prop('checked', true).trigger('change');
+                    spy.getCall(0).args[1].should.eql({ stuff: '8' });
                 });
             });
             describe('On UnCheck', function () {
@@ -45,11 +47,16 @@ module.exports = (function () {
                     var $node = utils.initWithNode(nodes, domManager, channel).filter('#x');
                     var $othernode = utils.initWithNode(nodes, domManager, channel).filter('#y');
 
+                    var spy = sinon.spy();
+                    $othernode.on('update.f.ui', spy);
+                    $node.on('update.f.ui', spy);
+
                     //not entirely sure this is simulating well enough
                     $node.prop('checked', false);
                     $othernode.prop('checked', true).trigger('change');
 
-                    channel.variables.publish.should.have.been.calledWith({ stuff: 2 });
+                    spy.getCall(0).args[1].should.eql({ stuff: '2' });
+                    spy.callCount.should.equal(1);
                 });
             });
         });
