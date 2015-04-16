@@ -95,7 +95,7 @@ var converterManager = {
         var me = this;
 
         var convertArray = function (converter, val, converterName) {
-            return _.map(currentValue, function (v) {
+            return _.map(val, function (v) {
                 return converter.convert(v, converterName);
             });
         };

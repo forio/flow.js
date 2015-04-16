@@ -64,6 +64,12 @@
                 it('should convert objects with single values', function () {
                     cm.convert({ a: 1, b: 2 }, 's').should.eql({ a: '1', b: '2' });
                 });
+                it('should convert objects with array values', function () {
+                    cm.register('multiply', function (val) {
+                        return val * 3;
+                    });
+                    cm.convert({ a: [1, 2], b: [3, 4] }, 'multiply').should.eql({ a: [3, 6], b: [9, 12] });
+                });
             });
         });
         describe('#replace', function () {
