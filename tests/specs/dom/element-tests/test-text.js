@@ -23,26 +23,6 @@ module.exports = (function () {
 
                 spy.getCall(0).args[1].should.eql({ stuff: '5' });
             });
-
-            it('should pass the correct converted values to the channel', function () {
-                var channel = utils.createDummyChannel();
-                var $node = utils.initWithNode('<input type="text" data-f-bind="stuff" value="3"/>', domManager, channel);
-
-                $node.val(5).trigger('change');
-                channel.variables.publish.should.have.been.calledWith({ 'stuff': 5 });
-
-                $node.val('5').trigger('change');
-                channel.variables.publish.should.have.been.calledWith({ 'stuff': 5 });
-
-                $node.val('"5"').trigger('change');
-                channel.variables.publish.should.have.been.calledWith({ 'stuff': '5' });
-
-                $node.val('abc').trigger('change');
-                channel.variables.publish.should.have.been.calledWith({ 'stuff': 'abc' });
-
-                $node.val('true').trigger('change');
-                channel.variables.publish.should.have.been.calledWith({ 'stuff': true });
-            });
         });
         describe('updaters', function () {
             it('should update itself with values passed in', function () {

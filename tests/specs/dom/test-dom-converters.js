@@ -63,7 +63,6 @@ module.exports = (function () {
                             price: 2345
                         });
                     });
-
                     it('should convert values with multiple converters', function () {
                         domManager.converters.register('flip', {
                             parse: function (val) {
@@ -80,9 +79,7 @@ module.exports = (function () {
                         channel.variables.publish.should.have.been.calledWith({
                             price: 5432
                         });
-
                     });
-
                     it('should respect order of converters', function () {
                         domManager.converters.register('flips', {
                             parse: function (val) {
@@ -223,23 +220,6 @@ module.exports = (function () {
                         price: 5432
                     });
                 });
-            });
-        });
-
-        describe('f.convert event', function () {
-            it('should work if triggered with objects', function () {
-                var channel = utils.createDummyChannel();
-                var $node = utils.initWithNode('<input type="text" data-f-bind="price" data-f-stuff="43 | $0.00" />', domManager, channel);
-
-                $node.trigger('f.convert', { stuff: '43' });
-                $node.prop('stuff').should.equal('$43.00');
-            });
-            it('should work if triggered with value directly', function () {
-                var channel = utils.createDummyChannel();
-                var $node = utils.initWithNode('<input type="text" data-f-bind="43 | $0.00"/>', domManager, channel);
-
-                $node.trigger('f.convert', 43);
-                $node.val().should.equal('$43.00');
             });
         });
     });

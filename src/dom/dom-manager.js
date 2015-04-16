@@ -74,10 +74,10 @@ module.exports = (function () {
                 }
             });
 
-            var subsid = $el.data('f-subscription-id');
-            if (subsid) {
-                channel.unsubscribe(subsid);
-            }
+            var subsid = $el.data('f-subscription-id') || [];
+            _.each(subsid, function (subs) {
+                channel.unsubscribe(subs);
+            });
         },
 
         bindElement: function (element, channel) {
@@ -95,50 +95,57 @@ module.exports = (function () {
                 el: element
             });
 
-            var varMap = $el.data('variable-attr-map');
-            if (!varMap) {
-                varMap = {};
-                //NOTE: looping through attributes instead of .data because .data automatically camelcases properties and make it hard to retrvieve
-                $(element.attributes).each(function (index, nodeMap) {
-                    var attr = nodeMap.nodeName;
-                    var attrVal = nodeMap.value;
 
-                    var wantedPrefix = 'data-f-';
-                    if (attr.indexOf(wantedPrefix) === 0) {
-                        attr = attr.replace(wantedPrefix, '');
-
-                        var handler = attrManager.getHandler(attr, $el);
-                        var isBindableAttr = true;
-                        if (handler && handler.init) {
-                            isBindableAttr = handler.init.call($el, attr, attrVal);
-                        }
-
-                        if (isBindableAttr) {
-                            //Convert pipes to converter attrs
-                            var withConv = _.invoke(attrVal.split('|'), 'trim');
-                            if (withConv.length > 1) {
-                                attrVal = withConv.shift();
-                                $el.data('f-convert-' + attr, withConv);
-                            }
-
-                            var commaRegex = /,(?![^\[]*\])/;
-                            if (attrVal.split(commaRegex).length > 1) {
-                                //TODO
-                                // triggerers = triggerers.concat(val.split(','));
-                            } else {
-                                varMap[attrVal] = attr;
-                            }
-                        }
-                    }
-                });
-                $el.data('variable-attr-map', varMap);
-
-                var subscribable = Object.keys(varMap);
-                if (subscribable.length) {
-                    var subsid = channel.subscribe(Object.keys(varMap), $el);
-                    $el.data('f-subscription-id', subsid);
+            var subscribe = function (channel, varsToBind, $el, options) {
+                if (!varsToBind || !varsToBind.length) {
+                    return false;
                 }
-            }
+                var subsid = channel.subscribe(varsToBind, $el, options);
+                var newsubs = ($el.data('f-subscription-id') || []).concat(subsid);
+                $el.data('f-subscription-id', newsubs);
+            };
+
+            var attrBindings = [];
+            var nonBatchableVariables = [];
+            //NOTE: looping through attributes instead of .data because .data automatically camelcases properties and make it hard to retrvieve
+            $(element.attributes).each(function (index, nodeMap) {
+                var attr = nodeMap.nodeName;
+                var attrVal = nodeMap.value;
+
+                var wantedPrefix = 'data-f-';
+                if (attr.indexOf(wantedPrefix) === 0) {
+                    attr = attr.replace(wantedPrefix, '');
+
+                    var handler = attrManager.getHandler(attr, $el);
+                    var isBindableAttr = true;
+                    if (handler && handler.init) {
+                        isBindableAttr = handler.init.call($el, attr, attrVal);
+                    }
+
+                    if (isBindableAttr) {
+                        //Convert pipes to converter attrs
+                        var withConv = _.invoke(attrVal.split('|'), 'trim');
+                        if (withConv.length > 1) {
+                            attrVal = withConv.shift();
+                            $el.data('f-convert-' + attr, withConv);
+                        }
+
+                        var binding = { attr: attr };
+                        var commaRegex = /,(?![^\[]*\])/;
+                        if (attrVal.split(commaRegex).length > 1) {
+                            var varsToBind = _.invoke(attrVal.split(commaRegex), 'trim');
+                            subscribe(channel, varsToBind, $el, { batch: true });
+                            binding.topics = varsToBind;
+                        } else {
+                            binding.topics = [attrVal];
+                            nonBatchableVariables.push(attrVal);
+                        }
+                        attrBindings.push(binding);
+                    }
+                }
+            });
+            $el.data('attr-bindings', attrBindings);
+            subscribe(channel, nonBatchableVariables, $el, { batch: false });
         },
 
         /**
@@ -190,22 +197,6 @@ module.exports = (function () {
                 $root.trigger('f.domready');
 
                 //Attach listeners
-                // Listen for changes from api and update ui
-                $root.off(config.events.react).on(config.events.react, function (evt, data) {
-                    // console.log(evt.target, data, "root on");
-                    var $el = $(evt.target);
-                    var varmap = $el.data('variable-attr-map');
-
-                    var convertible = {};
-                    $.each(data, function (variableName, value) {
-                        var propertyToUpdate = varmap[variableName.trim()];
-                        if (propertyToUpdate) {
-                            convertible[propertyToUpdate] = value;
-                        }
-                    });
-                    $el.trigger('f.convert', convertible);
-                });
-
                 // Listen for changes to ui and publish to api
                 $root.off(config.events.trigger).on(config.events.trigger, function (evt, data) {
                     var parsedData = {}; //if not all subsequent listeners will get the modified data
@@ -224,7 +215,28 @@ module.exports = (function () {
                     channel.variables.publish(parsedData);
                 });
 
-                // data = {proptoupdate: value}
+                // Listen for changes from api and update ui
+                $root.off(config.events.react).on(config.events.react, function (evt, data) {
+                    // console.log(evt.target, data, "root on");
+                    var $el = $(evt.target);
+                    var bindings = $el.data('attr-bindings');
+
+                    var toconvert = {};
+                    $.each(data, function (variableName, value) {
+                        _.each(bindings, function (binding) {
+                            if (_.contains(binding.topics, variableName)) {
+                                if (binding.topics.length > 1) {
+                                    toconvert[binding.attr] = _.pick(data, binding.topics);
+                                } else {
+                                    toconvert[binding.attr] = value;
+                                }
+                            }
+                        });
+                    });
+                    $el.trigger('f.convert', toconvert);
+                });
+
+                // data = {proptoupdate: value} || just a value (assumes 'bind' if so)
                 $root.off('f.convert').on('f.convert', function (evt, data) {
                     var $el = $(evt.target);
                     var convert = function (val, prop) {

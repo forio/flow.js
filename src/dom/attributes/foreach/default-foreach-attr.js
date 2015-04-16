@@ -7,7 +7,7 @@ module.exports = {
     target: '*',
 
     handle: function (value, prop) {
-        value = (_.isObject(value) ? value : [].concat(value));
+        value = ($.isPlainObject(value) ? value : [].concat(value));
         var $loopTemplate = this.data('foreach-template');
         if (!$loopTemplate) {
             $loopTemplate = this.children();

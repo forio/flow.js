@@ -11,11 +11,11 @@ var normalize = function (alias, converter, acceptList) {
             convert: converter,
             acceptList: acceptList
         });
-    } else if (_.isObject(converter) && converter.convert) {
+    } else if ($.isPlainObject(converter) && converter.convert) {
         converter.alias = alias;
         converter.acceptList = acceptList;
         ret.push(converter);
-    } else if (_.isObject(alias)) {
+    } else if ($.isPlainObject(alias)) {
         //normalize({alias: 'flip', convert: function})
         if (alias.convert) {
             ret.push(alias);
@@ -93,14 +93,32 @@ var converterManager = {
 
         var currentValue = value;
         var me = this;
+
+        var convertArray = function (converter, val, converterName) {
+            return _.map(val, function (v) {
+                return converter.convert(v, converterName);
+            });
+        };
+        var convertObject = function (converter, value, converterName) {
+            return _.mapValues(value, function (val, key) {
+               return convert(converter, val, converterName);
+           });
+        };
+        var convert = function (converter, value, converterName) {
+            var converted;
+            if (_.isArray(value) && converter.acceptList !== true) {
+                converted = convertArray(converter, value, converterName);
+            } else {
+                converted = converter.convert(value, converterName);
+            }
+            return converted;
+        };
         _.each(list, function (converterName) {
             var converter = me.getConverter(converterName);
-            if (_.isArray(currentValue) && converter.acceptList !== true) {
-                currentValue = _.map(currentValue, function (v) {
-                    return converter.convert(v, converterName);
-                });
+            if ($.isPlainObject(currentValue) && converter.acceptList !== true) {
+                currentValue = convertObject(converter, currentValue, converterName);
             } else {
-                currentValue = converter.convert(currentValue, converterName);
+                currentValue = convert(converter, currentValue, converterName);
             }
         });
         return currentValue;

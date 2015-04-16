@@ -306,6 +306,6 @@
             });
         });
 
+        require('./test-dom-events');
     });
-
 }());

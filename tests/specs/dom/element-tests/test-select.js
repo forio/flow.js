@@ -30,12 +30,14 @@ module.exports = (function () {
                     '</select>'
                 ].join('');
                 var $node = utils.initWithNode(nodes, domManager, channel);
+                var spy = sinon.spy();
+                $node.on('update.f.ui', spy);
 
                 $node.val(1).trigger('change');
-                channel.variables.publish.should.have.been.calledWith({ stuff: 1 });
+                spy.getCall(0).args[1].should.eql({ stuff: '1' });
 
                 $node.val('B').trigger('change');
-                channel.variables.publish.should.have.been.calledWith({ stuff: 'B' });
+                spy.getCall(1).args[1].should.eql({ stuff: 'B' });
             });
         });
         describe('updaters', function () {
