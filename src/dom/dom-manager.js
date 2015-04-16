@@ -74,10 +74,10 @@ module.exports = (function () {
                 }
             });
 
-            var subsid = $el.data('f-subscription-id');
-            if (subsid) {
-                channel.unsubscribe(subsid);
-            }
+            var subsid = $el.data('f-subscription-id') || [];
+            _.each(subsid, function (subs) {
+                channel.unsubscribe(subs);
+            });
         },
 
         bindElement: function (element, channel) {
@@ -123,6 +123,11 @@ module.exports = (function () {
 
                             var commaRegex = /,(?![^\[]*\])/;
                             if (attrVal.split(commaRegex).length > 1) {
+                                var varsToBind = attrVal.split(commaRegex);
+
+                                var subsid = channel.subscribe(varsToBind, $el, { batch: true });
+                                var newsubs = ($el.data('f-subscription-id') || []).concat(subsid);
+                                $el.data('f-subscription-id', newsubs);
                                 //TODO
                                 // triggerers = triggerers.concat(val.split(','));
                             } else {
@@ -136,7 +141,8 @@ module.exports = (function () {
                 var subscribable = Object.keys(varMap);
                 if (subscribable.length) {
                     var subsid = channel.subscribe(Object.keys(varMap), $el);
-                    $el.data('f-subscription-id', subsid);
+                    var newsubs = ($el.data('f-subscription-id') || []).concat(subsid);
+                    $el.data('f-subscription-id', newsubs);
                 }
             }
         },
