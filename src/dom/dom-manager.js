@@ -95,60 +95,57 @@ module.exports = (function () {
                 el: element
             });
 
-            var attrBindings = $el.data('attr-bindings') || [];
 
-            if (!attrBindings.length) {
-                var nonBatchableVariables = [];
-                //NOTE: looping through attributes instead of .data because .data automatically camelcases properties and make it hard to retrvieve
-                $(element.attributes).each(function (index, nodeMap) {
-                    var attr = nodeMap.nodeName;
-                    var attrVal = nodeMap.value;
-
-                    var wantedPrefix = 'data-f-';
-                    if (attr.indexOf(wantedPrefix) === 0) {
-                        attr = attr.replace(wantedPrefix, '');
-
-                        var handler = attrManager.getHandler(attr, $el);
-                        var isBindableAttr = true;
-                        if (handler && handler.init) {
-                            isBindableAttr = handler.init.call($el, attr, attrVal);
-                        }
-
-                        if (isBindableAttr) {
-                            //Convert pipes to converter attrs
-                            var withConv = _.invoke(attrVal.split('|'), 'trim');
-                            if (withConv.length > 1) {
-                                attrVal = withConv.shift();
-                                $el.data('f-convert-' + attr, withConv);
-                            }
-
-                            var commaRegex = /,(?![^\[]*\])/;
-                            var binding = {
-                                attr: attr
-                            };
-                            if (attrVal.split(commaRegex).length > 1) {
-                                var varsToBind = _.invoke(attrVal.split(commaRegex), 'trim');
-
-                                var subsid = channel.subscribe(varsToBind, $el, { batch: true });
-                                var newsubs = ($el.data('f-subscription-id') || []).concat(subsid);
-                                $el.data('f-subscription-id', newsubs);
-                                binding.topics = varsToBind;
-                            } else {
-                                binding.topics = [attrVal];
-                                nonBatchableVariables.push(attrVal);
-                            }
-                            attrBindings.push(binding);
-                        }
-                    }
-                });
-                $el.data('attr-bindings', attrBindings);
-
-                if (nonBatchableVariables.length) {
-                    var subsid = channel.subscribe(nonBatchableVariables, $el);
-                    var newsubs = ($el.data('f-subscription-id') || []).concat(subsid);
-                    $el.data('f-subscription-id', newsubs);
+            var subscribe = function (channel, varsToBind, $el, options) {
+                if (!varsToBind || !varsToBind.length) {
+                    return false;
                 }
-            }
+                var subsid = channel.subscribe(varsToBind, $el, options);
+                var newsubs = ($el.data('f-subscription-id') || []).concat(subsid);
+                $el.data('f-subscription-id', newsubs);
+            };
+
+            var attrBindings = [];
+            var nonBatchableVariables = [];
+            //NOTE: looping through attributes instead of .data because .data automatically camelcases properties and make it hard to retrvieve
+            $(element.attributes).each(function (index, nodeMap) {
+                var attr = nodeMap.nodeName;
+                var attrVal = nodeMap.value;
+
+                var wantedPrefix = 'data-f-';
+                if (attr.indexOf(wantedPrefix) === 0) {
+                    attr = attr.replace(wantedPrefix, '');
+
+                    var handler = attrManager.getHandler(attr, $el);
+                    var isBindableAttr = true;
+                    if (handler && handler.init) {
+                        isBindableAttr = handler.init.call($el, attr, attrVal);
+                    }
+
+                    if (isBindableAttr) {
+                        //Convert pipes to converter attrs
+                        var withConv = _.invoke(attrVal.split('|'), 'trim');
+                        if (withConv.length > 1) {
+                            attrVal = withConv.shift();
+                            $el.data('f-convert-' + attr, withConv);
+                        }
+
+                        var binding = { attr: attr };
+                        var commaRegex = /,(?![^\[]*\])/;
+                        if (attrVal.split(commaRegex).length > 1) {
+                            var varsToBind = _.invoke(attrVal.split(commaRegex), 'trim');
+                            subscribe(channel, varsToBind, $el, { batch: true });
+                            binding.topics = varsToBind;
+                        } else {
+                            binding.topics = [attrVal];
+                            nonBatchableVariables.push(attrVal);
+                        }
+                        attrBindings.push(binding);
+                    }
+                }
+            });
+            $el.data('attr-bindings', attrBindings);
+            subscribe(channel, nonBatchableVariables, $el, { batch: false });
         },
 
         /**
