@@ -232,7 +232,7 @@ module.exports = (function () {
                     channel.variables.publish(parsedData);
                 });
 
-                // data = {proptoupdate: value}
+                // data = {proptoupdate: value} || just a value (assumes 'bind' if so)
                 $root.off('f.convert').on('f.convert', function (evt, data) {
                     var $el = $(evt.target);
                     var convert = function (val, prop) {
