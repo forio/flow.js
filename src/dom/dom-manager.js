@@ -34,6 +34,17 @@ module.exports = (function () {
         return matchedElements;
     };
 
+    var getElementOrError = function (element, context) {
+        if (element instanceof $) {
+            element = element.get(0);
+        }
+        if (!element || !element.nodeName) {
+            console.error(context, 'Expected to get DOM Element, got ', element);
+            throw new Error(context + ': Expected to get DOM Element, got' + (typeof element));
+        }
+        return element;
+    };
+
     var publicAPI = {
 
         nodes: nodeManager,
@@ -50,7 +61,7 @@ module.exports = (function () {
             if (!channel) {
                 channel = this.options.channel.variables;
             }
-
+            element = getElementOrError(element);
             var $el = $(element);
             //FIXME: have to readd events to be able to remove them. Ugly
             var Handler = nodeManager.getHandler($el);
@@ -84,6 +95,8 @@ module.exports = (function () {
             if (!channel) {
                 channel = this.options.channel.variables;
             }
+            element = getElementOrError(element);
+
             if (!_.contains(this.private.matchedElements, element)) {
                 this.private.matchedElements.push(element);
             }
@@ -264,7 +277,7 @@ module.exports = (function () {
                     channel.operations.publish(data);
                 });
 
-                require('./plugins/mutation-observer')($root.get(0), this);
+                require('./plugins/mutation-observer')($root.get(0), me);
             });
         }
     };
