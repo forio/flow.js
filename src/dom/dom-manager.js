@@ -263,6 +263,8 @@ module.exports = (function () {
                     });
                     channel.operations.publish(data);
                 });
+
+                require('./plugins/mutation-observer')($root.get(0), this);
             });
         }
     };
