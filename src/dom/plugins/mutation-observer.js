@@ -1,41 +1,38 @@
 'use strict';
 
-module.exports = function ($root, domManager) {
+module.exports = function (target, domManager) {
     if (navigator.userAgent.indexOf('PhantomJS') !==  -1) {
         return false;
     }
-    // The node to be monitored
-    var target = $root[0];
 
     // Create an observer instance
     var observer = new MutationObserver(function (mutations) {
       mutations.forEach(function (mutation) {
-        console.log('mutation', mutation);
-        var newNodes = mutation.addedNodes; // DOM NodeList
-        if (newNodes !== null) { // If there are new nodes added
-            var $nodes = $(newNodes); // jQuery set
-            $nodes.each(function () {
-                var $node = $(this);
-                if ($node.hasClass('message')) {
-                    // do something
-                }
-            });
+        var added = mutation.addedNodes;
+        added = _.filter(added, function (node) {
+            return node.nodeName !== '#text';
+        });
+
+        var removed = mutation.removedNodes;
+        removed = _.filter(removed, function (node) {
+            return node.nodeName !== '#text';
+        });
+        if (added) {
+            domManager.bindAll(added);
+        }
+        if (removed) {
+            domManager.unbindAll(removed);
         }
       });
     });
 
     // Configuration of the observer:
     var mutconfig = {
-        attributes: true,
+        attributes: false,
         childList: true,
-        characterData: true
+        characterData: false
     };
-
-    // Pass in the target node, as well as the observer options
     observer.observe(target, mutconfig);
-
     // Later, you can stop observing
     // observer.disconnect();
-
-
 };
