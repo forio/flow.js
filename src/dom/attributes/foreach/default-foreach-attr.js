@@ -20,7 +20,7 @@ module.exports = {
             _.each(newNode.data(), function (val, key) {
                 newNode.data(key, _.template(val, { value: dataval, index: datakey, key: datakey }));
             });
-            var cleanedHTML = newNode.html().replace('&lt;', '<').replace('&gt;', '>');
+            var cleanedHTML = newNode.html().replace(/&lt;/g, '<').replace(/&gt;/g, '>');
             var templated = _.template(cleanedHTML, { value: dataval, key: datakey, index: datakey });
             newNode.html(templated);
             $me.append(newNode);
