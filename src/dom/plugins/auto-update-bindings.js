@@ -8,27 +8,19 @@ module.exports = function (target, domManager) {
     // Create an observer instance
     var observer = new MutationObserver(function (mutations) {
       mutations.forEach(function (mutation) {
-        var added = [].slice.call(mutation.addedNodes);
-        added = _.filter(added, function (node) {
-            return node.nodeName !== '#text';
-        });
-
-        var removed = [].slice.call(mutation.removedNodes);
-        removed = _.filter(removed, function (node) {
-            return node.nodeName !== '#text';
-        });
+        var added = $(mutation.addedNodes).find(':f');
+        var removed = $(mutation.removedNodes).find(':f');
         if (added && added.length) {
-            console.log('mutation observer added', added);
+            // console.log('mutation observer added', added);
             domManager.bindAll(added);
         }
         if (removed && removed.length) {
-            console.log('mutation observer removed', removed);
+            // console.log('mutation observer removed', removed);
             domManager.unbindAll(removed);
         }
       });
     });
 
-    // Configuration of the observer:
     var mutconfig = {
         attributes: false,
         childList: true,
