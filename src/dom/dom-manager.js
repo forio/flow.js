@@ -9,6 +9,8 @@ module.exports = (function () {
     var parseUtils = require('../utils/parse-utils');
     var domUtils = require('../utils/dom');
 
+    var autoUpdatePlugin = require('./plugins/auto-update-bindings');
+
     //Jquery selector to return everything which has a f- property set
     $.expr[':'][config.prefix] = function (obj) {
         var $this = $(obj);
@@ -281,7 +283,9 @@ module.exports = (function () {
                     channel.operations.publish(data);
                 });
 
-                require('./plugins/mutation-observer')($root.get(0), me);
+                if (me.options.autoUpdateBindings) {
+                    autoUpdatePlugin($root.get(0), me);
+                }
             });
         }
     };

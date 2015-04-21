@@ -1,26 +1,28 @@
 'use strict';
 
 module.exports = function (target, domManager) {
-    if (navigator.userAgent.indexOf('PhantomJS') !==  -1) {
+    if (!window.MutationObserver) {
         return false;
     }
 
     // Create an observer instance
     var observer = new MutationObserver(function (mutations) {
       mutations.forEach(function (mutation) {
-        var added = mutation.addedNodes;
+        var added = [].slice.call(mutation.addedNodes);
         added = _.filter(added, function (node) {
             return node.nodeName !== '#text';
         });
 
-        var removed = mutation.removedNodes;
+        var removed = [].slice.call(mutation.removedNodes);
         removed = _.filter(removed, function (node) {
             return node.nodeName !== '#text';
         });
-        if (added) {
+        if (added && added.length) {
+            console.log('mutation observer added', added);
             domManager.bindAll(added);
         }
-        if (removed) {
+        if (removed && removed.length) {
+            console.log('mutation observer removed', removed);
             domManager.unbindAll(removed);
         }
       });
@@ -30,6 +32,7 @@ module.exports = function (target, domManager) {
     var mutconfig = {
         attributes: false,
         childList: true,
+        subtree: true,
         characterData: false
     };
     observer.observe(target, mutconfig);
