@@ -56,13 +56,16 @@ module.exports = (function () {
         },
 
         unbindElement: function (element, channel) {
-            this.private.matchedElements = _.without(this.private.matchedElements, element);
-
             if (!channel) {
                 channel = this.options.channel.variables;
             }
             element = getElementOrError(element);
             var $el = $(element);
+            if (!$el.is(':' + config.prefix)) {
+                return false;
+            }
+            this.private.matchedElements = _.without(this.private.matchedElements, element);
+
             //FIXME: have to readd events to be able to remove them. Ugly
             var Handler = nodeManager.getHandler($el);
             var h = new Handler.handle({
@@ -96,18 +99,19 @@ module.exports = (function () {
                 channel = this.options.channel.variables;
             }
             element = getElementOrError(element);
-
+            var $el = $(element);
+            if (!$el.is(':' + config.prefix)) {
+                return false;
+            }
             if (!_.contains(this.private.matchedElements, element)) {
                 this.private.matchedElements.push(element);
             }
 
             //Send to node manager to handle ui changes
-            var $el = $(element);
             var Handler = nodeManager.getHandler($el);
             new Handler.handle({
                 el: element
             });
-
 
             var subscribe = function (channel, varsToBind, $el, options) {
                 if (!varsToBind || !varsToBind.length) {
