@@ -23,7 +23,7 @@ module.exports = (function () {
                     var newChildren = $rootNode.children();
                     newChildren.each(function (index) {
                        var data = $(this).data('stuff');
-                       data.should.equal(targetData[index] + '');
+                       data.should.equal(targetData[index] );
                     });
                 });
 
@@ -38,7 +38,7 @@ module.exports = (function () {
                        data.should.equal(targetData[index] + '');
 
                        var indexVal = $(this).data('stuff');
-                       indexVal.should.equal(index + '');
+                       indexVal.should.equal(index);
                     });
                 });
                 it('should treat single values as arrays with 1 iteam', function () {
@@ -48,16 +48,25 @@ module.exports = (function () {
                     var newChildren = $rootNode.children();
                     newChildren.length.should.equal(1);
 
-                    newChildren.data('value').should.equal('3');
+                    newChildren.data('value').should.equal(3);
                 });
-                it('should print out undefineds when passed those in', function () {
-                    var $rootNode = $('<ul> <li data-value="<%= value %>"> </li> </ul>');
+                it('should print out undefineds in html when passed nothing in', function () {
+                    var $rootNode = $('<ul> <li data-value="<%= value %>"> <%= value %></li> </ul>');
 
                     foreachHandler.handle.call($rootNode, undefined);
                     var newChildren = $rootNode.children();
                     newChildren.length.should.equal(1);
 
-                    newChildren.data('value').should.equal('undefined');
+                    newChildren.html().trim().should.equal('undefined');
+                });
+                it('should set data to blank when passed nothing in', function () {
+                    var $rootNode = $('<ul> <li data-value="<%= value %>"> <%= value %></li> </ul>');
+
+                    foreachHandler.handle.call($rootNode, undefined);
+                    var newChildren = $rootNode.children();
+                    newChildren.length.should.equal(1);
+
+                    newChildren.data('value').should.equal('');
                 });
             });
             describe('Objects', function () {
@@ -108,7 +117,7 @@ module.exports = (function () {
                        data.should.equal(targetData[index] + '');
 
                        var indexVal = $(this).data('stuff');
-                       indexVal.should.equal(index + '');
+                       indexVal.should.equal(index);
                     });
                 });
                 describe('Multiple children', function () {
@@ -123,7 +132,7 @@ module.exports = (function () {
                     });
 
                     it('should process data attributes for all children', function () {
-                        var $rootNode = $('<ul> <li> <%= value %> </li> <li data-stuff="<%= index>"> <%= value %> </li> </ul>');
+                        var $rootNode = $('<ul> <li> <%= value %> </li> <li data-stuff="<%= index %>"> <%= value %> </li> </ul>');
 
                         var targetData = [5,3,6];
                         foreachHandler.handle.call($rootNode, targetData);
@@ -132,13 +141,13 @@ module.exports = (function () {
                         newChildren.eq(1).data('stuff').should.equal(0);
                     });
                     it('should process innerhtml for all children', function () {
-                        var $rootNode = $('<ul> <li> <%= value %> </li> <li data-stuff="<%= index>"> <%= index %> </li> </ul>');
+                        var $rootNode = $('<ul> <li> <%= value %> </li> <li data-stuff="<%= index %>"> <%= index %> </li> </ul>');
 
                         var targetData = [5,3,6];
                         foreachHandler.handle.call($rootNode, targetData);
 
                         var newChildren = $rootNode.children();
-                        newChildren.eq(1).html().trim().should.equal('1');
+                        newChildren.eq(1).html().trim().should.equal('0');
                         newChildren.eq(2).html().trim().should.equal('3');
                     });
                 });
@@ -157,7 +166,7 @@ module.exports = (function () {
                    data.should.equal(targetData[index] + '');
 
                    var indexVal = $(this).data('stuff');
-                   indexVal.should.equal(index + '');
+                   indexVal.should.equal(index);
                 });
             });
             it('should loop through children for elems with foreach=variableObject', function () {
