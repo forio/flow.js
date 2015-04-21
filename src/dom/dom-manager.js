@@ -9,6 +9,8 @@ module.exports = (function () {
     var parseUtils = require('../utils/parse-utils');
     var domUtils = require('../utils/dom');
 
+    var autoUpdatePlugin = require('./plugins/auto-update-bindings');
+
     //Jquery selector to return everything which has a f- property set
     $.expr[':'][config.prefix] = function (obj) {
         var $this = $(obj);
@@ -34,6 +36,17 @@ module.exports = (function () {
         return matchedElements;
     };
 
+    var getElementOrError = function (element, context) {
+        if (element instanceof $) {
+            element = element.get(0);
+        }
+        if (!element || !element.nodeName) {
+            console.error(context, 'Expected to get DOM Element, got ', element);
+            throw new Error(context + ': Expected to get DOM Element, got' + (typeof element));
+        }
+        return element;
+    };
+
     var publicAPI = {
 
         nodes: nodeManager,
@@ -45,13 +58,16 @@ module.exports = (function () {
         },
 
         unbindElement: function (element, channel) {
-            this.private.matchedElements = _.without(this.private.matchedElements, element);
-
             if (!channel) {
                 channel = this.options.channel.variables;
             }
-
+            element = getElementOrError(element);
             var $el = $(element);
+            if (!$el.is(':' + config.prefix)) {
+                return false;
+            }
+            this.private.matchedElements = _.without(this.private.matchedElements, element);
+
             //FIXME: have to readd events to be able to remove them. Ugly
             var Handler = nodeManager.getHandler($el);
             var h = new Handler.handle({
@@ -84,17 +100,20 @@ module.exports = (function () {
             if (!channel) {
                 channel = this.options.channel.variables;
             }
+            element = getElementOrError(element);
+            var $el = $(element);
+            if (!$el.is(':' + config.prefix)) {
+                return false;
+            }
             if (!_.contains(this.private.matchedElements, element)) {
                 this.private.matchedElements.push(element);
             }
 
             //Send to node manager to handle ui changes
-            var $el = $(element);
             var Handler = nodeManager.getHandler($el);
             new Handler.handle({
                 el: element
             });
-
 
             var subscribe = function (channel, varsToBind, $el, options) {
                 if (!varsToBind || !varsToBind.length) {
@@ -132,7 +151,10 @@ module.exports = (function () {
 
                         var binding = { attr: attr };
                         var commaRegex = /,(?![^\[]*\])/;
-                        if (attrVal.split(commaRegex).length > 1) {
+                        if (attrVal.indexOf('<%') !== -1) {
+                            //Assume it's templated for later use
+
+                        } else if (attrVal.split(commaRegex).length > 1) {
                             var varsToBind = _.invoke(attrVal.split(commaRegex), 'trim');
                             subscribe(channel, varsToBind, $el, { batch: true });
                             binding.topics = varsToBind;
@@ -263,6 +285,10 @@ module.exports = (function () {
                     });
                     channel.operations.publish(data);
                 });
+
+                if (me.options.autoUpdateBindings) {
+                    autoUpdatePlugin($root.get(0), me);
+                }
             });
         }
     };

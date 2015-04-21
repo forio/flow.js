@@ -21,7 +21,10 @@ module.exports = {
                 }
             },
             dom: {
-                root: 'body'
+                root: 'body',
+                plugins: {
+                    autoUpdateBindings: true
+                }
             }
         };
 

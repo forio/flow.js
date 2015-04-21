@@ -1,5 +1,5 @@
 'use strict';
-
+var parseUtils = require('../../../utils/parse-utils');
 module.exports = {
 
     test: 'foreach',
@@ -16,14 +16,18 @@ module.exports = {
         var $me = this.empty();
         _.each(value, function (dataval, datakey) {
             dataval = dataval + '';
-            var newNode = $loopTemplate.clone();
-            _.each(newNode.data(), function (val, key) {
-                newNode.data(key, _.template(val, { value: dataval, index: datakey, key: datakey }));
+            var nodes = $loopTemplate.clone();
+            nodes.each(function (i, newNode) {
+                newNode = $(newNode);
+                _.each(newNode.data(), function (val, key) {
+                    var templated =  _.template(val, { value: dataval, index: datakey, key: datakey });
+                    newNode.data(key, parseUtils.toImplicitType(templated));
+                });
+                var cleanedHTML = newNode.html().replace(/&lt;/g, '<').replace(/&gt;/g, '>');
+                var templated = _.template(cleanedHTML, { value: dataval, key: datakey, index: datakey });
+                newNode.html(templated);
+                $me.append(newNode);
             });
-            var cleanedHTML = newNode.html().replace('&lt;', '<').replace('&gt;', '>');
-            var templated = _.template(cleanedHTML, { value: dataval, key: datakey, index: datakey });
-            newNode.html(templated);
-            $me.append(newNode);
         });
     }
 };
