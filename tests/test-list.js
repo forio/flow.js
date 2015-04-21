@@ -13,4 +13,6 @@ require('./specs/channels/test-operations-channel');
 
 require('./specs/dom/attributes/test-default-foreach-attr');
 
+require('./specs/dom/plugins/test-auto-update-bindings');
+
 require('./specs/test-flow');

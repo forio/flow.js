@@ -111,6 +111,37 @@ module.exports = (function () {
                        indexVal.should.equal(index + '');
                     });
                 });
+                describe('Multiple children', function () {
+                    it('should append the right number for children for templates with multiple children', function () {
+                        var $rootNode = $('<ul> <li> <%= value %> </li> <li data-stuff="<%= index>"> <%= value %> </li> </ul>');
+
+                        var targetData = [5,3,6];
+                        foreachHandler.handle.call($rootNode, targetData);
+
+                        var newChildren = $rootNode.children();
+                        newChildren.size().should.equal(6);
+                    });
+
+                    it('should process data attributes for all children', function () {
+                        var $rootNode = $('<ul> <li> <%= value %> </li> <li data-stuff="<%= index>"> <%= value %> </li> </ul>');
+
+                        var targetData = [5,3,6];
+                        foreachHandler.handle.call($rootNode, targetData);
+
+                        var newChildren = $rootNode.children();
+                        newChildren.eq(1).data('stuff').should.equal(0);
+                    });
+                    it('should process innerhtml for all children', function () {
+                        var $rootNode = $('<ul> <li> <%= value %> </li> <li data-stuff="<%= index>"> <%= index %> </li> </ul>');
+
+                        var targetData = [5,3,6];
+                        foreachHandler.handle.call($rootNode, targetData);
+
+                        var newChildren = $rootNode.children();
+                        newChildren.eq(1).html().trim().should.equal('1');
+                        newChildren.eq(2).html().trim().should.equal('3');
+                    });
+                });
             });
         });
         describe('integration', function () {

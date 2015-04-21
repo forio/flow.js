@@ -64,6 +64,7 @@
                 <h4> Profit over time</h4>
                 <ul data-f-foreach="Profit | $#,###">
                     <li> <%= value %> </li>
+                    <li> <input type="text" data-f-bind="Profit[<%= index %>]" value="<%= value %>"/> </li>
                 </ul>
                 <script src="../../vendor/epicenter-js-libs/dist/epicenter.min.js"></script>
                 <script src="../../dist/flow-edge.js"></script>
