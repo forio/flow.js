@@ -204,7 +204,8 @@ module.exports = (function () {
         initialize: function (options) {
             var defaults = {
                 root: 'body',
-                channel: null
+                channel: null,
+                plugins: {}
             };
             $.extend(defaults, options);
 
@@ -286,7 +287,7 @@ module.exports = (function () {
                     channel.operations.publish(data);
                 });
 
-                if (me.options.autoUpdateBindings) {
+                if (me.options.plugins.autoUpdateBindings) {
                     autoUpdatePlugin($root.get(0), me);
                 }
             });
