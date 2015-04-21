@@ -23,7 +23,7 @@ module.exports = (function () {
                     var newChildren = $rootNode.children();
                     newChildren.each(function (index) {
                        var data = $(this).data('stuff');
-                       data.should.equal(targetData[index] );
+                       data.should.equal(targetData[index]);
                     });
                 });
 

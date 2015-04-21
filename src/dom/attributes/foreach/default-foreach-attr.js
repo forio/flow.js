@@ -1,5 +1,5 @@
 'use strict';
-var parseUtils = require('../../../utils/parse-utils')
+var parseUtils = require('../../../utils/parse-utils');
 module.exports = {
 
     test: 'foreach',
