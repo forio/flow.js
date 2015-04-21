@@ -151,7 +151,10 @@ module.exports = (function () {
 
                         var binding = { attr: attr };
                         var commaRegex = /,(?![^\[]*\])/;
-                        if (attrVal.split(commaRegex).length > 1) {
+                        if (attrVal.indexOf('<%') !== -1) {
+                            //Assume it's templated for later use
+
+                        } else if (attrVal.split(commaRegex).length > 1) {
                             var varsToBind = _.invoke(attrVal.split(commaRegex), 'trim');
                             subscribe(channel, varsToBind, $el, { batch: true });
                             binding.topics = varsToBind;
