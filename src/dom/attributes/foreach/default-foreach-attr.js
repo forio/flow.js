@@ -25,11 +25,10 @@ module.exports = {
                 });
                 var oldHTML = newNode.html();
                 var cleanedHTML = oldHTML.replace(/&lt;/g, '<').replace(/&gt;/g, '>');
-                if (oldHTML === cleanedHTML) {
-                    // There's no template there
+                var templated = _.template(cleanedHTML, { value: dataval, key: datakey, index: datakey });
+                if (cleanedHTML === templated) {
                     newNode.html(dataval);
                 } else {
-                    var templated = _.template(cleanedHTML, { value: dataval, key: datakey, index: datakey });
                     newNode.html(templated);
                 }
                 $me.append(newNode);

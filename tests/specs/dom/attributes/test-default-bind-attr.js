@@ -7,10 +7,31 @@ module.exports = (function () {
 
     describe('Default Bind', function () {
         describe('#handle', function () {
-            it('should replace innerhtml if target is blank', function () {
-                var $rootNode = $('<div> </div>');
-                bindHandler.handle.call($rootNode, 'Hello');
-                $rootNode.html().should.equal('Hello');
+            describe('Non-templated', function () {
+                it('should replace innerhtml if target is blank', function () {
+                    var $rootNode = $('<div> </div>');
+                    bindHandler.handle.call($rootNode, 'Hello');
+                    $rootNode.html().should.equal('Hello');
+                });
+                it('should replace innerhtml if target has random text', function () {
+                    var $rootNode = $('<div> Loading </div>');
+                    bindHandler.handle.call($rootNode, 'Hello');
+                    $rootNode.html().should.equal('Hello');
+                });
+                it('should show the last item if given an array', function () {
+                    it('should replace innerhtml if target has random text', function () {
+                        var $rootNode = $('<div> Loading </div>');
+                        bindHandler.handle.call($rootNode, [1,3,5,6]);
+                        $rootNode.html().should.equal('6');
+                    });
+                });
+            });
+            describe('Templated', function () {
+                it('should show values for single items', function () {
+                    var $rootNode = $('<div><%= value %> World</div>');
+                    bindHandler.handle.call($rootNode, 'Hello');
+                    $rootNode.html().should.equal('Hello World');
+                });
             });
         });
     });
