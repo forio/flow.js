@@ -7,9 +7,15 @@ module.exports = {
     test: 'bind',
 
     handle: function (value) {
-        if (_.isArray(value)) {
-            value = value[value.length - 1];
+        var current = this.html();
+        var templated = _.template(current, value);
+        if (current === templated) {
+            if (_.isArray(value)) {
+                value = value[value.length - 1];
+            }
+            this.html(value);
+        } else {
+            this.html(templated);
         }
-        this.html(value);
     }
 };
