@@ -32,6 +32,16 @@ module.exports = (function () {
                     bindHandler.handle.call($rootNode, 'Hello');
                     $rootNode.html().should.equal('Hello World');
                 });
+                it('should show templatize Objects', function () {
+                    var $rootNode = $('<div><%= a %> <%= b %></div>');
+                    bindHandler.handle.call($rootNode, { a: 'Hello', b: 'World' });
+                    $rootNode.html().should.equal('Hello World');
+                });
+                it('should show templatize Arrays', function () {
+                    var $rootNode = $('<div><%= value[value.length - 1] %></div>');
+                    bindHandler.handle.call($rootNode, ['Hello']);
+                    $rootNode.html().should.equal('Hello');
+                });
             });
         });
     });
