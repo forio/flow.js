@@ -44,38 +44,33 @@ module.exports = (function () {
                 });
             });
         });
+
+        describe('Integration', function () {
+            it('should output last values for arrays', function () {
+                var targetData = { Price: [10, 30] };
+
+                var $node = utils.initWithNode('<div data-f-bind="Price"> </div>', domManager);
+                $node.trigger('update.f.model', targetData);
+
+                $node.html().trim().should.equal('30');
+            });
+            it('should templatize multiple-bound variables', function () {
+                var targetData = { Price: '20', Sales: 30 };
+
+                var $node = utils.initWithNode('<div data-f-bind="Price, Sales"> <%= Price %> <%= Sales %> </div>', domManager);
+                $node.trigger('update.f.model', targetData);
+
+                $node.html().trim().should.equal('20 30');
+            });
+            it('should templatize single variables', function () {
+                var targetData = { Price: '20', Sales: 30 };
+
+                var $node = utils.initWithNode('<div data-f-bind="Price"> <%= value %> </div>', domManager);
+                $node.trigger('update.f.model', targetData);
+
+                $node.html().trim().should.equal('20');
+            });
+        });
     });
-
-        // describe('integration', function () {
-        //     it('should loop through children for elems with foreach=variableArray', function () {
-        //         var targetData = [5,3,6,1];
-
-        //         var $node = utils.initWithNode('<ul data-f-foreach="somearray"> <li data-stuff="<%=index%>"> <%= value %> </li> </ul>', domManager);
-        //         $node.trigger('update.f.model', { somearray: targetData });
-
-        //         var newChildren = $node.children();
-        //         newChildren.each(function (index) {
-        //            var data = $(this).html().trim();
-        //            data.should.equal(targetData[index] + '');
-
-        //            var indexVal = $(this).data('stuff');
-        //            indexVal.should.equal(index);
-        //         });
-        //     });
-        //     it('should loop through children for elems with foreach=variableObject', function () {
-        //         var targetData = { a:3, b:4 };
-
-        //         var $node = utils.initWithNode('<ul data-f-foreach="someobject"> <li data-stuff="<%=index%>"> <%= value %> </li> </ul>', domManager);
-        //         $node.trigger('update.f.model', { someobject: targetData });
-
-        //         var newChildren = $node.children();
-        //         newChildren.each(function (index) {
-        //            var val = $(this).html().trim();
-        //            var key = $(this).data('stuff');
-
-        //            targetData[key].should.equal(+val);
-        //         });
-        //     });
-        // });
 
 }());
