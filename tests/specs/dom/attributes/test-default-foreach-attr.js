@@ -68,6 +68,18 @@ module.exports = (function () {
 
                     newChildren.data('value').should.equal('');
                 });
+
+                it('should put the value inside the element if it`s not templated', function () {
+                    var $rootNode = $('<ul> <li> </li> </ul>');
+
+                    var data = [1,2,3,4];
+                    foreachHandler.handle.call($rootNode, data);
+                    var newChildren = $rootNode.children();
+
+                    for (var i = 0; i< data.length; i++) {
+                        $(newChildren[i]).html().should.equal(data[i] + '');
+                    }
+                });
             });
             describe('Objects', function () {
                 it('should clone children for objects', function () {

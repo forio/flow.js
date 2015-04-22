@@ -23,9 +23,15 @@ module.exports = {
                     var templated =  _.template(val, { value: dataval, index: datakey, key: datakey });
                     newNode.data(key, parseUtils.toImplicitType(templated));
                 });
-                var cleanedHTML = newNode.html().replace(/&lt;/g, '<').replace(/&gt;/g, '>');
-                var templated = _.template(cleanedHTML, { value: dataval, key: datakey, index: datakey });
-                newNode.html(templated);
+                var oldHTML = newNode.html();
+                var cleanedHTML = oldHTML.replace(/&lt;/g, '<').replace(/&gt;/g, '>');
+                if (oldHTML === cleanedHTML) {
+                    // There's no template there
+                    newNode.html(dataval);
+                } else {
+                    var templated = _.template(cleanedHTML, { value: dataval, key: datakey, index: datakey });
+                    newNode.html(templated);
+                }
                 $me.append(newNode);
             });
         });
