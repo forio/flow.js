@@ -15,7 +15,7 @@ module.exports = {
     getConvertersList: function ($el, property) {
         var attrConverters = $el.data('f-convert-' + property);
 
-        if (!attrConverters && property === 'bind') {
+        if (!attrConverters && (property === 'bind' || property === 'foreach')) {
             //Only bind inherits from parents
             attrConverters = $el.data('f-convert');
             if (!attrConverters) {
