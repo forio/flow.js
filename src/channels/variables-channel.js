@@ -113,8 +113,14 @@ module.exports = function (options) {
             // if it has been a second since you last checked, or there are at least 5 items in the pending queue
             var TIME_BETWEEN_CHECKS = 2000;
             var MAX_ITEMS_IN_QUEUE = 5;
+            var me = this;
             if (channelOptions.autoFetch && (_.now() - lastCheckTime > TIME_BETWEEN_CHECKS || this.unfetched.length > MAX_ITEMS_IN_QUEUE)) {
-                this.refresh(null, true);
+                this.fetch(this.unfetched).then(function (changed) {
+                    $.extend(currentData, changed);
+                    me.notify(changed);
+                    me.unfetched = [];
+                    lastCheckTime = _.now();
+                });
             }
         },
 
@@ -177,8 +183,6 @@ module.exports = function (options) {
             return this.fetch(variables).then(function (changeSet) {
                 $.extend(currentData, changeSet);
                 me.notify(changeSet);
-                me.unfetched = [];
-                lastCheckTime = _.now();
             });
         },
 
