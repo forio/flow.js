@@ -54,6 +54,7 @@ module.exports = (function () {
 
                 $node.html().trim().should.equal('30');
             });
+
             it('should templatize multiple-bound variables', function () {
                 var targetData = { Price: '20', Sales: 30 };
 
@@ -69,6 +70,22 @@ module.exports = (function () {
                 $node.trigger('update.f.model', targetData);
 
                 $node.html().trim().should.equal('20');
+            });
+            it('should template arrays in accordance with converters', function () {
+                var targetData = { Price: [10, 30] };
+
+                var $node = utils.initWithNode('<div data-f-bind="Price|last"> <%= value %> </div>', domManager);
+                $node.trigger('update.f.model', targetData);
+
+                $node.html().trim().should.equal('30');
+            });
+            it('should template objects in accordance with converters', function () {
+                var targetData = { Price: [10, 30], Sales: [20, 11] };
+
+               var $node = utils.initWithNode('<div data-f-bind="Price, Sales | last"> <%= Price %> <%= Sales %> </div>', domManager);
+                 $node.trigger('update.f.model', targetData);
+
+                $node.html().trim().should.equal('30 11');
             });
         });
     });
