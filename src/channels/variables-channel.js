@@ -90,6 +90,49 @@ module.exports = function (options) {
             }
         },
 
+        fetch: function (variablesList) {
+            var innerVariables = [];
+            variablesList = [].concat(variablesList);
+
+            _.each(variablesList, function (vname) {
+                var inner = getInnerVariables(vname);
+                if (inner.length) {
+                    innerVariables = _.uniq(innerVariables.concat(inner));
+                }
+            });
+            var me = this;
+            var getVariables = function (vars, interpolationMap) {
+                return vs.query(vars).then(function (variables) {
+                    // console.log('Got variables', variables);
+                    var changeSet = {};
+                    _.each(variables, function (value, vname) {
+                        var oldValue = currentData[vname];
+                        if (!isEqual(value, oldValue)) {
+                            changeSet[vname] = value;
+                            if (interpolationMap && interpolationMap[vname]) {
+                                var map = [].concat(interpolationMap[vname]);
+                                _.each(map, function (interpolatedName) {
+                                    changeSet[interpolatedName] = value;
+                                });
+                            }
+                        }
+                    });
+                    me.notify(changeSet);
+                    $.extend(currentData, changeSet);
+                });
+            };
+            if (innerVariables.length) {
+                return vs.query(innerVariables).then(function (innerVariables) {
+                    //console.log('inner', innerVariables);
+                    $.extend(currentData, innerVariables);
+                    var ip =  interpolate(variablesList, innerVariables);
+                    getVariables(ip.interpolated, ip.interpolationMap);
+                });
+            } else {
+                return getVariables(variablesList);
+            }
+        },
+
         /**
          * Check and notify all listeners
          * @param  {Object} changeObj key-value pairs of changed variables
@@ -111,39 +154,8 @@ module.exports = function (options) {
                 return $.Deferred().resolve().promise();
             }
 
-            var getVariables = function (vars, interpolationMap) {
-                return vs.query(vars).then(function (variables) {
-                    // console.log('Got variables', variables);
-                    var changeSet = {};
-                    _.each(variables, function (value, vname) {
-                        var oldValue = currentData[vname];
-                        if (!isEqual(value, oldValue)) {
-                            changeSet[vname] = value;
-                            if (interpolationMap && interpolationMap[vname]) {
-                                var map = [].concat(interpolationMap[vname]);
-                                _.each(map, function (interpolatedName) {
-                                    changeSet[interpolatedName] = value;
-                                });
-                            }
-                        }
-                    });
-                    me.notify(changeSet);
-                    $.extend(currentData, changeSet);
-                });
-            };
-            if (me.innerVariablesList.length) {
-                return vs.query(me.innerVariablesList).then(function (innerVariables) {
-                    //console.log('inner', innerVariables);
-                    $.extend(currentData, innerVariables);
-                    var variables = _(me.subscriptions).pluck('topics').flatten().uniq().value();
-                    var ip =  interpolate(variables, innerVariables);
-                    getVariables(ip.interpolated, ip.interpolationMap);
-                });
-            } else {
-                var variables = _(me.subscriptions).pluck('topics').flatten().uniq().value();
-                return getVariables(variables);
-            }
-
+            var variables = _(me.subscriptions).pluck('topics').flatten().uniq().value();
+            return this.fetch(variables);
         },
 
         notify: function (topics, value) {
