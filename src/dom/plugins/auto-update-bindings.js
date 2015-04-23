@@ -12,7 +12,7 @@ module.exports = function (target, domManager) {
         added = added.add($(mutation.addedNodes).filter(':f'));
 
         var removed = $(mutation.removedNodes).find(':f');
-        removed = removed.add($(mutation.addedNodes).filter(':f'));
+        removed = removed.add($(mutation.removedNodes).filter(':f'));
 
         if (added && added.length) {
             // console.log('mutation observer added', added, mutation.addedNodes);

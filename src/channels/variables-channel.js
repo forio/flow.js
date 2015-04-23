@@ -69,7 +69,7 @@ module.exports = function (options) {
         return op;
     };
 
-    var lastCheckTime = -Infinity;
+    var lastCheckTime = _.now();
     var publicAPI = {
         //for testing
         private: {
@@ -111,7 +111,7 @@ module.exports = function (options) {
         updateAndCheckForRefresh: function (topics) {
             this.unfetched = _.uniq(this.unfetched.concat(topics));
             // if it has been a second since you last checked, or there are at least 5 items in the pending queue
-            var TIME_BETWEEN_CHECKS = 1000;
+            var TIME_BETWEEN_CHECKS = 2000;
             var MAX_ITEMS_IN_QUEUE = 5;
             if (channelOptions.autoFetch && (_.now() - lastCheckTime > TIME_BETWEEN_CHECKS || this.unfetched.length > MAX_ITEMS_IN_QUEUE)) {
                 this.refresh(null, true);
