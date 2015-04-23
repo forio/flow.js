@@ -89,17 +89,27 @@ module.exports = function (options) {
                 return this.subscriptions;
             }
         },
-
-        fetch: function (variablesList) {
-            var innerVariables = [];
-            variablesList = [].concat(variablesList);
-
-            _.each(variablesList, function (vname) {
+        getAllTopics: function () {
+            return _(this.subscriptions).pluck('topics').flatten().uniq().value();
+        },
+        getTopicDependencies: function (list) {
+            if (!list) {
+                list = this.getAllTopics();
+            }
+            var innerList = [];
+            _.each(list, function (vname) {
                 var inner = getInnerVariables(vname);
                 if (inner.length) {
-                    innerVariables = _.uniq(innerVariables.concat(inner));
+                    innerList = _.uniq(innerList.concat(inner));
                 }
             });
+            return innerList;
+        },
+
+        fetch: function (variablesList) {
+            variablesList = [].concat(variablesList);
+            var innerVariables = this.getTopicDependencies(variablesList);
+
             var getVariables = function (vars, interpolationMap) {
                 return vs.query(vars).then(function (variables) {
                     // console.log('Got variables', variables);
