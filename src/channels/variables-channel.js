@@ -11,7 +11,9 @@ module.exports = function (options) {
          *       - [array of variable names]: Variables in this array will not trigger updates, everything else will
          *       - { except: [array of variables]}: Variables in this array will trigger updates, nothing else will
          */
-        silent: false
+        silent: false,
+
+        autoFetch: false
     };
 
     var channelOptions = $.extend(true, {}, defaults, options);
@@ -67,6 +69,7 @@ module.exports = function (options) {
         return op;
     };
 
+    var lastCheckTime = -Infinity;
     var publicAPI = {
         //for testing
         private: {
@@ -76,6 +79,8 @@ module.exports = function (options) {
         },
 
         subscriptions: [],
+
+        unfetched: [],
 
         getSubscribers: function (topic) {
             if (topic) {
@@ -103,10 +108,19 @@ module.exports = function (options) {
             return innerList;
         },
 
+        updateAndCheckForRefresh: function (topics) {
+            this.unfetched = _.uniq(this.unfetched.concat(topics));
+            // if it has been a second since you last checked, or there are at least 5 items in the pending queue
+            var TIME_BETWEEN_CHECKS = 1000;
+            var MAX_ITEMS_IN_QUEUE = 5;
+            if (channelOptions.autoFetch && (_.now() - lastCheckTime > TIME_BETWEEN_CHECKS || this.unfetched.length > MAX_ITEMS_IN_QUEUE)) {
+                this.refresh(null, true);
+            }
+        },
+
         fetch: function (variablesList) {
             variablesList = [].concat(variablesList);
             var innerVariables = this.getTopicDependencies(variablesList);
-
             var getVariables = function (vars, interpolationMap) {
                 return vs.query(vars).then(function (variables) {
                     // console.log('Got variables', variables);
@@ -159,10 +173,12 @@ module.exports = function (options) {
                 return $.Deferred().resolve().promise();
             }
 
-            var variables = _(me.subscriptions).pluck('topics').flatten().uniq().value();
+            var variables = this.getAllTopics();
             return this.fetch(variables).then(function (changeSet) {
                 $.extend(currentData, changeSet);
                 me.notify(changeSet);
+                me.unfetched = [];
+                lastCheckTime = _.now();
             });
         },
 
@@ -256,6 +272,7 @@ module.exports = function (options) {
 
             this.subscriptions.push(data);
 
+            this.updateAndCheckForRefresh(topics);
             return id;
         },
 
