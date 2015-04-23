@@ -176,7 +176,7 @@
                 channel.subscribe(['target'], {});
 
                 channel.unsubscribeAll();
-                channel.innerVariablesList.should.eql([]);
+                channel.getTopicDependencies().should.eql([]);
                 channel.subscriptions.should.eql([]);
             });
 
@@ -196,7 +196,7 @@
 
                 var subs = channel.getSubscribers('price[<time>]');
                 subs.length.should.equal(1);
-                channel.innerVariablesList.should.eql(['time']);
+                channel.getTopicDependencies().should.eql(['time']);
             });
 
             it('should update inner variable dependencies for multiple items', function () {
@@ -206,10 +206,10 @@
                 channel.getSubscribers('apples').length.should.equal(1);
                 channel.getSubscribers('sales[<step>]').length.should.equal(1);
 
-                channel.innerVariablesList.should.eql(['time', 'step']);
+                channel.getTopicDependencies().should.eql(['time', 'step']);
             });
             it('should generate a token', function () {
-                var dummyObject = {  a: 1  };
+                var dummyObject = { a: 1 };
                 var token = channel.subscribe(['price[<time>]', 'apples', 'sales[<step>]'], dummyObject);
                 token.should.exist;
             });
@@ -283,7 +283,7 @@
                 var channel = new Channel({ vent: {}, run: mockRun });
                 var modelChangeSpy = sinon.spy();
 
-                var $sink = $({  a:1  });
+                var $sink = $({ a:1 });
                 channel.subscribe('price', $sink);
                 $sink.on('update.f.model', modelChangeSpy);
 

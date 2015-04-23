@@ -75,9 +75,6 @@ module.exports = function (options) {
             options: channelOptions
         },
 
-        //Interpolated variables which need to be resolved before the outer ones can be
-        innerVariablesList: [],
-
         subscriptions: [],
 
         getSubscribers: function (topic) {
@@ -259,14 +256,6 @@ module.exports = function (options) {
 
             this.subscriptions.push(data);
 
-            var me = this;
-            $.each(topics, function (index, property) {
-                var inner = getInnerVariables(property);
-                if (inner.length) {
-                    me.innerVariablesList = _.uniq(me.innerVariablesList.concat(inner));
-                }
-            });
-
             return id;
         },
 
@@ -277,7 +266,6 @@ module.exports = function (options) {
             });
         },
         unsubscribeAll: function () {
-            this.innerVariablesList = [];
             this.subscriptions = [];
         }
     };
