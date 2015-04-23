@@ -9,6 +9,9 @@ module.exports = (function () {
         it('should leave arrays as-is', function () {
             cm.convert([1, 2], 'list').should.eql([1,2]);
         });
+        it('should convert objects', function () {
+            cm.convert({ a: [1, 2], b: [2, 4] }, 'list').should.eql({ a: [1, 2], b: [2, 4] });
+        });
     });
 
     describe('#last', function () {
@@ -21,6 +24,9 @@ module.exports = (function () {
         it('should nothing for empty arrays', function () {
             should.not.exist(cm.convert([], 'last'));
             should.not.exist(cm.convert(null, 'last'));
+        });
+        it('should convert objects', function () {
+            cm.convert({ a: [1, 2], b: [2, 4] }, 'last').should.eql({ a: 2, b: 4 });
         });
     });
 
@@ -35,6 +41,9 @@ module.exports = (function () {
             should.not.exist(cm.convert([], 'first'));
             should.not.exist(cm.convert(null, 'first'));
         });
+        it('should convert objects', function () {
+            cm.convert({ a: [1, 2], b: [2, 4] }, 'first').should.eql({ a: 1, b: 2 });
+        });
     });
 
     describe('#previous', function () {
@@ -47,6 +56,9 @@ module.exports = (function () {
         it('should nothing for empty arrays', function () {
             should.not.exist(cm.convert([], 'previous'));
             should.not.exist(cm.convert(null, 'previous'));
+        });
+        it('should convert objects', function () {
+            cm.convert({ a: [1, 2], b: [2, 4] }, 'first').should.eql({ a: 1, b: 2 });
         });
     });
 
