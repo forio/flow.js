@@ -7,9 +7,17 @@ module.exports = {
     test: 'bind',
 
     handle: function (value) {
-        if (_.isArray(value)) {
-            value = value[value.length - 1];
+        var oldHTML = this.html();
+        var cleanedHTML = oldHTML.replace(/&lt;/g, '<').replace(/&gt;/g, '>');
+        var valueToTemplate = ($.isPlainObject(value)) ? value : { value: value };
+        var templated = _.template(cleanedHTML, valueToTemplate);
+        if (cleanedHTML === templated) {
+            if (_.isArray(value)) {
+                value = value[value.length - 1];
+            }
+            this.html(value);
+        } else {
+            this.html(templated);
         }
-        this.html(value);
     }
 };

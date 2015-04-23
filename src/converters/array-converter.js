@@ -1,5 +1,5 @@
 'use strict';
-module.exports = [
+var list = [
     {
         alias: 'list',
         acceptList: true,
@@ -32,3 +32,16 @@ module.exports = [
         }
     }
 ];
+
+_.each(list, function (item) {
+   var oldfn = item.convert;
+   var newfn = function (val) {
+       if ($.isPlainObject(val)) {
+            return _.mapValues(val, oldfn);
+       } else {
+            return oldfn(val);
+       }
+   };
+   item.convert = newfn;
+});
+module.exports = list;
