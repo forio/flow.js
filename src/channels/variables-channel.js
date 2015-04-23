@@ -100,7 +100,6 @@ module.exports = function (options) {
                     innerVariables = _.uniq(innerVariables.concat(inner));
                 }
             });
-            var me = this;
             var getVariables = function (vars, interpolationMap) {
                 return vs.query(vars).then(function (variables) {
                     // console.log('Got variables', variables);
@@ -117,8 +116,7 @@ module.exports = function (options) {
                             }
                         }
                     });
-                    me.notify(changeSet);
-                    $.extend(currentData, changeSet);
+                    return changeSet;
                 });
             };
             if (innerVariables.length) {
@@ -155,7 +153,10 @@ module.exports = function (options) {
             }
 
             var variables = _(me.subscriptions).pluck('topics').flatten().uniq().value();
-            return this.fetch(variables);
+            return this.fetch(variables).then(function (changeSet) {
+                $.extend(currentData, changeSet);
+                me.notify(changeSet);
+            });
         },
 
         notify: function (topics, value) {
