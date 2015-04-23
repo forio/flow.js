@@ -80,12 +80,12 @@ module.exports = (function () {
                 $node.html().trim().should.equal('30');
             });
             it('should template objects in accordance with converters', function () {
-                var targetData = { Price: [10, 30], Sales: [20, 11] };
+                var targetData = { Price: [10, 3000], Sales: [20, 1100] };
 
-               var $node = utils.initWithNode('<div data-f-bind="Price, Sales | last"> <%= Price %> <%= Sales %> </div>', domManager);
+               var $node = utils.initWithNode('<div data-f-bind="Price, Sales | #,### |last"> <%= Price %> <%= Sales %> </div>', domManager);
                  $node.trigger('update.f.model', targetData);
 
-                $node.html().trim().should.equal('30 11');
+                $node.html().trim().should.equal('3,000 1,100');
             });
         });
     });
