@@ -45,6 +45,10 @@
             <td>display_update</td>
             <td>data-f-bind int</td>
             <td>
+                <input type="range" data-f-bind="sampleInt | i"  id="range" />
+
+            </td>
+            <td>
                 span:
                 <span data-f-bind="sampleInt"></span>
                 <br>
@@ -718,7 +722,22 @@ displayed as 150%.
     });
 
 </script>
-
+<script type="text/javascript">
+$(function () {
+    $("#range").on("change", function () {
+        console.log('change')
+    })
+    $("#range").on("input", function () {
+        console.log('input')
+    })
+    $("#range").on("mouseup", function () {
+        console.log('mouse')
+    })
+    $("#range").on("blur", function () {
+        console.log('blur')
+    })
+})
+</script>
 </body>
 
 </html>

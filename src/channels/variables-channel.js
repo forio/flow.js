@@ -111,16 +111,20 @@ module.exports = function (options) {
         updateAndCheckForRefresh: function (topics) {
             this.unfetched = _.uniq(this.unfetched.concat(topics));
             // if it has been a second since you last checked, or there are at least 5 items in the pending queue
-            var TIME_BETWEEN_CHECKS = 2000;
+            var TIME_BETWEEN_CHECKS = 200;
             var MAX_ITEMS_IN_QUEUE = 5;
             var me = this;
-            if (channelOptions.autoFetch && (_.now() - lastCheckTime > TIME_BETWEEN_CHECKS || this.unfetched.length > MAX_ITEMS_IN_QUEUE)) {
+            var now = _.now();
+            if (channelOptions.autoFetch && (now - lastCheckTime > TIME_BETWEEN_CHECKS || this.unfetched.length > MAX_ITEMS_IN_QUEUE)) {
                 this.fetch(this.unfetched).then(function (changed) {
+                    // console.log("fetched", _.now())
                     $.extend(currentData, changed);
-                    me.notify(changed);
                     me.unfetched = [];
-                    lastCheckTime = _.now();
+                    lastCheckTime = now;
+                    me.notify(changed);
                 });
+            } else {
+                // console.log("not time yet", (now - lastCheckTime))
             }
         },
 
@@ -181,6 +185,7 @@ module.exports = function (options) {
 
             var variables = this.getAllTopics();
             return this.fetch(variables).then(function (changeSet) {
+                me.unfetched = [];
                 $.extend(currentData, changeSet);
                 me.notify(changeSet);
             });

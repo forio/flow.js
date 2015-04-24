@@ -14,60 +14,16 @@
     <script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.2/jquery.min.js"></script>
 <body data-f-on-init="start_game" data-f-model="gglasses.vmf" class="">
     <div class="content-wrapper container">
-        <div class="row" data-ub-component="Row" data-ub-version="0.0.1" style="">
-            <div class="col-xs-4">
-                <h3 class="" data-ub-component="Subheading" data-ub-version="0.0.1" style="color: rgb(51, 51, 51);">Google Glass Sales Simulation</h3>
-                <img src="https://forio.com/app/jaimedp/glasses/glass.jpg" style="max-width: 100%;" alt="Alt Text" class="" data-ub-component="Image" data-ub-version="0.0.1">
-                <p class="" data-ub-component="Text Block" data-ub-version="0.0.1" style="color: rgb(51, 51, 51);">
-                    Note: Run as local.forio.com after changing vhosts. localhost won't work with run manager
-                </p>
-                <div class="form-horizontal decisions-form" role="form" data-ub-component="Decisions" data-ub-version="0.0.1">
-                    <div class="form-group">
-                        <label class="col-xs-4 control-label">Price</label>
-                        <div class="col-xs-8">
-                            <input type="text" class="form-control" data-f-bind="Price"></div>
-                    </div>
-                </div>
-                <button class="btn btn-primary" data-ub-component="Button" data-ub-version="0.0.1" data-f-on-click="step(1)" style="color: rgb(255, 255, 255);">Advance</button>
-                <button class="btn" data-ub-component="Button" data-ub-version="0.0.1" data-f-on-click="reset | start_game" style="color: rgb(255, 255, 255);">Reset</button>
-            </div>
-            <div class="col-xs-8">
-                <span class="label-comp" data-ub-component="Label" data-ub-version="0.0.1" style="color: rgb(51, 51, 51);">Current Year:</span>
-                <span class="label-comp" data-ub-component="Variable" data-ub-version="0.0.1" data-f-bind="Time" style="color: rgb(51, 51, 51);">Variable Value</span>
-                <table class="financial-table" data-f-convert="#,###" data-ub-component="Results Table" data-ub-version="0.0.1">
-                    <thead>
-                        <tr>
-                            <th>Variable</th>
-                            <th>Value</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td>Price</td>
-                            <td data-f-bind="Price" class="number"></td>
-                        </tr>
-                        <tr>
-                            <td>Sales</td>
-                            <td data-f-bind="Sales" class="number"></td>
-                        </tr>
-                        <tr>
-                            <td>Revenue</td>
-                            <td data-f-bind="Revenue | $#,###" class="number"></td>
-                        </tr>
-                        <tr>
-                            <td>Profit</td>
-                            <td data-f-bind="Profit" class="number"></td>
-                        </tr>
-                    </tbody>
-                </table>
-
-                <h4> Profit over time</h4>
-                <ul data-f-foreach="Profit" data-f-convert="$#,###">
-                    <li> <%= value %> </li>
-                </ul>
+    <table class="table">
+        <tbody data-f-foreach="Time">
+           <tr>
+                <td data-f-bind="Profit[<%= index + 1 %>] | $#,###">  </td>
+                <td data-f-bind="Price[<%= index + 1 %>]"></td>
+           </tr>
+        </tbody>
+    </table>
                 <script src="../../vendor/epicenter-js-libs/dist/epicenter.min.js"></script>
                 <script src="../../dist/flow-edge.js"></script>
-                <div class="loading-indicator">Loading...</div>
             </div>
             <script>
             Flow.initialize({

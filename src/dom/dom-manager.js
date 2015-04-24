@@ -167,7 +167,10 @@ module.exports = (function () {
                 }
             });
             $el.data('attr-bindings', attrBindings);
-            subscribe(channel, nonBatchableVariables, $el, { batch: false });
+            if (nonBatchableVariables.length) {
+                // console.log('subscribe', nonBatchableVariables, $el.get(0))
+                subscribe(channel, nonBatchableVariables, $el, { batch: false });
+            }
         },
 
         /**
