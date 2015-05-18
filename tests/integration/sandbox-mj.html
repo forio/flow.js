@@ -105,6 +105,18 @@
             </td>
         </tr>
 
+
+        <tr>
+            <td>display_update</td>
+            <td>data-f-bind multiple variables at once</td>
+            <td data-f-bind="sampleInt, sampleString">
+                The data-f-bind is in the "td" tag, we'll use templates to show the values of sampleInt <%= sampleInt %> and sampleString <%= sampleString %>.
+            </td>
+            <td class="fail">
+                fail (0.8.3): draws great the first time, but then entire cell becomes blank when the values of sampleInt and sampleString are changed. <a href="https://github.com/forio/flow.js/issues/27">issue #27.</a>"
+            </td>
+        </tr>
+
         <tr>
             <td>Multiple Interpolations</td>
             <td></td>
@@ -116,7 +128,6 @@
                 and sales[sampletruthy] is
                 <span data-f-bind="sales[<sampleTruthy>]"></span>
             </td>
-
         </tr>
 
         <tr>
@@ -190,6 +201,29 @@
         </td>
         <td class="pass">pass (0.6.3)</td>
     </tr>
+
+        <tr>
+            <td>display_foreach</td>
+            <td>data-f-foreach, for an array</td>
+            <td>here is a list of the values in my sales array:
+                <ul data-f-foreach="sales">
+                    <li>Index is <%= index %> and value is <%= value %></li>
+                </ul>
+            </td>
+            <td class="pass">pass (0.8.3)</td>
+        </tr>
+
+        <tr>
+            <td>display_foreach</td>
+            <td>data-f-foreach, for an object</td>
+            <td>here is a list of the fields in my sales manager object:
+                <ul data-f-foreach="salesMgr">
+                    <li>Field is <%= key %> and value is <%= value %></li>
+                </ul>
+            </td>
+            <td class="pass">pass (0.8.3)</td>
+        </tr>
+
 
     <tr>
         <td>special_handling</td>
@@ -582,6 +616,36 @@
     </tr>
 
     <tr>
+        <td>custom-channel</td>
+        <td>batch for variables.subscribe</td>
+        <td>
+            <script>
+                function updateBatchTrue() {
+                    console.log("updateBatchTrue called");
+                    Flow.channel.variables.subscribe(['sampleInt', 'sampleString'], 
+        function() { console.log("subscribe, batch true called"); }, 
+        { batch: true });
+                    Flow.channel.variables.notify({ sampleInt: 11, sampleString: 'hello true' });
+                }
+
+                function updateBatchFalse() {
+                    console.log("updateBatchFalse called");
+                    Flow.channel.variables.subscribe(['sampleTruthy', 'sample64'], 
+        function() { console.log("subscribe, batch false called"); }, 
+        { batch: false });
+                    Flow.channel.variables.notify({ sampleTruthy: 0, sample64: 2.045 });
+
+                }                
+            </script>
+            Click the button to update sampleInt and sampleString<br>
+            <button onclick="updateBatchTrue()">Click to update with batch=true</button><br>
+            <button onclick="updateBatchFalse()">Click to update with batch=false</button>
+        </td>
+        <td class="pass">pass (0.8.3)</td>
+    </tr>
+
+
+    <tr>
         <td>regression testing: issue #8</td>
         <td>
             When I use data-f-convert="#.#%" and type in 1.5%
@@ -681,8 +745,12 @@ displayed as 150%.
 
 <script src="../../vendor/jquery/dist/jquery.min.js"></script>
 <script src="../../vendor/lodash/dist/lodash.js"></script>
-<script src="../../vendor/epicenter-js-libs/dist/epicenter.js"></script>
-<script src="../../dist/flow-edge.js"></script>
+
+<!-- <script src="../../vendor/epicenter-js-libs/dist/epicenter.js"></script> -->
+<script src="https://forio.com/tools/js-libs/1.4.2/epicenter.js"></script>
+
+<!-- <script src="../../dist/flow-edge.js"></script> -->
+<script src="https://forio.com/tools/js-libs/flow/0.8.3/flow.js"></script>
 <script>
     'use strict';
     $('body').on('f.ui.operate', function () {
@@ -702,6 +770,8 @@ displayed as 150%.
             }
         }
     };
+
+    
     if (window.location.search.indexOf('silent=variables') !== -1) {
         console.warn('Silencing variables. There should be no GET to variables API when inputs change');
         options.channel.run.variables = { silent: true };
@@ -710,12 +780,14 @@ displayed as 150%.
         console.warn('Silencing variables. There should be no GET to variables API when inputs change');
         options.channel.run.operations = { silent: true };
     }
+    
 
     Flow.initialize(options);
 
     Flow.dom.converters.register('max', function (value) {
         return _.max(value);
     });
+
 
 </script>
 
