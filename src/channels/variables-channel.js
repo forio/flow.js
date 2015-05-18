@@ -155,7 +155,7 @@ module.exports = function (options) {
                     //console.log('inner', innerVariables);
                     $.extend(currentData, innerVariables);
                     var ip =  interpolate(variablesList, innerVariables);
-                    getVariables(ip.interpolated, ip.interpolationMap);
+                    return getVariables(ip.interpolated, ip.interpolationMap);
                 });
             } else {
                 return getVariables(variablesList);
