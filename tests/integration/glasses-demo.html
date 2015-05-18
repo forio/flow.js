@@ -2,19 +2,44 @@
 <!doctype html>
 <html>
 <head>
-    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
-    <meta http-equiv="Pragma" content="no-cache">
-    <meta http-equiv="Expires" content="0">
-    <meta name="uibuilder:session" content="INITIAL">
-    <meta name="uibuilder:generator" content="%package_version%">
-
     <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css">
-
     <script src="//cdnjs.cloudflare.com/ajax/libs/lodash.js/2.4.1/lodash.min.js"></script>
     <script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.2/jquery.min.js"></script>
+    <script src="../../vendor/epicenter-js-libs/dist/epicenter.min.js"></script>
+    <script src="../../dist/flow-edge.js"></script>
+</head>
 <body data-f-on-init="start_game" data-f-model="gglasses.vmf" class="">
     <div class="content-wrapper container">
+        <h1> Google Glasses Sales Simulator </h1>
+
+        <div style="margin-top: 30px;">
+            <label>Set your price: </label>
+            <input type="text" data-f-bind="Price">
+
+            <button class="btn btn-primary"  data-f-on-click="step(1000)">Advance</button>
+            <button class="btn" data-ub-component="Button"  data-f-on-click="reset | start_game">Reset</button>
+
+        </div>
+        <br/>
+        Current Year <strong data-f-bind="Time"></strong>
+        You have <strong data-f-bind="Time"> <%= (2020 - value) %> </strong> years left.
+
+
+        <div data-f-bind="Time, Revenue, Profit">
+            In <%= Time %>  our company has sold units worth  <%= Revenue %>.
+            We made a profit of <span data-f-bind="Profit"></span>.
+        </div>
+
+        Profit
+        <ul data-f-foreach="Time">
+            <li> Year <%= index + 1 %>, value <%= value %> </li>
+        </ul>
+
     <table class="table">
+        <thead>
+            <th> Profit </th>
+            <th> Price </th>
+        </thead>
         <tbody data-f-foreach="Time">
            <tr>
                 <td data-f-bind="Profit[<%= index + 1 %>] | $#,###">  </td>
@@ -22,10 +47,10 @@
            </tr>
         </tbody>
     </table>
-                <script src="../../vendor/epicenter-js-libs/dist/epicenter.min.js"></script>
-                <script src="../../dist/flow-edge.js"></script>
-            </div>
-            <script>
+
+    <h1 id="Stuff"> Stuff </h1>
+
+    <script>
             Flow.initialize({
                 channel: {
                     strategy: 'new-if-persisted',
@@ -49,6 +74,8 @@
                     }
                 }
             });
-            </script>
+
+
+    </script>
 </body>
-            </html>
+</html>
