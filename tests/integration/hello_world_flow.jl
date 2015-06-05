@@ -1,4 +1,4 @@
-# last update 05/21/2015
+# last update 06/05/2015
 
 
 module hello_world_flow
@@ -7,12 +7,12 @@ using Epicenter
 
 
 #variables
-export sampleString, sampleInt, sampleTruthy, anotherTruthy, sampleBool, sampleFalseBool, salesMgr, sales, sample2d, sample64, sampleThousand, sampleMillion, sampleBillion, sampleTrillion
+export sampleString, sampleInt, sampleTruthy, anotherTruthy, sampleBool, sampleFalseBool, salesMgr, sales, sample2d, sample64, sampleThousand, sampleMillion, sampleBillion, sampleTrillion, regions
 
 #operations
 export saveAll, changeString, addToInt, changeTruthy, changeBool, changeObjSubfield, appendToArray, updateFirstArrayVal, subtractFromArray, resetInt, updateTwoArrayVals, addTo64
 
-global sampleString, sampleInt, sampleTruthy, sampleBool, sampleFalseBool, salesMgr, sales, sample2d, sample64, sampleThousand, sampleMillion, sampleBillion, sampleTrillion
+global sampleString, sampleInt, sampleTruthy, sampleBool, sampleFalseBool, salesMgr, sales, sample2d, sample64, sampleThousand, sampleMillion, sampleBillion, sampleTrillion, regions
 
 type mgrType
   num_reports::Int
@@ -32,6 +32,7 @@ salesMgr = mgrType()
   salesMgr.name = "John Smith"
   salesMgr.region = "West"
 sales = {100, 400, 300, 200}
+regions = { "North", "East", "South", "West" }
 sample64 = 3.14159
 sampleThousand = 12468
 sampleMillion = 3111246
@@ -56,6 +57,7 @@ function saveAll()
    record(:sampleMillion)
    record(:sampleBillion)
    record(:sampleTrillion)
+   record(:regions)   
 end
 
 function addTo64(float)

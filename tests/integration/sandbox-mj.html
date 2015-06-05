@@ -234,6 +234,19 @@
             <td class="pass">pass (0.8.3)</td>
         </tr>
 
+        <tr>
+            <td>display_foreach</td>
+            <td>data-f-foreach, nested</td>
+            <td>for testing purposes we'll assume each region sold the same ...
+                <ul data-f-foreach="regions">
+                    <li></li>
+                    <ul data-f-foreach="sales">
+                        <li></li>
+                    </ul>
+                </ul>
+            </td> 
+            <td class="fail">fail (0.8.3), see <a href="https://github.com/forio/flow.js/issues/30">issue #30</a></td>
+        </tr>
 
     <tr>
         <td>special_handling</td>
