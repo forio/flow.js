@@ -14,9 +14,14 @@
     <? var firstTag = moduleDoc.raw.tags[0] ?>
 
 
-    ##Configuration Options
+    <? var configStart = 0 ?>
     <? doc.javadoc.forEach(function (block) { ?>
         <? if (!block.paramStr) { ?>
+            <? if (configStart === 0) { ?>
+                ##Configuration Options
+
+                <? configStart = 1 ?>
+            <? } ?>
             <? var configOption =  block.raw.code.split(':')[0] ?>
 
             ###<?= configOption ?>
@@ -35,10 +40,22 @@
         <? } ?>
     <? }) ?>
 
-    ##Methods
+    
+    <? var methodStart = 0 ?>
     <? doc.javadoc.forEach(function (block) { ?>
         <? if (block.paramStr) { ?>
-            <? var methodName =  block.raw.code.split(':')[0] ?>
+            <? if (methodStart === 0) { ?>
+                ##Methods
+
+                <? methodStart = 1 ?>
+            <? } ?>
+
+            <? var methodName =  block.raw.code.split(':')[0] 
+                <!-- special case for converters -->
+                if (methodName === 'alias') { 
+                    methodName = block.raw.code.split('\'')[1]
+                }
+            ?>
 
             ###<?= methodName ?>
             <?= block.description ?>

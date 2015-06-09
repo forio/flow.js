@@ -25,8 +25,7 @@ module.exports = function (grunt) {
                 }, 
 
 
-                // converters should all go in one file. 
-                // TODO i think i want one page for all of these?
+                // TODO - decide if converters should all go in one file, or if this is ok 
                 {
                     src: 'src/converters/array-converter.js',
                     dest: 'documentation/generated/converters/array-converter/index.html.md'
