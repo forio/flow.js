@@ -18,10 +18,10 @@ module.exports = function (grunt) {
                 }, */ 
                 {
                     src: 'src/channels/operations-channel.js',
-                    dest: 'documentation/generated/operations-channel/index.html.md'
+                    dest: 'documentation/generated/channels/operations-channel/index.html.md'
                 }, {
                     src: 'src/channels/variables-channel.js',
-                    dest: 'documentation/generated/variables-channel/index.html.md'
+                    dest: 'documentation/generated/channels/variables-channel/index.html.md'
                 }, 
 
 
