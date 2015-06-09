@@ -1,15 +1,65 @@
+/**
+ * ## Variables Channel
+ *
+ * Channels are ways for Flow.js to talk to external APIs -- primarily the [underlying Epicenter APIs](../../../../creating_your_interface/). 
+ * 
+ * The primary use cases for the Variables Channel are:
+ *
+ * * `publish`: Update a model variable.
+ * * `subscribe`: Receive notifications when a model variable is updated.
+ *
+ * For example, use `publish()` to update a model variable:
+ *
+ *      Flow.channel.operations.publish('myVariable', newValue);
+ *
+ * For reference, the equivalent call using Flow.js custom HTML attributes is:
+ *
+ *      <input type="text" data-f-bind="myVariable"></input>
+ *
+ * where the new value is input by the user.
+ *
+ * You can also use `subscribe()` and a callback function to listen and react when the model variable has been updated:
+ *
+ *      Flow.channel.operations.subscribe('myVariable', 
+ *          function() { console.log('called!'); });
+ *
+ * To use the Variables Channel, simply [initialize Flow.js in your project](../../../#custom-initialize).
+ * 
+*/
+
 'use strict';
 var config = require('../config');
 
 module.exports = function (options) {
     var defaults = {
         /**
-         * Determine when to update state
-         * @type {String | Array | Object} Possible options are
-         *       - true: never trigger any updates. Use this if you know your model state won't change based on other variables
-         *       - false: always trigger updates.
-         *       - [array of variable names]: Variables in this array will not trigger updates, everything else will
-         *       - { except: [array of variables]}: Variables in this array will trigger updates, nothing else will
+         * Determine when to update state. Defaults to `false`: always trigger updates.
+         *
+         * Possible options are:
+         *
+         * * `true`: Never trigger any updates. Use this if you know your model state won't change based on other variables.
+         * * `false`: Always trigger updates.
+         * * `[array of variable names]`: Variables in this array will not trigger updates, everything else will.
+         * * `{ except: [array of variable names] }`: Variables in this array will trigger updates, nothing else will.
+         *
+         * To set, pass this into the `Flow.initialize()` call in the `channel.run.variables` field:
+         *
+         *      Flow.initialize({
+         *          channel: {
+         *              run: {
+         *                  model: 'myModel.py',
+         *                  account: 'acme-simulations',
+         *                  project: 'supply-chain-game',
+         *                  variables: { silent: true }
+         *              }
+         *          }
+         *      });
+         *
+         * To override for a specific call to the Variables Channel, pass this as the final `options` parameter: 
+         *
+         *       Flow.channel.variables.publish('myVariable', newValue, { silent: true });
+         *
+         * @type {String|Array|Object}
          */
         silent: false
     };
@@ -91,8 +141,10 @@ module.exports = function (options) {
         },
 
         /**
-         * Check and notify all listeners
-         * @param  {Object} changeObj key-value pairs of changed variables
+         * Force a check for updates on the channel, and notify all listeners.
+         *
+         * @param {Object} `changeObj` Key-value pairs of changed variables.
+         * @param {Boolean} `force`  Ignore all `silent` options and force refresh.
          */
         refresh: function (changeObj, force) {
             var me = this;
@@ -146,6 +198,16 @@ module.exports = function (options) {
 
         },
 
+        /**
+         * Alert each subscriber about the variable and its new value. TODO-don't think this is right.
+         *
+         * **Example**
+         *
+         *      Flow.channel.operations.notify('myVariable', newValue);
+         *
+         * @param {String|Array} `topics` Names of variables.
+         * @param {String|Number|Array|Object} `value` New values for the variables. 
+        */
         notify: function (topics, value) {
             var callTarget = function (target, params) {
                 if (_.isFunction(target)) {
@@ -177,11 +239,18 @@ module.exports = function (options) {
         },
 
         /**
-         * Variable name & parameters to send variables API
-         * @param  {string | object} variable string or {variablename: value}
-         * @param  {*} value (optional)   value of variable if previous arg was a string
-         * @param {object} options Supported options: {silent: Boolean}
-         * @return {$promise}
+         * Update the variables with new values, and alert subscribers.
+         *
+         * **Example**
+         *
+         *      Flow.channel.variables.publish('myVariable', newValue);
+         *      Flow.channel.variables.publish({ myVar1: newVal1, myVar2: newVal2 });
+         *
+         * @param  {String|Object} `variable` String with name of variable. Alternatively, object in form `{ variableName: value }`.
+         * @param {String|Number|Array|Object} `value` (Optional)  Value of the variable, if previous argument was a string.
+         * @param {Object} `options` Overrides for the default channel options. Supported options: `{ silent: Boolean }`.
+         *
+         * @return {$promise} Promise to complete the update.
          */
         publish: function (variable, value, options) {
             // console.log('publish', arguments);
@@ -209,12 +278,19 @@ module.exports = function (options) {
         },
 
         /**
-         * Subscribe to changes on a channel
-         * @param  {Array|String} topics List of tasks
-         * @param  {function|object} subscriber
-         * @param  {Object} options  (Optional)
-         * @return {String}            Subscription ID
-         */
+         * Subscribe to changes on a channel: Ask for notification when variables are updated.
+         *
+         * **Example**
+         *
+         *      Flow.channel.operations.subscribe('myVariable', 
+         *          function() { console.log('called!'); });
+         *
+         * @param {String|Array} `topics` The names of the variables.
+         * @param {Object|Function} `subscriber` The object or function being notified. Often this is a callback function.
+         * @param {Object} `options` (Optional) Overrides for the default channel options. Supported options: `{ silent: Boolean }`.
+         * 
+         * @return {String} An identifying token for this subscription. Required as a parameter when unsubscribing.
+        */
         subscribe: function (topics, subscriber, options) {
             // console.log('subscribing', topics, subscriber);
             var defaults = {
@@ -247,12 +323,22 @@ module.exports = function (options) {
             return id;
         },
 
-
+        /**
+         * Stop receiving notification when a variable is updated. TODO-don't we need the variable names too?
+         *
+         * @param {String} `token` The identifying token for this subscription. (Created and returned by the `subscribe()` call.)
+        */
         unsubscribe: function (token) {
             this.subscriptions = _.reject(this.subscriptions, function (subs) {
                 return subs.id === token;
             });
         },
+
+        /**
+         * Stop receiving notifications for all variables.
+         *
+         * @param {None} None
+        */
         unsubscribeAll: function () {
             this.innerVariablesList = [];
             this.subscriptions = [];
