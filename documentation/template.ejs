@@ -17,19 +17,21 @@
     ##Configuration Options
     <? doc.javadoc.forEach(function (block) { ?>
         <? if (!block.paramStr) { ?>
-            <? var methodName =  block.raw.code.split(':')[0] ?>
+            <? var configOption =  block.raw.code.split(':')[0] ?>
 
-            ###<?= methodName ?>
-            <?= block.description ?>
+            ###<?= configOption ?>
 
             <? block.raw.tags.forEach(function (tag) { ?>
                 <? if (tag.type === 'type') { ?>
-                    - *<?= tag.types[0] ?>*
+                    - *<?= tag.types[0] ?>* 
                 <? } ?>
                 <? if (tag.type === 'see') { ?>
                     - See: <?= tag.local ?>
                 <? } ?>
             <? }) ?>
+
+            <?= block.description ?>
+            
         <? } ?>
     <? }) ?>
 
@@ -41,8 +43,29 @@
             ###<?= methodName ?>
             <?= block.description ?>
 
+            <? var paramStart = 0 ?>
             <? block.paramTags.forEach(function (tag) { ?>
+                <? if (paramStart === 0) { ?>
+                    
+                    **Parameters**
+
+                    <? paramStart = 1 ?>
+                <? } ?>
                 - <?= tag.name ?>: *<?= tag.joinedTypes ?>* <?= tag.description ?>
+            <? }) ?>
+
+
+            <? var returnStart = 0 ?>
+            
+
+            <? block.returnTags.forEach(function (tag) { ?>
+                <? if (returnStart === 0) { ?>
+                    
+                    **Return Value**
+
+                    <? returnStart = 1 ?>
+                <? } ?>                
+                - *<?= tag.joinedTypes ?>*: <?= tag.description ?>
             <? }) ?>
 
             <? var isExample = false ?>
