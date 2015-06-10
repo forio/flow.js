@@ -47,7 +47,7 @@ module.exports = function (grunt) {
                 // dom manager goes at root level of /generated/dom for now
                 {
                     src: 'src/dom/dom-manager.js',
-                    dest: 'documentation/generated/dom/index.html.md'
+                    dest: 'documentation/generated/dom/dom-manager/index.html.md'
                 }, 
                 // dom/nodes
                 // TODO ask Naren if other files here make sense for docs yet
@@ -78,7 +78,7 @@ module.exports = function (grunt) {
                 }, 
                 // dom/attributes/events
                 // TODO: ask Naren if we should include these yet. 
-                // both files here return false w/ comment saying don't bother binding on this yet
+                // both files here return false w/ comment saying don't bother binding on this yet -- but we have -on-click, -on-submit, etc working, so i'm confused
 
                 // dom/attributes/foreach
                 {
