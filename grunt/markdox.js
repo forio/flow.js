@@ -47,7 +47,7 @@ module.exports = function (grunt) {
                 // dom manager goes at root level of /generated/dom for now
                 {
                     src: 'src/dom/dom-manager.js',
-                    dest: 'documentation/generated/dom/dom-manager/index.html.md'
+                    dest: 'documentation/generated/dom/index.html.md'
                 }, 
                 // dom/nodes
                 // TODO ask Naren if other files here make sense for docs yet
@@ -62,7 +62,7 @@ module.exports = function (grunt) {
                     dest: 'documentation/generated/dom/attributes/attribute-manager/index.html.md'
                 }, 
                 // dom/attributes/binds/
-                // TODO: i think i want one page for all of these?
+                // TODO ask Naren if other files (e.g. webcomponents) at dom/attributes make sense for docs yet, i think no
                 {
                     src: 'src/dom/attributes/binds/checkbox-radio-bind-attr.js',
                     dest: 'documentation/generated/dom/attributes/binds/checkbox-radio-bind-attr/index.html.md'
@@ -72,13 +72,15 @@ module.exports = function (grunt) {
                 }, {
                     src: 'src/dom/attributes/binds/input-bind-attr.js',
                     dest: 'documentation/generated/dom/attributes/binds/input-bind-attr/index.html.md'
-                }, {
-                    src: 'src/dom/attributes/binds/webcomponent-bind.js',
-                    dest: 'documentation/generated/dom/attributes/binds/webcomponent-bind/index.html.md'
-                }, 
+                },
                 // dom/attributes/events
-                // TODO: ask Naren if we should include these yet. 
-                // both files here return false w/ comment saying don't bother binding on this yet -- but we have -on-click, -on-submit, etc working, so i'm confused
+                {
+                    src: 'src/dom/attributes/events/default-event-attr.js',
+                    dest: 'documentation/generated/dom/attributes/events/default-event-attr/index.html.md'
+                }, {
+                    src: 'src/dom/attributes/events/init-event-attr.js',
+                    dest: 'documentation/generated/dom/attributes/events/init-event-attr/index.html.md'
+                },
 
                 // dom/attributes/foreach
                 {
