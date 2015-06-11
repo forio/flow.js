@@ -8,10 +8,6 @@
  * * Add the attribute `data-f-convert` to any element that also has the `data-f-bind` or `data-f-foreach`.
  * * Use the `|` (pipe) character within any `data-f-` attribute (not just `data-f-bind` or `data-f-foreach`).
  *
- * Additionally, converters are chainable, so you can apply several in a row to a particular variable.
- *
- * Basic converting and formatting options are built in to Flow.js. (TODO-add when complete: You can also write your own converters. See [link](TODO).)
- *
  */
 
 'use strict';
@@ -22,7 +18,8 @@ module.exports = {
      * **Example**
      * 
      *      <div>
-     *          Your car has driven <span data-f-bind="Odometer | i | s0.0"></span> miles.
+     *          Your car has driven 
+     *          <span data-f-bind="Odometer | i | s0.0"></span> miles.
      *      </div>
      *
      * @param {Array} `value` The model variable.

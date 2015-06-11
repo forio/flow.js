@@ -8,12 +8,7 @@
  * * Add the attribute `data-f-convert` to any element that also has the `data-f-bind` or `data-f-foreach`.
  * * Use the `|` (pipe) character within any `data-f-` attribute (not just `data-f-bind` or `data-f-foreach`).
  *
- * Additionally, converters are chainable, so you can apply several in a row to a particular variable.
- *
- * Basic converting and formatting options are built in to Flow.js. (TODO-add when complete: You can also write your own converters. See [link](TODO).)
- *
- * For model variables that are numbers (or that have been [converted to a number](../number-converter/)), there are several special number formats you can apply.
- *
+ * For model variables that are numbers (or that have been [converted to numbers](../number-converter/)), there are several special number formats you can apply.
  *
  * ###Currency Number Format
  *

@@ -8,10 +8,7 @@
  * * Add the attribute `data-f-convert` to any element that also has the `data-f-bind` or `data-f-foreach`.
  * * Use the `|` (pipe) character within any `data-f-` attribute (not just `data-f-bind` or `data-f-foreach`).
  *
- * Additionally, converters are chainable, so you can apply several in a row to a particular variable.
- *
- * Basic converting and formatting options are built in to Flow.js. (TODO-add when complete: You can also write your own converters. See [link](TODO).)
- * 
+ * For model variables that are strings (or that have been converted to strings), there are several special string formats you can apply. 
  */
 
 'use strict';
@@ -23,7 +20,8 @@ module.exports = {
      * **Example**
      * 
      *      <div>
-     *          This year you are in charge of sales for <span data-f-bind="salesMgr.region | s | upperCase"></span>.
+     *          This year you are in charge of sales for 
+     *          <span data-f-bind="salesMgr.region | s | upperCase"></span>.
      *      </div>
      *
      * @param {Array} `val` The model variable.
@@ -38,7 +36,8 @@ module.exports = {
      * **Example**
      * 
      *      <div>
-     *          This year you are in charge of sales for <span data-f-bind="salesMgr.region | s | upperCase"></span>.
+     *          This year you are in charge of sales for 
+     *          <span data-f-bind="salesMgr.region | s | upperCase"></span>.
      *      </div>
      *
      * @param {Array} `val` The model variable.
@@ -53,7 +52,8 @@ module.exports = {
      * **Example**
      * 
      *      <div>
-     *          Enter your user name: <input data-f-bind="userName | lowerCase"></input>.
+     *          Enter your user name: 
+     *          <input data-f-bind="userName | lowerCase"></input>.
      *      </div>
      *
      * @param {Array} `val` The model variable.
@@ -68,7 +68,8 @@ module.exports = {
      * **Example**
      * 
      *      <div>
-     *          Congratulations on your promotion! Your new title is: <span data-f-bind="currentRole | titleCase"></span>.
+     *          Congratulations on your promotion! 
+     *          Your new title is: <span data-f-bind="currentRole | titleCase"></span>.
      *      </div>
      *
      * @param {Array} `val` The model variable.

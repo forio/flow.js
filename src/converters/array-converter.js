@@ -8,13 +8,7 @@
  * * Add the attribute `data-f-convert` to any element that also has the `data-f-bind` or `data-f-foreach`.
  * * Use the `|` (pipe) character within any `data-f-` attribute (not just `data-f-bind` or `data-f-foreach`).
  *
- * Additionally, converters are chainable, so you can apply several in a row to a particular variable.
- *
- * Basic converting and formatting options are built in to Flow.js. (TODO-add when complete: You can also write your own converters. See [link](TODO).)
- *
- * In general, if the model variable is an array, the converter is applied to each element of the array. 
- * 
- * As a special case, there are a few built in converters which, rather than converting all elements of an array, select particular elements from within the array or otherwise treat array variables specially.
+ * In general, if the model variable is an array, the converter is applied to each element of the array. There are a few built in array converters which, rather than converting all elements of an array, select particular elements from within the array or otherwise treat array variables specially.
  * 
  */
 
