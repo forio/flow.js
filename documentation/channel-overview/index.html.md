@@ -7,7 +7,7 @@ isPage: true
 ##Flow.js: Channels
 
 
-Channels are ways for Flow.js to talk to external APIs -- primarily the [underlying Epicenter APIs](../../../creating_your_interface/).
+Channels are ways for Flow.js to talk to external APIs -- primarily the [underlying Epicenter APIs](../../creating_your_interface/).
 
 Flow.js includes channels for variables and operations to talk to Epicenter, but if you are adventurous you could create your own channels to talk to other sources (e.g. Google Docs).
 

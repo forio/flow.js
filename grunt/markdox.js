@@ -60,7 +60,10 @@ module.exports = function (grunt) {
                 {
                     src: 'src/dom/attributes/attribute-manager.js',
                     dest: 'documentation/generated/dom/attributes/attribute-manager/index.html.md'
-                }, 
+                }, {
+                    src: 'src/dom/attributes/class-attr.js',
+                    dest: 'documentation/generated/dom/attributes/class-attr/index.html.md'
+                },
                 // dom/attributes/binds/
                 // TODO ask Naren if other files (e.g. webcomponents) at dom/attributes make sense for docs yet, i think no
                 {
