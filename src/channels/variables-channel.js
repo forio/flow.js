@@ -12,7 +12,7 @@
  *
  *      Flow.channel.operations.publish('myVariable', newValue);
  *
- * For reference, the equivalent call using Flow.js custom HTML attributes is:
+ * For reference, an equivalent call using Flow.js custom HTML attributes is:
  *
  *      <input type="text" data-f-bind="myVariable"></input>
  *
@@ -21,7 +21,7 @@
  * You can also use `subscribe()` and a callback function to listen and react when the model variable has been updated:
  *
  *      Flow.channel.operations.subscribe('myVariable', 
- *          function() { console.log('called!'); });
+ *          function() { console.log('called!'); } );
  *
  * To use the Variables Channel, simply [initialize Flow.js in your project](../../../#custom-initialize).
  * 
@@ -39,8 +39,8 @@ module.exports = function (options) {
          *
          * * `true`: Never trigger any updates. Use this if you know your model state won't change based on other variables.
          * * `false`: Always trigger updates.
-         * * `[array of variable names]`: Variables in this array will not trigger updates, everything else will.
-         * * `{ except: [array of variable names] }`: Variables in this array will trigger updates, nothing else will.
+         * * `[array of variable names]`: Variables in this array *will not* trigger updates; everything else will.
+         * * `{ except: [array of variable names] }`: Variables in this array *will* trigger updates; nothing else will.
          *
          * To set, pass this into the `Flow.initialize()` call in the `channel.run.variables` field:
          *
@@ -199,7 +199,7 @@ module.exports = function (options) {
         },
 
         /**
-         * Alert each subscriber about the variable and its new value. TODO-don't think this is right.
+         * Alert each subscriber about the variable and its new value.
          *
          * **Example**
          *
@@ -248,7 +248,7 @@ module.exports = function (options) {
          *
          * @param  {String|Object} `variable` String with name of variable. Alternatively, object in form `{ variableName: value }`.
          * @param {String|Number|Array|Object} `value` (Optional)  Value of the variable, if previous argument was a string.
-         * @param {Object} `options` Overrides for the default channel options. Supported options: `{ silent: Boolean }`.
+         * @param {Object} `options` (Optional) Overrides for the default channel options. Supported options: `{ silent: Boolean }` and `{ batch: Boolean }`.
          *
          * @return {$promise} Promise to complete the update.
          */
@@ -282,12 +282,27 @@ module.exports = function (options) {
          *
          * **Example**
          *
-         *      Flow.channel.operations.subscribe('myVariable', 
+         *      Flow.channel.variables.subscribe('myVariable', 
          *          function() { console.log('called!'); });
+         *
+         *      Flow.channel.variables.subscribe(['price', 'cost'],
+         *          function() {
+         *              // this function called only once, with { price: X, cost: Y }
+         *          },
+         *          { batch: true });
+         *
+         *      Flow.channel.variables.subscribe(['price', 'cost'],
+         *          function() {
+         *              // this function called twice, once with { price: X }
+         *              // and again with { cost: Y }
+         *          },
+         *          { batch: false });       
          *
          * @param {String|Array} `topics` The names of the variables.
          * @param {Object|Function} `subscriber` The object or function being notified. Often this is a callback function.
-         * @param {Object} `options` (Optional) Overrides for the default channel options. Supported options: `{ silent: Boolean }`.
+         * @param {Object} `options` (Optional) Overrides for the default channel options.
+         * @param {Boolean} `options.silent` Determine when to update state.
+         * @param {Boolean} `options.batch` If you are subscribing to multiple variables, by default the callback function is called once for each item to which you subscribe: `batch: false`. When `batch` is set to `true`, the callback function is only called once, no matter how many items you are subscribing to.
          * 
          * @return {String} An identifying token for this subscription. Required as a parameter when unsubscribing.
         */

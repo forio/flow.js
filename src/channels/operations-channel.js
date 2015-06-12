@@ -10,16 +10,16 @@
  *
  * For example, use `publish()` to call an operation (method) from your model:
  *
- *      Flow.channel.operations.publish('myMethod', param);
+ *      Flow.channel.operations.publish('myMethod', myMethodParam);
  *
- * For reference, the equivalent call using Flow.js custom HTML attributes is:
+ * For reference, an equivalent call using Flow.js custom HTML attributes is:
  *
- *      <button data-f-on-click="myMethod(param)">Click me</button>
+ *      <button data-f-on-click="myMethod(myMethodParam)">Click me</button>
  *
  * You can also use `subscribe()` and a callback function to listen and react when the operation has been called:
  *
  *      Flow.channel.operations.subscribe('myMethod', 
- *          function() { console.log('called!'); });
+ *          function() { console.log('called!'); } );
  *
  * To use the Operations Channel, simply [initialize Flow.js in your project](../../../#custom-initialize).
  * 
@@ -38,8 +38,8 @@ module.exports = function (options) {
          *
          * * `true`: Never trigger any updates. Use this if you know your model state won't change based on operations.
          * * `false`: Always trigger updates.
-         * * [array of operation names]`: Operations in this array will not trigger updates, everything else will.
-         * * `{ except: [array of operation names] }`: Operations in this array will trigger updates, nothing else will.
+         * * `[array of operation names]`: Operations in this array *will not* trigger updates; everything else will.
+         * * `{ except: [array of operation names] }`: Operations in this array *will* trigger updates; nothing else will.
          *
          * To set, pass this into the `Flow.initialize()` call in the `channel.run.operations` field:
          *
@@ -103,11 +103,11 @@ module.exports = function (options) {
         },
 
         /**
-         * Alert each subscriber about the operation and its parameters. TODO-don't think this is right.
+         * Alert each subscriber about the operation and its parameters.
          *
          * **Example**
          *
-         *      Flow.channel.operations.notify('myMethod', param);
+         *      Flow.channel.operations.notify('myMethod', myMethodParam);
          *
          * @param {String} `operation` Name of operation.
          * @param {String|Number|Array|Object} `value` Parameter values for the operation. 
@@ -139,9 +139,10 @@ module.exports = function (options) {
          *          operations: [{ name: 'myMethod', params: [myMethodParam] }] 
          *      });
          *
-         * @param  {String|Object} `operation` For one operation, pass the name of operation (string). For multiple operations, pass an object with field `operations` and value array of objects, each with `name` and `params`: `{operations: [{ name: opn, params:[] }], serial: Boolean}`.
-         * @param {String|Number|Array|Object} `params` (Optional)  Parameters to send to operation. Use for one operation; for multiple operation, parameters are already included in the object format.
-         * @param {Object} `options` (Optional) Overrides for the default channel options. Supported options: `{ silent: Boolean }`.
+         * @param  {String|Object} `operation` For one operation, pass the name of operation (string). For multiple operations, pass an object with field `operations` and value array of objects, each with `name` and `params`: `{operations: [{ name: opn, params:[] }] }`.
+         * @param {String|Number|Array|Object} `params` (Optional)  Parameters to send to operation. Use for one operation; for multiple operations, parameters are already included in the object format.
+         * @param {Object} `options` (Optional) Overrides for the default channel options.
+         * @param {Boolean} `options.silent` Determine when to update state.
          *
          * @return {$promise} Promise to complete the call.
          */
