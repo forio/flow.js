@@ -3,7 +3,7 @@
  *
  * Special handling for DOM elements `input` and `select`. 
  *
- * TODO -- is this for: "<select data-f-bind='x'>" or for "<select><option data-f-selected='x'>" ? 
+ * TODO -- is this for: "<select data-f-bind='x'>" NOT  for "<select><option data-f-selected='x'>" ? 
  */
 
 'use strict';
