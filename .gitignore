@@ -7,9 +7,12 @@ pids
 *.pid
 *.seed
 
+.*
+!.jscsrc
 !.jshintrc
 !.bowerrc
 !.gitignore
+
 
 # sass
 .sass-cache/
