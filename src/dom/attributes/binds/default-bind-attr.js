@@ -15,6 +15,7 @@ module.exports = {
             if (_.isArray(value)) {
                 value = value[value.length - 1];
             }
+            value += '';
             this.html(value);
         } else {
             this.html(templated);

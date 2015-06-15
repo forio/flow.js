@@ -55,6 +55,13 @@ module.exports = (function () {
                 $node.html().trim().should.equal('30');
             });
 
+            it('should convert values to strings', function () {
+                var targetData = { Price: false };
+                var $node = utils.initWithNode('<div data-f-bind="Price"> </div>', domManager);
+                $node.trigger('update.f.model', targetData);
+
+                $node.html().trim().should.equal('false');
+            });
             it('should templatize multiple-bound variables', function () {
                 var targetData = { Price: '20', Sales: 30 };
 
