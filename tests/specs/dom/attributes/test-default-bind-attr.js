@@ -42,6 +42,14 @@ module.exports = (function () {
                     bindHandler.handle.call($rootNode, ['Hello']);
                     $rootNode.html().should.equal('Hello');
                 });
+
+                it('should update templates when called multiple times', function () {
+                    var $rootNode = $('<div><%= value %> World</div>');
+                    bindHandler.handle.call($rootNode, 'Hello');
+                    $rootNode.html().should.equal('Hello World');
+                    bindHandler.handle.call($rootNode, 'Mario');
+                    $rootNode.html().should.equal('Mario World');
+                });
             });
         });
 
