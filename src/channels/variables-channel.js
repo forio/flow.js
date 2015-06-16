@@ -114,13 +114,16 @@ module.exports = function (options) {
         updateAndCheckForRefresh: function (topics) {
             this.unfetched = _.uniq(this.unfetched.concat(topics));
             var autoFetch = channelOptions.autoFetch;
+            if (!autoFetch) {
+                return false;
+            }
 
             var me = this;
-            var now = _.now();
+            var now = Date.now();
 
             var tooManyItems = autoFetch.items && this.unfetched.length > autoFetch.items;
             var tooLong = autoFetch.interval && now - lastCheckTime > autoFetch.interval;
-            if (autoFetch && (tooLong || tooManyItems)) {
+            if (tooLong || tooManyItems) {
                 this.fetch(this.unfetched).then(function (changed) {
                     // console.log("fetched", _.now())
                     $.extend(currentData, changed);
