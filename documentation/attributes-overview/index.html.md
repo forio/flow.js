@@ -22,11 +22,15 @@ Once you set `data-f-bind`, Flow.js figures out the appropriate action to take b
 ####How do I ... ?
 
 * Display and automatically update a variable in the interface? See [TODO-K](TODO) and [TODO-L](TODO).
-* Display and automatically update array and object variables? See [TODO-R](TODO).
-* Display a variable only (read-only binding)? See [TODO-Questions](TODO).
+* Display and automatically update array and object variables? 
+	* Use `data-f-foreach`, and optionally, [templates](../#templates). See [Display Array and Object Variables](../generated/dom/attributes/foreach/default-foreach-attr/).
+* Display a variable only (read-only binding)? 
+	* See [read only binding](../generated/dom/attributes/default-attr/).
 * Alter the properties of a DOM node based on the value of a model variable? See [TODO-S, TODO-U, TODO-Z, TODO-J](TODO-Questions).
 * Change the styling of HTML elements based on the value of a model variable? 
 	* Use `data-f-class`. See [Binding with Style](../generated/dom/attributes/class-attr/).
+* Set other HTML attributes to the value of a model variable?
+	* See [default attribute handling](../generated/dom/attributes/default-attr/). 
 * Create my own custom attribute? 
 	* Use the [Attribute Manager](../generated/dom/attributes/attribute-manager/) to add your own attributes.
 

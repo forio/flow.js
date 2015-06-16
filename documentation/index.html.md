@@ -88,27 +88,6 @@ See more details on [customizing the Flow.initialize() method](#custom-initializ
 
 
 
-
-####TODO-move to Questions
-
-You can bind variables from the model in your interface by adding the `data-f-` prefix to any standard DOM attribute. This attribute binding is **read-only**, meaning that as the model changes, the interface is automatically updated; but when users change values in the interface, no action occurs. 
-
-**To display a DOM element based on a variable from the model:**
-
-1. Add the prefix `data-f-` to any attribute in any HTML element that normally takes a value.
-2. Set the value of the attribute to the name of the variable. 
-
-**Examples:**
-
-	<!-- input element displays value of sample_int, however,
-		no call to the model is made if user changes sample_int --> 
-	<input data-f-value="sample_int"></input>
-
-**Notes:**
-
-For [bi-directional binding](#display_update), see more information about the special `data-f-bind` attribute, above. 
-
-
 ####TODO-S/Z/J
 
 Sometimes you want to do something with the value of a model variable besides just display it. For example, you might check or disable input elements based on the value. 
