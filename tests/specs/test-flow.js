@@ -2,7 +2,7 @@
 module.exports = (function () {
     var Flow = require('src/flow');
     describe('Flow Epicenter integration', function () {
-        var server, channelOpts, $el;
+        var server, channelOpts, $el, rand;
         before(function () {
             server = sinon.fakeServer.create();
 
@@ -36,14 +36,6 @@ module.exports = (function () {
             });
             server.autoRespond = true;
 
-            channelOpts = {
-                run: {
-                    account: 'flow',
-                    project: 'test',
-                    model: 'model.vmf'
-                }
-            };
-
             $el = $([
                 '<div>',
                 '   <input type="text" data-f-bind="price" />',
@@ -52,11 +44,36 @@ module.exports = (function () {
             ].join(''));
         });
 
+        var cookey;
+        beforeEach(function () {
+            cookey = 'flowtest' + Math.random();
+            channelOpts = {
+                strategy: 'always-new',
+                sessionKey: cookey,
+                run: {
+                    account: 'flow',
+                    project: 'test',
+                    model: 'model.vmf'
+                }
+            };
+        });
+        afterEach(function () {
+            //TODO: Fix this after making run-manager get path from urlservice
+            var urlService = new F.service.URL();
+            var path = '/' + [urlService.appPath, urlService.accountPath, urlService.projectPath].join('/');
+            path = path.replace(/\/{2,}/g,'/');
+            var c = new F.store.Cookie({ root: path });
+            c.remove(cookey);
+            cookey = null;
+        });
+
         after(function () {
             server.restore();
         });
 
         it('should create a new run on initialize', function () {
+            // var fakeRunService = F.service.Run();
+
             Flow.initialize({
                 channel: channelOpts
             });
@@ -65,6 +82,7 @@ module.exports = (function () {
             req.method.toUpperCase().should.equal('POST');
             req.url.should.equal('https://api.forio.com/run/flow/test/');
             req.requestBody.should.equal(JSON.stringify({
+                scope: {},
                 model: 'model.vmf'
             }));
         });
