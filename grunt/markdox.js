@@ -63,10 +63,17 @@ module.exports = function (grunt) {
                 }, {
                     src: 'src/dom/attributes/class-attr.js',
                     dest: 'documentation/generated/dom/attributes/class-attr/index.html.md'
-                },{
+                }, {
                     src: 'src/dom/attributes/default-attr.js',
                     dest: 'documentation/generated/dom/attributes/default-attr/index.html.md'
+                }, 
+                // only need to build one of positive and negative for purposes of docpad-generated help;
+                // to accompany the code, repeat the same content in both
+                {
+                    src: 'src/dom/attributes/positive-boolean-attr.js',
+                    dest: 'documentation/generated/dom/attributes/boolean-attr/index.html.md'
                 },
+
 
                 // dom/attributes/binds/
                 // TODO ask Naren if other files (e.g. webcomponents) at dom/attributes make sense for docs yet, i think no
