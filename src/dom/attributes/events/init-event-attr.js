@@ -1,9 +1,9 @@
 /**
  * ##Call Operation when Run Created
  * 
- * Many models call an initialization operation when the [run](../../../../../glossary/#run) is first created. This is particularly common with [Vensim](../../../../../model_code/vensim/) models, which need to initialize variables ('startGame') before stepping. 
+ * Many models call an initialization operation when the [run](../../../../../../glossary/#run) is first created. This is particularly common with [Vensim](../../../../../../model_code/vensim/) models, which need to initialize variables ('startGame') before stepping. 
  *
- * ###data-f-on-init
+ * ####data-f-on-init
  *
  * Add the attribute `data-f-on-init`, and set the value to the name of the operation. To call multiple operations, use the `|` (pipe) character to chain operations. Operations are called serially, in the order listed. Typically you add this attribute to the `<body>` element.
  *
