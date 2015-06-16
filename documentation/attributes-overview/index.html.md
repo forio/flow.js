@@ -1,10 +1,10 @@
 ---
-title: "Flow.js Attributes"
+title: "Flow.js: Variables and Attributes"
 layout: "default"
 isPage: true
 ---
 
-##Flow.js Attributes 
+##Flow.js: Variables and Attributes 
 
 ###Displaying and Updating Model Variables
 
@@ -25,9 +25,17 @@ Once you set `data-f-bind`, Flow.js figures out the appropriate action to take b
 * Display and automatically update array and object variables? See [TODO-R](TODO).
 * Display a variable only (read-only binding)? See [TODO-Questions](TODO).
 * Alter the properties of a DOM node based on the value of a model variable? See [TODO-S, TODO-U, TODO-Z, TODO-J](TODO-Questions).
-* Change the styling of HTML elements based on the value of a model variable? See [TODO-N](TODO).
-* Create my own custom attribute? See [Attribute Manager](../generated/dom/attributes/attribute-manager/).
+* Change the styling of HTML elements based on the value of a model variable? 
+	* Use `data-f-class`. See [Binding with Style](../generated/dom/attributes/class-attr/).
+* Create my own custom attribute? 
+	* Use the [Attribute Manager](../generated/dom/attributes/attribute-manager/) to add your own attributes.
 
 
+####Learn More
 
+* data-f-bind
+* data-f-foreach
+* data-f-style
+* data-f-[boolean]
+* Add your own
 

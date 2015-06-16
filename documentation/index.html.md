@@ -25,6 +25,7 @@ Learn more about more advanced topics:
 * [Triggering variable updates manually](#trigger)
 * [Additional options for initializing](#custom-initialize)
 
+**The current version of Flow is 0.9.0.** See the [Using Flow.js in your Project](#using_in_project) section below. You can also view the history of releases on <a href="https://github.com/forio/flow.js/releases/" "target=_blank">GitHub</a>.
 
 
 <a name="using_in_project"></a>
@@ -34,9 +35,9 @@ Learn more about more advanced topics:
 
 1. Add the Flow.js required libraries to your project. Flow.js requires the following files:
 	* [`jquery.js`](http://jquery.com): document manipulation, DOM element selection, and event handling used by Flow.js
-	* [`lodash.js`](http://lodash.com): utilities and performance enhancements used by Flow.js
+	* [`lodash.js`](http://lodash.com): utilities and performance enhancements used by Flow.js; also used in [templating](#templates)
 	* [`epicenter.js`](https://forio.com/tools/js-libs/1.0/epicenter.min.js): [Epicenter API Adapters](../api_adapters/) with services and utilities for connecting to project models using the underlying Epicenter RESTful APIs.
-2. Add Flow.js itself to your project. The latest version of the Flow.js library is available from our set of tools: <a href="https://forio.com/tools/js-libs/flow/0.9.0/flow.min.js" target="_blank">https://forio.com/tools/js-libs/flow/0.8.1/flow.min.js</a>. (You can also review previous versions and detailed release notes on <a href="https://github.com/forio/flow.js/releases" target="_blank">GitHub</a>.)
+2. Add Flow.js itself to your project. The latest version of the Flow.js library is available from our set of tools: <a href="https://forio.com/tools/js-libs/flow/0.9.0/flow.min.js" target="_blank">https://forio.com/tools/js-libs/flow/0.9.0/flow.min.js</a>. (You can also review previous versions and detailed release notes on <a href="https://github.com/forio/flow.js/releases" target="_blank">GitHub</a>.)
 3. Call the `Flow.initialize()` method. This tells Flow.js to create and initialize a run for you. (Runs are sets of particular user interactions with your project.)
 4. In order to finish initializing a run, Flow.js needs to know the name of the model. Add the attribute `data-f-model` to the `<body>` tag. Set the value to the name of your [model file](../writing_your_model/).
 
