@@ -71,6 +71,11 @@
                     cm.convert({ a: [1, 2], b: [3, 4] }, 'multiply').should.eql({ a: [3, 6], b: [9, 12] });
                 });
             });
+
+            it('should throw an error if converter is not found', function () {
+                var c = function () { cm.convert({ a: 1, b: 2 }, 'does not exist'); };
+                c.should.throw(/could not find/i);
+            });
         });
         describe('#replace', function () {
             it('should replace existing string converters with new ones', function () {
