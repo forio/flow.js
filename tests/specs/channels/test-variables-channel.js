@@ -356,7 +356,7 @@
                 modelChangeSpy.should.not.have.been.called;
 
                 channel.publish({ stuff: 24 });
-                modelChangeSpy.should.have.been.calledOnce;
+                modelChangeSpy.should.have.been.calledTwice;
             });
 
             it('should call refresh if silent blacklist match', function () {
@@ -372,10 +372,10 @@
                 $sink.on('update.f.model', modelChangeSpy);
 
                 channel.publish({ price: 24 });
-                modelChangeSpy.should.have.been.calledOnce;
+                modelChangeSpy.should.have.been.calledTwice;
 
                 channel.publish({ stuff: 24 });
-                modelChangeSpy.should.have.been.calledOnce;
+                modelChangeSpy.should.have.been.calledTwice;
             });
         });
 
