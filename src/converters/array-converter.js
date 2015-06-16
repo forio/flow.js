@@ -6,7 +6,7 @@
  * There are two ways to specify conversion or formatting for the display output of a particular model variable:
  *
  * * Add the attribute `data-f-convert` to any element that also has the `data-f-bind` or `data-f-foreach`.
- * * Use the `|` (pipe) character within any `data-f-` attribute (not just `data-f-bind` or `data-f-foreach`).
+ * * Use the `|` (pipe) character within the value of any `data-f-` attribute (not just `data-f-bind` or `data-f-foreach`).
  *
  * In general, if the model variable is an array, the converter is applied to each element of the array. There are a few built in array converters which, rather than converting all elements of an array, select particular elements from within the array or otherwise treat array variables specially.
  * 

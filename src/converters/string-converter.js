@@ -6,7 +6,7 @@
  * There are two ways to specify conversion or formatting for the display output of a particular model variable:
  *
  * * Add the attribute `data-f-convert` to any element that also has the `data-f-bind` or `data-f-foreach`.
- * * Use the `|` (pipe) character within any `data-f-` attribute (not just `data-f-bind` or `data-f-foreach`).
+ * * Use the `|` (pipe) character within the value of any `data-f-` attribute (not just `data-f-bind` or `data-f-foreach`).
  *
  * For model variables that are strings (or that have been converted to strings), there are several special string formats you can apply. 
  */

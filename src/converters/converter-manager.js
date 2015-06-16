@@ -1,5 +1,5 @@
 /**
- * ## Converter Manager
+ * ## Converter Manager: Make your own Converters
  * 
  * Converters allow you to convert data -- in particular, model variables that you display in your project's user interface -- from one form to another.
  *
@@ -83,7 +83,7 @@ var converterManager = {
      * 
      * @param  {String|Function|Regex} `alias` Formatter name.
      * @param  {Function|Object} `converter` If a function, `converter` is called with the value. If an object, should include fields for `alias` (name), `parse` (function), and `convert` (function).
-     * @param {Boolean} `acceptList` Determines if the converter is a 'list' converter or not. List converters take in arrays as inputs, others expect single values. TODO-so default is true? why does our cannoical 'max' converter work without this?
+     * @param {Boolean} `acceptList` Determines if the converter is a 'list' converter or not. List converters take in arrays as inputs, others expect single values.
      */
     register: function (alias, converter, acceptList) {
         var normalized = normalize(alias, converter, acceptList);
@@ -162,7 +162,7 @@ var converterManager = {
     },
 
     /**
-     * Counter-part to 'convert()'. Translates converted values back to their original form.
+     * Counter-part to `convert()`. Translates converted values back to their original form.
      *
      * @param  {String} `value` Value to parse.
      * @param  {String|Array} `list`  List of parsers to run the value through. Outermost is invoked first.
