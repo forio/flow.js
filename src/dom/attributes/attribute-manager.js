@@ -9,8 +9,6 @@
  *
  * The Attribute Manager is specific to adding custom attributes and describing their implementation (handlers). (The [Dom Manager](../../) contains the general implementation.)
  *
- * TODO-sample js call for registering one; sample html for using it
- *
  */
 
 'use strict';
@@ -83,9 +81,9 @@ module.exports = {
      * Find an attribute matcher matching some criteria.
      *
      * @param  {String} `attrFilter` Attribute to match.
-     * @param  {String | $el} `nodeFilter` Node to match.
+     * @param  {String|$el} `nodeFilter` Node to match.
      *
-     * @return {array|null} An array of matching attribute handlers, or null if no matches found.
+     * @return {Array|Null} An array of matching attribute handlers, or null if no matches found.
      */
     filter: function (attrFilter, nodeFilter) {
         var filtered = _.select(handlersList, function (handler) {
@@ -100,7 +98,7 @@ module.exports = {
     },
 
     /**
-     * Replace an existing attribute handler.
+     * Replace an existing attribute handler. 
      *
      * @param  {String} `attrFilter` Attribute to match.
      * @param  {String | $el} `nodeFilter` Node to match.
@@ -120,8 +118,8 @@ module.exports = {
     /**
      *  Retrieve the appropriate handler for a particular attribute. There may be multiple matching handlers, but the first (most exact) match is always used.
      *
-     * @param {String} `property` TODO-The attribute? The value of the attribute? in <span data-f-bind='myVar'>, $el is span; is property `bind` or `myVar`?
-     * @param {TODO} `$el` TODO-The DOM element. 
+     * @param {String} `property` The attribute.
+     * @param {$el} `$el` The DOM element. 
      * 
      * @return {Object} The attribute handler.
      */
