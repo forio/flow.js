@@ -8,7 +8,12 @@ module.exports = {
 
     handle: function (value) {
         var templated;
-        var valueToTemplate = ($.isPlainObject(value)) ? value : { value: value };
+        var valueToTemplate = value;
+        if (!$.isPlainObject(value)) {
+            var variableName = this.data('f-bind');//Hack because i don't have access to variable name here otherwise
+            valueToTemplate = { value: value };
+            valueToTemplate[variableName] = value;
+        }
         var bindTemplate = this.data('bind-template');
         if (bindTemplate) {
             templated = _.template(bindTemplate, valueToTemplate);

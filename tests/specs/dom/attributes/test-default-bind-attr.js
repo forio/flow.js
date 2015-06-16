@@ -79,6 +79,14 @@ module.exports = (function () {
                 $node.html().trim().should.equal('20 30');
             });
             it('should templatize single variables', function () {
+                var targetData = { Price: '20' };
+
+                var $node = utils.initWithNode('<div data-f-bind="Price"> <%= Price %> </div>', domManager);
+                $node.trigger('update.f.model', targetData);
+
+                $node.html().trim().should.equal('20');
+            });
+            it('should allow templating by variable name for single items', function () {
                 var targetData = { Price: '20', Sales: 30 };
 
                 var $node = utils.initWithNode('<div data-f-bind="Price"> <%= value %> </div>', domManager);
@@ -86,6 +94,7 @@ module.exports = (function () {
 
                 $node.html().trim().should.equal('20');
             });
+
             it('should template arrays in accordance with converters', function () {
                 var targetData = { Price: [10, 30] };
 
