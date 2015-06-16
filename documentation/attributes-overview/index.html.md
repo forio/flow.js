@@ -21,12 +21,16 @@ Once you set `data-f-bind`, Flow.js figures out the appropriate action to take b
 
 ####How do I ... ?
 
-* Display and automatically update a variable in the interface? See [TODO-K](TODO) and [TODO-L](TODO).
+* Display and automatically update a variable in the interface? 
+	* Use `data-f-bind`. See [Default Bi-directional Binding](../generated/dom/attributes/binds/default-bind-attr/).
 * Display and automatically update array and object variables? 
 	* Use `data-f-foreach`, and optionally, [templates](../#templates). See [Display Array and Object Variables](../generated/dom/attributes/foreach/default-foreach-attr/).
 * Display a variable only (read-only binding)? 
 	* See [read only binding](../generated/dom/attributes/default-attr/).
-* Alter the properties of a DOM node based on the value of a model variable? See [TODO-S, TODO-U, TODO-Z, TODO-J](TODO-Questions).
+* Select an option from an HTML element based on a model variable?
+	* This happens automatically when you use `data-f-bind` with `input` and `select` elements. See more on [binding to select elements](../generated/dom/attributes/binds/input-bind-attr/) and [binding with checkboxes and radio buttons](../generated/dom/attributes/binds/checkbox-radio-bind-attr/).  
+* Work with an HTML attribute that accepts Boolean values?
+	* Flow.js provides special handling for a few common attributes, including `data-f-checked`, `data-f-selected`, `data-f-disabled`, and `data-f-hidden`. See [Binding to Boolean attributes](../generated/dom/attributes/boolean-attr/).
 * Change the styling of HTML elements based on the value of a model variable? 
 	* Use `data-f-class`. See [Binding with Style](../generated/dom/attributes/class-attr/).
 * Set other HTML attributes to the value of a model variable?
@@ -34,12 +38,4 @@ Once you set `data-f-bind`, Flow.js figures out the appropriate action to take b
 * Create my own custom attribute? 
 	* Use the [Attribute Manager](../generated/dom/attributes/attribute-manager/) to add your own attributes.
 
-
-####Learn More
-
-* data-f-bind
-* data-f-foreach
-* data-f-style
-* data-f-[boolean]
-* Add your own
 
