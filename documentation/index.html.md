@@ -22,7 +22,6 @@ Learn more about more advanced topics:
 
 * [Using templates](#templates)
 * [Understanding channels](./channel-overview/)
-* [Triggering variable updates manually](#trigger)
 * [Additional options for initializing](#custom-initialize)
 
 **The current version of Flow is 0.9.0.** See the [Using Flow.js in your Project](#using_in_project) section below. You can also view the history of releases on <a href="https://github.com/forio/flow.js/releases/" "target=_blank">GitHub</a>.
@@ -87,41 +86,49 @@ Typically only the `account`, `project`, and `model` are relevant for your proje
 See more details on [customizing the Flow.initialize() method](#custom-initialize), below.
 
 
+<a name="templates"></a>
+####Working with Templates
 
-####TODO-S/Z/J
+Several common JavaScript libraries embed a simple template engine, including both `lodash` and `underscore`. Flow.js [already requires](#using_in_project) the `lodash.js` library as one of its dependencies. You can replace `lodash.js` with `underscore.js` if you like. 
 
-Sometimes you want to do something with the value of a model variable besides just display it. For example, you might check or disable input elements based on the value. 
+Then, start using templates in your project's user interface.
 
-**To alter the properties of a DOM node based on the value of a model variable:**
+Some basic examples are [adding variables to an enclosing tag](./generated/dom/attributes/binds/default-bind-attr/) and [working with array variables](./generated/dom/attributes/foreach/default-foreach-attr/):
 
-1. Add the `data-f-` prefix to an attribute of an HTML element that alters its properties. For example, `data-f-disabled` and `data-f-checked` are attributes you might want to control based on a model variable. (To alter the appearance of an HTML element based on a model variable, see the [Styling](#styling) section, below.)
-2. Set the value to the name of the variable. 
+	<div data-f-bind="CurrentYear, Revenue, Profit">
+		In <%= CurrentYear %>, 
+		our company earned <%= Revenue %>, 
+		resulting in <%= Profit %>.
+	</div>
 
-**Examples:**
+	<ul data-f-foreach="Time">
+		<li> Year <%= index %>: <%= value %> </li>
+	</ul>
 
-	<!-- checked if allowedToAdvance is 1 or true -->
-	<input type="checkbox" data-f-checked="allowedToAdvance"> Allowed to Advance? </input>
+But don't feel limited by these examples &mdash; you can use templates throughout your project's user interface code if you're using Flow.js.
 
-	<!-- disabled if allowedToAdvance is 0 or 'false' -->
-	<button data-f-disabled="allowedToAdvance"> Advance to next round </button>
+Here are a few additional examples to get you started:
+
+	<!-- use templates to perform calculations easily -->
+	
+	You have <strong data-f-bind="Time"><%= 2020 - value %></strong> years remaining in your simulation.
 
 
-<a name="trigger"></a>
-####TODO-update
+	<!-- use templates to display particular content
+			this is particularly useful for multiplayer games
+			safe for Chrome, Firefox, Safari, and IE11+ -->
+	
+	<div id="importantInfo"></div>
+	
+	<script>
+		if (condition) {
+			$(#importantInfo).append("<h2 data-f-bind='Revenue'></h2>");
+		} else {
+			$(#importantInfo).append("<h2 data-f-bind='Sales'></h2>");
+		}
+	</script>
 
-TODO-update to be just about triggers
-
-Finally, there is a event you can trigger on elements in order to set values and trigger conversions. This has two forms: 
-
-	<input type="text" id="element" data-f-bind="price | $#,###.00" data-f-someattr="initialPrice | $#,###.00">
-
-	$("#element").trigger('f.convert', 2000)
-	console.log($("#element").val()); //Will be $2,000.00.
-
-	$("#element").trigger('f.convert', {someattr: 2000})
-	console.log($("#element").prop('someattr')); //Will be $2,000.00.
-
-This is useful if you want to update a UI element "manually" without having to wait for a response from your project's model.
+For more background on templates in `lodash.js`, see the <a href="https://lodash.com/docs#template" target="_blank">lodash documentation</a>. If you prefer to use <a href="http://underscorejs.org/#template" target="_blank">underscore</a> instead, that works too &mdash; just be sure to include the `underscore.js` library in your page.
 
 
 
@@ -181,32 +188,4 @@ Although Flow.js provides a bi-directional binding between the model and the use
 
 Finally, as an implementation note: the `Flow.initialize()` call is based on the [Run Service](../api_adapters/generated/run-api-service/) from the [API Adapters](../api_adapters/). See those pages for additional information on parameters.
 
-
-<a name="index"></a>
-###Index of Common Attributes
-
-You can use the `data-f-` as a prefix to any HTML attribute when working with Flow.js. Some of the most commonly used attributes are listed here. Click to jump to the documentation section above.
-
-####Index of Common Attributes
-
-* data-f-bind ([Default bind](./genereated/attributes/dom/binds/default-bind-attr/)), (TODO-L)
-* data-f-value (TODO-Questions)
-* data-f-disabled (TODO-S? TODO-U?)
-* data-f-checked (TODO-Z? or TODO-J?)
-* data-f-class (TODO-N)
-* data-f-foreach (TODO-R)
-* data-f-noop (TODO-T)
-* data-f-on-init (TODO-Q)
-* data-f-on-submit (TODO-P)
-
-
-* [`data-f-bind`](#display_update): bind model variables to HTML elements 
-* [`data-f-checked`](#special_handling): set an HTML element checked if model variable is true 
-* [`data-f-class`](#styling): use value of model variable to determine CSS class for HTML element
-* [`data-f-convert`](#converters): convert the model variable referenced in the data-f-bind of this HTML element to a different format, precision, or user-defined output
-* [`data-f-disabled`](#special_handling): set an HTML element disabled if model variable is false
-* [`data-f-model`](#using_in_project): set the name of the [model file](../writing_your_model/)
-* [`data-f-on-click`](#methods): call the method from the model when HTML element clicked
-* [`data-f-on-init`](#using_in_project): call the method from the model when the run is first created
-* [`data-f-on-submit`](#methods): call the method from the model when HTML element submitted
 
