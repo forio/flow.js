@@ -49,7 +49,7 @@
  *      * Year 2: 2016
  *      * Year 3: 2017
  *
- * As with other `data-f-` attributes, you can specify [converters](#converters) to convert data from one form to another:
+ * As with other `data-f-` attributes, you can specify [converters](../../../../../converter-overview) to convert data from one form to another:
  *
  *      <ul data-f-foreach="Sales | $x,xxx">
  *          <li> Year <%= index %>: Sales of <%= value %> </li>
