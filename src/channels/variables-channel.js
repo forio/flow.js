@@ -14,7 +14,7 @@ module.exports = function (options) {
         silent: false,
 
         autoFetch: {
-            interval: 200,
+            within: 200,
             items: 5
         }
     };
@@ -72,7 +72,7 @@ module.exports = function (options) {
         return op;
     };
 
-    var lastCheckTime = _.now();
+    var lastCheckTime = Date.now();
     var publicAPI = {
         //for testing
         private: {
@@ -122,10 +122,10 @@ module.exports = function (options) {
             var now = Date.now();
 
             var tooManyItems = autoFetch.items && this.unfetched.length > autoFetch.items;
-            var tooLong = autoFetch.interval && now - lastCheckTime > autoFetch.interval;
+            var tooLong = autoFetch.within && ((now - lastCheckTime) > autoFetch.within);
             if (tooLong || tooManyItems) {
                 this.fetch(this.unfetched).then(function (changed) {
-                    // console.log("fetched", _.now())
+                    // console.log("fetched", Date.now())
                     $.extend(currentData, changed);
                     me.unfetched = [];
                     lastCheckTime = now;

@@ -4,9 +4,11 @@
     var Channel = require('src/channels/variables-channel');
 
     describe('Variables Channel', function () {
-        var core, channel, server, mockVariables, mockRun;
+        var core, channel, server, mockVariables, mockRun, clock;
 
         before(function () {
+            clock = sinon.useFakeTimers();
+
             server = sinon.fakeServer.create();
             server.respondWith('PATCH',  /(.*)\/run\/(.*)\/(.*)/, function (xhr, id) {
                 xhr.respond(200, { 'Content-Type': 'application/json' }, JSON.stringify({ url: xhr.url }));
@@ -57,6 +59,8 @@
 
         after(function () {
             server.restore();
+            clock.restore();
+
             mockVariables = null;
             mockRun = null;
             channel = null;
@@ -494,7 +498,7 @@
                             vent: {},
                             run: mockRun,
                             autoFetch: {
-                                interval: false,
+                                within: false,
                                 items: 5
                             } });
 
@@ -504,6 +508,29 @@
                         spy.should.not.have.been.called;
                         var spy2 = sinon.spy();
                         channel.subscribe(['e', 'f'], spy2, { batch: true });
+
+                        spy.should.have.been.calledOnce;
+                        spy2.should.have.been.calledOnce;
+                    });
+                });
+                describe('.within', function () {
+                    it('should fetch every X ms', function () {
+                        var channel = new Channel({
+                            vent: {},
+                            run: mockRun,
+                            autoFetch: {
+                                within: 200,
+                                items: false
+                            } });
+
+                        var spy = sinon.spy();
+                        channel.subscribe(['a', 'b', 'd'], spy, { batch: true });
+                        spy.should.not.have.been.called;
+
+                        clock.tick(201);
+
+                        var spy2 = sinon.spy();
+                        channel.subscribe(['e'], spy2, { batch: true });
 
                         spy.should.have.been.calledOnce;
                         spy2.should.have.been.calledOnce;
