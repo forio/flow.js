@@ -491,50 +491,49 @@
         });
 
         describe('options', function () {
-            describe('autoFetch', function () {
-                describe('.items', function () {
-                    it('should get new values every time we have more than X many unfetched items', function () {
-                        var channel = new Channel({
-                            vent: {},
-                            run: mockRun,
-                            autoFetch: {
-                                within: false,
-                                items: 5
-                            } });
+            describe('autoFetch.items', function () {
+                it('should get new values every time we have more than X many unfetched items', function () {
+                    var channel = new Channel({
+                        vent: {},
+                        run: mockRun,
+                        autoFetch: {
+                            within: false,
+                            items: 5
+                        } });
 
-                        var spy = sinon.spy();
-                        channel.subscribe(['a', 'b', 'c', 'd'], spy, { batch: true });
+                    var spy = sinon.spy();
+                    channel.subscribe(['a', 'b', 'c', 'd'], spy, { batch: true });
 
-                        spy.should.not.have.been.called;
-                        var spy2 = sinon.spy();
-                        channel.subscribe(['e', 'f'], spy2, { batch: true });
+                    spy.should.not.have.been.called;
+                    var spy2 = sinon.spy();
+                    channel.subscribe(['e', 'f'], spy2, { batch: true });
 
-                        spy.should.have.been.calledOnce;
-                        spy2.should.have.been.calledOnce;
-                    });
+                    spy.should.have.been.calledOnce;
+                    spy2.should.have.been.calledOnce;
                 });
-                describe('.within', function () {
-                    it('should fetch every X ms', function () {
-                        var channel = new Channel({
-                            vent: {},
-                            run: mockRun,
-                            autoFetch: {
-                                within: 200,
-                                items: false
-                            } });
-
-                        var spy = sinon.spy();
-                        channel.subscribe(['a', 'b', 'd'], spy, { batch: true });
-                        spy.should.not.have.been.called;
-
-                        clock.tick(201);
-
-                        var spy2 = sinon.spy();
-                        channel.subscribe(['e'], spy2, { batch: true });
-
-                        spy.should.have.been.calledOnce;
-                        spy2.should.have.been.calledOnce;
+            });
+            describe('autoFetch.within', function () {
+                it('should fetch every X ms', function () {
+                    var channel = new Channel({
+                        vent: {},
+                        run: mockRun,
+                        autoFetch: {
+                            within: 200,
+                            items: false
+                        }
                     });
+
+                    var spy = sinon.spy();
+                    channel.subscribe(['a', 'b', 'd'], spy, { batch: true });
+                    spy.should.not.have.been.called;
+
+                    clock.tick(201);
+
+                    var spy2 = sinon.spy();
+                    channel.subscribe(['e'], spy2, { batch: true });
+
+                    spy.should.have.been.calledOnce;
+                    spy2.should.have.been.calledOnce;
                 });
             });
         });

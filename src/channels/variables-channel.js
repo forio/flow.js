@@ -125,7 +125,7 @@ module.exports = function (options) {
             var tooLong = autoFetch.within && ((now - lastCheckTime) > autoFetch.within);
             if (tooLong || tooManyItems) {
                 this.fetch(this.unfetched).then(function (changed) {
-                    // console.log("fetched", Date.now())
+                    // console.log("fetched", now)
                     $.extend(currentData, changed);
                     me.unfetched = [];
                     lastCheckTime = now;
