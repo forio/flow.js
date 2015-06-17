@@ -9,7 +9,7 @@ isPage: true
 
 Flow.js provides a data binding not only between model variables and your project's user interface, but also between model operations and your project's user interface. 
 
-By default, all HTML elements update for any call to an operation. However, you can prevent the user interface from updating -- either for all operations or for particular operations -- by setting the `silent` property when you initialize Flow.js. See more on [additional options for the Flow.initialize() method](../#custom-initialize).
+By default, all HTML elements update for any call to an operation. However, you can prevent the user interface from updating -- either for all operations or for particular operations -- by setting the `silent` property when you initialize Flow.js. See more on [additional options for the Flow.initialize() method](../generated/flow-js/).
 
 
 ####How do I ... ?
