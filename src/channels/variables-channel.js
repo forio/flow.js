@@ -14,8 +14,7 @@ module.exports = function (options) {
         silent: false,
 
         autoFetch: {
-            within: 200,
-            items: 5
+            within: 200
         }
     };
 
@@ -72,7 +71,6 @@ module.exports = function (options) {
         return op;
     };
 
-    var lastCheckTime = Date.now();
     var publicAPI = {
         //for testing
         private: {

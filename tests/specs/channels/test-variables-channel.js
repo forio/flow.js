@@ -491,27 +491,6 @@
         });
 
         describe('options', function () {
-            describe.skip('autoFetch.items', function () {
-                it('should get new values every time we have more than X many unfetched items', function () {
-                    var channel = new Channel({
-                        vent: {},
-                        run: mockRun,
-                        autoFetch: {
-                            within: false,
-                            items: 5
-                        } });
-
-                    var spy = sinon.spy();
-                    channel.subscribe(['a', 'b', 'c', 'd'], spy, { batch: true });
-
-                    spy.should.not.have.been.called;
-                    var spy2 = sinon.spy();
-                    channel.subscribe(['e', 'f'], spy2, { batch: true });
-
-                    spy.should.have.been.calledOnce;
-                    spy2.should.have.been.calledOnce;
-                });
-            });
             describe('autoFetch.within', function () {
                 it('should fetch within given time if everything is subscribed to at once', function (done) {
                     var channel = new Channel({
