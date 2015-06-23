@@ -491,13 +491,13 @@
         });
 
         describe('options', function () {
-            describe('autoFetch.within', function () {
+            describe('autoFetch.debounce', function () {
                 it('should fetch within given time if everything is subscribed to at once', function (done) {
                     var channel = new Channel({
                         vent: {},
                         run: mockRun,
                         autoFetch: {
-                            within: 200,
+                            debounce: 200,
                             items: false
                         }
                     });
@@ -516,7 +516,7 @@
                         vent: {},
                         run: mockRun,
                         autoFetch: {
-                            within: 200,
+                            debounce: 200,
                             items: false
                         }
                     });
