@@ -65,7 +65,7 @@ module.exports = function (options) {
                 } else if (target.trigger) {
                     listener.target.trigger(config.events.react, params);
                 } else {
-                    throw new Error('Unknown listerer format for ' + operation);
+                    throw new Error('Unknown listener format for ' + operation);
                 }
             });
         },
