@@ -6,8 +6,12 @@
     describe('Variables Channel', function () {
         var core, channel, server, mockVariables, mockRun, clock;
 
+        beforeEach(function () {
+            //Needed to make _.debounce work correctly with fakeTimers
+            _ = _.runInContext(window); // jshint ignore:line
+        });
         before(function () {
-            // clock = sinon.useFakeTimers();
+            clock = sinon.useFakeTimers();
 
             server = sinon.fakeServer.create();
             server.respondWith('PATCH',  /(.*)\/run\/(.*)\/(.*)/, function (xhr, id) {
@@ -59,7 +63,7 @@
 
         after(function () {
             server.restore();
-            // clock.restore();
+            clock.restore();
 
             mockVariables = null;
             mockRun = null;
@@ -492,7 +496,7 @@
 
         describe('options', function () {
             describe('autoFetch.debounce', function () {
-                it('should fetch within given time if everything is subscribed to at once', function (done) {
+                it('should fetch within given time if everything is subscribed to at once', function () {
                     var channel = new Channel({
                         vent: {},
                         run: mockRun,
@@ -506,12 +510,11 @@
                     channel.subscribe(['a', 'b', 'd'], spy, { batch: true });
                     spy.should.not.have.been.called;
 
-                    setTimeout(function () {
-                        spy.should.have.been.calledOnce;
-                        done();
-                    }, 201);
+                    clock.tick(201);
+
+                    spy.should.have.been.calledOnce;
                 });
-                it('should keep waiting if things are being added', function (done) {
+                it('should keep waiting if things are being added', function () {
                     var channel = new Channel({
                         vent: {},
                         run: mockRun,
@@ -525,22 +528,23 @@
                     channel.subscribe(['a', 'b', 'd'], spy, { batch: true });
                     spy.should.not.have.been.called;
 
-                    setTimeout(function () {
-                        var spy2 = sinon.spy();
-                        channel.subscribe(['e', 'f'], spy2, { batch: true });
+                    clock.tick(199);
 
-                        setTimeout(function () {
-                            spy.should.not.have.been.called;
-                            spy2.should.not.have.been.called;
-                            setTimeout(function () {
-                                spy.should.have.been.calledOnce;
-                                spy2.should.have.been.calledOnce;
-                            }, 201);
-                        }, 3);
-                        done();
-                    }, 199);
+                    var spy2 = sinon.spy();
+                    channel.subscribe(['e', 'f'], spy2, { batch: true });
+
+                    clock.tick(3);
+
+                    spy.should.not.have.been.called;
+                    spy2.should.not.have.been.called;
+
+                    clock.tick(201);
+
+                    spy.should.have.been.calledOnce;
+                    spy2.should.have.been.calledOnce;
                 });
             });
+
         });
     });
 }());

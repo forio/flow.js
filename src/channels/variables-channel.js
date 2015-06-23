@@ -14,13 +14,15 @@ module.exports = function (options) {
         silent: false,
 
         autoFetch: {
-            within: 200
+            debounce: 200,
+            startAfter: []
         }
     };
 
     var channelOptions = $.extend(true, {}, defaults, options);
     var vs = channelOptions.run.variables();
     var vent = channelOptions.vent;
+    var canStartAutoFetch = !channelOptions.autoFetch.startAfter.length;
 
     var currentData = {};
 
@@ -111,19 +113,19 @@ module.exports = function (options) {
 
         updateAndCheckForRefresh: function (topics) {
             var autoFetch = channelOptions.autoFetch;
-            if (!autoFetch) {
+            this.unfetched = _.uniq(this.unfetched.concat(topics));
+
+            if (!autoFetch || !canStartAutoFetch) {
                 return false;
             }
-
             if (!this.debouncedFetch) {
                 this.debouncedFetch = _.debounce(function (topics) {
-                    this.unfetched = _.uniq(this.unfetched.concat(topics));
                     this.fetch(this.unfetched).then(function (changed) {
                         $.extend(currentData, changed);
                         this.unfetched = [];
                         this.notify(changed);
                     }.bind(this));
-                }, autoFetch.within);
+                }, autoFetch.debounce, { maxWait: autoFetch.debounce * 4 });
             }
 
             this.debouncedFetch(topics);
