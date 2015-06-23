@@ -4,16 +4,18 @@
     var Channel = require('src/channels/variables-channel');
 
     describe('Variables Channel', function () {
-        var core, channel, server, mockVariables, mockRun;
+        var core, channel, server, mockVariables, mockRun, clock;
 
         before(function () {
+            clock = sinon.useFakeTimers();
+
             server = sinon.fakeServer.create();
             server.respondWith('PATCH',  /(.*)\/run\/(.*)\/(.*)/, function (xhr, id) {
                 xhr.respond(200, { 'Content-Type': 'application/json' }, JSON.stringify({ url: xhr.url }));
             });
             server.respondWith('GET',  /(.*)\/run\/(.*)\/variables/, function (xhr, id) {
                 xhr.respond(200, { 'Content-Type': 'application/json' }, JSON.stringify({ url: xhr.url,
-                    price: 23,
+                    price: 1,
                     sales: 30,
                     priceArray: [20, 30]
                 }));
@@ -32,12 +34,15 @@
             });
 
             mockVariables = {
-                query: sinon.spy(function () {
-                    return $.Deferred().resolve({
-                        price: 23,
-                        sales: 30,
-                        priceArray: [20, 30]
-                    }).promise();
+                query: sinon.spy(function (variables) {
+                    if (!variables) {
+                        variables = [];
+                    }
+                    var response = {};
+                    variables.forEach(function (v) {
+                        response[v] = 1;
+                    });
+                    return $.Deferred().resolve(response).promise();
                 }),
                 save: sinon.spy(function () {
                     return $.Deferred().resolve().promise();
@@ -54,6 +59,12 @@
 
         after(function () {
             server.restore();
+            clock.restore();
+
+            mockVariables = null;
+            mockRun = null;
+            channel = null;
+            core = null;
         });
 
         describe('#getInnerVariables', function () {
@@ -165,9 +176,7 @@
 
                     interpolationMap.should.eql({ 'price[1]': ['price[<stuff>]', 'price[<time>]'] });
                 });
-
             });
-
         });
 
         describe('#unsubscribeAll', function () {
@@ -222,7 +231,7 @@
 
                    channel.publish('price', 32);
                    cb.should.have.been.called.calledOnce;
-                   cb.should.have.been.calledWith({ price: 23 }); // mock server always returns 23
+                   cb.should.have.been.calledWith({ price: 1 }); // mock server always returns 1
 
                });
 
@@ -237,7 +246,7 @@
                    channel.publish('price', 32);
 
                    cb.should.have.been.called.calledOnce;
-                   cb.should.have.been.calledWith({ price: 23 }); // mock server always returns 23
+                   cb.should.have.been.calledWith({ price: 1 }); // mock server always returns 1
 
                });
             });
@@ -245,15 +254,15 @@
 
         describe('#publish', function () {
             it('should publish values to the variables service', function () {
-                channel.publish({ price: 23 });
-                mockVariables.save.should.have.been.calledWith({ price: 23 });
+                channel.publish({ price: 1 });
+                mockVariables.save.should.have.been.calledWith({ price: 1 });
 
             });
             //Skipping till we figure out a way to set the interpolation map
             it.skip('should interpolate variables', function () {
                 // channel.interpolationMap.time = 1;
-                channel.publish({ 'price[<time>]': 23 });
-                mockVariables.save.should.have.been.calledWith({ 'price[1]': 23 });
+                channel.publish({ 'price[<time>]': 1 });
+                mockVariables.save.should.have.been.calledWith({ 'price[1]': 1 });
 
             });
             it('should call refresh after publish', function () {
@@ -261,7 +270,7 @@
                 var refSpy = sinon.spy(originalRefresh);
                 channel.refresh = refSpy;
 
-                channel.publish({ price: 23 });
+                channel.publish({ price: 1 });
                 refSpy.should.have.been.called;
 
                 channel.refresh = originalRefresh;
@@ -271,7 +280,7 @@
                 var refSpy = sinon.spy(originalRefresh);
                 channel.refresh = refSpy;
 
-                channel.publish({ price: 23 }, { silent: true });
+                channel.publish({ price: 1 }, { silent: true });
                 refSpy.should.not.have.been.called;
 
                 channel.refresh = originalRefresh;
@@ -315,7 +324,7 @@
                 channel.publish({ price: 24 });
                 modelChangeSpy.should.not.have.been.called;
 
-                channel.refresh({ price: 23 }, true);
+                channel.refresh({ price: 1 }, true);
                 modelChangeSpy.should.have.been.calledOnce;
             });
 
@@ -351,7 +360,7 @@
                 modelChangeSpy.should.not.have.been.called;
 
                 channel.publish({ stuff: 24 });
-                modelChangeSpy.should.have.been.calledOnce;
+                modelChangeSpy.should.have.been.calledTwice;
             });
 
             it('should call refresh if silent blacklist match', function () {
@@ -367,10 +376,10 @@
                 $sink.on('update.f.model', modelChangeSpy);
 
                 channel.publish({ price: 24 });
-                modelChangeSpy.should.have.been.calledOnce;
+                modelChangeSpy.should.have.been.calledTwice;
 
                 channel.publish({ stuff: 24 });
-                modelChangeSpy.should.have.been.calledOnce;
+                modelChangeSpy.should.have.been.calledTwice;
             });
         });
 
@@ -478,6 +487,54 @@
 
                 channel.unsubscribe(token);
                 channel.getSubscribers().should.eql([]);
+            });
+        });
+
+        describe('options', function () {
+            describe('autoFetch.items', function () {
+                it('should get new values every time we have more than X many unfetched items', function () {
+                    var channel = new Channel({
+                        vent: {},
+                        run: mockRun,
+                        autoFetch: {
+                            within: false,
+                            items: 5
+                        } });
+
+                    var spy = sinon.spy();
+                    channel.subscribe(['a', 'b', 'c', 'd'], spy, { batch: true });
+
+                    spy.should.not.have.been.called;
+                    var spy2 = sinon.spy();
+                    channel.subscribe(['e', 'f'], spy2, { batch: true });
+
+                    spy.should.have.been.calledOnce;
+                    spy2.should.have.been.calledOnce;
+                });
+            });
+            describe('autoFetch.within', function () {
+                it('should fetch every X ms', function () {
+                    var channel = new Channel({
+                        vent: {},
+                        run: mockRun,
+                        autoFetch: {
+                            within: 200,
+                            items: false
+                        }
+                    });
+
+                    var spy = sinon.spy();
+                    channel.subscribe(['a', 'b', 'd'], spy, { batch: true });
+                    spy.should.not.have.been.called;
+
+                    clock.tick(201);
+
+                    var spy2 = sinon.spy();
+                    channel.subscribe(['e'], spy2, { batch: true });
+
+                    spy.should.have.been.calledOnce;
+                    spy2.should.have.been.calledOnce;
+                });
             });
         });
     });
