@@ -7,7 +7,7 @@
         var core, channel, server, mockVariables, mockRun, clock;
 
         before(function () {
-            clock = sinon.useFakeTimers();
+            // clock = sinon.useFakeTimers();
 
             server = sinon.fakeServer.create();
             server.respondWith('PATCH',  /(.*)\/run\/(.*)\/(.*)/, function (xhr, id) {
@@ -59,7 +59,7 @@
 
         after(function () {
             server.restore();
-            clock.restore();
+            // clock.restore();
 
             mockVariables = null;
             mockRun = null;
@@ -491,7 +491,7 @@
         });
 
         describe('options', function () {
-            describe('autoFetch.items', function () {
+            describe.skip('autoFetch.items', function () {
                 it('should get new values every time we have more than X many unfetched items', function () {
                     var channel = new Channel({
                         vent: {},
@@ -513,7 +513,7 @@
                 });
             });
             describe('autoFetch.within', function () {
-                it('should fetch every X ms', function () {
+                it('should fetch within given time if everything is subscribed to at once', function (done) {
                     var channel = new Channel({
                         vent: {},
                         run: mockRun,
@@ -527,13 +527,39 @@
                     channel.subscribe(['a', 'b', 'd'], spy, { batch: true });
                     spy.should.not.have.been.called;
 
-                    clock.tick(201);
+                    setTimeout(function () {
+                        spy.should.have.been.calledOnce;
+                        done();
+                    }, 201);
+                });
+                it('should keep waiting if things are being added', function (done) {
+                    var channel = new Channel({
+                        vent: {},
+                        run: mockRun,
+                        autoFetch: {
+                            within: 200,
+                            items: false
+                        }
+                    });
 
-                    var spy2 = sinon.spy();
-                    channel.subscribe(['e'], spy2, { batch: true });
+                    var spy = sinon.spy();
+                    channel.subscribe(['a', 'b', 'd'], spy, { batch: true });
+                    spy.should.not.have.been.called;
 
-                    spy.should.have.been.calledOnce;
-                    spy2.should.have.been.calledOnce;
+                    setTimeout(function () {
+                        var spy2 = sinon.spy();
+                        channel.subscribe(['e', 'f'], spy2, { batch: true });
+
+                        setTimeout(function () {
+                            spy.should.not.have.been.called;
+                            spy2.should.not.have.been.called;
+                            setTimeout(function () {
+                                spy.should.have.been.calledOnce;
+                                spy2.should.have.been.calledOnce;
+                            }, 201);
+                        }, 3);
+                        done();
+                    }, 199);
                 });
             });
         });

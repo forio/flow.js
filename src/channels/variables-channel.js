@@ -112,26 +112,23 @@ module.exports = function (options) {
         },
 
         updateAndCheckForRefresh: function (topics) {
-            this.unfetched = _.uniq(this.unfetched.concat(topics));
             var autoFetch = channelOptions.autoFetch;
             if (!autoFetch) {
                 return false;
             }
 
-            var me = this;
-            var now = Date.now();
-
-            var tooManyItems = autoFetch.items && this.unfetched.length > autoFetch.items;
-            var tooLong = autoFetch.within && ((now - lastCheckTime) > autoFetch.within);
-            if (tooLong || tooManyItems) {
-                this.fetch(this.unfetched).then(function (changed) {
-                    // console.log("fetched", now)
-                    $.extend(currentData, changed);
-                    me.unfetched = [];
-                    lastCheckTime = now;
-                    me.notify(changed);
-                });
+            if (!this.debouncedFetch) {
+                this.debouncedFetch = _.debounce(function (topics) {
+                    this.unfetched = _.uniq(this.unfetched.concat(topics));
+                    this.fetch(this.unfetched).then(function (changed) {
+                        $.extend(currentData, changed);
+                        this.unfetched = [];
+                        this.notify(changed);
+                    }.bind(this));
+                }, autoFetch.within);
             }
+
+            this.debouncedFetch(topics);
         },
 
         fetch: function (variablesList) {
