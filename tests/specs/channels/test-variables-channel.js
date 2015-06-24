@@ -494,6 +494,68 @@
             });
         });
 
+        describe('#startAutoFetch', function () {
+            it('should start auto-fetching after #startAutoFetch is called', function () {
+                var vent = 'div';
+                var channel = new Channel({
+                    vent: vent,
+                    run: mockRun,
+                    autoFetch: {
+                        within: 200,
+                        startOnLoad: false
+                    }
+                });
+
+                var spy = sinon.spy();
+                channel.subscribe(['a', 'b', 'd'], spy, { batch: true });
+                spy.should.not.have.been.called;
+
+                clock.tick(201);
+
+                var spy2 = sinon.spy();
+                channel.subscribe(['e'], spy2, { batch: true });
+                spy.should.not.have.been.called;
+                spy2.should.not.have.been.called;
+
+                channel.startAutoFetch();
+                clock.tick(201);
+
+                spy.should.have.been.calledOnce;
+                spy2.should.have.been.calledOnce;
+
+                var spy3 = sinon.spy();
+                channel.subscribe(['f'], spy3, { batch: true });
+                clock.tick(201);
+                spy3.should.have.been.calledOnce;
+            });
+        });
+
+        describe('#stopAutoFetch', function () {
+            it('should not keep fetching after #stopAutoFetch is called', function () {
+                var channel = new Channel({
+                    vent: {},
+                    run: mockRun,
+                    autoFetch: {
+                        within: 200,
+                        startOnLoad: true
+                    }
+                });
+
+                var spy = sinon.spy();
+                channel.subscribe(['a', 'b', 'd'], spy, { batch: true });
+                clock.tick(201);
+                spy.should.have.been.called;
+                channel.stopAutoFetch();
+
+                var spy2 = sinon.spy();
+                channel.subscribe(['x'], spy2, { batch: true });
+
+                clock.tick(201);
+
+                spy2.should.not.have.been.called;
+
+            });
+        });
         describe('options', function () {
             describe('autoFetch.debounce', function () {
                 it('should fetch within given time if everything is subscribed to at once', function () {
@@ -559,40 +621,6 @@
 
                     clock.tick(201);
                     spy.should.not.have.been.called;
-                });
-
-                it('should start auto-fetching after #startAutoFetch is called', function () {
-                    var vent = 'div';
-                    var channel = new Channel({
-                        vent: vent,
-                        run: mockRun,
-                        autoFetch: {
-                            within: 200,
-                            startOnLoad: false
-                        }
-                    });
-
-                    var spy = sinon.spy();
-                    channel.subscribe(['a', 'b', 'd'], spy, { batch: true });
-                    spy.should.not.have.been.called;
-
-                    clock.tick(201);
-
-                    var spy2 = sinon.spy();
-                    channel.subscribe(['e'], spy2, { batch: true });
-                    spy.should.not.have.been.called;
-                    spy2.should.not.have.been.called;
-
-                    channel.startAutoFetch();
-                    clock.tick(201);
-
-                    spy.should.have.been.calledOnce;
-                    spy2.should.have.been.calledOnce;
-
-                    var spy3 = sinon.spy();
-                    channel.subscribe(['f'], spy3, { batch: true });
-                    clock.tick(201);
-                    spy3.should.have.been.calledOnce;
                 });
             });
         });

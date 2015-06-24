@@ -171,6 +171,9 @@ module.exports = function (options) {
             canStartAutoFetch = true;
             this.updateAndCheckForRefresh();
         },
+        stopAutoFetch: function () {
+            canStartAutoFetch = false;
+        },
 
         /**
          * Check and notify all listeners
