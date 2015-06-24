@@ -501,8 +501,7 @@
                         vent: {},
                         run: mockRun,
                         autoFetch: {
-                            debounce: 200,
-                            items: false
+                            debounce: 200
                         }
                     });
 
@@ -519,8 +518,7 @@
                         vent: {},
                         run: mockRun,
                         autoFetch: {
-                            debounce: 200,
-                            items: false
+                            debounce: 200
                         }
                     });
 
@@ -544,7 +542,6 @@
                     spy2.should.have.been.calledOnce;
                 });
             });
-
         });
     });
 }());
