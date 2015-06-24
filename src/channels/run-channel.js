@@ -55,7 +55,9 @@ module.exports = function (options) {
     this.operations = new OperationsChannel($.extend(true, {}, config.run.operations, { run: rs }));
 
     var me = this;
-    this.operations.subscribe('*', function (data) {
+    var debouncedRefresh = _.debounce(function (data) {
         me.variables.refresh.call(me.variables, null, true);
-    });
+    }, 200, { leading: true });
+
+    this.operations.subscribe('*', debouncedRefresh);
 };
