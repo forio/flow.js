@@ -51,7 +51,6 @@ module.exports = function (options) {
             }
 
             if (!shouldSilence || force === true) {
-                $(vent).trigger('dirty', { opn: executedOpns, response: response });
                 var me = this;
                 _.each(executedOpns, function (opn) {
                     me.notify(opn, response);
@@ -67,7 +66,7 @@ module.exports = function (options) {
             _.each(listeners, function (listener) {
                 var target = listener.target;
                 if (_.isFunction(target)) {
-                    target.call(null, params);
+                    target.call(null, params, value, operation);
                 } else if (target.trigger) {
                     listener.target.trigger(config.events.react, params);
                 } else {

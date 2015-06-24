@@ -55,7 +55,7 @@ module.exports = function (options) {
     this.operations = new OperationsChannel($.extend(true, {}, config.run.operations, { run: rs, vent: this }));
 
     var me = this;
-    $(this).off('dirty').on('dirty', function (evt, data) {
+    this.operations.subscribe('*', function (data) {
         me.variables.refresh.call(me.variables, null, true);
     });
 };

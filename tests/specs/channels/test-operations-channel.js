@@ -136,55 +136,50 @@
         });
 
         describe('#refresh', function () {
-            var vent = $({});
-
-            afterEach(function () {
-                $(vent).off('dirty');
-            });
-
             it('should call if no rules are specified', function () {
-                var channel = new Channel({ vent: vent, run: mockRun });
+                var channel = new Channel({ run: mockRun });
                 var spy = sinon.spy();
-                $(vent).on('dirty', spy);
+                channel.subscribe('*', spy);
 
                 channel.publish('step', 1);
 
                 spy.should.have.been.calledOnce;
-                spy.getCall(0).args[1].should.eql({ opn: ['step'], response: mockOperationsResponse });
+                spy.getCall(0).args[1].should.eql(mockOperationsResponse);
+                spy.getCall(0).args[2].should.eql('step');
             });
 
 
             it('should not call refresh if silent is true', function () {
-                var channel = new Channel({ vent: vent, run: mockRun, silent: true });
+                var channel = new Channel({ run: mockRun, silent: true });
                 var spy = sinon.spy();
-                $(vent).on('dirty', spy);
+                channel.subscribe('*', spy);
 
                 channel.publish('step', 1);
                 spy.should.not.have.been.called;
             });
 
             it('should call refresh if silent is true', function () {
-                var channel = new Channel({ vent: vent, run: mockRun, silent: false });
+                var channel = new Channel({ run: mockRun, silent: false });
                 var spy = sinon.spy();
-                $(vent).on('dirty', spy);
+                channel.subscribe('*', spy);
 
                 channel.publish('step', 1);
                 spy.should.have.been.calledOnce;
             });
 
             it('should not call refresh if exceptions are noted', function () {
-                var channel = new Channel({ vent: vent, run: mockRun, silent: ['step'] });
+                var channel = new Channel({ run: mockRun, silent: ['step'] });
                 var spy = sinon.spy();
-                $(vent).on('dirty', spy);
+                channel.subscribe('*', spy);
 
                 channel.publish('step', 1);
                 spy.should.not.have.been.called;
             });
 
             it('should refresh when the force flag is sent regardless of options', function () {
-                var channel = new Channel({ vent: vent, run: mockRun, silent: ['step'] });
+                var channel = new Channel({ run: mockRun, silent: ['step'] });
                 var spy = sinon.spy();
-                $(vent).on('dirty', spy);
+                channel.subscribe('*', spy);
 
                 channel.publish('step', 1);
                 spy.should.not.have.been.called;
@@ -194,11 +189,11 @@
             });
 
             it('should treat \'except\' as a whitelist for single-item arrays', function () {
-                var channel = new Channel({ vent: vent, run: mockRun, silent: {
+                var channel = new Channel({ run: mockRun, silent: {
                     except: ['step']
                 } });
                 var spy = sinon.spy();
-                $(vent).on('dirty', spy);
+                channel.subscribe('*', spy);
 
                 channel.publish('step', 1);
                 spy.should.have.been.calledOnce;
