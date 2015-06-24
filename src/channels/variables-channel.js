@@ -14,13 +14,15 @@ module.exports = function (options) {
         silent: false,
 
         autoFetch: {
-            debounce: 200
+            debounce: 200,
+            startOnLoad: true
         }
     };
 
     var channelOptions = $.extend(true, {}, defaults, options);
     var vs = channelOptions.run.variables();
     var vent = channelOptions.vent;
+    var canStartAutoFetch = channelOptions.autoFetch.startOnLoad;
 
     var currentData = {};
 
@@ -111,9 +113,11 @@ module.exports = function (options) {
 
         updateAndCheckForRefresh: function (topics) {
             var autoFetch = channelOptions.autoFetch;
-            this.unfetched = _.uniq(this.unfetched.concat(topics));
+            if (topics) {
+                this.unfetched = _.uniq(this.unfetched.concat(topics));
+            }
 
-            if (!autoFetch) {
+            if (!autoFetch || !this.unfetched.length || !canStartAutoFetch) {
                 return false;
             }
             if (!this.debouncedFetch) {
@@ -161,6 +165,11 @@ module.exports = function (options) {
             } else {
                 return getVariables(variablesList);
             }
+        },
+
+        startAutoFetch: function () {
+            canStartAutoFetch = true;
+            this.updateAndCheckForRefresh();
         },
 
         /**

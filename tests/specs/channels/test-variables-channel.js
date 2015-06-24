@@ -542,6 +542,59 @@
                     spy2.should.have.been.calledOnce;
                 });
             });
+            describe('autoFetch.startOnLoad', function () {
+                it('should not start fetching until startOnLoad is set', function () {
+                    var channel = new Channel({
+                        vent: {},
+                        run: mockRun,
+                        autoFetch: {
+                            within: 200,
+                            startOnLoad: false
+                        }
+                    });
+
+                    var spy = sinon.spy();
+                    channel.subscribe(['a', 'b', 'd'], spy, { batch: true });
+                    spy.should.not.have.been.called;
+
+                    clock.tick(201);
+                    spy.should.not.have.been.called;
+                });
+
+                it('should start auto-fetching after #startAutoFetch is called', function () {
+                    var vent = 'div';
+                    var channel = new Channel({
+                        vent: vent,
+                        run: mockRun,
+                        autoFetch: {
+                            within: 200,
+                            startOnLoad: false
+                        }
+                    });
+
+                    var spy = sinon.spy();
+                    channel.subscribe(['a', 'b', 'd'], spy, { batch: true });
+                    spy.should.not.have.been.called;
+
+                    clock.tick(201);
+
+                    var spy2 = sinon.spy();
+                    channel.subscribe(['e'], spy2, { batch: true });
+                    spy.should.not.have.been.called;
+                    spy2.should.not.have.been.called;
+
+                    channel.startAutoFetch();
+                    clock.tick(201);
+
+                    spy.should.have.been.calledOnce;
+                    spy2.should.have.been.calledOnce;
+
+                    var spy3 = sinon.spy();
+                    channel.subscribe(['f'], spy3, { batch: true });
+                    clock.tick(201);
+                    spy3.should.have.been.calledOnce;
+                });
+            });
         });
     });
 }());
