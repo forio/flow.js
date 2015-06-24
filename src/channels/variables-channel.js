@@ -21,7 +21,6 @@ module.exports = function (options) {
 
     var channelOptions = $.extend(true, {}, defaults, options);
     var vs = channelOptions.run.variables();
-    var vent = channelOptions.vent;
     var canStartAutoFetch = channelOptions.autoFetch.startOnLoad;
 
     var currentData = {};

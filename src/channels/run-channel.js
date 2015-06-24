@@ -51,8 +51,8 @@ module.exports = function (options) {
     };
 
     this.run = rs;
-    this.variables = new VarsChannel($.extend(true, {}, config.run.variables, { run: rs, vent: this }));
-    this.operations = new OperationsChannel($.extend(true, {}, config.run.operations, { run: rs, vent: this }));
+    this.variables = new VarsChannel($.extend(true, {}, config.run.variables, { run: rs }));
+    this.operations = new OperationsChannel($.extend(true, {}, config.run.operations, { run: rs }));
 
     var me = this;
     this.operations.subscribe('*', function (data) {

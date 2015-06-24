@@ -16,7 +16,6 @@ module.exports = function (options) {
 
     var channelOptions = $.extend(true, {}, defaults, options);
     var run = channelOptions.run;
-    var vent = channelOptions.vent;
 
     var publicAPI = {
         //for testing
