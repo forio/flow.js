@@ -26,6 +26,12 @@ module.exports = function (options) {
 
         listenerMap: {},
 
+        getSubscribers: function (topic) {
+            var topicSubscribers = this.listenerMap[topic] || [];
+            var globalSubscribers = this.listenerMap['*'] || [];
+            return topicSubscribers.concat(globalSubscribers);
+        },
+
         //Check for updates
         /**
          * Triggers update on sibling variables channel
@@ -54,7 +60,7 @@ module.exports = function (options) {
         },
 
         notify: function (operation, value) {
-            var listeners = this.listenerMap[operation];
+            var listeners = this.getSubscribers(operation);
             var params = {};
             params[operation] = value;
 

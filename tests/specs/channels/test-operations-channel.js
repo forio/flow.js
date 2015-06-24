@@ -244,6 +244,15 @@
                    cb.should.have.been.calledWith({ step: mockOperationsResponse });
                });
             });
+
+            it('should allow subscribing to all operations with a wildcard', function () {
+                var cb = sinon.spy();
+                channel.subscribe('*', cb);
+
+                channel.publish('step', 32);
+                cb.should.have.been.called.calledOnce;
+                cb.should.have.been.calledWith({ step: mockOperationsResponse });
+            });
         });
 
 
