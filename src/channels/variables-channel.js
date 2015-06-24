@@ -15,7 +15,7 @@ module.exports = function (options) {
 
         autoFetch: {
             debounce: 200,
-            startOnLoad: false
+            startOnLoad: true
         }
     };
 
@@ -315,8 +315,4 @@ module.exports = function (options) {
     };
 
     $.extend(this, publicAPI);
-    var me = this;
-    $(vent).off('dirty').on('dirty', function (evt, data) {
-        me.refresh.call(me, null, true);
-    });
 };

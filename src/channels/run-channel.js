@@ -53,4 +53,9 @@ module.exports = function (options) {
     this.run = rs;
     this.variables = new VarsChannel($.extend(true, {}, config.run.variables, { run: rs, vent: this }));
     this.operations = new OperationsChannel($.extend(true, {}, config.run.operations, { run: rs, vent: this }));
+
+    var me = this;
+    $(this).off('dirty').on('dirty', function (evt, data) {
+        me.variables.refresh.call(me.variables, null, true);
+    });
 };

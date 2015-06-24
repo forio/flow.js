@@ -2,7 +2,7 @@
 module.exports = (function () {
     var Flow = require('src/flow');
     describe('Flow Epicenter integration', function () {
-        var server, channelOpts, $elWithoutInit;
+        var server, channelOpts, $elWithoutInit, $elWithInit;
         before(function () {
             server = sinon.fakeServer.create();
 
@@ -41,6 +41,12 @@ module.exports = (function () {
                 '   <input type="text" data-f-bind="price" />',
                 '</div>'
             ].join(''));
+
+            $elWithInit = $([
+                '<div data-f-on-init="start">',
+                '   <input type="text" data-f-bind="price" />',
+                '</div>'
+            ]);
         });
 
         var cookey;
@@ -76,8 +82,6 @@ module.exports = (function () {
         });
 
         it('should create a new run on initialize', function () {
-            // var fakeRunService = F.service.Run();
-
             Flow.initialize({
                 channel: channelOpts
             });
@@ -144,7 +148,6 @@ module.exports = (function () {
                 $elWithoutInit.find(':text').val('34').trigger('change');
 
                 server.respond();
-                console.log(_.pluck(server.requests, 'method'));
                 server.requests.length.should.equal(3); //POST, GET, PATCH
             });
         });
@@ -188,7 +191,7 @@ module.exports = (function () {
             });
 
             it('should not fetch variables if there is an init operation', function () {
-                var $elWithoutInit = $([
+                var $elWithInit = $([
                 '<div data-f-on-init="stuff">',
                 '   <input type="text" data-f-bind="price" />',
                 '   <span data-f-bind="price"> X </span>',
@@ -198,7 +201,7 @@ module.exports = (function () {
                 Flow.initialize({
                     channel: $.extend(true, {}, channelOpts),
                     dom: {
-                        root: $elWithoutInit
+                        root: $elWithInit
                     }
                 });
 
