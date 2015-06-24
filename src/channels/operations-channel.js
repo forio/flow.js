@@ -108,7 +108,6 @@ module.exports = function (options) {
             // console.log('operations subscribe', operations, subscriber);
             operations = [].concat(operations);
             //use jquery to make event sink
-            //TODO: subscriber can be a function
             if (!subscriber.on && !_.isFunction(subscriber)) {
                 subscriber = $(subscriber);
             }

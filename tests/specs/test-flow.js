@@ -193,7 +193,6 @@ module.exports = (function () {
             it('should not fetch variables if there is an init operation', function () {
                 var $elWithInit = $([
                 '<div data-f-on-init="stuff">',
-                '   <input type="text" data-f-bind="price" />',
                 '   <span data-f-bind="price"> X </span>',
                 '</div>'].join(''));
                 server.requests = [];

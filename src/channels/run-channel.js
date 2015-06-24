@@ -57,6 +57,9 @@ module.exports = function (options) {
     var me = this;
     var debouncedRefresh = _.debounce(function (data) {
         me.variables.refresh.call(me.variables, null, true);
+        if (config.run.variables.autoFetch !== false) {
+            me.variables.startAutoFetch();
+        }
     }, 200, { leading: true });
 
     this.operations.subscribe('*', debouncedRefresh);

@@ -175,6 +175,7 @@ module.exports = function (options) {
             canStartAutoFetch = true;
             this.updateAndCheckForRefresh();
         },
+
         stopAutoFetch: function () {
             canStartAutoFetch = false;
         },
@@ -201,8 +202,9 @@ module.exports = function (options) {
             }
 
             var variables = this.getAllTopics();
+            me.unfetched = [];
+
             return this.fetch(variables).then(function (changeSet) {
-                me.unfetched = [];
                 $.extend(currentData, changeSet);
                 me.notify(changeSet);
             });
