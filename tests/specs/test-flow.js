@@ -2,7 +2,7 @@
 module.exports = (function () {
     var Flow = require('src/flow');
     describe('Flow Epicenter integration', function () {
-        var server, channelOpts, $el, rand;
+        var server, channelOpts, $elWithoutInit;
         before(function () {
             server = sinon.fakeServer.create();
 
@@ -36,10 +36,9 @@ module.exports = (function () {
             });
             server.autoRespond = true;
 
-            $el = $([
+            $elWithoutInit = $([
                 '<div>',
                 '   <input type="text" data-f-bind="price" />',
-                '   <span data-f-bind="price"> X </span>',
                 '</div>'
             ].join(''));
         });
@@ -53,7 +52,12 @@ module.exports = (function () {
                 run: {
                     account: 'flow',
                     project: 'test',
-                    model: 'model.vmf'
+                    model: 'model.vmf',
+                    variables: {
+                        autoFetch: {
+                            debounce: 0
+                        }
+                    }
                 }
             };
         });
@@ -95,11 +99,11 @@ module.exports = (function () {
                 Flow.initialize({
                     channel: channelOpts,
                     dom: {
-                        root: $el
+                        root: $elWithoutInit
                     }
                 });
 
-                $el.find(':text').val('32').trigger('change');
+                $elWithoutInit.find(':text').val('32').trigger('change');
                 server.respond();
                 var req = server.requests[server.requests.length - 1];
                 req.method.toUpperCase().should.equal('PATCH');
@@ -112,11 +116,11 @@ module.exports = (function () {
                 Flow.initialize({
                     channel: channelOpts,
                     dom: {
-                        root: $el
+                        root: $elWithoutInit
                     }
                 });
                 server.respond();
-                $el.find(':text').val('33').trigger('change');
+                $elWithoutInit.find(':text').val('33').trigger('change');
                 server.respond();
                 server.respond();
 
@@ -134,12 +138,13 @@ module.exports = (function () {
                         }
                     }, channelOpts),
                     dom: {
-                        root: $el
+                        root: $elWithoutInit
                     }
                 });
-                $el.find(':text').val('34').trigger('change');
+                $elWithoutInit.find(':text').val('34').trigger('change');
 
                 server.respond();
+                console.log(_.pluck(server.requests, 'method'));
                 server.requests.length.should.equal(3); //POST, GET, PATCH
             });
         });
@@ -149,7 +154,7 @@ module.exports = (function () {
                 Flow.initialize({
                     channel: $.extend(true, {}, channelOpts),
                     dom: {
-                        root: $el
+                        root: $elWithoutInit
                     }
                 });
 
@@ -171,7 +176,7 @@ module.exports = (function () {
                         }
                     }, channelOpts),
                     dom: {
-                        root: $el
+                        root: $elWithoutInit
                     }
                 });
 
@@ -183,7 +188,7 @@ module.exports = (function () {
             });
 
             it('should not fetch variables if there is an init operation', function () {
-                var $el = $([
+                var $elWithoutInit = $([
                 '<div data-f-on-init="stuff">',
                 '   <input type="text" data-f-bind="price" />',
                 '   <span data-f-bind="price"> X </span>',
@@ -193,7 +198,7 @@ module.exports = (function () {
                 Flow.initialize({
                     channel: $.extend(true, {}, channelOpts),
                     dom: {
-                        root: $el
+                        root: $elWithoutInit
                     }
                 });
 

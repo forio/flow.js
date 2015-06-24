@@ -563,7 +563,8 @@
                         vent: {},
                         run: mockRun,
                         autoFetch: {
-                            debounce: 200
+                            debounce: 200,
+                            startOnLoad: true
                         }
                     });
 
@@ -580,7 +581,8 @@
                         vent: {},
                         run: mockRun,
                         autoFetch: {
-                            debounce: 200
+                            debounce: 200,
+                            startOnLoad: true
                         }
                     });
 

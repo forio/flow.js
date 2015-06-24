@@ -15,7 +15,7 @@ module.exports = function (options) {
 
         autoFetch: {
             debounce: 200,
-            startOnLoad: true
+            startOnLoad: false
         }
     };
 
@@ -111,7 +111,7 @@ module.exports = function (options) {
             return innerList;
         },
 
-        updateAndCheckForRefresh: function (topics) {
+        updateAndCheckForRefresh: function (topics, options) {
             var autoFetch = channelOptions.autoFetch;
             if (topics) {
                 this.unfetched = _.uniq(this.unfetched.concat(topics));
@@ -121,13 +121,18 @@ module.exports = function (options) {
                 return false;
             }
             if (!this.debouncedFetch) {
+                var debounceOptions = $.extend(true, {}, {
+                    maxWait: autoFetch.debounce * 4,
+                    leading: false
+                }, options);
+
                 this.debouncedFetch = _.debounce(function (topics) {
                     this.fetch(this.unfetched).then(function (changed) {
                         $.extend(currentData, changed);
                         this.unfetched = [];
                         this.notify(changed);
                     }.bind(this));
-                }, autoFetch.debounce, { maxWait: autoFetch.debounce * 4 });
+                }, autoFetch.debounce, debounceOptions);
             }
 
             this.debouncedFetch(topics);
@@ -177,12 +182,12 @@ module.exports = function (options) {
 
         /**
          * Check and notify all listeners
-         * @param  {Object} changeObj key-value pairs of changed variables
+         * @param  {Object | Array} changeList key-value pairs of changed variables
          */
-        refresh: function (changeObj, force) {
+        refresh: function (changeList, force) {
             var me = this;
             var silent = channelOptions.silent;
-            var changedVariables = _.keys(changeObj);
+            var changedVariables = _.isArray(changeList) ?  changeList : _.keys(changeList);
 
             var shouldSilence = silent === true;
             if (_.isArray(silent) && changedVariables) {
@@ -312,7 +317,6 @@ module.exports = function (options) {
     $.extend(this, publicAPI);
     var me = this;
     $(vent).off('dirty').on('dirty', function (evt, data) {
-        console.log(data);
         me.refresh.call(me, null, true);
     });
 };
