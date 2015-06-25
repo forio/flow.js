@@ -13,8 +13,10 @@ module.exports = function (options) {
          */
         silent: false,
 
-        autoFetchDebounce: 200,
-        autoFetch: false
+        autoFetch: false,
+        autoFetchOptions: {
+            debounce: 200
+        }
     };
 
     var channelOptions = $.extend(true, {}, defaults, options);
@@ -116,7 +118,7 @@ module.exports = function (options) {
             }
             if (!this.debouncedFetch) {
                 var debounceOptions = $.extend(true, {}, {
-                    maxWait: channelOptions.autoFetchDebounce * 4,
+                    maxWait: channelOptions.autoFetchOptions.debounce * 4,
                     leading: false
                 }, options);
 
@@ -126,7 +128,7 @@ module.exports = function (options) {
                         this.unfetched = [];
                         this.notify(changed);
                     }.bind(this));
-                }, channelOptions.autoFetchDebounce, debounceOptions);
+                }, channelOptions.autoFetchOptions.debounce, debounceOptions);
             }
 
             this.debouncedFetch(topics);
@@ -178,7 +180,7 @@ module.exports = function (options) {
 
         /**
          * Check and notify all listeners
-         * @param  {Object | Array} changeList key-value pairs of changed variables
+         * @param  {Object | Array} Array or key-value pairs of changed variables.
          */
         refresh: function (changeList, force) {
             var me = this;
@@ -237,10 +239,10 @@ module.exports = function (options) {
         },
 
         /**
-         * Variable name & parameters to send variables API
-         * @param  {string | object} variable string or {variablename: value}
+         * Variable name & parameters to send to variables API
+         * @param  {String | Object} variable string or {variablename: value}
          * @param  {*} value (optional)   value of variable if previous arg was a string
-         * @param {object} options Supported options: {silent: Boolean}
+         * @param {Object} options Supported options: {silent: Boolean}
          * @return {$promise}
          */
         publish: function (variable, value, options) {
@@ -270,10 +272,10 @@ module.exports = function (options) {
 
         /**
          * Subscribe to changes on a channel
-         * @param  {Array|String} topics List of tasks
-         * @param  {function|object} subscriber
-         * @param  {Object} options  (Optional)
-         * @return {String}            Subscription ID
+         * @param  {Array|String} topics List of topics
+         * @param  {Function|Object} subscriber. If this is not a function, a `trigger` method is called if available, if not event is triggered on $(object).
+         * @param  {Object} options (Optional)
+         * @return {String}            Subscription ID. Use this to un-subcribe later
          */
         subscribe: function (topics, subscriber, options) {
             // console.log('subscribing', topics, subscriber);
@@ -300,12 +302,20 @@ module.exports = function (options) {
             return id;
         },
 
-
+        /**
+         * Un-subscribe from all subscriptions referenced by this token.
+         * @param  {String} token Token obtained from subscribe
+         */
         unsubscribe: function (token) {
             this.subscriptions = _.reject(this.subscriptions, function (subs) {
                 return subs.id === token;
             });
         },
+
+        /**
+         * Un-subscribe from everything.
+         * @return {[type]} [description]
+         */
         unsubscribeAll: function () {
             this.subscriptions = [];
         }

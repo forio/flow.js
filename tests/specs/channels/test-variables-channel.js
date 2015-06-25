@@ -499,7 +499,9 @@
                 var channel = new Channel({
                     run: mockRun,
                     autoFetch: false,
-                    autoFetchDebounce: 200
+                    autoFetchOptions: {
+                        debounce: 200
+                    }
                 });
 
                 var spy = sinon.spy();
@@ -531,7 +533,9 @@
                 var channel = new Channel({
                     run: mockRun,
                     autoFetch: true,
-                    autoFetchDebounce: 200
+                    autoFetchOptions: {
+                        debounce: 200
+                    }
                 });
 
                 var spy = sinon.spy();
@@ -555,7 +559,9 @@
                     var channel = new Channel({
                         run: mockRun,
                         autoFetch: true,
-                        autoFetchDebounce: 200
+                        autoFetchOptions: {
+                            debounce: 200
+                        }
                     });
 
                     var spy = sinon.spy();
@@ -570,7 +576,9 @@
                     var channel = new Channel({
                         run: mockRun,
                         autoFetch: true,
-                        autoFetchDebounce: 200
+                        autoFetchOptions: {
+                            debounce: 200
+                        }
                     });
 
                     var spy = sinon.spy();
@@ -598,7 +606,9 @@
                     var channel = new Channel({
                         run: mockRun,
                         autoFetch: false,
-                        autoFetchDebounce: 200
+                        autoFetchOptions: {
+                            debounce: 200
+                        }
                     });
 
                     var spy = sinon.spy();
