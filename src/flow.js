@@ -19,7 +19,9 @@ module.exports = {
                     operations: {
                     },
                     variables: {
-                        autoFetch: false
+                        autoFetch: {
+                            start: false
+                        }
                     }
                 }
             },
@@ -37,7 +39,7 @@ module.exports = {
         var preFetchVariables = !initFn || isInitOperationSilent;
 
         if (preFetchVariables) {
-            options.channel.run.variables.autoFetch = true;
+            options.channel.run.variables.autoFetch.start = true;
         }
 
         if (config && config.channel && (config.channel instanceof Channel)) {

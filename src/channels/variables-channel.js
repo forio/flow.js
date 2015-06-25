@@ -13,9 +13,10 @@ module.exports = function (options) {
          */
         silent: false,
 
-        autoFetch: false,
-        autoFetchOptions: {
-            debounce: 200
+        autoFetch: {
+            debounce: 200,
+            enable: true,
+            start: true
         }
     };
 
@@ -113,12 +114,12 @@ module.exports = function (options) {
             if (topics) {
                 this.unfetched = _.uniq(this.unfetched.concat(topics));
             }
-            if (!channelOptions.autoFetch || !this.unfetched.length) {
+            if (!channelOptions.autoFetch.enable || !channelOptions.autoFetch.start || !this.unfetched.length) {
                 return false;
             }
             if (!this.debouncedFetch) {
                 var debounceOptions = $.extend(true, {}, {
-                    maxWait: channelOptions.autoFetchOptions.debounce * 4,
+                    maxWait: channelOptions.autoFetch.debounce * 4,
                     leading: false
                 }, options);
 
@@ -128,7 +129,7 @@ module.exports = function (options) {
                         this.unfetched = [];
                         this.notify(changed);
                     }.bind(this));
-                }, channelOptions.autoFetchOptions.debounce, debounceOptions);
+                }, channelOptions.autoFetch.debounce, debounceOptions);
             }
 
             this.debouncedFetch(topics);
@@ -170,12 +171,12 @@ module.exports = function (options) {
         },
 
         startAutoFetch: function () {
-            channelOptions.autoFetch = true;
+            channelOptions.autoFetch.start = true;
             this.updateAndCheckForRefresh();
         },
 
         stopAutoFetch: function () {
-            channelOptions.autoFetch = false;
+            channelOptions.autoFetch.start = false;
         },
 
         /**

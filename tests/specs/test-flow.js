@@ -54,7 +54,7 @@ module.exports = (function () {
                     project: 'test',
                     model: 'model.vmf',
                     variables: {
-                        autoFetchOptions: {
+                        autoFetch: {
                             debounce: 0
                         }
                     }

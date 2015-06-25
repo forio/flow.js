@@ -498,22 +498,20 @@
             it('should start auto-fetching after #startAutoFetch is called', function () {
                 var channel = new Channel({
                     run: mockRun,
-                    autoFetch: false,
-                    autoFetchOptions: {
-                        debounce: 200
+                    autoFetch: {
+                        enable: true,
+                        debounce: 200,
+                        start: false
                     }
                 });
 
                 var spy = sinon.spy();
                 channel.subscribe(['a', 'b', 'd'], spy, { batch: true });
-                spy.should.not.have.been.called;
 
                 clock.tick(201);
 
                 var spy2 = sinon.spy();
                 channel.subscribe(['e'], spy2, { batch: true });
-                spy.should.not.have.been.called;
-                spy2.should.not.have.been.called;
 
                 channel.startAutoFetch();
                 clock.tick(201);
@@ -526,14 +524,39 @@
                 clock.tick(201);
                 spy3.should.have.been.calledOnce;
             });
+
+            it('should not start if auto-fetch is disabled', function () {
+                var channel = new Channel({
+                    run: mockRun,
+                    autoFetch: {
+                        enable: false,
+                        debounce: 200,
+                        start: false
+                    }
+                });
+
+                var spy = sinon.spy();
+                channel.subscribe(['a', 'b', 'd'], spy, { batch: true });
+
+                clock.tick(201);
+
+                var spy2 = sinon.spy();
+                channel.subscribe(['e'], spy2, { batch: true });
+
+                channel.startAutoFetch();
+                clock.tick(201);
+
+                spy.should.not.have.been.called;
+                spy2.should.not.have.been.called;
+            });
         });
 
         describe('#stopAutoFetch', function () {
             it('should not keep fetching after #stopAutoFetch is called', function () {
                 var channel = new Channel({
                     run: mockRun,
-                    autoFetch: true,
-                    autoFetchOptions: {
+                    autoFetch: {
+                        enable: true,
                         debounce: 200
                     }
                 });
@@ -558,8 +581,8 @@
                 it('should fetch within given time if everything is subscribed to at once', function () {
                     var channel = new Channel({
                         run: mockRun,
-                        autoFetch: true,
-                        autoFetchOptions: {
+                        autoFetch: {
+                            enable: true,
                             debounce: 200
                         }
                     });
@@ -575,8 +598,8 @@
                 it('should keep waiting if things are being added', function () {
                     var channel = new Channel({
                         run: mockRun,
-                        autoFetch: true,
-                        autoFetchOptions: {
+                        autoFetch: {
+                            enable: true,
                             debounce: 200
                         }
                     });
@@ -601,13 +624,31 @@
                     spy2.should.have.been.calledOnce;
                 });
             });
-            describe('autoFetch.startOnLoad', function () {
-                it('should not start fetching until startOnLoad is set', function () {
+            describe('autoFetch.start', function () {
+                it('should not start fetching until start is set', function () {
                     var channel = new Channel({
                         run: mockRun,
-                        autoFetch: false,
-                        autoFetchOptions: {
-                            debounce: 200
+                        autoFetch: {
+                            enable: true,
+                            debounce: 200,
+                            start: false
+                        }
+                    });
+
+                    var spy = sinon.spy();
+                    channel.subscribe(['a', 'b', 'd'], spy, { batch: true });
+                    spy.should.not.have.been.called;
+
+                    clock.tick(201);
+                    spy.should.not.have.been.called;
+                });
+                it('should not start fetching until enable is set', function () {
+                    var channel = new Channel({
+                        run: mockRun,
+                        autoFetch: {
+                            enable: false,
+                            debounce: 200,
+                            start: true
                         }
                     });
 
