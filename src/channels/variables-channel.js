@@ -138,6 +138,7 @@ module.exports = function (options) {
         },
 
         fetch: function (variablesList) {
+            // console.log('fetch called', variablesList);
             variablesList = [].concat(variablesList);
             var innerVariables = this.getTopicDependencies(variablesList);
             var getVariables = function (vars, interpolationMap) {

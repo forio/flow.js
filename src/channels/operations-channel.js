@@ -39,6 +39,7 @@ module.exports = function (options) {
          * @param  {boolean} force  ignore all silence options and force refresh
          */
         refresh: function (executedOpns, response, force) {
+            // console.log('Operations refresh', executedOpns);
             var silent = channelOptions.silent;
 
             var shouldSilence = silent === true;
