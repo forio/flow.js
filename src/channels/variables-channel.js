@@ -21,6 +21,8 @@ module.exports = function (options) {
     };
 
     var channelOptions = $.extend(true, {}, defaults, options);
+    this.options = channelOptions;
+
     var vs = channelOptions.run.variables();
 
     var currentData = {};
