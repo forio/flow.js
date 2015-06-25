@@ -51,6 +51,17 @@ module.exports = function (options) {
     };
 
     this.run = rs;
-    this.variables = new VarsChannel($.extend(true, {}, config.run.variables, { run: rs, vent: this }));
-    this.operations = new OperationsChannel($.extend(true, {}, config.run.operations, { run: rs, vent: this }));
+    this.variables = new VarsChannel($.extend(true, {}, config.run.variables, { run: rs }));
+    this.operations = new OperationsChannel($.extend(true, {}, config.run.operations, { run: rs }));
+
+    var me = this;
+    var debouncedRefresh = _.debounce(function (data) {
+        me.variables.refresh.call(me.variables, null, true);
+        if (config.run.variables.autoFetch !== false) {
+            // console.log('starting startAutoFetch', data);
+            me.variables.startAutoFetch();
+        }
+    }, 200, { leading: true });
+
+    this.operations.subscribe('*', debouncedRefresh);
 };

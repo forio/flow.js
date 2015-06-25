@@ -13,15 +13,12 @@ module.exports = function (options) {
          */
         silent: false,
 
-        autoFetch: {
-            within: 200,
-            items: 5
-        }
+        autoFetchDebounce: 200,
+        autoFetch: false
     };
 
     var channelOptions = $.extend(true, {}, defaults, options);
     var vs = channelOptions.run.variables();
-    var vent = channelOptions.vent;
 
     var currentData = {};
 
@@ -72,7 +69,6 @@ module.exports = function (options) {
         return op;
     };
 
-    var lastCheckTime = Date.now();
     var publicAPI = {
         //for testing
         private: {
@@ -111,30 +107,33 @@ module.exports = function (options) {
             return innerList;
         },
 
-        updateAndCheckForRefresh: function (topics) {
-            this.unfetched = _.uniq(this.unfetched.concat(topics));
-            var autoFetch = channelOptions.autoFetch;
-            if (!autoFetch) {
+        updateAndCheckForRefresh: function (topics, options) {
+            if (topics) {
+                this.unfetched = _.uniq(this.unfetched.concat(topics));
+            }
+            if (!channelOptions.autoFetch || !this.unfetched.length) {
                 return false;
             }
+            if (!this.debouncedFetch) {
+                var debounceOptions = $.extend(true, {}, {
+                    maxWait: channelOptions.autoFetchDebounce * 4,
+                    leading: false
+                }, options);
 
-            var me = this;
-            var now = Date.now();
-
-            var tooManyItems = autoFetch.items && this.unfetched.length > autoFetch.items;
-            var tooLong = autoFetch.within && ((now - lastCheckTime) > autoFetch.within);
-            if (tooLong || tooManyItems) {
-                this.fetch(this.unfetched).then(function (changed) {
-                    // console.log("fetched", now)
-                    $.extend(currentData, changed);
-                    me.unfetched = [];
-                    lastCheckTime = now;
-                    me.notify(changed);
-                });
+                this.debouncedFetch = _.debounce(function (topics) {
+                    this.fetch(this.unfetched).then(function (changed) {
+                        $.extend(currentData, changed);
+                        this.unfetched = [];
+                        this.notify(changed);
+                    }.bind(this));
+                }, channelOptions.autoFetchDebounce, debounceOptions);
             }
+
+            this.debouncedFetch(topics);
         },
 
         fetch: function (variablesList) {
+            // console.log('fetch called', variablesList);
             variablesList = [].concat(variablesList);
             var innerVariables = this.getTopicDependencies(variablesList);
             var getVariables = function (vars, interpolationMap) {
@@ -168,14 +167,23 @@ module.exports = function (options) {
             }
         },
 
+        startAutoFetch: function () {
+            channelOptions.autoFetch = true;
+            this.updateAndCheckForRefresh();
+        },
+
+        stopAutoFetch: function () {
+            channelOptions.autoFetch = false;
+        },
+
         /**
          * Check and notify all listeners
-         * @param  {Object} changeObj key-value pairs of changed variables
+         * @param  {Object | Array} changeList key-value pairs of changed variables
          */
-        refresh: function (changeObj, force) {
+        refresh: function (changeList, force) {
             var me = this;
             var silent = channelOptions.silent;
-            var changedVariables = _.keys(changeObj);
+            var changedVariables = _.isArray(changeList) ?  changeList : _.keys(changeList);
 
             var shouldSilence = silent === true;
             if (_.isArray(silent) && changedVariables) {
@@ -190,8 +198,9 @@ module.exports = function (options) {
             }
 
             var variables = this.getAllTopics();
+            me.unfetched = [];
+
             return this.fetch(variables).then(function (changeSet) {
-                me.unfetched = [];
                 $.extend(currentData, changeSet);
                 me.notify(changeSet);
             });
@@ -303,8 +312,4 @@ module.exports = function (options) {
     };
 
     $.extend(this, publicAPI);
-    var me = this;
-    $(vent).off('dirty').on('dirty', function () {
-        me.refresh.call(me, null, true);
-    });
 };

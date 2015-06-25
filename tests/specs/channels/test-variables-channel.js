@@ -6,6 +6,10 @@
     describe('Variables Channel', function () {
         var core, channel, server, mockVariables, mockRun, clock;
 
+        beforeEach(function () {
+            //Needed to make _.debounce work correctly with fakeTimers
+            _ = _.runInContext(window); // jshint ignore:line
+        });
         before(function () {
             clock = sinon.useFakeTimers();
 
@@ -53,7 +57,7 @@
                     return mockVariables;
                 }
             };
-            channel = new Channel({ vent: {}, run: mockRun });
+            channel = new Channel({ run: mockRun });
             core = channel.private;
         });
 
@@ -289,7 +293,7 @@
 
         describe('#refresh', function () {
             it('should call if no rules are specified', function () {
-                var channel = new Channel({ vent: {}, run: mockRun });
+                var channel = new Channel({ run: mockRun });
                 var modelChangeSpy = sinon.spy();
 
                 var $sink = $({ a:1 });
@@ -302,7 +306,7 @@
             });
 
             it('should not call refresh if silent is true', function () {
-                var channel = new Channel({ vent: {}, run: mockRun, silent: true });
+                var channel = new Channel({ run: mockRun, silent: true });
                 var modelChangeSpy = sinon.spy();
 
                 var $sink = $({ a:1 });
@@ -314,7 +318,7 @@
             });
 
             it('should call refresh if forced', function () {
-                var channel = new Channel({ vent: {}, run: mockRun, silent: true });
+                var channel = new Channel({ run: mockRun, silent: true });
                 var modelChangeSpy = sinon.spy();
 
                 var $sink = $({ a:1 });
@@ -330,7 +334,7 @@
 
 
             it('should call refresh if silent is false', function () {
-                var channel = new Channel({ vent: {}, run: mockRun, silent: false });
+                var channel = new Channel({ run: mockRun, silent: false });
 
                 var modelChangeSpy = sinon.spy();
 
@@ -347,7 +351,7 @@
             });
 
             it('should not call refresh if silent whitelist match', function () {
-                var channel = new Channel({ vent: {}, run: mockRun, silent: ['price'] });
+                var channel = new Channel({ run: mockRun, silent: ['price'] });
 
                 var modelChangeSpy = sinon.spy();
 
@@ -364,7 +368,7 @@
             });
 
             it('should call refresh if silent blacklist match', function () {
-                var channel = new Channel({ vent: {}, run: mockRun, silent: {
+                var channel = new Channel({ run: mockRun, silent: {
                     except: ['price']
                 } });
 
@@ -490,37 +494,68 @@
             });
         });
 
-        describe('options', function () {
-            describe('autoFetch.items', function () {
-                it('should get new values every time we have more than X many unfetched items', function () {
-                    var channel = new Channel({
-                        vent: {},
-                        run: mockRun,
-                        autoFetch: {
-                            within: false,
-                            items: 5
-                        } });
-
-                    var spy = sinon.spy();
-                    channel.subscribe(['a', 'b', 'c', 'd'], spy, { batch: true });
-
-                    spy.should.not.have.been.called;
-                    var spy2 = sinon.spy();
-                    channel.subscribe(['e', 'f'], spy2, { batch: true });
-
-                    spy.should.have.been.calledOnce;
-                    spy2.should.have.been.calledOnce;
+        describe('#startAutoFetch', function () {
+            it('should start auto-fetching after #startAutoFetch is called', function () {
+                var channel = new Channel({
+                    run: mockRun,
+                    autoFetch: false,
+                    autoFetchDebounce: 200
                 });
+
+                var spy = sinon.spy();
+                channel.subscribe(['a', 'b', 'd'], spy, { batch: true });
+                spy.should.not.have.been.called;
+
+                clock.tick(201);
+
+                var spy2 = sinon.spy();
+                channel.subscribe(['e'], spy2, { batch: true });
+                spy.should.not.have.been.called;
+                spy2.should.not.have.been.called;
+
+                channel.startAutoFetch();
+                clock.tick(201);
+
+                spy.should.have.been.calledOnce;
+                spy2.should.have.been.calledOnce;
+
+                var spy3 = sinon.spy();
+                channel.subscribe(['f'], spy3, { batch: true });
+                clock.tick(201);
+                spy3.should.have.been.calledOnce;
             });
-            describe('autoFetch.within', function () {
-                it('should fetch every X ms', function () {
+        });
+
+        describe('#stopAutoFetch', function () {
+            it('should not keep fetching after #stopAutoFetch is called', function () {
+                var channel = new Channel({
+                    run: mockRun,
+                    autoFetch: true,
+                    autoFetchDebounce: 200
+                });
+
+                var spy = sinon.spy();
+                channel.subscribe(['a', 'b', 'd'], spy, { batch: true });
+                clock.tick(201);
+                spy.should.have.been.called;
+                channel.stopAutoFetch();
+
+                var spy2 = sinon.spy();
+                channel.subscribe(['x'], spy2, { batch: true });
+
+                clock.tick(201);
+
+                spy2.should.not.have.been.called;
+
+            });
+        });
+        describe('options', function () {
+            describe('autoFetch.debounce', function () {
+                it('should fetch within given time if everything is subscribed to at once', function () {
                     var channel = new Channel({
-                        vent: {},
                         run: mockRun,
-                        autoFetch: {
-                            within: 200,
-                            items: false
-                        }
+                        autoFetch: true,
+                        autoFetchDebounce: 200
                     });
 
                     var spy = sinon.spy();
@@ -529,11 +564,49 @@
 
                     clock.tick(201);
 
+                    spy.should.have.been.calledOnce;
+                });
+                it('should keep waiting if things are being added', function () {
+                    var channel = new Channel({
+                        run: mockRun,
+                        autoFetch: true,
+                        autoFetchDebounce: 200
+                    });
+
+                    var spy = sinon.spy();
+                    channel.subscribe(['a', 'b', 'd'], spy, { batch: true });
+                    spy.should.not.have.been.called;
+
+                    clock.tick(199);
+
                     var spy2 = sinon.spy();
-                    channel.subscribe(['e'], spy2, { batch: true });
+                    channel.subscribe(['e', 'f'], spy2, { batch: true });
+
+                    clock.tick(3);
+
+                    spy.should.not.have.been.called;
+                    spy2.should.not.have.been.called;
+
+                    clock.tick(201);
 
                     spy.should.have.been.calledOnce;
                     spy2.should.have.been.calledOnce;
+                });
+            });
+            describe('autoFetch.startOnLoad', function () {
+                it('should not start fetching until startOnLoad is set', function () {
+                    var channel = new Channel({
+                        run: mockRun,
+                        autoFetch: false,
+                        autoFetchDebounce: 200
+                    });
+
+                    var spy = sinon.spy();
+                    channel.subscribe(['a', 'b', 'd'], spy, { batch: true });
+                    spy.should.not.have.been.called;
+
+                    clock.tick(201);
+                    spy.should.not.have.been.called;
                 });
             });
         });

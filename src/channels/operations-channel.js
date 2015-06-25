@@ -16,7 +16,6 @@ module.exports = function (options) {
 
     var channelOptions = $.extend(true, {}, defaults, options);
     var run = channelOptions.run;
-    var vent = channelOptions.vent;
 
     var publicAPI = {
         //for testing
@@ -26,6 +25,12 @@ module.exports = function (options) {
 
         listenerMap: {},
 
+        getSubscribers: function (topic) {
+            var topicSubscribers = this.listenerMap[topic] || [];
+            var globalSubscribers = this.listenerMap['*'] || [];
+            return topicSubscribers.concat(globalSubscribers);
+        },
+
         //Check for updates
         /**
          * Triggers update on sibling variables channel
@@ -34,6 +39,7 @@ module.exports = function (options) {
          * @param  {boolean} force  ignore all silence options and force refresh
          */
         refresh: function (executedOpns, response, force) {
+            // console.log('Operations refresh', executedOpns);
             var silent = channelOptions.silent;
 
             var shouldSilence = silent === true;
@@ -45,7 +51,6 @@ module.exports = function (options) {
             }
 
             if (!shouldSilence || force === true) {
-                $(vent).trigger('dirty', { opn: executedOpns, response: response });
                 var me = this;
                 _.each(executedOpns, function (opn) {
                     me.notify(opn, response);
@@ -54,18 +59,18 @@ module.exports = function (options) {
         },
 
         notify: function (operation, value) {
-            var listeners = this.listenerMap[operation];
+            var listeners = this.getSubscribers(operation);
             var params = {};
             params[operation] = value;
 
             _.each(listeners, function (listener) {
                 var target = listener.target;
                 if (_.isFunction(target)) {
-                    target.call(null, params);
+                    target.call(null, params, value, operation);
                 } else if (target.trigger) {
                     listener.target.trigger(config.events.react, params);
                 } else {
-                    throw new Error('Unknown listerer format for ' + operation);
+                    throw new Error('Unknown listener format for ' + operation);
                 }
             });
         },
@@ -104,7 +109,6 @@ module.exports = function (options) {
             // console.log('operations subscribe', operations, subscriber);
             operations = [].concat(operations);
             //use jquery to make event sink
-            //TODO: subscriber can be a function
             if (!subscriber.on && !_.isFunction(subscriber)) {
                 subscriber = $(subscriber);
             }
