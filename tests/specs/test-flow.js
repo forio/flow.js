@@ -208,7 +208,7 @@ module.exports = (function () {
                     server.requests[2].method.toUpperCase().should.equal('GET');
                 });
 
-                //Skipping this because the sion server is failining because of a timing issue, not sure where. Maybe in runchannel debounce?
+                //Skipping this because the sion server is failing because of a timing issue, not sure where. Maybe in runchannel debounce?
                 it.skip('should auto-fetch after initial operation', function () {
                     Flow.initialize({
                         channel: $.extend(true, {}, channelOpts),
@@ -222,6 +222,8 @@ module.exports = (function () {
                     server.requests.length.should.equal(3); //POST, POST, GET
 
                     $elWithInit.append('<span data-f-bind="sales">Y</span>');
+                    server.respond();
+
                     server.requests.length.should.equal(4); //POST, POST, GET, GET
                 });
             });
