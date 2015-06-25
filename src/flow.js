@@ -25,9 +25,7 @@ module.exports = {
             },
             dom: {
                 root: 'body',
-                plugins: {
-                    autoUpdateBindings: true
-                }
+                autoBind: true
             }
         };
 
