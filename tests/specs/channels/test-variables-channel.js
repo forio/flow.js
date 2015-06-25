@@ -57,7 +57,7 @@
                     return mockVariables;
                 }
             };
-            channel = new Channel({ vent: {}, run: mockRun });
+            channel = new Channel({ run: mockRun });
             core = channel.private;
         });
 
@@ -293,7 +293,7 @@
 
         describe('#refresh', function () {
             it('should call if no rules are specified', function () {
-                var channel = new Channel({ vent: {}, run: mockRun });
+                var channel = new Channel({ run: mockRun });
                 var modelChangeSpy = sinon.spy();
 
                 var $sink = $({ a:1 });
@@ -306,7 +306,7 @@
             });
 
             it('should not call refresh if silent is true', function () {
-                var channel = new Channel({ vent: {}, run: mockRun, silent: true });
+                var channel = new Channel({ run: mockRun, silent: true });
                 var modelChangeSpy = sinon.spy();
 
                 var $sink = $({ a:1 });
@@ -318,7 +318,7 @@
             });
 
             it('should call refresh if forced', function () {
-                var channel = new Channel({ vent: {}, run: mockRun, silent: true });
+                var channel = new Channel({ run: mockRun, silent: true });
                 var modelChangeSpy = sinon.spy();
 
                 var $sink = $({ a:1 });
@@ -334,7 +334,7 @@
 
 
             it('should call refresh if silent is false', function () {
-                var channel = new Channel({ vent: {}, run: mockRun, silent: false });
+                var channel = new Channel({ run: mockRun, silent: false });
 
                 var modelChangeSpy = sinon.spy();
 
@@ -351,7 +351,7 @@
             });
 
             it('should not call refresh if silent whitelist match', function () {
-                var channel = new Channel({ vent: {}, run: mockRun, silent: ['price'] });
+                var channel = new Channel({ run: mockRun, silent: ['price'] });
 
                 var modelChangeSpy = sinon.spy();
 
@@ -368,7 +368,7 @@
             });
 
             it('should call refresh if silent blacklist match', function () {
-                var channel = new Channel({ vent: {}, run: mockRun, silent: {
+                var channel = new Channel({ run: mockRun, silent: {
                     except: ['price']
                 } });
 
@@ -496,14 +496,10 @@
 
         describe('#startAutoFetch', function () {
             it('should start auto-fetching after #startAutoFetch is called', function () {
-                var vent = 'div';
                 var channel = new Channel({
-                    vent: vent,
                     run: mockRun,
-                    autoFetch: {
-                        within: 200,
-                        startOnLoad: false
-                    }
+                    autoFetch: false,
+                    autoFetchDebounce: 200
                 });
 
                 var spy = sinon.spy();
@@ -533,12 +529,9 @@
         describe('#stopAutoFetch', function () {
             it('should not keep fetching after #stopAutoFetch is called', function () {
                 var channel = new Channel({
-                    vent: {},
                     run: mockRun,
-                    autoFetch: {
-                        within: 200,
-                        startOnLoad: true
-                    }
+                    autoFetch: true,
+                    autoFetchDebounce: 200
                 });
 
                 var spy = sinon.spy();
@@ -560,12 +553,9 @@
             describe('autoFetch.debounce', function () {
                 it('should fetch within given time if everything is subscribed to at once', function () {
                     var channel = new Channel({
-                        vent: {},
                         run: mockRun,
-                        autoFetch: {
-                            debounce: 200,
-                            startOnLoad: true
-                        }
+                        autoFetch: true,
+                        autoFetchDebounce: 200
                     });
 
                     var spy = sinon.spy();
@@ -578,12 +568,9 @@
                 });
                 it('should keep waiting if things are being added', function () {
                     var channel = new Channel({
-                        vent: {},
                         run: mockRun,
-                        autoFetch: {
-                            debounce: 200,
-                            startOnLoad: true
-                        }
+                        autoFetch: true,
+                        autoFetchDebounce: 200
                     });
 
                     var spy = sinon.spy();
@@ -609,12 +596,9 @@
             describe('autoFetch.startOnLoad', function () {
                 it('should not start fetching until startOnLoad is set', function () {
                     var channel = new Channel({
-                        vent: {},
                         run: mockRun,
-                        autoFetch: {
-                            within: 200,
-                            startOnLoad: false
-                        }
+                        autoFetch: false,
+                        autoFetchDebounce: 200
                     });
 
                     var spy = sinon.spy();

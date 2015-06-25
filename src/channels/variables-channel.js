@@ -13,15 +13,12 @@ module.exports = function (options) {
          */
         silent: false,
 
-        autoFetch: {
-            debounce: 200,
-            startOnLoad: true
-        }
+        autoFetchDebounce: 200,
+        autoFetch: false
     };
 
     var channelOptions = $.extend(true, {}, defaults, options);
     var vs = channelOptions.run.variables();
-    var canStartAutoFetch = channelOptions.autoFetch.startOnLoad;
 
     var currentData = {};
 
@@ -111,17 +108,15 @@ module.exports = function (options) {
         },
 
         updateAndCheckForRefresh: function (topics, options) {
-            var autoFetch = channelOptions.autoFetch;
             if (topics) {
                 this.unfetched = _.uniq(this.unfetched.concat(topics));
             }
-
-            if (!autoFetch || !this.unfetched.length || !canStartAutoFetch) {
+            if (!channelOptions.autoFetch || !this.unfetched.length) {
                 return false;
             }
             if (!this.debouncedFetch) {
                 var debounceOptions = $.extend(true, {}, {
-                    maxWait: autoFetch.debounce * 4,
+                    maxWait: channelOptions.autoFetchDebounce * 4,
                     leading: false
                 }, options);
 
@@ -131,7 +126,7 @@ module.exports = function (options) {
                         this.unfetched = [];
                         this.notify(changed);
                     }.bind(this));
-                }, autoFetch.debounce, debounceOptions);
+                }, channelOptions.autoFetchDebounce, debounceOptions);
             }
 
             this.debouncedFetch(topics);
@@ -173,12 +168,12 @@ module.exports = function (options) {
         },
 
         startAutoFetch: function () {
-            canStartAutoFetch = true;
+            channelOptions.autoFetch = true;
             this.updateAndCheckForRefresh();
         },
 
         stopAutoFetch: function () {
-            canStartAutoFetch = false;
+            channelOptions.autoFetch = false;
         },
 
         /**
