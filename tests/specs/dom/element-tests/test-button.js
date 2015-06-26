@@ -52,10 +52,9 @@ module.exports = (function () {
                     { name: 'reset', params: [] }], serial: true });
             });
 
-            //FIXME: this work won't yet
-            it.skip('should call operation with double params with no, object', function () {
+            it('should call operation with double params with no, object', function () {
                 var channel = utils.createDummyChannel();
-                var $node = utils.initWithNode('<input type="button" data-f-on-click="step(1, {\"hello\": \'world\' })"/>', domManager, channel);
+                var $node = utils.initWithNode('<input type="button" data-f-on-click=\'step(1, {\"hello\": \"world\" })\'/>', domManager, channel);
 
                 $node.trigger('click');
 

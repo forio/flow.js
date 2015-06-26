@@ -206,8 +206,17 @@ module.exports = (function () {
 
         initialize: function (options) {
             var defaults = {
+                /**
+                 * Root of the element for flow to manage from.
+                 * @type {String} jQuery selector
+                 */
                 root: 'body',
                 channel: null,
+
+                /**
+                 * Any variables added to the dom after Flow.initialize has been called will be automatically parsed and subscriptions added to channels. Note, this does not work in IE versions < 11
+                 * @type {Boolean}
+                 */
                 autoBind: true
             };
             $.extend(defaults, options);

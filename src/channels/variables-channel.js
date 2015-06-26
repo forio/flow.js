@@ -24,7 +24,7 @@ module.exports = function (options) {
              */
             enable: true,
             /**
-             * If auto-fetch is enabled control when to start fetching. Typically you'd want to start right-away, but if you want to wait till something else happens set to false and control using the #startAutoFetch function
+             * If auto-fetch is enabled control when to start fetching. Typically you'd want to start right-away, but if you want to wait till something else happens (like an operation or user action) set to false and control using the #startAutoFetch function
              * @type {Boolean}
              */
             start: true,
