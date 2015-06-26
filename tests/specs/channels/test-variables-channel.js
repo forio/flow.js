@@ -94,38 +94,38 @@
                     var result = core.interpolate(['price[<time>]'], { time: 1 });
                     var interpolated = result.interpolated;
 
-                    interpolated.should.eql(['price[1]']);
+                    interpolated.should.eql({ 'price[<time>]': 'price[1]' });
                 });
                 it('should interpolate multiple variables', function () {
                     var result = core.interpolate(['price[<time>,2,<step>]'], { time: 1, step: 4 });
                     var interpolated = result.interpolated;
 
-                    interpolated.should.eql(['price[1,2,4]']);
+                    interpolated.should.eql({ 'price[<time>,2,<step>]': 'price[1,2,4]' });
                 });
                 it('should not interpolate if it finds nothing', function () {
                     var result = core.interpolate(['price[<time>,2,<step>]'], {});
                     var interpolated = result.interpolated;
 
-                    interpolated.should.eql(['price[<time>,2,<step>]']);
+                    interpolated.should.eql({ 'price[<time>,2,<step>]': 'price[<time>,2,<step>]' });
                 });
 
                 it('should not interpolate if there\'s nothing to interpolate', function () {
                     var result = core.interpolate(['price[<time>]', 'sales[1]', 'cost[<x>]'], { time: 1 });
                     var interpolated = result.interpolated;
 
-                    interpolated.should.eql(['price[1]',  'sales[1]', 'cost[<x>]']);
+                    interpolated.should.eql({ 'price[<time>]': 'price[1]',  'sales[1]': 'sales[1]', 'cost[<x>]': 'cost[<x>]' });
                 });
                 it('should not do substrings', function () {
                     var result = core.interpolate(['price[<time>,2,<times>]'], { time: 1, times: 2 });
                     var interpolated = result.interpolated;
 
-                    interpolated.should.eql(['price[1,2,2]']);
+                    interpolated.should.eql({ 'price[<time>,2,<times>]': 'price[1,2,2]' });
                 });
                 it('should do multiples', function () {
                     var result = core.interpolate(['price[<time>,2,<times>]', 'sales[<time>]'], { time: 1, times: 2 });
                     var interpolated = result.interpolated;
 
-                    interpolated.should.eql(['price[1,2,2]', 'sales[1]']);
+                    interpolated.should.eql({ 'price[<time>,2,<times>]': 'price[1,2,2]', 'sales[<time>]': 'sales[1]' });
                 });
             });
             describe('.interpolationMap', function () {
@@ -263,10 +263,12 @@
 
             });
             //Skipping till we figure out a way to set the interpolation map
-            it.skip('should interpolate variables', function () {
-                // channel.interpolationMap.time = 1;
+            it('should interpolate variables', function () {
+                channel.private.currentData.time = 1;
                 channel.publish({ 'price[<time>]': 1 });
                 mockVariables.save.should.have.been.calledWith({ 'price[1]': 1 });
+                channel.private.currentData.time = 1;
+
 
             });
             it('should call refresh after publish', function () {

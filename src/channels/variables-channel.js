@@ -45,12 +45,12 @@ module.exports = function (options) {
         //{price[1]: price[<time>]}
         var interpolationMap = {};
         //{price[1]: 1}
-        var interpolated = [];
+        var interpolated = {};
 
         _.each(variablesToInterpolate, function (outerVariable) {
             var inner = getInnerVariables(outerVariable);
+            var originalOuter = outerVariable;
             if (inner && inner.length) {
-                var originalOuter = outerVariable;
                 $.each(inner, function (index, innerVariable) {
                     var thisval = values[innerVariable];
                     if (thisval !== null && thisval !== undefined) {
@@ -64,7 +64,7 @@ module.exports = function (options) {
                 });
                 interpolationMap[outerVariable] = (interpolationMap[outerVariable]) ? [originalOuter].concat(interpolationMap[outerVariable]) : originalOuter;
             }
-            interpolated.push(outerVariable);
+            interpolated[originalOuter] = outerVariable;
         });
 
         var op = {
@@ -79,6 +79,7 @@ module.exports = function (options) {
         private: {
             getInnerVariables: getInnerVariables,
             interpolate: interpolate,
+            currentData: currentData,
             options: channelOptions
         },
 
@@ -165,7 +166,7 @@ module.exports = function (options) {
                     //console.log('inner', innerVariables);
                     $.extend(currentData, innerVariables);
                     var ip =  interpolate(variablesList, innerVariables);
-                    return getVariables(ip.interpolated, ip.interpolationMap);
+                    return getVariables(_.values(ip.interpolated), ip.interpolationMap);
                 });
             } else {
                 return getVariables(variablesList);
@@ -261,7 +262,7 @@ module.exports = function (options) {
 
             var toSave = {};
             _.each(attrs, function (val, attr) {
-               var key = (it.interpolationMap[attr]) ? it.interpolationMap[attr] : attr;
+               var key = (it.interpolated[attr]) ? it.interpolated[attr] : attr;
                toSave[key] = val;
             });
             var me = this;
