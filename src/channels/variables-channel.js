@@ -13,10 +13,27 @@ module.exports = function (options) {
          */
         silent: false,
 
+        /**
+         * Allows you to auto-fetch variables from the API as they're being subscribed. If this is set to enabled: false you'll need to explicitly call #refresh to get data and notify your listeners
+         * @type {Object}
+         */
         autoFetch: {
-            debounce: 200,
+            /**
+             * Enable auto-fetch behavior. If set to false during instantiation there's no way to enable this again.
+             * @type {Boolean}
+             */
             enable: true,
-            start: true
+            /**
+             * If auto-fetch is enabled control when to start fetching. Typically you'd want to start right-away, but if you want to wait till something else happens set to false and control using the #startAutoFetch function
+             * @type {Boolean}
+             */
+            start: true,
+
+            /**
+             * Control time to wait between calls to #subscribe before calling #fetch. See http://drupalmotion.com/article/debounce-and-throttle-visual-explanation for an explanation of how debouncing works
+             * @type {Number} Milliseconds to wait
+             */
+            debounce: 200
         }
     };
 
