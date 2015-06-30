@@ -68,13 +68,13 @@ var converterManager = {
      *
      *      Flow.dom.converters.register('max', function (value) {
      *          return _.max(value);
-     *      });
+     *      }, true);
      *
      *      Flow.dom.converters.register({
      *          alias: 'min',
      *          parse: $.noop,
      *          convert: function (value) { return _.min(value); }
-     *      });
+     *      }, true);
      * 
      *      <div>
      *          The largest sales you had was <span data-f-bind="salesByYear | max | $#,###"></span>.

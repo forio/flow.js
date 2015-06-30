@@ -6,7 +6,7 @@ isPage: true
 
 ##Flow.js: Overview
 
-Flow.js provides a data binding between variables and operations in your project's model and HTML elements in your project's user interface. In this way, Flow.js decouples the model from its interface. This is beneficial as a general design principle, and can be especially helpful for larger development teams where the UI developers and the modelers are different people. If you are comfortable writing HTML and basic JavaScript, using Flow.js can save you significant development time.
+Flow.js provides data bindings between variables and operations in your project's model and HTML elements in your project's user interface. In this way, Flow.js decouples the model from its interface. This is beneficial as a general design principle, and can be especially helpful for larger development teams where the UI developers and the modelers are different people. If you are comfortable writing HTML and basic JavaScript, using Flow.js can save you significant development time.
 
 In particular, Flow.js provides a channel between the variables and operations in your model and the HTML elements in your interface. You simply reference model variables directly within HTML elements, and these values automatically update as the model changes; Flow.js takes care of all of the details.
 
@@ -61,7 +61,7 @@ Learn more about advanced topics:
 
 **Notes:**
 
-The `Flow.initialize()` call optionally takes an argument, `channel`, which includes a `run`.
+The `Flow.initialize()` call optionally takes two argument: `channel`, which includes a `run`, and `dom`.
 
 The `run` is an object that includes:
 	
@@ -88,9 +88,7 @@ See more details on [customizing the Flow.initialize() method](./generated/flow-
 <a name="templates"></a>
 ####Working with Templates
 
-Several common JavaScript libraries embed a simple template engine, including both `lodash` and `underscore`. Flow.js [already requires](#using_in_project) the `lodash.js` library as one of its dependencies. You can replace `lodash.js` with `underscore.js` if you like. 
-
-Then, start using templates in your project's user interface.
+Several common JavaScript libraries embed a simple template engine, including `lodash.js`, which Flow.js [already requires](#using_in_project)as one of its dependencies. You can use this templating in your project's user interface.
 
 Some basic examples are [adding variables to an enclosing tag](./generated/dom/attributes/binds/default-bind-attr/) and [working with array variables](./generated/dom/attributes/foreach/default-foreach-attr/):
 
@@ -113,7 +111,7 @@ Here are a few additional examples to get you started:
 	You have <strong data-f-bind="Time"><%= 2020 - value %></strong> years remaining in your simulation.
 
 
-	<!-- use templates to display particular content
+	<!-- use templates to display dynamic content
 			this is particularly useful for multiplayer games
 			safe for Chrome, Firefox, Safari, and IE11+ -->
 	

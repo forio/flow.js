@@ -1,7 +1,7 @@
 /**
- * ##Call Operation at User Request
+ * ##Call Operation in Response to User Action
  * 
- * Many models call particular operations based on end user request, such as clicking a button or submitting a form.
+ * Many models call particular operations in response to end user actions, such as clicking a button or submitting a form.
  *
  * ####data-f-on-event
  *
@@ -11,7 +11,7 @@
  * 
  *      <button data-f-on-click="reset">Reset</button>
  *
- *      <button data-f-on-click="step(1)">Advance One Step</button> 
+ *      <button data-f-on-click="step(1)">Advance One Step</button>
  *
  */
 

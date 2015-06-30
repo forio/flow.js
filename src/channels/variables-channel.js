@@ -14,7 +14,7 @@
  *
  * For reference, an equivalent call using Flow.js custom HTML attributes is:
  *
- *      <input type="text" data-f-bind="myVariable"></input>
+ *      <input type="text" data-f-bind="myVariable" value="newValue"></input>
  *
  * where the new value is input by the user.
  *
@@ -339,7 +339,7 @@ module.exports = function (options) {
         },
 
         /**
-         * Stop receiving notification when a variable is updated. TODO-don't we need the variable names too?
+         * Stop receiving notification when a variable is updated.
          *
          * @param {String} `token` The identifying token for this subscription. (Created and returned by the `subscribe()` call.)
         */

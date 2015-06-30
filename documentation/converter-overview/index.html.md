@@ -7,7 +7,7 @@ isPage: true
 ##Flow.js: Converters
 
 
-Converters allow you to convert data -- in particular, model variables that you display in your project's user interface -- from one form to another.
+Converters allow you to convert data -- for example, values of variables in your model that you display in your project's user interface -- from one form to another.
 
 There are two ways to specify conversion or formatting for the display output of a particular model variable:
 

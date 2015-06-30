@@ -1,10 +1,7 @@
 /**
  * ## Display Array and Object Variables: data-f-foreach
- *
- * Flow.js provides special handling for model variables that are arrays and objects.
- *
+ * 
  * If your model variable is an array, you can reference specific elements of the array using `data-f-bind`: `data-f-bind="sales[3]"` or `data-f-bind="sales[<currentRegion>]"`, as described under [data-f-bind](../../binds/default-bind-attr/).
- *
  *
  * However, that's not the only option. If you want to automatically loop over all elements of the array, or all the fields of an object, you can use the `data-f-foreach` attribute to name the variable, then use templates to access its index and value for display. (Templates are available as part of Flow.js's lodash dependency. See more background on [working with templates](../../../../../#templates).)
  *

@@ -17,7 +17,7 @@
 var list = [
     {
         /**
-         * Convert the array into a list by concatenating all elements of the array.
+         * Convert the input into an array. Concatenates all elements of the input.
          *
          * @param {Array} `val` The array model variable.
          */
@@ -29,7 +29,7 @@ var list = [
     },
     {
         /**
-         * Select and display only the last element of the array.
+         * Select only the last element of the array.
          *
          * **Example**
          * 

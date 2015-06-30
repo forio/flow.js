@@ -21,6 +21,8 @@
  *      Flow.channel.operations.subscribe('myMethod', 
  *          function() { console.log('called!'); } );
  *
+ * Use `subscribe(*)` to listen for notifications on all operations. 
+ *
  * To use the Operations Channel, simply [initialize Flow.js in your project](../../../#custom-initialize).
  * 
 */
@@ -177,7 +179,7 @@ module.exports = function (options) {
          *      Flow.channel.operations.subscribe('myMethod', 
          *          function() { console.log('called!'); });
          *
-         * @param {String|Array} `operations` The names of the operations.
+         * @param {String|Array} `operations` The names of the operations. Use `*` to listen for notifications on all operations.
          * @param {Object|Function} `subscriber` The object or function being notified. Often this is a callback function.
          *
          * @return {String} An identifying token for this subscription. Required as a parameter when unsubscribing.
