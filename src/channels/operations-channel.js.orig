@@ -76,6 +76,8 @@ module.exports = function (options) {
 
         listenerMap: {},
 
+<<<<<<< HEAD
+=======
         getSubscribers: function (topic) {
             var topicSubscribers = this.listenerMap[topic] || [];
             var globalSubscribers = this.listenerMap['*'] || [];
@@ -83,6 +85,7 @@ module.exports = function (options) {
         },
 
         //Check for updates
+>>>>>>> master
         /**
          * Force a check for updates on the channel, and notify all listeners.
          *

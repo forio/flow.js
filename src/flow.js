@@ -76,35 +76,35 @@ module.exports = {
                     model: model,
 
                     operations: {
+                    },
+                    variables: {
+                        autoFetch: {
+                            start: false
+                        }
                     }
                 }
             },
             dom: {
                 root: 'body',
-                plugins: {
-                    autoUpdateBindings: true
-                }
+                autoBind: true
             }
         };
 
         var options = $.extend(true, {}, defaults, config);
-        if (config && config.channel && (config.channel instanceof Channel)) {
-            this.channel = config.channel;
-        } else {
-            this.channel = new Channel(options.channel);
-        }
-
         var $root = $(options.dom.root);
         var initFn = $root.data('f-on-init');
         var opnSilent = options.channel.run.operations.silent;
         var isInitOperationSilent = initFn && (opnSilent === true || (_.isArray(opnSilent) && _.contains(opnSilent, initFn)));
         var preFetchVariables = !initFn || isInitOperationSilent;
-        var me = this;
 
         if (preFetchVariables) {
-            $root.off('f.domready').on('f.domready', function () {
-                me.channel.variables.refresh(null, true);
-            });
+            options.channel.run.variables.autoFetch.start = true;
+        }
+
+        if (config && config.channel && (config.channel instanceof Channel)) {
+            this.channel = config.channel;
+        } else {
+            this.channel = new Channel(options.channel);
         }
 
         domManager.initialize($.extend(true, {

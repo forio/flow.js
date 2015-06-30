@@ -188,7 +188,10 @@ module.exports = (function () {
                 }
             });
             $el.data('attr-bindings', attrBindings);
-            subscribe(channel, nonBatchableVariables, $el, { batch: false });
+            if (nonBatchableVariables.length) {
+                // console.log('subscribe', nonBatchableVariables, $el.get(0))
+                subscribe(channel, nonBatchableVariables, $el, { batch: false });
+            }
         },
 
         /**
@@ -234,9 +237,18 @@ module.exports = (function () {
          */
         initialize: function (options) {
             var defaults = {
+                /**
+                 * Root of the element for flow to manage from.
+                 * @type {String} jQuery selector
+                 */
                 root: 'body',
                 channel: null,
-                plugins: {}
+
+                /**
+                 * Any variables added to the dom after Flow.initialize has been called will be automatically parsed and subscriptions added to channels. Note, this does not work in IE versions < 11
+                 * @type {Boolean}
+                 */
+                autoBind: true
             };
             $.extend(defaults, options);
 
@@ -318,7 +330,7 @@ module.exports = (function () {
                     channel.operations.publish(data);
                 });
 
-                if (me.options.plugins.autoUpdateBindings) {
+                if (me.options.autoBind) {
                     autoUpdatePlugin($root.get(0), me);
                 }
             });

@@ -1,0 +1,37 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+</head>
+<body>
+
+
+    Sales <span data-f-bind="sales"></span>
+
+    <button id='addElement'> Add Element</button>
+    <div id="elementContainer">
+
+    </div>
+    <script src="../../vendor/jquery/dist/jquery.min.js"></script>
+    <script src="../../vendor/lodash/dist/lodash.js"></script>
+    <script src="../../vendor/epicenter-js-libs/dist/epicenter.min.js"></script>
+    <script src="../../dist/flow-edge.js"></script>
+
+    <script>
+    Flow.initialize({
+        channel: {
+           run: {
+                model: 'hello_world.jl',
+                account: 'nranjit',
+                project: 'flow-test'
+           }
+        }
+    });
+
+    $('#addElement').click(function () {
+        $('#elementContainer').append('<span> SampleINT </span> <span data-f-bind="sampleInt"> </span>');
+    });
+    </script>
+</body>
+</html>

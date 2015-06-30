@@ -180,9 +180,26 @@ module.exports = function (options) {
             return innerList;
         },
 
+<<<<<<< HEAD
+        /**
+         * Force a check for updates on the channel, and notify all listeners.
+         *
+         * @param {Object} `changeObj` Key-value pairs of changed variables.
+         * @param {Boolean} `force`  Ignore all `silent` options and force refresh.
+         */
+        refresh: function (changeObj, force) {
+            var me = this;
+            var silent = channelOptions.silent;
+            var changedVariables = _.keys(changeObj);
+
+            var shouldSilence = silent === true;
+            if (_.isArray(silent) && changedVariables) {
+                shouldSilence = _.intersection(silent, changedVariables).length >= 1;
+=======
         updateAndCheckForRefresh: function (topics, options) {
             if (topics) {
                 this.unfetched = _.uniq(this.unfetched.concat(topics));
+>>>>>>> master
             }
             if (!channelOptions.autoFetch.enable || !channelOptions.autoFetch.start || !this.unfetched.length) {
                 return false;
@@ -279,6 +296,16 @@ module.exports = function (options) {
             });
         },
 
+        /**
+         * Alert each subscriber about the variable and its new value.
+         *
+         * **Example**
+         *
+         *      Flow.channel.operations.notify('myVariable', newValue);
+         *
+         * @param {String|Array} `topics` Names of variables.
+         * @param {String|Number|Array|Object} `value` New values for the variables. 
+        */
         notify: function (topics, value) {
             var callTarget = function (target, params) {
                 if (_.isFunction(target)) {
@@ -310,6 +337,7 @@ module.exports = function (options) {
         },
 
         /**
+<<<<<<< HEAD
          * Update the variables with new values, and alert subscribers.
          *
          * **Example**
@@ -322,6 +350,13 @@ module.exports = function (options) {
          * @param {Object} `options` (Optional) Overrides for the default channel options. Supported options: `{ silent: Boolean }` and `{ batch: Boolean }`.
          *
          * @return {$promise} Promise to complete the update.
+=======
+         * Variable name & parameters to send to variables API
+         * @param  {String | Object} variable string or {variablename: value}
+         * @param  {*} value (optional)   value of variable if previous arg was a string
+         * @param {Object} options Supported options: {silent: Boolean}
+         * @return {$promise}
+>>>>>>> master
          */
         publish: function (variable, value, options) {
             // console.log('publish', arguments);
@@ -349,6 +384,7 @@ module.exports = function (options) {
         },
 
         /**
+<<<<<<< HEAD
          * Subscribe to changes on a channel: Ask for notification when variables are updated.
          *
          * **Example**
@@ -377,6 +413,14 @@ module.exports = function (options) {
          * 
          * @return {String} An identifying token for this subscription. Required as a parameter when unsubscribing.
         */
+=======
+         * Subscribe to changes on a channel
+         * @param  {Array|String} topics List of topics
+         * @param  {Function|Object} subscriber. If this is not a function, a `trigger` method is called if available, if not event is triggered on $(object).
+         * @param  {Object} options (Optional)
+         * @return {String}            Subscription ID. Use this to un-subcribe later
+         */
+>>>>>>> master
         subscribe: function (topics, subscriber, options) {
             // console.log('subscribing', topics, subscriber);
             var defaults = {
@@ -403,10 +447,16 @@ module.exports = function (options) {
         },
 
         /**
+<<<<<<< HEAD
          * Stop receiving notification when a variable is updated.
          *
          * @param {String} `token` The identifying token for this subscription. (Created and returned by the `subscribe()` call.)
         */
+=======
+         * Un-subscribe from all subscriptions referenced by this token.
+         * @param  {String} token Token obtained from subscribe
+         */
+>>>>>>> master
         unsubscribe: function (token) {
             this.subscriptions = _.reject(this.subscriptions, function (subs) {
                 return subs.id === token;
@@ -414,10 +464,16 @@ module.exports = function (options) {
         },
 
         /**
+<<<<<<< HEAD
          * Stop receiving notifications for all variables.
          *
          * @param {None} None
         */
+=======
+         * Un-subscribe from everything.
+         * @return {[type]} [description]
+         */
+>>>>>>> master
         unsubscribeAll: function () {
             this.subscriptions = [];
         }

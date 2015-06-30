@@ -42,6 +42,14 @@ module.exports = (function () {
                     bindHandler.handle.call($rootNode, ['Hello']);
                     $rootNode.html().should.equal('Hello');
                 });
+
+                it('should update templates when called multiple times', function () {
+                    var $rootNode = $('<div><%= value %> World</div>');
+                    bindHandler.handle.call($rootNode, 'Hello');
+                    $rootNode.html().should.equal('Hello World');
+                    bindHandler.handle.call($rootNode, 'Mario');
+                    $rootNode.html().should.equal('Mario World');
+                });
             });
         });
 
@@ -55,6 +63,13 @@ module.exports = (function () {
                 $node.html().trim().should.equal('30');
             });
 
+            it('should convert values to strings', function () {
+                var targetData = { Price: false };
+                var $node = utils.initWithNode('<div data-f-bind="Price"> </div>', domManager);
+                $node.trigger('update.f.model', targetData);
+
+                $node.html().trim().should.equal('false');
+            });
             it('should templatize multiple-bound variables', function () {
                 var targetData = { Price: '20', Sales: 30 };
 
@@ -64,6 +79,14 @@ module.exports = (function () {
                 $node.html().trim().should.equal('20 30');
             });
             it('should templatize single variables', function () {
+                var targetData = { Price: '20' };
+
+                var $node = utils.initWithNode('<div data-f-bind="Price"> <%= Price %> </div>', domManager);
+                $node.trigger('update.f.model', targetData);
+
+                $node.html().trim().should.equal('20');
+            });
+            it('should allow templating by variable name for single items', function () {
                 var targetData = { Price: '20', Sales: 30 };
 
                 var $node = utils.initWithNode('<div data-f-bind="Price"> <%= value %> </div>', domManager);
@@ -71,6 +94,7 @@ module.exports = (function () {
 
                 $node.html().trim().should.equal('20');
             });
+
             it('should template arrays in accordance with converters', function () {
                 var targetData = { Price: [10, 30] };
 

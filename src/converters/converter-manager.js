@@ -152,6 +152,9 @@ var converterManager = {
         };
         _.each(list, function (converterName) {
             var converter = me.getConverter(converterName);
+            if (!converter) {
+                throw new Error('Could not find not find converter for ' + converterName);
+            }
             if ($.isPlainObject(currentValue) && converter.acceptList !== true) {
                 currentValue = convertObject(converter, currentValue, converterName);
             } else {
