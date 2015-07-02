@@ -46,6 +46,18 @@ var list = [
             return val[val.length - 1];
         }
     },
+        /**
+         * Reverse the array.
+         *
+         * **Example**
+         * 
+         *      <p>Show the history of our sales, starting with the last (most recent):</p>
+         *      <ul data-f-foreach="Sales | reverse">
+         *          <li></li>
+         *      </ul>
+         *
+         * @param {Array} `val` The array model variable.
+         */
     {
         alias: 'reverse',
         acceptList: true,

@@ -45,10 +45,8 @@
             <td>display_update</td>
             <td>data-f-bind int</td>
             <td>
+                range:
                 <input type="range" data-f-bind="sampleInt | i"  id="range" />
-
-            </td>
-            <td>
                 span:
                 <span data-f-bind="sampleInt"></span>
                 <br>
@@ -427,9 +425,9 @@
 
     <tr>
         <td>formatting</td>
-        <td>converters for arrays (introduced 0.6.3)</td>
+        <td>converters for arrays (introduced 0.6.3 and following)</td>
         <td>
-            use converters to select first, last, and previous:
+            use converters to select first, last, previous, and reverse:
             <br>
             sales | first:
             <span data-f-bind="sales | first"></span>
@@ -439,6 +437,11 @@
             <br>
             sales | previous:
             <span data-f-bind="sales | previous"></span>
+            <br>
+            sales | reverse:
+            <ul data-f-foreach="sales | reverse">
+                <li></li>
+            </ul>
             <br>
             for reference: print out sales[1]-sales[4]:
             <span data-f-bind="sales[1]"></span>
@@ -451,7 +454,7 @@
             .
         </td>
         <td class="pass">
-            pass (0.8.3). note that this only works for span, not for input (i'm assuming that's by design).
+            pass (0.9.0). note that this only works for span, not for input (i'm assuming that's by design).
         </td>
     </tr>
 
@@ -769,7 +772,7 @@ displayed as 150%.
 <script src="https://forio.com/tools/js-libs/1.4.2/epicenter.js"></script>
 
 <!-- <script src="../../dist/flow-edge.js"></script> -->
-<script src="https://forio.com/tools/js-libs/flow/0.8.3/flow.js"></script>
+<script src="https://forio.com/tools/js-libs/flow/0.9.0/flow.js"></script>
 <script>
     'use strict';
     $('body').on('f.ui.operate', function () {
