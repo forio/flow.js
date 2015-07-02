@@ -24,6 +24,7 @@
     "trailing": true,
     "eqnull": true,
     "predef": [
+        "_",
         "F",
         "$",
         "should",

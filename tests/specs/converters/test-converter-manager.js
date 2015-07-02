@@ -95,6 +95,7 @@
             require('./test-string-converters');
             require('./test-array-converters');
             require('./test-numberformat-converters');
+            require('./test-underscore-converters');
         });
     });
 }());

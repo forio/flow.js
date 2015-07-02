@@ -158,6 +158,7 @@ var defaultconverters = [
     require('./number-converter'),
     require('./string-converter'),
     require('./array-converter'),
+    require('./underscore-utils-converter'),
     require('./numberformat-converter'),
 ];
 
