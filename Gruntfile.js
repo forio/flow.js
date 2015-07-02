@@ -17,7 +17,6 @@ module.exports = function (grunt) {
 
     grunt.registerTask('generateDev', ['browserify:edge']);
     grunt.registerTask('test', ['generateDev', 'browserify:tests', 'browserify:instrumented', 'mocha', 'coverage-report']);
-    grunt.registerTask('documentation', ['markdox']);
     grunt.registerTask('validate', ['jshint:all', 'jscs', 'test']);
     grunt.registerTask('production', ['validate', 'browserify:mapped', 'browserify:min']);
 
