@@ -1,3 +1,14 @@
+/**
+ * ## Converter Manager: Make your own Converters
+ * 
+ * Converters allow you to convert data -- in particular, model variables that you display in your project's user interface -- from one form to another.
+ *
+ * Basic converting and formatting options are built in to Flow.js.
+ *
+ * You can also create your own converters. Each converter should be a function that takes in a value or values to convert. To use your converter, `register()` it in your instance of Flow.js.
+ *
+ */
+
 'use strict';
 
 //TODO: Make all underscore filters available
@@ -51,16 +62,41 @@ var converterManager = {
 
     list: [],
     /**
-     * Add a new attribute converter
-     * @param  {string|function|regex} alias formatter name
-     * @param  {function|object} converter    converter can either be a function, which will be called with the value, or an object with {alias: '', parse: $.noop, convert: $.noop}
-     * @param {Boolean} acceptList decides if the converter is a 'list' converter or not; list converters take in arrays as inputs, others expect single values.
+     * Add a new attribute converter to this instance of Flow.js.
+     *
+     * **Example**
+     *
+     *      Flow.dom.converters.register('max', function (value) {
+     *          return _.max(value);
+     *      }, true);
+     *
+     *      Flow.dom.converters.register({
+     *          alias: 'sig',
+     *          parse: $.noop,
+     *          convert: function (value) { 
+     *              return value.firstName + ' ' + value.lastName + ', ' + value.jobTitle;
+     *      }, false);
+     * 
+     *      <div>
+     *          The largest sales you had was <span data-f-bind="salesByYear | max | $#,###"></span>.
+     *          The current sales manager is <span data-f-bind="salesMgr | sig"></span>.
+     *      </div>
+     * 
+     * @param  {String|Function|Regex} `alias` Formatter name.
+     * @param  {Function|Object} `converter` If a function, `converter` is called with the value. If an object, should include fields for `alias` (name), `parse` (function), and `convert` (function).
+     * @param {Boolean} `acceptList` Determines if the converter is a 'list' converter or not. List converters take in arrays as inputs, others expect single values.
      */
     register: function (alias, converter, acceptList) {
         var normalized = normalize(alias, converter, acceptList);
         this.list = normalized.concat(this.list);
     },
 
+    /**
+     * Replace an already registered converter with a new one of the same name.
+     *
+     * @param {String} `alias` Formatter name.
+     * @param {Function|Object} `converter` If a function, `converter` is called with the value. If an object, should include fields for `alias` (name), `parse` (function), and `convert` (function).
+     */
     replace: function (alias, converter) {
         var index;
         _.each(this.list, function (currentConverter, i) {
@@ -79,10 +115,12 @@ var converterManager = {
     },
 
     /**
-     * Pipes the value sequentially through a list of provided converters
-     * @param  {*} value Input for the converter to tag
-     * @param  {Array|Object} list  list of converters (maps to converter alias)
-     * @return {*}       converted value
+     * Pipes the value sequentially through a list of provided converters.
+     *
+     * @param  {Any} `value` Input for the converter to tag.
+     * @param  {Array|Object} `list` List of converters (maps to converter alias).
+     *
+     * @return {Any} Converted value.
      */
     convert: function (value, list) {
         if (!list || !list.length) {
@@ -116,7 +154,7 @@ var converterManager = {
         _.each(list, function (converterName) {
             var converter = me.getConverter(converterName);
             if (!converter) {
-                throw new Error('Could not find not find converter for ' + converterName);
+                throw new Error('Could not find converter for ' + converterName);
             }
             if ($.isPlainObject(currentValue) && converter.acceptList !== true) {
                 currentValue = convertObject(converter, currentValue, converterName);
@@ -128,10 +166,11 @@ var converterManager = {
     },
 
     /**
-     * Counter-part to 'convert'. Translates converted values back to their original form
-     * @param  {String} value Value to parse
-     * @param  {String | Array} list  List of parsers to run this through. Outermost is invoked first
-     * @return {*}
+     * Counter-part to `convert()`. Translates converted values back to their original form.
+     *
+     * @param  {String} `value` Value to parse.
+     * @param  {String|Array} `list`  List of parsers to run the value through. Outermost is invoked first.
+     * @return {Any} Original value.
      */
     parse: function (value, list) {
         if (!list || !list.length) {
