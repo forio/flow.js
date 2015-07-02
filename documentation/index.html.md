@@ -6,7 +6,7 @@ isPage: true
 
 ##Flow.js: Overview
 
-Flow.js provides data bindings between variables and operations in your project's model and HTML elements in your project's user interface. In this way, Flow.js decouples the model from its interface. This is beneficial as a general design principle, and can be especially helpful for larger development teams where the UI developers and the modelers are different people. If you are comfortable writing HTML and basic JavaScript, using Flow.js can save you significant development time.
+Flow.js provides two-way data bindings between variables and operations in your project's model and HTML elements in your project's user interface. In this way, Flow.js decouples the model from its interface. This is beneficial as a general design principle, and can be especially helpful for larger development teams where the UI developers and the modelers are different people. If you are comfortable writing HTML and basic JavaScript, using Flow.js can save you significant development time.
 
 In particular, Flow.js provides a channel between the variables and operations in your model and the HTML elements in your interface. You simply reference model variables directly within HTML elements, and these values automatically update as the model changes; Flow.js takes care of all of the details.
 
@@ -61,7 +61,7 @@ Learn more about advanced topics:
 
 **Notes:**
 
-The `Flow.initialize()` call optionally takes two argument: `channel`, which includes a `run`, and `dom`.
+The `Flow.initialize()` call optionally takes two arguments: `channel`, which includes a `run`, and `dom`.
 
 The `run` is an object that includes:
 	
@@ -82,7 +82,7 @@ These parameters are optional because the `run` information defaults correctly b
 			}
 		});
 	
-See more details on [customizing the Flow.initialize() method](./generated/flow-js/).
+In fact, you can add any of the [Model Run API parameters](../rest_apis/other_apis/model_apis/run/) to the `run` object here. See also more details on [customizing the Flow.initialize() method](./generated/flow-js/).
 
 
 <a name="templates"></a>

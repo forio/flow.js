@@ -15,15 +15,16 @@
  * * `channel.run.account` The **User ID** or **Team ID** for this project. By default, taken from the URL where the user interface is hosted, so you only need to supply this is you are running your project's user interface [on your own server](../../../how_to/self_hosting/).
  * * `channel.run.project` The **Project ID** for this project.
  * * `channel.run.model` Name of the primary model file for this project. By default, taken from `data-f-model` in your HTML `<body>` tag.
- * * `channel.run.variables` Configuration options for the variables being listened to on this channel. Currently there is only one configuration option: `silent`.
+ * * `channel.run.variables` Configuration options for the variables being listened to on this channel.
  * * `channel.run.variables.silent` Provides granular control over when user interface updates happen for changes on this channel. See below for possible values.
+ * * `channel.run.variables.autoFetch` Options for fetching variables from the API as they're being subscribed. See [Variables Channel](../channels/variables-channel/) for details.
  * * `channel.run.operations` Configuration options for the operations being listened to on this channel. Currently there is only one configuration option: `silent`.
  * * `channel.run.operations.silent` Provides granular control over when user interface updates happen for changes on this channel. See below for possible values.
  * * `channel.run.server` Object with additional server configuration, defaults to `host: 'api.forio.com'`.
  * * `channel.run.transport` An object which takes all of the jquery.ajax options at <a href="http://api.jquery.com/jQuery.ajax/">http://api.jquery.com/jQuery.ajax/</a>.
  * * `dom` Configuration options for the DOM where this instance of Flow.js is created. 
  * * `dom.root` The root HTML element being managed by the Flow.js DOM Manager. Defaults to `body`.
- * * `dom.plugins` An object whose fields are the names of available plugins and whose values are booleans indicating whether those plugins should be used by the Flow.js DOM Manager. Defaults to `{ autoUpdateBindings: true }`, which causes automatic updates on any change to the value of any element.
+ * * `dom.autoBind` If `true` (default), automatically parse variables added to the DOM after this `Flow.initialize()` call. Note, this does not work in IE versions < 11.
  * 
  * The `silent` configuration option for the `run.variables` and `run.operations` is a flag for providing more granular control over when user interface updates happen for changes on this channel. Values can be:
  *

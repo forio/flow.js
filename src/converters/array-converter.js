@@ -48,7 +48,7 @@ var list = [
     },
     {
         /**
-         * Select and display only the first element of the array.
+         * Select only the first element of the array.
          *
          * **Example**
          * 
@@ -67,7 +67,7 @@ var list = [
     },
     {
         /**
-         * Select and display only the previous (second to last) element of the array.
+         * Select only the previous (second to last) element of the array.
          *
          * **Example**
          * 

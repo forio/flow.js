@@ -111,14 +111,14 @@ module.exports = function (options) {
         },
 
         /**
-         * Alert each subscriber about the operation and its parameters.
+         * Alert each subscriber about the operation and its parameters. This can be used to provide an update without a round trip to the server. However, it is rarely used: you almost always want to `subscribe()` instead so that the operation is actually called in the model.
          *
          * **Example**
          *
-         *      Flow.channel.operations.notify('myMethod', myMethodParam);
+         *      Flow.channel.operations.notify('myMethod', myMethodResponse);
          *
          * @param {String} `operation` Name of operation.
-         * @param {String|Number|Array|Object} `value` Parameter values for the operation. 
+         * @param {String|Number|Array|Object} `value` Parameter values for the callback function. 
         */
         notify: function (operation, value) {
             var listeners = this.getSubscribers(operation);

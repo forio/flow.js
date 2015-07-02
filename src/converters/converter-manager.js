@@ -71,14 +71,15 @@ var converterManager = {
      *      }, true);
      *
      *      Flow.dom.converters.register({
-     *          alias: 'min',
+     *          alias: 'sig',
      *          parse: $.noop,
-     *          convert: function (value) { return _.min(value); }
-     *      }, true);
+     *          convert: function (value) { 
+     *              return value.firstName + ' ' + value.lastName + ', ' + value.jobTitle;
+     *      }, false);
      * 
      *      <div>
      *          The largest sales you had was <span data-f-bind="salesByYear | max | $#,###"></span>.
-     *          The smallest sales you had was <span data-f-bind="salesByYear | min | $#,###"></span>.
+     *          The current sales manager is <span data-f-bind="salesMgr | sig"></span>.
      *      </div>
      * 
      * @param  {String|Function|Regex} `alias` Formatter name.

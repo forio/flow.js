@@ -18,13 +18,13 @@
     <? doc.javadoc.forEach(function (block) { ?>
         <? if (!block.paramStr) { ?>
             <? if (configStart === 0) { ?>
-                ###Configuration Options
+                ##Configuration Options
 
                 <? configStart = 1 ?>
             <? } ?>
             <? var configOption =  block.raw.code.split(':')[0] ?>
 
-            ####<?= configOption ?>
+            ###<?= configOption ?>
 
             <? block.raw.tags.forEach(function (tag) { ?>
                 <? if (tag.type === 'type') { ?>
@@ -45,7 +45,7 @@
     <? doc.javadoc.forEach(function (block) { ?>
         <? if (block.paramStr) { ?>
             <? if (methodStart === 0) { ?>
-                ###Methods
+                ##Methods
 
                 <? methodStart = 1 ?>
             <? } ?>
@@ -57,7 +57,7 @@
                 }
             ?>
 
-            ####<?= methodName ?>
+            ###<?= methodName ?>
             <?= block.description ?>
 
             <? var paramStart = 0 ?>

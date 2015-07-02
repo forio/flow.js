@@ -64,25 +64,28 @@ module.exports = function (options) {
         silent: false,
 
         /**
-         * Allows you to auto-fetch variables from the API as they're being subscribed. If this is set to enabled: false you'll need to explicitly call #refresh to get data and notify your listeners
+         * Allows you to automatically fetch variables from the API as they're being subscribed. If this is set to `enable: false` you'll need to explicitly call `refresh()` to get data and notify your listeners.
+         *
+         * The properties of this object include:
+         *
+         * * `autoFetch.enable` *Boolean* Enable auto-fetch behavior. If set to `false` during instantiation there's no way to enable this again. Defaults to `true`.
+         * * `autoFetch.start` *Boolean* If auto-fetch is enabled, control when to start fetching. Typically you'd want to start right away, but if you want to wait till something else happens (like an operation or user action) set to `false` and control using the `startAutoFetch()` function. Defaults to `true`.
+         * * `autoFetch.debounce` *Number* Milliseconds to wait between calls to `subscribe()` before calling `fetch()`. See [http://drupalmotion.com/article/debounce-and-throttle-visual-explanation](http://drupalmotion.com/article/debounce-and-throttle-visual-explanation) for an explanation of how debouncing works. Defaults to `200`.
+         *
          * @type {Object}
          */
         autoFetch: {
-            /**
-             * Enable auto-fetch behavior. If set to false during instantiation there's no way to enable this again.
-             * @type {Boolean}
-             */
+            
+             // Enable auto-fetch behavior. If set to `false` during instantiation there's no way to enable this again
+             // @type {Boolean}
             enable: true,
-            /**
-             * If auto-fetch is enabled control when to start fetching. Typically you'd want to start right-away, but if you want to wait till something else happens (like an operation or user action) set to false and control using the #startAutoFetch function
-             * @type {Boolean}
-             */
+
+             // If auto-fetch is enabled, control when to start fetching. Typically you'd want to start right away, but if you want to wait till something else happens (like an operation or user action) set to `false` and control using the `startAutoFetch()` function.             
+             // @type {Boolean}
             start: true,
 
-            /**
-             * Control time to wait between calls to #subscribe before calling #fetch. See http://drupalmotion.com/article/debounce-and-throttle-visual-explanation for an explanation of how debouncing works
-             * @type {Number} Milliseconds to wait
-             */
+             // Control time to wait between calls to `subscribe()` before calling `fetch()`. See [http://drupalmotion.com/article/debounce-and-throttle-visual-explanation](http://drupalmotion.com/article/debounce-and-throttle-visual-explanation) for an explanation of how debouncing works.
+             // @type {Number} Milliseconds to wait
             debounce: 200
         }
     };
@@ -250,8 +253,10 @@ module.exports = function (options) {
         },
 
         /**
-         * Check and notify all listeners
-         * @param  {Object | Array} Array or key-value pairs of changed variables.
+         * Force a check for updates on the channel, and notify all listeners.
+         *
+         * @param {Object|Array} `changeList` Key-value pairs of changed variables.
+         * @param {Boolean} `force`  Ignore all `silent` options and force refresh.
          */
         refresh: function (changeList, force) {
             var me = this;
@@ -279,6 +284,16 @@ module.exports = function (options) {
             });
         },
 
+        /**
+         * Alert each subscriber about the variable and its new value.
+         *
+         * **Example**
+         *
+         *      Flow.channel.operations.notify('myVariable', newValue);
+         *
+         * @param {String|Array} `topics` Names of variables.
+         * @param {String|Number|Array|Object} `value` New values for the variables. 
+        */
         notify: function (topics, value) {
             var callTarget = function (target, params) {
                 if (_.isFunction(target)) {
@@ -370,7 +385,7 @@ module.exports = function (options) {
          *          { batch: false });       
          *
          * @param {String|Array} `topics` The names of the variables.
-         * @param {Object|Function} `subscriber` The object or function being notified. Often this is a callback function.
+         * @param {Object|Function} `subscriber` The object or function being notified. Often this is a callback function. If this is not a function, a `trigger` method is called if available; if not, event is triggered on $(object).
          * @param {Object} `options` (Optional) Overrides for the default channel options.
          * @param {Boolean} `options.silent` Determine when to update state.
          * @param {Boolean} `options.batch` If you are subscribing to multiple variables, by default the callback function is called once for each item to which you subscribe: `batch: false`. When `batch` is set to `true`, the callback function is only called once, no matter how many items you are subscribing to.
@@ -403,7 +418,7 @@ module.exports = function (options) {
         },
 
         /**
-         * Stop receiving notification when a variable is updated.
+         * Stop receiving notifications for all subscriptions referenced by this token.
          *
          * @param {String} `token` The identifying token for this subscription. (Created and returned by the `subscribe()` call.)
         */
@@ -414,7 +429,7 @@ module.exports = function (options) {
         },
 
         /**
-         * Stop receiving notifications for all variables.
+         * Stop receiving notifications for all subscriptions.
          *
          * @param {None} None
         */
