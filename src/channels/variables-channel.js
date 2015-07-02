@@ -201,7 +201,8 @@ module.exports = function (options) {
 
         /**
          * Check and notify all listeners
-         * @param  {Object | Array} Array or key-value pairs of changed variables.
+         * @param  {Object | Array} changeList Array or key-value pairs of changed variables.
+         * @param  {Boolean} force skipping checking for silent updates and force trigger
          */
         refresh: function (changeList, force) {
             var me = this;
@@ -291,13 +292,15 @@ module.exports = function (options) {
                 });
         },
 
-        /**
-         * Subscribe to changes on a channel
-         * @param  {Array|String} topics List of topics
-         * @param  {Function|Object} subscriber. If this is not a function, a `trigger` method is called if available, if not event is triggered on $(object).
-         * @param  {Object} options (Optional)
-         * @return {String}            Subscription ID. Use this to un-subcribe later
-         */
+
+
+       /**
+        * Subscribe to changes on a channel
+        * @param  {Array|String} topics List of topics
+        * @param  {Function|Object} subscriber If this is not a function, a `trigger` method is called if available, if not event is triggered on $(object).
+        * @param  {Object} options       Set `batch` to true or false
+        * @return {String}            Subscription ID. Use this to un-subcribe later
+        */
         subscribe: function (topics, subscriber, options) {
             // console.log('subscribing', topics, subscriber);
             var defaults = {
