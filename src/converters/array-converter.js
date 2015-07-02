@@ -16,6 +16,14 @@ var list = [
         }
     },
     {
+        alias: 'reverse',
+        acceptList: true,
+        convert: function (val) {
+            val = [].concat(val);
+            return val.reverse();
+        }
+    },
+    {
         alias: 'first',
         acceptList: true,
         convert: function (val) {
