@@ -61,5 +61,10 @@ module.exports = (function () {
             cm.convert({ a: [1, 2], b: [2, 4] }, 'first').should.eql({ a: 1, b: 2 });
         });
     });
+    describe('#reverse', function () {
+        it('should return the array flipped', function () {
+            cm.convert([1,2,3], 'reverse').should.eql([3, 2, 1]);
+        });
+    });
 
 }());

@@ -47,6 +47,14 @@ var list = [
         }
     },
     {
+        alias: 'reverse',
+        acceptList: true,
+        convert: function (val) {
+            val = [].concat(val);
+            return val.reverse();
+        }
+    },
+    {
         /**
          * Select only the first element of the array.
          *
