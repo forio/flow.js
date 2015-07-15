@@ -230,6 +230,8 @@ module.exports = function (options) {
 
         /**
          * Stop receiving notifications for all operations. No parameters.
+         *
+         * @return {None}
         */
         unsubscribeAll: function () {
             this.listenerMap = {};

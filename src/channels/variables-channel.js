@@ -430,6 +430,8 @@ module.exports = function (options) {
 
         /**
          * Stop receiving notifications for all subscriptions. No parameters.
+         *
+         * @return {None}
         */
         unsubscribeAll: function () {
             this.subscriptions = [];
