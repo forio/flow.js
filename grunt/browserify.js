@@ -11,8 +11,9 @@ module.exports = function (grunt) {
                 debug: true
             },
             postBundleCB: function (err, buffer, next) {
-                var code = grunt.template.process(buffer.toString(), { data: grunt.file.readJSON('package.json') });
-                next(err, code);
+                var version = grunt.file.readJSON('package.json').version;
+                var versioned = buffer.toString().replace(/<%= version %>/g, version);
+                next(err, versioned);
             }
         },
 
@@ -41,7 +42,7 @@ module.exports = function (grunt) {
                 preBundleCB: function (b) {
                     b.plugin(remapify, {
                         src: '**/*.js',
-                        cwd: './instrument/',
+                        cwd: './src/',
                         expose: 'src'
                     });
                 },

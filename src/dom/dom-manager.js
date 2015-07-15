@@ -1,3 +1,12 @@
+/**
+ * ## DOM Manager
+ *
+ * The Flow.js DOM Manager provides two-way data bindings from your project's user interface to the channel. The DOM Manager is the 'glue' through which HTML DOM elements -- including the attributes and attribute handlers provided by Flow.js for [variables](../../attributes-overview/), [operations](../../operations-overview/) and [conversion](../../converter-overview/), and those [you create](./attributes/attribute-manager/) -- are bound to the variable and operations [channels](../../channel-overview/) to link them with your project's model. See the [Epicenter architecture details](../../../creating_your_interface/arch_details/) for a visual description of how the DOM Manager relates to the [rest of the Epicenter stack](../../../creating_your_interface/).
+ *
+ * The DOM Manager is an integral part of the Flow.js architecture but, in keeping with our general philosophy of extensibility and configurability, it is also replaceable. For instance, if you want to manage your DOM state with [Backbone Views](http://backbonejs.org) or [Angular.js](https://angularjs.org), while still using the channels to handle the communication with your model, this is the piece you'd replace. [Contact us](http://forio.com/about/contact/) if you are interested in extending Flow.js in this way -- we'll be happy to talk about it in more detail.
+ *
+ */
+
 module.exports = (function () {
     'use strict';
     var config = require('../config');
@@ -57,6 +66,12 @@ module.exports = (function () {
             matchedElements: []
         },
 
+        /**
+         * Unbind the element: unsubscribe from all updates on the relevant channels.
+         *
+         * @param {DomElement} element The element to remove from the data binding.
+         * @param {ChannelInstance} channel (Optional) The channel from which to unsubscribe. Defaults to the [variables channel](../channels/variables-channel/).
+         */
         unbindElement: function (element, channel) {
             if (!channel) {
                 channel = this.options.channel.variables;
@@ -96,6 +111,12 @@ module.exports = (function () {
             });
         },
 
+        /**
+         * Bind the element: subscribe from updates on the relevant channels.
+         *
+         * @param {DomElement} element The element to add to the data binding.
+         * @param {ChannelInstance} channel (Optional) The channel to subscribe to. Defaults to the [variables channel](../channels/variables-channel/).
+         */
         bindElement: function (element, channel) {
             if (!channel) {
                 channel = this.options.channel.variables;
@@ -174,8 +195,9 @@ module.exports = (function () {
         },
 
         /**
-         * Bind all provided elements
-         * @param  {Array|jQuerySelector} elementsToBind (Optional) If not provided uses the default root provided at initialization
+         * Bind all provided elements.
+         *
+         * @param  {Array|jQuerySelector} elementsToBind (Optional) If not provided, binds all matching elements within default root provided at initialization.
          */
         bindAll: function (elementsToBind) {
             if (!elementsToBind) {
@@ -191,8 +213,9 @@ module.exports = (function () {
             });
         },
         /**
-         * Unbind provided elements
-         * @param  {Array} elementsToUnbind (Optional). If not provided unbinds everything
+         * Unbind provided elements.
+         *
+         * @param  {Array} elementsToUnbind (Optional) If not provided, unbinds everything.
          */
         unbindAll: function (elementsToUnbind) {
             var me = this;
@@ -204,17 +227,25 @@ module.exports = (function () {
             });
         },
 
+        /**
+         * Initialize the DOM Manager to work with a particular HTML element and all elements within that root. Data bindings between individual HTML elements and the model variables specified in the attributes will happen via the channel.
+         *
+         * @param {Object} options (Optional) Overrides for the default options.
+         * @param {String} options.root The root HTML element being managed by this instance of the DOM Manager. Defaults to `body`.
+         * @param {Object} options.channel The channel to communicate with. Defaults to the Channel Manager from [Epicenter.js](../../../api_adapters/).
+         * @param {Boolean} options.autoBind If `true` (default), any variables added to the DOM after `Flow.initialize()` has been called will be automatically parsed, and subscriptions added to channels. Note, this does not work in IE versions < 11.
+         */
         initialize: function (options) {
             var defaults = {
                 /**
-                 * Root of the element for flow to manage from.
+                 * Root of the element for flow.js to manage from.
                  * @type {String} jQuery selector
                  */
                 root: 'body',
                 channel: null,
 
                 /**
-                 * Any variables added to the dom after Flow.initialize has been called will be automatically parsed and subscriptions added to channels. Note, this does not work in IE versions < 11
+                 * Any variables added to the DOM after `Flow.initialize()` has been called will be automatically parsed, and subscriptions added to channels. Note, this does not work in IE versions < 11.
                  * @type {Boolean}
                  */
                 autoBind: true

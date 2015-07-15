@@ -3,8 +3,7 @@ module.exports = function (grunt) {
 
     // require('time-grunt')(grunt);
     require('jit-grunt')(grunt, {
-        mocha: 'grunt-mocha-phantom-istanbul',
-        jscs: 'grunt-jscs'
+        mocha: 'grunt-mocha-phantom-istanbul'
     });
 
     grunt.initConfig({
@@ -17,6 +16,7 @@ module.exports = function (grunt) {
 
     grunt.registerTask('generateDev', ['browserify:edge']);
     grunt.registerTask('test', ['generateDev', 'browserify:tests', 'browserify:instrumented', 'mocha', 'coverage-report']);
+    grunt.registerTask('documentation', ['markdox']);
     grunt.registerTask('validate', ['jshint:all', 'jscs', 'test']);
     grunt.registerTask('production', ['validate', 'browserify:mapped', 'browserify:min']);
 
