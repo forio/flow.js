@@ -15,17 +15,17 @@ module.exports = function (grunt) {
                     // no publicAPI yet for run-channel, so don't build docs
                     src: 'src/channels/run-channel.js',
                     dest: 'documentation/generated/run-channel/index.html.md'
-                }, */ 
+                }, */
                 {
                     src: 'src/channels/operations-channel.js',
                     dest: 'documentation/generated/channels/operations-channel/index.html.md'
                 }, {
                     src: 'src/channels/variables-channel.js',
                     dest: 'documentation/generated/channels/variables-channel/index.html.md'
-                }, 
+                },
 
 
-                // TODO - decide if converters should all go in one file, or if this is ok 
+                // TODO - decide if converters should all go in one file, or if this is ok
                 {
                     src: 'src/converters/array-converter.js',
                     dest: 'documentation/generated/converters/array-converter/index.html.md'
@@ -48,13 +48,13 @@ module.exports = function (grunt) {
                 {
                     src: 'src/dom/dom-manager.js',
                     dest: 'documentation/generated/dom/index.html.md'
-                }, 
+                },
                 // dom/nodes
                 // TODO ask Naren if other files here make sense for docs yet
                 {
                     src: 'src/dom/nodes/node-manager.js',
                     dest: 'documentation/generated/dom/nodes/node-manager/index.html.md'
-                }, 
+                },
                 // dom/attributes
                 // TODO ask Naren if other files at dom/attributes make sense for docs yet, i think no
                 {
@@ -66,7 +66,7 @@ module.exports = function (grunt) {
                 }, {
                     src: 'src/dom/attributes/default-attr.js',
                     dest: 'documentation/generated/dom/attributes/default-attr/index.html.md'
-                }, 
+                },
                 // only need to build one of positive and negative for purposes of docpad-generated help;
                 // to accompany the code, repeat the same content in both
                 {

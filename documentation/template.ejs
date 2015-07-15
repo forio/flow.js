@@ -3,7 +3,7 @@
     <? var moduleName = doc.filename.split('/').pop().split('.')[0] ?>
     ---
     title: <?= moduleName.split('-').join(' ') ?>
-    layout: "default"
+    layout: "flow"
     isPage: true
     ---
 
@@ -28,7 +28,7 @@
 
             <? block.raw.tags.forEach(function (tag) { ?>
                 <? if (tag.type === 'type') { ?>
-                    - *<?= tag.types[0] ?>* 
+                    - *<?= tag.types[0] ?>*
                 <? } ?>
                 <? if (tag.type === 'see') { ?>
                     - See: <?= tag.local ?>
@@ -36,11 +36,11 @@
             <? }) ?>
 
             <?= block.description ?>
-            
+
         <? } ?>
     <? }) ?>
 
-    
+
     <? var methodStart = 0 ?>
     <? doc.javadoc.forEach(function (block) { ?>
         <? if (block.paramStr) { ?>
@@ -50,9 +50,9 @@
                 <? methodStart = 1 ?>
             <? } ?>
 
-            <? var methodName =  block.raw.code.split(':')[0] 
+            <? var methodName =  block.raw.code.split(':')[0]
                 <!-- special case for converters -->
-                if (methodName === 'alias') { 
+                if (methodName === 'alias') {
                     methodName = block.raw.code.split('\'')[1]
                 }
             ?>
@@ -63,7 +63,7 @@
             <? var paramStart = 0 ?>
             <? block.paramTags.forEach(function (tag) { ?>
                 <? if (paramStart === 0) { ?>
-                    
+
                     **Parameters**
 
                     <? paramStart = 1 ?>
@@ -73,15 +73,15 @@
 
 
             <? var returnStart = 0 ?>
-            
+
 
             <? block.returnTags.forEach(function (tag) { ?>
                 <? if (returnStart === 0) { ?>
-                    
+
                     **Return Value**
 
                     <? returnStart = 1 ?>
-                <? } ?>                
+                <? } ?>
                 - *<?= tag.joinedTypes ?>*: <?= tag.description ?>
             <? }) ?>
 
