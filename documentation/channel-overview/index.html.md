@@ -1,6 +1,6 @@
 ---
 title: "Flow.js Channels"
-layout: "default"
+layout: "flow"
 isPage: true
 ---
 

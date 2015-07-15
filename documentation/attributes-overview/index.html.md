@@ -1,6 +1,6 @@
 ---
 title: "Flow.js: Variables and Attributes"
-layout: "default"
+layout: "flow"
 isPage: true
 ---
 

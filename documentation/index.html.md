@@ -1,6 +1,6 @@
 ---
 title: "Flow.js Overview"
-layout: "default"
+layout: "flow"
 isPage: true
 ---
 
