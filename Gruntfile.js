@@ -5,7 +5,8 @@ module.exports = function (grunt) {
     require('jit-grunt')(grunt, {
         mocha: 'grunt-mocha-phantom-istanbul',
         'bump-only': 'grunt-bump',
-        'bump-commit': 'grunt-bump'
+        'bump-commit': 'grunt-bump',
+        'changelog': 'grunt-conventional-changelog',
     });
 
     grunt.initConfig({
