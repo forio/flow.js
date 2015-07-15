@@ -16,7 +16,7 @@
 
     <? var configStart = 0 ?>
     <? doc.javadoc.forEach(function (block) { ?>
-        <? if (!block.paramStr) { ?>
+        <? if (!block.paramStr && (block.returnTags.length == 0)) { ?>
             <? if (configStart === 0) { ?>
                 ##Configuration Options
 
@@ -43,7 +43,7 @@
 
     <? var methodStart = 0 ?>
     <? doc.javadoc.forEach(function (block) { ?>
-        <? if (block.paramStr) { ?>
+        <? if (block.paramStr || (block.returnTags.length > 0)) { ?>
             <? if (methodStart === 0) { ?>
                 ##Methods
 
@@ -82,20 +82,9 @@
 
                     <? returnStart = 1 ?>
                 <? } ?>
-                - *<?= tag.joinedTypes ?>*: <?= tag.description ?>
+                - *<?= tag.joinedTypes ?>*<? if (tag.description) { ?>: <?= tag.description ?><? } ?>
             <? }) ?>
 
-            <? var isExample = false ?>
-            <!-- ```` -->
-                <? block.raw.tags.forEach(function (tag) { ?>
-                  <? if (tag.type === 'example') { ?>
-                        <?  isExample = true ?>
-                  <? } ?>
-                  <? if (isExample) { ?>
-                        <?= tag.string ?>
-                  <? } ?>
-                <? }) ?>
-            <!-- ```` -->
         <? } ?>
     <? }) ?>
 <? }) ?>
