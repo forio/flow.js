@@ -1,6 +1,6 @@
 /**
  * ## Number Format Converters
- * 
+ *
  * Converters allow you to convert data -- in particular, model variables that you display in your project's user interface -- from one form to another.
  *
  * There are two ways to specify conversion or formatting for the display output of a particular model variable:
@@ -48,7 +48,7 @@
  *
  *
  * ####Short Number Format
- * 
+ *
  * After the `|` (pipe) character, use `s` and `0` in your converter to describe how the number should appear.
  *
  * The `0`s describe the significant digits.

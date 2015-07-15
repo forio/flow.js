@@ -69,8 +69,8 @@ module.exports = (function () {
         /**
          * Unbind the element: unsubscribe from all updates on the relevant channels.
          *
-         * @param {DomElement} `element` The element to remove from the data binding. 
-         * @param {ChannelInstance} `channel` (Optional) The channel from which to unsubscribe. Defaults to the [variables channel](../channels/variables-channel/).
+         * @param {DomElement} element The element to remove from the data binding.
+         * @param {ChannelInstance} channel (Optional) The channel from which to unsubscribe. Defaults to the [variables channel](../channels/variables-channel/).
          */
         unbindElement: function (element, channel) {
             if (!channel) {
@@ -114,8 +114,8 @@ module.exports = (function () {
         /**
          * Bind the element: subscribe from updates on the relevant channels.
          *
-         * @param {DomElement} `element` The element to add to the data binding.
-         * @param {ChannelInstance} `channel` (Optional) The channel to subscribe to. Defaults to the [variables channel](../channels/variables-channel/).
+         * @param {DomElement} element The element to add to the data binding.
+         * @param {ChannelInstance} channel (Optional) The channel to subscribe to. Defaults to the [variables channel](../channels/variables-channel/).
          */
         bindElement: function (element, channel) {
             if (!channel) {
@@ -197,7 +197,7 @@ module.exports = (function () {
         /**
          * Bind all provided elements.
          *
-         * @param  {Array|jQuerySelector} `elementsToBind` (Optional) If not provided, binds all matching elements within default root provided at initialization.
+         * @param  {Array|jQuerySelector} elementsToBind (Optional) If not provided, binds all matching elements within default root provided at initialization.
          */
         bindAll: function (elementsToBind) {
             if (!elementsToBind) {
@@ -215,7 +215,7 @@ module.exports = (function () {
         /**
          * Unbind provided elements.
          *
-         * @param  {Array} `elementsToUnbind` (Optional) If not provided, unbinds everything.
+         * @param  {Array} elementsToUnbind (Optional) If not provided, unbinds everything.
          */
         unbindAll: function (elementsToUnbind) {
             var me = this;
@@ -230,10 +230,10 @@ module.exports = (function () {
         /**
          * Initialize the DOM Manager to work with a particular HTML element and all elements within that root. Data bindings between individual HTML elements and the model variables specified in the attributes will happen via the channel.
          *
-         * @param {Object} `options` (Optional) Overrides for the default options.
-         * @param {String} `options.root` The root HTML element being managed by this instance of the DOM Manager. Defaults to `body`.
-         * @param {Object} `options.channel` The channel to communicate with. Defaults to the Channel Manager from [Epicenter.js](../../../api_adapters/).
-         * @param {Boolean} `options.autoBind` If `true` (default), any variables added to the DOM after `Flow.initialize()` has been called will be automatically parsed, and subscriptions added to channels. Note, this does not work in IE versions < 11.
+         * @param {Object} options (Optional) Overrides for the default options.
+         * @param {String} options.root The root HTML element being managed by this instance of the DOM Manager. Defaults to `body`.
+         * @param {Object} options.channel The channel to communicate with. Defaults to the Channel Manager from [Epicenter.js](../../../api_adapters/).
+         * @param {Boolean} options.autoBind If `true` (default), any variables added to the DOM after `Flow.initialize()` has been called will be automatically parsed, and subscriptions added to channels. Note, this does not work in IE versions < 11.
          */
         initialize: function (options) {
             var defaults = {

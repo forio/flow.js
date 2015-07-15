@@ -1,11 +1,11 @@
 /**
  * ## Attribute Manager
- * 
+ *
  * Flow.js provides a set of custom DOM attributes that serve as a data binding between variables and operations in your project's model and HTML elements in your project's user interface. Under the hood, Flow.js is doing automatic conversion of these custom attributes, like `data-f-bind`, into HTML specific to the attribute's assigned value, like the current value of `myModelVar`.
  *
  * If you are looking for examples of using particular attributes, see the [specific attributes subpages](../../../../attributes-overview/).
  *
- * If you would like to extend Flow.js with your own custom attributes, you can add them to Flow.js using the Attribute Manager.  
+ * If you would like to extend Flow.js with your own custom attributes, you can add them to Flow.js using the Attribute Manager.
  *
  * The Attribute Manager is specific to adding custom attributes and describing their implementation (handlers). (The [Dom Manager](../../) contains the general implementation.)
  *
@@ -69,9 +69,9 @@ module.exports = {
     /**
      * Add a new attribute handler.
      *
-     * @param  {String|Function|Regex} `attributeMatcher` Description of which attributes to match.
-     * @param  {String} `nodeMatcher` Which nodes to add attributes to. Use [jquery Selector syntax](https://api.jquery.com/category/selectors/).
-     * @param  {Function|Object} `handler` If `handler` is a function, the function is called with `$element` as context, and attribute value + name. If `handler` is an object, it should include two functions, and have the form: `{ init: fn,  handle: fn }`. The `init` function is called when the page loads; use this to define event handlers. The `handle` function is called with `$element` as context, and attribute value + name.
+     * @param  {String|Function|Regex} attributeMatcher Description of which attributes to match.
+     * @param  {String} nodeMatcher Which nodes to add attributes to. Use [jquery Selector syntax](https://api.jquery.com/category/selectors/).
+     * @param  {Function|Object} handler If `handler` is a function, the function is called with `$element` as context, and attribute value + name. If `handler` is an object, it should include two functions, and have the form: `{ init: fn,  handle: fn }`. The `init` function is called when the page loads; use this to define event handlers. The `handle` function is called with `$element` as context, and attribute value + name.
      */
     register: function (attributeMatcher, nodeMatcher, handler) {
         handlersList.unshift(normalize.apply(null, arguments));
@@ -80,8 +80,8 @@ module.exports = {
     /**
      * Find an attribute matcher matching some criteria.
      *
-     * @param  {String} `attrFilter` Attribute to match.
-     * @param  {String|$el} `nodeFilter` Node to match.
+     * @param  {String} attrFilter Attribute to match.
+     * @param  {String|$el} nodeFilter Node to match.
      *
      * @return {Array|Null} An array of matching attribute handlers, or null if no matches found.
      */
@@ -98,11 +98,11 @@ module.exports = {
     },
 
     /**
-     * Replace an existing attribute handler. 
+     * Replace an existing attribute handler.
      *
-     * @param  {String} `attrFilter` Attribute to match.
-     * @param  {String | $el} `nodeFilter` Node to match.
-     * @param  {Function|Object} `handler` The updated attribute handler. If `handler` is a function, the function is called with `$element` as context, and attribute value + name. If `handler` is an object, it should include two functions, and have the form: `{ init: fn,  handle: fn }`. The `init` function is called when the page loads; use this to define event handlers. The `handle` function is called with `$element` as context, and attribute value + name.     
+     * @param  {String} attrFilter Attribute to match.
+     * @param  {String | $el} nodeFilter Node to match.
+     * @param  {Function|Object} handler The updated attribute handler. If `handler` is a function, the function is called with `$element` as context, and attribute value + name. If `handler` is an object, it should include two functions, and have the form: `{ init: fn,  handle: fn }`. The `init` function is called when the page loads; use this to define event handlers. The `handle` function is called with `$element` as context, and attribute value + name.
      */
     replace: function (attrFilter, nodeFilter, handler) {
         var index;
@@ -118,9 +118,9 @@ module.exports = {
     /**
      *  Retrieve the appropriate handler for a particular attribute. There may be multiple matching handlers, but the first (most exact) match is always used.
      *
-     * @param {String} `property` The attribute.
-     * @param {$el} `$el` The DOM element. 
-     * 
+     * @param {String} property The attribute.
+     * @param {$el} $el The DOM element.
+     *
      * @return {Object} The attribute handler.
      */
     getHandler: function (property, $el) {

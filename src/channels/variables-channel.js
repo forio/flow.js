@@ -1,8 +1,8 @@
 /**
  * ## Variables Channel
  *
- * Channels are ways for Flow.js to talk to external APIs -- primarily the [underlying Epicenter APIs](../../../../creating_your_interface/). 
- * 
+ * Channels are ways for Flow.js to talk to external APIs -- primarily the [underlying Epicenter APIs](../../../../creating_your_interface/).
+ *
  * The primary use cases for the Variables Channel are:
  *
  * * `publish`: Update a model variable.
@@ -20,11 +20,11 @@
  *
  * You can also use `subscribe()` and a callback function to listen and react when the model variable has been updated:
  *
- *      Flow.channel.operations.subscribe('myVariable', 
+ *      Flow.channel.operations.subscribe('myVariable',
  *          function() { console.log('called!'); } );
  *
  * To use the Variables Channel, simply [initialize Flow.js in your project](../../../#custom-initialize).
- * 
+ *
 */
 
 'use strict';
@@ -55,7 +55,7 @@ module.exports = function (options) {
          *          }
          *      });
          *
-         * To override for a specific call to the Variables Channel, pass this as the final `options` parameter: 
+         * To override for a specific call to the Variables Channel, pass this as the final `options` parameter:
          *
          *       Flow.channel.variables.publish('myVariable', newValue, { silent: true });
          *
@@ -75,12 +75,12 @@ module.exports = function (options) {
          * @type {Object}
          */
         autoFetch: {
-            
+
              // Enable auto-fetch behavior. If set to `false` during instantiation there's no way to enable this again
              // @type {Boolean}
             enable: true,
 
-             // If auto-fetch is enabled, control when to start fetching. Typically you'd want to start right away, but if you want to wait till something else happens (like an operation or user action) set to `false` and control using the `startAutoFetch()` function.             
+             // If auto-fetch is enabled, control when to start fetching. Typically you'd want to start right away, but if you want to wait till something else happens (like an operation or user action) set to `false` and control using the `startAutoFetch()` function.
              // @type {Boolean}
             start: true,
 
@@ -255,8 +255,8 @@ module.exports = function (options) {
         /**
          * Force a check for updates on the channel, and notify all listeners.
          *
-         * @param {Object|Array} `changeList` Key-value pairs of changed variables.
-         * @param {Boolean} `force`  Ignore all `silent` options and force refresh.
+         * @param {Object|Array} changeList Key-value pairs of changed variables.
+         * @param {Boolean} force  Ignore all `silent` options and force refresh.
          */
         refresh: function (changeList, force) {
             var me = this;
@@ -291,8 +291,8 @@ module.exports = function (options) {
          *
          *      Flow.channel.operations.notify('myVariable', newValue);
          *
-         * @param {String|Array} `topics` Names of variables.
-         * @param {String|Number|Array|Object} `value` New values for the variables. 
+         * @param {String|Array} topics Names of variables.
+         * @param {String|Number|Array|Object} value New values for the variables.
         */
         notify: function (topics, value) {
             var callTarget = function (target, params) {
@@ -332,9 +332,9 @@ module.exports = function (options) {
          *      Flow.channel.variables.publish('myVariable', newValue);
          *      Flow.channel.variables.publish({ myVar1: newVal1, myVar2: newVal2 });
          *
-         * @param  {String|Object} `variable` String with name of variable. Alternatively, object in form `{ variableName: value }`.
-         * @param {String|Number|Array|Object} `value` (Optional)  Value of the variable, if previous argument was a string.
-         * @param {Object} `options` (Optional) Overrides for the default channel options. Supported options: `{ silent: Boolean }` and `{ batch: Boolean }`.
+         * @param  {String|Object} variable String with name of variable. Alternatively, object in form `{ variableName: value }`.
+         * @param {String|Number|Array|Object} value (Optional)  Value of the variable, if previous argument was a string.
+         * @param {Object} options (Optional) Overrides for the default channel options. Supported options: `{ silent: Boolean }` and `{ batch: Boolean }`.
          *
          * @return {$promise} Promise to complete the update.
          */
@@ -368,7 +368,7 @@ module.exports = function (options) {
          *
          * **Example**
          *
-         *      Flow.channel.variables.subscribe('myVariable', 
+         *      Flow.channel.variables.subscribe('myVariable',
          *          function() { console.log('called!'); });
          *
          *      Flow.channel.variables.subscribe(['price', 'cost'],
@@ -382,14 +382,14 @@ module.exports = function (options) {
          *              // this function called twice, once with { price: X }
          *              // and again with { cost: Y }
          *          },
-         *          { batch: false });       
+         *          { batch: false });
          *
-         * @param {String|Array} `topics` The names of the variables.
-         * @param {Object|Function} `subscriber` The object or function being notified. Often this is a callback function. If this is not a function, a `trigger` method is called if available; if not, event is triggered on $(object).
-         * @param {Object} `options` (Optional) Overrides for the default channel options.
-         * @param {Boolean} `options.silent` Determine when to update state.
-         * @param {Boolean} `options.batch` If you are subscribing to multiple variables, by default the callback function is called once for each item to which you subscribe: `batch: false`. When `batch` is set to `true`, the callback function is only called once, no matter how many items you are subscribing to.
-         * 
+         * @param {String|Array} topics The names of the variables.
+         * @param {Object|Function} subscriber The object or function being notified. Often this is a callback function. If this is not a function, a `trigger` method is called if available; if not, event is triggered on $(object).
+         * @param {Object} options (Optional) Overrides for the default channel options.
+         * @param {Boolean} options.silent Determine when to update state.
+         * @param {Boolean} options.batch If you are subscribing to multiple variables, by default the callback function is called once for each item to which you subscribe: `batch: false`. When `batch` is set to `true`, the callback function is only called once, no matter how many items you are subscribing to.
+         *
          * @return {String} An identifying token for this subscription. Required as a parameter when unsubscribing.
         */
         subscribe: function (topics, subscriber, options) {
@@ -420,7 +420,7 @@ module.exports = function (options) {
         /**
          * Stop receiving notifications for all subscriptions referenced by this token.
          *
-         * @param {String} `token` The identifying token for this subscription. (Created and returned by the `subscribe()` call.)
+         * @param {String} token The identifying token for this subscription. (Created and returned by the `subscribe()` call.)
         */
         unsubscribe: function (token) {
             this.subscriptions = _.reject(this.subscriptions, function (subs) {
@@ -429,9 +429,7 @@ module.exports = function (options) {
         },
 
         /**
-         * Stop receiving notifications for all subscriptions.
-         *
-         * @param {None} None
+         * Stop receiving notifications for all subscriptions. No parameters.
         */
         unsubscribeAll: function () {
             this.subscriptions = [];

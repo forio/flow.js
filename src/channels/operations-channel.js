@@ -1,8 +1,8 @@
 /**
  * ## Operations Channel
  *
- * Channels are ways for Flow.js to talk to external APIs -- primarily the [underlying Epicenter APIs](../../../../creating_your_interface/). 
- * 
+ * Channels are ways for Flow.js to talk to external APIs -- primarily the [underlying Epicenter APIs](../../../../creating_your_interface/).
+ *
  * The primary use cases for the Operations Channel are:
  *
  * * `publish`: Call an operation.
@@ -18,13 +18,13 @@
  *
  * You can also use `subscribe()` and a callback function to listen and react when the operation has been called:
  *
- *      Flow.channel.operations.subscribe('myMethod', 
+ *      Flow.channel.operations.subscribe('myMethod',
  *          function() { console.log('called!'); } );
  *
- * Use `subscribe(*)` to listen for notifications on all operations. 
+ * Use `subscribe(*)` to listen for notifications on all operations.
  *
  * To use the Operations Channel, simply [initialize Flow.js in your project](../../../#custom-initialize).
- * 
+ *
 */
 
 
@@ -56,7 +56,7 @@ module.exports = function (options) {
          *          }
          *      });
          *
-         * To override for a specific call to the Operations Channel, pass this as the final `options` parameter: 
+         * To override for a specific call to the Operations Channel, pass this as the final `options` parameter:
          *
          *       Flow.channel.operations.publish('myMethod', myMethodParam, { silent: true });
          *
@@ -86,9 +86,9 @@ module.exports = function (options) {
         /**
          * Force a check for updates on the channel, and notify all listeners.
          *
-         * @param  {String|Array}  `executedOpns` Operations which just happened.
-         * @param  {Any} `response`  Response from the operation.
-         * @param  {Boolean} `force`  Ignore all `silent` options and force refresh.
+         * @param {String|Array}  executedOpns Operations which just happened.
+         * @param {Any} response  Response from the operation.
+         * @param {Boolean} force  Ignore all `silent` options and force refresh.
          */
         refresh: function (executedOpns, response, force) {
             // console.log('Operations refresh', executedOpns);
@@ -117,8 +117,8 @@ module.exports = function (options) {
          *
          *      Flow.channel.operations.notify('myMethod', myMethodResponse);
          *
-         * @param {String} `operation` Name of operation.
-         * @param {String|Number|Array|Object} `value` Parameter values for the callback function. 
+         * @param {String} operation Name of operation.
+         * @param {String|Number|Array|Object} value Parameter values for the callback function.
         */
         notify: function (operation, value) {
             var listeners = this.getSubscribers(operation);
@@ -144,13 +144,13 @@ module.exports = function (options) {
          *
          *      Flow.channel.operations.publish('myMethod', myMethodParam);
          *      Flow.channel.operations.publish({
-         *          operations: [{ name: 'myMethod', params: [myMethodParam] }] 
+         *          operations: [{ name: 'myMethod', params: [myMethodParam] }]
          *      });
          *
-         * @param  {String|Object} `operation` For one operation, pass the name of operation (string). For multiple operations, pass an object with field `operations` and value array of objects, each with `name` and `params`: `{operations: [{ name: opn, params:[] }] }`.
-         * @param {String|Number|Array|Object} `params` (Optional)  Parameters to send to operation. Use for one operation; for multiple operations, parameters are already included in the object format.
-         * @param {Object} `options` (Optional) Overrides for the default channel options.
-         * @param {Boolean} `options.silent` Determine when to update state.
+         * @param  {String|Object} operation For one operation, pass the name of operation (string). For multiple operations, pass an object with field `operations` and value array of objects, each with `name` and `params`: `{operations: [{ name: opn, params:[] }] }`.
+         * @param {String|Number|Array|Object} params (Optional)  Parameters to send to operation. Use for one operation; for multiple operations, parameters are already included in the object format.
+         * @param {Object} options (Optional) Overrides for the default channel options.
+         * @param {Boolean} options.silent Determine when to update state.
          *
          * @return {$promise} Promise to complete the call.
          */
@@ -182,11 +182,11 @@ module.exports = function (options) {
          *
          * **Example**
          *
-         *      Flow.channel.operations.subscribe('myMethod', 
+         *      Flow.channel.operations.subscribe('myMethod',
          *          function() { console.log('called!'); });
          *
-         * @param {String|Array} `operations` The names of the operations. Use `*` to listen for notifications on all operations.
-         * @param {Object|Function} `subscriber` The object or function being notified. Often this is a callback function.
+         * @param {String|Array} operations The names of the operations. Use `*` to listen for notifications on all operations.
+         * @param {Object|Function} subscriber The object or function being notified. Often this is a callback function.
          *
          * @return {String} An identifying token for this subscription. Required as a parameter when unsubscribing.
         */
@@ -219,8 +219,8 @@ module.exports = function (options) {
         /**
          * Stop receiving notification when an operation is called.
          *
-         * @param {String|Array} `operations` The names of the operations.
-         * @param {String} `token` The identifying token for this subscription. (Created and returned by the `subscribe()` call.)
+         * @param {String|Array} operation The names of the operations.
+         * @param {String} token The identifying token for this subscription. (Created and returned by the `subscribe()` call.)
         */
         unsubscribe: function (operation, token) {
             this.listenerMap[operation] = _.reject(this.listenerMap[operation], function (subs) {
@@ -229,9 +229,7 @@ module.exports = function (options) {
         },
 
         /**
-         * Stop receiving notifications for all operations.
-         *
-         * @param {None} None
+         * Stop receiving notifications for all operations. No parameters.
         */
         unsubscribeAll: function () {
             this.listenerMap = {};

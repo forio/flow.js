@@ -1,6 +1,6 @@
 /**
  * ## Class Attribute: data-f-class
- * 
+ *
  * You can bind model variables to names of CSS classes, so that you can easily change the styling of HTML elements based on the values of model variables.
  *
  * **To bind model variables to CSS classes:**
@@ -18,14 +18,14 @@
  *          .North { color: grey }
  *          .South { color: purple }
  *          .East { color: blue }
- *          .West { color: orange } 
+ *          .West { color: orange }
  *          .sales.good { color: green }
  *          .sales.bad { color: red }
  *          .sales.value-100 { color: yellow }
  *       </style>
  *
  *       <div data-f-class="salesMgr.region">
- *           Content colored by region 
+ *           Content colored by region
  *       </div>
  *
  *       <div data-f-class="salesMgr.performance" class="sales">
@@ -34,7 +34,7 @@
  *
  *       <div data-f-class="salesMgr.numRegions" class="sales">
  *           Content yellow if salesMgr.numRegions is 100
- *       </div> 
+ *       </div>
  *
  */
 

@@ -6,7 +6,7 @@
  * However, sometimes you want to be explicit in your initialization call, and there are also some additional parameters that let you customize your use of Flow.js.
  *
  * ####Parameters
- * 
+ *
  * The parameters for initializing Flow.js include:
  *
  * * `channel` Configuration details for the channel Flow.js uses in connecting with underlying APIs.
@@ -22,10 +22,10 @@
  * * `channel.run.operations.silent` Provides granular control over when user interface updates happen for changes on this channel. See below for possible values.
  * * `channel.run.server` Object with additional server configuration, defaults to `host: 'api.forio.com'`.
  * * `channel.run.transport` An object which takes all of the jquery.ajax options at <a href="http://api.jquery.com/jQuery.ajax/">http://api.jquery.com/jQuery.ajax/</a>.
- * * `dom` Configuration options for the DOM where this instance of Flow.js is created. 
+ * * `dom` Configuration options for the DOM where this instance of Flow.js is created.
  * * `dom.root` The root HTML element being managed by the Flow.js DOM Manager. Defaults to `body`.
  * * `dom.autoBind` If `true` (default), automatically parse variables added to the DOM after this `Flow.initialize()` call. Note, this does not work in IE versions < 11.
- * 
+ *
  * The `silent` configuration option for the `run.variables` and `run.operations` is a flag for providing more granular control over when user interface updates happen for changes on this channel. Values can be:
  *
  * * `false`: Always update the UI for any changes (variables updated, operations called) on this channel. This is the default behavior.

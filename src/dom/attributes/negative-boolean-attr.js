@@ -9,7 +9,7 @@
  *
  * **Example**
  *
- *      <!-- this checkbox is CHECKED when sampleBool is TRUE, 
+ *      <!-- this checkbox is CHECKED when sampleBool is TRUE,
  *           and UNCHECKED when sampleBool is FALSE -->
  *      <input type="checkbox" data-f-checked="sampleBool" />
  *
