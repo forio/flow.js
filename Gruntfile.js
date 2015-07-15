@@ -3,7 +3,9 @@ module.exports = function (grunt) {
 
     // require('time-grunt')(grunt);
     require('jit-grunt')(grunt, {
-        mocha: 'grunt-mocha-phantom-istanbul'
+        mocha: 'grunt-mocha-phantom-istanbul',
+        'bump-only': 'grunt-bump',
+        'bump-commit': 'grunt-bump'
     });
 
     grunt.initConfig({
