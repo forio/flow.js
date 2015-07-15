@@ -42,7 +42,7 @@ module.exports = function (grunt) {
                 preBundleCB: function (b) {
                     b.plugin(remapify, {
                         src: '**/*.js',
-                        cwd: './instrument/',
+                        cwd: './src/',
                         expose: 'src'
                     });
                 },
