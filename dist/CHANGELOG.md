@@ -1,3 +1,55 @@
+<a name"0.9.0"></a>
+## 0.9.0 (2015-07-15)
+
+#### New features
+##### Variables Channel updates
+- `subscribe` now takes in a `{batch: true}` option. Docs [here.](https://forio.com/epicenter/docs/public/data_binding_flow_js/generated/channels/variables-channel/)
+- `publish` now returns a promise.
+- `unsubscribe` now only requires a token. You no longer need to pass in a variable name along with it.
+- added `getTopicDependencies` to list out everyone who's listening for a particular topic
+- The channel now takes in a `autoFetch` parameter on instantiation. See more details [here.](https://forio.com/epicenter/docs/public/data_binding_flow_js/generated/channels/variables-channel/)
+
+##### for-each attributes
+You can now use `data-f-foreach` with arrays and objects. Usage in analogous to `data-f-bind`, specifics are noted [here.](https://forio.com/epicenter/docs/public/data_binding_flow_js/generated/dom/attributes/foreach/default-foreach-attr/)
+
+##### Live Binding
+Flow.js now uses `MutationObservers` to listen for addition/removal of DOM changes after it has been initialized. This is especially useful if you're loading new content through ajax and don't want to call re-initialize every time. You can disable this behavior by setting
+
+```javascript
+Flow.initialize({
+   dom: {
+       autoBind: false
+   }
+});
+
+```
+##### Templates
+Both `data-f-foreach` and `data-f-bind` allow using lodash templates for more control over your layout and display variables. See
+(data-f-bind with multiple values and templates)[https://forio.com/epicenter/docs/public/data_binding_flow_js/generated/dom/attributes/binds/default-bind-attr/] and (data-f-foreach)[https://forio.com/epicenter/docs/public/data_binding_flow_js/generated/dom/attributes/foreach/default-foreach-attr/]
+
+
+##### DOM Manager
+- The DOM Manager now gives you more options to control binding/un-binding so you can synchronize the calls based on your applications timeline. Specifically, the following new methods have been added:
+`unbindElement`
+`bindElement`
+`bindAll`
+`unbindAll`
+See an explanation [here.](https://forio.com/epicenter/docs/public/data_binding_flow_js/generated/dom/)
+
+This only works in browsers which support `MutationObservers`, which works in IE11+ and the latest versions of Firefox/Chrome and other browsers
+
+#### Breaking Changes
+- `Flow.dom.converters.register` now takes in a 3rd argument `acceptLists` to indicate if that converter knows what to do with Arrays and Objects. If this is set to true, the converter get passed in the array once. If this is set to `false` we assume the converter does not know what to do with an array, and is then called once on each item in your source array.
+
+This distinction is useful because it allows doing:
+
+`Flow.dom.converters.convert(["100", "200", "300"], "$#,###.00")`
+
+and get back `["$100.00", "$200.00", "$300.00"]` (since the formatting converter does not accept lists). This formatted value can now be passed to other converters for further transformations, or fed into a foreach.
+
+The default is false, so older converters which didn't pass anything in will no longer work.
+
+
 <a name="0.8.2"></a>
 ### 0.8.2 (2014-12-01)
 #### Bug fixes
