@@ -208,6 +208,26 @@ module.exports = function (options) {
             this.debouncedFetch(topics);
         },
 
+        variableResolver: {
+
+        },
+
+        populateInnerVariables: function (vars) {
+            var unmappedVariables = [];
+            var valueList = {};
+            _.each(vars, function (v) {
+                if (this.variableResolver[v] !== undefined) {
+                    var val = _.isFunction(this.variableResolver[v]) ? this.variableResolver[v](v) : this.variableResolver[v];
+                    valueList[v] = val;
+                } else {
+                    unmappedVariables.push(v);
+                }
+            }, this);
+            return vs.query(unmappedVariables).then(function (variableValueList) {
+                return $.extend(valueList, variableValueList);
+            });
+        },
+
         fetch: function (variablesList) {
             // console.log('fetch called', variablesList);
             variablesList = [].concat(variablesList);
@@ -232,7 +252,7 @@ module.exports = function (options) {
                 });
             };
             if (innerVariables.length) {
-                return vs.query(innerVariables).then(function (innerVariables) {
+                return this.populateInnerVariables(innerVariables).then(function (innerVariables) {
                     //console.log('inner', innerVariables);
                     $.extend(currentData, innerVariables);
                     var ip =  interpolate(variablesList, innerVariables);
