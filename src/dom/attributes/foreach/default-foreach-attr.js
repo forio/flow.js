@@ -78,7 +78,9 @@ module.exports = {
         }
         var $me = this.empty();
         _.each(value, function (dataval, datakey) {
-            dataval = dataval + '';
+            if (!dataval) {
+                dataval = dataval + '';
+            }
             var nodes = $loopTemplate.clone();
             nodes.each(function (i, newNode) {
                 newNode = $(newNode);
