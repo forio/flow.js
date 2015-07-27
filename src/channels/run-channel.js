@@ -22,6 +22,14 @@ module.exports = function (options) {
     var $creationPromise = rm.getRun();
     rs.currentPromise = $creationPromise;
 
+    // $creationPromise
+    //     .then(function () {
+    //         console.log('done');
+    //     })
+    //     .fail(function () {
+    //         console.log('failt');
+    //     });
+
     var createAndThen = function (fn, context) {
         return _.wrap(fn, function (func) {
             var passedInParams = _.toArray(arguments).slice(1);
@@ -34,7 +42,7 @@ module.exports = function (options) {
 
     //Make sure nothing happens before the run is created
     _.each(rs, function (value, name) {
-        if (_.isFunction(value) && name !== 'variables'  && name !== 'create') {
+        if (_.isFunction(value) && name !== 'variables'  && name !== 'create'  && name !== 'load') {
             rs[name] = createAndThen(value, rs);
         }
     });
