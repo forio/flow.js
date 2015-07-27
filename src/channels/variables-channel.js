@@ -87,7 +87,9 @@ module.exports = function (options) {
              // Control time to wait between calls to `subscribe()` before calling `fetch()`. See [http://drupalmotion.com/article/debounce-and-throttle-visual-explanation](http://drupalmotion.com/article/debounce-and-throttle-visual-explanation) for an explanation of how debouncing works.
              // @type {Number} Milliseconds to wait
             debounce: 200
-        }
+        },
+
+        interpolate: {}
     };
 
     var channelOptions = $.extend(true, {}, defaults, options);
@@ -208,16 +210,12 @@ module.exports = function (options) {
             this.debouncedFetch(topics);
         },
 
-        variableResolver: {
-
-        },
-
         populateInnerVariables: function (vars) {
             var unmappedVariables = [];
             var valueList = {};
             _.each(vars, function (v) {
-                if (this.variableResolver[v] !== undefined) {
-                    var val = _.isFunction(this.variableResolver[v]) ? this.variableResolver[v](v) : this.variableResolver[v];
+                if (this.options.interpolate[v] !== undefined) {
+                    var val = _.isFunction(this.options.interpolate[v]) ? this.options.interpolate[v](v) : this.options.interpolate[v];
                     valueList[v] = val;
                 } else {
                     unmappedVariables.push(v);
