@@ -87,6 +87,8 @@ module.exports = {
             var variableName = this.data('f-bind');//Hack because i don't have access to variable name here otherwise
             valueToTemplate = { value: value };
             valueToTemplate[variableName] = value;
+        } else {
+            valueToTemplate.value = value; //If the key has 'weird' characters like '<>' hard to get at with a template otherwise
         }
         var bindTemplate = this.data('bind-template');
         if (bindTemplate) {
