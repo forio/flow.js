@@ -223,9 +223,13 @@ module.exports = function (options) {
                     unmappedVariables.push(v);
                 }
             }, this);
-            return vs.query(unmappedVariables).then(function (variableValueList) {
-                return $.extend(valueList, variableValueList);
-            });
+            if (unmappedVariables.length) {
+                return vs.query(unmappedVariables).then(function (variableValueList) {
+                    return $.extend(valueList, variableValueList);
+                });
+            } else {
+                return $.Deferred().resolve(valueList).promise();
+            }
         },
 
         fetch: function (variablesList) {
