@@ -143,13 +143,10 @@ module.exports = function (options) {
 
         interpolate: function (params) {
             var ip = this.options.interpolate;
-            if ($.isArray(params)) {
-                return _.map(params, function (p) {
-                    return (ip[p]) ? ip[p] : p;
-                }, this);
-            } else {
-                return (ip[params]) ? ip[params] : params
-            }
+            var match = function (p) {
+                return (ip[p]) ? ip[p] : p;
+            };
+            return ($.isArray(params)) ? _.map(params, match) : match(params);
         },
 
         /**
@@ -183,7 +180,6 @@ module.exports = function (options) {
                             }
                         });
             } else {
-                //TODO: check if interpolated
                 var opts = ($.isPlainObject(operation)) ? params : options;
                 if (!$.isPlainObject(operation) && params) {
                     params = this.interpolate(params);
