@@ -62,10 +62,14 @@ module.exports = function (options) {
          *
          * @type {String|Array|Object}
          */
-        silent: false
+        silent: false,
+
+        interpolate: {}
     };
 
     var channelOptions = $.extend(true, {}, defaults, options);
+    this.options = channelOptions;
+
     var run = channelOptions.run;
 
     var publicAPI = {
@@ -137,6 +141,17 @@ module.exports = function (options) {
             });
         },
 
+        interpolate: function (params) {
+            var ip = this.options.interpolate;
+            if ($.isArray(params)) {
+                return _.map(params, function (p) {
+                    return (ip[p]) ? ip[p] : p;
+                }, this);
+            } else {
+                return (ip[params]) ? ip[params] : params
+            }
+        },
+
         /**
          * Call the operation with parameters, and alert subscribers.
          *
@@ -158,6 +173,9 @@ module.exports = function (options) {
             var me = this;
             if ($.isPlainObject(operation) && operation.operations) {
                 var fn = (operation.serial) ? run.serial : run.parallel;
+                _.each(operation.operations, function (opn) {
+                    opn.params = this.interpolate(opn.params);
+                }, this);
                 return fn.call(run, operation.operations)
                         .then(function (response) {
                             if (!params || !params.silent) {
@@ -167,7 +185,10 @@ module.exports = function (options) {
             } else {
                 //TODO: check if interpolated
                 var opts = ($.isPlainObject(operation)) ? params : options;
-                return run.do.apply(run, arguments)
+                if (!$.isPlainObject(operation) && params) {
+                    params = this.interpolate(params);
+                }
+                return run.do.call(run, operation, params)
                     .then(function (response) {
                         if (!opts || !opts.silent) {
                             me.refresh.call(me, [operation], response);
