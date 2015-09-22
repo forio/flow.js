@@ -17,11 +17,8 @@ One way to do this is to use <a href="http://forio.com/contour/" target="_blank"
 2. Create a new Contour chart on the page.
 3. Use the Flow.js [Variables Channel](../generated/channels/variables-channel/) to subscribe to the model variable you want to graph.
 4. In the callback function for your subscription, update and render the Contour chart.
-
-Optional extensions include:
-
-* Graphing multiple variables updated by the model.
-* Graphing multiple variables entered by the user.
+5. Optionally, graph multiple variables updated by the model.
+6. Optionally, graph multiple variables entered by the user.
 
 Let's look at each step in more detail. You can also jump straight to the [complete example](#example).
 
@@ -33,8 +30,8 @@ Add `contour.js` and `contour.css` to the page of your project where the visuali
 	<html>
 		<head>
 			<link rel="stylesheet" href="https://forio.com/tools/contour/contour.min.css">
-			<script src="yourPath/d3.min.js"></script>
-			<script src="yourPath/lodash.js"></script>
+			<script src="http://d3js.org/d3.v3.js"></script>
+			<script src="http://cdnjs.cloudflare.com/ajax/libs/lodash.js/2.4.1/lodash.js"></script>
 			<script src="https://forio.com/tools/contour/contour.min.js"></script>
 		</head>
 		
@@ -91,7 +88,7 @@ The Flow.js [Variables Channel `subscribe()`](../generated/channels/variables-ch
 The argument passed to the callback (`data`) is an object with the name and value of the variable. Here, we only need to add the value to the data set we're graphing: `push(data.myVariable)`.
 
 
-**Extension #1: Graphing multiple variables updated by the model.**
+**Step #5: Optionally, graph multiple variables updated by the model.**
 
 Using the Flow.js [Variables Channel](../generated/channels/variables-channel/), you can subscribe to multiple model variables at once, which allows you to use multiple variables at once in your visualization.
 
@@ -102,20 +99,20 @@ Using the Flow.js [Variables Channel](../generated/channels/variables-channel/),
 				y: data.price
 			};
 			mySecondChartData.push(composedData);
-			mySecondChart.setData(mySecondChartData.push);
+			mySecondChart.setData(mySecondChartData);
 			mySecondChart.render();
 		}, { batch: true });
 
 Make sure to pass in the option `{ batch: true }` as the optional third argument to `subscribe()`. When `batch` is `true`, the callback function is only called once (rather than once for each variable to which you are subscribing). The argument passed to the callback (`data`) is an object with the names and values of both variables. The variable `composedData` uses these values to create an (x,y) data point to add to the data set we're graphing.
 
-**Extension #2: Graphing multiple variables entered by the user.**
+**Step #6: Optionally, graph multiple variables entered by the user.**
 
-The approach in Extension #1 works well when `cost` and `price` are both updated automatically as your model advances. You can also use Flow.js and Contour to graph multiple model variables whose values are input by the user.
+The approach in Step #5 works well when `cost` and `price` are both updated automatically as your model advances. You can also use Flow.js and Contour to graph multiple model variables whose values are input by the user.
 
 First, have the user enter the values and click a button when finished:
 
-	Enter x-coordinate: <input id="x"></input><br>
-	Enter y-coordinate: <input id="y"></input></br>
+	Enter x-coordinate: <input id="x" type="text"></input><br>
+	Enter y-coordinate: <input id="y" type="text"></input></br>
 	<button id="submitButton">Update x,y</button>
 
 Then once the button is clicked, call an operation from the model, using the values entered by the user:
@@ -124,7 +121,7 @@ Then once the button is clicked, call an operation from the model, using the val
 		Flow.channel.operations.publish('updateXY', [$("#x").val(), $("#y").val()]);
 	});
 
-We use the `operations.publish()` to guarantee than any subscribers are notified of the call. (Using [`Flow.channel.run.do()`](../../api_adapters/generated/run-api-service/) also calls the operation, but does not update subscribers.)
+We use the `operations.publish()` to guarantee that any subscribers are notified of the call.
 	
 Finally, use the Flow.js [Operations Channel](../generated/channels/operations-channel/) to subscribe to the operation you've just called. The second argument is a callback function, called whenever the model operation is called. We want to update and re-render our visualization each time this operation happens:
 
@@ -164,7 +161,7 @@ Here's the complete sample code:
 
 	</head>
 
-	<body>
+	<body data-f-model="supply-chain-game.py">
 
 		<p>Here is a div with the Contour chart, used in Steps 1-4: </p>
 		<div class="myChart"></div>
@@ -177,34 +174,26 @@ Here's the complete sample code:
 		<p><button data-f-on-click='advanceModel'>Advance Model</button></p>
 		<hr>
 		
-		<p>Here is a div with the Contour chart used in Extension #2, based on two variables whose values are entered by the user: </p>
+		<p>Here is a div with the Contour chart used in Step #6, based on two variables whose values are entered by the user: </p>
 		<div class="myThirdChart"></div>
 		<p>
-			Enter x-coordinate: <input id="x"></input><br>
-			Enter y-coordinate: <input id="y"></input></br>
+			Enter x-coordinate: <input id="x" type="text"></input><br>
+			Enter y-coordinate: <input id="y" type="text"></input></br>
 			<button id="submitButton">Update x,y</button>
 		</p>
 		
 		<script>
 
-			Flow.initialize({
-				channel: {
-					run: { 
-						model: 'supply-chain-game.py',
-						account: 'acme-simulations',
-						project: 'supply-chain-game'
-					}
-				}
-			});
+			Flow.initialize();
 
-			// used in Extension #2
+			// used in Step #6
 			$("#submitButton").click(function(){
 				Flow.channel.operations.publish('updateXY', [$("#x").val(), $("#y").val()]);
 			});	
 
 			$(function () {
 			
-				// Basic Example: Steps 1-4
+				// Basic Example: Steps #1-4
 				var myChartData = [];
 				var myChart = new Contour({
 				        el: '.myChart'
@@ -221,7 +210,7 @@ Here's the complete sample code:
 				});
 				
 
-				// Extension #1
+				// Step #5, graphing multiple variables updated by the model
 				var mySecondChartData = [];
 				var mySecondChart = new Contour({
 						el: '.mySecondChart'
@@ -242,7 +231,7 @@ Here's the complete sample code:
 					}, { batch: true });
 			
 
-				// Extension #2
+				// Step #6, graphing multiple variables entered by the user
 				var myThirdChartData = [];
 				var myThirdChart = new Contour({
 					el: '.myThirdChart'
