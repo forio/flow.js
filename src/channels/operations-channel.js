@@ -144,7 +144,11 @@ module.exports = function (options) {
         interpolate: function (params) {
             var ip = this.options.interpolate;
             var match = function (p) {
-                return (ip[p]) ? ip[p] : p;
+                var mapped = p;
+                if (ip[p]) {
+                    mapped = _.isFunction(ip[p]) ? ip[p](p) : ip[p];
+                }
+                return mapped;
             };
             return ($.isArray(params)) ? _.map(params, match) : match(params);
         },
