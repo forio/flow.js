@@ -23,6 +23,7 @@ Learn more about advanced topics:
 * [Working with templates](#templates)
 * [Understanding channels](./channel-overview/)
 * [Additional options for initializing](./generated/flow-js/)
+* [Flow.js and data visualization: graphing with Contour](./graphing-overview/)
 
 **The current version of Flow is 0.9.0.** See the [Using Flow.js in your Project](#using_in_project) section below. You can also view the history of releases on <a href="https://github.com/forio/flow.js/releases/" "target=_blank">GitHub</a>.
 
