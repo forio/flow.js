@@ -200,74 +200,72 @@ Here's the complete sample code:
 				Flow.channel.operations.publish('updateXY', [$("#x").val(), $("#y").val()]);
 			});	
 
-			$(function () {
 			
-				// Basic Example: Steps #1-4. 
-				// model variable myVariable is scalar
-				var myChartData = [];
-				var myChart = new Contour({
-				        el: '.myChart'
-				      })
-				    .cartesian()
-				    .line()
-				    .tooltip();
+			// Basic Example: Steps #1-4. 
+			// model variable myVariable is scalar
+			var myChartData = [];
+			var myChart = new Contour({
+			        el: '.myChart'
+			      })
+			    .cartesian()
+			    .line()
+			    .tooltip();
 
-				Flow.channel.variables.subscribe(['myVariable'],
-					function(data) {
-						myChartData.push(data.myVariable);
-						myChart.setData(myChartData);
-						myChart.render();
-				});
-				
-
-				// Step #5, graphing multiple variables updated by the model
-				// model variables cost and price are arrays
-				var mySecondChart = new Contour({
-						el: '.mySecondChart'
-					})
-					.cartesian()
-					.line()
-					.tooltip();
-				
-				Flow.channel.variables.subscribe(['cost', 'price'],
-					function(data) {
-						var composedData = [
-							{
-								name: 'Cost',
-								data: data.cost
-							},
-							{
-								name: 'Price',
-								data: data.price
-							}
-						];
-						mySecondChart.setData(composedData);
-						mySecondChart.render();
-					}, { batch: true });
-			
-
-				// Step #6, graphing multiple variables entered by the user
-				// the arguments to model operation updateXY are scalar
-				var myThirdChartData = [];
-				var myThirdChart = new Contour({
-					el: '.myThirdChart'
-					})
-					.cartesian()
-					.line()
-					.tooltip();
-
-				Flow.channel.operations.subscribe('updateXY',
-						function(data) {
-							var composedData = {
-								x: data.updateXY.arguments[0],
-								y: data.updateXY.arguments[1]
-							};
-							myThirdChartData.push(composedData);
-							myThirdChart.setData(myThirdChartData);
-							myThirdChart.render();
-				});
-
+			Flow.channel.variables.subscribe('myVariable',
+				function(data) {
+					myChartData.push(data.myVariable);
+					myChart.setData(myChartData);
+					myChart.render();
 			});
+			
+
+			// Step #5, graphing multiple variables updated by the model
+			// model variables cost and price are arrays
+			var mySecondChart = new Contour({
+					el: '.mySecondChart'
+				})
+				.cartesian()
+				.line()
+				.tooltip();
+			
+			Flow.channel.variables.subscribe(['cost', 'price'],
+				function(data) {
+					var composedData = [
+						{
+							name: 'Cost',
+							data: data.cost
+						},
+						{
+							name: 'Price',
+							data: data.price
+						}
+					];
+					mySecondChart.setData(composedData);
+					mySecondChart.render();
+				}, { batch: true });
+		
+
+			// Step #6, graphing multiple variables entered by the user
+			// the arguments to model operation updateXY are scalar
+			var myThirdChartData = [];
+			var myThirdChart = new Contour({
+				el: '.myThirdChart'
+				})
+				.cartesian()
+				.line()
+				.tooltip();
+
+			Flow.channel.operations.subscribe('updateXY',
+					function(data) {
+						var composedData = {
+							x: data.updateXY.arguments[0],
+							y: data.updateXY.arguments[1]
+						};
+						myThirdChartData.push(composedData);
+						myThirdChart.setData(myThirdChartData);
+						myThirdChart.render();
+			});
+
 			
 		</script>
 	
