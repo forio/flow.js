@@ -85,8 +85,9 @@ The Flow.js [Variables Channel `subscribe()`](../generated/channels/variables-ch
 			myChart.render();
 	});
 
-The argument passed to the callback (`data`) is an object with the name and value of the variable. Here, we only need to add the value to the data set we're graphing: `push(data.myVariable)`.
+The argument passed to the callback (`data`) is an object with the name and value of the variable to which we've subscribed. 
 
+In this example, we're assuming that `myVariable` is a scalar value. Therefore, we need to explicitly add the updated value into the data set that we're graphing: `push(data.myVariable)`. (This explicit push is not required if your variable is already an array and the end user update is simply adding an element to the existing array &mdash; compare with Step 5.)
 
 **Step #5: Optionally, graph multiple variables updated by the model.**
 
@@ -94,16 +95,23 @@ Using the Flow.js [Variables Channel](../generated/channels/variables-channel/),
 
 	Flow.channel.variables.subscribe(['cost', 'price'], 
 		function (data) {
-			var composedData = {
-				x: data.cost,
-				y: data.price
-			};
-			mySecondChartData.push(composedData);
-			mySecondChart.setData(mySecondChartData);
+			var composedData = [
+				{
+					name: 'Cost',
+					data: data.cost
+				},
+				{
+					name: 'Price',
+					data: data.price
+				}
+			];
+			mySecondChart.setData(composedData);
 			mySecondChart.render();
 		}, { batch: true });
 
-Make sure to pass in the option `{ batch: true }` as the optional third argument to `subscribe()`. When `batch` is `true`, the callback function is only called once (rather than once for each variable to which you are subscribing). The argument passed to the callback (`data`) is an object with the names and values of both variables. The variable `composedData` uses these values to create an (x,y) data point to add to the data set we're graphing.
+Notice that we've included an optional third argument to `subscribe()`: the option `{ batch: true }`. When `batch` is `true`, the callback function is only called once (rather than once for each variable to which you are subscribing). So here, the argument passed to the callback (`data`) is an object with the names and values of both variables. 
+
+In this example, we're assuming that `cost` and `price` are both arrays (for example, tracking cost and price over time as the model advances). Because the updated values are being added as elements to existing array variables, there is no need to explicitly add the updated values onto the data set that we're graphing. (Compare this with Step 4, where for a scalar model variable, we explicitly `push` the new value into the set of data that Contour is graphing.)
 
 **Step #6: Optionally, graph multiple variables entered by the user.**
 
@@ -122,7 +130,7 @@ Then once the button is clicked, call an operation from the model, using the val
 	});
 
 We use the `operations.publish()` to guarantee that any subscribers are notified of the call.
-	
+
 Finally, use the Flow.js [Operations Channel](../generated/channels/operations-channel/) to subscribe to the operation you've just called. The second argument is a callback function, called whenever the model operation is called. We want to update and re-render our visualization each time this operation happens:
 
 	Flow.channel.operations.subscribe('updateXY',
@@ -136,8 +144,9 @@ Finally, use the Flow.js [Operations Channel](../generated/channels/operations-c
 			myThirdChart.render();
 	});
 
-The argument passed to the callback (`data`) is an object with the names and values of the arguments used to call the operation. The variable `composedData` uses these values to create an (x,y) data point to add to the data set we're graphing.
+The argument passed to the callback (`data`) is an object with the names and values of the arguments used to call the operation. 
 
+In this example, we're assuming that these arguments are scalars whose values are input directly by the user. The variable `composedData` uses these values to create a new (x,y) data point. Then, we need to explicitly add (`push`) this new data point onto the data set we're graphing.
 
 <a name="example"></a>
 **Putting it all together.**
@@ -169,7 +178,7 @@ Here's the complete sample code:
 		<input data-f-bind="sampleInt"></input>
 		<hr>
 
-		<p>Here is a div with the Contour chart used in Extension #1, based on two variables updated automatically when the model is advanced: </p>
+		<p>Here is a div with the Contour chart used in Step #5, based on two variables updated automatically when the model is advanced: </p>
 		<div class="mySecondChart"></div>
 		<p><button data-f-on-click='advanceModel'>Advance Model</button></p>
 		<hr>
@@ -193,7 +202,8 @@ Here's the complete sample code:
 
 			$(function () {
 			
-				// Basic Example: Steps #1-4
+				// Basic Example: Steps #1-4. 
+				// model variable myVariable is scalar
 				var myChartData = [];
 				var myChart = new Contour({
 				        el: '.myChart'
@@ -211,7 +221,7 @@ Here's the complete sample code:
 				
 
 				// Step #5, graphing multiple variables updated by the model
-				var mySecondChartData = [];
+				// model variables cost and price are arrays
 				var mySecondChart = new Contour({
 						el: '.mySecondChart'
 					})
@@ -221,17 +231,23 @@ Here's the complete sample code:
 				
 				Flow.channel.variables.subscribe(['cost', 'price'],
 					function(data) {
-						var composedData = {
-							x: data.cost,
-							y: data.price
-						};
-						mySecondChartData.push(composedData);
-						mySecondChart.setData(mySecondChartData);
+						var composedData = [
+							{
+								name: 'Cost',
+								data: data.cost
+							},
+							{
+								name: 'Price',
+								data: data.price
+							}
+						];
+						mySecondChart.setData(composedData);
 						mySecondChart.render();
 					}, { batch: true });
 			
 
 				// Step #6, graphing multiple variables entered by the user
+				// the arguments to model operation updateXY are scalar
 				var myThirdChartData = [];
 				var myThirdChart = new Contour({
 					el: '.myThirdChart'
@@ -262,6 +278,7 @@ Here's the complete sample code:
 ####Learn More
 
 * [Flow.js Variables Channel](../generated/channels/variables-channel/)
+* [Flow.js Operations Channel](../generated/channels/operations-channel/)
 * [Contour Overview](http://forio.com/contour/)
 * [Contour Gallery](http://forio.com/contour/gallery.html)
 * [Contour Documentation](http://forio.com/contour/documentation.html)
