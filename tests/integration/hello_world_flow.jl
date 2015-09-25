@@ -1,4 +1,4 @@
-# last update 09/22/2015
+# last update 09/25/2015
 
 
 module hello_world_flow
@@ -7,12 +7,12 @@ using Epicenter
 
 
 #variables
-export sampleString, sampleInt, sampleTruthy, anotherTruthy, sampleBool, sampleFalseBool, salesMgr, sales, sample2d, sample64, sampleThousand, sampleMillion, sampleBillion, sampleTrillion, regions, sampleX, sampleY, sampleVar1, sampleVar2
+export sampleString, sampleInt, sampleTruthy, anotherTruthy, sampleBool, sampleFalseBool, salesMgr, sales, sample2d, sample64, sampleThousand, sampleMillion, sampleBillion, sampleTrillion, regions, sampleX, sampleY, sampleVar1, sampleVar2, myVariable
 
 #operations
 export saveAll, changeString, addToInt, changeTruthy, changeBool, changeObjSubfield, appendToArray, updateFirstArrayVal, subtractFromArray, resetInt, updateTwoArrayVals, addTo64, updateXY, addVar1Var2
 
-global sampleString, sampleInt, sampleTruthy, sampleBool, sampleFalseBool, salesMgr, sales, sample2d, sample64, sampleThousand, sampleMillion, sampleBillion, sampleTrillion, regions, sampleX, sampleY, sampleVar1, sampleVar2
+global sampleString, sampleInt, sampleTruthy, sampleBool, sampleFalseBool, salesMgr, sales, sample2d, sample64, sampleThousand, sampleMillion, sampleBillion, sampleTrillion, regions, sampleX, sampleY, sampleVar1, sampleVar2, myVariable
 
 type mgrType
   num_reports::Int
@@ -23,12 +23,13 @@ end
 
 sampleString = "hello world flow"
 sampleInt = 10
+myVariable = 10
 sampleTruthy = 1
 anotherTruthy = 1
 sampleX = 1
 sampleY = 5
-sampleVar1 = 1
-sampleVar2 = 2
+sampleVar1 = {1}
+sampleVar2 = {2}
 sampleBool = true
 sampleFalseBool = false
 salesMgr = mgrType()
@@ -51,6 +52,7 @@ function saveAll()
    record(:sampleString)
    record(:sampleInt)
    record(:sampleTruthy)
+   record(:myVariable)
    record(:sampleX)
    record(:sampleY)
    record(:sampleVar1)
@@ -71,8 +73,8 @@ end
 function addVar1Var2(int1, int2)
   global sampleVar1
   global sampleVar2
-  sampleVar1 = sampleVar1 + int1
-  sampleVar2 = sampleVar2 + int2
+  sampleVar1 = push!(sampleVar1, int1)
+  sampleVar2 = push!(sampleVar2, int2)
   record(:sampleVar1)
   record(:sampleVar2)
 end
