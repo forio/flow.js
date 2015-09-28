@@ -1,4 +1,4 @@
-# last update 09/25/2015
+# last update 09/28/2015
 
 
 module hello_world_flow
@@ -86,6 +86,7 @@ function updateXY(int1, int2)
   sampleY = int2
   record(:sampleX)
   record(:sampleY)
+  return sampleX, sampleY
 end
 
 function addTo64(float)

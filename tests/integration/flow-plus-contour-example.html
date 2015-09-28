@@ -43,11 +43,11 @@
 
 		<div class="myChart"></div>
 
-		<p>The next data point is added to "myChart" (data-f-bind) each time the user enters a new value:</p>
+		<p>Each time the user enters a new value, we redraw the chart based on the new value:</p>
 		<input data-f-bind="myVariable"></input>		
 		<hr>
 
-		<p>Here is a div with the Contour chart used in Step #5, based on two variables updated automatically when the model is advanced: </p>
+		<p>Here is a div with the Contour chart used in Step #5. The model operation updates two array variables, and the chart is updated based on that change: </p>
 
 		<div class="mySecondChart"></div>
 
@@ -56,7 +56,7 @@
 
 		<hr>
 		
-		<p>Here is a div with the Contour chart used in Step #6, based on two variables whose values are entered by the user: </p>
+		<p>Here is a div with the Contour chart used in Step #6. The user enters two values and calls a model operation that returns two (translated) values. The chart is updated based on the operation call: </p>
 
 		<div class="myThirdChart"></div>
 
@@ -86,25 +86,23 @@
 
 			
 			// Basic Example: Steps #1-4
-		
-			var myChartData = [];
+			// model variable myVariable is scalar		
 			var myChart = new Contour({
 			        el: '.myChart'
 			      })
 			    .cartesian()
-			    .line()
+			    .column()
 			    .tooltip();
 
 			Flow.channel.variables.subscribe('myVariable',
 				function(data) {
-                    myChartData.push(data.myVariable);
-                    myChart.setData(myChartData);
+                    myChart.setData([data.myVariable]);
                     myChart.render();
             });
 					
 
-			// Step #5, graphing multiple variables updated by the model
-			
+			// Step #5, graphing multiple variables updated by the model operation
+			// here, the operation requires no arguments
 			var mySecondChartData = [];
 			var mySecondChart = new Contour({
 					el: '.mySecondChart'
@@ -132,7 +130,8 @@
 				}, { batch: true });
 		
 
-			// Step #6, graphing multiple variables entered by the user
+			// Step #6, graphing the results of a model operation
+			// here, the arguments to the operation are entered by the user
 			
 			var myThirdChartData = [];
 			
@@ -146,8 +145,8 @@
 			Flow.channel.operations.subscribe('updateXY',
 					function(data) {
 						var composedData = {
-							x: data.updateXY.arguments[0],
-							y: data.updateXY.arguments[1]
+							x: data.updateXY.result[0],
+							y: data.updateXY.result[1]
 						};
 						myThirdChartData.push(composedData);
 						myThirdChart.setData(myThirdChartData);
