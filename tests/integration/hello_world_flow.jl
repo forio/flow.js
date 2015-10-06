@@ -1,4 +1,4 @@
-# last update 09/28/2015
+# last update 10/05/2015
 
 
 module hello_world_flow
@@ -7,12 +7,12 @@ using Epicenter
 
 
 #variables
-export sampleString, sampleInt, sampleTruthy, anotherTruthy, sampleBool, sampleFalseBool, salesMgr, sales, sample2d, sample64, sampleThousand, sampleMillion, sampleBillion, sampleTrillion, regions, sampleX, sampleY, sampleVar1, sampleVar2, myVariable
+export sampleString, sampleInt, sampleTruthy, anotherTruthy, sampleBool, sampleFalseBool, salesMgr, sales, sample2d, sample64, sampleThousand, sampleMillion, sampleBillion, sampleTrillion, regions, sampleX, sampleY, sampleVar1, sampleVar2, myVariable, salesSq, sampleTuple, sampleDict
 
 #operations
-export saveAll, changeString, addToInt, changeTruthy, changeBool, changeObjSubfield, appendToArray, updateFirstArrayVal, subtractFromArray, resetInt, updateTwoArrayVals, addTo64, updateXY, addVar1Var2
+export saveAll, changeString, addToInt, changeTruthy, changeBool, changeObjSubfield, appendToArray, updateFirstArrayVal, subtractFromArray, resetInt, updateTwoArrayVals, addTo64, updateXY, addVar1Var2, appendToArraySq, updateFirstArrayValSq, updateTwoArrayValsSq
 
-global sampleString, sampleInt, sampleTruthy, sampleBool, sampleFalseBool, salesMgr, sales, sample2d, sample64, sampleThousand, sampleMillion, sampleBillion, sampleTrillion, regions, sampleX, sampleY, sampleVar1, sampleVar2, myVariable
+global sampleString, sampleInt, sampleTruthy, sampleBool, sampleFalseBool, salesMgr, sales, sample2d, sample64, sampleThousand, sampleMillion, sampleBillion, sampleTrillion, regions, sampleX, sampleY, sampleVar1, sampleVar2, myVariable, salesSq, sampleTuple, sampleDict
 
 type mgrType
   num_reports::Int
@@ -37,12 +37,15 @@ salesMgr = mgrType()
   salesMgr.name = "John Smith"
   salesMgr.region = "West"
 sales = {100, 400, 300, 200}
+salesSq = [101, 401, 301, 201]
 regions = { "North", "East", "South", "West" }
 sample64 = 3.14159
 sampleThousand = 12468
 sampleMillion = 3111246
 sampleBillion = 1987654321
 sampleTrillion = 100234567891431
+sampleTuple = (10,9,8)
+sampleDict = ["one"=> 1, "two"=> 2, "three"=> 3]
 
 ## run api displays this as [1,2,3,4,5,6]
 sample2d = [ [1,2], [3,4], [5,6] ]
@@ -61,6 +64,7 @@ function saveAll()
    record(:sampleFalseBool)
    record(:salesMgr)
    record(:sales)
+   record(:salesSq)
    record(:sample2d)
    record(:sample64)
    record(:sampleThousand)
@@ -68,6 +72,8 @@ function saveAll()
    record(:sampleBillion)
    record(:sampleTrillion)
    record(:regions)   
+   record(:sampleTuple)
+   record(:sampleDict)
 end
 
 function addVar1Var2(int1, int2)
@@ -146,6 +152,25 @@ function updateTwoArrayVals(val1,val2)
   sales[1] = sales[1] + val1
   sales[3] = sales[3] + val2
   record(:sales)
+end
+
+function appendToArraySq(val)
+  global salesSq
+  push!(salesSq, val)
+  record(:salesSq, length(salesSq))
+end
+
+function updateFirstArrayValSq(val)
+  global salesSq
+  salesSq[1] = val
+  record(:salesSq, 1)
+end
+
+function updateTwoArrayValsSq(val1,val2)
+  global salesSq
+  salesSq[1] = salesSq[1] + val1
+  salesSq[3] = salesSq[3] + val2
+  record(:salesSq)
 end
 
 function resetInt()
