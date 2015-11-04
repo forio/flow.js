@@ -36,6 +36,10 @@ module.exports = function (options) {
             return rs.currentPromise.then(function () {
                 rs.currentPromise = func.apply(context, passedInParams);
                 return rs.currentPromise;
+            }).fail(function () {
+                console.warn('This failed, but we\'re moving ahead with the next one anyway', arguments);
+                rs.currentPromise = func.apply(context, passedInParams);
+                return rs.currentPromise;
             });
         });
     };
