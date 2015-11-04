@@ -98,20 +98,19 @@ module.exports = function (options) {
             // console.log('Operations refresh', executedOpns);
             var silent = channelOptions.silent;
 
-            var shouldSilence = silent === true;
-            if (_.isArray(silent) && executedOpns) {
-                shouldSilence = _.intersection(silent, executedOpns).length === silent.length;
-            }
-            if ($.isPlainObject(silent) && executedOpns) {
-                shouldSilence = _.intersection(silent.except, executedOpns).length !== executedOpns.length;
+            var toNotify = executedOpns;
+            if (force === true) {
+            } else if (silent === true) {
+                toNotify = [];
+            } else if (_.isArray(silent) && executedOpns) {
+                toNotify = _.difference(executedOpns, silent);
+            } else if ($.isPlainObject(silent) && executedOpns) {
+                toNotify = _.intersection(silent.except, executedOpns);
             }
 
-            if (!shouldSilence || force === true) {
-                var me = this;
-                _.each(executedOpns, function (opn) {
-                    me.notify(opn, response);
-                });
-            }
+            _.each(toNotify, function (opn) {
+                this.notify(opn, response);
+            }, this);
         },
 
         /**

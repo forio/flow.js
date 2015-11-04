@@ -201,6 +201,22 @@
                 channel.publish('reset');
                 spy.should.have.been.calledOnce;
             });
+            it('should not be silent if even one of the executed opns isn\'t whitelisted', function () {
+                var channel = new Channel({ run: mockRun, silent: {
+                    except: ['a', 'b', 'c']
+                } });
+                var spy = sinon.spy();
+                channel.subscribe('*', spy);
+
+                channel.publish({
+                    operations: [
+                        { name: 'c', params: [] },
+                        { name: 'd', params: [] },
+                        { name: '2', params: [] }
+                    ]
+                });
+                spy.should.have.been.calledOnce;
+            });
         });
 
         describe('#unsubscribeAll', function () {
