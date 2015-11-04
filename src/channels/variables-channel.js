@@ -233,6 +233,9 @@ module.exports = function (options) {
         fetch: function (variablesList) {
             // console.log('fetch called', variablesList);
             variablesList = [].concat(variablesList);
+            if (!variablesList.length) {
+                return $.Deferred().resolve().promise({});
+            }
             var innerVariables = this.getTopicDependencies(variablesList);
             var getVariables = function (vars, interpolationMap) {
                 return vs.query(vars).then(function (variables) {
