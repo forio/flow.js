@@ -193,6 +193,7 @@ module.exports = function (options) {
                         if (!opts || !opts.silent) {
                             me.refresh.call(me, [operation], response);
                         }
+                        return response.result;
                     });
             }
             // console.log('operations publish', operation, params);
