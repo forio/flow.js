@@ -87,6 +87,20 @@
                 mockRun.serial.should.have.been.calledWith([{ name: 'step', params: ['1'] }]);
             });
 
+            it('should call the callback multiple times if the same step is executed', function () {
+                var channel = new Channel({ run: mockRun });
+                var spy = sinon.spy();
+                channel.subscribe('step', spy);
+
+                channel.publish({
+                    operations: [
+                        { name: 'step', params: [] },
+                        { name: 'reset', params: [] },
+                        { name: 'step', params: [] }
+                    ]
+                });
+                spy.should.have.been.calledTwice;
+            });
 
             it('should call refresh after publish', function () {
                 var originalRefresh = channel.refresh;
