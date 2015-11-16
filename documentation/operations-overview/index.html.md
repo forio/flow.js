@@ -20,6 +20,8 @@ By default, all HTML elements update for any call to an operation. However, you 
 	* Use a [`data-f-on-event` attribute](../generated/dom/attributes/events/default-event-attr/), for example `data-f-on-click`. 
 * Call multiple operations at once? 
 	* Use the `|` (pipe) character to chain operations. Operations are called serially, in the order listed.
+* Call an operation each time a model variable changes?
+	* Bind the variable, use the [Variables Channel](../generated/channels/variables-channel/) to subscribe to the variable, and then call the operation in the callback function for the subscription. See details in the [How To example](../../how_to/variable_operation/).
 
 
 ####Learn More
