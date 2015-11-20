@@ -149,6 +149,12 @@
             });
         });
 
+        describe('interpolate', function () {
+            it('allow specifying an interpolation map', function () {
+
+            });
+        });
+
         describe('#refresh', function () {
             it('should call if no rules are specified', function () {
                 var channel = new Channel({ run: mockRun });
