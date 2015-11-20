@@ -5,7 +5,7 @@ module.exports = function (grunt) {
     grunt.config.set('bump', {
         options: {
             files: ['package.json', 'bower.json'],
-            pushTo: 'master',
+            pushTo: 'origin',
             updateConfigs: ['pkg'],
             commitFiles: ['-a']
 
