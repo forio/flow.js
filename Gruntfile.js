@@ -21,7 +21,7 @@ module.exports = function (grunt) {
     grunt.registerTask('test', ['generateDev', 'browserify:tests', 'browserify:instrumented', 'mocha', 'coverage-report']);
     grunt.registerTask('documentation', ['markdox']);
     grunt.registerTask('validate', ['jshint:all', 'jscs', 'test']);
-    grunt.registerTask('production', ['validate', 'browserify:mapped', 'browserify:min']);
+    grunt.registerTask('production', ['validate', 'sass', 'browserify:mapped', 'browserify:min']);
 
     grunt.registerTask('release', function (type) {
         type = type ? type : 'patch';
@@ -30,5 +30,5 @@ module.exports = function (grunt) {
         });
     });
 
-    grunt.registerTask('default', ['generateDev', 'watch']);
+    grunt.registerTask('default', ['generateDev', 'sass', 'watch']);
 };

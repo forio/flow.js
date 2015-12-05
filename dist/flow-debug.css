@@ -1,0 +1,30 @@
+.flow-debug .has-bind {
+  color: red; }
+
+.f-watched {
+  z-index: 11;
+  opacity: 1; }
+
+canvas {
+  top: 0;
+  left: 0;
+  position: absolute; }
+
+.f-modal {
+  position: fixed;
+  top: 0;
+  right: 0;
+  left: 0;
+  bottom: 0;
+  background-color: black;
+  opacity: 0.6;
+  z-index: 10; }
+
+.f-modal > div, .f-item-containers > div {
+  position: absolute;
+  background-color: red;
+  opacity: 1; }
+  .f-modal > div > div, .f-item-containers > div > div {
+    display: inline-block; }
+
+/*# sourceMappingURL=flow-debug.css.map */

@@ -3,18 +3,20 @@
 <html>
 <head>
     <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css">
+    <link rel="stylesheet" href="../../dist/flow-debug.css">
     <script src="//cdnjs.cloudflare.com/ajax/libs/lodash.js/2.4.1/lodash.min.js"></script>
     <script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.2/jquery.min.js"></script>
     <script src="../../vendor/epicenter-js-libs/dist/epicenter.min.js"></script>
     <script src="../../dist/flow-edge.js"></script>
+    <script src="../../dist/flow-debug.js"></script>
 </head>
-<body data-f-on-init="start_game" data-f-model="gglasses.vmf" class="">
+<body data-f-on-init="start_game" data-f-model="gglasses.vmf" class="flow-debug">
     <div class="content-wrapper container">
         <h1> Google Glasses Sales Simulator </h1>
 
         <div style="margin-top: 30px;">
             <label>Set your price: </label>
-            <input type="text" data-f-bind="Price">
+            <input type="text" data-f-bind="Price" placeholder="s">
 
             <button class="btn btn-primary"  data-f-on-click="step(1000)">Advance</button>
             <button class="btn" data-ub-component="Button"  data-f-on-click="reset | start_game">Reset</button>

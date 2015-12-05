@@ -7,6 +7,10 @@ module.exports = function (grunt) {
             files: ['src/**/*.js'],
             tasks: ['browserify:edge', 'browserify:tests:', 'browserify:instrumented:','mocha:test', 'coverage-report']
         },
+        styles: {
+            files: ['styles/*.scss'],
+            tasks: ['sass']
+        },
         tests: {
             files: ['tests/specs/**/*.js', 'tests/specs/*.js', 'tests/*.js', '!tests/dist/*'],
             tasks: ['browserify:tests:', 'browserify:instrumented:', 'mocha:test', 'coverage-report']
