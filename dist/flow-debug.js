@@ -7,6 +7,14 @@ $(function () {
         ctx.fillStyle = fillColor;
         ctx.fillRect(elementLeft, elementTop, elementWidth, elementHeight);
     }
+
+    function drawRect(elementTop, elementLeft, elementWidth, elementHeight, fillColor) {
+        var ctx = $canvas.get(0).getContext('2d');
+        ctx.setLineDash([4,2]);
+        ctx.lineWidth = 1;
+        var offset = 3;
+        ctx.strokeRect(elementLeft - offset, elementTop - offset, elementWidth + (2 * offset), elementHeight + (2 * offset));
+    }
     function eraseCanvas(elementTop, elementLeft, elementWidth, elementHeight) {
         var ctx = $canvas.get(0).getContext('2d');
         ctx.clearRect(elementLeft, elementTop, elementWidth, elementHeight);
@@ -33,21 +41,26 @@ $(function () {
         $overlayContainer.append($thisElemContainer);
         var pos = $(elem).offset();
         $thisElemContainer.css({
-            top: (pos.top - 20) + 'px',
+            top: (pos.top - 25) + 'px',
             left: (pos.left) + 'px'
         });
 
+        // $(elem).css({
+        //     border: '1px dashed red'
+        // });
+
         if (!$(elem).children().length) {
             eraseCanvas(pos.top, pos.left, $(elem).innerWidth(), $(elem).innerHeight(),  elem);
+            // drawRect(pos.top, pos.left, $(elem).innerWidth(), $(elem).innerHeight(),  elem);
         }
 
         $(elem.attributes).each(function (index, nodeMap) {
             var attr = nodeMap.nodeName;
-            var wantedPrefix = 'data-f';
+            var wantedPrefix = 'data-f-';
             if (attr.indexOf(wantedPrefix) === 0) {
                 attr = attr.replace(wantedPrefix, '');
                 var val = nodeMap.value;
-                $thisElemContainer.append('<div>' + val + '</div>');
+                $thisElemContainer.append('<div> <span>' + attr + ': </span>' + val + '</div>');
             }
         });
     });
