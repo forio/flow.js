@@ -79,7 +79,7 @@ var FlowDebug = function () {
                 if (attr.indexOf(wantedPrefix) === 0) {
                     attr = attr.replace(wantedPrefix, '');
                     var val = nodeMap.value;
-                    var $newEl = $('<div>' + val + '</div>');
+                    var $newEl = $('<div> <span class="f-type">' + attr + ': </span> <span class="f-val">' + val + '</div>');
                     $newEl.addClass(getClassNames(elem, attr));
                     $thisElemContainer.append($newEl);
 

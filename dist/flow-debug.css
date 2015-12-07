@@ -35,6 +35,17 @@ canvas {
   .f-modal > div > div, .f-item-containers > div > div {
     display: inline-block;
     padding: 2px 4px; }
+    .f-modal > div > div span, .f-item-containers > div > div span {
+      display: inline-block;
+      vertical-align: middle; }
+    .f-modal > div > div span.f-type, .f-item-containers > div > div span.f-type {
+      max-width: 0;
+      overflow: hidden;
+      white-space: nowrap;
+      text-transform: capitalize;
+      transition: max-width 0.3s ease-in-out; }
+    .f-modal > div > div:hover span.f-type, .f-item-containers > div > div:hover span.f-type {
+      max-width: 75px; }
     .f-modal > div > div.f-input.f-on, .f-item-containers > div > div.f-input.f-on {
       background-color: #a6cee3; }
     .f-modal > div > div.f-input.f-bind, .f-item-containers > div > div.f-input.f-bind {

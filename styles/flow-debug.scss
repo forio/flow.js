@@ -32,10 +32,10 @@ canvas {
         position: absolute;
         border-bottom: 0;
         z-index: 11;
+
         &:hover {
             z-index: 12;
         }
-
         -moz-box-shadow: 1px 1px 3px #5f5f5f;
         box-shadow: 1px 1px 3px #5f5f5f;
         -webkit-border-radius: 2px;
@@ -44,7 +44,22 @@ canvas {
         > div {
             display: inline-block;
             padding: 2px 4px;
-
+            span {
+                display: inline-block;
+                vertical-align: middle;
+            }
+            span.f-type {
+                max-width: 0;
+                overflow: hidden;
+                white-space: nowrap;
+                text-transform: capitalize;
+                transition: max-width 0.3s ease-in-out;
+            }
+            &:hover {
+                span.f-type {
+                    max-width: 75px;
+                }
+            }
             &.f-input {
                 &.f-on {
                     background-color: #a6cee3;
