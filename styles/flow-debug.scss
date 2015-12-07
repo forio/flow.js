@@ -26,31 +26,46 @@ canvas {
     opacity: 0.6;
     z-index: 10;
 }
+
 .f-modal, .f-item-containers {
-
-
     > div {
         position: absolute;
-        background-color: white;
-        border: 1px solid red;
         border-bottom: 0;
         z-index: 11;
-        padding: 2px 4px;
+        &:hover {
+            z-index: 12;
+        }
 
-        background-color: #e16820;
-        border: 1px #FFF solid;
-        color: #FFF;
         -moz-box-shadow: 1px 1px 3px #5f5f5f;
         box-shadow: 1px 1px 3px #5f5f5f;
         -webkit-border-radius: 2px;
         border-radius: 2px;
 
-        &:hover {
-            z-index: 12;
-        }
-
         > div {
             display: inline-block;
+            padding: 2px 4px;
+
+            &.f-input {
+                &.f-on {
+                    background-color: #a6cee3;
+                }
+                &.f-bind {
+                    background-color: #1f78b4;
+                    color:white;
+                }
+            }
+            &.f-output {
+                &.f-bind {
+                    background-color: #b2df8a;
+                }
+                &.f-foreach {
+                    background-color: #33a02c;
+                    color:white;
+                }
+                &.f-other {
+                    background-color: #f768a1;
+                }
+            }
         }
     }
 }

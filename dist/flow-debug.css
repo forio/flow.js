@@ -24,14 +24,8 @@ canvas {
 
 .f-modal > div, .f-item-containers > div {
   position: absolute;
-  background-color: white;
-  border: 1px solid red;
   border-bottom: 0;
   z-index: 11;
-  padding: 2px 4px;
-  background-color: #e16820;
-  border: 1px #FFF solid;
-  color: #FFF;
   -moz-box-shadow: 1px 1px 3px #5f5f5f;
   box-shadow: 1px 1px 3px #5f5f5f;
   -webkit-border-radius: 2px;
@@ -39,6 +33,19 @@ canvas {
   .f-modal > div:hover, .f-item-containers > div:hover {
     z-index: 12; }
   .f-modal > div > div, .f-item-containers > div > div {
-    display: inline-block; }
+    display: inline-block;
+    padding: 2px 4px; }
+    .f-modal > div > div.f-input.f-on, .f-item-containers > div > div.f-input.f-on {
+      background-color: #a6cee3; }
+    .f-modal > div > div.f-input.f-bind, .f-item-containers > div > div.f-input.f-bind {
+      background-color: #1f78b4;
+      color: white; }
+    .f-modal > div > div.f-output.f-bind, .f-item-containers > div > div.f-output.f-bind {
+      background-color: #b2df8a; }
+    .f-modal > div > div.f-output.f-foreach, .f-item-containers > div > div.f-output.f-foreach {
+      background-color: #33a02c;
+      color: white; }
+    .f-modal > div > div.f-output.f-other, .f-item-containers > div > div.f-output.f-other {
+      background-color: #f768a1; }
 
 /*# sourceMappingURL=flow-debug.css.map */

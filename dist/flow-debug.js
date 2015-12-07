@@ -50,6 +50,24 @@ var FlowDebug = function () {
             //     border: '1px dashed red'
             // });
 
+
+            var getClassNames = function (elem, attr, val) {
+                var elemType = elem.nodeName.toLowerCase();
+                var isInputElement = ['input', 'a', 'button'].indexOf(elemType) !== -1;
+
+                var classNames = [];
+                classNames.push(isInputElement ? 'f-input' : 'f-output');
+                if (attr.indexOf('on-') === 0) {
+                    classNames.push('f-on');
+                }
+                if (attr.indexOf('bind') === 0) {
+                    classNames.push('f-bind');
+                }
+                if (attr.indexOf('foreach') === 0) {
+                    classNames.push('f-foreach');
+                }
+                return classNames.join(' ');
+            };
             if (!$(elem).children().length) {
                 eraseCanvas(pos.top, pos.left, $(elem).innerWidth(), $(elem).innerHeight(),  elem);
                 // drawRect(pos.top, pos.left, $(elem).innerWidth(), $(elem).innerHeight(),  elem);
@@ -61,10 +79,16 @@ var FlowDebug = function () {
                 if (attr.indexOf(wantedPrefix) === 0) {
                     attr = attr.replace(wantedPrefix, '');
                     var val = nodeMap.value;
-                    $thisElemContainer.append('<div> <span>' + attr + ': </span>' + val + '</div>');
+                    var $newEl = $('<div>' + val + '</div>');
+                    $newEl.addClass(getClassNames(elem, attr));
+                    $thisElemContainer.append($newEl);
+
+                    if (!$(elem).children().length) {
+                        // $(elem).css('background-color', '#ff4c4c');
+                    }
                 }
             });
         });
         $('body').prepend($overlayContainer);
     });
-};
+}();
