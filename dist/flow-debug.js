@@ -79,11 +79,14 @@ var FlowDebug = function () {
                 var wantedPrefix = 'data-f-';
                 if (attr.indexOf(wantedPrefix) === 0) {
                     attr = attr.replace(wantedPrefix, '');
+
+                    var displayAttrName = attr.replace('on-', '');
                     var chain = _.invoke(nodeMap.value.split('|'), 'trim');
                     var originalVal = chain.shift();
-                    var $newEl = $('<div> <span class="f-type">' + attr + '</span><span class="f-val">' + originalVal + '</div>');
+                    var $newEl = $('<div> <span class="f-type">' + displayAttrName + '</span><span class="f-val">' + originalVal + '</div>');
                     chain.forEach(function (val) {
-                        $newEl.append('<span class="f-conv">' + val + '</span');
+                        var cname = (attr.indexOf('on') === 0) ? 'f-val' : 'f-conv';
+                        $newEl.append('<span class="' + cname + '">' + val + '</span');
                     });
                     $newEl.addClass(getClassNames(elem, attr));
                     $thisElemContainer.append($newEl);

@@ -47,11 +47,14 @@ canvas {
                 padding: 2px 4px;
                 display: inline-block;
                 vertical-align: middle;
+
+                -webkit-box-shadow: 4px 0px 4px 0px rgba(50, 50, 50, 0.3);
+                -moz-box-shadow:    4px 0px 4px 0px rgba(50, 50, 50, 0.3);
+                box-shadow:         4px 0px 4px 0px rgba(50, 50, 50, 0.3);
             }
             span.f-type, span.f-conv {
                 max-width: 0;
                 overflow: hidden;
-                padding-left: 3px;
                 padding-right: 0;
 
                 white-space: nowrap;
@@ -62,18 +65,33 @@ canvas {
             &:hover {
                 span.f-type, span.f-conv {
                     max-width: 75px;
-                    padding-left: 4px;
                     padding-right: 4px;
 
                 }
             }
             &.f-input {
                 &.f-on {
-                    background-color: #a6cee3;
+                    .f-type {
+                        background-color: #d7301f;
+                        color: white;
+                    }
+                    .f-val {
+                        background-color: #f768a1;
+                        color: white;
+                        border-right: 1px solid #d7301f;
+                    }
                 }
                 &.f-bind {
-                    background-color: #1f78b4;
-                    color:white;
+                    .f-type {
+                        background-color: #1f78b4;
+                        color: white;
+                    }
+                    .f-val {
+                        background-color: #a6cee3;
+                    }
+                    span {
+                        background-color: #D9FFB7;
+                    }
                 }
             }
             &.f-output {
@@ -90,8 +108,17 @@ canvas {
                     }
                 }
                 &.f-foreach {
-                    background-color: #f768a1;
-                    color:white;
+                    .f-type {
+                        background-color: #AB8724;
+                        color: white;
+                    }
+                    .f-val {
+                        background-color: #F8CA4D;
+                    }
+                    span {
+                        background-color: #FFD769;
+                    }
+
                 }
                 &.f-other {
                     background-color: #f768a1;
