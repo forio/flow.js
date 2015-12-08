@@ -1,37 +1,54 @@
 var FlowDebug = function () {
     'use strict';
-    $(function () {
+
+    function draw(el, elementTop, elementLeft, elementWidth, elementHeight, fillColor) {
+        var ctx = el.getContext('2d');
+        ctx.fillStyle = fillColor;
+        ctx.fillRect(elementLeft, elementTop, elementWidth, elementHeight);
+    }
+    function eraseCanvas(el, elementTop, elementLeft, elementWidth, elementHeight) {
+        var ctx = el.getContext('2d');
+        var offset = 0;
+        ctx.clearRect(elementLeft - offset, elementTop - offset, elementWidth + (2 * offset), elementHeight + (2 * offset));
+    }
+    var drawModalCanvas = function () {
         var $canvas = $('<canvas> </canvas>');
-
-        function draw(elementTop, elementLeft, elementWidth, elementHeight, fillColor) {
-            var ctx = $canvas.get(0).getContext('2d');
-            ctx.fillStyle = fillColor;
-            ctx.fillRect(elementLeft, elementTop, elementWidth, elementHeight);
-        }
-
-        function drawRect(elementTop, elementLeft, elementWidth, elementHeight, fillColor) {
-            var ctx = $canvas.get(0).getContext('2d');
-            ctx.setLineDash([4,2]);
-            ctx.lineWidth = 1;
-            var offset = 3;
-            ctx.strokeRect(elementLeft - offset, elementTop - offset, elementWidth + (2 * offset), elementHeight + (2 * offset));
-        }
-        function eraseCanvas(elementTop, elementLeft, elementWidth, elementHeight) {
-            var ctx = $canvas.get(0).getContext('2d');
-            var offset = 0;
-            ctx.clearRect(elementLeft - offset, elementTop - offset, elementWidth + (2 * offset), elementHeight + (2 * offset));
-        }
 
         var windowHeight = $(document).height();
         var windowWidth = $(document).width();
-
         $canvas.attr({
             width: windowWidth,
             height: windowHeight
         });
 
         $('body').append($canvas);
-        draw(0, 0, windowWidth, windowHeight, 'rgba(0,0,0,.4)');
+        var el = $canvas.get(0);
+        draw(el, 0, 0, windowWidth, windowHeight, 'rgba(0,0,0,.4)');
+
+        return el;
+    };
+
+    var getClassNames = function (elem, attr) {
+        var elemType = elem.nodeName.toLowerCase();
+        var isInputElement = ['input', 'a', 'button'].indexOf(elemType) !== -1;
+
+        var classNames = [];
+        classNames.push(isInputElement ? 'f-input' : 'f-output');
+        if (attr.indexOf('on-') === 0) {
+            classNames.push('f-on');
+        }
+        if (attr.indexOf('bind') === 0) {
+            classNames.push('f-bind');
+        }
+        if (attr.indexOf('foreach') === 0) {
+            classNames.push('f-foreach');
+        }
+        return classNames.join(' ');
+    };
+
+    $(function () {
+
+        var canvas = drawModalCanvas();
 
         var $overlayContainer = $('<div class="f-item-containers"> </div>');
         var elemCounter = 0;
@@ -39,39 +56,14 @@ var FlowDebug = function () {
             elemCounter++;
             var $thisElemContainer = $('<div id="f-container-' + elemCounter + '"> </div');
 
-
-            $overlayContainer.append($thisElemContainer);
             var pos = $(elem).offset();
             $thisElemContainer.css({
                 top: (pos.top - 25) + 'px',
                 left: (pos.left) + 'px'
             });
 
-            // $(elem).css({
-            //     border: '1px dashed red'
-            // });
-
-
-            var getClassNames = function (elem, attr, val) {
-                var elemType = elem.nodeName.toLowerCase();
-                var isInputElement = ['input', 'a', 'button'].indexOf(elemType) !== -1;
-
-                var classNames = [];
-                classNames.push(isInputElement ? 'f-input' : 'f-output');
-                if (attr.indexOf('on-') === 0) {
-                    classNames.push('f-on');
-                }
-                if (attr.indexOf('bind') === 0) {
-                    classNames.push('f-bind');
-                }
-                if (attr.indexOf('foreach') === 0) {
-                    classNames.push('f-foreach');
-                }
-                return classNames.join(' ');
-            };
             if (!$(elem).children().length) {
-                eraseCanvas(pos.top, pos.left, $(elem).innerWidth(), $(elem).innerHeight(),  elem);
-                // drawRect(pos.top, pos.left, $(elem).innerWidth(), $(elem).innerHeight(),  elem);
+                eraseCanvas(canvas, pos.top, pos.left, $(elem).innerWidth(), $(elem).innerHeight(),  elem);
             }
 
             $(elem.attributes).each(function (index, nodeMap) {
@@ -96,12 +88,10 @@ var FlowDebug = function () {
                     });
                     $newEl.addClass(getClassNames(elem, attr));
                     $thisElemContainer.append($newEl);
-
-                    if (!$(elem).children().length) {
-                        // $(elem).css('background-color', '#ff4c4c');
-                    }
                 }
             });
+
+            $overlayContainer.append($thisElemContainer);
         });
         $('body').prepend($overlayContainer);
     });
