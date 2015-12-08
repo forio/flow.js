@@ -18,7 +18,8 @@ var FlowDebug = function () {
         }
         function eraseCanvas(elementTop, elementLeft, elementWidth, elementHeight) {
             var ctx = $canvas.get(0).getContext('2d');
-            ctx.clearRect(elementLeft, elementTop, elementWidth, elementHeight);
+            var offset = 0;
+            ctx.clearRect(elementLeft - offset, elementTop - offset, elementWidth + (2 * offset), elementHeight + (2 * offset));
         }
 
         var windowHeight = $(document).height();
@@ -78,8 +79,12 @@ var FlowDebug = function () {
                 var wantedPrefix = 'data-f-';
                 if (attr.indexOf(wantedPrefix) === 0) {
                     attr = attr.replace(wantedPrefix, '');
-                    var val = nodeMap.value;
-                    var $newEl = $('<div> <span class="f-type">' + attr + ': </span> <span class="f-val">' + val + '</div>');
+                    var chain = _.invoke(nodeMap.value.split('|'), 'trim');
+                    var originalVal = chain.shift();
+                    var $newEl = $('<div> <span class="f-type">' + attr + '</span><span class="f-val">' + originalVal + '</div>');
+                    chain.forEach(function (val) {
+                        $newEl.append('<span class="f-conv">' + val + '</span');
+                    });
                     $newEl.addClass(getClassNames(elem, attr));
                     $thisElemContainer.append($newEl);
 

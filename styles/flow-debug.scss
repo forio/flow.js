@@ -36,28 +36,35 @@ canvas {
         &:hover {
             z-index: 12;
         }
-        -moz-box-shadow: 1px 1px 3px #5f5f5f;
-        box-shadow: 1px 1px 3px #5f5f5f;
-        -webkit-border-radius: 2px;
-        border-radius: 2px;
+        // -moz-box-shadow: 1px 1px 3px #5f5f5f;
+        // box-shadow: 1px 1px 3px #5f5f5f;
+        // -webkit-border-radius: 2px;
+        // border-radius: 2px;
 
         > div {
             display: inline-block;
-            padding: 2px 4px;
             span {
+                padding: 2px 4px;
                 display: inline-block;
                 vertical-align: middle;
             }
-            span.f-type {
+            span.f-type, span.f-conv {
                 max-width: 0;
                 overflow: hidden;
+                padding-left: 3px;
+                padding-right: 0;
+
                 white-space: nowrap;
                 text-transform: capitalize;
-                transition: max-width 0.3s ease-in-out;
+                transition: max-width 0.2s ease-in-out;
+                transition: padding 0.1s ease-in-out;
             }
             &:hover {
-                span.f-type {
+                span.f-type, span.f-conv {
                     max-width: 75px;
+                    padding-left: 4px;
+                    padding-right: 4px;
+
                 }
             }
             &.f-input {
@@ -71,10 +78,19 @@ canvas {
             }
             &.f-output {
                 &.f-bind {
-                    background-color: #b2df8a;
+                    .f-type {
+                        background-color: #33a02c;
+                        color: white;
+                    }
+                    .f-val {
+                        background-color: #b2df8a;
+                    }
+                    span {
+                        background-color: #D9FFB7;
+                    }
                 }
                 &.f-foreach {
-                    background-color: #33a02c;
+                    background-color: #f768a1;
                     color:white;
                 }
                 &.f-other {
