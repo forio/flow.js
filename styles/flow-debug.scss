@@ -22,7 +22,7 @@ canvas {
     right: 0;
     left: 0;
     bottom: 0;
-    background-color: black;
+    background-color: rgb(51, 51, 51);
     opacity: 0.6;
     z-index: 10;
 }
@@ -47,6 +47,7 @@ canvas {
                 padding: 2px 4px;
                 display: inline-block;
                 vertical-align: middle;
+                white-space: nowrap;
 
                 -webkit-box-shadow: 4px 0px 4px 0px rgba(50, 50, 50, 0.3);
                 -moz-box-shadow:    4px 0px 4px 0px rgba(50, 50, 50, 0.3);
@@ -57,16 +58,22 @@ canvas {
                 overflow: hidden;
                 padding-right: 0;
 
-                white-space: nowrap;
                 text-transform: capitalize;
                 transition: max-width 0.2s ease-in-out;
                 transition: padding 0.1s ease-in-out;
+            }
+            span.f-val {
+                max-width: 135px;
+                overflow: hidden;
+                text-overflow: ellipsis;
             }
             &:hover {
                 span.f-type, span.f-conv {
                     max-width: 75px;
                     padding-right: 4px;
-
+                }
+                span.f-val {
+                    max-width: initial;
                 }
             }
             &.f-input {
@@ -88,13 +95,27 @@ canvas {
                     }
                     .f-val {
                         background-color: #a6cee3;
+                        color: rgb(51, 51, 51);
                     }
                     span {
-                        background-color: #D9FFB7;
+                        background-color: #7794A3;
+                        color: white;
                     }
                 }
             }
             &.f-output {
+                .f-type {
+                    background-color: #704623;
+                    color: white;
+                }
+                .f-val {
+                    background-color: #BD6C28;
+                    color: white;
+                }
+                span {
+                    background-color: #BD804D;
+                }
+
                 &.f-bind {
                     .f-type {
                         background-color: #33a02c;
@@ -102,6 +123,7 @@ canvas {
                     }
                     .f-val {
                         background-color: #b2df8a;
+                        color: rgb(51, 51, 51);
                     }
                     span {
                         background-color: #D9FFB7;
@@ -114,14 +136,12 @@ canvas {
                     }
                     .f-val {
                         background-color: #F8CA4D;
+                        color: rgb(51, 51, 51);
                     }
                     span {
                         background-color: #FFD769;
                     }
 
-                }
-                &.f-other {
-                    background-color: #f768a1;
                 }
             }
         }

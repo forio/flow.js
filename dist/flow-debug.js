@@ -83,10 +83,16 @@ var FlowDebug = function () {
                     var displayAttrName = attr.replace('on-', '');
                     var chain = _.invoke(nodeMap.value.split('|'), 'trim');
                     var originalVal = chain.shift();
-                    var $newEl = $('<div> <span class="f-type">' + displayAttrName + '</span><span class="f-val">' + originalVal + '</div>');
+
+                    var $type = $('<span class="f-type"> </span>').text(displayAttrName);
+                    var $val = $('<span class="f-val"> </span>').text(originalVal);
+
+                    var $newEl = $('<div> </div>').append($type).append($val);
+
                     chain.forEach(function (val) {
                         var cname = (attr.indexOf('on') === 0) ? 'f-val' : 'f-conv';
-                        $newEl.append('<span class="' + cname + '">' + val + '</span');
+                        var $conv = $('<span class="' + cname + '"></span').text(val);
+                        $newEl.append($conv);
                     });
                     $newEl.addClass(getClassNames(elem, attr));
                     $thisElemContainer.append($newEl);
@@ -99,4 +105,4 @@ var FlowDebug = function () {
         });
         $('body').prepend($overlayContainer);
     });
-}();
+};

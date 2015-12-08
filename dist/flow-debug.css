@@ -18,7 +18,7 @@ canvas {
   right: 0;
   left: 0;
   bottom: 0;
-  background-color: black;
+  background-color: #333333;
   opacity: 0.6;
   z-index: 10; }
 
@@ -34,6 +34,7 @@ canvas {
       padding: 2px 4px;
       display: inline-block;
       vertical-align: middle;
+      white-space: nowrap;
       -webkit-box-shadow: 4px 0px 4px 0px rgba(50, 50, 50, 0.3);
       -moz-box-shadow: 4px 0px 4px 0px rgba(50, 50, 50, 0.3);
       box-shadow: 4px 0px 4px 0px rgba(50, 50, 50, 0.3); }
@@ -41,13 +42,18 @@ canvas {
       max-width: 0;
       overflow: hidden;
       padding-right: 0;
-      white-space: nowrap;
       text-transform: capitalize;
       transition: max-width 0.2s ease-in-out;
       transition: padding 0.1s ease-in-out; }
+    .f-modal > div > div span.f-val, .f-item-containers > div > div span.f-val {
+      max-width: 135px;
+      overflow: hidden;
+      text-overflow: ellipsis; }
     .f-modal > div > div:hover span.f-type, .f-modal > div > div:hover span.f-conv, .f-item-containers > div > div:hover span.f-type, .f-item-containers > div > div:hover span.f-conv {
       max-width: 75px;
       padding-right: 4px; }
+    .f-modal > div > div:hover span.f-val, .f-item-containers > div > div:hover span.f-val {
+      max-width: initial; }
     .f-modal > div > div.f-input.f-on .f-type, .f-item-containers > div > div.f-input.f-on .f-type {
       background-color: #d7301f;
       color: white; }
@@ -59,24 +65,34 @@ canvas {
       background-color: #1f78b4;
       color: white; }
     .f-modal > div > div.f-input.f-bind .f-val, .f-item-containers > div > div.f-input.f-bind .f-val {
-      background-color: #a6cee3; }
+      background-color: #a6cee3;
+      color: #333333; }
     .f-modal > div > div.f-input.f-bind span, .f-item-containers > div > div.f-input.f-bind span {
-      background-color: #D9FFB7; }
+      background-color: #7794A3;
+      color: white; }
+    .f-modal > div > div.f-output .f-type, .f-item-containers > div > div.f-output .f-type {
+      background-color: #704623;
+      color: white; }
+    .f-modal > div > div.f-output .f-val, .f-item-containers > div > div.f-output .f-val {
+      background-color: #BD6C28;
+      color: white; }
+    .f-modal > div > div.f-output span, .f-item-containers > div > div.f-output span {
+      background-color: #BD804D; }
     .f-modal > div > div.f-output.f-bind .f-type, .f-item-containers > div > div.f-output.f-bind .f-type {
       background-color: #33a02c;
       color: white; }
     .f-modal > div > div.f-output.f-bind .f-val, .f-item-containers > div > div.f-output.f-bind .f-val {
-      background-color: #b2df8a; }
+      background-color: #b2df8a;
+      color: #333333; }
     .f-modal > div > div.f-output.f-bind span, .f-item-containers > div > div.f-output.f-bind span {
       background-color: #D9FFB7; }
     .f-modal > div > div.f-output.f-foreach .f-type, .f-item-containers > div > div.f-output.f-foreach .f-type {
       background-color: #AB8724;
       color: white; }
     .f-modal > div > div.f-output.f-foreach .f-val, .f-item-containers > div > div.f-output.f-foreach .f-val {
-      background-color: #F8CA4D; }
+      background-color: #F8CA4D;
+      color: #333333; }
     .f-modal > div > div.f-output.f-foreach span, .f-item-containers > div > div.f-output.f-foreach span {
       background-color: #FFD769; }
-    .f-modal > div > div.f-output.f-other, .f-item-containers > div > div.f-output.f-other {
-      background-color: #f768a1; }
 
 /*# sourceMappingURL=flow-debug.css.map */
