@@ -12,7 +12,7 @@ var FlowDebug = function () {
         ctx.clearRect(elementLeft - offset, elementTop - offset, elementWidth + (2 * offset), elementHeight + (2 * offset));
     }
     var drawModalCanvas = function () {
-        var $canvas = $('<canvas> </canvas>');
+        var $canvas = $('<canvas></canvas>');
 
         var windowHeight = $(document).height();
         var windowWidth = $(document).width();
@@ -50,11 +50,11 @@ var FlowDebug = function () {
 
         var canvas = drawModalCanvas();
 
-        var $overlayContainer = $('<div class="f-item-containers"> </div>');
+        var $overlayContainer = $('<div class="f-item-containers"></div>');
         var elemCounter = 0;
         $(':f').each(function (index, elem) {
             elemCounter++;
-            var $thisElemContainer = $('<div id="f-container-' + elemCounter + '"> </div');
+            var $thisElemContainer = $('<div id="f-container-' + elemCounter + '"></div');
 
             var pos = $(elem).offset();
             $thisElemContainer.css({
@@ -76,8 +76,8 @@ var FlowDebug = function () {
                     var chain = _.invoke(nodeMap.value.split('|'), 'trim');
                     var originalVal = chain.shift();
 
-                    var $type = $('<span class="f-type"> </span>').text(displayAttrName);
-                    var $val = $('<span class="f-val"> </span>').text(originalVal);
+                    var $type = $('<span class="f-type"></span>').text(displayAttrName);
+                    var $val = $('<span class="f-val"></span>').text(originalVal);
 
                     var $newEl = $('<div> </div>').append($type).append($val);
 
