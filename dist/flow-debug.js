@@ -12,7 +12,7 @@ var FlowDebug = function () {
         ctx.clearRect(elementLeft - offset, elementTop - offset, elementWidth + (2 * offset), elementHeight + (2 * offset));
     }
     var drawModalCanvas = function () {
-        var $canvas = $('<canvas></canvas>');
+        var $canvas = $('<canvas class="f-modal"></canvas>');
 
         var windowHeight = $(document).height();
         var windowWidth = $(document).width();
