@@ -1,5 +1,5 @@
+'use strict';
 var FlowDebug = function () {
-    'use strict';
 
     function draw(el, elementTop, elementLeft, elementWidth, elementHeight, fillColor) {
         var ctx = el.getContext('2d');
@@ -96,3 +96,5 @@ var FlowDebug = function () {
         $('body').prepend($overlayContainer);
     });
 };
+
+module.exports = FlowDebug;
