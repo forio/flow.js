@@ -2,6 +2,7 @@
 var minifyify = require('minifyify');
 var istanbul = require('browserify-istanbul');
 var remapify = require('remapify');
+var stringify = require('stringify');
 
 var uglifyOptions = {
     mangle: false,
@@ -69,6 +70,7 @@ module.exports = function (grunt) {
                 './dist/add-ons/flow-inspector.min.js': './src/add-ons/flow-inspector/flow-inspector.js'
             },
             options: {
+                transform: [stringify],
                 preBundleCB: function (b) {
                     b.plugin(minifyify, {
                         map: 'flow-inspector.min.js.map',

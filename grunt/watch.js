@@ -12,7 +12,7 @@ module.exports = function (grunt) {
             tasks: ['sass:addons']
         },
         scriptsAddons: {
-            files: ['src/add-ons/**/*.js'],
+            files: ['src/add-ons/**/*.js', 'src/add-ons/**/*.html'],
             tasks: ['browserify:addons']
         },
         tests: {

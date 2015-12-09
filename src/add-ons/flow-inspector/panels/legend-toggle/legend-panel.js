@@ -1,7 +1,7 @@
 'use strict';
 
 module.exports = function ($container, evtName) {
-    var template = require('./debug-legend-panel.html');
+    var template = require('./legend-panel.html');
     var $html = $(template);
 
     $container.append($html);

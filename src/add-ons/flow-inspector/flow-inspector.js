@@ -1,6 +1,6 @@
 'use strict';
 
-// var addControlPanel = require('./debug-legend-panel');
+var addControlPanel = require('./panels/legend-toggle/legend-panel');
 
 var FlowInspector = function (root) {
 
@@ -94,14 +94,14 @@ var FlowInspector = function (root) {
                 }
             });
 
-            // var evtName = 'f-select:type';
-            // addControlPanel($thisElemContainer, evtName);
-            // $thisElemContainer.on(evtName, function (data) {
-
-            // });
-
 
             $overlayContainer.append($thisElemContainer);
+        });
+
+        var evtName = 'f-select:type';
+        addControlPanel($overlayContainer, evtName);
+        $overlayContainer.on(evtName, function (data) {
+
         });
         $(root).prepend($overlayContainer);
     });

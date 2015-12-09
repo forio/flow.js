@@ -5,6 +5,66 @@ canvas.f-modal {
   z-index: 10;
   pointer-events: none; }
 
+.f-input.f-on .f-type, .f-input .f-on .f-type {
+  background-color: #d7301f;
+  color: white; }
+
+.f-input.f-on .f-val, .f-input .f-on .f-val {
+  background-color: #f768a1;
+  color: white;
+  border-right: 1px solid #d7301f; }
+
+.f-input.f-bind .f-type, .f-input .f-bind .f-type {
+  background-color: #1f78b4;
+  color: white; }
+
+.f-input.f-bind .f-val, .f-input .f-bind .f-val {
+  background-color: #a6cee3;
+  color: #333333; }
+
+.f-input.f-bind span, .f-input .f-bind span {
+  background-color: #7794A3;
+  color: white; }
+
+.f-output .f-type {
+  background-color: #704623;
+  color: white; }
+
+.f-output .f-val {
+  background-color: #BD6C28;
+  color: white; }
+
+.f-output span {
+  background-color: #BD804D; }
+
+.f-output.f-bind .f-type, .f-output .f-bind .f-type {
+  background-color: #33a02c;
+  color: white; }
+
+.f-output.f-bind .f-val, .f-output .f-bind .f-val {
+  background-color: #b2df8a;
+  color: #333333; }
+
+.f-output.f-bind span, .f-output .f-bind span {
+  background-color: #D9FFB7; }
+
+.f-output.f-foreach .f-type, .f-output .f-foreach .f-type {
+  background-color: #AB8724;
+  color: white; }
+
+.f-output.f-foreach .f-val, .f-output .f-foreach .f-val {
+  background-color: #F8CA4D;
+  color: #333333; }
+
+.f-output.f-foreach span, .f-output .f-foreach span {
+  background-color: #FFD769; }
+
+.f-input span, .f-output span {
+  padding: 2px 4px;
+  display: inline-block;
+  vertical-align: middle;
+  white-space: nowrap; }
+
 .f-item-containers > div {
   position: absolute;
   z-index: 11; }
@@ -13,10 +73,6 @@ canvas.f-modal {
   .f-item-containers > div > div {
     display: inline-block; }
     .f-item-containers > div > div span {
-      padding: 2px 4px;
-      display: inline-block;
-      vertical-align: middle;
-      white-space: nowrap;
       -webkit-box-shadow: 4px 0px 4px 0px rgba(50, 50, 50, 0.3);
       -moz-box-shadow: 4px 0px 4px 0px rgba(50, 50, 50, 0.3);
       box-shadow: 4px 0px 4px 0px rgba(50, 50, 50, 0.3); }
@@ -36,45 +92,26 @@ canvas.f-modal {
       padding-right: 4px; }
     .f-item-containers > div > div:hover span.f-val {
       max-width: initial; }
-    .f-item-containers > div > div.f-input.f-on .f-type {
-      background-color: #d7301f;
-      color: white; }
-    .f-item-containers > div > div.f-input.f-on .f-val {
-      background-color: #f768a1;
-      color: white;
-      border-right: 1px solid #d7301f; }
-    .f-item-containers > div > div.f-input.f-bind .f-type {
-      background-color: #1f78b4;
-      color: white; }
-    .f-item-containers > div > div.f-input.f-bind .f-val {
-      background-color: #a6cee3;
-      color: #333333; }
-    .f-item-containers > div > div.f-input.f-bind span {
-      background-color: #7794A3;
-      color: white; }
-    .f-item-containers > div > div.f-output .f-type {
-      background-color: #704623;
-      color: white; }
-    .f-item-containers > div > div.f-output .f-val {
-      background-color: #BD6C28;
-      color: white; }
-    .f-item-containers > div > div.f-output span {
-      background-color: #BD804D; }
-    .f-item-containers > div > div.f-output.f-bind .f-type {
-      background-color: #33a02c;
-      color: white; }
-    .f-item-containers > div > div.f-output.f-bind .f-val {
-      background-color: #b2df8a;
-      color: #333333; }
-    .f-item-containers > div > div.f-output.f-bind span {
-      background-color: #D9FFB7; }
-    .f-item-containers > div > div.f-output.f-foreach .f-type {
-      background-color: #AB8724;
-      color: white; }
-    .f-item-containers > div > div.f-output.f-foreach .f-val {
-      background-color: #F8CA4D;
-      color: #333333; }
-    .f-item-containers > div > div.f-output.f-foreach span {
-      background-color: #FFD769; }
+
+div.f-legend-panel {
+  background: white;
+  padding: 5px 10px;
+  position: fixed;
+  left: 10px;
+  bottom: 10px;
+  cursor: move;
+  border-radius: 3px;
+  -webkit-box-shadow: 4px 0px 4px 0px rgba(50, 50, 50, 0.3);
+  -moz-box-shadow: 4px 0px 4px 0px rgba(50, 50, 50, 0.3);
+  box-shadow: 4px 0px 4px 0px rgba(50, 50, 50, 0.3); }
+  div.f-legend-panel label {
+    display: block;
+    font-weight: normal;
+    cursor: pointer; }
+    div.f-legend-panel label div, div.f-legend-panel label input {
+      display: inline-block;
+      margin-right: 10px; }
+    div.f-legend-panel label span {
+      margin-right: -4px; }
 
 /*# sourceMappingURL=flow-inspector.css.map */
