@@ -3,7 +3,6 @@ module.exports = function (grunt) {
 
     // require('time-grunt')(grunt);
     require('jit-grunt')(grunt, {
-        sass: 'grunt-sass',
         mocha: 'grunt-mocha-phantom-istanbul',
         'bump-only': 'grunt-bump',
         'bump-commit': 'grunt-bump',
@@ -11,7 +10,8 @@ module.exports = function (grunt) {
     });
 
     grunt.initConfig({
-        pkg: grunt.file.readJSON('package.json')
+        pkg: grunt.file.readJSON('package.json'),
+        cdnBasePath: '//forio.com/tools/js-libs/flow/'
     });
 
     grunt.file.expand('grunt/*.js').forEach(function (task) {
