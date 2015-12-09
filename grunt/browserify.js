@@ -66,13 +66,13 @@ module.exports = function (grunt) {
 
         addons: {
             files: {
-                './dist/add-ons/flow-debug.min.js': './src/add-ons/flow-debug/flow-debug.js'
+                './dist/add-ons/flow-inspector.min.js': './src/add-ons/flow-inspector/flow-inspector.js'
             },
             options: {
                 preBundleCB: function (b) {
                     b.plugin(minifyify, {
-                        map: 'flow-debug.min.js.map',
-                        output: './dist/add-ons/flow-debug.min.js.map',
+                        map: 'flow-inspector.min.js.map',
+                        output: './dist/add-ons/flow-inspector.min.js.map',
                         uglify: uglifyOptions
                     });
                 }

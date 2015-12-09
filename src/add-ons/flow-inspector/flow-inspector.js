@@ -1,5 +1,8 @@
 'use strict';
-var FlowDebug = function () {
+
+// var addControlPanel = require('./debug-legend-panel');
+
+var FlowInspector = function () {
 
     function draw(el, elementTop, elementLeft, elementWidth, elementHeight, fillColor) {
         var ctx = el.getContext('2d');
@@ -91,10 +94,17 @@ var FlowDebug = function () {
                 }
             });
 
+            // var evtName = 'f-select:type';
+            // addControlPanel($thisElemContainer, evtName);
+            // $thisElemContainer.on(evtName, function (data) {
+
+            // });
+
+
             $overlayContainer.append($thisElemContainer);
         });
         $('body').prepend($overlayContainer);
     });
 };
 
-module.exports = FlowDebug;
+module.exports = FlowInspector;

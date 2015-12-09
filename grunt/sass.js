@@ -7,7 +7,7 @@ module.exports = function (grunt) {
         },
         addons: {
             files: {
-                'dist/add-ons/flow-debug.css': 'src/add-ons/flow-debug/flow-debug.scss'
+                'dist/add-ons/flow-inspector.css': 'src/add-ons/flow-inspector/flow-inspector.scss'
             }
         }
     });
