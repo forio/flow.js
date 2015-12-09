@@ -39,12 +39,12 @@ var FlowInspector = function (root) {
         classNames.push(isInputElement ? 'f-input' : 'f-output');
         if (attr.indexOf('on-') === 0) {
             classNames.push('f-on');
-        }
-        if (attr.indexOf('bind') === 0) {
+        } else if (attr.indexOf('bind') === 0) {
             classNames.push('f-bind');
-        }
-        if (attr.indexOf('foreach') === 0) {
+        } else if (attr.indexOf('foreach') === 0) {
             classNames.push('f-foreach');
+        } else {
+            classNames.push('f-custom');
         }
         return classNames.join(' ');
     };

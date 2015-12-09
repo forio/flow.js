@@ -137,6 +137,26 @@ canvas.f-modal {
         opacity: 1 !important;
     }
 }
+.hide-f-output-foreach {
+    .f-item-containers {
+        .f-output.f-foreach, .f-output .f-foreach {
+            opacity: 0;
+        }
+    }
+    .f-legend-panel .f-foreach {
+        opacity: 1 !important;
+    }
+}
+.hide-f-output-custom {
+    .f-item-containers {
+        .f-output.f-custom, .f-output .f-custom {
+            opacity: 0;
+        }
+    }
+    .f-legend-panel .f-custom {
+        opacity: 1 !important;
+    }
+}
 .hide-f-input-bind {
     .f-item-containers {
         .f-input.f-bind, .f-input .f-bind {
@@ -144,6 +164,16 @@ canvas.f-modal {
         }
     }
     .f-legend-panel .f-bind {
+        opacity: 1 !important;
+    }
+}
+.hide-f-input-on {
+    .f-item-containers {
+        .f-input.f-on, .f-input .f-on {
+            opacity: 0;
+        }
+    }
+    .f-legend-panel .f-on {
         opacity: 1 !important;
     }
 }
