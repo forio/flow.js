@@ -100,8 +100,9 @@ var FlowInspector = function (root) {
 
         var evtName = 'f-select:type';
         addControlPanel($overlayContainer, evtName);
-        $overlayContainer.on(evtName, function (data) {
-
+        $overlayContainer.on(evtName, function (evt, type) {
+            $(root).toggleClass('hide-f-' + type);
+            // console.log('sdfdsfds', data, x);
         });
         $(root).prepend($overlayContainer);
     });

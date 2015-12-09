@@ -92,6 +92,7 @@ canvas.f-modal {
         }
         > div {
             display: inline-block;
+            transition: opacity 0.2s ease-in-out;
 
             span {
                 -webkit-box-shadow: 4px 0px 4px 0px rgba(50, 50, 50, 0.3);
@@ -126,6 +127,26 @@ canvas.f-modal {
     }
 }
 
+.hide-f-output-bind {
+    .f-item-containers {
+        .f-output.f-bind, .f-output .f-bind {
+            opacity: 0;
+        }
+    }
+    .f-legend-panel .f-bind {
+        opacity: 1 !important;
+    }
+}
+.hide-f-input-bind {
+    .f-item-containers {
+        .f-input.f-bind, .f-input .f-bind {
+            opacity: 0;
+        }
+    }
+    .f-legend-panel .f-bind {
+        opacity: 1 !important;
+    }
+}
 div.f-legend-panel {
     background: white;
     padding: 5px 10px;
@@ -138,6 +159,7 @@ div.f-legend-panel {
     -webkit-box-shadow: 4px 0px 4px 0px rgba(50, 50, 50, 0.3);
     -moz-box-shadow:    4px 0px 4px 0px rgba(50, 50, 50, 0.3);
     box-shadow:         4px 0px 4px 0px rgba(50, 50, 50, 0.3);
+
 
     label {
         display: block;

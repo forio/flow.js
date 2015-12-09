@@ -71,7 +71,8 @@ canvas.f-modal {
   .f-item-containers > div:hover {
     z-index: 12; }
   .f-item-containers > div > div {
-    display: inline-block; }
+    display: inline-block;
+    transition: opacity 0.2s ease-in-out; }
     .f-item-containers > div > div span {
       -webkit-box-shadow: 4px 0px 4px 0px rgba(50, 50, 50, 0.3);
       -moz-box-shadow: 4px 0px 4px 0px rgba(50, 50, 50, 0.3);
@@ -92,6 +93,18 @@ canvas.f-modal {
       padding-right: 4px; }
     .f-item-containers > div > div:hover span.f-val {
       max-width: initial; }
+
+.hide-f-output-bind .f-item-containers .f-output.f-bind, .hide-f-output-bind .f-item-containers .f-output .f-bind {
+  opacity: 0; }
+
+.hide-f-output-bind .f-legend-panel .f-bind {
+  opacity: 1 !important; }
+
+.hide-f-input-bind .f-item-containers .f-input.f-bind, .hide-f-input-bind .f-item-containers .f-input .f-bind {
+  opacity: 0; }
+
+.hide-f-input-bind .f-legend-panel .f-bind {
+  opacity: 1 !important; }
 
 div.f-legend-panel {
   background: white;
