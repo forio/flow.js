@@ -107,8 +107,5 @@ var FlowInspector = function (root) {
     });
 };
 
-if (!window.Flow) {
-    window.alert('FlowJS not found on page');
-}
 window.Flow.Inspector = FlowInspector;
 module.exports = FlowInspector;
