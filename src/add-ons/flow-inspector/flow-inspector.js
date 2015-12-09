@@ -2,7 +2,7 @@
 
 // var addControlPanel = require('./debug-legend-panel');
 
-var FlowInspector = function () {
+var FlowInspector = function (root) {
 
     function draw(el, elementTop, elementLeft, elementWidth, elementHeight, fillColor) {
         var ctx = el.getContext('2d');
@@ -24,7 +24,7 @@ var FlowInspector = function () {
             height: windowHeight
         });
 
-        $('body').append($canvas);
+        $(root).append($canvas);
         var el = $canvas.get(0);
         draw(el, 0, 0, windowWidth, windowHeight, 'rgba(0,0,0,.4)');
 
@@ -103,8 +103,12 @@ var FlowInspector = function () {
 
             $overlayContainer.append($thisElemContainer);
         });
-        $('body').prepend($overlayContainer);
+        $(root).prepend($overlayContainer);
     });
 };
 
+if (!window.Flow) {
+    window.alert('FlowJS not found on page');
+}
+window.Flow.Inspector = FlowInspector;
 module.exports = FlowInspector;

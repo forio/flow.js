@@ -3,6 +3,7 @@ module.exports = function (grunt) {
 
     // require('time-grunt')(grunt);
     require('jit-grunt')(grunt, {
+        sass: 'grunt-sass',
         mocha: 'grunt-mocha-phantom-istanbul',
         'bump-only': 'grunt-bump',
         'bump-commit': 'grunt-bump',
