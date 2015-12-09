@@ -5,9 +5,9 @@ module.exports = function (grunt) {
         options: {
             sourceMap: true
         },
-        debug: {
+        addons: {
             files: {
-                'dist/flow-debug.css': 'styles/flow-debug.scss'
+                'dist/add-ons/flow-debug.css': 'src/add-ons/flow-debug/flow-debug.scss'
             }
         }
     });
