@@ -124,9 +124,7 @@ $typeMap: (
             transition: opacity 0.2s ease-in-out;
 
             span {
-                -webkit-box-shadow: 4px 0px 4px 0px rgba(50, 50, 50, 0.3);
-                -moz-box-shadow:    4px 0px 4px 0px rgba(50, 50, 50, 0.3);
-                box-shadow:         4px 0px 4px 0px rgba(50, 50, 50, 0.3);
+                box-shadow: 4px 0px 4px 0px rgba(50, 50, 50, 0.3);
             }
 
             .f-type, .f-conv {
@@ -166,10 +164,7 @@ $typeMap: (
     border-radius: 3px;
 
     z-index: 99999;
-    -webkit-box-shadow: 4px 0px 4px 0px rgba(50, 50, 50, 0.3);
-    -moz-box-shadow:    4px 0px 4px 0px rgba(50, 50, 50, 0.3);
-    box-shadow:         4px 0px 4px 0px rgba(50, 50, 50, 0.3);
-
+    box-shadow: 4px 0px 4px 0px rgba(50, 50, 50, 0.3);
 
     label {
         display: block;
