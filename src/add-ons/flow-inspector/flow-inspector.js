@@ -1,5 +1,8 @@
-var FlowDebug = function () {
-    'use strict';
+'use strict';
+
+var addControlPanel = require('./panels/legend-toggle/legend-panel');
+
+var FlowInspector = function (root) {
 
     function draw(el, elementTop, elementLeft, elementWidth, elementHeight, fillColor) {
         var ctx = el.getContext('2d');
@@ -21,7 +24,7 @@ var FlowDebug = function () {
             height: windowHeight
         });
 
-        $('body').append($canvas);
+        $(root).append($canvas);
         var el = $canvas.get(0);
         draw(el, 0, 0, windowWidth, windowHeight, 'rgba(0,0,0,.4)');
 
@@ -36,12 +39,12 @@ var FlowDebug = function () {
         classNames.push(isInputElement ? 'f-input' : 'f-output');
         if (attr.indexOf('on-') === 0) {
             classNames.push('f-on');
-        }
-        if (attr.indexOf('bind') === 0) {
+        } else if (attr.indexOf('bind') === 0) {
             classNames.push('f-bind');
-        }
-        if (attr.indexOf('foreach') === 0) {
+        } else if (attr.indexOf('foreach') === 0) {
             classNames.push('f-foreach');
+        } else {
+            classNames.push('f-custom');
         }
         return classNames.join(' ');
     };
@@ -91,8 +94,19 @@ var FlowDebug = function () {
                 }
             });
 
+
             $overlayContainer.append($thisElemContainer);
         });
-        $('body').prepend($overlayContainer);
+
+        var evtName = 'f-select:type';
+        addControlPanel($overlayContainer, evtName);
+        $overlayContainer.on(evtName, function (evt, type) {
+            $(root).toggleClass('hide-f-' + type);
+            // console.log('sdfdsfds', data, x);
+        });
+        $(root).prepend($overlayContainer);
     });
 };
+
+window.Flow.Inspector = FlowInspector;
+module.exports = FlowInspector;

@@ -1,0 +1,145 @@
+.f-input.f-bind .f-type, .f-input .f-bind .f-type {
+  background-color: #1f78b4;
+  color: white; }
+
+.f-input.f-bind .f-val, .f-input .f-bind .f-val {
+  background-color: #a6cee3;
+  color: #333333; }
+
+.f-input.f-bind .f-conv, .f-input .f-bind .f-conv {
+  background-color: #7794A3;
+  color: white; }
+
+.f-input.f-on .f-type, .f-input .f-on .f-type {
+  background-color: #d7301f;
+  color: white; }
+
+.f-input.f-on .f-val, .f-input .f-on .f-val {
+  background-color: #f768a1;
+  color: white;
+  border-right: 1px solid #d7301f; }
+
+.f-output.f-bind .f-type, .f-output .f-bind .f-type {
+  background-color: #33a02c;
+  color: white; }
+
+.f-output.f-bind .f-val, .f-output .f-bind .f-val {
+  background-color: #b2df8a;
+  color: #333333; }
+
+.f-output.f-bind .f-conv, .f-output .f-bind .f-conv {
+  background-color: #D9FFB7; }
+
+.f-output.f-foreach .f-type, .f-output .f-foreach .f-type {
+  background-color: #AB8724;
+  color: white; }
+
+.f-output.f-foreach .f-val, .f-output .f-foreach .f-val {
+  background-color: #F8CA4D;
+  color: #333333; }
+
+.f-output.f-foreach .f-conv, .f-output .f-foreach .f-conv {
+  background-color: #FFD769; }
+
+.f-output.f-custom .f-type, .f-output .f-custom .f-type {
+  background-color: #704623;
+  color: white; }
+
+.f-output.f-custom .f-val, .f-output .f-custom .f-val {
+  background-color: #BD6C28;
+  color: white; }
+
+.f-output.f-custom .f-conv, .f-output .f-custom .f-conv {
+  background-color: #BD804D; }
+
+.hide-f-input-bind .f-item-containers .f-input.f-bind, .hide-f-input-bind .f-item-containers .f-input .f-bind {
+  opacity: 0; }
+
+.hide-f-input-bind .f-legend-panel .f-bind {
+  opacity: 1 !important; }
+
+.hide-f-input-on .f-item-containers .f-input.f-on, .hide-f-input-on .f-item-containers .f-input .f-on {
+  opacity: 0; }
+
+.hide-f-input-on .f-legend-panel .f-on {
+  opacity: 1 !important; }
+
+.hide-f-output-bind .f-item-containers .f-output.f-bind, .hide-f-output-bind .f-item-containers .f-output .f-bind {
+  opacity: 0; }
+
+.hide-f-output-bind .f-legend-panel .f-bind {
+  opacity: 1 !important; }
+
+.hide-f-output-foreach .f-item-containers .f-output.f-foreach, .hide-f-output-foreach .f-item-containers .f-output .f-foreach {
+  opacity: 0; }
+
+.hide-f-output-foreach .f-legend-panel .f-foreach {
+  opacity: 1 !important; }
+
+.hide-f-output-custom .f-item-containers .f-output.f-custom, .hide-f-output-custom .f-item-containers .f-output .f-custom {
+  opacity: 0; }
+
+.hide-f-output-custom .f-legend-panel .f-custom {
+  opacity: 1 !important; }
+
+.f-input span, .f-output span {
+  padding: 2px 4px;
+  display: inline-block;
+  vertical-align: middle;
+  white-space: nowrap; }
+
+.f-item-containers > div {
+  position: absolute;
+  z-index: 11; }
+  .f-item-containers > div:hover {
+    z-index: 12; }
+  .f-item-containers > div > div {
+    display: inline-block;
+    transition: opacity 0.2s ease-in-out; }
+    .f-item-containers > div > div span {
+      box-shadow: 4px 0px 4px 0px rgba(50, 50, 50, 0.3); }
+    .f-item-containers > div > div .f-type, .f-item-containers > div > div .f-conv {
+      max-width: 0;
+      overflow: hidden;
+      padding-right: 0;
+      text-transform: capitalize;
+      transition: max-width 0.2s ease-in-out;
+      transition: padding 0.1s ease-in-out; }
+    .f-item-containers > div > div .f-val {
+      max-width: 135px;
+      overflow: hidden;
+      text-overflow: ellipsis; }
+    .f-item-containers > div > div:hover .f-type, .f-item-containers > div > div:hover .f-conv {
+      max-width: 75px;
+      padding-right: 4px; }
+    .f-item-containers > div > div:hover .f-val {
+      max-width: initial; }
+
+.f-legend-panel {
+  background: white;
+  padding: 5px 10px;
+  position: fixed;
+  left: 10px;
+  top: 10px;
+  cursor: move;
+  border-radius: 3px;
+  z-index: 99999;
+  box-shadow: 4px 0px 4px 0px rgba(50, 50, 50, 0.3); }
+  .f-legend-panel label {
+    display: block;
+    font-weight: normal;
+    cursor: pointer; }
+    .f-legend-panel label div, .f-legend-panel label input {
+      display: inline-block;
+      margin-right: 10px; }
+    .f-legend-panel label span {
+      margin-right: -4px; }
+
+canvas.f-modal {
+  top: 0;
+  left: 0;
+  position: absolute;
+  z-index: 10;
+  pointer-events: none; }
+
+/*# sourceMappingURL=flow-inspector.css.map */

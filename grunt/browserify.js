@@ -2,6 +2,16 @@
 var minifyify = require('minifyify');
 var istanbul = require('browserify-istanbul');
 var remapify = require('remapify');
+var stringify = require('stringify');
+
+var uglifyOptions = {
+    mangle: false,
+    warnings: true,
+    compress:{
+        screw_ie8: true,
+        join_vars: false
+    }
+};
 
 module.exports = function (grunt) {
     // grunt.loadNpmTasks('grunt-browserify');
@@ -55,6 +65,21 @@ module.exports = function (grunt) {
             }
         },
 
+        addons: {
+            files: {
+                './dist/add-ons/flow-inspector.min.js': './src/add-ons/flow-inspector/flow-inspector.js'
+            },
+            options: {
+                transform: [stringify],
+                preBundleCB: function (b) {
+                    b.plugin(minifyify, {
+                        map: 'flow-inspector.min.js.map',
+                        output: './dist/add-ons/flow-inspector.min.js.map',
+                        uglify: uglifyOptions
+                    });
+                }
+            }
+        },
         mapped: {
             files: {
                 './dist/flow.js': './src/app.js'
@@ -69,14 +94,7 @@ module.exports = function (grunt) {
                     b.plugin(minifyify, {
                         map: 'flow.min.js.map',
                         output: 'dist/flow.min.js.map',
-                        uglify: {
-                            mangle: false,
-                            warnings: true,
-                            compress:{
-                                screw_ie8: true,
-                                join_vars: false
-                            }
-                        }
+                        uglify: uglifyOptions
                     });
                 }
             }
