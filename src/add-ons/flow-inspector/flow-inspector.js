@@ -49,6 +49,29 @@ var FlowInspector = function (root) {
         return classNames.join(' ');
     };
 
+
+    var config = Flow.channel.run.getCurrentConfig();
+    config.token = 'eyJhbGciOiJSUzI1NiJ9.eyJqdGkiOiI3YmM5MTI3My0yOGQzLTQyYWUtYTFhMy05YzEwYzg3ZmM0NTMiLCJzdWIiOiIwOTdlOTMzMC1mOWYyLTQ0MTAtYTY3My0wYTQwNzkyZjFkMTgiLCJzY29wZSI6WyJvYXV0aC5hcHByb3ZhbHMiLCJvcGVuaWQiXSwiY2xpZW50X2lkIjoibG9naW4iLCJjaWQiOiJsb2dpbiIsImdyYW50X3R5cGUiOiJwYXNzd29yZCIsInVzZXJfaWQiOiIwOTdlOTMzMC1mOWYyLTQ0MTAtYTY3My0wYTQwNzkyZjFkMTgiLCJ1c2VyX25hbWUiOiJucmFuaml0QGZvcmlvLmNvbSIsImVtYWlsIjoibnJhbmppdEBmb3Jpby5jb20iLCJwYXJlbnRfYWNjb3VudF9pZCI6bnVsbCwiaWF0IjoxNDQ5ODU3ODMwLCJleHAiOjE0NDk5MDEwMzAsImlzcyI6Imh0dHA6Ly9sb2NhbGhvc3Q6OTc2My91YWEvb2F1dGgvdG9rZW4iLCJhdWQiOlsib2F1dGgiLCJvcGVuaWQiXX0.iE2FccE3UqWBSmTQxraz0Isyb5w17aki1Q_BY_yM0qvdVLxIPq17oCtY3u8cL2uqLeIqvyvH7WRUvccadbh1fOisPX-V2NyfJg0sV82ti_yy4McDW-7ja8ilwP1QDXzsCOlMs4xyfCnd9KyJ7DiwYbrK2uhMvxV3NtFaH3WbrDLptf128zl3olLHN3XuyB0gvXHnfeitgDh-J79Kl7gC8JkGNK5_q--FddjJFVQz-dTwsPMzGQt-Tro7Hu45ACyn07B4IaFqIggmOtR9cUD7pao_YNzgMetLQ5mMz3ExIasWciqQ8E32S6S6s_Jp_3CpyZdCwlUWumI8yeZTsS9TAg';
+    var file = new F.service.File(config);
+    var promise = file.getFileContents(config.model, 'model').then(function (x) {
+        var ret = x.split(/\n/);
+        return _.invoke(ret, 'trim');
+    });
+
+    var findContext = function (codeArray, variable) {
+        var regExp = new RegExp('^' + variable + '\\s?=');
+        var startIndex = _.findIndex(codeArray, function (val) {
+            // console.log(val, regExp.test(val));
+            return regExp.test(val);
+        });
+        var fromStart = codeArray.slice(startIndex + 1);
+        var endIndex = _.findIndex(fromStart, function (val) {
+            return val === '' || (val.indexOf('=') !== -1);
+        });
+
+        return codeArray.slice(startIndex, (startIndex + endIndex + 1));
+    };
+
     $(function () {
 
         var canvas = drawModalCanvas();
@@ -94,6 +117,12 @@ var FlowInspector = function (root) {
                 }
             });
 
+            $thisElemContainer.on('click', '.f-bind .f-val', function (evt) {
+                var variableName = $(evt.target).text().trim();
+                promise.then(function (data) {
+                    console.log(findContext(data, variableName));
+                });
+            });
 
             $overlayContainer.append($thisElemContainer);
         });
@@ -102,10 +131,11 @@ var FlowInspector = function (root) {
         addControlPanel($overlayContainer, evtName);
         $overlayContainer.on(evtName, function (evt, type) {
             $(root).toggleClass('hide-f-' + type);
-            // console.log('sdfdsfds', data, x);
         });
         $(root).prepend($overlayContainer);
     });
+
+
 };
 
 window.Flow.Inspector = FlowInspector;
