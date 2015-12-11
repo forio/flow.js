@@ -124,7 +124,7 @@
   cursor: move;
   border-radius: 3px;
   width: 295px;
-  z-index: 99999;
+  z-index: 99999 !important;
   box-shadow: 4px 0px 4px 0px rgba(50, 50, 50, 0.3); }
 
 .f-legend-panel {
@@ -144,9 +144,10 @@
       margin-right: -4px; }
 
 .f-code-inspector {
-  top: 240px; }
+  top: 240px;
+  resize: both;
+  overflow: auto; }
   .f-code-inspector pre {
-    max-height: 200px;
     overflow: auto; }
 
 canvas.f-modal {

@@ -56,14 +56,20 @@ var FlowInspector = function (root) {
     var file = new F.service.File(config);
     var promise = file.getFileContents(config.model, 'model').then(function (x) {
         var ret = x.split(/\n/);
-        return _.invoke(ret, 'trim');
+        // return _.invoke(ret, 'trim');
+        return ret;
     });
 
     var findContext = function (codeArray, variable, isFunction) {
         variable = variable.split(/[\[\.\(]/)[0];
+        var modelType = config.model.split('.')[1];
         var regExp;
         if (isFunction) {
-            variable = 'function ' + variable;
+            if (modelType === 'jl') {
+                variable = 'function ' + variable;
+            } else if (modelType === 'py') {
+                variable = 'def ' + variable;
+            }
             regExp = new RegExp('^' + variable);
         } else {
             regExp = new RegExp('^' + variable + '\\s?=');
@@ -72,20 +78,29 @@ var FlowInspector = function (root) {
         var offset = (isFunction) ? 2 : 1;
         var isEnd = function (val) {
             if (isFunction) {
-                return val === 'end';
+                if (modelType === 'jl') {
+                    return val.trim() === 'end';
+                } else if (modelType === 'py') {
+                    val.trim() === '';
+                }
             } else {
-                return val === '' || (val.indexOf('=') !== -1);
+                return val.trim() === '' || (val.indexOf('=') !== -1);
             }
         };
 
         var startIndex = _.findIndex(codeArray, function (val) {
             // console.log(val, regExp.test(val));
-            return regExp.test(val);
+            return regExp.test(val.trim());
         });
         var fromStart = codeArray.slice(startIndex + 1);
         var endIndex = _.findIndex(fromStart, isEnd);
 
-        return codeArray.slice(startIndex, (startIndex + endIndex + offset));
+        if (endIndex === -1) {
+            endIndex = codeArray.length;
+        }
+
+        var arr = codeArray.slice(startIndex, (startIndex + endIndex + offset));
+        return arr.join('\n');
     };
 
 
