@@ -154,7 +154,7 @@ $typeMap: (
     }
 }
 
-.f-legend-panel {
+.f-panel {
     background: white;
     padding: 5px 10px;
     position: fixed;
@@ -163,13 +163,22 @@ $typeMap: (
     cursor: move;
     border-radius: 3px;
 
+    width: 295px;
+
     z-index: 99999;
     box-shadow: 4px 0px 4px 0px rgba(50, 50, 50, 0.3);
-
+}
+.f-legend-panel {
+    height: 220px;
+    overflow: hidden;
+    h6 {
+        margin: 5px;
+    }
     label {
         display: block;
         font-weight: normal;
         cursor: pointer;
+        margin-bottom: 10px;
         div, input {
             display: inline-block;
             margin-right: 10px;
@@ -177,6 +186,14 @@ $typeMap: (
         span {
             margin-right: -4px;
         }
+    }
+}
+.f-code-inspector {
+    top: 240px;
+
+    pre {
+        max-height: 200px;
+        overflow: auto;
     }
 }
 

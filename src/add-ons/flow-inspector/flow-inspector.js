@@ -1,6 +1,7 @@
 'use strict';
 
 var addControlPanel = require('./panels/legend-toggle/legend-panel');
+var codePanel = require('./panels/code-show/code-show.html');
 
 var FlowInspector = function (root) {
 
@@ -87,11 +88,14 @@ var FlowInspector = function (root) {
         return codeArray.slice(startIndex, (startIndex + endIndex + offset));
     };
 
+
     $(function () {
 
         var canvas = drawModalCanvas();
 
         var $overlayContainer = $('<div class="f-item-containers"></div>');
+        var $codePanel = $(codePanel);
+
         var elemCounter = 0;
         $(':f').each(function (index, elem) {
             elemCounter++;
@@ -136,7 +140,8 @@ var FlowInspector = function (root) {
                 var $target = $(evt.target).is('.f-val') ? $(evt.target) : $(evt.target).parent().find('.f-val');
                 var variableName = $target.text().trim();
                 promise.then(function (data) {
-                    console.log(findContext(data, variableName));
+                    var context = findContext(data, variableName);
+                    $codePanel.find('pre').html(context);
                 });
             });
 
@@ -144,7 +149,9 @@ var FlowInspector = function (root) {
                 var $target = $(evt.target).is('.f-val') ? $(evt.target) : $(evt.target).parent().find('.f-val');
                 var variableName = $target.text().trim();
                 promise.then(function (data) {
-                    console.log(findContext(data, variableName, true));
+                    var context = findContext(data, variableName, true);
+
+                    $codePanel.find('pre').html(context);
                 });
             });
 
@@ -157,7 +164,10 @@ var FlowInspector = function (root) {
         $overlayContainer.on(evtName, function (evt, type) {
             $(root).toggleClass('hide-f-' + type);
         });
+
+
         $(root).prepend($overlayContainer);
+        $overlayContainer.append($codePanel);
     });
 
 

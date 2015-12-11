@@ -115,7 +115,7 @@
     .f-item-containers > div > div:hover .f-val {
       max-width: initial; }
 
-.f-legend-panel {
+.f-panel {
   background: white;
   padding: 5px 10px;
   position: fixed;
@@ -123,17 +123,31 @@
   top: 10px;
   cursor: move;
   border-radius: 3px;
+  width: 295px;
   z-index: 99999;
   box-shadow: 4px 0px 4px 0px rgba(50, 50, 50, 0.3); }
+
+.f-legend-panel {
+  height: 220px;
+  overflow: hidden; }
+  .f-legend-panel h6 {
+    margin: 5px; }
   .f-legend-panel label {
     display: block;
     font-weight: normal;
-    cursor: pointer; }
+    cursor: pointer;
+    margin-bottom: 10px; }
     .f-legend-panel label div, .f-legend-panel label input {
       display: inline-block;
       margin-right: 10px; }
     .f-legend-panel label span {
       margin-right: -4px; }
+
+.f-code-inspector {
+  top: 240px; }
+  .f-code-inspector pre {
+    max-height: 200px;
+    overflow: auto; }
 
 canvas.f-modal {
   top: 0;
