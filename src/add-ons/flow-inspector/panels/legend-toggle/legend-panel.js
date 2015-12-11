@@ -13,51 +13,27 @@ module.exports = function ($container, evtName) {
         $container.trigger(evtName, type + '-' + subType);
     });
 
-    var pageX = 0;
-    var pageY = 0;
-
-    $html.on('dragstart', function (evt) {
-        // console.log('drag start', evt);
-        console.log('original',
-            evt.originalEvent.pageX,
-            $(evt.target).offset().left);
-
-        pageX = evt.originalEvent.pageX;
-        pageY = evt.originalEvent.pageY;
-        $(evt.target).css('opacity', 0.5);
+    var xOffset = 0;
+    var yOffset = 0;
+    var isDragged = false;
+    $html.on('mousedown', function (evt) {
+        xOffset = evt.clientX - $html.offset().left;
+        yOffset = evt.clientY - $html.offset().top;
+        isDragged = true;
+        return false;
     });
-    $html.on('dragend', function (evt) {
-
-        // console.log('drag end', evt);
-        console.log('new', evt.originalEvent.pageX, $html.offset().left, pageX);
-        // var horMove = pageX - evt.originalEvent.pageX;
-        // var verticalMove = pageY - evt.originalEvent.pageY;
-
-        var newXOffset = evt.originalEvent.pageX - pageX;
-        console.log(newXOffset);
-        // $html.css({
-        //     // top: $html.offset().top - verticalMove,
-        //     left: ($html.offset().left + newXOffset) + 'px'
-        // });
-
-        // $(evt.target).css('opacity', 1);
+    $html.on('mousemove', function (evt) {
+        if (isDragged) {
+            evt.stopPropagation();
+            $html.css({
+                top: evt.clientY - yOffset,
+                left: evt.clientX - xOffset
+            });
+            return false;
+        }
+    });
+    $html.on('mouseup', function (evt) {
+        isDragged = false;
     });
 
-    $container.on('dragover', function (event) {
-        console.log('dragover');
-        event.originalEvent.preventDefault();
-        // event.originalEvent.dataTransfer.dropEffect = 'move';
-    });
-    $container.on('drop', function (event) {
-        console.log('drop', event.originalEvent.pageX, $html.offset().left, pageX);
-
-        event.originalEvent.stopPropagation();
-        event.originalEvent.preventDefault();
-
-        var newXOffset = event.originalEvent.pageX - pageX;
-        $html.css({
-            // top: $html.offset().top - verticalMove,
-            left: ($html.offset().left + newXOffset) + 'px'
-        });
-    });
 };
