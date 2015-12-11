@@ -58,18 +58,33 @@ var FlowInspector = function (root) {
         return _.invoke(ret, 'trim');
     });
 
-    var findContext = function (codeArray, variable) {
-        var regExp = new RegExp('^' + variable + '\\s?=');
+    var findContext = function (codeArray, variable, isFunction) {
+        variable = variable.split(/[\[\.\(]/)[0];
+        var regExp;
+        if (isFunction) {
+            variable = 'function ' + variable;
+            regExp = new RegExp('^' + variable);
+        } else {
+            regExp = new RegExp('^' + variable + '\\s?=');
+        }
+
+        var offset = (isFunction) ? 2 : 1;
+        var isEnd = function (val) {
+            if (isFunction) {
+                return val === 'end';
+            } else {
+                return val === '' || (val.indexOf('=') !== -1);
+            }
+        };
+
         var startIndex = _.findIndex(codeArray, function (val) {
             // console.log(val, regExp.test(val));
             return regExp.test(val);
         });
         var fromStart = codeArray.slice(startIndex + 1);
-        var endIndex = _.findIndex(fromStart, function (val) {
-            return val === '' || (val.indexOf('=') !== -1);
-        });
+        var endIndex = _.findIndex(fromStart, isEnd);
 
-        return codeArray.slice(startIndex, (startIndex + endIndex + 1));
+        return codeArray.slice(startIndex, (startIndex + endIndex + offset));
     };
 
     $(function () {
@@ -117,12 +132,22 @@ var FlowInspector = function (root) {
                 }
             });
 
-            $thisElemContainer.on('click', '.f-bind .f-val', function (evt) {
-                var variableName = $(evt.target).text().trim();
+            $thisElemContainer.on('click', '.f-bind, .f-foreach', function (evt) {
+                var $target = $(evt.target).is('.f-val') ? $(evt.target) : $(evt.target).parent().find('.f-val');
+                var variableName = $target.text().trim();
                 promise.then(function (data) {
                     console.log(findContext(data, variableName));
                 });
             });
+
+            $thisElemContainer.on('click', '.f-on', function (evt) {
+                var $target = $(evt.target).is('.f-val') ? $(evt.target) : $(evt.target).parent().find('.f-val');
+                var variableName = $target.text().trim();
+                promise.then(function (data) {
+                    console.log(findContext(data, variableName, true));
+                });
+            });
+
 
             $overlayContainer.append($thisElemContainer);
         });
