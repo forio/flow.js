@@ -23,8 +23,11 @@ Extractor.prototype.showContext = function (reference, isFunction) {
     var endIndex = _.findIndex(fromStart, function (val) {
         return pattern.end(val, this.contents[startIndex]);
     }, this);
+    if (endIndex === -1) {
+        endIndex = this.contents.length;
+    }
     var arr = this.contents.slice(startIndex, (startIndex + endIndex + 1));
-    return arr.join('\n');;
+    return arr.join('\n');
 };
 
 module.exports = Extractor;
