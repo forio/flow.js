@@ -1,7 +1,7 @@
 'use strict';
 
-var JuliaExtractor = require('./julia-extractor');
-var PythonExtractor = require('./python-extractor');
+var JuliaExtractor = require('./rules/julia-extract-rules');
+var PythonExtractor = require('./rules/python-extract-rules');
 
 var Extractor = function (modelName, modelContents) {
     this.contents = modelContents.split(/\n/);
