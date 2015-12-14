@@ -1,7 +1,8 @@
 'use strict';
 
-var addControlPanel = require('./panels/legend-toggle/legend-panel');
-var codePanel = require('./panels/code-show/code-show.html');
+var addLegendPanel = require('./panels/legend-toggle/legend-panel');
+var addContextPanel = require('./panels/context-show/context-show-panel');
+
 var ContextExtractor = require('./context-extract/context-extractor');
 
 var FlowInspector = function (root) {
@@ -51,7 +52,6 @@ var FlowInspector = function (root) {
         return classNames.join(' ');
     };
 
-
     var promise;
     var extractor;
     if (window.Flow.channel.run.getCurrentConfig) {
@@ -72,7 +72,6 @@ var FlowInspector = function (root) {
         var canvas = drawModalCanvas();
 
         var $overlayContainer = $('<div class="f-item-containers"></div>');
-        var $codePanel = $(codePanel);
 
         var elemCounter = 0;
         $(':f').each(function (index, elem) {
@@ -113,33 +112,19 @@ var FlowInspector = function (root) {
                     $thisElemContainer.append($newEl);
                 }
             });
-
-            if (promise) {
-                $thisElemContainer.on('click', '.f-bind, .f-foreach, .f-on', function (evt) {
-                    var $target = $(evt.target).is('.f-val') ? $(evt.target) : $(evt.target).parent().find('.f-val');
-                    var variableName = $target.text().trim();
-                    var isFunction = $target.parent().is('.f-on');
-                    promise.then(function (extractor) {
-                        var context = extractor.showContext(variableName, isFunction);
-                        $codePanel.find('pre').html(context);
-                    });
-                });
-            }
-
             $overlayContainer.append($thisElemContainer);
         });
 
         var evtName = 'f-select:type';
-        addControlPanel($overlayContainer, evtName);
+        addLegendPanel($overlayContainer, evtName);
         $overlayContainer.on(evtName, function (evt, type) {
             $(root).toggleClass('hide-f-' + type);
         });
 
-
-        $(root).prepend($overlayContainer);
         if (promise) {
-            $overlayContainer.append($codePanel);
+            addContextPanel($overlayContainer, promise);
         }
+        $(root).prepend($overlayContainer);
     });
 
 
