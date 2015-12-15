@@ -21,7 +21,7 @@
  *
  *            if (profit > 0.10) {
  *                  profitStr += 'Great work so far! Your firm is doing extremely well.';
- *            } else if ( profit > 0 ) {
+ *            } else if (profit > 0) {
  *                  profitStr += 'Your firm is profitable, but there is room for improvement.';
  *            } else {
  *                  profitStr += 'Careful, your firm is currently running at a loss. Consider strategies to increase sales or decrease spending.'
@@ -45,8 +45,8 @@
  *            var sortedSched = _.sortBy(sched, function(el) { return el[1]; });
  *
  *            for (var i = 0; i < sortedSched.length; i++) {
- *                  schedStr += '<li><strong>'
- *                        + sortedSched[i][0] + '</strong> currently scheduled for <strong>Month '
+ *                  schedStr += '<li><strong>' + sortedSched[i][0]
+ *                        + '</strong> currently scheduled for <strong>Month '
  *                        + sortedSched[i][1] + '</strong></li>';
  *            }
  *            schedStr += '</ul>';
