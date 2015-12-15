@@ -19,9 +19,13 @@
  *      Flow.dom.attributes.register('showProfitFeedback', '*', function(profit) {
  *            var profitStr = '';
  *
- *            if (profit > 0.10) { profitStr += 'Great work so far! Your firm is doing extremely well.'; }
- *            else if ( profit > 0 ) { profitStr += 'Your firm is profitable, but there is room for improvement.'; }
- *            else { profitStr += 'Careful, your firm is currently running at a loss. Consider strategies to increase sales or decrease spending.' }
+ *            if (profit > 0.10) {
+ *                  profitStr += 'Great work so far! Your firm is doing extremely well.';
+ *            } else if ( profit > 0 ) {
+ *                  profitStr += 'Your firm is profitable, but there is room for improvement.';
+ *            } else {
+ *                  profitStr += 'Careful, your firm is currently running at a loss. Consider strategies to increase sales or decrease spending.'
+ *            }
  *
  *            this.html(profitStr);
  *      });
@@ -30,7 +34,7 @@
  *
  *      <div data-f-showProfitFeedback="profit"></div>
  *
- * Another example of when custom attribute managers are useful is when your model variable is a complex object and you want to display the fields in a particular way, or you only want to display some of the fields. While the combination of the [`data-f-foreach` attribute](../foreach/default-foreach-attr/) and [templating](../../../#templates) can help with this, sometimes it's easier to write your own attribute manager. (This is especially true if you will be reusing the attribute manager -- you won't have to copy your templating code over and over.)
+ * Another example of when custom attribute managers are useful is when your model variable is a complex object and you want to display the fields in a particular way, or you only want to display some of the fields. While the combination of the [`data-f-foreach` attribute](../foreach/default-foreach-attr/) and [templating](../../../../#templates) can help with this, sometimes it's easier to write your own attribute manager. (This is especially true if you will be reusing the attribute manager -- you won't have to copy your templating code over and over.)
  *
  *      Flow.dom.attributes.register('showSched', '*', function (sched) {
  *            // display all the schedule milestones
@@ -38,10 +42,12 @@
  *            // of ['Formal Milestone Name', milestoneMonth, completionPercentage]
  *
  *            var schedStr = '<ul>';
- *            var sortedSched = _.sortBy(sched, function(elem) { return elem[1]; });
+ *            var sortedSched = _.sortBy(sched, function(el) { return el[1]; });
  *
  *            for (var i = 0; i < sortedSched.length; i++) {
- *                  schedStr += '<li><strong>' + sortedSched[i][0] + '</strong> currently scheduled for <strong>Month ' + sortedSched[i][1] + '</strong></li>'
+ *                  schedStr += '<li><strong>'
+ *                        + sortedSched[i][0] + '</strong> currently scheduled for <strong>Month '
+ *                        + sortedSched[i][1] + '</strong></li>';
  *            }
  *            schedStr += '</ul>';
  *
