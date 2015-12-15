@@ -24,7 +24,15 @@
  *          <li></li>
  *      </ul>
  *
- * In the third step of the model, this example generates:
+ * In the third step of the model, this example generates the HTML:
+ *
+ *      <ul data-f-foreach="Time">
+ *            <li>2015</li>
+ *            <li>2016</li>
+ *            <li>2017</li>
+ *      </ul>
+ *
+ * which appears as:
  *
  *      * 2015
  *      * 2016
@@ -41,6 +49,10 @@
  *      </ul>
  *
  * In the third step of the model, this example generates:
+ *
+ *
+ *
+ * which appears as:
  *
  *      * Year 1: 2015
  *      * Year 2: 2016
