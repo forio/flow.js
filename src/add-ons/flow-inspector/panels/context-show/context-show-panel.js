@@ -2,16 +2,16 @@
 
 var ContextExtractor = require('./context-extractor');
 
-module.exports = function ($container) {
+module.exports = function ($container, configFunction) {
     var template = require('./context-show.html');
     var $html = $(template);
 
-    if (!window.Flow.channel.run.getCurrentConfig) {
+    if (!configFunction) {
         console.warn('You\'re using an older version of FlowJS which does not support viewing model context.');
         return false;
     }
 
-    var config = window.Flow.channel.run.getCurrentConfig();
+    var config = configFunction();
     var modelType = config.model.split('.')[1];
     if (modelType === 'vmf') {
         console.info('Cannot view context for Vensim models.');

@@ -104,7 +104,7 @@ var FlowInspector = function (root) {
             $(root).toggleClass('hide-f-' + type);
         });
 
-        addContextPanel($overlayContainer);
+        addContextPanel($overlayContainer, window.Flow.channel.run.getCurrentConfig);
         $(root).prepend($overlayContainer);
     });
 };
