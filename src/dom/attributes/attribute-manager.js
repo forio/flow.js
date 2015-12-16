@@ -12,29 +12,9 @@
  *
  * **Examples**
  *
- * Built-in attribute managers like `data-f-value` and `data-f-foreach` automatically bind variables in your project's model to particular HTML elements. However, the value of the variable itself isn't always what you want in the UI.
+ * Built-in attribute handlers like `data-f-value` and `data-f-foreach` automatically bind variables in your project's model to particular HTML elements. However, your UI may sometimes require displaying only part of the variable (e.g. if it's an object), or "doing something" with the value of the variable, rather than simply displaying it.
  *
- * One application of custom attribute managers is to display particular HTML elements or content based on the value of a model variable, without displaying the value of the variable itself. For example, when your model variable meets a certain condition, you may want to show specific text in your UI based on the value of that variable. Creating a custom attribute manager is an easy way to do this:
- *
- *      Flow.dom.attributes.register('showProfitFeedback', '*', function(profit) {
- *            var profitStr = '';
- *
- *            if (profit > 0.10) {
- *                  profitStr += 'Great work so far! Your firm is doing extremely well.';
- *            } else if (profit > 0) {
- *                  profitStr += 'Your firm is profitable, but there is room for improvement.';
- *            } else {
- *                  profitStr += 'Careful, your firm is currently running at a loss. Consider strategies to increase sales or decrease spending.'
- *            }
- *
- *            this.html(profitStr);
- *      });
- *
- * Then, you can use the attribute manager in your HTML just like other Flow.js attributes:
- *
- *      <div data-f-showProfitFeedback="profit"></div>
- *
- * Another example of when custom attribute managers are useful is when your model variable is a complex object and you want to display the fields in a particular way, or you only want to display some of the fields. While the combination of the [`data-f-foreach` attribute](../foreach/default-foreach-attr/) and [templating](../../../../#templates) can help with this, sometimes it's easier to write your own attribute manager. (This is especially true if you will be reusing the attribute manager -- you won't have to copy your templating code over and over.)
+ * One example of when custom attribute handlers are useful is when your model variable is a complex object and you want to display the fields in a particular way, or you only want to display some of the fields. While the combination of the [`data-f-foreach` attribute](../foreach/default-foreach-attr/) and [templating](../../../../#templates) can help with this, sometimes it's easier to write your own attribute handler. (This is especially true if you will be reusing the attribute handler -- you won't have to copy your templating code over and over.)
  *
  *      Flow.dom.attributes.register('showSched', '*', function (sched) {
  *            // display all the schedule milestones
@@ -54,9 +34,27 @@
  *            this.html(schedStr);
  *      });
  *
- * Then, you can use the attribute manager in your HTML just like other Flow.js attributes:
+ * Then, you can use the attribute handler in your HTML just like other Flow.js attributes:
  *
- *      <div data-f-showSched="vars.schedule"></div>
+ *      <div data-f-showSched="schedule"></div>
+ *
+ * Another application of custom attribute handlers is to display particular HTML instead of displaying the value of your model variable directly. (In simple cases -- for instance if you're happy with the behavior of an existing attribute handler, but would like to customize only the output -- you can of course use a [custom converter](../../../converters/converter-manager/).) In particular, anything that requires additional logic, or requires more than one model variable, is probably easiest with a custom attribute handler:
+ *
+ *      Flow.dom.attributes.register('showif', '*', function(data) {
+ *            var message = '';
+ *
+ *            if (data.budgetUsed <= data.budgetAvailable) {
+ *                  message = 'Great work so far! You are within budget.';
+ *            } else {
+ *                  message = 'Error! You have exceeded your budget!';
+ *            }
+ *
+ *            this.html(message);
+ *      });
+ *
+ * Then, you can use the attribute handler in your HTML just like other Flow.js attributes:
+ *
+ *      <div data-f-showif="budgetUsed, budgetAvailable"></div>
  *
  */
 
