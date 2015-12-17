@@ -26,7 +26,7 @@ Extractor.prototype.showContext = function (reference, isFunction) {
     if (endIndex === -1) {
         endIndex = this.contents.length;
     }
-    var arr = this.contents.slice(startIndex, (startIndex + endIndex + 1));
+    var arr = this.contents.slice(startIndex, (startIndex + endIndex + 2));
     return arr.join('\n');
 };
 

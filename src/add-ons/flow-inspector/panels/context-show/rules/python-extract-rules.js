@@ -3,7 +3,7 @@
 module.exports = {
     fn: {
         start: function (reference) {
-            var regExp = new RegExp('^def ' + reference);
+            var regExp = new RegExp('^def\\s+' + reference);
             return function (val) {
                 return regExp.test(val);
             };

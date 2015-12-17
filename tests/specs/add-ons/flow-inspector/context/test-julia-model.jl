@@ -36,18 +36,13 @@ function function_with_nested_ends_inside(n, sol)
     return tour
 end
 
-function function_with_messed_up_indentation(n, sol)
-for i in 1:n
-for j in 1:n
-if abs(sol[i,j] - int(sol[i,j])) > 1e-6
-return false
-end
-end
-end
+function function_with_bad_indentation(n, sol)
+i=2
+g=4
 return true
 end
 
-  function   function_with_random_spacing(n, sol)
+  function   function_with_bad_spacing(n, sol)
     return true
 end
 
