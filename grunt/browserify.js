@@ -32,6 +32,8 @@ module.exports = function (grunt) {
                 './tests/dist/tests-browserify-bundle.js': './tests/test-list.js'
             },
             options: {
+                transform: [['stringify', { extensions: ['.py', '.jl'], minify: false }]],
+
                 preBundleCB: function (b) {
                     b.plugin(remapify, {
                         src: '**/*.js',
@@ -42,23 +44,23 @@ module.exports = function (grunt) {
                 postBundleCB: null
             }
         },
-        instrumented: {
-            files: {
-                './tests/dist/tests-browserify-bundle-instrumented.js': './tests/test-list.js'
-            },
-            options: {
-                transform: [istanbul],
-                debug: false,
-                preBundleCB: function (b) {
-                    b.plugin(remapify, {
-                        src: '**/*.js',
-                        cwd: './src/',
-                        expose: 'src'
-                    });
-                },
-                postBundleCB: null
-            }
-        },
+        // instrumented: {
+        //     files: {
+        //         './tests/dist/tests-browserify-bundle-instrumented.js': './tests/test-list.js'
+        //     },
+        //     options: {
+        //         transform: [istanbul],
+        //         debug: false,
+        //         preBundleCB: function (b) {
+        //             b.plugin(remapify, {
+        //                 src: '**/*.js',
+        //                 cwd: './src/',
+        //                 expose: 'src'
+        //             });
+        //         },
+        //         postBundleCB: null
+        //     }
+        // },
         edge: {
             files: {
                 './dist/flow-edge.js': './src/app.js'

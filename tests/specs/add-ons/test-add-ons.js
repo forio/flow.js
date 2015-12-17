@@ -1,6 +1,6 @@
 'use strict';
 
 module.exports = (function () {
-    require('./context/test-context-extractor');
+    require('./flow-inspector/test-flow-inspector');
 
 }());
