@@ -1,7 +1,7 @@
 'use strict';
-var Extractor = require('src/add-ons/flow-inspector/panels/context-show/context-extractor');
 
 module.exports = (function () {
+    var Extractor = require('src/add-ons/flow-inspector/panels/context-show/context-extractor');
 
     var code = require('./test-julia-model.jl');
     var extractor = new Extractor('test.jl', code);

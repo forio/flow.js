@@ -1,6 +1,6 @@
 'use strict';
 var minifyify = require('minifyify');
-var istanbul = require('browserify-istanbul');
+// var istanbul = require('browserify-istanbul');
 var remapify = require('remapify');
 var stringify = require('stringify');
 
