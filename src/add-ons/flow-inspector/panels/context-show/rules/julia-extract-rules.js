@@ -8,9 +8,12 @@ module.exports = {
                 return regExp.test(val);
             };
         },
-        end: function (val, startValue) {
-            return val.match(/^end/);//ignore leading whitespaces to avoid returning early for nested ends
+        end: function (fromStart) {
+            return _.findIndex(fromStart, function (val, index) {
+                return val.match(/^end/);//ignore leading whitespaces to avoid returning early for nested ends
+            }, this);
         },
+        offset: 1
     },
     variable: {
         start: function (reference) {
@@ -19,8 +22,11 @@ module.exports = {
                 return regExp.test(val);
             };
         },
-        end: function (val, startValue) {
-            return val.trim() === '' || (val.indexOf('=') !== -1);
-        }
+        end: function (fromStart) {
+            return _.findIndex(fromStart, function (val, index) {
+                return val.trim() === '' || (val.indexOf('=') !== -1);
+            }, this);
+        },
+        offset: 0
     }
 };

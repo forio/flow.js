@@ -20,11 +20,9 @@ Extractor.prototype.showContext = function (reference, isFunction) {
 
     var startIndex = _.findIndex(this.contents, pattern.start(reference), this);
     var fromStart = this.contents.slice(startIndex + 1);
-    var endIndex = _.findIndex(fromStart, function (val) {
-        return pattern.end(val, this.contents[startIndex]);
-    }, this);
+    var endIndex = pattern.end(fromStart, this.contents[startIndex]);
 
-    var offset = (isFunction) ? 2 : 1;
+    var offset = pattern.offset + 1;
     if (endIndex === -1) {
         endIndex = this.contents.length;
         offset = 0;
