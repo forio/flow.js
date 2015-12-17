@@ -8,10 +8,7 @@ module.exports = function (grunt) {
             options: {
                 growlOnSuccess: false,
                 reporter: 'Min',
-                run: true,
-                coverage: {
-                    coverageFile: 'coverage/coverage.json'
-                }
+                run: true
             }
         }
     });
