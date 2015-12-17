@@ -22,7 +22,12 @@ module.exports = (function () {
                     cont.should.equal(extractBetween(45, 47));
                 });
                 it('Should work for functions with nested ends', function () {
-
+                    var cont = extractor.showContext('indented_function_with_nested_ends_inside', true);
+                    cont.should.equal(extractBetween(13, 37));
+                });
+                it('Should work for functions with nested ends', function () {
+                    var cont = extractor.showContext('function_with_nested_ends_inside_and_bad_indentation', true);
+                    cont.should.equal(extractBetween(49, 65)); //not the right end, but ignoring nested bad indentation
                 });
             });
         });

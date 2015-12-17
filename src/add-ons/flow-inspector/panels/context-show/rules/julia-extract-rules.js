@@ -9,7 +9,7 @@ module.exports = {
             };
         },
         end: function (val, startValue) {
-            return val.trim() === 'end';
+            return val.match(/^end/);//ignore leading whitespaces to avoid returning early for nested ends
         },
     },
     variable: {
