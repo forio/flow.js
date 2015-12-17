@@ -37,5 +37,7 @@ Once you set `data-f-bind`, Flow.js figures out the appropriate action to take b
 	* See [default attribute handling](../generated/dom/attributes/default-attr/). 
 * Create my own custom attribute? 
 	* Use the [Attribute Manager](../generated/dom/attributes/attribute-manager/) to add your own attributes.
+* Call a model operation each time a variable changes?
+	* Bind the variable, use the [Variables Channel](../generated/channels/variables-channel/) to subscribe to the variable, and then call the operation in the callback function for the subscription. See details in the [How To example](../../how_to/variable_operation/).
 
 
