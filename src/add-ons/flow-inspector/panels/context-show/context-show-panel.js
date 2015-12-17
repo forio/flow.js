@@ -19,7 +19,7 @@ module.exports = function ($container, configFunction) {
     }
 
     var file = new F.service.File(config);
-    file.getFileContents(config.model, 'model')
+    file.getContents(config.model, 'model')
         .then(function (response) {
             var extractor = new ContextExtractor(config.model, response);
             $container.on('click', '.f-bind, .f-foreach, .f-on', function (evt) {
