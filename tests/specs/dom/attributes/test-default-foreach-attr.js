@@ -26,7 +26,7 @@ module.exports = (function () {
                        data.should.equal(targetData[index]);
                     });
                 });
-                it('should support inline functions in templates', function () {
+                it('should support inline conditions in templates', function () {
                     var $rootNode = $('<ul> <li> <%= (index === 0) ? "first" : value %> </li> </ul>');
                     var targetData = [5,3,6,1];
                     var outputdata = ['first',3,6,1];
@@ -38,6 +38,33 @@ module.exports = (function () {
                        data.should.equal(outputdata[index] + '');
                     });
                 });
+                it('should support block conditions in inline templates', function () {
+                    var $rootNode = $('<ul> <li> <% if (index === 0) { %> <%= value %> <% } %> </li> </ul>');
+                    var targetData = [5,3,6,1];
+                    var outputdata = [5, '', '', ''];
+
+                    foreachHandler.handle.call($rootNode, targetData);
+                    var newChildren = $rootNode.children();
+                    newChildren.each(function (index) {
+                       var data = $(this).html().trim();
+                       data.should.equal(outputdata[index] + '');
+                    });
+                });
+                it('should support block conditions in templates with multi children', function () {
+                    var $rootNode = $('<ul> <li> <% if (index === 0) { %> <span> HI </span> <% } %>  <span> <%= value %> </span> </li> </ul>');
+                    var targetData = [5,3,6,1];
+
+                    foreachHandler.handle.call($rootNode, targetData);
+                    var newChildren = $rootNode.children();
+                    newChildren.each(function (index, el) {
+                        if (index === 0) {
+                            $(el).children().length.should.equal(2);
+                        } else {
+                            $(el).children().length.should.equal(1);
+                        }
+                    });
+                });
+
 
                 it('should replace templated inner html for children', function () {
                     var $rootNode = $('<ul> <li data-stuff="<%=index%>"> <%= value %> </li> </ul>');
@@ -211,13 +238,13 @@ module.exports = (function () {
                 var targetData = [5,3,6,1];
                 var outputdata = ['first',3,6,1];
 
-                var $node = utils.initWithNode('<ul data-f-foreach="somearray"> <li> <%= (index === 0) ? "first" : value %> </li> </ul>', domManager);
+                var $node = utils.initWithNode('<ul data-f-foreach="somearray"> <li> <%= (index === 0) ? "first" : value %> <%= value %></li> </ul>', domManager);
                 $node.trigger('update.f.model', { somearray: targetData });
 
                 var newChildren = $node.children();
                 newChildren.each(function (index) {
                    var data = $(this).html().trim();
-                   data.should.equal(outputdata[index] + '');
+                   data.should.equal(outputdata[index] + ' ' + targetData[index]);
                 });
             });
 

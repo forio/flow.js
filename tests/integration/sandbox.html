@@ -1,68 +1,53 @@
-<!doctype html>
 <html>
-<head>
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-</head>
-<body data-f-on-init="start_game">
+  <head>
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/lodash.js/2.4.1/lodash.js"></script>
+    <script src="//forio.com/tools/js-libs/1.5.0/epicenter.min.js"></script>
+    <script src="//forio.com/tools/js-libs/flow/0.9.0/flow.js"></script>
 
-    Price[X5] <input type="text" value="1" data-f-bind="price[x5]">
-
-    Price[X6] <input type="text" value="1" data-f-bind="sales" data-f-disabled ='boolprop'>
-
-    Price[X6] <input type="checkbox" value="4" data-f-bind="boolprop" data-f-format="#,#"/>
-
-    <div id="test">
-        <span data-f-value="price"></span>
-    </div>
-
-    <button data-f-on-click = "submit(apple,mango)"> Press </button>
-
-    <select data-f-bind="sampleInt">
-            <option value="8"> 8 </option>
-            <option value="10"> 10 </option>
-            <option value="12"> 12 </option>
-        </select>
-
-        <select>
-            <option data-f-selected="sampleInt" value="8"> 8 </option>
-            <option data-f-selected="sampleInt" value="10"> 10 </option>
-            <option data-f-selected="sampleInt" value="12"> 12 </option>
-            </select>
-
-    <input type="radio" data-f-bind="sampleInt" value="8" name="abc"/> 8
-    <input type="radio" data-f-bind="sampleInt" value="10" name="abc"/> 10
-    <input type="radio" data-f-bind="sampleInt" value="12" name="abc"/> 12
-
-    <input type="checkbox" data-f-bind="sampleInt" value="10">should be 10?</input>
-
-    <script src="../../vendor/jquery/dist/jquery.min.js"></script>
-    <script src="../../vendor/lodash/dist/lodash.js"></script>
-    <!-- <script src="../dist/flow-loader.js"></script> -->
-
-    <script src="http://local.forio.com:8084/dist/epicenter-edge.js"></script>
-    <script src="http://local.forio.com:8081/dist/flow-edge.js"></script>
-    <script src="http://local.forio.com:8081/dist/add-ons/flow-inspector.min.js"></script>
-
+    <link rel="stylesheet" type="text/css" href="test.css">
 
     <script>
-    Flow.initialize({
-        channel: {
-           run: {
-                model: 'pdasim2.vmf',
-                account: 'nranjit',
-                project: 'sales_forecaster',
-                transport: {
-                    beforeSend: function () {
-                        $('body').addClass('loading');
-                    },
-                    complete: function () {
-                        $('body').removeClass('loading');
-                    }
-                }
-           }
-        }
+    $(function() {
+      Flow.initialize({
+          channel: {
+              strategy: 'new-if-initialized',
+              run: {
+                  account: "wglass",
+                  project: "edp"
+              }
+          }
+      });
     });
-    </script>
-</body>
+  </script>
+  </head>
+  <body data-f-model="model.eqn">
+
+    <h2>Control</h2>
+
+      <div>
+          <div data-f-bind="time">Time: <%= value %></div>
+          <button data-f-on-click="step(1)">Advance One Step</button>
+          <button data-f-on-click="reset">Reset</button>
+
+      </div>
+
+    <h2>Decisons - Manufacturer 1</h2>
+
+    <h2>Income - Manufacturer 1</h2>
+
+    <div style="clear:both;">
+        <table class="data">
+          <tr data-f-foreach="Global Revenue[Product,1]">
+              <% if (index === 0 ) { %>
+                <td> HI! </td>
+              <% } %>
+              <td> <%= value %></td>
+          </tr>
+        </table>
+      </div>
+  </div>
+
+  </body>
+
 </html>
