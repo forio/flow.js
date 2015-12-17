@@ -38,24 +38,6 @@
  *
  *      <div data-f-showSched="schedule"></div>
  *
- * Another application of custom attribute handlers is to display particular HTML instead of displaying the value of your model variable directly. (In simple cases -- for instance if you're happy with the behavior of an existing attribute handler, but would like to customize only the output -- you can of course use a [custom converter](../../../converters/converter-manager/).) In particular, anything that requires additional logic, or requires more than one model variable, is probably easiest with a custom attribute handler:
- *
- *      Flow.dom.attributes.register('showif', '*', function(data) {
- *            var message = '';
- *
- *            if (data.budgetUsed <= data.budgetAvailable) {
- *                  message = 'Great work so far! You are within budget.';
- *            } else {
- *                  message = 'Error! You have exceeded your budget!';
- *            }
- *
- *            this.html(message);
- *      });
- *
- * Then, you can use the attribute handler in your HTML just like other Flow.js attributes:
- *
- *      <div data-f-showif="budgetUsed, budgetAvailable"></div>
- *
  */
 
 'use strict';
