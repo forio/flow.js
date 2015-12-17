@@ -64,6 +64,13 @@ module.exports = (function () {
                         }
                     });
                 });
+                it.skip('should support block conditions in templates with top-level children', function () {
+                    var $rootNode = $('<ul> <% if (index === 0) { %> <li> HI </li> <% } %>  <li> <%= value %> </li> </ul>');
+                    var targetData = [5,3,6,1];
+
+                    foreachHandler.handle.call($rootNode, targetData);
+                    $rootNode.children().length.should.equal(targetData.length + 1);
+                });
 
 
                 it('should replace templated inner html for children', function () {
@@ -173,7 +180,7 @@ module.exports = (function () {
                 });
                 describe('Multiple children', function () {
                     it('should append the right number for children for templates with multiple children', function () {
-                        var $rootNode = $('<ul> <li> <%= value %> </li> <li data-stuff="<%= index>"> <%= value %> </li> </ul>');
+                        var $rootNode = $('<ul> <li> <%= value %> </li> <li data-stuff="<%= index %>"> <%= value %> </li> </ul>');
 
                         var targetData = [5,3,6];
                         foreachHandler.handle.call($rootNode, targetData);
