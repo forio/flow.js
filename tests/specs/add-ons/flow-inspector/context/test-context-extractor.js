@@ -69,18 +69,14 @@ module.exports = (function () {
                 });
             });
             describe('Variables', function () {
-                // it('Should work with single-line arrays', function () {
-                //     var cont = extractor.showContext('single_line_array', false);
-                //     cont.should.equal(extractBetween(85, 85));
-                // });
-                // it('Should work with multi-line arrays', function () {
-                //     var cont = extractor.showContext('multiline_array', false);
-                //     cont.should.equal(extractBetween(78, 81));
-                // });
-                // it('Should work with globals', function () {
-                //     var cont = extractor.showContext('global_val', false);
-                //     cont.should.equal(extractBetween(83, 83));
-                // });
+                it('Should work with single-line variables', function () {
+                    var cont = extractor.showContext('my_float', false);
+                    cont.should.equal(extractBetween(44, 44, code));
+                });
+                it('Should work with multi-line variables', function () {
+                    var cont = extractor.showContext('multi_line_dict', false);
+                    cont.should.equal(extractBetween(45, 49, code));
+                });
             });
         });
     });

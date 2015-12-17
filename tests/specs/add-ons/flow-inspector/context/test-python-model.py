@@ -41,4 +41,11 @@ class Portfolio(object):
         self.global_var = value
 
 
+my_float = float(7)
+multi_line_dict = {
+    "key1": 1,
+    "key2": 2,
+    "key3": 3,
+}
+
 portfolio = Portfolio()
