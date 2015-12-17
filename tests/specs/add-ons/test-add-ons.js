@@ -1,6 +1,3 @@
 'use strict';
 
-module.exports = (function () {
-    require('./flow-inspector/test-flow-inspector');
-
-}());
+require('./flow-inspector/test-flow-inspector');

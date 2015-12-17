@@ -1,6 +1,7 @@
 'use strict';
 
-module.exports = (function () {
-    require('./context/test-context-extractor');
+require('./context/test-context-extractor');
 
-}());
+// module.exports = (function () {
+
+// }());

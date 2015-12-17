@@ -25,6 +25,7 @@
     "grunt-conventional-changelog": "^1.1.0",
     "grunt-jscs": "^2.3.0",
     "grunt-markdox": "^1.2.1",
+    "grunt-mocha": "^0.4.15",
     "grunt-mocha-phantom-istanbul": "^0.1.1",
     "grunt-sass": "^1.1.0",
     "husky": "^0.10.2",

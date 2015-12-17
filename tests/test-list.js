@@ -18,4 +18,4 @@ require('./specs/dom/plugins/test-auto-update-bindings');
 
 require('./specs/test-flow');
 
-require('./specs/add-ons/test-add-ons.js');
+require('./specs/add-ons/test-add-ons');
