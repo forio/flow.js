@@ -30,6 +30,20 @@ module.exports = (function () {
                     cont.should.equal(extractBetween(49, 65)); //not the right end, but ignoring nested bad indentation
                 });
             });
+            describe('Variables', function () {
+                it('Should work with single-line arrays', function () {
+                    var cont = extractor.showContext('single_line_array', false);
+                    cont.should.equal(extractBetween(85, 85));
+                });
+                it('Should work with multi-line arrays', function () {
+                    var cont = extractor.showContext('multiline_array', false);
+                    cont.should.equal(extractBetween(78, 81));
+                });
+                it('Should work with globals', function () {
+                    var cont = extractor.showContext('global_val', false);
+                    cont.should.equal(extractBetween(83, 83));
+                });
+            });
         });
     });
 

@@ -14,7 +14,7 @@ module.exports = {
     },
     variable: {
         start: function (reference) {
-            var regExp = new RegExp('^\\s*?' + reference + '\\s?=');
+            var regExp = new RegExp('^\\s*?(global\\s*)?' + reference + '\\s?=');
             return function (val) {
                 return regExp.test(val);
             };

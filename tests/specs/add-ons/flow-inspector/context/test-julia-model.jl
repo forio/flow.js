@@ -73,3 +73,14 @@ return tour
 end
 end
 
+
+
+multiline_array = [50 200;
+          100 100;
+          621 820;
+          351 750]
+
+global global_val = Dict()
+
+single_line_array = ["gr17.tsp", "gr21.tsp", "gr24.tsp", "fri26.tsp"]#, "gr48.tsp"]
+

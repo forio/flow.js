@@ -23,10 +23,14 @@ Extractor.prototype.showContext = function (reference, isFunction) {
     var endIndex = _.findIndex(fromStart, function (val) {
         return pattern.end(val, this.contents[startIndex]);
     }, this);
+
+    var offset = (isFunction) ? 2 : 1;
     if (endIndex === -1) {
         endIndex = this.contents.length;
+        offset = 0;
     }
-    var arr = this.contents.slice(startIndex, (startIndex + endIndex + 2));
+
+    var arr = this.contents.slice(startIndex, (startIndex + endIndex + offset));
     return arr.join('\n');
 };
 
