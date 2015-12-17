@@ -26,6 +26,18 @@ module.exports = (function () {
                        data.should.equal(targetData[index]);
                     });
                 });
+                it('should support inline functions in templates', function () {
+                    var $rootNode = $('<ul> <li> <%= (index === 0) ? "first" : value %> </li> </ul>');
+                    var targetData = [5,3,6,1];
+                    var outputdata = ['first',3,6,1];
+
+                    foreachHandler.handle.call($rootNode, targetData);
+                    var newChildren = $rootNode.children();
+                    newChildren.each(function (index) {
+                       var data = $(this).html().trim();
+                       data.should.equal(outputdata[index] + '');
+                    });
+                });
 
                 it('should replace templated inner html for children', function () {
                     var $rootNode = $('<ul> <li data-stuff="<%=index%>"> <%= value %> </li> </ul>');
@@ -193,6 +205,32 @@ module.exports = (function () {
                    var key = $(this).data('stuff');
 
                    targetData[key].should.equal(+val);
+                });
+            });
+            it('should support inline functions in templates', function () {
+                var targetData = [5,3,6,1];
+                var outputdata = ['first',3,6,1];
+
+                var $node = utils.initWithNode('<ul data-f-foreach="somearray"> <li> <%= (index === 0) ? "first" : value %> </li> </ul>', domManager);
+                $node.trigger('update.f.model', { somearray: targetData });
+
+                var newChildren = $node.children();
+                newChildren.each(function (index) {
+                   var data = $(this).html().trim();
+                   data.should.equal(outputdata[index] + '');
+                });
+            });
+
+            it.skip('should loop itself if there are no children', function () {
+                var targetData = [5,3,6,1];
+
+                var $node = utils.initWithNode('<ul> <li data-f-foreach="somearray"> </li> </ul>', domManager);
+                $node.find('li').trigger('update.f.model', { somearray: targetData });
+
+                var newChildren = $node.children();
+                newChildren.each(function (index) {
+                   var data = $(this).html().trim();
+                   data.should.equal(targetData[index] + '');
                 });
             });
         });
