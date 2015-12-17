@@ -82,7 +82,7 @@ module.exports = {
                 dataval = dataval + '';
             }
             var cloop = loopTemplate.replace(/&lt;/g, '<').replace(/&gt;/g, '>');
-            var templatedLoop = _.template(cloop, { value: dataval, key: datakey, index: datakey } );
+            var templatedLoop = _.template(cloop, { value: dataval, key: datakey, index: datakey });
             var isTemplated = templatedLoop !== cloop;
             var nodes = $(templatedLoop);
 

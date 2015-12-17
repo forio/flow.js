@@ -219,6 +219,8 @@ module.exports = (function () {
                 $node.trigger('update.f.model', { somearray: targetData });
 
                 var newChildren = $node.children();
+                var childrenCount = newChildren.size();
+
                 newChildren.each(function (index) {
                    var data = $(this).html().trim();
                    data.should.equal(targetData[index] + '');
@@ -226,6 +228,9 @@ module.exports = (function () {
                    var indexVal = $(this).data('stuff');
                    indexVal.should.equal(index);
                 });
+
+                $node.trigger('update.f.model', { somearray: targetData });
+                $node.children().length.should.equal(childrenCount);
             });
             it('should loop through children for elems with foreach=variableObject', function () {
                 var targetData = { a:3, b:4 };
@@ -234,12 +239,17 @@ module.exports = (function () {
                 $node.trigger('update.f.model', { someobject: targetData });
 
                 var newChildren = $node.children();
+                var childrenCount = newChildren.size();
+
                 newChildren.each(function (index) {
                    var val = $(this).html().trim();
                    var key = $(this).data('stuff');
 
                    targetData[key].should.equal(+val);
                 });
+
+                $node.trigger('update.f.model', { someobject: targetData });
+                $node.children().length.should.equal(childrenCount);
             });
             it('should support inline functions in templates', function () {
                 var targetData = [5,3,6,1];
@@ -249,23 +259,15 @@ module.exports = (function () {
                 $node.trigger('update.f.model', { somearray: targetData });
 
                 var newChildren = $node.children();
+                var childrenCount = newChildren.size();
                 newChildren.each(function (index) {
                    var data = $(this).html().trim();
                    data.should.equal(outputdata[index] + ' ' + targetData[index]);
                 });
-            });
 
-            it.skip('should loop itself if there are no children', function () {
-                var targetData = [5,3,6,1];
+                $node.trigger('update.f.model', { somearray: targetData });
+                $node.children().length.should.equal(childrenCount);
 
-                var $node = utils.initWithNode('<ul> <li data-f-foreach="somearray"> </li> </ul>', domManager);
-                $node.find('li').trigger('update.f.model', { somearray: targetData });
-
-                var newChildren = $node.children();
-                newChildren.each(function (index) {
-                   var data = $(this).html().trim();
-                   data.should.equal(targetData[index] + '');
-                });
             });
         });
     });
