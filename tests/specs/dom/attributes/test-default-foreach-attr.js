@@ -269,6 +269,23 @@ module.exports = (function () {
                 $node.children().length.should.equal(childrenCount);
 
             });
+
+            it('should support nested loops', function () {
+                var targetData = [5,3,6,1];
+                var targetData2 = [5,3];
+
+                var $node = utils.initWithNode('<ul data-f-foreach="somearray">  <li data-f-foreach="somethingElse"> <span> </span> </li></ul>', domManager);
+                $node.trigger('update.f.model', { somearray: targetData });
+                $node.children().length.should.equal(targetData.length);
+
+                domManager.bindAll();
+                $node.find('li').trigger('update.f.model', { somethingElse: targetData2 });
+
+                $node.children().each(function (index, el) {
+                    $(el).children().length.should.equal(targetData2.length);
+                });
+
+            });
         });
     });
 }());
