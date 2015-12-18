@@ -15,7 +15,7 @@
         .xx.West { color: gray }
         .xx.value-2 { color: red }
     </style>
-    <link rel="stylesheet" href="http://local.forio.com:8081/dist/add-ons/flow-inspector.css">
+
 
 </head>
 
@@ -240,12 +240,14 @@
             <td>display_foreach</td>
             <td>data-f-foreach, nested</td>
             <td>for testing purposes we'll assume each region sold the same ...
-                <ul data-f-foreach="regions">
-                    <li></li>
-                    <ul data-f-foreach="sales">
-                        <li></li>
-                    </ul>
-                </ul>
+               <ul data-f-foreach="regions">
+                   <li>
+                       <%= value %>
+                       <ul data-f-foreach="sales">
+                           <li></li>
+                       </ul>
+                   </li>
+               </ul>
             </td>
             <td class="fail">fail (0.9.0), see <a href="https://github.com/forio/flow.js/issues/30">issue #30</a></td>
         </tr>
@@ -776,10 +778,10 @@ displayed as 150%.
 <script src="../../vendor/lodash/dist/lodash.js"></script>
 
 <!-- <script src="../../vendor/epicenter-js-libs/dist/epicenter.js"></script> -->
+<script src="https://forio.com/tools/js-libs/1.4.2/epicenter.js"></script>
 
-<script src="http://local.forio.com:8084/dist/epicenter-edge.js"></script>
-<script src="http://local.forio.com:8081/dist/flow-edge.js"></script>
-<script src="http://local.forio.com:8081/dist/add-ons/flow-inspector.min.js"></script>
+<script src="../../dist/flow-edge.js"></script>
+<!-- <script src="https://forio.com/tools/js-libs/flow/0.9.0/flow.js"></script> -->
 
 
 <script>
@@ -842,3 +844,5 @@ $(function () {
 </body>
 
 </html>
+
+
