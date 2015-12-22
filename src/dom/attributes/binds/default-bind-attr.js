@@ -65,10 +65,10 @@
  * * Adding `data-f-bind` to the enclosing HTML element rather than repeatedly using it within the element is a code style preference. In many cases, adding `data-f-bind` at the top level, as in the first example, can make your code easier to read and maintain.
  * * However, you might choose to repeatedly use `data-f-bind` in some cases, for example if you want different [formatting](../../../../../converter-overview/) for different variables:
  *
- *      <div>
- *          In <span data-f-bind="CurrentYear | #"></span>,
- *          our company earned <span data-f-bind="Revenue | $#,###"></span>
- *      </div>
+ *          <div>
+ *              In <span data-f-bind="CurrentYear | #"></span>,
+ *              our company earned <span data-f-bind="Revenue | $#,###"></span>
+ *          </div>
  *
  */
 

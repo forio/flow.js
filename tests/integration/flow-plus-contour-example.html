@@ -1,0 +1,161 @@
+<html>
+
+	<head>
+
+		<!-- sample code used for forio.com/epicenter/docs/public/data_binding_flow_js/graphing-overview/ -->
+
+		<!-- for Contour -->
+		<link rel="stylesheet" href="http://forio.com/tools/contour/contour.min.css">
+		<script src="http://d3js.org/d3.v3.js"></script>
+		<script src="http://cdnjs.cloudflare.com/ajax/libs/lodash.js/2.4.1/lodash.js"></script>
+		<script src="https://forio.com/tools/contour/contour.js"></script>
+
+		<!-- for Flow.js -->
+		<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.2/jquery.min.js"></script>
+		<script src="https://forio.com/tools/js-libs/1.5.0/epicenter.min.js"></script>
+		<script src="https://forio.com/tools/js-libs/flow/0.9.0/flow.js"></script>
+
+		<style>
+			.myChart {
+			    width: 300px;
+			    padding: 20px;
+			    box-sizing: border-box;
+			}
+			.mySecondChart {
+			    width: 300px;
+			    padding: 20px;
+			    box-sizing: border-box;
+			}
+			.myThirdChart {
+			    width: 300px;
+			    padding: 20px;
+			    box-sizing: border-box;
+			}			
+		</style>
+
+		<title>Flow.js and Data Visualization: Graphing with Contour</title>
+
+	</head>
+
+	<body>
+
+		<p>Here is a div with the Contour chart, used in Steps #1-4: </p>
+
+		<div class="myChart"></div>
+
+		<p>Each time the user enters a new value, we redraw the chart based on the new value:</p>
+		<input data-f-bind="myVariable"></input>		
+		<hr>
+
+		<p>Here is a div with the Contour chart used in Step #5. The model operation updates two array variables, and the chart is updated based on that change: </p>
+
+		<div class="mySecondChart"></div>
+
+		<!--<p><button data-f-on-click='advanceModel'>Advance Model</button></p>-->
+		<p><button data-f-on-click='addVar1Var2(1,2)'>Advance Model</button></p>
+
+		<hr>
+		
+		<p>Here is a div with the Contour chart used in Step #6. The user enters two values and calls a model operation that returns two (translated) values. The chart is updated based on the operation call: </p>
+
+		<div class="myThirdChart"></div>
+
+		<p>
+			Enter x-coordinate: <input id="x"></input><br>
+			Enter y-coordinate: <input id="y"></input></br>
+			<button id="submitButton">Update x,y</button>
+		</p>
+		
+		<script>
+
+			Flow.initialize({
+				channel: {
+					run: { 
+						model: 'hello_world_flow.jl',
+						account: 'mjones',
+						project: 'hello-world-flow',
+					}
+				}
+			});
+
+			// used in Step #6
+			$("#submitButton").click(function(){
+				Flow.channel.operations.publish('updateXY', [$("#x").val(), $("#y").val()]);
+			});	
+
+
+			
+			// Basic Example: Steps #1-4
+			// model variable myVariable is scalar		
+			var myChart = new Contour({
+			        el: '.myChart'
+			      })
+			    .cartesian()
+			    .column()
+			    .tooltip();
+
+			Flow.channel.variables.subscribe('myVariable',
+				function(data) {
+                    myChart.setData([data.myVariable]);
+                    myChart.render();
+            });
+					
+
+			// Step #5, graphing multiple variables updated by the model operation
+			// here, the operation requires no arguments
+			var mySecondChartData = [];
+			var mySecondChart = new Contour({
+					el: '.mySecondChart'
+				})
+				.cartesian()
+				.line()
+				.tooltip();
+			
+			Flow.channel.variables.subscribe(['sampleVar1', 'sampleVar2'],
+				function(data) {
+
+					var composedData = [
+						{
+							name: 'sampleVar1 Series',
+							data: data.sampleVar1
+						},
+						{
+							name: 'sampleVar2 Series',
+							data: data.sampleVar2
+						}
+					];
+
+					mySecondChart.setData(composedData);
+					mySecondChart.render();
+				}, { batch: true });
+		
+
+			// Step #6, graphing the results of a model operation
+			// here, the arguments to the operation are entered by the user
+			
+			var myThirdChartData = [];
+			
+			var myThirdChart = new Contour({
+				el: '.myThirdChart'
+				})
+				.cartesian()
+				.line()
+				.tooltip();
+
+			Flow.channel.operations.subscribe('updateXY',
+					function(data) {
+						var composedData = {
+							x: data.updateXY.result[0],
+							y: data.updateXY.result[1]
+						};
+						myThirdChartData.push(composedData);
+						myThirdChart.setData(myThirdChartData);
+						myThirdChart.render();
+			});
+
+			
+		</script>
+	
+	</body>
+	
+	</html>	
