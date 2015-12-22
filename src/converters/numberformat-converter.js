@@ -139,7 +139,7 @@ module.exports = {
         }
 
         function addDecimals(value, decimals, minDecimals, hasCommas) {
-            hasCommas = hasCommas || true;
+            hasCommas = (hasCommas === false) ? false : true;
             var numberTXT = value.toString();
             var hasDecimals = (numberTXT.split('.').length > 1);
             var iDec = 0;

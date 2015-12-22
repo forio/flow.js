@@ -82,11 +82,13 @@ module.exports = {
 
     handle: function (value) {
         var templated;
-        var valueToTemplate = value;
+        var valueToTemplate = $.extend({}, value);
         if (!$.isPlainObject(value)) {
             var variableName = this.data('f-bind');//Hack because i don't have access to variable name here otherwise
             valueToTemplate = { value: value };
             valueToTemplate[variableName] = value;
+        } else {
+            valueToTemplate.value = value; //If the key has 'weird' characters like '<>' hard to get at with a template otherwise
         }
         var bindTemplate = this.data('bind-template');
         if (bindTemplate) {
@@ -100,7 +102,7 @@ module.exports = {
                 if (_.isArray(value)) {
                     value = value[value.length - 1];
                 }
-                value += '';
+                value = ($.isPlainObject(value)) ? JSON.stringify(value) : value + '';
                 this.html(value);
             } else {
                 this.data('bind-template', cleanedHTML);

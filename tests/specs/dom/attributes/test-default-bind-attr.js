@@ -25,6 +25,13 @@ module.exports = (function () {
                         $rootNode.html().should.equal('6');
                     });
                 });
+                it('should stringify objects if passed in', function () {
+                    var $rootNode = $('<div> Loading </div>');
+                    var data = { hello: 'world' };
+                    bindHandler.handle.call($rootNode, data);
+                    $rootNode.html().should.equal(JSON.stringify(data));
+                });
+
             });
             describe('Templated', function () {
                 it('should show values for single items', function () {

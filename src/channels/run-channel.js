@@ -22,10 +22,22 @@ module.exports = function (options) {
     var $creationPromise = rm.getRun();
     rs.currentPromise = $creationPromise;
 
+    // $creationPromise
+    //     .then(function () {
+    //         console.log('done');
+    //     })
+    //     .fail(function () {
+    //         console.log('failt');
+    //     });
+
     var createAndThen = function (fn, context) {
         return _.wrap(fn, function (func) {
             var passedInParams = _.toArray(arguments).slice(1);
             return rs.currentPromise.then(function () {
+                rs.currentPromise = func.apply(context, passedInParams);
+                return rs.currentPromise;
+            }).fail(function () {
+                console.warn('This failed, but we\'re moving ahead with the next one anyway', arguments);
                 rs.currentPromise = func.apply(context, passedInParams);
                 return rs.currentPromise;
             });
@@ -33,8 +45,9 @@ module.exports = function (options) {
     };
 
     //Make sure nothing happens before the run is created
+    var nonWrapped = ['variables', 'create', 'load', 'getCurrentConfig'];
     _.each(rs, function (value, name) {
-        if (_.isFunction(value) && name !== 'variables'  && name !== 'create') {
+        if (_.isFunction(value) && !_.contains(nonWrapped, name)) {
             rs[name] = createAndThen(value, rs);
         }
     });

@@ -3,14 +3,14 @@ module.exports = function (grunt) {
 
     // require('time-grunt')(grunt);
     require('jit-grunt')(grunt, {
-        mocha: 'grunt-mocha-phantom-istanbul',
         'bump-only': 'grunt-bump',
         'bump-commit': 'grunt-bump',
         'changelog': 'grunt-conventional-changelog',
     });
 
     grunt.initConfig({
-        pkg: grunt.file.readJSON('package.json')
+        pkg: grunt.file.readJSON('package.json'),
+        cdnBasePath: '//forio.com/tools/js-libs/flow/'
     });
 
     grunt.file.expand('grunt/*.js').forEach(function (task) {
@@ -18,10 +18,11 @@ module.exports = function (grunt) {
     });
 
     grunt.registerTask('generateDev', ['browserify:edge']);
-    grunt.registerTask('test', ['generateDev', 'browserify:tests', 'browserify:instrumented', 'mocha', 'coverage-report']);
+    grunt.registerTask('addons', ['browserify:addons', 'sass:addons']);
+    grunt.registerTask('test', ['generateDev', 'browserify:tests', 'mocha',]);
     grunt.registerTask('documentation', ['markdox']);
     grunt.registerTask('validate', ['jshint:all', 'jscs', 'test']);
-    grunt.registerTask('production', ['validate', 'browserify:mapped', 'browserify:min']);
+    grunt.registerTask('production', ['validate', 'addons', 'browserify:mapped', 'browserify:min']);
 
     grunt.registerTask('release', function (type) {
         type = type ? type : 'patch';
@@ -30,5 +31,5 @@ module.exports = function (grunt) {
         });
     });
 
-    grunt.registerTask('default', ['generateDev', 'watch']);
+    grunt.registerTask('default', ['generateDev', 'addons', 'watch']);
 };

@@ -62,10 +62,14 @@ module.exports = function (options) {
          *
          * @type {String|Array|Object}
          */
-        silent: false
+        silent: false,
+
+        interpolate: {}
     };
 
     var channelOptions = $.extend(true, {}, defaults, options);
+    this.options = channelOptions;
+
     var run = channelOptions.run;
 
     var publicAPI = {
@@ -94,20 +98,19 @@ module.exports = function (options) {
             // console.log('Operations refresh', executedOpns);
             var silent = channelOptions.silent;
 
-            var shouldSilence = silent === true;
-            if (_.isArray(silent) && executedOpns) {
-                shouldSilence = _.intersection(silent, executedOpns).length === silent.length;
-            }
-            if ($.isPlainObject(silent) && executedOpns) {
-                shouldSilence = _.intersection(silent.except, executedOpns).length !== executedOpns.length;
+            var toNotify = executedOpns;
+            if (force === true) {
+            } else if (silent === true) {
+                toNotify = [];
+            } else if (_.isArray(silent) && executedOpns) {
+                toNotify = _.difference(executedOpns, silent);
+            } else if ($.isPlainObject(silent) && executedOpns) {
+                toNotify = _.intersection(silent.except, executedOpns);
             }
 
-            if (!shouldSilence || force === true) {
-                var me = this;
-                _.each(executedOpns, function (opn) {
-                    me.notify(opn, response);
-                });
-            }
+            _.each(toNotify, function (opn) {
+                this.notify(opn, response);
+            }, this);
         },
 
         /**
@@ -137,6 +140,18 @@ module.exports = function (options) {
             });
         },
 
+        interpolate: function (params) {
+            var ip = this.options.interpolate;
+            var match = function (p) {
+                var mapped = p;
+                if (ip[p]) {
+                    mapped = _.isFunction(ip[p]) ? ip[p](p) : ip[p];
+                }
+                return mapped;
+            };
+            return ($.isArray(params)) ? _.map(params, match) : match(params);
+        },
+
         /**
          * Call the operation with parameters, and alert subscribers.
          *
@@ -158,6 +173,9 @@ module.exports = function (options) {
             var me = this;
             if ($.isPlainObject(operation) && operation.operations) {
                 var fn = (operation.serial) ? run.serial : run.parallel;
+                _.each(operation.operations, function (opn) {
+                    opn.params = this.interpolate(opn.params);
+                }, this);
                 return fn.call(run, operation.operations)
                         .then(function (response) {
                             if (!params || !params.silent) {
@@ -165,13 +183,16 @@ module.exports = function (options) {
                             }
                         });
             } else {
-                //TODO: check if interpolated
                 var opts = ($.isPlainObject(operation)) ? params : options;
-                return run.do.apply(run, arguments)
+                if (!$.isPlainObject(operation) && params) {
+                    params = this.interpolate(params);
+                }
+                return run.do.call(run, operation, params)
                     .then(function (response) {
                         if (!opts || !opts.silent) {
                             me.refresh.call(me, [operation], response);
                         }
+                        return response.result;
                     });
             }
             // console.log('operations publish', operation, params);

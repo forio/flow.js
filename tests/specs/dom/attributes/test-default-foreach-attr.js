@@ -26,6 +26,52 @@ module.exports = (function () {
                        data.should.equal(targetData[index]);
                     });
                 });
+                it('should support inline conditions in templates', function () {
+                    var $rootNode = $('<ul> <li> <%= (index === 0) ? "first" : value %> </li> </ul>');
+                    var targetData = [5,3,6,1];
+                    var outputdata = ['first',3,6,1];
+
+                    foreachHandler.handle.call($rootNode, targetData);
+                    var newChildren = $rootNode.children();
+                    newChildren.each(function (index) {
+                       var data = $(this).html().trim();
+                       data.should.equal(outputdata[index] + '');
+                    });
+                });
+                it('should support block conditions in inline templates', function () {
+                    var $rootNode = $('<ul> <li> <% if (index === 0) { %> <%= value %> <% } %> </li> </ul>');
+                    var targetData = [5,3,6,1];
+                    var outputdata = [5, '', '', ''];
+
+                    foreachHandler.handle.call($rootNode, targetData);
+                    var newChildren = $rootNode.children();
+                    newChildren.each(function (index) {
+                       var data = $(this).html().trim();
+                       data.should.equal(outputdata[index] + '');
+                    });
+                });
+                it('should support block conditions in templates with multi children', function () {
+                    var $rootNode = $('<ul> <li> <% if (index === 0) { %> <span> HI </span> <% } %>  <span> <%= value %> </span> </li> </ul>');
+                    var targetData = [5,3,6,1];
+
+                    foreachHandler.handle.call($rootNode, targetData);
+                    var newChildren = $rootNode.children();
+                    newChildren.each(function (index, el) {
+                        if (index === 0) {
+                            $(el).children().length.should.equal(2);
+                        } else {
+                            $(el).children().length.should.equal(1);
+                        }
+                    });
+                });
+                it.skip('should support block conditions in templates with top-level children', function () {
+                    var $rootNode = $('<ul> <% if (index === 0) { %> <li> HI </li> <% } %>  <li> <%= value %> </li> </ul>');
+                    var targetData = [5,3,6,1];
+
+                    foreachHandler.handle.call($rootNode, targetData);
+                    $rootNode.children().length.should.equal(targetData.length + 1);
+                });
+
 
                 it('should replace templated inner html for children', function () {
                     var $rootNode = $('<ul> <li data-stuff="<%=index%>"> <%= value %> </li> </ul>');
@@ -134,7 +180,7 @@ module.exports = (function () {
                 });
                 describe('Multiple children', function () {
                     it('should append the right number for children for templates with multiple children', function () {
-                        var $rootNode = $('<ul> <li> <%= value %> </li> <li data-stuff="<%= index>"> <%= value %> </li> </ul>');
+                        var $rootNode = $('<ul> <li> <%= value %> </li> <li data-stuff="<%= index %>"> <%= value %> </li> </ul>');
 
                         var targetData = [5,3,6];
                         foreachHandler.handle.call($rootNode, targetData);
@@ -173,6 +219,8 @@ module.exports = (function () {
                 $node.trigger('update.f.model', { somearray: targetData });
 
                 var newChildren = $node.children();
+                var childrenCount = newChildren.size();
+
                 newChildren.each(function (index) {
                    var data = $(this).html().trim();
                    data.should.equal(targetData[index] + '');
@@ -180,6 +228,9 @@ module.exports = (function () {
                    var indexVal = $(this).data('stuff');
                    indexVal.should.equal(index);
                 });
+
+                $node.trigger('update.f.model', { somearray: targetData });
+                $node.children().length.should.equal(childrenCount);
             });
             it('should loop through children for elems with foreach=variableObject', function () {
                 var targetData = { a:3, b:4 };
@@ -188,12 +239,52 @@ module.exports = (function () {
                 $node.trigger('update.f.model', { someobject: targetData });
 
                 var newChildren = $node.children();
+                var childrenCount = newChildren.size();
+
                 newChildren.each(function (index) {
                    var val = $(this).html().trim();
                    var key = $(this).data('stuff');
 
                    targetData[key].should.equal(+val);
                 });
+
+                $node.trigger('update.f.model', { someobject: targetData });
+                $node.children().length.should.equal(childrenCount);
+            });
+            it('should support inline functions in templates', function () {
+                var targetData = [5,3,6,1];
+                var outputdata = ['first',3,6,1];
+
+                var $node = utils.initWithNode('<ul data-f-foreach="somearray"> <li> <%= (index === 0) ? "first" : value %> <%= value %></li> </ul>', domManager);
+                $node.trigger('update.f.model', { somearray: targetData });
+
+                var newChildren = $node.children();
+                var childrenCount = newChildren.size();
+                newChildren.each(function (index) {
+                   var data = $(this).html().trim();
+                   data.should.equal(outputdata[index] + ' ' + targetData[index]);
+                });
+
+                $node.trigger('update.f.model', { somearray: targetData });
+                $node.children().length.should.equal(childrenCount);
+
+            });
+
+            it('should support nested loops', function () {
+                var targetData = [5,3,6,1];
+                var targetData2 = [5,3];
+
+                var $node = utils.initWithNode('<ul data-f-foreach="somearray">  <li data-f-foreach="somethingElse"> <span> </span> </li></ul>', domManager);
+                $node.trigger('update.f.model', { somearray: targetData });
+                $node.children().length.should.equal(targetData.length);
+
+                domManager.bindAll();
+                $node.find('li').trigger('update.f.model', { somethingElse: targetData2 });
+
+                $node.children().each(function (index, el) {
+                    $(el).children().length.should.equal(targetData2.length);
+                });
+
             });
         });
     });

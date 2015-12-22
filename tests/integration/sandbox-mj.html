@@ -15,6 +15,8 @@
         .xx.West { color: gray }
         .xx.value-2 { color: red }
     </style>
+
+
 </head>
 
 <body data-f-on-init="saveAll" data-f-model="hello_world_flow.jl">
@@ -221,7 +223,7 @@
                 </ul>
             </td>
             <td class="pass">pass (0.9.0)</td>
-        </tr>        
+        </tr>
 
         <tr>
             <td>display_foreach</td>
@@ -238,13 +240,15 @@
             <td>display_foreach</td>
             <td>data-f-foreach, nested</td>
             <td>for testing purposes we'll assume each region sold the same ...
-                <ul data-f-foreach="regions">
-                    <li></li>
-                    <ul data-f-foreach="sales">
-                        <li></li>
-                    </ul>
-                </ul>
-            </td> 
+               <ul data-f-foreach="regions">
+                   <li>
+                       <%= value %>
+                       <ul data-f-foreach="sales">
+                           <li></li>
+                       </ul>
+                   </li>
+               </ul>
+            </td>
             <td class="fail">fail (0.9.0), see <a href="https://github.com/forio/flow.js/issues/30">issue #30</a></td>
         </tr>
 
@@ -639,20 +643,20 @@
             <script>
                 function updateBatchTrue() {
                     console.log("updateBatchTrue called");
-                    Flow.channel.variables.subscribe(['sampleInt', 'sampleString'], 
-        function() { console.log("subscribe, batch true called"); }, 
+                    Flow.channel.variables.subscribe(['sampleInt', 'sampleString'],
+        function() { console.log("subscribe, batch true called"); },
         { batch: true });
                     Flow.channel.variables.notify({ sampleInt: 11, sampleString: 'hello true' });
                 }
 
                 function updateBatchFalse() {
                     console.log("updateBatchFalse called");
-                    Flow.channel.variables.subscribe(['sampleTruthy', 'sample64'], 
-        function() { console.log("subscribe, batch false called"); }, 
+                    Flow.channel.variables.subscribe(['sampleTruthy', 'sample64'],
+        function() { console.log("subscribe, batch false called"); },
         { batch: false });
                     Flow.channel.variables.notify({ sampleTruthy: 0, sample64: 2.045 });
 
-                }                
+                }
             </script>
             Click the button to update sampleInt and sampleString<br>
             <button onclick="updateBatchTrue()">Click to update with batch=true</button><br>
@@ -776,8 +780,10 @@ displayed as 150%.
 <!-- <script src="../../vendor/epicenter-js-libs/dist/epicenter.js"></script> -->
 <script src="https://forio.com/tools/js-libs/1.4.2/epicenter.js"></script>
 
-<!-- <script src="../../dist/flow-edge.js"></script> -->
-<script src="https://forio.com/tools/js-libs/flow/0.9.0/flow.js"></script>
+<script src="../../dist/flow-edge.js"></script>
+<!-- <script src="https://forio.com/tools/js-libs/flow/0.9.0/flow.js"></script> -->
+
+
 <script>
     'use strict';
     $('body').on('f.ui.operate', function () {
@@ -800,7 +806,7 @@ displayed as 150%.
         }
     };
 
-    
+
     if (window.location.search.indexOf('silent=variables') !== -1) {
         console.warn('Silencing variables. There should be no GET to variables API when inputs change');
         options.channel.run.variables = { silent: true };
@@ -809,7 +815,7 @@ displayed as 150%.
         console.warn('Silencing operations. There should be no GET to operations API when inputs change');
         options.channel.run.operations = { silent: true };
     }
-    
+
 
     Flow.initialize(options);
 
@@ -838,3 +844,5 @@ $(function () {
 </body>
 
 </html>
+
+

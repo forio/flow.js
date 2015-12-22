@@ -37,13 +37,13 @@ module.exports = (function () {
 
     describe('#convert', function () {
         it('should convert strings to formatted strings', function () {
-            cm.convert('1000000', '$###.00').should.equal('$1,000,000.00');
+            cm.convert('1000000', '$#,###.00').should.equal('$1,000,000.00');
         });
         it('should convert numbers to formatted strings', function () {
-            cm.convert(1000000, '$###.00').should.equal('$1,000,000.00');
+            cm.convert(1000000, '$#,###.00').should.equal('$1,000,000.00');
         });
         it('should convert arrays to formatted array of strings', function () {
-            cm.convert([2, 1000, 1000000], '$###.00').should.eql(['$2.00', '$1,000.00', '$1,000,000.00']);
+            cm.convert([2, 1000, 1000000], '$#,###.00').should.eql(['$2.00', '$1,000.00', '$1,000,000.00']);
         });
     });
 }());

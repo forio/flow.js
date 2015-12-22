@@ -87,6 +87,20 @@
                 mockRun.serial.should.have.been.calledWith([{ name: 'step', params: ['1'] }]);
             });
 
+            it('should call the callback multiple times if the same step is executed', function () {
+                var channel = new Channel({ run: mockRun });
+                var spy = sinon.spy();
+                channel.subscribe('step', spy);
+
+                channel.publish({
+                    operations: [
+                        { name: 'step', params: [] },
+                        { name: 'reset', params: [] },
+                        { name: 'step', params: [] }
+                    ]
+                });
+                spy.should.have.been.calledTwice;
+            });
 
             it('should call refresh after publish', function () {
                 var originalRefresh = channel.refresh;
@@ -131,6 +145,12 @@
 
                     channel.refresh = originalRefresh;
                 });
+
+            });
+        });
+
+        describe('interpolate', function () {
+            it('allow specifying an interpolation map', function () {
 
             });
         });
@@ -199,6 +219,22 @@
                 spy.should.have.been.calledOnce;
 
                 channel.publish('reset');
+                spy.should.have.been.calledOnce;
+            });
+            it('should not be silent if even one of the executed opns isn\'t whitelisted', function () {
+                var channel = new Channel({ run: mockRun, silent: {
+                    except: ['a', 'b', 'c']
+                } });
+                var spy = sinon.spy();
+                channel.subscribe('*', spy);
+
+                channel.publish({
+                    operations: [
+                        { name: 'c', params: [] },
+                        { name: 'd', params: [] },
+                        { name: '2', params: [] }
+                    ]
+                });
                 spy.should.have.been.calledOnce;
             });
         });

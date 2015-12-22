@@ -87,7 +87,9 @@ module.exports = function (options) {
              // Control time to wait between calls to `subscribe()` before calling `fetch()`. See [http://drupalmotion.com/article/debounce-and-throttle-visual-explanation](http://drupalmotion.com/article/debounce-and-throttle-visual-explanation) for an explanation of how debouncing works.
              // @type {Number} Milliseconds to wait
             debounce: 200
-        }
+        },
+
+        interpolate: {}
     };
 
     var channelOptions = $.extend(true, {}, defaults, options);
@@ -208,9 +210,32 @@ module.exports = function (options) {
             this.debouncedFetch(topics);
         },
 
+        populateInnerVariables: function (vars) {
+            var unmappedVariables = [];
+            var valueList = {};
+            _.each(vars, function (v) {
+                if (this.options.interpolate[v] !== undefined) {
+                    var val = _.isFunction(this.options.interpolate[v]) ? this.options.interpolate[v](v) : this.options.interpolate[v];
+                    valueList[v] = val;
+                } else {
+                    unmappedVariables.push(v);
+                }
+            }, this);
+            if (unmappedVariables.length) {
+                return vs.query(unmappedVariables).then(function (variableValueList) {
+                    return $.extend(valueList, variableValueList);
+                });
+            } else {
+                return $.Deferred().resolve(valueList).promise();
+            }
+        },
+
         fetch: function (variablesList) {
             // console.log('fetch called', variablesList);
             variablesList = [].concat(variablesList);
+            if (!variablesList.length) {
+                return $.Deferred().resolve().promise({});
+            }
             var innerVariables = this.getTopicDependencies(variablesList);
             var getVariables = function (vars, interpolationMap) {
                 return vs.query(vars).then(function (variables) {
@@ -232,7 +257,7 @@ module.exports = function (options) {
                 });
             };
             if (innerVariables.length) {
-                return vs.query(innerVariables).then(function (innerVariables) {
+                return this.populateInnerVariables(innerVariables).then(function (innerVariables) {
                     //console.log('inner', innerVariables);
                     $.extend(currentData, innerVariables);
                     var ip =  interpolate(variablesList, innerVariables);
