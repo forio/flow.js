@@ -9,11 +9,19 @@ module.exports = {
     handle: function (value, prop) {
         value = ($.isPlainObject(value) ? value : [].concat(value));
         var loopTemplate = this.data('repeat-template');
+        var id = '';
         if (!loopTemplate) {
             loopTemplate = this.get(0).outerHTML;
-            this.data('repeat-template', loopTemplate);
+            id =  _.uniqueId('repeat-');
+            this.data({
+                'repeat-template': loopTemplate,
+                'repeat-template-id': id
+            });
+        } else {
+            id = this.data('repeat-template-id');
+            this.nextUntil(':not([' + id + '])').remove();
         }
-        // var $me = this.empty();
+        var last;
         _.each(value, function (dataval, datakey) {
             if (!dataval) {
                 dataval = dataval + '';
@@ -28,11 +36,16 @@ module.exports = {
                 _.each(newNode.data(), function (val, key) {
                     newNode.data(key, parseUtils.toImplicitType(val));
                 });
+                newNode.attr(id, true);
                 if (!isTemplated && !newNode.html().trim()) {
                     newNode.html(dataval);
                 }
             });
-            nodes.insertBefore(this);
+            if (!last) {
+                last = this.html(nodes.html());
+            } else {
+                last = nodes.insertAfter(last);
+            }
         }, this);
     }
 };
