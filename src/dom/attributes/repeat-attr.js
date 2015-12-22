@@ -22,6 +22,7 @@ module.exports = {
             this.nextUntil(':not([' + id + '])').remove();
         }
         var last;
+        var me = this;
         _.each(value, function (dataval, datakey) {
             if (!dataval) {
                 dataval = dataval + '';
@@ -34,7 +35,11 @@ module.exports = {
             nodes.each(function (i, newNode) {
                 newNode = $(newNode).removeAttr('data-f-repeat');
                 _.each(newNode.data(), function (val, key) {
-                    newNode.data(key, parseUtils.toImplicitType(val));
+                    if (!last) {
+                        me.data(key, parseUtils.toImplicitType(val));
+                    } else {
+                        newNode.data(key, parseUtils.toImplicitType(val));
+                    }
                 });
                 newNode.attr(id, true);
                 if (!isTemplated && !newNode.html().trim()) {
@@ -42,10 +47,10 @@ module.exports = {
                 }
             });
             if (!last) {
-                last = this.html(nodes.html());
+                last = me.html(nodes.html());
             } else {
                 last = nodes.insertAfter(last);
             }
-        }, this);
+        });
     }
 };
