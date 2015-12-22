@@ -3,7 +3,7 @@
     <script src="//ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
     <script src="//cdnjs.cloudflare.com/ajax/libs/lodash.js/2.4.1/lodash.js"></script>
     <script src="//forio.com/tools/js-libs/1.5.0/epicenter.min.js"></script>
-    <script src="//forio.com/tools/js-libs/flow/0.9.0/flow.js"></script>
+    <script src="../../dist/flow-edge.js"></script>
 
     <link rel="stylesheet" type="text/css" href="test.css">
 
@@ -38,11 +38,9 @@
 
     <div style="clear:both;">
         <table class="data">
-          <tr data-f-foreach="Global Revenue[Product,1]">
-              <% if (index === 0 ) { %>
+          <tr>
                 <td> HI! </td>
-              <% } %>
-              <td> <%= value %></td>
+                <td data-f-repeat="Global Revenue[Product,1] | $#,##"> <%= value %></td>
           </tr>
         </table>
       </div>
