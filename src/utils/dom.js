@@ -16,7 +16,6 @@ module.exports = {
         var attrConverters = $el.data('f-convert-' + property);
 
         if (!attrConverters && (property === 'bind' || property === 'foreach')) {
-            //Only bind inherits from parents
             attrConverters = $el.data('f-convert');
             if (!attrConverters) {
                 var $parentEl = $el.closest('[data-f-convert]');
@@ -24,7 +23,6 @@ module.exports = {
                     attrConverters = $parentEl.data('f-convert');
                 }
             }
-
             if (attrConverters) {
                 attrConverters = _.invoke(attrConverters.split('|'), 'trim');
             }

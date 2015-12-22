@@ -21,6 +21,7 @@ var defaultHandlers = [
     require('./binds/checkbox-radio-bind-attr'),
     require('./binds/input-bind-attr'),
     require('./class-attr'),
+    require('./repeat-attr'),
     require('./positive-boolean-attr'),
     require('./negative-boolean-attr'),
     require('./binds/default-bind-attr'),
