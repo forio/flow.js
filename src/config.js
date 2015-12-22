@@ -8,5 +8,4 @@ module.exports = {
         trigger: 'update.f.ui',
         react: 'update.f.model'
     }
-
 };

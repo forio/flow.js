@@ -3,6 +3,8 @@
 <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <link rel="stylesheet" href="../../dist/add-ons/flow-inspector.css">
+
 </head>
 <body>
 
@@ -15,8 +17,9 @@
     </div>
     <script src="../../vendor/jquery/dist/jquery.min.js"></script>
     <script src="../../vendor/lodash/dist/lodash.js"></script>
-    <script src="../../vendor/epicenter-js-libs/dist/epicenter.min.js"></script>
+    <script src="//local.forio.com:8084/dist/epicenter-edge.js"></script>
     <script src="../../dist/flow-edge.js"></script>
+    <script src="../../dist/add-ons/flow-inspector.min.js"></script>
 
     <script>
     Flow.initialize({
@@ -32,6 +35,9 @@
     $('#addElement').click(function () {
         $('#elementContainer').append('<span> SampleINT </span> <span data-f-bind="sampleInt"> </span>');
     });
+
+    new window.Flow.Inspector('body');
+
     </script>
 </body>
 </html>
