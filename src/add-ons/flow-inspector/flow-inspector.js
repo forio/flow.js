@@ -14,9 +14,8 @@ var FlowInspector = function (root) {
         var offset = 0;
         ctx.clearRect(elementLeft - offset, elementTop - offset, elementWidth + (2 * offset), elementHeight + (2 * offset));
     }
-    var drawModalCanvas = function () {
-        var $canvas = $('<canvas class="f-modal"></canvas>');
 
+    var overlayCanvas = function ($canvas) {
         var windowHeight = $(document).height();
         var windowWidth = $(document).width();
         $canvas.attr({
@@ -24,11 +23,19 @@ var FlowInspector = function (root) {
             height: windowHeight
         });
 
-        $(root).append($canvas);
         var el = $canvas.get(0);
         draw(el, 0, 0, windowWidth, windowHeight, 'rgba(0,0,0,.4)');
+    };
 
-        return el;
+    var drawModalCanvas = function () {
+        var $canvas = $('<canvas class="f-modal"></canvas>');
+        overlayCanvas($canvas);
+        $(window).on('resize', function () {
+            overlayCanvas($canvas);
+        });
+        $(root).append($canvas);
+
+        return $canvas.get(0);
     };
 
     var getClassNames = function (elem, attr) {
@@ -41,7 +48,7 @@ var FlowInspector = function (root) {
             classNames.push('f-on');
         } else if (attr.indexOf('bind') === 0) {
             classNames.push('f-bind');
-        } else if (attr.indexOf('foreach') === 0 || attr.indexOf('repeat') === 0 ) {
+        } else if (attr.indexOf('foreach') === 0 || attr.indexOf('repeat') === 0) {
             classNames.push('f-loop');
         } else {
             classNames.push('f-custom');
@@ -97,6 +104,7 @@ var FlowInspector = function (root) {
             $overlayContainer.append($thisElemContainer);
         });
 
+        //TODO: This is a little awkward, refactor to be more like backbone-views
         var evtName = 'f-select:type';
         var addLegendPanel = panelManager.getPanel('filter');
         addLegendPanel($overlayContainer, evtName);

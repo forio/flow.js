@@ -24,7 +24,7 @@ module.exports = (function () {
                     return false;
                 }
             });
-            $element.on('mouseup', function (evt) {
+            $(window.document).on('mouseup', function (evt) {
                 isDragged = false;
             });
         }

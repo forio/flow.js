@@ -14,10 +14,10 @@ module.exports = function ($container, configFunction) {
 
     var config = configFunction();
     var modelType = config.model.split('.')[1];
-    // if (modelType === 'vmf') {
-    //     console.info('Cannot view context for Vensim models.');
-    //     return false;
-    // }
+    if (modelType === 'vmf') {
+        console.info('Cannot view context for Vensim models.');
+        return false;
+    }
 
     var file = new F.service.File(config);
     file.getContents(config.model, 'model')
