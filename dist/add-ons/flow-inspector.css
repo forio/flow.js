@@ -30,15 +30,15 @@
 .f-output.f-bind .f-conv, .f-output .f-bind .f-conv {
   background-color: #D9FFB7; }
 
-.f-output.f-foreach .f-type, .f-output .f-foreach .f-type {
+.f-output.f-loop .f-type, .f-output .f-loop .f-type {
   background-color: #AB8724;
   color: white; }
 
-.f-output.f-foreach .f-val, .f-output .f-foreach .f-val {
+.f-output.f-loop .f-val, .f-output .f-loop .f-val {
   background-color: #F8CA4D;
   color: #333333; }
 
-.f-output.f-foreach .f-conv, .f-output .f-foreach .f-conv {
+.f-output.f-loop .f-conv, .f-output .f-loop .f-conv {
   background-color: #FFD769; }
 
 .f-output.f-custom .f-type, .f-output .f-custom .f-type {
@@ -70,10 +70,10 @@
 .hide-f-output-bind .f-legend-panel .f-bind {
   opacity: 1 !important; }
 
-.hide-f-output-foreach .f-item-containers .f-output.f-foreach, .hide-f-output-foreach .f-item-containers .f-output .f-foreach {
+.hide-f-output-loop .f-item-containers .f-output.f-loop, .hide-f-output-loop .f-item-containers .f-output .f-loop {
   opacity: 0; }
 
-.hide-f-output-foreach .f-legend-panel .f-foreach {
+.hide-f-output-loop .f-legend-panel .f-loop {
   opacity: 1 !important; }
 
 .hide-f-output-custom .f-item-containers .f-output.f-custom, .hide-f-output-custom .f-item-containers .f-output .f-custom {

@@ -42,8 +42,8 @@ var FlowInspector = function (root) {
             classNames.push('f-on');
         } else if (attr.indexOf('bind') === 0) {
             classNames.push('f-bind');
-        } else if (attr.indexOf('foreach') === 0) {
-            classNames.push('f-foreach');
+        } else if (attr.indexOf('foreach') === 0 || attr.indexOf('repeat') === 0 ) {
+            classNames.push('f-loop');
         } else {
             classNames.push('f-custom');
         }
