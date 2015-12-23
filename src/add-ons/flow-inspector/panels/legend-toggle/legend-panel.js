@@ -16,13 +16,16 @@ module.exports = function ($container, evtName) {
     var xOffset = 0;
     var yOffset = 0;
     var isDragged = false;
-    $html.on('mousedown', function (evt) {
-        xOffset = evt.clientX - $html.offset().left;
-        yOffset = evt.clientY - $html.offset().top;
-        isDragged = true;
-        return false;
+    $(window.document).on('mousedown', function (evt) {
+        if ($html.is($(evt.target)) || $html.has($(evt.target)).size()) {
+            evt.preventDefault();
+            xOffset = evt.clientX - $html.offset().left;
+            yOffset = evt.clientY - $html.offset().top;
+            isDragged = true;
+            return false;
+        }
     });
-    $html.on('mousemove', function (evt) {
+    $(window.document).on('mousemove', function (evt) {
         if (isDragged) {
             evt.stopPropagation();
             $html.css({
@@ -32,7 +35,7 @@ module.exports = function ($container, evtName) {
             return false;
         }
     });
-    $html.on('mouseup', function (evt) {
+    $(window.document).on('mouseup', function (evt) {
         isDragged = false;
     });
 
