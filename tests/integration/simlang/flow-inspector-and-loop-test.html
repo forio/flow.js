@@ -1,0 +1,125 @@
+<!doctype html>
+<html><head>
+    <meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+
+    <script src="../../../vendor/lodash/dist/lodash.js"></script>
+    <script src="../../../vendor/jquery/dist/jquery.min.js"></script>
+
+</head>
+
+
+<body data-f-model="flow-inspector-and-loop-test.eqn">
+
+    
+    <script src="https://forio.com/tools/js-libs/next/epicenter.min.js"></script>
+    <script src="../../../dist/flow.js"></script>
+    <link rel="stylesheet" href="../../../dist/add-ons/flow-inspector.css">
+    <script src="../../../dist/add-ons/flow-inspector.min.js"></script>
+
+    <script>
+
+        'use strict';
+        Flow.initialize({
+            channel: { 
+                strategy: 'always-new' ,
+                run: {
+                    account: 'mjones',
+                    project: 'fml-test',
+                    server: { host: 'api.forio.com' }
+                }
+            }
+        });
+        //new window.Flow.Inspector('body');
+
+    </script>
+
+<strong>testing for SimLang model, Flow Inspector, f-repeat, nested f-foreach, and other recent Flow improvements</strong>
+
+<br><br>
+<div><button data-f-on-click="step">Step</button></div>
+<br><br>
+
+
+<table border="1">
+    <tr>
+        <td> scalar </td>
+        <td> Sales input and span:<br>
+            <input data-f-bind="Sales"></input> <br>
+            <span data-f-bind="Sales"></span>
+        </td>
+        <td> Profit span and input: <br>
+            <input data-f-bind="Profit"></input><br>
+            <span data-f-bind="Profit"></span> </td>
+    </tr>
+    
+    <tr>
+        <td> 1d arrays </td>
+        <td> Price[2] input: <input data-f-bind="Price[2]"></input> </td>
+        <td> Price[2] span: <span data-f-bind="Price[2]"></span> </td>
+    </tr>
+    
+
+    <tr>
+        <td> enum arrays </td>
+        <td> Cost[Books] input and span: <br>
+            <input data-f-bind="Cost[Books]"></input><br>
+            <span data-f-bind="Cost[Books]"></span>
+        </td>
+        <td> Projections[1] input and span: <br>
+            <input data-f-bind="Projections[1]"></input><br>
+            <span data-f-bind="Projections[1]"></span> 
+        </td>
+    </tr>
+    
+    <tr>
+        <td> multid arrays </td>
+        <td> SalesByRegion[2,1] input: <input data-f-bind="SalesByRegion[2,1]"></input> </td>
+        <td> SalesByRegion[2,1] span: <span data-f-bind="SalesByRegion[2,1]"></span> </td>
+    </tr>
+
+    <tr>
+        <td> entire arrays. </td>
+        <td> (note that as we step, each element of the array gets another value for the current step)<br>
+             Price span: <span data-f-bind="Price"></span><br>
+             Price list: <ul data-f-foreach="Price"><li><%= value%></li></ul>
+        </td>
+        <td> (note that as we step, each element of the array gets another value for the current step)<br> 
+            SalesByRegion[2] span: <span data-f-bind="SalesByRegion[2]"></span><br>
+            SalesByRegion[2] list:
+            <ul data-f-foreach="SalesByRegion[2]"> <li><%= value%></li> </ul>
+        </td>
+    </tr>
+
+</table>
+
+<hr>
+
+<table border="1">
+    <tr><td>testing data-f-repeat (#64)</td></tr>
+    <tr><td>Step (using index+1 of variable)</td><td data-f-repeat="Cost[Books]"><%= index + 1 %></td></tr>
+    <tr><td>enum array Cost[Books] by step</td><td data-f-repeat="Cost[Books]"></td></tr>
+    <tr><td>scalar Sales by step</td><td data-f-repeat="Sales"></td></tr>
+</table>
+
+<hr>
+
+<table border="1">
+    <tr><td>testing nested data-f-foreach (#30)</td></tr>
+    <tr><td>Test case #1: Two arrays, Outer and Inner, both sent through converter "last". <br>
+            Should get sub-list of Inner for each value of Outer.<br>
+        <ul data-f-foreach="Outer">
+            <li><%= _.last(value) %>
+                <ul data-f-foreach="Inner">
+                <li></li>
+                </ul>
+            </li>
+        </ul>
+    </td></tr>
+</table>
+
+
+</body></html>
