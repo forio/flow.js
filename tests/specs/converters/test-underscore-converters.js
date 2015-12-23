@@ -8,7 +8,8 @@ module.exports = (function () {
                 'flatten', 'rest',
                 'union',
                 'uniq', 'zip', 'without',
-                'xor', 'zip'
+                'xor', 'zip',
+                'first', 'last'
             ];
             _.each(supported, function (fn) {
                var input = [4,5,6];
