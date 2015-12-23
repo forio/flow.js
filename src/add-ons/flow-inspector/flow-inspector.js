@@ -1,7 +1,6 @@
 'use strict';
 
-var addLegendPanel = require('./panels/legend-toggle/legend-panel');
-var addContextPanel = require('./panels/context-show/context-show-panel');
+var panelManager = require('./panels/panel-manager');
 
 var FlowInspector = function (root) {
 
@@ -99,11 +98,13 @@ var FlowInspector = function (root) {
         });
 
         var evtName = 'f-select:type';
+        var addLegendPanel = panelManager.getPanel('filter');
         addLegendPanel($overlayContainer, evtName);
         $overlayContainer.on(evtName, function (evt, type) {
             $(root).toggleClass('hide-f-' + type);
         });
 
+        var addContextPanel = panelManager.getPanel('context');
         addContextPanel($overlayContainer, window.Flow.channel.run.getCurrentConfig);
         $(root).prepend($overlayContainer);
     });
