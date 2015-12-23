@@ -1,6 +1,7 @@
 'use strict';
 
 var ContextExtractor = require('./context-extractor');
+var utils = require('../../panels/panel-utils.js');
 
 module.exports = function ($container, configFunction) {
     var template = require('./context-show.html');
@@ -13,10 +14,10 @@ module.exports = function ($container, configFunction) {
 
     var config = configFunction();
     var modelType = config.model.split('.')[1];
-    if (modelType === 'vmf') {
-        console.info('Cannot view context for Vensim models.');
-        return false;
-    }
+    // if (modelType === 'vmf') {
+    //     console.info('Cannot view context for Vensim models.');
+    //     return false;
+    // }
 
     var file = new F.service.File(config);
     file.getContents(config.model, 'model')
@@ -35,29 +36,7 @@ module.exports = function ($container, configFunction) {
             console.info('Could not get model file contents; this is only available if you\'re logged in as an admin or team-member.');
         });
 
-    var xOffset = 0;
-    var yOffset = 0;
-    var isDragged = false;
-    $html.on('mousedown', function (evt) {
-        xOffset = evt.clientX - $html.offset().left;
-        yOffset = evt.clientY - $html.offset().top;
-        isDragged = true;
-        return false;
-    });
-    $html.on('mousemove', function (evt) {
-        if (isDragged) {
-            evt.stopPropagation();
-            $html.css({
-                top: evt.clientY - yOffset,
-                left: evt.clientX - xOffset
-            });
-            return false;
-        }
-    });
-    $html.on('mouseup', function (evt) {
-        isDragged = false;
-    });
-
+    utils.makeDraggable($html);
 };
 
 
