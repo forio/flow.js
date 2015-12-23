@@ -1,6 +1,6 @@
 'use strict';
 
-var BaseView = require('./base');
+var BaseView = require('../../utils/base-view');
 
 module.exports = BaseView.extend({
     propertyHandlers: [

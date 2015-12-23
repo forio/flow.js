@@ -41,7 +41,7 @@ $typeMap: (
                 background-color: #D9FFB7
             )
         ),
-        foreach: (
+        loop: (
             type: (
                 background-color: #AB8724,
                 color: white
@@ -166,6 +166,7 @@ $typeMap: (
     width: 295px;
 
     z-index: 99999 !important;
+    position: fixed !important;
     box-shadow: 4px 0px 4px 0px rgba(50, 50, 50, 0.3);
 }
 .f-legend-panel {
@@ -202,7 +203,7 @@ $typeMap: (
 canvas.f-modal {
     top: 0;
     left: 0;
-    position: absolute;
+    position: fixed;
     z-index: 10;
     pointer-events: none;
 }
