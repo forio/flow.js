@@ -21,11 +21,11 @@ module.exports = function (grunt) {
                 libraryTarget: 'var'
             },
             watch: true,
-            keepalive: true,
+            // keepalive: true,
             stats: {
                 // Configure the console output
                 colors: true,
-                modules: true,
+                modules: false,
                 reasons: false
             },
             plugins: [
@@ -33,6 +33,28 @@ module.exports = function (grunt) {
             ],
             devtool: 'eval'
         },
+        tests: {
+            entry: './tests/test-list.js',
+            output: {
+                path: './tests/dist/',
+                filename: 'tests-browserify-bundle.js'
+            },
+            module: {
+                loaders: [
+                    { test: /\.py$/, loader: 'raw' },
+                    { test: /\.jl$/, loader: 'raw' },
+                ]
+            },
+            devtool: 'eval',
+            watch: true,
+            // keepalive: true,
+            resolve: {
+                alias: {
+                    src: __dirname + '/../src'
+                }
+            }
+        },
+
         mapped: {
             entry: './src/flow.js',
             output: {
@@ -71,26 +93,8 @@ module.exports = function (grunt) {
                     { test: /\.html$/, loader: 'raw' },
                 ]
             }
-        },
-
-        tests: {
-            entry: './tests/test-list.js',
-            output: {
-                path: './tests/dist/',
-                filename: 'tests-browserify-bundle.js'
-            },
-            module: {
-                loaders: [
-                    { test: /\.py$/, loader: 'raw' },
-                    { test: /\.jl$/, loader: 'raw' },
-                ]
-            },
-            devtool: 'eval',
-            resolve: {
-                alias: {
-                    src: __dirname + '/../src'
-                }
-            }
         }
+
+        
     });
 };

@@ -31,5 +31,6 @@ module.exports = function (grunt) {
         });
     });
 
-    grunt.registerTask('default', ['generateDev', 'addons', 'watch']);
+    //grunt.registerTask('default', ['generateDev', 'addons', 'watch']);
+    grunt.registerTask('default', ['webpack:edge', 'webpack:tests', 'watch']);
 };
