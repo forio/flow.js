@@ -15,28 +15,28 @@ module.exports = function (grunt) {
             entry: './src/flow.js',
             output: {
                 path: './dist/',
-                filename: 'flow-edge.js'
-            },
-            library: 'Flow',
-            libraryTarget: 'var'
+                filename: 'flow-edge.js',
+                library: 'Flow',
+                libraryTarget: 'var'
+            }
         },
         mapped: {
             entry: './src/flow.js',
             output: {
                 path: './dist/',
-                filename: 'flow.js'
-            },
-            library: 'Flow',
-            libraryTarget: 'var'
+                filename: 'flow.js',
+                library: 'Flow',
+                libraryTarget: 'var'
+            }
         },
         min: {
             entry: './src/flow.js',
             output: {
                 path: './dist/',
-                filename: 'flow.min.js'
+                filename: 'flow.min.js',
+                library: 'Flow',
+                libraryTarget: 'var'
             },
-            library: 'Flow',
-            libraryTarget: 'var',
             plugins: [
                 new webpack.optimize.UglifyJsPlugin(uglifyOptions)
             ]
