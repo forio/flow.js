@@ -1,13 +1,13 @@
 'use strict';
 var webpack = require('webpack');
 var uglifyOptions = {
-                    mangle: false,
-                    warnings: true,
-                    compress:{
-                        screw_ie8: true,
-                        join_vars: false
-                    }
-                };
+    mangle: false,
+    warnings: true,
+    compress:{
+        screw_ie8: true,
+        join_vars: false
+    }
+};
 
 module.exports = function (grunt) {
     grunt.config.set('webpack', {
@@ -22,6 +22,15 @@ module.exports = function (grunt) {
             },
             watch: true,
             keepalive: true,
+            stats: {
+                // Configure the console output
+                colors: true,
+                modules: true,
+                reasons: false
+            },
+            plugins: [
+                new webpack.HotModuleReplacementPlugin()
+            ],
             devtool: 'eval'
         },
         mapped: {

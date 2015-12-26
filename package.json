@@ -39,7 +39,8 @@
     "stringify": "^3.2.0",
     "time-grunt": "^1.1.0",
     "uglify-js": "^2.4.15",
-    "webpack": "^1.12.9"
+    "webpack": "^1.12.9",
+    "webpack-dev-server": "^1.14.0"
   },
   "author": "Naren Ranjit",
   "bugs": {
