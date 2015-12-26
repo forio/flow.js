@@ -11,6 +11,8 @@ var uglifyOptions = {
 
 module.exports = function (grunt) {
     var version = grunt.file.readJSON('package.json').version;
+    var banner = grunt.file.read('banner.txt');
+    banner = banner.replace('RELEASE_VERSION', version);
 
     grunt.config.set('webpack', {
         edge: {
@@ -83,6 +85,9 @@ module.exports = function (grunt) {
             plugins: [
                 new webpack.DefinePlugin({
                     RELEASE_VERSION: JSON.stringify(version)
+                }),
+                new webpack.BannerPlugin(banner, {
+                    entryOnly: true
                 }),
                 new webpack.optimize.UglifyJsPlugin(uglifyOptions),
             ],
