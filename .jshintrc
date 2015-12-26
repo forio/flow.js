@@ -23,6 +23,7 @@
     "trailing": true,
     "eqnull": true,
     "predef": [
+        "RELEASE_VERSION",
         "F",
         "$",
         "_"

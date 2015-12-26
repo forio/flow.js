@@ -64,7 +64,7 @@ var domManager = require('./dom/dom-manager');
 var Channel = require('./channels/run-channel');
 var BaseView = require('./utils/base-view');
 
-module.exports = {
+var Flow = {
     dom: domManager,
     utils: {
         BaseView: BaseView
@@ -116,3 +116,6 @@ module.exports = {
         }, options.dom));
     }
 };
+
+Flow.version = RELEASE_VERSION;
+module.exports = Flow;

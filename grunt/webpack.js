@@ -10,6 +10,8 @@ var uglifyOptions = {
 };
 
 module.exports = function (grunt) {
+    var version = grunt.file.readJSON('package.json').version;
+
     grunt.config.set('webpack', {
         edge: {
             entry: './src/flow.js',
@@ -63,6 +65,11 @@ module.exports = function (grunt) {
                 library: 'Flow',
                 libraryTarget: 'var'
             },
+            plugins: [
+                new webpack.DefinePlugin({
+                    RELEASE_VERSION: JSON.stringify(version)
+                })
+            ],
             devtool: 'source-map',
         },
         min: {
@@ -74,7 +81,10 @@ module.exports = function (grunt) {
                 libraryTarget: 'var'
             },
             plugins: [
-                new webpack.optimize.UglifyJsPlugin(uglifyOptions)
+                new webpack.DefinePlugin({
+                    RELEASE_VERSION: JSON.stringify(version)
+                }),
+                new webpack.optimize.UglifyJsPlugin(uglifyOptions),
             ],
             devtool: 'source-map'
         },
