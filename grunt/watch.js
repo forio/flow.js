@@ -4,8 +4,8 @@ module.exports = function (grunt) {
     // grunt.loadNpmTasks('grunt-contrib-watch');
     grunt.config.set('watch', {
         source: {
-            files: ['dist/flow-edge.js'],
-            tasks: ['mocha:test']
+            files: ['src/**/*.js'],
+            tasks: ['webpack:edge', 'webpack:tests', 'mocha:test']
         },
         stylesAddons: {
             files: ['src/add-ons/**/*.scss'],
@@ -13,7 +13,11 @@ module.exports = function (grunt) {
         },
         scriptsAddons: {
             files: ['src/add-ons/**/*.js', 'src/add-ons/**/*.html'],
-            tasks: ['browserify:addons']
+            tasks: ['webpack:addons']
+        },
+        tests: {
+            files: ['tests/specs/**/*.js', 'tests/specs/*.js', 'tests/*.js', '!tests/dist/*'],
+            tasks: ['webpack:tests', 'mocha:test']
         }
     });
 };

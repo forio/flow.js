@@ -20,7 +20,7 @@ module.exports = function (grunt) {
                 library: 'Flow',
                 libraryTarget: 'var'
             },
-            watch: true,
+            // watch: true,
             // keepalive: true,
             stats: {
                 // Configure the console output
@@ -37,7 +37,7 @@ module.exports = function (grunt) {
             entry: './tests/test-list.js',
             output: {
                 path: './tests/dist/',
-                filename: 'tests-browserify-bundle.js'
+                filename: 'tests-bundle.js'
             },
             module: {
                 loaders: [
@@ -46,7 +46,7 @@ module.exports = function (grunt) {
                 ]
             },
             devtool: 'eval',
-            watch: true,
+            // watch: true,
             // keepalive: true,
             resolve: {
                 alias: {

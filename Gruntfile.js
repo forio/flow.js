@@ -17,12 +17,12 @@ module.exports = function (grunt) {
         require('./' + task)(grunt);
     });
 
-    grunt.registerTask('generateDev', ['browserify:edge']);
-    grunt.registerTask('addons', ['browserify:addons', 'sass:addons']);
-    grunt.registerTask('test', ['generateDev', 'browserify:tests', 'mocha',]);
+    grunt.registerTask('generateDev', ['webpack:edge', 'webpack:tests']);
+    grunt.registerTask('addons', ['webpack:addons', 'sass:addons']);
+    grunt.registerTask('test', ['generateDev', 'mocha',]);
     grunt.registerTask('documentation', ['jshint:all', 'jscs', 'markdox']);
     grunt.registerTask('validate', ['jshint:all', 'jscs', 'test']);
-    grunt.registerTask('production', ['validate', 'addons', 'browserify:mapped', 'browserify:min']);
+    grunt.registerTask('production', ['validate', 'addons', 'webpack:mapped', 'webpack:min']);
 
     grunt.registerTask('release', function (type) {
         type = type ? type : 'patch';
@@ -31,6 +31,5 @@ module.exports = function (grunt) {
         });
     });
 
-    //grunt.registerTask('default', ['generateDev', 'addons', 'watch']);
-    grunt.registerTask('default', ['webpack:edge', 'webpack:tests', 'watch']);
+    grunt.registerTask('default', ['generateDev', 'watch']);
 };
