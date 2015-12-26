@@ -15,10 +15,14 @@ module.exports = function (grunt) {
             entry: './src/flow.js',
             output: {
                 path: './dist/',
+                pathinfo: true,
                 filename: 'flow-edge.js',
                 library: 'Flow',
                 libraryTarget: 'var'
-            }
+            },
+            watch: true,
+            keepalive: true,
+            devtool: 'eval'
         },
         mapped: {
             entry: './src/flow.js',
@@ -27,7 +31,8 @@ module.exports = function (grunt) {
                 filename: 'flow.js',
                 library: 'Flow',
                 libraryTarget: 'var'
-            }
+            },
+            devtool: 'source-map',
         },
         min: {
             entry: './src/flow.js',
@@ -39,10 +44,12 @@ module.exports = function (grunt) {
             },
             plugins: [
                 new webpack.optimize.UglifyJsPlugin(uglifyOptions)
-            ]
+            ],
+            devtool: 'source-map'
         },
         addons: {
             entry: './src/add-ons/flow-inspector/flow-inspector.js',
+            devtool: 'source-map',
             output: {
                 path: './dist/add-ons/',
                 filename: 'flow-inspector.min.js'
@@ -69,6 +76,7 @@ module.exports = function (grunt) {
                     { test: /\.jl$/, loader: 'raw' },
                 ]
             },
+            devtool: 'eval',
             resolve: {
                 alias: {
                     src: __dirname + '/../src'
