@@ -14,11 +14,9 @@
     "url": "https://github.com/forio/flow.js.git"
   },
   "devDependencies": {
-    "browserify-istanbul": "^0.2.1",
     "fs-walk": "0.0.1",
     "growl": "^1.8.1",
     "grunt": "^0.4.5",
-    "grunt-browserify": "^4.0.1",
     "grunt-bump": "^0.6.0",
     "grunt-contrib-jshint": "^0.11.1",
     "grunt-contrib-watch": "^0.6.1",
@@ -28,15 +26,16 @@
     "grunt-mocha": "^0.4.15",
     "grunt-mocha-phantom-istanbul": "^0.1.1",
     "grunt-sass": "^1.1.0",
+    "grunt-webpack": "^1.0.11",
     "husky": "^0.10.2",
     "istanbul": "~0.3.5",
     "jit-grunt": "^0.9.1",
     "jshint-stylish": "^2.0.1",
-    "minifyify": "^6.3.2",
-    "remapify": "^2.0.0",
-    "stringify": "^3.2.0",
+    "raw-loader": "^0.5.1",
     "time-grunt": "^1.1.0",
-    "uglify-js": "^2.4.15"
+    "uglify-js": "^2.4.15",
+    "webpack": "^1.12.9",
+    "webpack-dev-server": "^1.14.0"
   },
   "author": "Naren Ranjit",
   "bugs": {

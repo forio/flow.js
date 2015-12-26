@@ -1,5 +1,5 @@
 /**
- * List of tests to be required by browserify
+ * List of tests to be required
  */
 
 require('./specs/dom/test-dom-manager');

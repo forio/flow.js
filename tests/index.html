@@ -51,11 +51,11 @@
     <script>
         //Instrumented doesn't do sourcemaps, so put it in the console. Open up the nicer version in the browser
          if (navigator.userAgent.indexOf('PhantomJS') ===  -1) {
-            document.write('\x3Cscript type="text/javascript" src="dist/tests-browserify-bundle.js">\x3C/script>');
+            document.write('\x3Cscript type="text/javascript" src="dist/tests-bundle.js">\x3C/script>');
          }
          else {
-            document.write('\x3Cscript type="text/javascript" src="dist/tests-browserify-bundle.js">\x3C/script>');
-            // document.write('\x3Cscript type="text/javascript" src="dist/tests-browserify-bundle-instrumented.js">\x3C/script>');
+            document.write('\x3Cscript type="text/javascript" src="dist/tests-bundle.js">\x3C/script>');
+            // document.write('\x3Cscript type="text/javascript" src="dist/tests-bundle-instrumented.js">\x3C/script>');
          }
      </script>
 

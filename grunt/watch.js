@@ -5,7 +5,7 @@ module.exports = function (grunt) {
     grunt.config.set('watch', {
         source: {
             files: ['src/**/*.js'],
-            tasks: ['browserify:edge', 'browserify:tests:', 'mocha:test']
+            tasks: ['webpack:edge', 'webpack:tests', 'mocha:test']
         },
         stylesAddons: {
             files: ['src/add-ons/**/*.scss'],
@@ -13,11 +13,11 @@ module.exports = function (grunt) {
         },
         scriptsAddons: {
             files: ['src/add-ons/**/*.js', 'src/add-ons/**/*.html'],
-            tasks: ['browserify:addons']
+            tasks: ['webpack:addons']
         },
         tests: {
             files: ['tests/specs/**/*.js', 'tests/specs/*.js', 'tests/*.js', '!tests/dist/*'],
-            tasks: ['browserify:tests', 'mocha:test']
+            tasks: ['webpack:tests', 'mocha:test']
         }
     });
 };
