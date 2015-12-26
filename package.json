@@ -28,15 +28,18 @@
     "grunt-mocha": "^0.4.15",
     "grunt-mocha-phantom-istanbul": "^0.1.1",
     "grunt-sass": "^1.1.0",
+    "grunt-webpack": "^1.0.11",
     "husky": "^0.10.2",
     "istanbul": "~0.3.5",
     "jit-grunt": "^0.9.1",
     "jshint-stylish": "^2.0.1",
     "minifyify": "^6.3.2",
+    "raw-loader": "^0.5.1",
     "remapify": "^2.0.0",
     "stringify": "^3.2.0",
     "time-grunt": "^1.1.0",
-    "uglify-js": "^2.4.15"
+    "uglify-js": "^2.4.15",
+    "webpack": "^1.12.9"
   },
   "author": "Naren Ranjit",
   "bugs": {
