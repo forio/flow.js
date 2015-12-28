@@ -23,7 +23,7 @@ module.exports = function ($container, configFunction) {
     file.getContents(config.model, 'model')
         .then(function (response) {
             var extractor = new ContextExtractor(config.model, response);
-            $container.on('click', '.f-bind, .f-foreach, .f-on', function (evt) {
+            $container.on('click', '.f-bind, .f-loop, .f-on', function (evt) {
                 var $target = $(evt.target).is('.f-val') ? $(evt.target) : $(evt.target).parent().find('.f-val');
                 var variableName = $target.text().trim();
                 var isFunction = $target.parent().is('.f-on');
