@@ -133,4 +133,12 @@ Here are a few additional examples to get you started:
 
 * Everything within your template (`<%= %>`) is evaluated as JavaScript. In particular, this means that model variables whose names include spaces (as is common in [Vensim](../model_code/vensim/) and [SimLang](../model_code/forio_simlang/)) cannot be referenced. We anticipate being able to fix this from the Flow.js side in a future release.
 
+* Because everything within your template (`<%= %>`) is evaluated as JavaScript, you can use templates to pass expressions to other Flow.js attributes. For example, 
+
+		<div data-f-bind="myCurrentTimeStep">
+    		<div data-f-bind="Revenue[<%= value + 1%>]"></div>
+		</div>
+
+	will display the value of `Revenue[myCurrentTimeStep + 1]` (for example an estimate of future revenue in your model).
+
 * For more background on templates in `lodash.js`, see the <a href="https://lodash.com/docs#template" target="_blank">lodash documentation</a>. If you prefer to use <a href="http://underscorejs.org/#template" target="_blank">underscore</a> instead, that works too &mdash; just be sure to replace `lodash.js` with the `underscore.js` library in your page.

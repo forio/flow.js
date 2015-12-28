@@ -70,6 +70,14 @@
  *              our company earned <span data-f-bind="Revenue | $#,###"></span>
  *          </div>
  *
+ * * Because everything within your template (`<%= %>`) is evaluated as JavaScript, you can use templates to pass expressions to other Flow.js attributes. For example, 
+ *
+ *          <div data-f-bind="myCurrentTimeStep">
+ *              <div data-f-bind="Revenue[<%= value + 1%>]"></div>
+ *          </div>
+ *
+ * will display the value of `Revenue[myCurrentTimeStep + 1]` (for example an estimate of future revenue in your model).
+ *
  */
 
 'use strict';
