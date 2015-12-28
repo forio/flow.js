@@ -1,5 +1,5 @@
+'use strict';
 (function () {
-    'use strict';
 
     var Channel = require('src/channels/run-channel');
     describe('Run Channel', function () {

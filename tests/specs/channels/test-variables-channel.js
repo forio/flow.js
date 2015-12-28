@@ -4,35 +4,40 @@
     var Channel = require('src/channels/variables-channel');
 
     describe('Variables Channel', function () {
-        var core, channel, server, mockVariables, mockRun, clock;
+        var core;
+        var channel;
+        var server;
+        var mockVariables;
+        var mockRun;
+        var clock;
 
         beforeEach(function () {
             //Needed to make _.debounce work correctly with fakeTimers
-            _ = _.runInContext(window); // jshint ignore:line
+            _ = _.runInContext(window);//eslint-disable-line
         });
         before(function () {
             clock = sinon.useFakeTimers();
 
             server = sinon.fakeServer.create();
-            server.respondWith('PATCH',  /(.*)\/run\/(.*)\/(.*)/, function (xhr, id) {
+            server.respondWith('PATCH', /(.*)\/run\/(.*)\/(.*)/, function (xhr, id) {
                 xhr.respond(200, { 'Content-Type': 'application/json' }, JSON.stringify({ url: xhr.url }));
             });
-            server.respondWith('GET',  /(.*)\/run\/(.*)\/variables/, function (xhr, id) {
+            server.respondWith('GET', /(.*)\/run\/(.*)\/variables/, function (xhr, id) {
                 xhr.respond(200, { 'Content-Type': 'application/json' }, JSON.stringify({ url: xhr.url,
                     price: 1,
                     sales: 30,
                     priceArray: [20, 30]
                 }));
             });
-            server.respondWith('POST',  /(.*)\/run\/(.*)\/(.*)/,  function (xhr, id) {
+            server.respondWith('POST', /(.*)\/run\/(.*)\/(.*)/, function (xhr, id) {
                 var resp = {
-                    'id': '065dfe50-d29d-4b55-a0fd-30868d7dd26c',
-                    'model': 'model.vmf',
-                    'account': 'mit',
-                    'project': 'afv',
-                    'saved': false,
-                    'lastModified': '2014-06-20T04:09:45.738Z',
-                    'created': '2014-06-20T04:09:45.738Z'
+                    id: '065dfe50-d29d-4b55-a0fd-30868d7dd26c',
+                    model: 'model.vmf',
+                    account: 'mit',
+                    project: 'afv',
+                    saved: false,
+                    lastModified: '2014-06-20T04:09:45.738Z',
+                    created: '2014-06-20T04:09:45.738Z'
                 };
                 xhr.respond(201, { 'Content-Type': 'application/json' }, JSON.stringify(resp));
             });
@@ -113,7 +118,7 @@
                     var result = core.interpolate(['price[<time>]', 'sales[1]', 'cost[<x>]'], { time: 1 });
                     var interpolated = result.interpolated;
 
-                    interpolated.should.eql({ 'price[<time>]': 'price[1]',  'sales[1]': 'sales[1]', 'cost[<x>]': 'cost[<x>]' });
+                    interpolated.should.eql({ 'price[<time>]': 'price[1]', 'sales[1]': 'sales[1]', 'cost[<x>]': 'cost[<x>]' });
                 });
                 it('should not do substrings', function () {
                     var result = core.interpolate(['price[<time>,2,<times>]'], { time: 1, times: 2 });
@@ -228,31 +233,30 @@
             });
 
             describe('functions', function () {
-               it('should allow subscribing functions to single variables', function () {
-                   var cb = sinon.spy();
-                   channel.subscribe('price', cb);
-                   channel.getSubscribers('price').length.should.equal(1);
+                it('should allow subscribing functions to single variables', function () {
+                    var cb = sinon.spy();
+                    channel.subscribe('price', cb);
+                    channel.getSubscribers('price').length.should.equal(1);
 
-                   channel.publish('price', 32);
-                   cb.should.have.been.called.calledOnce;
-                   cb.should.have.been.calledWith({ price: 1 }); // mock server always returns 1
-
-               });
+                    channel.publish('price', 32);
+                    cb.should.have.been.called.calledOnce;
+                    cb.should.have.been.calledWith({ price: 1 }); // mock server always returns 1
+                });
 
                //TODO: this will be called twice because the channel can't tell if things have changed or not
-               it.skip('should allow subscribing functions to multi variables', function () {
-                   var cb = sinon.spy();
-                   channel.subscribe(['price', 'sales'], cb);
+                it.skip('should allow subscribing functions to multi variables', function () {
+                    var cb = sinon.spy();
+                    channel.subscribe(['price', 'sales'], cb);
 
-                   channel.getSubscribers('price').length.should.equal(1);
-                   channel.getSubscribers('sales').length.should.equal(1);
+                    channel.getSubscribers('price').length.should.equal(1);
+                    channel.getSubscribers('sales').length.should.equal(1);
 
-                   channel.publish('price', 32);
+                    channel.publish('price', 32);
 
-                   cb.should.have.been.called.calledOnce;
-                   cb.should.have.been.calledWith({ price: 1 }); // mock server always returns 1
+                    cb.should.have.been.called.calledOnce;
+                    cb.should.have.been.calledWith({ price: 1 }); // mock server always returns 1
 
-               });
+                });
             });
         });
 
@@ -298,7 +302,7 @@
                 var channel = new Channel({ run: mockRun });
                 var modelChangeSpy = sinon.spy();
 
-                var $sink = $({ a:1 });
+                var $sink = $({ a: 1 });
                 channel.subscribe('price', $sink);
                 $sink.on('update.f.model', modelChangeSpy);
 
@@ -311,7 +315,7 @@
                 var channel = new Channel({ run: mockRun, silent: true });
                 var modelChangeSpy = sinon.spy();
 
-                var $sink = $({ a:1 });
+                var $sink = $({ a: 1 });
                 channel.subscribe('price', $sink);
                 $sink.on('update.f.model', modelChangeSpy);
 
@@ -323,7 +327,7 @@
                 var channel = new Channel({ run: mockRun, silent: true });
                 var modelChangeSpy = sinon.spy();
 
-                var $sink = $({ a:1 });
+                var $sink = $({ a: 1 });
                 channel.subscribe('price', $sink);
                 $sink.on('update.f.model', modelChangeSpy);
 
@@ -340,7 +344,7 @@
 
                 var modelChangeSpy = sinon.spy();
 
-                var $sink = $({ a:1 });
+                var $sink = $({ a: 1 });
                 channel.subscribe('price', $sink);
                 $sink.on('update.f.model', modelChangeSpy);
 
@@ -357,7 +361,7 @@
 
                 var modelChangeSpy = sinon.spy();
 
-                var $sink = $({ a:1 });
+                var $sink = $({ a: 1 });
                 channel.subscribe('price', $sink);
                 channel.subscribe('stuff', $sink);
                 $sink.on('update.f.model', modelChangeSpy);
@@ -376,7 +380,7 @@
 
                 var modelChangeSpy = sinon.spy();
 
-                var $sink = $({ a:1 });
+                var $sink = $({ a: 1 });
                 channel.subscribe('price', $sink);
                 channel.subscribe('stuff', $sink);
                 $sink.on('update.f.model', modelChangeSpy);
@@ -419,7 +423,7 @@
                 var channel = new Channel({ run: mockRun });
                 var modelChangeSpy = sinon.spy();
 
-                var $sink = $({ a:1 });
+                var $sink = $({ a: 1 });
                 channel.subscribe('price', $sink);
                 channel.subscribe('stuff', $sink);
                 $sink.on('update.f.model', modelChangeSpy);

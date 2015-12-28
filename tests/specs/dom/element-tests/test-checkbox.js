@@ -1,5 +1,5 @@
+'use strict';
 module.exports = (function () {
-    'use strict';
     var utils = require('../../../testing-utils');
     var domManager = require('src/dom/dom-manager');
 

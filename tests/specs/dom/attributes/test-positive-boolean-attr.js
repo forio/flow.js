@@ -1,5 +1,5 @@
+'use strict';
 module.exports = (function () {
-    'use strict';
     var domManager = require('src/dom/dom-manager');
     var utils = require('../../../testing-utils');
 
@@ -18,7 +18,7 @@ module.exports = (function () {
         it('should use the last item if it\'s an array', function () {
             var $node = utils.initWithNode('<input type="text" data-f-checked="canAdvance" data-f-bind="stuff"/>', domManager);
 
-            $node.trigger('update.f.model', { canAdvance: [0,0,3] });
+            $node.trigger('update.f.model', { canAdvance: [0, 0, 3] });
             $node.prop('checked').should.equal(true);
         });
     });
