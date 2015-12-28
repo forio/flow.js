@@ -30,8 +30,7 @@ module.exports = {
         if (_.isArray(value)) {
             value = value[value.length - 1];
         }
-        /*jslint eqeq: true*/
-        var val = (this.attr('value')) ? (value == this.prop('value')) : !!value;
+        var val = (this.attr('value')) ? (value == this.prop('value')) : !!value; //eslint-disable-line eqeqeq
         this.prop(prop, val);
     }
 };

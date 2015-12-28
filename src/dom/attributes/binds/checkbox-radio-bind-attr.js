@@ -30,8 +30,7 @@ module.exports = {
             value = value[value.length - 1];
         }
         var settableValue = this.attr('value'); //initial value
-        /*jslint eqeq: true*/
-        var isChecked = (settableValue !== undefined) ? (settableValue == value) : !!value;
+        var isChecked = (typeof settableValue !== 'undefined') ? (settableValue == value) : !!value; //eslint-disable-line eqeqeq
         this.prop('checked', isChecked);
     }
 };

@@ -118,7 +118,7 @@ module.exports = (function () {
                 it('should put the value inside the element if it`s not templated', function () {
                     var $rootNode = $('<ul> <li> </li> </ul>');
 
-                    var data = [1,2,3,4];
+                    var data = [1, 2, 3, 4];
                     foreachHandler.handle.call($rootNode, data);
                     var newChildren = $rootNode.children();
 

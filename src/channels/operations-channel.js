@@ -93,6 +93,7 @@ module.exports = function (options) {
          * @param {String|Array}  executedOpns Operations which just happened.
          * @param {Any} response  Response from the operation.
          * @param {Boolean} force  Ignore all `silent` options and force refresh.
+         * @returns {undefined}
          */
         refresh: function (executedOpns, response, force) {
             // console.log('Operations refresh', executedOpns);
@@ -122,6 +123,7 @@ module.exports = function (options) {
          *
          * @param {String} operation Name of operation.
          * @param {String|Number|Array|Object} value Parameter values for the callback function.
+         * @returns {undefined}
         */
         notify: function (operation, value) {
             var listeners = this.getSubscribers(operation);
@@ -131,7 +133,7 @@ module.exports = function (options) {
             _.each(listeners, function (listener) {
                 var target = listener.target;
                 if (_.isFunction(target)) {
-                    target.call(null, params, value, operation);
+                    target(params, value, operation);
                 } else if (target.trigger) {
                     listener.target.trigger(config.events.react, params);
                 } else {
@@ -179,7 +181,7 @@ module.exports = function (options) {
                 return fn.call(run, operation.operations)
                         .then(function (response) {
                             if (!params || !params.silent) {
-                                me.refresh.call(me, _.pluck(operation.operations, 'name'), response);
+                                me.refresh(_.pluck(operation.operations, 'name'), response);
                             }
                         });
             } else {
@@ -187,10 +189,10 @@ module.exports = function (options) {
                 if (!$.isPlainObject(operation) && params) {
                     params = this.interpolate(params);
                 }
-                return run.do.call(run, operation, params)
+                return run.do(operation, params)
                     .then(function (response) {
                         if (!opts || !opts.silent) {
-                            me.refresh.call(me, [operation], response);
+                            me.refresh([operation], response);
                         }
                         return response.result;
                     });
@@ -219,7 +221,7 @@ module.exports = function (options) {
                 subscriber = $(subscriber);
             }
 
-            var id  = _.uniqueId('epichannel.operation');
+            var id = _.uniqueId('epichannel.operation');
             var data = {
                 id: id,
                 target: subscriber
@@ -242,6 +244,7 @@ module.exports = function (options) {
          *
          * @param {String|Array} operation The names of the operations.
          * @param {String} token The identifying token for this subscription. (Created and returned by the `subscribe()` call.)
+         * @returns {undefined}
         */
         unsubscribe: function (operation, token) {
             this.listenerMap[operation] = _.reject(this.listenerMap[operation], function (subs) {
@@ -252,7 +255,7 @@ module.exports = function (options) {
         /**
          * Stop receiving notifications for all operations. No parameters.
          *
-         * @return {None}
+         * @returns {undefined}
         */
         unsubscribeAll: function () {
             this.listenerMap = {};
