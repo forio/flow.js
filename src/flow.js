@@ -62,10 +62,13 @@
 
 var domManager = require('./dom/dom-manager');
 var Channel = require('./channels/run-channel');
+var BaseView = require('./utils/base-view');
 
 module.exports = {
     dom: domManager,
-
+    utils: {
+        BaseView: BaseView
+    },
     initialize: function (config) {
         var model = $('body').data('f-model');
 

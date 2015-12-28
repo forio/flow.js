@@ -1,6 +1,7 @@
 'use strict';
 
 var ContextExtractor = require('./context-extractor');
+var utils = require('../../panels/panel-utils.js');
 
 module.exports = function ($container, configFunction) {
     var template = require('./context-show.html');
@@ -39,6 +40,8 @@ module.exports = function ($container, configFunction) {
         .fail(function () {
             console.info('Could not get model file contents; this is only available if you\'re logged in as an admin or team-member.');
         });
+
+    utils.makeDraggable($html);
 };
 
 
