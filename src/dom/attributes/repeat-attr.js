@@ -24,7 +24,7 @@
  *              <td data-f-repeat="Cost[Products]"></td>
  *          </tr>
  *      </table>
- * 
+ *
  * In the third step of the model, this example generates the HTML:
  *
  *      <table>
