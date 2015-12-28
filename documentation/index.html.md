@@ -24,6 +24,7 @@ Learn more about advanced topics:
 * [Understanding channels](./channel-overview/)
 * [Additional options for initializing](./generated/flow-js/)
 * [Flow.js and data visualization: graphing with Contour](./graphing-overview/)
+* [Flow.js and debugging: working with the Flow Inspector](./inspector-overview/)
 
 **The current version of Flow is 0.9.0.** See the [Using Flow.js in your Project](#using_in_project) section below. You can also view the history of releases on <a href="https://github.com/forio/flow.js/releases/" "target=_blank">GitHub</a>.
 
@@ -128,4 +129,8 @@ Here are a few additional examples to get you started:
 		}
 	</script>
 
-For more background on templates in `lodash.js`, see the <a href="https://lodash.com/docs#template" target="_blank">lodash documentation</a>. If you prefer to use <a href="http://underscorejs.org/#template" target="_blank">underscore</a> instead, that works too &mdash; just be sure to replace `lodash.js` with the `underscore.js` library in your page.
+**Notes**
+
+* Everything within your template (`<%= %>`) is evaluated as JavaScript. In particular, this means that model variables whose names include spaces (as is common in [Vensim](../model_code/vensim/) and [SimLang](../model_code/forio_simlang/)) cannot be referenced. We anticipate being able to fix this from the Flow.js side in a future release.
+
+* For more background on templates in `lodash.js`, see the <a href="https://lodash.com/docs#template" target="_blank">lodash documentation</a>. If you prefer to use <a href="http://underscorejs.org/#template" target="_blank">underscore</a> instead, that works too &mdash; just be sure to replace `lodash.js` with the `underscore.js` library in your page.
