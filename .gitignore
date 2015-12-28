@@ -8,9 +8,8 @@ pids
 *.seed
 
 .*
-!.jscsrc
-!.jshintrc
 !.bowerrc
+!.eslintrc.*
 !.gitignore
 
 
