@@ -15,9 +15,8 @@ _.each(supported, function (fn) {
         convert: function (val) {
             if ($.isPlainObject(val)) {
                 return _.mapValues(val, _[fn]);
-            } else {
-                return _[fn](val);
             }
+            return _[fn](val);
         }
     };
     list.push(item);

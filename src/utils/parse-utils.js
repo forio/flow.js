@@ -22,7 +22,7 @@ module.exports = {
                 converted = +data;
             } else if (rbrace.test(data)) {
                 //TODO: This only works with double quotes, i.e., [1,"2"] works but not [1,'2']
-                converted = $.parseJSON(data) ;
+                converted = $.parseJSON(data);
             }
         }
         return converted;

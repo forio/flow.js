@@ -1,0 +1,19 @@
+{
+    "env": {
+        "mocha": true
+    },
+    "globals": {
+        "$": true,
+        "_": false,
+        "F": true,
+        "should": true,
+        "sinon": true
+    },
+    "rules": {
+        "no-magic-numbers": 0,
+        "no-unused-expressions": 0,
+        "no-undefined": 0,
+        "new-cap": 0
+    }
+
+}

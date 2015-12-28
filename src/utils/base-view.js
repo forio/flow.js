@@ -1,7 +1,7 @@
 'use strict';
 
 var extend = function (protoProps, staticProps) {
-    var parent = this;
+    var me = this;
     var child;
 
     // The constructor function for the new subclass is either defined by you
@@ -10,16 +10,16 @@ var extend = function (protoProps, staticProps) {
     if (protoProps && _.has(protoProps, 'constructor')) {
         child = protoProps.constructor;
     } else {
-        child = function () { return parent.apply(this, arguments); };
+        child = function () { return me.apply(this, arguments); };
     }
 
     // Add static properties to the constructor function, if supplied.
-    _.extend(child, parent, staticProps);
+    _.extend(child, me, staticProps);
 
     // Set the prototype chain to inherit from `parent`, without calling
     // `parent`'s constructor function.
     var Surrogate = function () { this.constructor = child; };
-    Surrogate.prototype = parent.prototype;
+    Surrogate.prototype = me.prototype;
     child.prototype = new Surrogate();
 
     // Add prototype properties (instance properties) to the subclass,
@@ -30,7 +30,7 @@ var extend = function (protoProps, staticProps) {
 
     // Set a convenience property in case the parent's prototype is needed
     // later.
-    child.__super__ = parent.prototype;
+    child.__super__ = me.prototype; //eslint-disable-line no-underscore-dangle
 
     return child;
 };

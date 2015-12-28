@@ -1,0 +1,10 @@
+{
+    "globals": {
+        "$": true,
+        "_": false,
+        "F": true
+    },
+    "rules": {
+        "new-cap": 0
+    }
+}

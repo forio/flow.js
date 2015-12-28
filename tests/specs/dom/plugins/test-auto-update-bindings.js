@@ -1,8 +1,7 @@
+'use strict';
 module.exports = (function () {
-    'use strict';
 
     //FIXME: Can't really test this till phantomjs is updated to 2.0
-
     var autoUpdate = require('src/dom/plugins/auto-update-bindings');
     describe('Update behavior', function () {
         it.skip('should call bind for added elements', function () {

@@ -1,5 +1,5 @@
+'use strict';
 module.exports = (function () {
-    'use strict';
     var domManager = require('src/dom/dom-manager');
     var utils = require('../../../testing-utils');
 
@@ -42,7 +42,7 @@ module.exports = (function () {
         it('should use the last item if it\'s an array', function () {
             var $node = utils.initWithNode('<input type="text" data-f-class="data" data-f-bind="stuff"/>', domManager);
 
-            $node.trigger('update.f.model', { data: [1,2,3] });
+            $node.trigger('update.f.model', { data: [1, 2, 3] });
             $node.hasClass('value-3').should.equal(true);
         });
     });

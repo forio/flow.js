@@ -1,5 +1,5 @@
+'use strict';
 module.exports = (function () {
-    'use strict';
     var domManager = require('src/dom/dom-manager');
     var utils = require('../../testing-utils');
 
@@ -37,7 +37,7 @@ module.exports = (function () {
                         it('should convert arrays into values without converters', function () {
                             var $node = utils.initWithNode('<input type="text" data-f-bind="apple"/>', domManager);
                             $node.trigger('update.f.model', {
-                                apple: [1,2,3]
+                                apple: [1, 2, 3]
                             });
                             $node.val().should.equal('3');
                         });
@@ -47,10 +47,10 @@ module.exports = (function () {
                             domManager.converters.register('spy', spy, true);
                             var $node = utils.initWithNode('<input type="text" data-f-bind="apple | spy"/>', domManager);
                             $node.trigger('update.f.model', {
-                                apple: [1,2,3]
+                                apple: [1, 2, 3]
                             });
 
-                            spy.should.have.been.calledWith([1,2,3]);
+                            spy.should.have.been.calledWith([1, 2, 3]);
                         });
                     });
                 });
@@ -75,7 +75,7 @@ module.exports = (function () {
 
                         var channel = utils.createDummyChannel();
                         var $node = utils.initWithNode('<input type="text" data-f-bind="price | $#,### | flip"/>', domManager, channel);
-                        $node.val('$2,345').trigger('change');
+                        $node.val('$2, 345').trigger('change');
                         channel.variables.publish.should.have.been.calledWith({
                             price: 5432
                         });
@@ -93,7 +93,7 @@ module.exports = (function () {
 
                         var channel = utils.createDummyChannel();
                         var $node = utils.initWithNode('<input type="text" data-f-bind="price | flips | $#,### "/>', domManager, channel);
-                        $node.val('$2,345').trigger('change');
+                        $node.val('$2, 345').trigger('change');
                         channel.variables.publish.should.have.been.calledWith({
                             price: 'abc'
                         });
@@ -109,7 +109,7 @@ module.exports = (function () {
 
                         var channel = utils.createDummyChannel();
                         var $node = utils.initWithNode('<input type="text" data-f-bind="price | flip | $#,### "/>', domManager, channel);
-                        $node.val('$2,345').trigger('change');
+                        $node.val('$2, 345').trigger('change');
                         channel.variables.publish.should.have.been.calledWith({
                             price: 2345
                         });
@@ -197,7 +197,7 @@ module.exports = (function () {
 
                     var channel = utils.createDummyChannel();
                     var $node = utils.initWithNode('<input type="text" data-f-bind="price" data-f-convert="$#,### | flip"/>', domManager, channel);
-                    $node.val('$2,345').trigger('change');
+                    $node.val('$2, 345').trigger('change');
                     channel.variables.publish.should.have.been.calledWith({
                         price: 5432
                     });
@@ -215,7 +215,7 @@ module.exports = (function () {
                     var $node = utils.initWithNode(nested.join(), domManager, channel);
                     var $textNode = $node.find(':text');
 
-                    $textNode.val('$2,345').trigger('change');
+                    $textNode.val('$2, 345').trigger('change');
                     channel.variables.publish.should.have.been.calledWith({
                         price: 5432
                     });

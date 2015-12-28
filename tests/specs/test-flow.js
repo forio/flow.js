@@ -2,7 +2,9 @@
 module.exports = (function () {
     var Flow = require('src/flow');
     describe('Flow Epicenter integration', function () {
-        var server, channelOpts, $elWithoutInit;
+        var server;
+        var channelOpts;
+        var $elWithoutInit;
         before(function () {
             server = sinon.fakeServer.create();
 
@@ -22,13 +24,13 @@ module.exports = (function () {
             });
             server.respondWith('POST', /(.*)\/run/, function (xhr, id) {
                 var resp = {
-                    'id': '065dfe50-d29d-4b55-a0fd-30868d7dd26c',
-                    'model': 'model.vmf',
-                    'account': 'mit',
-                    'project': 'afv',
-                    'saved': false,
-                    'lastModified': '2014-06-20T04:09:45.738Z',
-                    'created': '2014-06-20T04:09:45.738Z'
+                    id: '065dfe50-d29d-4b55-a0fd-30868d7dd26c',
+                    model: 'model.vmf',
+                    account: 'mit',
+                    project: 'afv',
+                    saved: false,
+                    lastModified: '2014-06-20T04:09:45.738Z',
+                    created: '2014-06-20T04:09:45.738Z'
                 };
                 xhr.respond(201, {
                     'Content-Type': 'application/json'
@@ -65,7 +67,7 @@ module.exports = (function () {
             //TODO: Fix this after making run-manager get path from urlservice
             var urlService = new F.service.URL();
             var path = '/' + [urlService.appPath, urlService.accountPath, urlService.projectPath].join('/');
-            path = path.replace(/\/{2,}/g,'/');
+            path = path.replace(/\/{2,}/g, '/');
             var c = new F.store.Cookie({ root: path });
             c.remove(cookey);
             cookey = null;
@@ -184,11 +186,11 @@ module.exports = (function () {
             describe('with on-init', function () {
                 var $elWithInit;
                 beforeEach(function () {
-                   $elWithInit = $([
-                         '<div data-f-on-init="stuff">',
-                         '   <span data-f-bind="price"> X </span>',
-                         '</div>'
-                   ].join(''));
+                    $elWithInit = $([
+                        '<div data-f-on-init="stuff">',
+                        '   <span data-f-bind="price"> X </span>',
+                        '</div>'
+                    ].join(''));
                 });
 
                 it('should not fetch variables if there is an init operation', function () {

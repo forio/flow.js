@@ -7,15 +7,15 @@ module.exports = (function () {
                 'values', 'keys', 'compact', 'difference',
                 'flatten', 'rest',
                 'union',
-                'uniq', 'zip', 'without',
+                'uniq', 'without',
                 'xor', 'zip'
             ];
             _.each(supported, function (fn) {
-               var input = [4,5,6];
-               var libraried = _[fn](input);
-               var convertered = cm.convert(input, fn);
-               libraried.should.eql(convertered);
-           });
+                var input = [4, 5, 6];
+                var libraried = _[fn](input);
+                var convertered = cm.convert(input, fn);
+                libraried.should.eql(convertered);
+            });
         });
     });
 }());

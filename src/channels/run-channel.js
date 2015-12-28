@@ -69,12 +69,13 @@ module.exports = function (options) {
     this.operations = new OperationsChannel($.extend(true, {}, config.run.operations, { run: rs }));
 
     var me = this;
-    var debouncedRefresh = _.debounce(function (data) {
-        me.variables.refresh.call(me.variables, null, true);
+    var DEBOUNCE_INTERVAL = 200;
+    var debouncedRefresh = _.debounce(function () {
+        me.variables.refresh(null, true);
         if (me.variables.options.autoFetch.enable) {
             me.variables.startAutoFetch();
         }
-    }, 200, { leading: true });
+    }, DEBOUNCE_INTERVAL, { leading: true });
 
     this.operations.subscribe('*', debouncedRefresh);
 };

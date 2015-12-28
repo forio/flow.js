@@ -6,9 +6,9 @@
  * The DOM Manager is an integral part of the Flow.js architecture but, in keeping with our general philosophy of extensibility and configurability, it is also replaceable. For instance, if you want to manage your DOM state with [Backbone Views](http://backbonejs.org) or [Angular.js](https://angularjs.org), while still using the channels to handle the communication with your model, this is the piece you'd replace. [Contact us](http://forio.com/about/contact/) if you are interested in extending Flow.js in this way -- we'll be happy to talk about it in more detail.
  *
  */
+'use strict';
 
 module.exports = (function () {
-    'use strict';
     var config = require('../config');
 
     var nodeManager = require('./nodes/node-manager');
@@ -71,6 +71,7 @@ module.exports = (function () {
          *
          * @param {DomElement} element The element to remove from the data binding.
          * @param {ChannelInstance} channel (Optional) The channel from which to unsubscribe. Defaults to the [variables channel](../channels/variables-channel/).
+         * @returns {undefined}
          */
         unbindElement: function (element, channel) {
             if (!channel) {
@@ -116,6 +117,7 @@ module.exports = (function () {
          *
          * @param {DomElement} element The element to add to the data binding.
          * @param {ChannelInstance} channel (Optional) The channel to subscribe to. Defaults to the [variables channel](../channels/variables-channel/).
+         * @returns {undefined}
          */
         bindElement: function (element, channel) {
             if (!channel) {
@@ -136,11 +138,11 @@ module.exports = (function () {
                 el: element
             });
 
-            var subscribe = function (channel, varsToBind, $el, options) {
+            var subscribe = function (subsChannel, varsToBind, $bindEl, options) {
                 if (!varsToBind || !varsToBind.length) {
                     return false;
                 }
-                var subsid = channel.subscribe(varsToBind, $el, options);
+                var subsid = subsChannel.subscribe(varsToBind, $bindEl, options);
                 var newsubs = ($el.data('f-subscription-id') || []).concat(subsid);
                 $el.data('f-subscription-id', newsubs);
             };
@@ -198,6 +200,7 @@ module.exports = (function () {
          * Bind all provided elements.
          *
          * @param  {Array|jQuerySelector} elementsToBind (Optional) If not provided, binds all matching elements within default root provided at initialization.
+         * @returns {undefined}
          */
         bindAll: function (elementsToBind) {
             if (!elementsToBind) {
@@ -209,13 +212,14 @@ module.exports = (function () {
             var me = this;
             //parse through dom and find everything with matching attributes
             $.each(elementsToBind, function (index, element) {
-                me.bindElement.call(me, element, me.options.channel.variables);
+                me.bindElement(element, me.options.channel.variables);
             });
         },
         /**
          * Unbind provided elements.
          *
          * @param  {Array} elementsToUnbind (Optional) If not provided, unbinds everything.
+         * @returns {undefined}
          */
         unbindAll: function (elementsToUnbind) {
             var me = this;
@@ -223,7 +227,7 @@ module.exports = (function () {
                 elementsToUnbind = this.private.matchedElements;
             }
             $.each(elementsToUnbind, function (index, element) {
-                me.unbindElement.call(me, element, me.options.channel.variables);
+                me.unbindElement(element, me.options.channel.variables);
             });
         },
 
@@ -234,6 +238,7 @@ module.exports = (function () {
          * @param {String} options.root The root HTML element being managed by this instance of the DOM Manager. Defaults to `body`.
          * @param {Object} options.channel The channel to communicate with. Defaults to the Channel Manager from [Epicenter.js](../../../api_adapters/).
          * @param {Boolean} options.autoBind If `true` (default), any variables added to the DOM after `Flow.initialize()` has been called will be automatically parsed, and subscriptions added to channels. Note, this does not work in IE versions < 11.
+         * @returns {undefined}
          */
         initialize: function (options) {
             var defaults = {
@@ -268,7 +273,7 @@ module.exports = (function () {
                     var parsedData = {}; //if not all subsequent listeners will get the modified data
 
                     var $el = $(evt.target);
-                    var attrConverters =  domUtils.getConvertersList($el, 'bind');
+                    var attrConverters = domUtils.getConvertersList($el, 'bind');
 
                     _.each(data, function (val, key) {
                         key = key.split('|')[0].trim(); //in case the pipe formatting syntax was used
@@ -307,7 +312,7 @@ module.exports = (function () {
                     var $el = $(evt.target);
                     var convert = function (val, prop) {
                         prop = prop.toLowerCase();
-                        var attrConverters =  domUtils.getConvertersList($el, prop);
+                        var attrConverters = domUtils.getConvertersList($el, prop);
                         var handler = attrManager.getHandler(prop, $el);
                         var convertedValue = converterManager.convert(val, attrConverters);
                         handler.handle.call($el, convertedValue, prop);
@@ -323,9 +328,9 @@ module.exports = (function () {
                 $root.off('f.ui.operate').on('f.ui.operate', function (evt, data) {
                     data = $.extend(true, {}, data); //if not all subsequent listeners will get the modified data
                     _.each(data.operations, function (opn) {
-                       opn.params = _.map(opn.params, function (val) {
-                           return parseUtils.toImplicitType($.trim(val));
-                       });
+                        opn.params = _.map(opn.params, function (val) {
+                            return parseUtils.toImplicitType($.trim(val));
+                        });
                     });
                     channel.operations.publish(data);
                 });

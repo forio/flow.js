@@ -10,6 +10,7 @@ var uglifyOptions = {
 };
 
 module.exports = function (grunt) {
+
     var version = grunt.file.readJSON('package.json').version;
     var banner = grunt.file.read('banner.txt');
     banner = banner.replace('RELEASE_VERSION', version);

@@ -16,9 +16,8 @@ var normalize = function (selector, handler) {
 var match = function (toMatch, node) {
     if (_.isString(toMatch)) {
         return toMatch === node.selector;
-    } else {
-        return $(toMatch).is(node.selector);
     }
+    return $(toMatch).is(node.selector);
 };
 
 var nodeManager = {
@@ -28,6 +27,7 @@ var nodeManager = {
      * Add a new node handler
      * @param  {string} selector jQuery-compatible selector to use to match nodes
      * @param  {function} handler  Handlers are new-able functions. They will be called with $el as context.? TODO: Think this through
+     * @returns {undefined}
      */
     register: function (selector, handler) {
         this.list.unshift(normalize(selector, handler));

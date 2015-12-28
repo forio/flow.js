@@ -1,5 +1,5 @@
+'use strict';
 module.exports = (function () {
-    'use strict';
     var domManager = require('src/dom/dom-manager');
     var utils = require('../../testing-utils');
 
@@ -16,8 +16,8 @@ module.exports = (function () {
 
             spy.should.have.been.calledOnce;
             spy.getCall(0).args[1].should.eql({
-                'stuff': 'sauce',
-                'other': 'pie'
+                stuff: 'sauce',
+                other: 'pie'
             });
         });
         it('should trigger f.convert with single attribute if provided an object with same keys', function () {
@@ -29,8 +29,8 @@ module.exports = (function () {
                 apple: 'sauce'
             });
             spy.getCall(0).args[1].should.eql({
-                'stuff': 'sauce',
-                'other': 'sauce'
+                stuff: 'sauce',
+                other: 'sauce'
             });
         });
         it('should trigger f.convert with an object if provided an object with multiple keys', function () {
@@ -44,7 +44,7 @@ module.exports = (function () {
             };
             $node.trigger('update.f.model', data);
             spy.getCall(0).args[1].should.eql({
-                'stuff': data
+                stuff: data
             });
         });
     });

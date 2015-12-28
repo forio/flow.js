@@ -1,5 +1,5 @@
+'use strict';
 module.exports = (function () {
-    'use strict';
     var domManager = require('src/dom/dom-manager');
     var utils = require('../../../testing-utils');
 
@@ -21,7 +21,7 @@ module.exports = (function () {
                 it('should show the last item if given an array', function () {
                     it('should replace innerhtml if target has random text', function () {
                         var $rootNode = $('<div> Loading </div>');
-                        bindHandler.handle.call($rootNode, [1,3,5,6]);
+                        bindHandler.handle.call($rootNode, [1, 3, 5, 6]);
                         $rootNode.html().should.equal('6');
                     });
                 });
@@ -113,10 +113,10 @@ module.exports = (function () {
             it('should template objects in accordance with converters', function () {
                 var targetData = { Price: [10, 3000], Sales: [20, 1100] };
 
-               var $node = utils.initWithNode('<div data-f-bind="Price, Sales | #,### |last"> <%= Price %> <%= Sales %> </div>', domManager);
-                 $node.trigger('update.f.model', targetData);
+                var $node = utils.initWithNode('<div data-f-bind="Price, Sales | #,### |last"> <%= Price %> <%= Sales %> </div>', domManager);
+                $node.trigger('update.f.model', targetData);
 
-                $node.html().trim().should.equal('3,000 1,100');
+                $node.html().trim().should.equal('3, 000 1, 100');
             });
         });
     });

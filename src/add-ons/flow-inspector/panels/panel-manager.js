@@ -13,8 +13,8 @@ var panelManager = {
 
 //bootstraps
 var availablePanels = {
-    'context': require('./context-show/context-show-panel'),
-    'filter': require('./legend-toggle/legend-panel')
+    context: require('./context-show/context-show-panel'),
+    filter: require('./legend-toggle/legend-panel')
 };
 _.each(availablePanels, function (panel, alias) {
     panelManager.register(alias, panel);

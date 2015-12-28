@@ -1,11 +1,12 @@
+'use strict';
 (function () {
-    'use strict';
 
     var NodeClass = require('src/dom/nodes/default-input-node');
     var make = require('../../testing-utils').create;
 
     describe('Input node', function () {
-        var textNode, makeView;
+        var textNode;
+        var makeView;
         before(function () {
             textNode = make('<input type="text" data-f-bind="stuff"/>');
 

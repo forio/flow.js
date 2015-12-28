@@ -20,8 +20,8 @@ module.exports = function (grunt) {
     grunt.registerTask('generateDev', ['webpack:edge', 'webpack:tests']);
     grunt.registerTask('addons', ['webpack:addons', 'sass:addons']);
     grunt.registerTask('test', ['generateDev', 'mocha',]);
-    grunt.registerTask('documentation', ['jshint:all', 'jscs', 'markdox']);
-    grunt.registerTask('validate', ['jshint:all', 'jscs', 'test']);
+    grunt.registerTask('documentation', ['eslint', 'markdox']);
+    grunt.registerTask('validate', ['eslint', 'test']);
     grunt.registerTask('production', ['validate', 'addons', 'webpack:mapped', 'webpack:min']);
 
     grunt.registerTask('release', function (type) {

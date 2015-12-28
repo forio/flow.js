@@ -1,5 +1,5 @@
+'use strict';
 module.exports = (function () {
-    'use strict';
     var utils = require('../../../testing-utils');
     var domManager = require('src/dom/dom-manager');
 
@@ -32,7 +32,7 @@ module.exports = (function () {
                     var spy = sinon.spy();
                     $node.on('update.f.ui', spy);
 
-                   $node.prop('checked', true).trigger('change');
+                    $node.prop('checked', true).trigger('change');
                     spy.getCall(0).args[1].should.eql({ stuff: '8' });
                 });
             });

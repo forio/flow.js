@@ -4,12 +4,12 @@ var panelManager = require('./panels/panel-manager');
 
 var FlowInspector = function (root) {
 
-    function draw(el, elementTop, elementLeft, elementWidth, elementHeight, fillColor) {
+    function draw (el, elementTop, elementLeft, elementWidth, elementHeight, fillColor) {
         var ctx = el.getContext('2d');
         ctx.fillStyle = fillColor;
         ctx.fillRect(elementLeft, elementTop, elementWidth, elementHeight);
     }
-    function eraseCanvas(el, elementTop, elementLeft, elementWidth, elementHeight) {
+    function eraseCanvas (el, elementTop, elementLeft, elementWidth, elementHeight) {
         var ctx = el.getContext('2d');
         var offset = 0;
         ctx.clearRect(elementLeft - offset, elementTop - offset, elementWidth + (2 * offset), elementHeight + (2 * offset));
@@ -68,13 +68,14 @@ var FlowInspector = function (root) {
             var $thisElemContainer = $('<div id="f-container-' + elemCounter + '"></div');
 
             var pos = $(elem).offset();
+            var elemHeightOffset = 25;
             $thisElemContainer.css({
-                top: (pos.top - 25) + 'px',
+                top: (pos.top - elemHeightOffset) + 'px',
                 left: (pos.left) + 'px'
             });
 
             if (!$(elem).children().length) {
-                eraseCanvas(canvas, pos.top, pos.left, $(elem).innerWidth(), $(elem).innerHeight(),  elem);
+                eraseCanvas(canvas, pos.top, pos.left, $(elem).innerWidth(), $(elem).innerHeight(), elem);
             }
 
             $(elem.attributes).each(function (index, nodeMap) {

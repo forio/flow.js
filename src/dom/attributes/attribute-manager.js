@@ -102,6 +102,7 @@ module.exports = {
      * @param  {String|Function|Regex} attributeMatcher Description of which attributes to match.
      * @param  {String} nodeMatcher Which nodes to add attributes to. Use [jquery Selector syntax](https://api.jquery.com/category/selectors/).
      * @param  {Function|Object} handler If `handler` is a function, the function is called with `$element` as context, and attribute value + name. If `handler` is an object, it should include two functions, and have the form: `{ init: fn,  handle: fn }`. The `init` function is called when the page loads; use this to define event handlers. The `handle` function is called with `$element` as context, and attribute value + name.
+     * @returns {undefined}
      */
     register: function (attributeMatcher, nodeMatcher, handler) {
         handlersList.unshift(normalize.apply(null, arguments));
@@ -133,6 +134,7 @@ module.exports = {
      * @param  {String} attrFilter Attribute to match.
      * @param  {String | $el} nodeFilter Node to match.
      * @param  {Function|Object} handler The updated attribute handler. If `handler` is a function, the function is called with `$element` as context, and attribute value + name. If `handler` is an object, it should include two functions, and have the form: `{ init: fn,  handle: fn }`. The `init` function is called when the page loads; use this to define event handlers. The `handle` function is called with `$element` as context, and attribute value + name.
+     * @returns {undefined}
      */
     replace: function (attrFilter, nodeFilter, handler) {
         var index;

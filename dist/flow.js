@@ -2,41 +2,41 @@ var Flow =
 /******/ (function(modules) { // webpackBootstrap
 /******/ 	// The module cache
 /******/ 	var installedModules = {};
-
+/******/
 /******/ 	// The require function
 /******/ 	function __webpack_require__(moduleId) {
-
+/******/
 /******/ 		// Check if module is in cache
 /******/ 		if(installedModules[moduleId])
 /******/ 			return installedModules[moduleId].exports;
-
+/******/
 /******/ 		// Create a new module (and put it into the cache)
 /******/ 		var module = installedModules[moduleId] = {
 /******/ 			exports: {},
 /******/ 			id: moduleId,
 /******/ 			loaded: false
 /******/ 		};
-
+/******/
 /******/ 		// Execute the module function
 /******/ 		modules[moduleId].call(module.exports, module, module.exports, __webpack_require__);
-
+/******/
 /******/ 		// Flag the module as loaded
 /******/ 		module.loaded = true;
-
+/******/
 /******/ 		// Return the exports of the module
 /******/ 		return module.exports;
 /******/ 	}
-
-
+/******/
+/******/
 /******/ 	// expose the modules object (__webpack_modules__)
 /******/ 	__webpack_require__.m = modules;
-
+/******/
 /******/ 	// expose the module cache
 /******/ 	__webpack_require__.c = installedModules;
-
+/******/
 /******/ 	// __webpack_public_path__
 /******/ 	__webpack_require__.p = "";
-
+/******/
 /******/ 	// Load entry module and return exports
 /******/ 	return __webpack_require__(0);
 /******/ })
@@ -104,28 +104,28 @@ var Flow =
 	 *          }
 	 *      });
 	 */
-
+	
 	'use strict';
-
+	
 	var domManager = __webpack_require__(1);
 	var Channel = __webpack_require__(30);
 	var BaseView = __webpack_require__(7);
-
-	module.exports = {
+	
+	var Flow = {
 	    dom: domManager,
 	    utils: {
 	        BaseView: BaseView
 	    },
 	    initialize: function (config) {
 	        var model = $('body').data('f-model');
-
+	
 	        var defaults = {
 	            channel: {
 	                run: {
 	                    account: '',
 	                    project: '',
 	                    model: model,
-
+	
 	                    operations: {
 	                    },
 	                    variables: {
@@ -140,29 +140,32 @@ var Flow =
 	                autoBind: true
 	            }
 	        };
-
+	
 	        var options = $.extend(true, {}, defaults, config);
 	        var $root = $(options.dom.root);
 	        var initFn = $root.data('f-on-init');
 	        var opnSilent = options.channel.run.operations.silent;
 	        var isInitOperationSilent = initFn && (opnSilent === true || (_.isArray(opnSilent) && _.contains(opnSilent, initFn)));
 	        var preFetchVariables = !initFn || isInitOperationSilent;
-
+	
 	        if (preFetchVariables) {
 	            options.channel.run.variables.autoFetch.start = true;
 	        }
-
+	
 	        if (config && config.channel && (config.channel instanceof Channel)) {
 	            this.channel = config.channel;
 	        } else {
 	            this.channel = new Channel(options.channel);
 	        }
-
+	
 	        domManager.initialize($.extend(true, {
 	            channel: this.channel
 	        }, options.dom));
 	    }
 	};
+	
+	Flow.version = ("0.9.0");
+	module.exports = Flow;
 
 
 /***/ },
@@ -177,36 +180,36 @@ var Flow =
 	 * The DOM Manager is an integral part of the Flow.js architecture but, in keeping with our general philosophy of extensibility and configurability, it is also replaceable. For instance, if you want to manage your DOM state with [Backbone Views](http://backbonejs.org) or [Angular.js](https://angularjs.org), while still using the channels to handle the communication with your model, this is the piece you'd replace. [Contact us](http://forio.com/about/contact/) if you are interested in extending Flow.js in this way -- we'll be happy to talk about it in more detail.
 	 *
 	 */
-
+	
 	module.exports = (function () {
 	    'use strict';
 	    var config = __webpack_require__(2);
-
+	
 	    var nodeManager = __webpack_require__(3);
 	    var attrManager = __webpack_require__(8);
 	    var converterManager = __webpack_require__(22);
-
+	
 	    var parseUtils = __webpack_require__(13);
 	    var domUtils = __webpack_require__(28);
-
+	
 	    var autoUpdatePlugin = __webpack_require__(29);
-
+	
 	    //Jquery selector to return everything which has a f- property set
 	    $.expr[':'][config.prefix] = function (obj) {
 	        var $this = $(obj);
 	        var dataprops = _.keys($this.data());
-
+	
 	        var match = _.find(dataprops, function (attr) {
 	            return (attr.indexOf(config.prefix) === 0);
 	        });
-
+	
 	        return !!(match);
 	    };
-
+	
 	    $.expr[':'].webcomponent = function (obj) {
 	        return obj.nodeName.indexOf('-') !== -1;
 	    };
-
+	
 	    var getMatchingElements = function (root) {
 	        var $root = $(root);
 	        var matchedElements = $root.find(':' + config.prefix);
@@ -215,7 +218,7 @@ var Flow =
 	        }
 	        return matchedElements;
 	    };
-
+	
 	    var getElementOrError = function (element, context) {
 	        if (element instanceof $) {
 	            element = element.get(0);
@@ -226,9 +229,9 @@ var Flow =
 	        }
 	        return element;
 	    };
-
+	
 	    var publicAPI = {
-
+	
 	        nodes: nodeManager,
 	        attributes: attrManager,
 	        converters: converterManager,
@@ -236,7 +239,7 @@ var Flow =
 	        private: {
 	            matchedElements: []
 	        },
-
+	
 	        /**
 	         * Unbind the element: unsubscribe from all updates on the relevant channels.
 	         *
@@ -253,7 +256,7 @@ var Flow =
 	                return false;
 	            }
 	            this.private.matchedElements = _.without(this.private.matchedElements, element);
-
+	
 	            //FIXME: have to readd events to be able to remove them. Ugly
 	            var Handler = nodeManager.getHandler($el);
 	            var h = new Handler.handle({
@@ -262,26 +265,26 @@ var Flow =
 	            if (h.removeEvents) {
 	                h.removeEvents();
 	            }
-
+	
 	            $(element.attributes).each(function (index, nodeMap) {
 	                var attr = nodeMap.nodeName;
 	                var wantedPrefix = 'data-f-';
 	                if (attr.indexOf(wantedPrefix) === 0) {
 	                    attr = attr.replace(wantedPrefix, '');
-
+	
 	                    var handler = attrManager.getHandler(attr, $el);
 	                    if (handler.stopListening) {
 	                        handler.stopListening.call($el, attr);
 	                    }
 	                }
 	            });
-
+	
 	            var subsid = $el.data('f-subscription-id') || [];
 	            _.each(subsid, function (subs) {
 	                channel.unsubscribe(subs);
 	            });
 	        },
-
+	
 	        /**
 	         * Bind the element: subscribe from updates on the relevant channels.
 	         *
@@ -300,13 +303,13 @@ var Flow =
 	            if (!_.contains(this.private.matchedElements, element)) {
 	                this.private.matchedElements.push(element);
 	            }
-
+	
 	            //Send to node manager to handle ui changes
 	            var Handler = nodeManager.getHandler($el);
 	            new Handler.handle({
 	                el: element
 	            });
-
+	
 	            var subscribe = function (channel, varsToBind, $el, options) {
 	                if (!varsToBind || !varsToBind.length) {
 	                    return false;
@@ -315,24 +318,24 @@ var Flow =
 	                var newsubs = ($el.data('f-subscription-id') || []).concat(subsid);
 	                $el.data('f-subscription-id', newsubs);
 	            };
-
+	
 	            var attrBindings = [];
 	            var nonBatchableVariables = [];
 	            //NOTE: looping through attributes instead of .data because .data automatically camelcases properties and make it hard to retrvieve
 	            $(element.attributes).each(function (index, nodeMap) {
 	                var attr = nodeMap.nodeName;
 	                var attrVal = nodeMap.value;
-
+	
 	                var wantedPrefix = 'data-f-';
 	                if (attr.indexOf(wantedPrefix) === 0) {
 	                    attr = attr.replace(wantedPrefix, '');
-
+	
 	                    var handler = attrManager.getHandler(attr, $el);
 	                    var isBindableAttr = true;
 	                    if (handler && handler.init) {
 	                        isBindableAttr = handler.init.call($el, attr, attrVal);
 	                    }
-
+	
 	                    if (isBindableAttr) {
 	                        //Convert pipes to converter attrs
 	                        var withConv = _.invoke(attrVal.split('|'), 'trim');
@@ -340,12 +343,12 @@ var Flow =
 	                            attrVal = withConv.shift();
 	                            $el.data('f-convert-' + attr, withConv);
 	                        }
-
+	
 	                        var binding = { attr: attr };
 	                        var commaRegex = /,(?![^\[]*\])/;
 	                        if (attrVal.indexOf('<%') !== -1) {
 	                            //Assume it's templated for later use
-
+	
 	                        } else if (attrVal.split(commaRegex).length > 1) {
 	                            var varsToBind = _.invoke(attrVal.split(commaRegex), 'trim');
 	                            subscribe(channel, varsToBind, $el, { batch: true });
@@ -364,7 +367,7 @@ var Flow =
 	                subscribe(channel, nonBatchableVariables, $el, { batch: false });
 	            }
 	        },
-
+	
 	        /**
 	         * Bind all provided elements.
 	         *
@@ -376,7 +379,7 @@ var Flow =
 	            } else if (!_.isArray(elementsToBind)) {
 	                elementsToBind = getMatchingElements(elementsToBind);
 	            }
-
+	
 	            var me = this;
 	            //parse through dom and find everything with matching attributes
 	            $.each(elementsToBind, function (index, element) {
@@ -397,7 +400,7 @@ var Flow =
 	                me.unbindElement.call(me, element, me.options.channel.variables);
 	            });
 	        },
-
+	
 	        /**
 	         * Initialize the DOM Manager to work with a particular HTML element and all elements within that root. Data bindings between individual HTML elements and the model variables specified in the attributes will happen via the channel.
 	         *
@@ -414,7 +417,7 @@ var Flow =
 	                 */
 	                root: 'body',
 	                channel: null,
-
+	
 	                /**
 	                 * Any variables added to the DOM after `Flow.initialize()` has been called will be automatically parsed, and subscriptions added to channels. Note, this does not work in IE versions < 11.
 	                 * @type {Boolean}
@@ -422,42 +425,42 @@ var Flow =
 	                autoBind: true
 	            };
 	            $.extend(defaults, options);
-
+	
 	            var channel = defaults.channel;
-
+	
 	            this.options = defaults;
-
+	
 	            var me = this;
 	            var $root = $(defaults.root);
 	            $(function () {
 	                me.bindAll();
 	                $root.trigger('f.domready');
-
+	
 	                //Attach listeners
 	                // Listen for changes to ui and publish to api
 	                $root.off(config.events.trigger).on(config.events.trigger, function (evt, data) {
 	                    var parsedData = {}; //if not all subsequent listeners will get the modified data
-
+	
 	                    var $el = $(evt.target);
 	                    var attrConverters =  domUtils.getConvertersList($el, 'bind');
-
+	
 	                    _.each(data, function (val, key) {
 	                        key = key.split('|')[0].trim(); //in case the pipe formatting syntax was used
 	                        val = converterManager.parse(val, attrConverters);
 	                        parsedData[key] = parseUtils.toImplicitType(val);
-
+	
 	                        $el.trigger('f.convert', { bind: val });
 	                    });
-
+	
 	                    channel.variables.publish(parsedData);
 	                });
-
+	
 	                // Listen for changes from api and update ui
 	                $root.off(config.events.react).on(config.events.react, function (evt, data) {
 	                    // console.log(evt.target, data, "root on");
 	                    var $el = $(evt.target);
 	                    var bindings = $el.data('attr-bindings');
-
+	
 	                    var toconvert = {};
 	                    $.each(data, function (variableName, value) {
 	                        _.each(bindings, function (binding) {
@@ -472,7 +475,7 @@ var Flow =
 	                    });
 	                    $el.trigger('f.convert', toconvert);
 	                });
-
+	
 	                // data = {proptoupdate: value} || just a value (assumes 'bind' if so)
 	                $root.off('f.convert').on('f.convert', function (evt, data) {
 	                    var $el = $(evt.target);
@@ -483,14 +486,14 @@ var Flow =
 	                        var convertedValue = converterManager.convert(val, attrConverters);
 	                        handler.handle.call($el, convertedValue, prop);
 	                    };
-
+	
 	                    if ($.isPlainObject(data)) {
 	                        _.each(data, convert);
 	                    } else {
 	                        convert(data, 'bind');
 	                    }
 	                });
-
+	
 	                $root.off('f.ui.operate').on('f.ui.operate', function (evt, data) {
 	                    data = $.extend(true, {}, data); //if not all subsequent listeners will get the modified data
 	                    _.each(data.operations, function (opn) {
@@ -500,14 +503,14 @@ var Flow =
 	                    });
 	                    channel.operations.publish(data);
 	                });
-
+	
 	                if (me.options.autoBind) {
 	                    autoUpdatePlugin($root.get(0), me);
 	                }
 	            });
 	        }
 	    };
-
+	
 	    return $.extend(this, publicAPI);
 	}());
 
@@ -519,9 +522,9 @@ var Flow =
 	module.exports = {
 	    prefix: 'f',
 	    defaultAttr: 'bind',
-
+	
 	    binderAttr: 'f-bind',
-
+	
 	    events: {
 	        trigger: 'update.f.ui',
 	        react: 'update.f.model'
@@ -534,7 +537,7 @@ var Flow =
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
-
+	
 	var normalize = function (selector, handler) {
 	    if (_.isFunction(handler)) {
 	        handler = {
@@ -547,7 +550,7 @@ var Flow =
 	    handler.selector = selector;
 	    return handler;
 	};
-
+	
 	var match = function (toMatch, node) {
 	    if (_.isString(toMatch)) {
 	        return toMatch === node.selector;
@@ -555,10 +558,10 @@ var Flow =
 	        return $(toMatch).is(node.selector);
 	    }
 	};
-
+	
 	var nodeManager = {
 	    list: [],
-
+	
 	    /**
 	     * Add a new node handler
 	     * @param  {string} selector jQuery-compatible selector to use to match nodes
@@ -567,13 +570,13 @@ var Flow =
 	    register: function (selector, handler) {
 	        this.list.unshift(normalize(selector, handler));
 	    },
-
+	
 	    getHandler: function (selector) {
 	        return _.find(this.list, function (node) {
 	            return match(selector, node);
 	        });
 	    },
-
+	
 	    replace: function (selector, handler) {
 	        var index;
 	        _.each(this.list, function (currentHandler, i) {
@@ -585,7 +588,7 @@ var Flow =
 	        this.list.splice(index, 1, normalize(selector, handler));
 	    }
 	};
-
+	
 	//bootstraps
 	var defaultHandlers = [
 	    __webpack_require__(4),
@@ -595,7 +598,7 @@ var Flow =
 	_.each(defaultHandlers.reverse(), function (handler) {
 	    nodeManager.register(handler.selector, handler);
 	});
-
+	
 	module.exports = nodeManager;
 
 
@@ -605,21 +608,21 @@ var Flow =
 
 	'use strict';
 	var BaseView = __webpack_require__(5);
-
+	
 	module.exports = BaseView.extend({
-
+	
 	    propertyHandlers: [
-
+	
 	    ],
-
+	
 	    getUIValue: function () {
 	        var $el = this.$el;
 	        //TODO: file a issue for the vensim manager to convert trues to 1s and set this to true and false
-
+	
 	        var offVal =  ($el.data('f-off') !== undefined) ? $el.data('f-off') : 0;
 	        //attr = initial value, prop = current value
 	        var onVal = ($el.attr('value') !== undefined) ? $el.prop('value'): 1;
-
+	
 	        var val = ($el.is(':checked')) ? onVal : offVal;
 	        return val;
 	    },
@@ -636,30 +639,30 @@ var Flow =
 	'use strict';
 	var config = __webpack_require__(2);
 	var BaseView = __webpack_require__(6);
-
+	
 	module.exports = BaseView.extend({
 	    propertyHandlers: [],
-
+	
 	    uiChangeEvent: 'change',
 	    getUIValue: function () {
 	        return this.$el.val();
 	    },
-
+	
 	    removeEvents: function () {
 	        this.$el.off(this.uiChangeEvent);
 	    },
-
+	
 	    initialize: function () {
 	        var me = this;
 	        var propName = this.$el.data(config.binderAttr);
-
+	
 	        if (propName) {
 	            this.$el.off(this.uiChangeEvent).on(this.uiChangeEvent, function () {
 	                var val = me.getUIValue();
-
+	
 	                var params = {};
 	                params[propName] = val;
-
+	
 	                me.$el.trigger(config.events.trigger, params);
 	            });
 	        }
@@ -673,14 +676,14 @@ var Flow =
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
-
+	
 	var BaseView = __webpack_require__(7);
-
+	
 	module.exports = BaseView.extend({
 	    propertyHandlers: [
-
+	
 	    ],
-
+	
 	    initialize: function () {
 	    }
 	}, { selector: '*' });
@@ -691,11 +694,11 @@ var Flow =
 /***/ function(module, exports) {
 
 	'use strict';
-
+	
 	var extend = function (protoProps, staticProps) {
 	    var parent = this;
 	    var child;
-
+	
 	    // The constructor function for the new subclass is either defined by you
 	    // (the "constructor" property in your `extend` definition), or defaulted
 	    // by us to simply call the parent's constructor.
@@ -704,42 +707,42 @@ var Flow =
 	    } else {
 	        child = function () { return parent.apply(this, arguments); };
 	    }
-
+	
 	    // Add static properties to the constructor function, if supplied.
 	    _.extend(child, parent, staticProps);
-
+	
 	    // Set the prototype chain to inherit from `parent`, without calling
 	    // `parent`'s constructor function.
 	    var Surrogate = function () { this.constructor = child; };
 	    Surrogate.prototype = parent.prototype;
 	    child.prototype = new Surrogate();
-
+	
 	    // Add prototype properties (instance properties) to the subclass,
 	    // if supplied.
 	    if (protoProps) {
 	        _.extend(child.prototype, protoProps);
 	    }
-
+	
 	    // Set a convenience property in case the parent's prototype is needed
 	    // later.
 	    child.__super__ = parent.prototype;
-
+	
 	    return child;
 	};
-
+	
 	var View = function (options) {
 	    this.$el = (options.$el) || $(options.el);
 	    this.el = options.el;
 	    this.initialize.apply(this, arguments);
-
+	
 	};
-
+	
 	_.extend(View.prototype, {
 	    initialize: function () {},
 	});
-
+	
 	View.extend = extend;
-
+	
 	module.exports = View;
 
 
@@ -788,9 +791,9 @@ var Flow =
 	 *      <div data-f-showSched="schedule"></div>
 	 *
 	 */
-
+	
 	'use strict';
-
+	
 	var defaultHandlers = [
 	    __webpack_require__(9),
 	    __webpack_require__(10),
@@ -805,9 +808,9 @@ var Flow =
 	    __webpack_require__(20),
 	    __webpack_require__(21)
 	];
-
+	
 	var handlersList = [];
-
+	
 	var normalize = function (attributeMatcher, nodeMatcher, handler) {
 	    if (!nodeMatcher) {
 	        nodeMatcher = '*';
@@ -819,15 +822,15 @@ var Flow =
 	    }
 	    return $.extend(handler, { test: attributeMatcher, target: nodeMatcher });
 	};
-
+	
 	$.each(defaultHandlers, function (index, handler) {
 	    handlersList.push(normalize(handler.test, handler.target, handler));
 	});
-
-
+	
+	
 	var matchAttr = function (matchExpr, attr, $el) {
 	    var attrMatch;
-
+	
 	    if (_.isString(matchExpr)) {
 	        attrMatch = (matchExpr === '*' || (matchExpr.toLowerCase() === attr.toLowerCase()));
 	    } else if (_.isFunction(matchExpr)) {
@@ -838,11 +841,11 @@ var Flow =
 	    }
 	    return attrMatch;
 	};
-
+	
 	var matchNode = function (target, nodeFilter) {
 	    return (_.isString(nodeFilter)) ? (nodeFilter === target) : nodeFilter.is(target);
 	};
-
+	
 	module.exports = {
 	    list: handlersList,
 	    /**
@@ -855,7 +858,7 @@ var Flow =
 	    register: function (attributeMatcher, nodeMatcher, handler) {
 	        handlersList.unshift(normalize.apply(null, arguments));
 	    },
-
+	
 	    /**
 	     * Find an attribute matcher matching some criteria.
 	     *
@@ -875,7 +878,7 @@ var Flow =
 	        }
 	        return filtered;
 	    },
-
+	
 	    /**
 	     * Replace an existing attribute handler.
 	     *
@@ -893,7 +896,7 @@ var Flow =
 	        });
 	        handlersList.splice(index, 1, normalize(attrFilter, nodeFilter, handler));
 	    },
-
+	
 	    /**
 	     *  Retrieve the appropriate handler for a particular attribute. There may be multiple matching handlers, but the first (most exact) match is always used.
 	     *
@@ -908,7 +911,7 @@ var Flow =
 	        return filtered[0];
 	    }
 	};
-
+	
 
 
 /***/ },
@@ -921,18 +924,18 @@ var Flow =
 	 * Flow.js provides special handling for both `data-f-model` (described [here](../../../../#using_in_project)) and `data-f-convert` (described [here](../../../../converter-overview/)). For these attributes, the default behavior is to do nothing, so that this additional special handling can take precendence.
 	 *
 	 */
-
+	
 	'use strict';
-
+	
 	// Attributes which are just parameters to others and can just be ignored
 	module.exports = {
-
+	
 	    target: '*',
-
+	
 	    test: /^(?:model|convert)$/i,
-
+	
 	    handle: $.noop,
-
+	
 	    init: function () {
 	        return false;
 	    }
@@ -959,17 +962,17 @@ var Flow =
 	 *      <body data-f-on-init="startGame | step(3)">
 	 *
 	 */
-
+	
 	'use strict';
-
+	
 	module.exports = {
-
+	
 	    target: '*',
-
+	
 	    test: function (attr, $node) {
 	        return (attr.indexOf('on-init') === 0);
 	    },
-
+	
 	    init: function (attr, value) {
 	        attr = attr.replace('on-init', '');
 	        var me = this;
@@ -981,7 +984,7 @@ var Flow =
 	                var args = ($.trim(params) !== '') ? params.split(',') : [];
 	                return { name: fnName, params: args };
 	            });
-
+	
 	            me.trigger('f.ui.operate', { operations: listOfOperations, serial: true });
 	        });
 	        return false; //Don't bother binding on this attr. NOTE: Do readonly, true instead?;
@@ -1009,22 +1012,22 @@ var Flow =
 	 *      <button data-f-on-click="step(1)">Advance One Step</button>
 	 *
 	 */
-
+	
 	'use strict';
-
+	
 	module.exports = {
-
+	
 	    target: '*',
-
+	
 	    test: function (attr, $node) {
 	        return (attr.indexOf('on-') === 0);
 	    },
-
+	
 	    stopListening: function (attr) {
 	        attr = attr.replace('on-', '');
 	        this.off(attr);
 	    },
-
+	
 	    init: function (attr, value) {
 	        attr = attr.replace('on-', '');
 	        var me = this;
@@ -1036,7 +1039,7 @@ var Flow =
 	                var args = ($.trim(params) !== '') ? params.split(',') : [];
 	                return { name: fnName, params: args };
 	            });
-
+	
 	            me.trigger('f.ui.operate', { operations: listOfOperations, serial: true });
 	        });
 	        return false; //Don't bother binding on this attr. NOTE: Do readonly, true instead?;
@@ -1122,15 +1125,15 @@ var Flow =
 	 * * The template syntax is to enclose each keyword (`index`, `key`, `variable`) in `<%=` and `%>`. Templates are available as part of Flow.js's lodash dependency. See more background on [working with templates](../../../../../#templates).
 	 *
 	 */
-
+	
 	'use strict';
 	var parseUtils = __webpack_require__(13);
 	module.exports = {
-
+	
 	    test: 'foreach',
-
+	
 	    target: '*',
-
+	
 	    handle: function (value, prop) {
 	        value = ($.isPlainObject(value) ? value : [].concat(value));
 	        var loopTemplate = this.data('foreach-template');
@@ -1147,7 +1150,7 @@ var Flow =
 	            var templatedLoop = _.template(cloop, { value: dataval, key: datakey, index: datakey });
 	            var isTemplated = templatedLoop !== cloop;
 	            var nodes = $(templatedLoop);
-
+	
 	            nodes.each(function (i, newNode) {
 	                newNode = $(newNode);
 	                _.each(newNode.data(), function (val, key) {
@@ -1168,15 +1171,15 @@ var Flow =
 /***/ function(module, exports) {
 
 	'use strict';
-
+	
 	module.exports = {
-
+	
 	    toImplicitType: function (data) {
 	        var rbrace = /^(?:\{.*\}|\[.*\])$/;
 	        var converted = data;
 	        if (typeof data === 'string') {
 	            data = data.trim();
-
+	
 	            if (data === 'true') {
 	                converted = true;
 	            } else if (data === 'false') {
@@ -1221,15 +1224,15 @@ var Flow =
 	 *      <input type="checkbox" data-f-bind="sampleBool" />
 	 *
 	 */
-
+	
 	'use strict';
-
+	
 	module.exports = {
-
+	
 	    target: ':checkbox,:radio',
-
+	
 	    test: 'bind',
-
+	
 	    handle: function (value) {
 	        if (_.isArray(value)) {
 	            value = value[value.length - 1];
@@ -1265,14 +1268,14 @@ var Flow =
 	 * 		</select>
 	 *
 	 */
-
+	
 	'use strict';
-
+	
 	module.exports = {
 	    target: 'input, select',
-
+	
 	    test: 'bind',
-
+	
 	    handle: function (value) {
 	        if (_.isArray(value)) {
 	            value = value[value.length - 1];
@@ -1325,20 +1328,20 @@ var Flow =
 	 *       </div>
 	 *
 	 */
-
+	
 	'use strict';
-
+	
 	module.exports = {
-
+	
 	    test: 'class',
-
+	
 	    target: '*',
-
+	
 	    handle: function (value, prop) {
 	        if (_.isArray(value)) {
 	            value = value[value.length - 1];
 	        }
-
+	
 	        var addedClasses = this.data('added-classes');
 	        if (!addedClasses) {
 	            addedClasses = {};
@@ -1346,7 +1349,7 @@ var Flow =
 	        if (addedClasses[prop]) {
 	            this.removeClass(addedClasses[prop]);
 	        }
-
+	
 	        if (_.isNumber(value)) {
 	            value = 'value-' + value;
 	        }
@@ -1365,11 +1368,11 @@ var Flow =
 	'use strict';
 	var parseUtils = __webpack_require__(13);
 	module.exports = {
-
+	
 	    test: 'repeat',
-
+	
 	    target: '*',
-
+	
 	    handle: function (value, prop) {
 	        value = ($.isPlainObject(value) ? value : [].concat(value));
 	        var loopTemplate = this.data('repeat-template');
@@ -1395,7 +1398,7 @@ var Flow =
 	            var templatedLoop = _.template(cloop, { value: dataval, key: datakey, index: datakey });
 	            var isTemplated = templatedLoop !== cloop;
 	            var nodes = $(templatedLoop);
-
+	
 	            nodes.each(function (i, newNode) {
 	                newNode = $(newNode).removeAttr('data-f-repeat');
 	                _.each(newNode.data(), function (val, key) {
@@ -1444,14 +1447,14 @@ var Flow =
 	 *      <button data-f-disabled="sampleBool">Click Me</button>
 	 *
 	 */
-
+	
 	'use strict';
-
+	
 	module.exports = {
 	    target: '*',
-
+	
 	    test: /^(?:checked|selected|async|autofocus|autoplay|controls|defer|ismap|loop|multiple|open|required|scoped)$/i,
-
+	
 	    handle: function (value, prop) {
 	        if (_.isArray(value)) {
 	            value = value[value.length - 1];
@@ -1487,15 +1490,15 @@ var Flow =
 	 *      <button data-f-disabled="sampleBool">Click Me</button>
 	 *
 	 */
-
+	
 	'use strict';
-
+	
 	module.exports = {
-
+	
 	    target: '*',
-
+	
 	    test: /^(?:disabled|hidden|readonly)$/i,
-
+	
 	    handle: function (value, prop) {
 	        if (_.isArray(value)) {
 	            value = value[value.length - 1];
@@ -1582,15 +1585,15 @@ var Flow =
 	 *          </div>
 	 *
 	 */
-
+	
 	'use strict';
-
+	
 	module.exports = {
-
+	
 	    target: '*',
-
+	
 	    test: 'bind',
-
+	
 	    handle: function (value) {
 	        var templated;
 	        var valueToTemplate = $.extend({}, value);
@@ -1652,15 +1655,15 @@ var Flow =
 	 *		<input data-f-value="sample_int"></input>
 	 *
 	 */
-
+	
 	'use strict';
-
+	
 	module.exports = {
-
+	
 	    test: '*',
-
+	
 	    target: '*',
-
+	
 	    handle: function (value, prop) {
 	        this.prop(prop, value);
 	    }
@@ -1681,11 +1684,11 @@ var Flow =
 	 * You can also create your own converters. Each converter should be a function that takes in a value or values to convert. To use your converter, `register()` it in your instance of Flow.js.
 	 *
 	 */
-
+	
 	'use strict';
-
+	
 	//TODO: Make all underscore filters available
-
+	
 	var normalize = function (alias, converter, acceptList) {
 	    var ret = [];
 	    //nomalize('flip', fn)
@@ -1716,7 +1719,7 @@ var Flow =
 	    }
 	    return ret;
 	};
-
+	
 	var matchConverter = function (alias, converter) {
 	    if (_.isString(converter.alias)) {
 	        return alias === converter.alias;
@@ -1727,12 +1730,12 @@ var Flow =
 	    }
 	    return false;
 	};
-
+	
 	var converterManager = {
 	    private: {
 	        matchConverter: matchConverter
 	    },
-
+	
 	    list: [],
 	    /**
 	     * Add a new attribute converter to this instance of Flow.js.
@@ -1763,7 +1766,7 @@ var Flow =
 	        var normalized = normalize(alias, converter, acceptList);
 	        this.list = normalized.concat(this.list);
 	    },
-
+	
 	    /**
 	     * Replace an already registered converter with a new one of the same name.
 	     *
@@ -1780,13 +1783,13 @@ var Flow =
 	        });
 	        this.list.splice(index, 1, normalize(alias, converter)[0]);
 	    },
-
+	
 	    getConverter: function (alias) {
 	        return _.find(this.list, function (converter) {
 	            return matchConverter(alias, converter);
 	        });
 	    },
-
+	
 	    /**
 	     * Pipes the value sequentially through a list of provided converters.
 	     *
@@ -1801,10 +1804,10 @@ var Flow =
 	        }
 	        list = [].concat(list);
 	        list = _.invoke(list, 'trim');
-
+	
 	        var currentValue = value;
 	        var me = this;
-
+	
 	        var convertArray = function (converter, val, converterName) {
 	            return _.map(val, function (v) {
 	                return converter.convert(v, converterName);
@@ -1837,7 +1840,7 @@ var Flow =
 	        });
 	        return currentValue;
 	    },
-
+	
 	    /**
 	     * Counter-part to `convert()`. Translates converted values back to their original form.
 	     *
@@ -1851,7 +1854,7 @@ var Flow =
 	        }
 	        list = [].concat(list).reverse();
 	        list = _.invoke(list, 'trim');
-
+	
 	        var currentValue = value;
 	        var me = this;
 	        _.each(list, function (converterName) {
@@ -1863,8 +1866,8 @@ var Flow =
 	        return currentValue;
 	    }
 	};
-
-
+	
+	
 	//Bootstrap
 	var defaultconverters = [
 	    __webpack_require__(23),
@@ -1873,7 +1876,7 @@ var Flow =
 	    __webpack_require__(26),
 	    __webpack_require__(27),
 	];
-
+	
 	$.each(defaultconverters.reverse(), function (index, converter) {
 	    if (_.isArray(converter)) {
 	        _.each(converter, function (c) {
@@ -1883,7 +1886,7 @@ var Flow =
 	        converterManager.register(converter);
 	    }
 	});
-
+	
 	module.exports = converterManager;
 
 
@@ -1902,7 +1905,7 @@ var Flow =
 	 * * Use the `|` (pipe) character within the value of any `data-f-` attribute (not just `data-f-bind` or `data-f-foreach`).
 	 *
 	 */
-
+	
 	'use strict';
 	module.exports = {
 	    /**
@@ -1940,10 +1943,10 @@ var Flow =
 	 *
 	 * For model variables that are strings (or that have been converted to strings), there are several special string formats you can apply.
 	 */
-
+	
 	'use strict';
 	module.exports = {
-
+	
 	    /**
 	     * Convert the model variable to a string. Often used for chaining to another converter.
 	     *
@@ -1959,7 +1962,7 @@ var Flow =
 	    s: function (val) {
 	        return val + '';
 	    },
-
+	
 	    /**
 	     * Convert the model variable to UPPER CASE.
 	     *
@@ -1975,7 +1978,7 @@ var Flow =
 	    upperCase: function (val) {
 	        return (val + '').toUpperCase();
 	    },
-
+	
 	    /**
 	     * Convert the model variable to lower case.
 	     *
@@ -1991,7 +1994,7 @@ var Flow =
 	    lowerCase: function (val) {
 	        return (val + '').toLowerCase();
 	    },
-
+	
 	    /**
 	     * Convert the model variable to Title Case.
 	     *
@@ -2028,8 +2031,8 @@ var Flow =
 	 * In general, if the model variable is an array, the converter is applied to each element of the array. There are a few built in array converters which, rather than converting all elements of an array, select particular elements from within the array or otherwise treat array variables specially.
 	 *
 	 */
-
-
+	
+	
 	'use strict';
 	var list = [
 	    {
@@ -2122,7 +2125,7 @@ var Flow =
 	        }
 	    }
 	];
-
+	
 	_.each(list, function (item) {
 	   var oldfn = item.convert;
 	   var newfn = function (val) {
@@ -2143,7 +2146,7 @@ var Flow =
 
 	'use strict';
 	var list = [];
-
+	
 	var supported = [
 	    'values', 'keys', 'compact', 'difference',
 	    'flatten', 'rest',
@@ -2235,18 +2238,18 @@ var Flow =
 	 *      <span type="text" data-f-bind="price[car] | s0.0"></span>
 	 *
 	 */
-
+	
 	'use strict';
 	module.exports = {
 	    alias: function (name) {
 	        //TODO: Fancy regex to match number formats here
 	        return (name.indexOf('#') !== -1 || name.indexOf('0') !== -1);
 	    },
-
+	
 	    parse: function (val) {
 	        val+= '';
 	        var isNegative = val.charAt(0) === '-';
-
+	
 	        val  = val.replace(/,/g, '');
 	        var floatMatcher = /([-+]?[0-9]*\.?[0-9]+)(K?M?B?%?)/i;
 	        var results = floatMatcher.exec(val);
@@ -2257,7 +2260,7 @@ var Flow =
 	        if (results && results[2]) {
 	            suffix = results[2].toLowerCase();
 	        }
-
+	
 	        switch (suffix) {
 	            case '%':
 	                number = number / 100;
@@ -2278,17 +2281,17 @@ var Flow =
 	        }
 	        return number;
 	    },
-
+	
 	    convert: (function (value) {
 	        var scales = ['', 'K', 'M', 'B', 'T'];
-
+	
 	        function getDigits(value, digits) {
 	            value = value === 0 ? 0 : roundTo(value, Math.max(0, digits - Math.ceil(Math.log(value) / Math.LN10)));
-
+	
 	            var TXT = '';
 	            var numberTXT = value.toString();
 	            var decimalSet = false;
-
+	
 	            for (var iTXT = 0; iTXT < numberTXT.length; iTXT++) {
 	                TXT += numberTXT.charAt(iTXT);
 	                if (numberTXT.charAt(iTXT) === '.') {
@@ -2296,12 +2299,12 @@ var Flow =
 	                } else {
 	                    digits--;
 	                }
-
+	
 	                if (digits <= 0) {
 	                    return TXT;
 	                }
 	            }
-
+	
 	            if (!decimalSet) {
 	                TXT += '.';
 	            }
@@ -2311,13 +2314,13 @@ var Flow =
 	            }
 	            return TXT;
 	        }
-
+	
 	        function addDecimals(value, decimals, minDecimals, hasCommas) {
 	            hasCommas = (hasCommas === false) ? false : true;
 	            var numberTXT = value.toString();
 	            var hasDecimals = (numberTXT.split('.').length > 1);
 	            var iDec = 0;
-
+	
 	            if (hasCommas) {
 	                for (var iChar = numberTXT.length - 1; iChar > 0; iChar--) {
 	                    if (hasDecimals) {
@@ -2329,7 +2332,7 @@ var Flow =
 	                        }
 	                    }
 	                }
-
+	
 	            }
 	            if (decimals > 0) {
 	                var toADD;
@@ -2341,7 +2344,7 @@ var Flow =
 	                } else {
 	                    toADD = minDecimals - numberTXT.split('.')[1].length;
 	                }
-
+	
 	                while (toADD > 0) {
 	                    numberTXT += '0';
 	                    toADD--;
@@ -2349,20 +2352,20 @@ var Flow =
 	            }
 	            return numberTXT;
 	        }
-
+	
 	        function roundTo(value, digits) {
 	            return Math.round(value * Math.pow(10, digits)) / Math.pow(10, digits);
 	        }
-
+	
 	        function getSuffix(formatTXT) {
 	            formatTXT = formatTXT.replace('.', '');
 	            var fixesTXT = formatTXT.split(new RegExp('[0|,|#]+', 'g'));
 	            return (fixesTXT.length > 1) ? fixesTXT[1].toString() : '';
 	        }
-
+	
 	        function isCurrency(string) {
 	            var s = $.trim(string);
-
+	
 	            if (s === '$' ||
 	                s === 'â‚¬' ||
 	                s === 'Â¥' ||
@@ -2376,13 +2379,13 @@ var Flow =
 	                s === 'Æ’' ||
 	                s === 'â‚©' ||
 	                s === 'â‚«') {
-
+	
 	                return true;
 	            }
-
+	
 	            return false;
 	        }
-
+	
 	        function format(number, formatTXT) {
 	            if (_.isArray(number)) {
 	                number = number[number.length - 1];
@@ -2390,49 +2393,49 @@ var Flow =
 	            if (!_.isString(number) && !_.isNumber(number)) {
 	                return number;
 	            }
-
+	
 	            if (!formatTXT || formatTXT.toLowerCase() === 'default') {
 	                return number.toString();
 	            }
-
+	
 	            if (isNaN(number)) {
 	                return '?';
 	            }
-
+	
 	            //var formatTXT;
 	            formatTXT = formatTXT.replace('&euro;', 'â‚¬');
-
+	
 	            // Divide +/- Number Format
 	            var formats = formatTXT.split(';');
 	            if (formats.length > 1) {
 	                return format(Math.abs(number), formats[((number >= 0) ? 0 : 1)]);
 	            }
-
+	
 	            // Save Sign
 	            var sign = (number >= 0) ? '' : '-';
 	            number = Math.abs(number);
-
-
+	
+	
 	            var leftOfDecimal = formatTXT;
 	            var d = leftOfDecimal.indexOf('.');
 	            if (d > -1) {
 	                leftOfDecimal = leftOfDecimal.substring(0, d);
 	            }
-
+	
 	            var normalized = leftOfDecimal.toLowerCase();
 	            var index = normalized.lastIndexOf('s');
 	            var isShortFormat = index > -1;
-
+	
 	            if (isShortFormat) {
 	                var nextChar = leftOfDecimal.charAt(index + 1);
 	                if (nextChar === ' ') {
 	                    isShortFormat = false;
 	                }
 	            }
-
+	
 	            var leadingText = isShortFormat ? formatTXT.substring(0, index) : '';
 	            var rightOfPrefix = isShortFormat ? formatTXT.substr(index + 1) : formatTXT.substr(index);
-
+	
 	            //first check to make sure 's' is actually short format and not part of some leading text
 	            if (isShortFormat) {
 	                var shortFormatTest = /[0-9#*]/;
@@ -2443,7 +2446,7 @@ var Flow =
 	                    leadingText = '';
 	                }
 	            }
-
+	
 	            //if (formatTXT.charAt(0) == 's')
 	            if (isShortFormat) {
 	                var valScale = number === 0 ? 0 : Math.floor(Math.log(Math.abs(number)) / (3 * Math.LN10));
@@ -2452,7 +2455,7 @@ var Flow =
 	                valScale = Math.min(valScale, 4);
 	                number = number / Math.pow(10, 3 * valScale);
 	                //if (!isNaN(Number(formatTXT.substr(1) ) ) )
-
+	
 	                if (!isNaN(Number(rightOfPrefix)) && rightOfPrefix.indexOf('.') === -1) {
 	                    var limitDigits = Number(rightOfPrefix);
 	                    if (number < Math.pow(10, limitDigits)) {
@@ -2473,17 +2476,17 @@ var Flow =
 	                    formatTXT = formatTXT.substr(index + 1);
 	                    var SUFFIX = getSuffix(formatTXT);
 	                    formatTXT = formatTXT.substr(0, formatTXT.length - SUFFIX.length);
-
+	
 	                    var valWithoutLeading = format(((sign === '') ? 1 : -1) * number, formatTXT) + scales[valScale] + SUFFIX;
 	                    if (isCurrency(leadingText) && sign !== '') {
 	                        valWithoutLeading = valWithoutLeading.substr(sign.length);
 	                        return sign + leadingText + valWithoutLeading;
 	                    }
-
+	
 	                    return leadingText + valWithoutLeading;
 	                }
 	            }
-
+	
 	            var subFormats = formatTXT.split('.');
 	            var decimals;
 	            var minDecimals;
@@ -2494,24 +2497,24 @@ var Flow =
 	            } else {
 	                decimals = 0;
 	            }
-
+	
 	            var fixesTXT = formatTXT.split(new RegExp('[0|,|#]+', 'g'));
 	            var preffix = fixesTXT[0].toString();
 	            var suffix = (fixesTXT.length > 1) ? fixesTXT[1].toString() : '';
-
+	
 	            number = number * ((formatTXT.split('%').length > 1) ? 100 : 1);
 	            //            if (formatTXT.indexOf('%') !== -1) number = number * 100;
 	            number = roundTo(number, decimals);
-
+	
 	            sign = (number === 0) ? '' : sign;
-
+	
 	            var hasCommas = (formatTXT.substr(formatTXT.length - 4 - suffix.length, 1) === ',');
 	            var formatted = sign + preffix + addDecimals(number, decimals, minDecimals, hasCommas) + suffix;
-
+	
 	            //  console.log(originalNumber, originalFormat, formatted)
 	            return formatted;
 	        }
-
+	
 	        return format;
 	    }())
 	};
@@ -2522,9 +2525,9 @@ var Flow =
 /***/ function(module, exports) {
 
 	'use strict';
-
+	
 	module.exports = {
-
+	
 	    match: function (matchExpr, matchValue, context) {
 	        if (_.isString(matchExpr)) {
 	            return (matchExpr === '*' || (matchExpr.toLowerCase() === matchValue.toLowerCase()));
@@ -2534,10 +2537,10 @@ var Flow =
 	            return matchValue.match(matchExpr);
 	        }
 	    },
-
+	
 	    getConvertersList: function ($el, property) {
 	        var attrConverters = $el.data('f-convert-' + property);
-
+	
 	        if (!attrConverters && (property === 'bind' || property === 'foreach')) {
 	            attrConverters = $el.data('f-convert');
 	            if (!attrConverters) {
@@ -2550,7 +2553,7 @@ var Flow =
 	                attrConverters = _.invoke(attrConverters.split('|'), 'trim');
 	            }
 	        }
-
+	
 	        return attrConverters;
 	    }
 	};
@@ -2561,21 +2564,21 @@ var Flow =
 /***/ function(module, exports) {
 
 	'use strict';
-
+	
 	module.exports = function (target, domManager) {
 	    if (!window.MutationObserver) {
 	        return false;
 	    }
-
+	
 	    // Create an observer instance
 	    var observer = new MutationObserver(function (mutations) {
 	      mutations.forEach(function (mutation) {
 	        var added = $(mutation.addedNodes).find(':f');
 	        added = added.add($(mutation.addedNodes).filter(':f'));
-
+	
 	        var removed = $(mutation.removedNodes).find(':f');
 	        removed = removed.add($(mutation.removedNodes).filter(':f'));
-
+	
 	        if (added && added.length) {
 	            // console.log('mutation observer added', added.get(), mutation.addedNodes);
 	            domManager.bindAll(added);
@@ -2586,7 +2589,7 @@ var Flow =
 	        }
 	      });
 	    });
-
+	
 	    var mutconfig = {
 	        attributes: false,
 	        childList: true,
@@ -2604,29 +2607,29 @@ var Flow =
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
-
+	
 	var VarsChannel = __webpack_require__(31);
 	var OperationsChannel = __webpack_require__(32);
-
+	
 	module.exports = function (options) {
 	    var defaults = {
 	        run: {
 	            variables: {
-
+	
 	            },
 	            operations: {
-
+	
 	            }
 	        }
 	    };
 	    var config = $.extend(true, {}, defaults, options);
-
+	
 	    var rm = new F.manager.RunManager(config);
 	    var rs = rm.run;
-
+	
 	    var $creationPromise = rm.getRun();
 	    rs.currentPromise = $creationPromise;
-
+	
 	    // $creationPromise
 	    //     .then(function () {
 	    //         console.log('done');
@@ -2634,7 +2637,7 @@ var Flow =
 	    //     .fail(function () {
 	    //         console.log('failt');
 	    //     });
-
+	
 	    var createAndThen = function (fn, context) {
 	        return _.wrap(fn, function (func) {
 	            var passedInParams = _.toArray(arguments).slice(1);
@@ -2648,7 +2651,7 @@ var Flow =
 	            });
 	        });
 	    };
-
+	
 	    //Make sure nothing happens before the run is created
 	    var nonWrapped = ['variables', 'create', 'load', 'getCurrentConfig'];
 	    _.each(rs, function (value, name) {
@@ -2656,7 +2659,7 @@ var Flow =
 	            rs[name] = createAndThen(value, rs);
 	        }
 	    });
-
+	
 	    var originalVariablesFn = rs.variables;
 	    rs.variables = function () {
 	        var vs = originalVariablesFn.apply(rs, arguments);
@@ -2667,12 +2670,12 @@ var Flow =
 	        });
 	        return vs;
 	    };
-
+	
 	    this.run = rs;
 	    var varOptions = config.run.variables;
 	    this.variables = new VarsChannel($.extend(true, {}, varOptions, { run: rs }));
 	    this.operations = new OperationsChannel($.extend(true, {}, config.run.operations, { run: rs }));
-
+	
 	    var me = this;
 	    var debouncedRefresh = _.debounce(function (data) {
 	        me.variables.refresh.call(me.variables, null, true);
@@ -2680,7 +2683,7 @@ var Flow =
 	            me.variables.startAutoFetch();
 	        }
 	    }, 200, { leading: true });
-
+	
 	    this.operations.subscribe('*', debouncedRefresh);
 	};
 
@@ -2717,10 +2720,10 @@ var Flow =
 	 * To use the Variables Channel, simply [initialize Flow.js in your project](../../../#custom-initialize).
 	 *
 	*/
-
+	
 	'use strict';
 	var config = __webpack_require__(2);
-
+	
 	module.exports = function (options) {
 	    var defaults = {
 	        /**
@@ -2753,7 +2756,7 @@ var Flow =
 	         * @type {String|Array|Object}
 	         */
 	        silent: false,
-
+	
 	        /**
 	         * Allows you to automatically fetch variables from the API as they're being subscribed. If this is set to `enable: false` you'll need to explicitly call `refresh()` to get data and notify your listeners.
 	         *
@@ -2766,35 +2769,35 @@ var Flow =
 	         * @type {Object}
 	         */
 	        autoFetch: {
-
+	
 	             // Enable auto-fetch behavior. If set to `false` during instantiation there's no way to enable this again
 	             // @type {Boolean}
 	            enable: true,
-
+	
 	             // If auto-fetch is enabled, control when to start fetching. Typically you'd want to start right away, but if you want to wait till something else happens (like an operation or user action) set to `false` and control using the `startAutoFetch()` function.
 	             // @type {Boolean}
 	            start: true,
-
+	
 	             // Control time to wait between calls to `subscribe()` before calling `fetch()`. See [http://drupalmotion.com/article/debounce-and-throttle-visual-explanation](http://drupalmotion.com/article/debounce-and-throttle-visual-explanation) for an explanation of how debouncing works.
 	             // @type {Number} Milliseconds to wait
 	            debounce: 200
 	        },
-
+	
 	        interpolate: {}
 	    };
-
+	
 	    var channelOptions = $.extend(true, {}, defaults, options);
 	    this.options = channelOptions;
-
+	
 	    var vs = channelOptions.run.variables();
-
+	
 	    var currentData = {};
-
+	
 	    //TODO: actually compare objects and so on
 	    var isEqual = function (a, b) {
 	        return false;
 	    };
-
+	
 	    var getInnerVariables = function (str) {
 	        var inner = str.match(/<(.*?)>/g);
 	        inner = _.map(inner, function (val) {
@@ -2802,14 +2805,14 @@ var Flow =
 	        });
 	        return inner;
 	    };
-
+	
 	    //Replaces stubbed out keynames in variablestointerpolate with their corresponding values
 	    var interpolate = function (variablesToInterpolate, values) {
 	        //{price[1]: price[<time>]}
 	        var interpolationMap = {};
 	        //{price[1]: 1}
 	        var interpolated = {};
-
+	
 	        _.each(variablesToInterpolate, function (outerVariable) {
 	            var inner = getInnerVariables(outerVariable);
 	            var originalOuter = outerVariable;
@@ -2829,14 +2832,14 @@ var Flow =
 	            }
 	            interpolated[originalOuter] = outerVariable;
 	        });
-
+	
 	        var op = {
 	            interpolated: interpolated,
 	            interpolationMap: interpolationMap
 	        };
 	        return op;
 	    };
-
+	
 	    var publicAPI = {
 	        //for testing
 	        private: {
@@ -2845,11 +2848,11 @@ var Flow =
 	            currentData: currentData,
 	            options: channelOptions
 	        },
-
+	
 	        subscriptions: [],
-
+	
 	        unfetched: [],
-
+	
 	        getSubscribers: function (topic) {
 	            if (topic) {
 	                return _.filter(this.subscriptions, function (subs) {
@@ -2875,7 +2878,7 @@ var Flow =
 	            });
 	            return innerList;
 	        },
-
+	
 	        updateAndCheckForRefresh: function (topics, options) {
 	            if (topics) {
 	                this.unfetched = _.uniq(this.unfetched.concat(topics));
@@ -2888,7 +2891,7 @@ var Flow =
 	                    maxWait: channelOptions.autoFetch.debounce * 4,
 	                    leading: false
 	                }, options);
-
+	
 	                this.debouncedFetch = _.debounce(function (topics) {
 	                    this.fetch(this.unfetched).then(function (changed) {
 	                        $.extend(currentData, changed);
@@ -2897,10 +2900,10 @@ var Flow =
 	                    }.bind(this));
 	                }, channelOptions.autoFetch.debounce, debounceOptions);
 	            }
-
+	
 	            this.debouncedFetch(topics);
 	        },
-
+	
 	        populateInnerVariables: function (vars) {
 	            var unmappedVariables = [];
 	            var valueList = {};
@@ -2920,7 +2923,7 @@ var Flow =
 	                return $.Deferred().resolve(valueList).promise();
 	            }
 	        },
-
+	
 	        fetch: function (variablesList) {
 	            // console.log('fetch called', variablesList);
 	            variablesList = [].concat(variablesList);
@@ -2958,16 +2961,16 @@ var Flow =
 	                return getVariables(variablesList);
 	            }
 	        },
-
+	
 	        startAutoFetch: function () {
 	            channelOptions.autoFetch.start = true;
 	            this.updateAndCheckForRefresh();
 	        },
-
+	
 	        stopAutoFetch: function () {
 	            channelOptions.autoFetch.start = false;
 	        },
-
+	
 	        /**
 	         * Force a check for updates on the channel, and notify all listeners.
 	         *
@@ -2978,7 +2981,7 @@ var Flow =
 	            var me = this;
 	            var silent = channelOptions.silent;
 	            var changedVariables = _.isArray(changeList) ?  changeList : _.keys(changeList);
-
+	
 	            var shouldSilence = silent === true;
 	            if (_.isArray(silent) && changedVariables) {
 	                shouldSilence = _.intersection(silent, changedVariables).length >= 1;
@@ -2986,20 +2989,20 @@ var Flow =
 	            if ($.isPlainObject(silent) && changedVariables) {
 	                shouldSilence = _.intersection(silent.except, changedVariables).length !== changedVariables.length;
 	            }
-
+	
 	            if (shouldSilence && force !== true) {
 	                return $.Deferred().resolve().promise();
 	            }
-
+	
 	            var variables = this.getAllTopics();
 	            me.unfetched = [];
-
+	
 	            return this.fetch(variables).then(function (changeSet) {
 	                $.extend(currentData, changeSet);
 	                me.notify(changeSet);
 	            });
 	        },
-
+	
 	        /**
 	         * Alert each subscriber about the variable and its new value.
 	         *
@@ -3018,7 +3021,7 @@ var Flow =
 	                    target.trigger(config.events.react, params);
 	                }
 	            };
-
+	
 	            if (!$.isPlainObject(topics)) {
 	                topics = _.object([topics], [value]);
 	            }
@@ -3039,7 +3042,7 @@ var Flow =
 	                }
 	            });
 	        },
-
+	
 	        /**
 	         * Update the variables with new values, and alert subscribers.
 	         *
@@ -3064,7 +3067,7 @@ var Flow =
 	                (attrs = {})[variable] = value;
 	            }
 	            var it = interpolate(_.keys(attrs), currentData);
-
+	
 	            var toSave = {};
 	            _.each(attrs, function (val, attr) {
 	               var key = (it.interpolated[attr]) ? it.interpolated[attr] : attr;
@@ -3078,7 +3081,7 @@ var Flow =
 	                    }
 	                });
 	        },
-
+	
 	        /**
 	         * Subscribe to changes on a channel: Ask for notification when variables are updated.
 	         *
@@ -3113,26 +3116,26 @@ var Flow =
 	            var defaults = {
 	                batch: false
 	            };
-
+	
 	            topics = [].concat(topics);
 	            //use jquery to make event sink
 	            if (!subscriber.on && !_.isFunction(subscriber)) {
 	                subscriber = $(subscriber);
 	            }
-
+	
 	            var id  = _.uniqueId('epichannel.variable');
 	            var data = $.extend({
 	                id: id,
 	                topics: topics,
 	                target: subscriber
 	            }, defaults, options);
-
+	
 	            this.subscriptions.push(data);
-
+	
 	            this.updateAndCheckForRefresh(topics);
 	            return id;
 	        },
-
+	
 	        /**
 	         * Stop receiving notifications for all subscriptions referenced by this token.
 	         *
@@ -3143,7 +3146,7 @@ var Flow =
 	                return subs.id === token;
 	            });
 	        },
-
+	
 	        /**
 	         * Stop receiving notifications for all subscriptions. No parameters.
 	         *
@@ -3153,7 +3156,7 @@ var Flow =
 	            this.subscriptions = [];
 	        }
 	    };
-
+	
 	    $.extend(this, publicAPI);
 	};
 
@@ -3190,11 +3193,11 @@ var Flow =
 	 * To use the Operations Channel, simply [initialize Flow.js in your project](../../../#custom-initialize).
 	 *
 	*/
-
-
+	
+	
 	'use strict';
 	var config = __webpack_require__(2);
-
+	
 	module.exports = function (options) {
 	    var defaults = {
 	        /**
@@ -3227,29 +3230,29 @@ var Flow =
 	         * @type {String|Array|Object}
 	         */
 	        silent: false,
-
+	
 	        interpolate: {}
 	    };
-
+	
 	    var channelOptions = $.extend(true, {}, defaults, options);
 	    this.options = channelOptions;
-
+	
 	    var run = channelOptions.run;
-
+	
 	    var publicAPI = {
 	        //for testing
 	        private: {
 	            options: channelOptions
 	        },
-
+	
 	        listenerMap: {},
-
+	
 	        getSubscribers: function (topic) {
 	            var topicSubscribers = this.listenerMap[topic] || [];
 	            var globalSubscribers = this.listenerMap['*'] || [];
 	            return topicSubscribers.concat(globalSubscribers);
 	        },
-
+	
 	        //Check for updates
 	        /**
 	         * Force a check for updates on the channel, and notify all listeners.
@@ -3261,7 +3264,7 @@ var Flow =
 	        refresh: function (executedOpns, response, force) {
 	            // console.log('Operations refresh', executedOpns);
 	            var silent = channelOptions.silent;
-
+	
 	            var toNotify = executedOpns;
 	            if (force === true) {
 	            } else if (silent === true) {
@@ -3271,12 +3274,12 @@ var Flow =
 	            } else if ($.isPlainObject(silent) && executedOpns) {
 	                toNotify = _.intersection(silent.except, executedOpns);
 	            }
-
+	
 	            _.each(toNotify, function (opn) {
 	                this.notify(opn, response);
 	            }, this);
 	        },
-
+	
 	        /**
 	         * Alert each subscriber about the operation and its parameters. This can be used to provide an update without a round trip to the server. However, it is rarely used: you almost always want to `subscribe()` instead so that the operation is actually called in the model.
 	         *
@@ -3291,7 +3294,7 @@ var Flow =
 	            var listeners = this.getSubscribers(operation);
 	            var params = {};
 	            params[operation] = value;
-
+	
 	            _.each(listeners, function (listener) {
 	                var target = listener.target;
 	                if (_.isFunction(target)) {
@@ -3303,7 +3306,7 @@ var Flow =
 	                }
 	            });
 	        },
-
+	
 	        interpolate: function (params) {
 	            var ip = this.options.interpolate;
 	            var match = function (p) {
@@ -3315,7 +3318,7 @@ var Flow =
 	            };
 	            return ($.isArray(params)) ? _.map(params, match) : match(params);
 	        },
-
+	
 	        /**
 	         * Call the operation with parameters, and alert subscribers.
 	         *
@@ -3361,7 +3364,7 @@ var Flow =
 	            }
 	            // console.log('operations publish', operation, params);
 	        },
-
+	
 	        /**
 	         * Subscribe to changes on a channel: Ask for notification when operations are called.
 	         *
@@ -3382,25 +3385,25 @@ var Flow =
 	            if (!subscriber.on && !_.isFunction(subscriber)) {
 	                subscriber = $(subscriber);
 	            }
-
+	
 	            var id  = _.uniqueId('epichannel.operation');
 	            var data = {
 	                id: id,
 	                target: subscriber
 	            };
-
+	
 	            var me = this;
-
+	
 	            $.each(operations, function (index, opn) {
 	                if (!me.listenerMap[opn]) {
 	                    me.listenerMap[opn] = [];
 	                }
 	                me.listenerMap[opn] = me.listenerMap[opn].concat(data);
 	            });
-
+	
 	            return id;
 	        },
-
+	
 	        /**
 	         * Stop receiving notification when an operation is called.
 	         *
@@ -3412,7 +3415,7 @@ var Flow =
 	                return subs.id === token;
 	            });
 	        },
-
+	
 	        /**
 	         * Stop receiving notifications for all operations. No parameters.
 	         *
@@ -3428,3 +3431,4 @@ var Flow =
 
 /***/ }
 /******/ ]);
+//# sourceMappingURL=flow.js.map

@@ -100,7 +100,7 @@ module.exports = function (options) {
     var currentData = {};
 
     //TODO: actually compare objects and so on
-    var isEqual = function (a, b) {
+    var isEqual = function () {
         return false;
     };
 
@@ -125,7 +125,7 @@ module.exports = function (options) {
             if (inner && inner.length) {
                 $.each(inner, function (index, innerVariable) {
                     var thisval = values[innerVariable];
-                    if (thisval !== null && thisval !== undefined) {
+                    if (thisval !== null && (typeof thisval !== 'undefined')) {
                         if (_.isArray(thisval)) {
                             //For arrayed things get the last one for interpolation purposes
                             thisval = thisval[thisval.length - 1];
@@ -164,9 +164,8 @@ module.exports = function (options) {
                 return _.filter(this.subscriptions, function (subs) {
                     return _.contains(subs.topics, topic);
                 });
-            } else {
-                return this.subscriptions;
             }
+            return this.subscriptions;
         },
         getAllTopics: function () {
             return _(this.subscriptions).pluck('topics').flatten().uniq().value();
@@ -193,12 +192,13 @@ module.exports = function (options) {
                 return false;
             }
             if (!this.debouncedFetch) {
+                var DELAY_FACTOR = 4;
                 var debounceOptions = $.extend(true, {}, {
-                    maxWait: channelOptions.autoFetch.debounce * 4,
+                    maxWait: channelOptions.autoFetch.debounce * DELAY_FACTOR,
                     leading: false
                 }, options);
 
-                this.debouncedFetch = _.debounce(function (topics) {
+                this.debouncedFetch = _.debounce(function () {
                     this.fetch(this.unfetched).then(function (changed) {
                         $.extend(currentData, changed);
                         this.unfetched = [];
@@ -214,7 +214,7 @@ module.exports = function (options) {
             var unmappedVariables = [];
             var valueList = {};
             _.each(vars, function (v) {
-                if (this.options.interpolate[v] !== undefined) {
+                if (typeof this.options.interpolate[v] !== 'undefined') {
                     var val = _.isFunction(this.options.interpolate[v]) ? this.options.interpolate[v](v) : this.options.interpolate[v];
                     valueList[v] = val;
                 } else {
@@ -225,9 +225,8 @@ module.exports = function (options) {
                 return vs.query(unmappedVariables).then(function (variableValueList) {
                     return $.extend(valueList, variableValueList);
                 });
-            } else {
-                return $.Deferred().resolve(valueList).promise();
             }
+            return $.Deferred().resolve(valueList).promise();
         },
 
         fetch: function (variablesList) {
@@ -260,12 +259,11 @@ module.exports = function (options) {
                 return this.populateInnerVariables(innerVariables).then(function (innerVariables) {
                     //console.log('inner', innerVariables);
                     $.extend(currentData, innerVariables);
-                    var ip =  interpolate(variablesList, innerVariables);
+                    var ip = interpolate(variablesList, innerVariables);
                     return getVariables(_.values(ip.interpolated), ip.interpolationMap);
                 });
-            } else {
-                return getVariables(variablesList);
             }
+            return getVariables(variablesList);
         },
 
         startAutoFetch: function () {
@@ -282,11 +280,12 @@ module.exports = function (options) {
          *
          * @param {Object|Array} changeList Key-value pairs of changed variables.
          * @param {Boolean} force  Ignore all `silent` options and force refresh.
+         * @returns {promise} Promise on completion
          */
         refresh: function (changeList, force) {
             var me = this;
             var silent = channelOptions.silent;
-            var changedVariables = _.isArray(changeList) ?  changeList : _.keys(changeList);
+            var changedVariables = _.isArray(changeList) ? changeList : _.keys(changeList);
 
             var shouldSilence = silent === true;
             if (_.isArray(silent) && changedVariables) {
@@ -318,11 +317,12 @@ module.exports = function (options) {
          *
          * @param {String|Array} topics Names of variables.
          * @param {String|Number|Array|Object} value New values for the variables.
+         * @returns {undefined}
         */
         notify: function (topics, value) {
             var callTarget = function (target, params) {
                 if (_.isFunction(target)) {
-                    target.call(null, params);
+                    target(params);
                 } else {
                     target.trigger(config.events.react, params);
                 }
@@ -376,14 +376,14 @@ module.exports = function (options) {
 
             var toSave = {};
             _.each(attrs, function (val, attr) {
-               var key = (it.interpolated[attr]) ? it.interpolated[attr] : attr;
-               toSave[key] = val;
+                var key = (it.interpolated[attr]) ? it.interpolated[attr] : attr;
+                toSave[key] = val;
             });
             var me = this;
-            return vs.save.call(vs, toSave)
+            return vs.save(toSave)
                 .then(function () {
                     if (!options || !options.silent) {
-                        me.refresh.call(me, attrs);
+                        me.refresh(attrs);
                     }
                 });
         },
@@ -429,7 +429,7 @@ module.exports = function (options) {
                 subscriber = $(subscriber);
             }
 
-            var id  = _.uniqueId('epichannel.variable');
+            var id = _.uniqueId('epichannel.variable');
             var data = $.extend({
                 id: id,
                 topics: topics,
@@ -446,6 +446,7 @@ module.exports = function (options) {
          * Stop receiving notifications for all subscriptions referenced by this token.
          *
          * @param {String} token The identifying token for this subscription. (Created and returned by the `subscribe()` call.)
+         * @returns {undefined}
         */
         unsubscribe: function (token) {
             this.subscriptions = _.reject(this.subscriptions, function (subs) {
@@ -456,7 +457,7 @@ module.exports = function (options) {
         /**
          * Stop receiving notifications for all subscriptions. No parameters.
          *
-         * @return {None}
+         * @returns {undefined}
         */
         unsubscribeAll: function () {
             this.subscriptions = [];

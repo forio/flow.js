@@ -12,7 +12,7 @@ module.exports = {
         var id = '';
         if (!loopTemplate) {
             loopTemplate = this.get(0).outerHTML;
-            id =  _.uniqueId('repeat-');
+            id = _.uniqueId('repeat-');
             this.data({
                 'repeat-template': loopTemplate,
                 'repeat-template-id': id

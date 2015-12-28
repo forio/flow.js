@@ -116,6 +116,6 @@ var Flow = {
         }, options.dom));
     }
 };
-
-Flow.version = RELEASE_VERSION;
+//set by grunt
+Flow.version = RELEASE_VERSION; //eslint-disable-line no-undef
 module.exports = Flow;
