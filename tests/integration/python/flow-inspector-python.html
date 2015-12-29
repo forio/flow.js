@@ -1,0 +1,48 @@
+<html>
+<head>
+<title>Flow Inspector Test</title>
+
+<script src="../../../vendor/lodash/dist/lodash.js"></script>
+<script src="../../../vendor/jquery/dist/jquery.min.js"></script>
+
+
+</head>
+
+
+<body data-f-model="model.py">
+
+<script src="https://forio.com/tools/js-libs/next/epicenter.min.js"></script>
+<script src="../../../dist/flow.js"></script>
+<link rel="stylesheet" href="../../../dist/add-ons/flow-inspector.css">
+<script src="../../../dist/add-ons/flow-inspector.min.js"></script>	
+
+    <script>
+
+        'use strict';
+        Flow.initialize({
+            channel: { 
+                strategy: 'always-new' ,
+                run: {
+                    account: 'mjones',
+                    project: 'fml-test',
+                    server: { host: 'api.forio.com' }
+                }
+            }
+        });
+        new window.Flow.Inspector('body');
+
+    </script>
+
+<p>This button uses an operation that has one line: </p>
+<div><button data-f-on-click="saveDecisions">Save Decisions</button></div>
+
+
+<p>This button uses an operation that has multiple lines, plus some whitespace in between: </p>
+<div><button data-f-on-click="applyDecisions">Apply Decisions</button></div>
+
+<p>(Neither button will do anything -- the model is non-functional.)</p>
+
+
+
+</body>
+</html>

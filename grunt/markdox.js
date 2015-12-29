@@ -73,6 +73,10 @@ module.exports = function (grunt) {
                     src: 'src/dom/attributes/foreach/default-foreach-attr.js',
                     dest: 'documentation/generated/dom/attributes/foreach/default-foreach-attr/index.html.md'
                 },
+                {
+                    src: 'src/dom/attributes/repeat-attr.js',
+                    dest: 'documentation/generated/dom/attributes/repeat-attr/index.html.md'
+                },
                 // flow.js initialize
                 {
                     src: 'src/flow.js',

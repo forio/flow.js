@@ -1,0 +1,21 @@
+# scalars
+
+    V Expenses = 30
+    D Sales = 100
+	V Profit = Sales - Expenses
+	
+# 1d arrays
+
+	D Price[3] = {100, 150, 175}
+	V Outer[4] = {10,20,30,40}
+	V Inner[4] = {9,8,7,6}
+	
+# enum arrays
+
+	R Products = Books,CDs,Games
+	D Cost[Products] = {100, 150, 175}
+	D Projections[1..3] = {50, 75, 60}
+	
+# multid arrays
+
+    D SalesByRegion[5,2] = { {100, 200}, {300, 400}, {500, 600}, {700, 800}, {900, 1000} }

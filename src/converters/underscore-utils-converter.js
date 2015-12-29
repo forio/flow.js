@@ -5,7 +5,7 @@ var supported = [
     'values', 'keys', 'compact', 'difference',
     'flatten', 'rest',
     'union',
-    'uniq', 'zip', 'without',
+    'uniq', 'without',
     'xor', 'zip'
 ];
 _.each(supported, function (fn) {

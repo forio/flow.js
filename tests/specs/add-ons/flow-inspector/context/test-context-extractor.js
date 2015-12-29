@@ -69,6 +69,10 @@ module.exports = (function () {
                     var cont = extractor.showContext('function_within_class', true);
                     cont.should.equal(extractBetween(25, 32, code));
                 });
+                it('Should work for functions with whitespace in their declarations', function () {
+                    var cont = extractor.showContext('function_with_whitespace', true);
+                    cont.should.equal(extractBetween(53, 71, code));
+                });
             });
             describe('Variables', function () {
                 it('Should work with single-line variables', function () {

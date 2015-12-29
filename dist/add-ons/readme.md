@@ -1,4 +1,0 @@
-<h2> Flow Inspector</h2>
-<p>
-    Bookmark this <a href="javascript:!function(){if(!window.Flow)return void window.alert("FlowJS not found on page");var a=document.createElement("link");a.setAttribute("href","//forio.com/tools/js-libs/flow/next/add-ons/flow-inspector.css"),a.setAttribute("rel","stylesheet"),a.setAttribute("type","text/css"),document.getElementsByTagName("head")[0].appendChild(a);var b=function(){new window.Flow.Inspector("body")},c=document.createElement("script");c.setAttribute("src","//forio.com/tools/js-libs/flow/next/add-ons/flow-inspector.min.js"),c.onload=function(){c.onloadDone=!0,b()},c.onReadystatechange=function(){"loaded"!==c.readyState||c.onloadDone||(c.onloadDone=!0,b())},document.body.appendChild(c)}();"> Flow Inspector </a> link to be able to active the inspector for your projects.
-</p>

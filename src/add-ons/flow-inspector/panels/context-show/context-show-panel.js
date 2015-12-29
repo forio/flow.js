@@ -19,6 +19,11 @@ module.exports = function ($container, configFunction) {
         return false;
     }
 
+    if (modelType === 'eqn') {
+        console.info('Cannot view context for SimLang models.');
+        return false;
+    }
+
     var file = new F.service.File(config);
     file.getContents(config.model, 'model')
         .then(function (response) {
