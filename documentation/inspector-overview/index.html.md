@@ -1,19 +1,22 @@
 ---
-title: "Flow.js and Debugging: Working with the Flow Inspector"
+title: "Flow Inspector: Debugging with Flow.js"
 layout: "flow"
 isPage: true
 ---
 
-##Flow.js and Debugging: Working with Flow Inspector
+##Flow Inspector: Debugging with Flow.js
 
 
-Flow Inspector is an add-on component of Flow.js that allows you to easily determine which model variables are being used where and how in which Flow.js (`data-f-`) attributes in you user interface. It's a great way to help you debug problems in your UI, whether you're a front-end developer or a modeler.
+Flow Inspector is an add-on component of Flow.js that allows you to easily determine which model variables are being used where and in which Flow.js (`data-f-`) attributes in your user interface. 
+
+It's a great way to help you understand the connection between your UI and your model. It can also help to debug problems in your UI, whether you're a front-end developer or a modeler.
 
 <table>
 <tr><td>
 	<img src="../../img/flow_inspector.png" width="445" height="325" alt="Flow Inspector for Simple UI and Model">
 </td></tr>
 </table>
+<br>
 
 Read more about:
 
@@ -24,7 +27,7 @@ Read more about:
 <a name="enable"></a>
 ####Enabling Flow Inspector
 
-There are two ways to enable Flow Inspector. You can make it always enabled on a specific page, or you can add it to your browser as a bookmark, and enable it by clicking the bookmark link while you are visiting a specific page.
+There are two ways to enable Flow Inspector. You can add it to specific pages (always enabled). Or, you can add it to your browser as a bookmark, and turn it on for a specific page by clicking the bookmark link while you are visiting that page.
 
 **To add Flow Inspector to a specific page:**
 
@@ -37,7 +40,7 @@ There are two ways to enable Flow Inspector. You can make it always enabled on a
 
 		<script src="./flow-inspector.min.js"></script>
 
-4. Call the Flow Inspector in the script of your page, anytime after your call to initialize Flow:
+4. Add Flow Inspector to the body of your HTML, by placing a call in the script of your page, anytime after your call to initialize Flow:
 
 		Flow.initialize(...);
 		new window.Flow.Inspector('body');
@@ -46,40 +49,31 @@ There are two ways to enable Flow Inspector. You can make it always enabled on a
 
 **To use Flow Inspector on-demand on any page:**
 
-1. In your browser, manually add a new bookmark. 
+Click and drag the bookmarklet to your bookmarks or favorites bar.
 
-	In Chrome, you can do this by right-clicking (CTRL+clicking) the Bookmarks Bar and selecting **Add Page...**.
-	
-2. For the **Name** of your new bookmark, enter "Flow Inspector".
+TODO-ASKANDY
 
-3. For the **URL** of your new bookmark, enter the JavaScript in the `href` tag in the <a href="https://github.com/forio/flow.js/blob/master/dist/add-ons/readme.md" target="_blank">Flow Inspector Read Me</a>. (Alternatively, copy-paste it from below.) TODO-ASKNAREN.
+Now Flow Inspector will appear every time you click this bookmark. For example, go to a page in your project, where your user interface is created using Flow.js. Then, click the Flow Inspector bookmark from your Bookmarks Bar to make the Flow Inspector appear. 
 
-		javascript:!function(){if(!window.Flow)return void window.alert("FlowJS not found on page");var a=document.createElement("link");a.setAttribute("href","//forio.com/tools/js-libs/flow/next/add-ons/flow-inspector.css"),a.setAttribute("rel","stylesheet"),a.setAttribute("type","text/css"),document.getElementsByTagName("head")[0].appendChild(a);var b=function(){new window.Flow.Inspector("body")},c=document.createElement("script");c.setAttribute("src","//forio.com/tools/js-libs/flow/next/add-ons/flow-inspector.min.js"),c.onload=function(){c.onloadDone=!0,b()},c.onReadystatechange=function(){"loaded"!==c.readyState||c.onloadDone||(c.onloadDone=!0,b())},document.body.appendChild(c)}();
+Flow Inspector goes away when you reload the page, but you can re-enable it by clicking the link from your Bookmarks Bar again.
 
-
-4. Select to add the new bookmark to your Bookmarks Bar and click **OK** or **Save**.
-
-	This causes Flow Inspector to appear every time you click this bookmark. For example, go to a page in your project, where your user interface is created using Flow.js. Then, click the Flow Inspector bookmark from your Bookmarks Bar to make the Flow Inspector appear.
-	
-	Flow Inspector goes away when you reload the page, but you can re-enable it by clicking the link from your Bookmarks Bar again.
-
+(If your browser doesn't support clicking and dragging the bookmarklet, it's likely that [your browser doesn't support Flow.js anyway](../). However, you can create a bookmark manually by setting the URL to the URL in the <a href="https://github.com/forio/flow.js/blob/master/dist/add-ons/readme.md" target="_blank">Flow Inspector Read Me file on Github</a>.)
  
 <a name="features"></a>
 ####Features of Flow Inspector
 
-Once you've enabled Flow Inspector, you see two windows appear. 
-
-You can drag each window, independently, as needed.
+Once you've enabled Flow Inspector for a page in your project, you see two windows appear. You can drag each window, independently, as needed.
 
 #####Legend Window
 
-The Legend window displays a legend of different kinds of Flow.js attributes. You can choose to show all kinds of attributes (default) or uncheck a few and show only some.
+The Legend window displays a legend of different kinds of Flow.js attributes. You can choose to show all kinds of attributes (default) or  use the checkboxes to show only those you need.
 
 <table>
 <tr><td>
 	<img src="../../img/flow_inspector_legend.png" width="300" height="224" alt="Flow Inspector Legend Window">
 </td></tr>
 </table>
+<br>
 
 * The Bind Output highlights read-only elements (e.g. `<span>`) using the `data-f-bind` attribute. ([Learn more](../generated/dom/attributes/binds/default-bind-attr/).)
 * The Loop Output highlights elements using the `data-f-foreach` and `data-f-repeat` elements. ([Learn](../generated/dom/attributes/foreach/default-foreach-attr/) [more](../generated/dom/attributes/repeat-attr/).)
@@ -118,6 +112,7 @@ The Context Window of Flow Inspector provides additional data on model variables
 	<img src="../../img/flow_inspector_operation.png" width="465" height="146" alt="Flow Inspector Context Window with Operation">
 </td></tr>
 </table>
+<br>
 
-The Context Window currently only provides data for [Python](../../model_code/python/) and [Julia](../../model_code/julia/) models. However, support for [additional modeling languages](../../writing_your_model/) is expected soon, and the window itself appears regardless of modeling language. 
+The Context Window currently only provides data for [Python](../../model_code/python/) and [Julia](../../model_code/julia/) models. However, support for [additional modeling languages](../../writing_your_model/) is expected, and the window itself appears regardless of modeling language. 
 
