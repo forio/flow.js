@@ -18,6 +18,7 @@ It's a great way to help you understand the connection between your UI and your 
 </table>
 <br>
 
+
 Read more about:
 
 * [Enabling Flow Inspector](#enable)
@@ -32,13 +33,13 @@ There are two ways to enable Flow Inspector. You can add it to specific pages (a
 **To add Flow Inspector to a specific page:**
 
 1. Make sure you're using the latest version of Flow.js: TODO-ASKNAREN
-2. Add the Flow Inspector stylesheet to your page: TODO-ASKNAREN
+2. Add the Flow Inspector stylesheet to your page:
 	
-		<link rel="stylesheet" href="./flow-inspector.css">
+		<link rel="stylesheet" href="https://forio.com/tools/js-libs/flow/next/add-ons/flow-inspector.css">
 	
-3. Add the Flow Inspector source to your page: TODO-ASKNAREN
+3. Add the Flow Inspector source to your page:
 
-		<script src="./flow-inspector.min.js"></script>
+		<script src="https://forio.com/tools/js-libs/flow/next/add-ons/flow-inspector.min.js"></script>
 
 4. Add Flow Inspector to the body of your HTML, by placing a call in the script of your page, anytime after your call to initialize Flow:
 
@@ -51,7 +52,7 @@ There are two ways to enable Flow Inspector. You can add it to specific pages (a
 
 Click and drag the bookmarklet to your bookmarks or favorites bar.
 
-<a class="bookmarklet" href="javascript:!function(){if(!window.Flow)return void window.alert('FlowJS not found on page');var a=document.createElement('link');a.setAttribute('href','//forio.com/tools/js-libs/flow/next/add-ons/flow-inspector.css'),a.setAttribute('rel','stylesheet'),a.setAttribute('type','text/css'),document.getElementsByTagName('head')[0].appendChild(a);var b=function(){new window.Flow.Inspector('body')},c=document.createElement('script');c.setAttribute('src','//forio.com/tools/js-libs/flow/next/add-ons/flow-inspector.min.js'),c.onload=function(){c.onloadDone=!0,b()},c.onReadystatechange=function(){'loaded'!==c.readyState||c.onloadDone||(c.onloadDone=!0,b())},document.body.appendChild(c)}();" alt="Flow Inspector" title="Flow Inspector" draggable="true" style="cursor:move;"><img src=“../../img/bookmark.png" class="img-responsive" alt="Flow Inspector" height="60" width="60"/></a>
+<a class="bookmarklet" href="javascript:!function(){if(!window.Flow)return void window.alert('FlowJS not found on page');var a=document.createElement('link');a.setAttribute('href','//forio.com/tools/js-libs/flow/next/add-ons/flow-inspector.css'),a.setAttribute('rel','stylesheet'),a.setAttribute('type','text/css'),document.getElementsByTagName('head')[0].appendChild(a);var b=function(){new window.Flow.Inspector('body')},c=document.createElement('script');c.setAttribute('src','//forio.com/tools/js-libs/flow/next/add-ons/flow-inspector.min.js'),c.onload=function(){c.onloadDone=!0,b()},c.onReadystatechange=function(){'loaded'!==c.readyState||c.onloadDone||(c.onloadDone=!0,b())},document.body.appendChild(c)}();" alt="Flow Inspector" title="Flow Inspector" draggable="true" style="cursor:move;"><img src="../../img/bookmark.png" class="img-responsive" alt="Flow Inspector height="60" width="60"/></a>
 
 Now Flow Inspector will appear every time you click this bookmark. For example, go to a page in your project, where your user interface is created using Flow.js. Then, click the Flow Inspector bookmark from your Bookmarks Bar to make the Flow Inspector appear. 
 
