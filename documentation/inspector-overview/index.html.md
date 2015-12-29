@@ -31,14 +31,19 @@ There are two ways to enable Flow Inspector. You can add it to specific pages (a
 
 **To add Flow Inspector to a specific page:**
 
-1. Make sure you're using the latest version of Flow.js: TODO-ASKNAREN
+1. Make sure you're using the latest version of Flow.js: 
+
+		<script src="https://forio.com/tools/js-libs/flow/latest/flow.min.js"></script>
+		
+	Minimum version of Flow.js 0.10 is required to use Flow Inspector; using `latest` in your `script src` tag ensures that you are always using the most current version.
+
 2. Add the Flow Inspector stylesheet to your page:
 	
-		<link rel="stylesheet" href="https://forio.com/tools/js-libs/flow/next/add-ons/flow-inspector.css">
+		<link rel="stylesheet" href="https://forio.com/tools/js-libs/flow/latest/add-ons/flow-inspector.css">
 	
 3. Add the Flow Inspector source to your page:
 
-		<script src="https://forio.com/tools/js-libs/flow/next/add-ons/flow-inspector.min.js"></script>
+		<script src="https://forio.com/tools/js-libs/flow/latest/add-ons/flow-inspector.min.js"></script>
 
 4. Add Flow Inspector to the body of your HTML, by placing a call in the script of your page, anytime after your call to initialize Flow:
 
