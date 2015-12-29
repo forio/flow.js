@@ -3,16 +3,16 @@
 module.exports = {
     fn: {
         start: function (reference) {
-            var regExp = new RegExp('^\\s*?def\\s+' + reference);
+            var regExp = new RegExp('^[ \t]*?def\\s+' + reference);
             return function (val) {
                 return regExp.test(val);
             };
         },
         end: function (fromStart, startValue) {
-            var leadingSpacesInStart = startValue.match(/^ */)[0].length;
+            var leadingSpacesInStart = startValue.match(/^[ \t]*/)[0].length;
             var indexOfLastGoodLine = 0;
             _.every(fromStart, function (line, index) {
-                var leadingSpacesInLine = line.match(/^ */)[0].length;
+                var leadingSpacesInLine = line.match(/^[ \t]*/)[0].length;
                 if (line.trim() !== '') {
                     if (leadingSpacesInLine === leadingSpacesInStart) {
                         return false;
