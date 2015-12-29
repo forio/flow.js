@@ -70,7 +70,7 @@
  *          <li> Year <%= index %>: Sales of <%= value %> </li>
  *      </ul>
  *
- * You can also use nested `data-f-foreach` attributes. For example, suppose you have in your model two arrays, `Outer` (1, 2) and `Inner` (10, 9, 8, 7), and you want to display all values of `Inner` each time you show a value of Outer. You can use nested `data-f-foreach` for this:
+ * You can also use nested `data-f-foreach` attributes. For example, suppose you have in your model two arrays, `Outer` (1, 2) and `Inner` (10, 9, 8, 7), and you want to display all values of `Inner` each time you show a value of `Outer`. You can use nested `data-f-foreach` for this:
  *
  *      <ul data-f-foreach="Outer">
  *          <li><%= value %>

@@ -1,7 +1,7 @@
 /**
  * ## Display Array Variables: data-f-repeat
  *
- * The `data-f-repeat` attribute allows you to automatically loop over a referenced variable. The most common use case is in time-based models, like those written in [SimLang](../../../../../../model_code/forio_simlang/) or [Vensim](../../../../../../model_code/vensim/), when you want to report the value of the variable at every time step so far. The `data-f-repeat` attribute automatically repeats the DOM element it's attached to, filling in the value.
+ * The `data-f-repeat` attribute allows you to automatically loop over a referenced variable. The most common use case is in time-based models, like those written in [SimLang](../../../../../model_code/forio_simlang/) or [Vensim](../../../../../model_code/vensim/), when you want to report the value of the variable at every time step so far. The `data-f-repeat` attribute automatically repeats the DOM element it's attached to, filling in the value.
  *
  * **To display a DOM element repeatedly based on an array variable from the model:**
  *
@@ -45,10 +45,10 @@
  *
  * **Notes:**
  *
- * * In most cases the same effect can be achieved with the [`data-f-foreach` attribute](../../foreach/default-foreach-attr/), which is similar. However, in the common use case of a table of data displayed over time, the `data-f-repeat` can be more concise and easier to read.
+ * * In most cases the same effect can be achieved with the [`data-f-foreach` attribute](../../attributes/foreach/default-foreach-attr/), which is similar. However, in the common use case of a table of data displayed over time, the `data-f-repeat` can be more concise and easier to read.
  * * You can use the `data-f-repeat` attribute with both arrays and objects. If the model variable is an object, reference the `key` instead of the `index` in your templates.
  * * The `key`, `index`, and `value` are special variables that Flow.js populates for you.
- * * The template syntax is to enclose each keyword (`index`, `key`, `variable`) in `<%=` and `%>`. Templates are available as part of Flow.js's lodash dependency. See more background on [working with templates](../../../../../#templates).
+ * * The template syntax is to enclose each keyword (`index`, `key`, `variable`) in `<%=` and `%>`. Templates are available as part of Flow.js's lodash dependency. See more background on [working with templates](../../../../#templates).
  *
  */
 
