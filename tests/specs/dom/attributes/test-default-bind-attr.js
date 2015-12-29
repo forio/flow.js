@@ -116,7 +116,7 @@ module.exports = (function () {
                 var $node = utils.initWithNode('<div data-f-bind="Price, Sales | #,### |last"> <%= Price %> <%= Sales %> </div>', domManager);
                 $node.trigger('update.f.model', targetData);
 
-                $node.html().trim().should.equal('3, 000 1, 100');
+                $node.html().trim().should.equal('3,000 1,100');
             });
         });
     });
