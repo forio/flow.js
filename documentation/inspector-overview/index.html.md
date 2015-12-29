@@ -7,7 +7,7 @@ isPage: true
 ##Flow Inspector: Debugging with Flow.js
 
 
-Flow Inspector is an add-on component of Flow.js that allows you to easily determine which model variables are being used where and in which Flow.js (`data-f-`) attributes in your user interface. 
+Flow Inspector is an add-on component of Flow.js that allows you to easily determine which model variables are being used where and in which Flow.js (`data-f-`) attributes in your user interface.
 
 It's a great way to help you understand the connection between your UI and your model. It can also help to debug problems in your UI, whether you're a front-end developer or a modeler.
 
@@ -33,12 +33,12 @@ There are two ways to enable Flow Inspector. You can add it to specific pages (a
 
 1. Make sure you're using the latest version of Flow.js: TODO-ASKNAREN
 2. Add the Flow Inspector stylesheet to your page:
-	
-		<link rel="stylesheet" href="https://forio.com/tools/js-libs/flow/next/add-ons/flow-inspector.css">
-	
+
+		<link rel="stylesheet" href="https://forio.com/tools/js-libs/flow/latest/add-ons/flow-inspector.css">
+
 3. Add the Flow Inspector source to your page:
 
-		<script src="https://forio.com/tools/js-libs/flow/next/add-ons/flow-inspector.min.js"></script>
+		<script src="https://forio.com/tools/js-libs/flow/latest/add-ons/flow-inspector.min.js"></script>
 
 4. Add Flow Inspector to the body of your HTML, by placing a call in the script of your page, anytime after your call to initialize Flow:
 
@@ -51,15 +51,15 @@ There are two ways to enable Flow Inspector. You can add it to specific pages (a
 
 Click and drag the bookmarklet to your bookmarks or favorites bar.
 
-<a class="bookmarklet" href="javascript:!function(){if(!window.Flow)return void window.alert('FlowJS not found on page');var a=document.createElement('link');a.setAttribute('href','//forio.com/tools/js-libs/flow/next/add-ons/flow-inspector.css'),a.setAttribute('rel','stylesheet'),a.setAttribute('type','text/css'),document.getElementsByTagName('head')[0].appendChild(a);var b=function(){new window.Flow.Inspector('body')},c=document.createElement('script');c.setAttribute('src','//forio.com/tools/js-libs/flow/next/add-ons/flow-inspector.min.js'),c.onload=function(){c.onloadDone=!0,b()},c.onReadystatechange=function(){'loaded'!==c.readyState||c.onloadDone||(c.onloadDone=!0,b())},document.body.appendChild(c)}();" alt="Flow Inspector" title="Flow Inspector" draggable="true" style="cursor:move;"><img src="../../img/bookmark.png" class="img-responsive" alt="Flow Inspector" height="60" width="60"/></a>
+<a class="bookmarklet" href="javascript:!function(){if(!window.Flow)return void window.alert('FlowJS not found on page');var a=document.createElement('link');a.setAttribute('href','//forio.com/tools/js-libs/flow/latest/add-ons/flow-inspector.css'),a.setAttribute('rel','stylesheet'),a.setAttribute('type','text/css'),document.getElementsByTagName('head')[0].appendChild(a);var b=function(){new window.Flow.Inspector('body')},c=document.createElement('script');c.setAttribute('src','//forio.com/tools/js-libs/flow/latest/add-ons/flow-inspector.min.js'),c.onload=function(){c.onloadDone=!0,b()},c.onReadystatechange=function(){'loaded'!==c.readyState||c.onloadDone||(c.onloadDone=!0,b())},document.body.appendChild(c)}();" alt="Flow Inspector" title="Flow Inspector" draggable="true" style="cursor:move;"><img src="../../img/bookmark.png" class="img-responsive" alt="Flow Inspector" height="60" width="60"/></a>
 
 
-Now Flow Inspector will appear every time you click this bookmark. For example, go to a page in your project, where your user interface is created using Flow.js. Then, click the Flow Inspector bookmark from your Bookmarks Bar to make the Flow Inspector appear. 
+Now Flow Inspector will appear every time you click this bookmark. For example, go to a page in your project, where your user interface is created using Flow.js. Then, click the Flow Inspector bookmark from your Bookmarks Bar to make the Flow Inspector appear.
 
 Flow Inspector goes away when you reload the page, but you can re-enable it by clicking the link from your Bookmarks Bar again.
 
 (If your browser doesn't support clicking and dragging the bookmarklet, it's likely that [your browser doesn't support Flow.js anyway](../). However, you can create a bookmark manually by setting the URL to the URL in the <a href="https://github.com/forio/flow.js/blob/master/dist/add-ons/readme.md" target="_blank">Flow Inspector Read Me file on Github</a>.)
- 
+
 <a name="features"></a>
 ####Features of Flow Inspector
 
@@ -106,7 +106,7 @@ Mousing over the Inspector for the element displays the full contents of all thr
 
 The Context Window of Flow Inspector provides additional data on model variables and model operations. These data appear when you click a Flow Inspector element.
 
-* For model variables, the Context Window provides the variable definition. 
+* For model variables, the Context Window provides the variable definition.
 
 * For model operations, the Context Window provides the operation definition.
 
@@ -117,5 +117,5 @@ The Context Window of Flow Inspector provides additional data on model variables
 </table>
 <br>
 
-The Context Window currently only provides data for [Python](../../model_code/python/) and [Julia](../../model_code/julia/) models. However, support for [additional modeling languages](../../writing_your_model/) is expected, and the window itself appears regardless of modeling language. 
+The Context Window currently only provides data for [Python](../../model_code/python/) and [Julia](../../model_code/julia/) models. However, support for [additional modeling languages](../../writing_your_model/) is expected, and the window itself appears regardless of modeling language.
 

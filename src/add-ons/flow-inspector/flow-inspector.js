@@ -50,7 +50,7 @@ var FlowInspector = function (root) {
             classNames.push('f-bind');
         } else if (attr.indexOf('foreach') === 0 || attr.indexOf('repeat') === 0) {
             classNames.push('f-loop');
-        } else {
+        } else if (attr.indexOf('model') === -1) {
             classNames.push('f-custom');
         }
         return classNames.join(' ');
