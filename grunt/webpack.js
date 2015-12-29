@@ -53,6 +53,11 @@ module.exports = function (grunt) {
             devtool: 'eval',
             // watch: true,
             // keepalive: true,
+            plugins: [
+                new webpack.DefinePlugin({
+                    RELEASE_VERSION: JSON.stringify(version)
+                })
+            ],
             resolve: {
                 alias: {
                     src: __dirname + '/../src'

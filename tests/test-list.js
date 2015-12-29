@@ -2,6 +2,8 @@
  * List of tests to be required
  */
 
+'use strict';
+
 require('./specs/dom/test-dom-manager');
 require('./specs/converters/test-converter-manager');
 require('./specs/dom/attributes/test-attribute-manager');
@@ -17,6 +19,6 @@ require('./specs/dom/attributes/test-default-bind-attr');
 
 require('./specs/dom/plugins/test-auto-update-bindings');
 
-require('./specs/test-flow');
 
 require('./specs/add-ons/test-add-ons');
+require('./specs/test-flow');
