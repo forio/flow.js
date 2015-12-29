@@ -3,7 +3,7 @@
 module.exports = {
     fn: {
         start: function (reference) {
-            var regExp = new RegExp('^\\s*?function\\s+' + reference);
+            var regExp = new RegExp('^[ \t]*?function\\s+' + reference);
             return function (val) {
                 return regExp.test(val);
             };
@@ -17,7 +17,7 @@ module.exports = {
     },
     variable: {
         start: function (reference) {
-            var regExp = new RegExp('^\\s*?(global\\s*)?' + reference + '\\s?=');
+            var regExp = new RegExp('^[ \t]*?(global\\s*)?' + reference + '\\s?=');
             return function (val) {
                 return regExp.test(val);
             };
