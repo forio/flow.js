@@ -1,5 +1,5 @@
+'use strict';
 (function () {
-    'use strict';
 
     var utils = require('../../testing-utils');
     var make = utils.create;
@@ -289,7 +289,7 @@
                 domManager.private.matchedElements.length.should.equal(1);
 
                 $(node).append('<input type="text" data-f-bind="boo" /> <input type="text" data-f-bind="boos" /> <input type="text" data-f-bind="booss" />');
-                domManager.bindAll($(node).find(':text').get().slice(0,2));
+                domManager.bindAll($(node).find(':text').get().slice(0, 2));
                 domManager.private.matchedElements.length.should.equal(3);
             });
             it('should allow providing jquery selector', function () {

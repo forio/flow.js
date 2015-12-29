@@ -25,6 +25,7 @@ module.exports = {
      *      </div>
      *
      * @param {Array} val The model variable.
+     * @returns {String} converted string
      */
     s: function (val) {
         return val + '';
@@ -41,6 +42,7 @@ module.exports = {
      *      </div>
      *
      * @param {Array} val The model variable.
+     * @returns {String} converted string
      */
     upperCase: function (val) {
         return (val + '').toUpperCase();
@@ -57,6 +59,7 @@ module.exports = {
      *      </div>
      *
      * @param {Array} val The model variable.
+     * @returns {String} converted string
      */
     lowerCase: function (val) {
         return (val + '').toLowerCase();
@@ -73,9 +76,12 @@ module.exports = {
      *      </div>
      *
      * @param {Array} val The model variable.
+     * @returns {String} converted string
      */
     titleCase: function (val) {
         val = val + '';
-        return val.replace(/\w\S*/g, function (txt) {return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();});
+        return val.replace(/\w\S*/g, function (txt) {
+            return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();
+        });
     }
 };

@@ -85,6 +85,7 @@ var converterManager = {
      * @param  {String|Function|Regex} alias Formatter name.
      * @param  {Function|Object} converter If a function, `converter` is called with the value. If an object, should include fields for `alias` (name), `parse` (function), and `convert` (function).
      * @param {Boolean} acceptList Determines if the converter is a 'list' converter or not. List converters take in arrays as inputs, others expect single values.
+     * @returns {undefined}
      */
     register: function (alias, converter, acceptList) {
         var normalized = normalize(alias, converter, acceptList);
@@ -96,6 +97,7 @@ var converterManager = {
      *
      * @param {String} alias Formatter name.
      * @param {Function|Object} converter If a function, `converter` is called with the value. If an object, should include fields for `alias` (name), `parse` (function), and `convert` (function).
+     * @returns {undefined}
      */
     replace: function (alias, converter) {
         var index;
@@ -137,11 +139,6 @@ var converterManager = {
                 return converter.convert(v, converterName);
             });
         };
-        var convertObject = function (converter, value, converterName) {
-            return _.mapValues(value, function (val, key) {
-               return convert(converter, val, converterName);
-           });
-        };
         var convert = function (converter, value, converterName) {
             var converted;
             if (_.isArray(value) && converter.acceptList !== true) {
@@ -150,6 +147,11 @@ var converterManager = {
                 converted = converter.convert(value, converterName);
             }
             return converted;
+        };
+        var convertObject = function (converter, value, converterName) {
+            return _.mapValues(value, function (val) {
+                return convert(converter, val, converterName);
+            });
         };
         _.each(list, function (converterName) {
             var converter = me.getConverter(converterName);
@@ -204,7 +206,7 @@ var defaultconverters = [
 $.each(defaultconverters.reverse(), function (index, converter) {
     if (_.isArray(converter)) {
         _.each(converter, function (c) {
-           converterManager.register(c);
+            converterManager.register(c);
         });
     } else {
         converterManager.register(converter);

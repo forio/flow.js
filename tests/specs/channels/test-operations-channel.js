@@ -1,39 +1,42 @@
+'use strict';
 (function () {
-    'use strict';
 
     var Channel = require('src/channels/operations-channel');
 
     describe('Operations Channel', function () {
-        var core, channel, server, mockRun, mockRunChannel;
+        var channel;
+        var server;
+        var mockRun;
+        var mockRunChannel;
         var mockOperationsResponse = {
-                        message: 'operation Complete',
-                        stuff: 1,
-                        data: [1,2]
-                    };
+            message: 'operation Complete',
+            stuff: 1,
+            data: [1, 2]
+        };
         before(function () {
             server = sinon.fakeServer.create();
-            server.respondWith('PATCH',  /(.*)\/run\/(.*)\/(.*)/, function (xhr, id) {
+            server.respondWith('PATCH', /(.*)\/run\/(.*)\/(.*)/, function (xhr, id) {
                 xhr.respond(200, { 'Content-Type': 'application/json' }, JSON.stringify({ url: xhr.url }));
             });
-            server.respondWith('GET',  /(.*)\/run\/(.*)\/variables/, function (xhr, id) {
+            server.respondWith('GET', /(.*)\/run\/(.*)\/variables/, function (xhr, id) {
                 xhr.respond(200, { 'Content-Type': 'application/json' }, JSON.stringify({ url: xhr.url,
                     price: 23,
                     sales: 30,
                     priceArray: [20, 30]
                 }));
             });
-            server.respondWith('GET',  /(.*)\/run\/(.*)\/operations/, function (xhr, id) {
+            server.respondWith('GET', /(.*)\/run\/(.*)\/operations/, function (xhr, id) {
                 xhr.respond(200, { 'Content-Type': 'application/json' }, JSON.stringify(mockOperationsResponse));
             });
-            server.respondWith('POST',  /(.*)\/run\/(.*)\/(.*)/,  function (xhr, id) {
+            server.respondWith('POST', /(.*)\/run\/(.*)\/(.*)/, function (xhr, id) {
                 var resp = {
-                    'id': '065dfe50-d29d-4b55-a0fd-30868d7dd26c',
-                    'model': 'model.vmf',
-                    'account': 'mit',
-                    'project': 'afv',
-                    'saved': false,
-                    'lastModified': '2014-06-20T04:09:45.738Z',
-                    'created': '2014-06-20T04:09:45.738Z'
+                    id: '065dfe50-d29d-4b55-a0fd-30868d7dd26c',
+                    model: 'model.vmf',
+                    account: 'mit',
+                    project: 'afv',
+                    saved: false,
+                    lastModified: '2014-06-20T04:09:45.738Z',
+                    created: '2014-06-20T04:09:45.738Z'
                 };
                 xhr.respond(201, { 'Content-Type': 'application/json' }, JSON.stringify(resp));
             });
@@ -64,7 +67,6 @@
             };
 
             channel = new Channel({ vent: mockRunChannel, run: mockRun });
-            core = channel.private;
         });
 
         after(function () {
@@ -79,11 +81,11 @@
             });
 
             it('should publish multiple parallel values to the run service', function () {
-                channel.publish({ operations: [{ name: 'step', params: ['1'] }], serial:false });
+                channel.publish({ operations: [{ name: 'step', params: ['1'] }], serial: false });
                 mockRun.parallel.should.have.been.calledWith([{ name: 'step', params: ['1'] }]);
             });
             it('should publish multiple serial values to the run service', function () {
-                channel.publish({ operations: [{ name: 'step', params: ['1'] }], serial:true });
+                channel.publish({ operations: [{ name: 'step', params: ['1'] }], serial: true });
                 mockRun.serial.should.have.been.calledWith([{ name: 'step', params: ['1'] }]);
             });
 
@@ -140,7 +142,7 @@
                     var refSpy = sinon.spy(originalRefresh);
                     channel.refresh = refSpy;
 
-                    channel.publish({ operations: [{ name: 'step', params: ['1'] }], serial:false }, { silent: true });
+                    channel.publish({ operations: [{ name: 'step', params: ['1'] }], serial: false }, { silent: true });
                     refSpy.should.not.have.been.called;
 
                     channel.refresh = originalRefresh;
@@ -265,15 +267,15 @@
             });
 
             describe('functions', function () {
-               it('should allow subscribing functions to single variables', function () {
-                   var cb = sinon.spy();
-                   channel.subscribe('step', cb);
-                   channel.listenerMap.should.have.key('step');
+                it('should allow subscribing functions to single variables', function () {
+                    var cb = sinon.spy();
+                    channel.subscribe('step', cb);
+                    channel.listenerMap.should.have.key('step');
 
-                   channel.publish('step', 32);
-                   cb.should.have.been.called.calledOnce;
-                   cb.should.have.been.calledWith({ step: mockOperationsResponse });
-               });
+                    channel.publish('step', 32);
+                    cb.should.have.been.called.calledOnce;
+                    cb.should.have.been.calledWith({ step: mockOperationsResponse });
+                });
             });
 
             it('should allow subscribing to all operations with a wildcard', function () {

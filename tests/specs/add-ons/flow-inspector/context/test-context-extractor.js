@@ -9,7 +9,8 @@ module.exports = (function () {
 
     describe('Context Extractor', function () {
         describe('Julia', function () {
-            var code, extractor;
+            var code;
+            var extractor;
             before(function () {
                 code = require('./test-julia-model.jl');
                 extractor = new Extractor('test.jl', code);
@@ -49,7 +50,8 @@ module.exports = (function () {
             });
         });
         describe('Python', function () {
-            var code, extractor;
+            var code;
+            var extractor;
             before(function () {
                 code = require('./test-python-model.py');
                 extractor = new Extractor('test.py', code);

@@ -25,23 +25,23 @@ describe('parse utils', function () {
 
         it('identifies arrays', function () {
             u.toImplicitType('[]').should.eql([]);
-            u.toImplicitType('[1,2,4]').should.eql([1,2,4]);
-            u.toImplicitType('[1,"2",4]').should.eql([1,'2',4]);
+            u.toImplicitType('[1, 2, 4]').should.eql([1, 2, 4]);
+            u.toImplicitType('[1, "2",4]').should.eql([1, '2', 4]);
 
-            u.toImplicitType(JSON.stringify([1,'2',4])).should.eql([1,'2',4]);
+            u.toImplicitType(JSON.stringify([1, '2', 4])).should.eql([1, '2', 4]);
         });
 
         it('identifies nulls', function () {
             should.not.exist(u.toImplicitType(null));
             should.not.exist(u.toImplicitType('null'));
             u.toImplicitType('undefined').should.equal('');
-            should.not.exist(u.toImplicitType(undefined));
+            should.not.exist(u.toImplicitType());
         });
 
         it('identifies objs', function () {
             u.toImplicitType('{}').should.eql({});
-            u.toImplicitType('{"a": "abc"}').should.eql({ a:'abc' });
-            u.toImplicitType('{"a": "abc", "b": 2, "c": "2"}').should.eql({ a:'abc', b:2, c:'2' });
+            u.toImplicitType('{"a": "abc"}').should.eql({ a: 'abc' });
+            u.toImplicitType('{"a": "abc", "b": 2,  "c": "2"}').should.eql({ a: 'abc', b: 2, c: '2' });
         });
     });
 });

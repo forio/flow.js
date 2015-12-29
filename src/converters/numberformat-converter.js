@@ -70,13 +70,14 @@ module.exports = {
     },
 
     parse: function (val) {
-        val+= '';
+        val += '';
         var isNegative = val.charAt(0) === '-';
 
-        val  = val.replace(/,/g, '');
+        val = val.replace(/,/g, '');
         var floatMatcher = /([-+]?[0-9]*\.?[0-9]+)(K?M?B?%?)/i;
         var results = floatMatcher.exec(val);
-        var number, suffix = '';
+        var number;
+        var suffix = '';
         if (results && results[1]) {
             number = results[1];
         }
@@ -84,19 +85,21 @@ module.exports = {
             suffix = results[2].toLowerCase();
         }
 
+        /*eslint no-magic-numbers: 0*/
         switch (suffix) {
-            case '%':
-                number = number / 100;
-                break;
-            case 'k':
-                number = number * 1000;
-                break;
-            case 'm':
-                number = number * 1000000;
-                break;
-            case 'b':
-                number = number * 1000000000;
-                break;
+        case '%':
+            number = number / 100;
+            break;
+        case 'k':
+            number = number * 1000;
+            break;
+        case 'm':
+            number = number * 1000000;
+            break;
+        case 'b':
+            number = number * 1000000000;
+            break;
+        default:
         }
         number = parseFloat(number);
         if (isNegative && number > 0) {
@@ -107,8 +110,11 @@ module.exports = {
 
     convert: (function (value) {
         var scales = ['', 'K', 'M', 'B', 'T'];
+        function roundTo (value, digits) {
+            return Math.round(value * Math.pow(10, digits)) / Math.pow(10, digits);
+        }
 
-        function getDigits(value, digits) {
+        function getDigits (value, digits) {
             value = value === 0 ? 0 : roundTo(value, Math.max(0, digits - Math.ceil(Math.log(value) / Math.LN10)));
 
             var TXT = '';
@@ -138,8 +144,8 @@ module.exports = {
             return TXT;
         }
 
-        function addDecimals(value, decimals, minDecimals, hasCommas) {
-            hasCommas = (hasCommas === false) ? false : true;
+        function addDecimals (value, decimals, minDecimals, hasCommas) {
+            hasCommas = !!hasCommas;
             var numberTXT = value.toString();
             var hasDecimals = (numberTXT.split('.').length > 1);
             var iDec = 0;
@@ -176,32 +182,28 @@ module.exports = {
             return numberTXT;
         }
 
-        function roundTo(value, digits) {
-            return Math.round(value * Math.pow(10, digits)) / Math.pow(10, digits);
-        }
-
-        function getSuffix(formatTXT) {
+        function getSuffix (formatTXT) {
             formatTXT = formatTXT.replace('.', '');
             var fixesTXT = formatTXT.split(new RegExp('[0|,|#]+', 'g'));
             return (fixesTXT.length > 1) ? fixesTXT[1].toString() : '';
         }
 
-        function isCurrency(string) {
+        function isCurrency (string) {
             var s = $.trim(string);
 
-            if (s === '$' ||
-                s === 'â‚¬' ||
-                s === 'Â¥' ||
-                s === 'Â£' ||
-                s === 'â‚¡' ||
-                s === 'â‚±' ||
-                s === 'KÄ?' ||
-                s === 'kr' ||
-                s === 'Â¢' ||
-                s === 'â‚ª' ||
-                s === 'Æ’' ||
-                s === 'â‚©' ||
-                s === 'â‚«') {
+            if (s === '$'
+                || s === 'â‚¬'
+                || s === 'Â¥'
+                || s === 'Â£'
+                || s === 'â‚¡'
+                || s === 'â‚±'
+                || s === 'KÄ?'
+                || s === 'kr'
+                || s === 'Â¢'
+                || s === 'â‚ª'
+                || s === 'Æ’'
+                || s === 'â‚©'
+                || s === 'â‚«') {
 
                 return true;
             }
@@ -209,7 +211,7 @@ module.exports = {
             return false;
         }
 
-        function format(number, formatTXT) {
+        function format (number, formatTXT) {
             if (_.isArray(number)) {
                 number = number[number.length - 1];
             }
@@ -287,12 +289,10 @@ module.exports = {
                         } else {
                             return leadingText + sign + getDigits(number, Number(rightOfPrefix)) + scales[valScale];
                         }
+                    } else if (isCurrency(leadingText)) {
+                        return sign + leadingText + Math.round(number) + scales[valScale];
                     } else {
-                        if (isCurrency(leadingText)) {
-                            return sign + leadingText + Math.round(number) + scales[valScale];
-                        } else {
-                            return leadingText + sign + Math.round(number) + scales[valScale];
-                        }
+                        return leadingText + sign + Math.round(number) + scales[valScale];
                     }
                 } else {
                     //formatTXT = formatTXT.substr(1);
