@@ -70,35 +70,12 @@
  *          <li> Year <%= index %>: Sales of <%= value %> </li>
  *      </ul>
  *
- * You can also use nested `data-f-foreach` attributes. For example, suppose you have in your model two arrays, `Outer` (1, 2) and `Inner` (10, 9, 8, 7), and you want to display all values of `Inner` each time you show a value of `Outer`. You can use nested `data-f-foreach` for this:
- *
- *      <ul data-f-foreach="Outer">
- *          <li><%= value %>
- *              <ul data-f-foreach="Inner">
- *                  <li></li>
- *              </ul>
- *          </li>
- *       </ul>
- *
- * which appears as:
- *
- *      * 1
- *          * 10
- *          * 9
- *          * 8
- *          * 7
- *      * 2
- *          * 10
- *          * 9
- *          * 8
- *          * 7
  *
  * **Notes:**
  *
  * * You can use the `data-f-foreach` attribute with both arrays and objects. If the model variable is an object, reference the `key` instead of the `index` in your templates.
  * * The `key`, `index`, and `value` are special variables that Flow.js populates for you.
  * * The template syntax is to enclose each keyword (`index`, `key`, `variable`) in `<%=` and `%>`. Templates are available as part of Flow.js's lodash dependency. See more background on [working with templates](../../../../../#templates).
- * * When you are working with nested `data-f-foreach` attributes, templates *only work once, at exactly the level specified*. In the example above, the sample code references `value` in the outer `<li>` to refer to the elements of the `Outer` array. Alternatively, you could reference `value` in the inner `<li`> to refer to the elements of the `Inner` array. However, you cannot do both -- the `value` is not scoped by the hierarchy of your HTML.
  * * The `data-f-foreach` attribute is [similar to the `data-f-repeat` attribute](../../repeat-attr/), so you may want to review the examples there as well.
  */
 
