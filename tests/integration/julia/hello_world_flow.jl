@@ -7,12 +7,12 @@ using Epicenter
 
 
 #variables
-export sampleString, sampleInt, sampleTruthy, anotherTruthy, sampleBool, sampleFalseBool, salesMgr, sales, sample2d, sample64, sampleThousand, sampleMillion, sampleBillion, sampleTrillion, regions, sampleX, sampleY, sampleVar1, sampleVar2, myVariable, salesSq, sampleTuple, sampleDict
+export sampleString, sampleInt, sampleTruthy, anotherTruthy, sampleBool, sampleFalseBool, salesMgr, sales, sample2d, sample64, sampleThousand, sampleMillion, sampleBillion, sampleTrillion, regions, sampleX, sampleY, sampleVar1, sampleVar2, myVariable, salesSq, sampleTuple, sampleDict, stepArray
 
 #operations
-export saveAll, changeString, addToInt, changeTruthy, changeBool, changeObjSubfield, appendToArray, updateFirstArrayVal, subtractFromArray, resetInt, updateTwoArrayVals, addTo64, updateXY, addVar1Var2, appendToArraySq, updateFirstArrayValSq, updateTwoArrayValsSq
+export saveAll, changeString, addToInt, changeTruthy, changeBool, changeObjSubfield, appendToArray, updateFirstArrayVal, subtractFromArray, resetInt, updateTwoArrayVals, addTo64, updateXY, addVar1Var2, appendToArraySq, updateFirstArrayValSq, updateTwoArrayValsSq, updateStepArray
 
-global sampleString, sampleInt, sampleTruthy, sampleBool, sampleFalseBool, salesMgr, sales, sample2d, sample64, sampleThousand, sampleMillion, sampleBillion, sampleTrillion, regions, sampleX, sampleY, sampleVar1, sampleVar2, myVariable, salesSq, sampleTuple, sampleDict
+global sampleString, sampleInt, sampleTruthy, sampleBool, sampleFalseBool, salesMgr, sales, sample2d, sample64, sampleThousand, sampleMillion, sampleBillion, sampleTrillion, regions, sampleX, sampleY, sampleVar1, sampleVar2, myVariable, salesSq, sampleTuple, sampleDict, stepArray
 
 type mgrType
   num_reports::Int
@@ -47,6 +47,8 @@ sampleTrillion = 100234567891431
 sampleTuple = (10,9,8)
 sampleDict = ["one"=> 1, "two"=> 2, "three"=> 3]
 
+stepArray = {20}
+
 ## run api displays this as [1,2,3,4,5,6]
 sample2d = [ [1,2], [3,4], [5,6] ]
 
@@ -74,6 +76,13 @@ function saveAll()
    record(:regions)   
    record(:sampleTuple)
    record(:sampleDict)
+   record(:stepArray)
+end
+
+function updateStepArray(int1)
+  global stepArray
+  stepArray = push!(stepArray, stepArray[end] + int1)
+  record(:stepArray)
 end
 
 function addVar1Var2(int1, int2)
