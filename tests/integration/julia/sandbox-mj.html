@@ -40,7 +40,7 @@
                 input:
                 <input type="text" data-f-bind="sampleString" />
             </td>
-            <td class="pass">pass (0.9.0)</td>
+            <td class="pass">pass (0.10.0)</td>
         </tr>
 
         <tr>
@@ -57,7 +57,7 @@
                 <input type="text" data-f-bind="sampleInt" />
             </td>
             <td class="pass">
-                pass (0.9.0)
+                pass (0.10.0)
                 <br>
                 Notes: also works for reals, e.g. 8.5 and -10. Probably because of the Julia model not being strict about what kind of number this is.
             </td>
@@ -73,7 +73,7 @@
                 input:
                 <input type="text" data-f-bind="salesMgr.region" />
             </td>
-            <td class="pass">pass (0.9.0)</td>
+            <td class="pass">pass (0.10.0)</td>
         </tr>
 
         <tr>
@@ -94,7 +94,7 @@
                 input:
                 <input type="text" data-f-bind="salesSq[3]" />
             </td>
-            <td class="pass">pass (0.9.0)</td>
+            <td class="pass">pass (0.10.0)</td>
         </tr>
 
         <tr>
@@ -122,17 +122,17 @@
                 and salesSq[1] is <span data-f-bind="salesSq[1]"></span>
             </td>
             <td class="pass">
-                pass (0.9.0)
+                pass (0.10.0)
             </td>
         </tr>
 
         <tr>
             <td>display_update</td>
-            <td>data-f-bind multiple variables at once, also regression testing #27</td>
+            <td>data-f-bind multiple variables at once, also regression testing <a href="https://github.com/forio/flow.js/issues/27">issue #27</a></td>
             <td data-f-bind="sampleInt, sampleString">
                 The data-f-bind is in the "td" tag, we'll use templates to show the values of sampleInt <%= sampleInt %> and sampleString <%= sampleString %>.
             </td>
-            <td class="pass"> pass (0.9.0) </td>
+            <td class="pass"> pass (0.10.0) </td>
         </tr>
 
         <tr>
@@ -146,7 +146,7 @@
                     <li>
                 </ul>
             </td>
-            <td class="pass"> pass (0.9.0) </td>
+            <td class="pass"> pass (0.10.0) </td>
         </tr>
 
         <tr>
@@ -159,8 +159,6 @@
             <td class="fail"> fail, see <a href="https://github.com/forio/flow.js/issues/37">issue #37</a></td>
         </tr>
         
-
-
         <tr>
             <td>converters</td>
             <td>Multiple Interpolations</td>
@@ -172,21 +170,20 @@
                 and sales[sampletruthy] is
                 <span data-f-bind="sales[<sampleTruthy>]"></span>
             </td>
-            <td class="pass">pass (0.9.0)</td>
+            <td class="pass">pass (0.10.0)</td>
         </tr>
 
         <tr>
             <td>display_update</td>
             <td>data-f-bind array indexed by expression</td>
-            <td>
-                desired: data-f-bind="sales[&lt;sampleTruthy&gt;+1]"
-                <!--span: <span data-f-bind="sales[<sampleTruthy>+1]"></span>
+            <td data-f-bind="sampleTruthy">
+                desired: data-f-bind="sales[&lt;%=value +1%&gt;]" (there's already a bind for sampleTruthy on this td)
+                span: <span data-f-bind="sales[<%= value + 1%>]"></span>
             <br>
             input:
-            <input type="text" data-f-bind="sales[<sampleTruthy>+1]" />--></td>
-        <td>
-            future release (improvement request, doesn't work now), see
-            <a href="https://github.com/forio/flow.js/issues/11">issue #11</a>
+            <input type="text" data-f-bind="sales[<%= value + 1%>]" /></td>
+        <td class="pass">
+            pass (0.10.0); regression testing of <a href="https://github.com/forio/flow.js/issues/11">issue #11</a>
         </td>
     </tr>
 
@@ -214,7 +211,7 @@
             <span data-f-bind="sampleInt"></span>
         </td>
         <td class="fail">
-            only sometimes works in 0.9.0, see <a href="https://github.com/forio/flow.js/issues/10">issue #10</a> which is also <a href="https://issues.forio.com/browse/UNICORN-2157">UNICORN-2157</a>: if manually change sampleInt to 8, is selected. if changed using resetInt() call, is updated only if the resetInt() call is the first thing we do on the page.
+            only sometimes works in 0.10.0, see <a href="https://github.com/forio/flow.js/issues/10">issue #10</a> which is also <a href="https://issues.forio.com/browse/UNICORN-2157">UNICORN-2157</a>: if manually change sampleInt to 8, is selected. if changed using resetInt() call, is updated only if the resetInt() call is the first thing we do on the page.
         </td>
     </tr>
 
@@ -229,7 +226,7 @@
                 <option value="12">12</option>
             </select>
         </td>
-        <td class="pass">pass (0.9.0)</td>
+        <td class="pass">pass (0.10.0)</td>
     </tr>
 
     <tr>
@@ -242,7 +239,7 @@
             checkbox, should be unchecked because sampleFalseBool is false:
             <input type="checkbox" data-f-bind="sampleFalseBool" />
         </td>
-        <td class="pass">pass (0.9.0)</td>
+        <td class="pass">pass (0.10.0)</td>
     </tr>
 
         <tr>
@@ -258,7 +255,7 @@
                     <li>Index is <%= index %> and value is <%= value %></li>
                 </ul>
             </td>
-            <td class="pass">pass (0.9.0)</td>
+            <td class="pass">pass (0.10.0)</td>
         </tr>
 
         <tr>
@@ -269,7 +266,7 @@
                     <li></li>
                 </ul>
             </td>
-            <td class="pass">pass (0.9.0)</td>
+            <td class="pass">pass (0.10.0)</td>
         </tr>
 
         <tr>
@@ -280,7 +277,7 @@
                     <li>Field is <%= key %> and value is <%= value %></li>
                 </ul>
             </td>
-            <td class="pass">pass (0.9.0)</td>
+            <td class="pass">pass (0.10.0)</td>
         </tr>
 
         <tr>
@@ -296,7 +293,22 @@
                    </li>
                </ul>
             </td>
-            <td class="fail">fail (0.9.0), see <a href="https://github.com/forio/flow.js/issues/30">issue #30</a></td>
+            <td class="pass">pass (0.10.0), regression testing of <a href="https://github.com/forio/flow.js/issues/30">issue #30</a></td>
+        </tr>
+
+        <tr>
+            <td>regression testing of <a href="https://github.com/forio/flow.js/issues/64">issue #64</a></td>
+            <td>data-f-repeat</td>
+            <td>
+                update stepArray, adding a new value that is +2 from the previous value: <button data-f-on-click="updateStepArray(2)">update</button><br>
+
+                <table border="1">
+                    <tr><td>Step (using index+1 of stepArray variable)</td><td data-f-repeat="stepArray"><%= index + 1%></td></tr>
+                    <tr><td>stepArray by step</td><td data-f-repeat="stepArray"></td></tr>
+                </table>
+
+            </td>
+            <td class="pass">pass (0.10.0)</td>
         </tr>
 
     <tr>
@@ -309,7 +321,7 @@
             checkbox, should be unchecked because sampleFalseBool is false:
             <input type="checkbox" data-f-checked="sampleFalseBool" />
         </td>
-        <td class="pass">pass (0.9.0)</td>
+        <td class="pass">pass (0.10.0)</td>
     </tr>
 
     <tr>
@@ -323,7 +335,7 @@
             <span data-f-bind="sampleTruthy"></span>
         </td>
         <td class="pass">
-            pass (0.9.0) (disabled=1/true means enabled b/c flow inverts; disabled=0/false means disabled b/c flow inverts)
+            pass (0.10.0) (disabled=1/true means enabled b/c flow inverts; disabled=0/false means disabled b/c flow inverts)
         </td>
     </tr>
 
@@ -346,7 +358,7 @@
             <span data-f-bind="sampleFalseBool"></span>
             <input data-f-bind="sampleFalseBool"></input>
         </td>
-        <td class="pass">pass (0.9.0)</td>
+        <td class="pass">pass (0.10.0)</td>
     </tr>
 
     <tr>
@@ -361,7 +373,7 @@
             </select>
         </td>
         <td class="pass">
-            pass (0.9.0): note that when sampleInt is 11, the value selected is the last value selected, rather than 'unselected'. see <a href="https://github.com/forio/flow.js/issues/16">issue #16</a> for discussion. (if you want it to go to unselected, add data-f-selected to your select tag, not your option tag; but note this is potentially browser depedent)
+            pass (0.10.0): note that when sampleInt is 11, the value selected is the last value selected, rather than 'unselected'. see <a href="https://github.com/forio/flow.js/issues/16">issue #16</a> for discussion. (if you want it to go to unselected, add data-f-selected to your select tag, not your option tag; but note this is potentially browser depedent)
         </td>
     </tr>
 
@@ -372,7 +384,7 @@
             sales[4] as a number:
             <span data-f-bind="sales[4]" data-f-convert="#,###"></span>
         </td>
-        <td class="pass">pass (0.9.0)</td>
+        <td class="pass">pass (0.10.0)</td>
     </tr>
 
     <tr>
@@ -382,13 +394,13 @@
             sales[4] as dollars and cents:
             <span data-f-bind="sales[4]" data-f-convert="$0.00"></span>
         </td>
-        <td class="pass">pass (0.9.0)</td>
+        <td class="pass">pass (0.10.0)</td>
     </tr>
 
     <tr>
         <td>formatting</td>
         <td>
-            data-f-convert dollars only, also regression testing: issue #1
+            data-f-convert dollars only, also regression testing: <a href="https://github.com/forio/flow.js/issues/1">issue #1</a>
         </td>
         <td>
             sales[4] as dollars only:
@@ -397,7 +409,7 @@
             sales[4] update, also using dollars:
             <input type="text" data-f-bind="sales[4]" data-f-convert="$0"/>
         </td>
-        <td class="pass">pass (0.9.0)</td>
+        <td class="pass">pass (0.10.0)</td>
     </tr>
 
     <tr>
@@ -407,7 +419,7 @@
             sales[4] as percent:
             <span data-f-bind="sales[4]" data-f-convert="0%"></span>
         </td>
-        <td class="pass">pass (0.9.0)</td>
+        <td class="pass">pass (0.10.0)</td>
     </tr>
 
     <tr>
@@ -424,7 +436,7 @@
             sampleString in upperCase
             <span data-f-bind="sampleString | upperCase"/>
         </td>
-        <td class="pass">pass (0.9.0)</td>
+        <td class="pass">pass (0.10.0)</td>
     </tr>
 
     <tr>
@@ -434,7 +446,7 @@
             sampleString in lowerCase
             <span data-f-bind="sampleString | lowerCase"/>
         </td>
-        <td class="pass">pass (0.9.0)</td>
+        <td class="pass">pass (0.10.0)</td>
     </tr>
 
     <tr>
@@ -444,7 +456,7 @@
             sampleString in titleCase
             <span data-f-bind="sampleString | titleCase"/>
         </td>
-        <td class="pass">pass (0.9.0)</td>
+        <td class="pass">pass (0.10.0)</td>
     </tr>
 
     <tr>
@@ -454,7 +466,7 @@
             sampleInt in integer
             <span data-f-bind="sampleInt | i"/>
         </td>
-        <td class="pass">pass (0.9.0)</td>
+        <td class="fail">fail (0.10.0, and 0.9.0), see <a href="https://github.com/forio/flow.js/issues/73">issue #73</a></td>
     </tr>
 
     <tr>
@@ -464,7 +476,7 @@
             sampleInt in string
             <span data-f-bind="sampleInt | s"/>
         </td>
-        <td class="pass">pass (0.9.0)</td>
+        <td class="pass">pass (0.10.0)</td>
     </tr>
 
     <tr>
@@ -519,7 +531,7 @@
             <span data-f-bind="salesSq[4]"></span>.
         </td>
         <td class="pass">
-            pass (0.9.0). note that this only works for span, not for input (i'm assuming that's by design).
+            pass (0.10.0). note that this only works for span, not for input (i'm assuming that's by design).
         </td>
     </tr>
 
@@ -539,7 +551,7 @@
                 <span data-f-bind="salesMgr.region"></span>
             </div>
         </td>
-        <td class="pass">pass (0.9.0)</td>
+        <td class="pass">pass (0.10.0)</td>
     </tr>
 
     <tr>
@@ -551,7 +563,7 @@
                 <span data-f-bind="salesMgr.region"></span>
             </div>
         </td>
-        <td class="pass">pass (0.9.0)</td>
+        <td class="pass">pass (0.10.0)</td>
     </tr>
 
     <tr>
@@ -563,7 +575,7 @@
                 <span data-f-bind="salesMgr.num_reports"></span>
             </div>
         </td>
-        <td class="pass">pass (0.9.0)</td>
+        <td class="pass">pass (0.10.0)</td>
     </tr>
 
     <tr>
@@ -595,7 +607,7 @@
         <td>methods</td>
         <td>data-f-on-init</td>
         <td>added 'data-f-on-init="saveAll"' to body tag</td>
-        <td class="pass">pass (0.9.0) (verified in postman)</td>
+        <td class="pass">pass (0.10.0) (verified in postman)</td>
     </tr>
 
     <tr>
@@ -608,7 +620,7 @@
             <span data-f-bind="sampleInt"></span>
         </td>
         <td class="fail">
-            only sometimes works in 0.9.0, see <a href="https://github.com/forio/flow.js/issues/10">issue #10</a> which is also <a href="https://issues.forio.com/browse/UNICORN-2157">UNICORN-2157</a>: works if clicking is the only thing we do, but not if we've already changed sampleInt e.g. in the input at top of page (but if we change sampleInt only with buttons, this continues to work...)
+            only sometimes works in 0.10.0, see <a href="https://github.com/forio/flow.js/issues/10">issue #10</a> which is also <a href="https://issues.forio.com/browse/UNICORN-2157">UNICORN-2157</a>: works if clicking is the only thing we do, but not if we've already changed sampleInt e.g. in the input at top of page (but if we change sampleInt only with buttons, this continues to work...)
         </td>
     </tr>
 
@@ -622,7 +634,7 @@
             <span data-f-bind="sampleInt"></span>
         </td>
         <td class="fail">
-            only sometimes works in 0.9.0, see <a href="https://github.com/forio/flow.js/issues/10">issue #10</a> which is also <a href="https://issues.forio.com/browse/UNICORN-2157">UNICORN-2157</a>: works if clicking is the only thing we do, but not if we've already changed sampleInt e.g. in the input at top of page (but if we change sampleInt only with buttons, this continues to work...)
+            only sometimes works in 0.10.0, see <a href="https://github.com/forio/flow.js/issues/10">issue #10</a> which is also <a href="https://issues.forio.com/browse/UNICORN-2157">UNICORN-2157</a>: works if clicking is the only thing we do, but not if we've already changed sampleInt e.g. in the input at top of page (but if we change sampleInt only with buttons, this continues to work...)
         </td>
     </tr>
 
@@ -638,7 +650,7 @@
             <span data-f-bind="sampleString"></span>
         </td>
         <td class="fail">
-            only sometimes works in 0.9.0, see <a href="https://github.com/forio/flow.js/issues/10">issue #10</a> which is also <a href="https://issues.forio.com/browse/UNICORN-2157">UNICORN-2157</a>: works if clicking is the only thing we do, but not if we've already changed sampleString e.g. in the input at top of page (but if we change sampleString only with buttons, this continues to work...)
+            only sometimes works in 0.10.0, see <a href="https://github.com/forio/flow.js/issues/10">issue #10</a> which is also <a href="https://issues.forio.com/browse/UNICORN-2157">UNICORN-2157</a>: works if clicking is the only thing we do, but not if we've already changed sampleString e.g. in the input at top of page (but if we change sampleString only with buttons, this continues to work...)
         </td>
     </tr>
 
@@ -654,7 +666,7 @@
             <span data-f-bind="sampleString"></span>
         </td>
         <td class="fail">
-            only sometimes works in 0.9.0, see <a href="https://github.com/forio/flow.js/issues/10">issue #10</a> which is also <a href="https://issues.forio.com/browse/UNICORN-2157">UNICORN-2157</a>: works if clicking is the only thing we do, but not if we've already changed sampleString e.g. in the input at top of page (but if we change sampleString only with buttons, this continues to work...)
+            only sometimes works in 0.10.0, see <a href="https://github.com/forio/flow.js/issues/10">issue #10</a> which is also <a href="https://issues.forio.com/browse/UNICORN-2157">UNICORN-2157</a>: works if clicking is the only thing we do, but not if we've already changed sampleString e.g. in the input at top of page (but if we change sampleString only with buttons, this continues to work...)
         </td>
     </tr>
 
@@ -681,22 +693,30 @@
             <span data-f-bind="salesSq[3]"></span>
         </td>
         <td class="fail">
-            only works sometimes in 0.9.0, see <a href="https://github.com/forio/flow.js/issues/10">issue #10</a> which is also <a href="https://issues.forio.com/browse/UNICORN-2157">UNICORN-2157</a>: works if clicking is the only thing we do, but not if we've already changed the array values e.g. in the input at top of page (but if we change array values only with buttons, this continues to work...)
+            only works sometimes in 0.10.0, see <a href="https://github.com/forio/flow.js/issues/10">issue #10</a> which is also <a href="https://issues.forio.com/browse/UNICORN-2157">UNICORN-2157</a>: works if clicking is the only thing we do, but not if we've already changed the array values e.g. in the input at top of page (but if we change array values only with buttons, this continues to work...)
         </td>
     </tr>
 
     <tr>
         <td>methods</td>
-        <td>data-f-on-click method, arg is other model variable</td>
-        <td>
-            <button data-f-on-click="changeString(<salesMgr.region>)">Click to change sampleString to salesMgr.region</button>
+        <td>data-f-on-click method, single arg that is other model variable - works with templating</td>
+        <td data-f-bind="salesMgr.region">
+            <button data-f-on-click="changeString(<%= value%>)">Click to change sampleString to salesMgr.region</button>
             <br>
             sampleString =
             <span data-f-bind="sampleString"></span>
         </td>
+        <td class="pass">
+            pass (0.10.0), see also <a href="https://github.com/forio/flow.js/issues/12">issue #12</a>
+        </td>
+    </tr>
+
+    <tr>
+        <td>methods</td>
+        <td>data-f-on-click method, multiple arguments that are all other model variables</td>
+        <td>future improvement - not available yet</td>
         <td>
-            future release (improvement request, doesn't work now), see
-            <a href="https://github.com/forio/flow.js/issues/12">issue #12</a>
+            future improvement, see <a href="https://github.com/forio/flow.js/issues/12">issue #12</a>
         </td>
     </tr>
 
@@ -710,7 +730,7 @@
             <span data-f-bind="sampleInt"></span>
         </td>
         <td class="fail">
-            only sometimes works in 0.9.0, see <a href="https://github.com/forio/flow.js/issues/10">issue #10</a> which is also <a href="https://issues.forio.com/browse/UNICORN-2157">UNICORN-2157</a>: works if clicking is the only thing we do, but not if we've already changed sampleInt e.g. in the input at top of page (but if we change sampleInt only with buttons, this continues to work...)
+            only sometimes works in 0.10.0, see <a href="https://github.com/forio/flow.js/issues/10">issue #10</a> which is also <a href="https://issues.forio.com/browse/UNICORN-2157">UNICORN-2157</a>: works if clicking is the only thing we do, but not if we've already changed sampleInt e.g. in the input at top of page (but if we change sampleInt only with buttons, this continues to work...)
         </td>
     </tr>
 
@@ -740,12 +760,12 @@
             <button onclick="updateBatchTrue()">Click to update with batch=true</button><br>
             <button onclick="updateBatchFalse()">Click to update with batch=false</button>
         </td>
-        <td class="pass">pass (0.9.0)</td>
+        <td class="pass">pass (0.10.0)</td>
     </tr>
 
 
     <tr>
-        <td>regression testing: issue #8</td>
+        <td>regression testing: <a href="https://github.com/forio/flow.js/issues/8">issue #8</a></td>
         <td>
             When I use data-f-convert="#.#%" and type in 1.5%
 in the field, an incorrect value of 1.5 is sent to Julia, and the resulting value is
@@ -758,11 +778,11 @@ displayed as 150%.
             input:
             <input type="text" data-f-bind="sampleInt" data-f-convert="#.#%"/>
         </td>
-        <td class="pass">pass (0.9.0)</td>
+        <td class="pass">pass (0.10.0)</td>
     </tr>
 
     <tr>
-        <td>regression testing: issue #2</td>
+        <td>regression testing: <a href="https://github.com/forio/flow.js/issues/2">issue #2</a></td>
         <td>
             I have a variable in my Julia model which is a Float64. The variable is bound via data-f-bind to an input tag in the UI. It works fine for displaying, but when a user changes the value, the new value is sent back to Julia as a string, and throws an error when it tries to squeeze into the Float64.
         </td>
@@ -776,12 +796,12 @@ displayed as 150%.
             <input type="text" data-f-bind="sample64"/>
         </td>
         <td class="pass">
-            pass (0.9.0) (Note: can only update using button, see <a href="https://github.com/forio/flow.js/issues/10">issue #10</a> which is also <a href="https://issues.forio.com/browse/UNICORN-2157">UNICORN-2157</a>
+            pass (0.10.0) (Note: can only update using button, see <a href="https://github.com/forio/flow.js/issues/10">issue #10</a> which is also <a href="https://issues.forio.com/browse/UNICORN-2157">UNICORN-2157</a>
         </td>
     </tr>
 
     <tr>
-        <td>regression testing: issue #14</td>
+        <td>regression testing: <a href="https://github.com/forio/flow.js/issues/14">issue #14</a></td>
         <td>
             take an array variable, pipe it to a converter that works across the array (e.g. "max"), then pipe it to a formatter that works on one array element (e.g. "s0"). expected result: both piped operations are applied, serially (e.g. the largest element of the array is formatted, rather than the last)
         </td>
@@ -800,7 +820,7 @@ displayed as 150%.
             span, print out sales | max | $x,xxx:
             <span data-f-bind="sales | max | $#,###"></span>
         </td>
-        <td class="pass">pass (0.9.0) (after updating register function)</td>
+        <td class="pass">pass (0.10.0)</td>
     </tr>
 
     <tr>
@@ -812,11 +832,11 @@ displayed as 150%.
             <!-- span, print out sales | min | $x,xxx:
              <span data-f-bind="sales | min | $#,###"></span> -->
         </td>
-        <td class="pass">pass (0.9.0)</td>
+        <td class="pass">pass (0.10.0)</td>
     </tr>
 
     <tr>
-        <td>display_only; regression testing: issue #18</td>
+        <td>display_only; regression testing: <a href="https://github.com/forio/flow.js/issues/18">issue #18</a></td>
         <td>
             flow.js attempts to bind two-way even when data-f-bind not specified
         </td>
@@ -832,11 +852,11 @@ displayed as 150%.
                 and should update ONLY when the second input is changed by the user, NOT the first
             </span>
         </td>
-        <td class="pass">pass (0.9.0)</td>
+        <td class="pass">pass (0.10.0)</td>
     </tr>
 
     <tr>
-        <td>regression testing: issue #15</td>
+        <td>regression testing: <a href="https://github.com/forio/flow.js/issues/15">issue #15</a></td>
         <td>
             When data-f-value is used instead of data-f-bind, data-f-convert is ignored
         </td>
@@ -846,7 +866,7 @@ displayed as 150%.
             sampleString in upperCase, using data-f-value and | <input data-f-value="sampleString | upperCase"/>
         </td>
         <td class="pass">
-            pass (0.9.0)
+            pass (0.10.0)
         </td>
     </tr>
 
@@ -856,10 +876,10 @@ displayed as 150%.
 <script src="../../../vendor/lodash/dist/lodash.js"></script>
 
 <!-- <script src="../../vendor/epicenter-js-libs/dist/epicenter.js"></script> -->
-<script src="https://forio.com/tools/js-libs/1.5.0/epicenter.js"></script>
+<script src="https://forio.com/tools/js-libs/1.6.0/epicenter.js"></script>
 
-<script src="../../../dist/flow-edge.js"></script>
-<!-- <script src="https://forio.com/tools/js-libs/flow/0.9.0/flow.js"></script> -->
+<!-- <script src="../../../dist/flow-edge.js"></script> -->
+<script src="https://forio.com/tools/js-libs/flow/0.10.0/flow.js"></script>
 
 
 <script>
