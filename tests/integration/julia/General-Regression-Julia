@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+  <meta content="text/html; charset=UTF-8" http-equiv="content-type" />
+  <title>Test Suite</title>
+</head>
+<body>
+<table id="suiteTable" cellpadding="1" cellspacing="1" border="1" class="selenium"><tbody>
+<tr><td><b>Test Suite</b></td></tr>
+<tr><td><a href="selenium-tcs/display-update">display-update</a></td></tr>
+<tr><td><a href="selenium-tcs/display-foreach-and-repeat">display-foreach-and-repeat</a></td></tr>
+<tr><td><a href="selenium-tcs/special-handling">special-handling</a></td></tr>
+<tr><td><a href="selenium-tcs/formatting">formatting</a></td></tr>
+<tr><td><a href="selenium-tcs/styling">styling</a></td></tr>
+<tr><td><a href="selenium-tcs/methods">methods</a></td></tr>
+<tr><td><a href="selenium-tcs/regression">regression</a></td></tr>
+</tbody></table>
+</body>
+</html>

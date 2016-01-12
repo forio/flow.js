@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head profile="http://selenium-ide.openqa.org/profiles/test-case">
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<link rel="selenium.base" href="http://local.forio.com:8000/" />
+<title>special-handling</title>
+</head>
+<body>
+<table cellpadding="1" cellspacing="1" border="1">
+<thead>
+<tr><td rowspan="1" colspan="3">special-handling</td></tr>
+</thead><tbody>
+<tr>
+	<td>open</td>
+	<td>/tests/integration/julia/sandbox-mj.html</td>
+	<td></td>
+</tr>
+<tr>
+	<td>waitForText</td>
+	<td>id=update01</td>
+	<td>hello world flow</td>
+</tr>
+<!--# test data-f-checked-->
+<tr>
+	<td>assertValue</td>
+	<td>id=update39</td>
+	<td>on</td>
+</tr>
+<tr>
+	<td>assertValue</td>
+	<td>id=update40</td>
+	<td>off</td>
+</tr>
+<!--# test data-f-disabled-->
+<tr>
+	<td>assertAttribute</td>
+	<td>id=update43@disabled</td>
+	<td></td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>id=update44</td>
+	<td>false</td>
+</tr>
+<tr>
+	<td>pause</td>
+	<td>3000</td>
+	<td></td>
+</tr>
+<tr>
+	<td>assertAttribute</td>
+	<td>id=update42@disabled</td>
+	<td></td>
+</tr>
+<!--# test data-f-selected some more-->
+<tr>
+	<td>assertSelectedValue</td>
+	<td>id=update45</td>
+	<td>10</td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>id=update05</td>
+	<td>8</td>
+</tr>
+<tr>
+	<td>pause</td>
+	<td>3000</td>
+	<td></td>
+</tr>
+<tr>
+	<td>assertSelectedValue</td>
+	<td>id=update45</td>
+	<td>8</td>
+</tr>
+
+</tbody></table>
+</body>
+</html>

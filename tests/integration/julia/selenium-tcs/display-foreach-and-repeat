@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head profile="http://selenium-ide.openqa.org/profiles/test-case">
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<link rel="selenium.base" href="http://local.forio.com:8000/" />
+<title>display_foreach</title>
+</head>
+<body>
+<table cellpadding="1" cellspacing="1" border="1">
+<thead>
+<tr><td rowspan="1" colspan="3">display_foreach</td></tr>
+</thead><tbody>
+<tr>
+	<td>open</td>
+	<td>/tests/integration/julia/sandbox-mj.html</td>
+	<td></td>
+</tr>
+<tr>
+	<td>waitForText</td>
+	<td>id=update01</td>
+	<td>hello world flow</td>
+</tr>
+<!--# test data-f-foreach, using ul, li, and templates-->
+<!--# note that Value for the list is the concatenated text of all <li>s, (minus the html)-->
+<tr>
+	<td>assertText</td>
+	<td>id=update31</td>
+	<td>Index is 0 and value is 100Index is 1 and value is 400Index is 2 and value is 300Index is 3 and value is 200</td>
+</tr>
+<tr>
+	<td>assertText</td>
+	<td>id=update32</td>
+	<td>Index is 0 and value is 101Index is 1 and value is 401Index is 2 and value is 301Index is 3 and value is 201</td>
+</tr>
+<tr>
+	<td>assertText</td>
+	<td>id=update33</td>
+	<td>100400300200</td>
+</tr>
+<!--# test data-f-foreach, for an object, and templates-->
+<tr>
+	<td>assertText</td>
+	<td>id=update34</td>
+	<td>Field is num_reports and value is 2Field is name and value is John SmithField is region and value is West</td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>id=update07</td>
+	<td>East</td>
+</tr>
+<tr>
+	<td>pause</td>
+	<td>3000</td>
+	<td></td>
+</tr>
+<tr>
+	<td>assertText</td>
+	<td>id=update34</td>
+	<td>Field is num_reports and value is 2Field is name and value is John SmithField is region and value is East</td>
+</tr>
+<!--# test data-f-foreach, nested-->
+<!--# note that Value for the nested list is concatenated text but with spaces btwn sublists-->
+<tr>
+	<td>assertText</td>
+	<td>id=update35</td>
+	<td>North 100400300200 East 100400300200 South 100400300200 West 100400300200</td>
+</tr>
+<!--# test data-f-repeat-->
+<!--# note that Value for the text is all the contents of the td cells concatenated-->
+<tr>
+	<td>click</td>
+	<td>id=update36</td>
+	<td></td>
+</tr>
+<tr>
+	<td>pause</td>
+	<td>3000</td>
+	<td></td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>id=update36</td>
+	<td></td>
+</tr>
+<tr>
+	<td>pause</td>
+	<td>3000</td>
+	<td></td>
+</tr>
+<tr>
+	<td>assertText</td>
+	<td>id=update37</td>
+	<td>Step (using index+1 of stepArray variable)123</td>
+</tr>
+<tr>
+	<td>assertText</td>
+	<td>id=update38</td>
+	<td>stepArray by step202224</td>
+</tr>
+</tbody></table>
+</body>
+</html>

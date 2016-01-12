@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head profile="http://selenium-ide.openqa.org/profiles/test-case">
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<link rel="selenium.base" href="http://local.forio.com:8000/" />
+<title>styling</title>
+</head>
+<body>
+<table cellpadding="1" cellspacing="1" border="1">
+<thead>
+<tr><td rowspan="1" colspan="3">styling</td></tr>
+</thead><tbody>
+<tr>
+	<td>open</td>
+	<td>/tests/integration/julia/sandbox-mj.html</td>
+	<td></td>
+</tr>
+<tr>
+	<td>waitForText</td>
+	<td>id=update01</td>
+	<td>hello world flow</td>
+</tr>
+<!--# test styling by looking for the names of css classes-->
+<tr>
+	<td>assertAttribute</td>
+	<td>id=update92@class</td>
+	<td>West</td>
+</tr>
+<tr>
+	<td>assertAttribute</td>
+	<td>id=update93@class</td>
+	<td>xx West</td>
+</tr>
+<tr>
+	<td>assertAttribute</td>
+	<td>id=update94@class</td>
+	<td>xx value-2</td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>id=update07</td>
+	<td>East</td>
+</tr>
+<tr>
+	<td>pause</td>
+	<td>3000</td>
+	<td></td>
+</tr>
+<tr>
+	<td>assertAttribute</td>
+	<td>id=update92@class</td>
+	<td>East</td>
+</tr>
+<tr>
+	<td>assertAttribute</td>
+	<td>id=update93@class</td>
+	<td>xx East</td>
+</tr>
+
+</tbody></table>
+</body>
+</html>
