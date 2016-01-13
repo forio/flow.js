@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head profile="http://selenium-ide.openqa.org/profiles/test-case">
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<link rel="selenium.base" href="http://local.forio.com:8000/" />
+<title>regression</title>
+</head>
+<body>
+<table cellpadding="1" cellspacing="1" border="1">
+<thead>
+<tr><td rowspan="1" colspan="3">regression</td></tr>
+</thead><tbody>
+<tr>
+	<td>open</td>
+	<td>/tests/integration/julia/sandbox-mj.html</td>
+	<td></td>
+</tr>
+<tr>
+	<td>waitForText</td>
+	<td>id=update01</td>
+	<td>hello world flow</td>
+</tr>
+<!--# test issue #8-->
+<tr>
+	<td>type</td>
+	<td>id=update83</td>
+	<td>1.5%</td>
+</tr>
+<tr>
+	<td>pause</td>
+	<td>3000</td>
+	<td></td>
+</tr>
+<tr>
+	<td>assertText</td>
+	<td>id=update82</td>
+	<td>0.015</td>
+</tr>
+<!--# test issue #2-->
+<tr>
+	<td>click</td>
+	<td>id=update85</td>
+	<td></td>
+</tr>
+<tr>
+	<td>pause</td>
+	<td>3000</td>
+	<td></td>
+</tr>
+<tr>
+	<td>assertText</td>
+	<td>id=update84</td>
+	<td>5.85987</td>
+</tr>
+<!--# test issue #14-->
+<tr>
+	<td>assertText</td>
+	<td>id=update87</td>
+	<td>$400</td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>id=update13</td>
+	<td>675</td>
+</tr>
+<tr>
+	<td>pause</td>
+	<td>3000</td>
+	<td></td>
+</tr>
+<tr>
+	<td>assertText</td>
+	<td>id=update87</td>
+	<td>$675</td>
+</tr>
+<!--# test issue #18-->
+<tr>
+	<td>assertText</td>
+	<td>id=update90</td>
+	<td>hello world flow</td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>id=update88</td>
+	<td>something else</td>
+</tr>
+<tr>
+	<td>pause</td>
+	<td>3000</td>
+	<td></td>
+</tr>
+<tr>
+	<td>assertText</td>
+	<td>id=update90</td>
+	<td>hello world flow</td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>id=update89</td>
+	<td>something else</td>
+</tr>
+<tr>
+	<td>pause</td>
+	<td>3000</td>
+	<td></td>
+</tr>
+<tr>
+	<td>assertText</td>
+	<td>id=update90</td>
+	<td>something else</td>
+</tr>
+<!--# test issue #15 - can't test? input has no text or value to compare?-->
+</tbody></table>
+</body>
+</html>

@@ -1,0 +1,158 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head profile="http://selenium-ide.openqa.org/profiles/test-case">
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<link rel="selenium.base" href="http://local.forio.com:8000/" />
+<title>methods</title>
+</head>
+<body>
+<table cellpadding="1" cellspacing="1" border="1">
+<thead>
+<tr><td rowspan="1" colspan="3">methods</td></tr>
+</thead><tbody>
+<tr>
+	<td>open</td>
+	<td>/tests/integration/julia/sandbox-mj.html</td>
+	<td></td>
+</tr>
+<tr>
+	<td>waitForText</td>
+	<td>id=update01</td>
+	<td>hello world flow</td>
+</tr>
+<!--# skip testing for data-f-on-init: requires lookups w/ postman-->
+<!--# testing data-f-on-click-->
+<tr>
+	<td>click</td>
+	<td>id=update64</td>
+	<td></td>
+</tr>
+<tr>
+	<td>pause</td>
+	<td>3000</td>
+	<td></td>
+</tr>
+<tr>
+	<td>assertText</td>
+	<td>id=update65</td>
+	<td>8</td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>id=update66</td>
+	<td></td>
+</tr>
+<tr>
+	<td>pause</td>
+	<td>3000</td>
+	<td></td>
+</tr>
+<tr>
+	<td>assertText</td>
+	<td>id=update67</td>
+	<td>11</td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>id=update68</td>
+	<td></td>
+</tr>
+<tr>
+	<td>pause</td>
+	<td>3000</td>
+	<td></td>
+</tr>
+<tr>
+	<td>assertText</td>
+	<td>id=update69</td>
+	<td>goodbye world</td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>id=update70</td>
+	<td></td>
+</tr>
+<tr>
+	<td>pause</td>
+	<td>3000</td>
+	<td></td>
+</tr>
+<tr>
+	<td>assertText</td>
+	<td>id=update71</td>
+	<td>22</td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>id=update72</td>
+	<td></td>
+</tr>
+<tr>
+	<td>pause</td>
+	<td>3000</td>
+	<td></td>
+</tr>
+<tr>
+	<td>assertText</td>
+	<td>id=update73</td>
+	<td>105</td>
+</tr>
+<tr>
+	<td>assertText</td>
+	<td>id=update74</td>
+	<td>310</td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>id=update75</td>
+	<td></td>
+</tr>
+<tr>
+	<td>pause</td>
+	<td>3000</td>
+	<td></td>
+</tr>
+<tr>
+	<td>assertText</td>
+	<td>id=update76</td>
+	<td>106</td>
+</tr>
+<tr>
+	<td>assertText</td>
+	<td>id=update77</td>
+	<td>311</td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>id=update78</td>
+	<td></td>
+</tr>
+<tr>
+	<td>pause</td>
+	<td>3000</td>
+	<td></td>
+</tr>
+<tr>
+	<td>assertText</td>
+	<td>id=update79</td>
+	<td>West</td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>id=update80</td>
+	<td></td>
+</tr>
+<tr>
+	<td>pause</td>
+	<td>3000</td>
+	<td></td>
+</tr>
+<tr>
+	<td>assertText</td>
+	<td>id=update81</td>
+	<td>19</td>
+</tr>
+</tbody></table>
+</body>
+</html>

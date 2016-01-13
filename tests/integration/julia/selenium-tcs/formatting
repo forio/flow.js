@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head profile="http://selenium-ide.openqa.org/profiles/test-case">
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<link rel="selenium.base" href="http://local.forio.com:8000/" />
+<title>formatting</title>
+</head>
+<body>
+<table cellpadding="1" cellspacing="1" border="1">
+<thead>
+<tr><td rowspan="1" colspan="3">formatting</td></tr>
+</thead><tbody>
+<tr>
+	<td>open</td>
+	<td>/tests/integration/julia/sandbox-mj.html</td>
+	<td></td>
+</tr>
+<tr>
+	<td>waitForText</td>
+	<td>id=update01</td>
+	<td>hello world flow</td>
+</tr>
+<!--# test data-f-convert for numbers, dollars, etc-->
+<tr>
+	<td>assertText</td>
+	<td>id=update46</td>
+	<td>200</td>
+</tr>
+<tr>
+	<td>assertText</td>
+	<td>id=update47</td>
+	<td>$200.00</td>
+</tr>
+<tr>
+	<td>assertText</td>
+	<td>id=update48</td>
+	<td>$200</td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>id=update49</td>
+	<td>125</td>
+</tr>
+<tr>
+	<td>pause</td>
+	<td>3000</td>
+	<td></td>
+</tr>
+<tr>
+	<td>assertText</td>
+	<td>id=update48</td>
+	<td>$125</td>
+</tr>
+<tr>
+	<td>assertText</td>
+	<td>id=update50</td>
+	<td>12500%</td>
+</tr>
+<!--# test built in converters (upperCase,lowerCase,titleCase,i,s)-->
+<tr>
+	<td>assertText</td>
+	<td>id=update51</td>
+	<td>HELLO WORLD FLOW</td>
+</tr>
+<tr>
+	<td>assertText</td>
+	<td>id=update52</td>
+	<td>hello world flow</td>
+</tr>
+<tr>
+	<td>assertText</td>
+	<td>id=update53</td>
+	<td>Hello World Flow</td>
+</tr>
+<tr>
+	<td>assertText</td>
+	<td>id=update54</td>
+	<td>10</td>
+</tr>
+<tr>
+	<td>assertText</td>
+	<td>id=update55</td>
+	<td>10</td>
+</tr>
+<!--# test built in converters for arrays-->
+<tr>
+	<td>assertText</td>
+	<td>id=update56</td>
+	<td>100</td>
+</tr>
+<tr>
+	<td>assertText</td>
+	<td>id=update57</td>
+	<td>125</td>
+</tr>
+<tr>
+	<td>assertText</td>
+	<td>id=update58</td>
+	<td>300</td>
+</tr>
+<tr>
+	<td>assertText</td>
+	<td>id=update59</td>
+	<td>125300400100</td>
+</tr>
+<tr>
+	<td>assertText</td>
+	<td>id=update60</td>
+	<td>101</td>
+</tr>
+<tr>
+	<td>assertText</td>
+	<td>id=update61</td>
+	<td>201</td>
+</tr>
+<tr>
+	<td>assertText</td>
+	<td>id=update62</td>
+	<td>301</td>
+</tr>
+<tr>
+	<td>assertText</td>
+	<td>id=update63</td>
+	<td>201301401101</td>
+</tr>
+
+</tbody></table>
+</body>
+</html>

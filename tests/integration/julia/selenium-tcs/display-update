@@ -1,0 +1,236 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head profile="http://selenium-ide.openqa.org/profiles/test-case">
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<link rel="selenium.base" href="http://local.forio.com:8000/" />
+<title>display-update</title>
+</head>
+<body>
+<table cellpadding="1" cellspacing="1" border="1">
+<thead>
+<tr><td rowspan="1" colspan="3">display-update</td></tr>
+</thead><tbody>
+<tr>
+	<td>open</td>
+	<td>/tests/integration/julia/sandbox-mj.html</td>
+	<td></td>
+</tr>
+<tr>
+	<td>waitForText</td>
+	<td>id=update01</td>
+	<td>hello world flow</td>
+</tr>
+<!--# test span, input for data-f-bind string-->
+<tr>
+	<td>type</td>
+	<td>id=update02</td>
+	<td>hello again</td>
+</tr>
+<tr>
+	<td>pause</td>
+	<td>3000</td>
+	<td></td>
+</tr>
+<tr>
+	<td>assertText</td>
+	<td>id=update01</td>
+	<td>hello again</td>
+</tr>
+<!--# test span, input for data-f-bind number-->
+<tr>
+	<td>type</td>
+	<td>id=update05</td>
+	<td>11</td>
+</tr>
+<tr>
+	<td>pause</td>
+	<td>3000</td>
+	<td></td>
+</tr>
+<tr>
+	<td>assertText</td>
+	<td>id=update04</td>
+	<td>11</td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>id=update05</td>
+	<td>8.5</td>
+</tr>
+<tr>
+	<td>pause</td>
+	<td>3000</td>
+	<td></td>
+</tr>
+<tr>
+	<td>assertText</td>
+	<td>id=update04</td>
+	<td>8.5</td>
+</tr>
+<!--# test span, input for data-f-bin object-->
+<tr>
+	<td>type</td>
+	<td>id=update07</td>
+	<td>East</td>
+</tr>
+<tr>
+	<td>pause</td>
+	<td>3000</td>
+	<td></td>
+</tr>
+<tr>
+	<td>assertText</td>
+	<td>id=update06</td>
+	<td>East</td>
+</tr>
+<!--# test span, input for data-f-bind arrays: {}, []-->
+<tr>
+	<td>type</td>
+	<td>id=update09</td>
+	<td>320</td>
+</tr>
+<tr>
+	<td>pause</td>
+	<td>3000</td>
+	<td></td>
+</tr>
+<tr>
+	<td>assertText</td>
+	<td>id=update08</td>
+	<td>320</td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>id=update11</td>
+	<td>321</td>
+</tr>
+<tr>
+	<td>pause</td>
+	<td>3000</td>
+	<td></td>
+</tr>
+<tr>
+	<td>assertText</td>
+	<td>id=update10</td>
+	<td>321</td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>id=update13</td>
+	<td>120</td>
+</tr>
+<tr>
+	<td>pause</td>
+	<td>3000</td>
+	<td></td>
+</tr>
+<tr>
+	<td>assertText</td>
+	<td>id=update12</td>
+	<td>120</td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>id=update15</td>
+	<td>121</td>
+</tr>
+<tr>
+	<td>pause</td>
+	<td>3000</td>
+	<td></td>
+</tr>
+<tr>
+	<td>assertText</td>
+	<td>id=update14</td>
+	<td>121</td>
+</tr>
+<!--# test data-f-bind with basic templates-->
+<tr>
+	<td>assertText</td>
+	<td>id=update19</td>
+	<td>The data-f-bind is in the &quot;td&quot; tag, we'll use templates to show the values of sampleInt 8.5 and sampleString hello again.</td>
+</tr>
+<tr>
+	<td>assertText</td>
+	<td>id=update20</td>
+	<td>10</td>
+</tr>
+<!--# test converter on data-f-bind-->
+<tr>
+	<td>assertValue</td>
+	<td>id=update23</td>
+	<td>$120.00</td>
+</tr>
+<!--# test data-f-bind array indexed by variable (using templates)-->
+<tr>
+	<td>type</td>
+	<td>id=update25</td>
+	<td>402</td>
+</tr>
+<tr>
+	<td>pause</td>
+	<td>3000</td>
+	<td></td>
+</tr>
+<tr>
+	<td>assertText</td>
+	<td>id=update24</td>
+	<td>402</td>
+</tr>
+<!--# test data-f-bind on radio button and select selection-->
+<tr>
+	<td>assertValue</td>
+	<td>id=update26</td>
+	<td>on</td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>id=update05</td>
+	<td>8</td>
+</tr>
+<tr>
+	<td>pause</td>
+	<td>3000</td>
+	<td></td>
+</tr>
+<tr>
+	<td>assertValue</td>
+	<td>id=update27</td>
+	<td>on</td>
+</tr>
+<!--# test changing select selection-->
+<tr>
+	<td>assertSelectedValue</td>
+	<td>id=update28</td>
+	<td>8</td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>id=update05</td>
+	<td>10</td>
+</tr>
+<tr>
+	<td>pause</td>
+	<td>3000</td>
+	<td></td>
+</tr>
+<tr>
+	<td>assertSelectedValue</td>
+	<td>id=update28</td>
+	<td>10</td>
+</tr>
+<!--# test checkbox selection-->
+<tr>
+	<td>assertValue</td>
+	<td>id=update29</td>
+	<td>on</td>
+</tr>
+<tr>
+	<td>assertValue</td>
+	<td>id=update30</td>
+	<td>off</td>
+</tr>
+</tbody></table>
+</body>
+</html>
