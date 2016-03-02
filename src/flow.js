@@ -5,7 +5,7 @@
  *
  * However, sometimes you want to be explicit in your initialization call, and there are also some additional parameters that let you customize your use of Flow.js.
  *
- * ####Parameters
+ * #### Parameters
  *
  * The parameters for initializing Flow.js include:
  *
@@ -37,7 +37,7 @@
  *
  * The `Flow.initialize()` call is based on the Epicenter.js [Run Service](../../../api_adapters/generated/run-api-service/) from the [API Adapters](../../../api_adapters/). See those pages for additional information on parameters.
  *
- * ####Example
+ * #### Example
  *
  *      Flow.initialize({
  *          channel: {
