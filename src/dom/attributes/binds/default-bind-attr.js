@@ -3,7 +3,7 @@
  *
  * The most commonly used attribute provided by Flow.js is the `data-f-bind` attribute.
  *
- * ####data-f-bind with a single value
+ * #### data-f-bind with a single value
  *
  * You can bind variables from the model in your interface by setting the `data-f-bind` attribute. This attribute binding is bi-directional, meaning that as the model changes, the interface is automatically updated; and when users change values in the interface, the model is automatically updated. Specifically:
  *
@@ -31,7 +31,7 @@
  * * Remember that if your model is in Vensim, the time step can be the first array index or the last array index, depending on your [model.cfg](../../../../../../model_code/vensim/#creating-cfg) file.
  * * By default, all HTML elements update for any change for each variable. However, you can prevent the user interface from updating &mdash; either for all variables or for particular variables &mdash; by setting the `silent` property when you initialize Flow.js. See more on [additional options for the Flow.initialize() method](../../../../../#custom-initialize).
  *
- * ####data-f-bind with multiple values and templates
+ * #### data-f-bind with multiple values and templates
  *
  * If you have multiple variables, you can use the shortcut of listing multiple variables in an enclosing HTML element and then referencing each variable using templates. (Templates are available as part of Flow.js's lodash dependency. See more background on [working with templates](../../../../../#templates).)
  *
