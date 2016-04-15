@@ -21,15 +21,17 @@ module.exports = (function () {
     var autoUpdatePlugin = require('./plugins/auto-update-bindings');
 
     //Jquery selector to return everything which has a f- property set
-    $.expr[':'][config.prefix] = function (obj) {
-        var $this = $(obj);
-        var dataprops = _.keys($this.data());
-
-        var match = _.find(dataprops, function (attr) {
-            return (attr.indexOf(config.prefix) === 0);
-        });
-
-        return !!(match);
+    $.expr[':'][config.prefix] = function (el) {
+        if (!el || !el.attributes) {
+            return false;
+        }
+        for (var i = 0; i < el.attributes.length; i++) {
+            var attr = el.attributes[i].nodeName;
+            if (attr.indexOf('data-' + config.prefix) === 0) {
+                return true;
+            }
+        }
+        return false;
     };
 
     $.expr[':'].webcomponent = function (obj) {
@@ -120,14 +122,19 @@ module.exports = (function () {
          * @returns {undefined}
          */
         bindElement: function (element, channel) {
+            console.log('FLOW', 'BIND EL', element);
             if (!channel) {
                 channel = this.options.channel.variables;
             }
             element = getElementOrError(element);
             var $el = $(element);
+            console.log('FLOW', 'before cheking', $el.is(':' + config.prefix));
+
             if (!$el.is(':' + config.prefix)) {
                 return false;
             }
+            console.log('FLOW', 'no return', element);
+
             if (!_.contains(this.private.matchedElements, element)) {
                 this.private.matchedElements.push(element);
             }
@@ -138,6 +145,8 @@ module.exports = (function () {
                 el: element
             });
 
+            console.log('FLOW', 'got handler', Handler);
+
             var subscribe = function (subsChannel, varsToBind, $bindEl, options) {
                 if (!varsToBind || !varsToBind.length) {
                     return false;
@@ -146,6 +155,9 @@ module.exports = (function () {
                 var newsubs = ($el.data('f-subscription-id') || []).concat(subsid);
                 $el.data('f-subscription-id', newsubs);
             };
+
+
+            console.log('FLOWWWO', $el, element, Handler);
 
             var attrBindings = [];
             var nonBatchableVariables = [];
@@ -190,6 +202,7 @@ module.exports = (function () {
                 }
             });
             $el.data('attr-bindings', attrBindings);
+            console.log(nonBatchableVariables, attrBindings, $el);
             if (nonBatchableVariables.length) {
                 // console.log('subscribe', nonBatchableVariables, $el.get(0))
                 subscribe(channel, nonBatchableVariables, $el, { batch: false });
