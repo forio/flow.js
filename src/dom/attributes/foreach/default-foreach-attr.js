@@ -125,7 +125,7 @@ module.exports = {
             templateData[keyAttr] = datakey;
             templateData[valueAttr] = dataval;
         
-            var templatedLoop = _.template(cloop, templateData);
+            var templatedLoop = _.template(cloop)(templateData);
             var isTemplated = templatedLoop !== cloop;
             var nodes = $(templatedLoop);
 

@@ -3,7 +3,6 @@ var list = [];
 
 var supported = [
     'values', 'keys', 'compact', 'difference',
-    'flatten', 'rest',
     'union',
     'uniq', 'without',
     'xor', 'zip'

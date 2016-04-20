@@ -129,7 +129,7 @@ var converterManager = {
             return value;
         }
         list = [].concat(list);
-        list = _.invoke(list, 'trim');
+        list = _.invokeMap(list, 'trim');
 
         var currentValue = value;
         var me = this;
@@ -171,7 +171,7 @@ var converterManager = {
      * Counter-part to `convert()`. Translates converted values back to their original form.
      *
      * @param  {String} value Value to parse.
-     * @param  {String|Array} list  List of parsers to run the value through. Outermost is invoked first.
+     * @param  {String|Array} list  List of parsers to run the value through. Outermost is invokeMapd first.
      * @return {Any} Original value.
      */
     parse: function (value, list) {
@@ -179,7 +179,7 @@ var converterManager = {
             return value;
         }
         list = [].concat(list).reverse();
-        list = _.invoke(list, 'trim');
+        list = _.invokeMap(list, 'trim');
 
         var currentValue = value;
         var me = this;

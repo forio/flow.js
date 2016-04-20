@@ -29,6 +29,7 @@
 
 'use strict';
 var config = require('../config');
+var debounce = require('../utils/debounce'); //FIXME: Sinon's fake timers have an issue with lodash 4's debounce
 
 module.exports = function (options) {
     var defaults = {
@@ -162,13 +163,13 @@ module.exports = function (options) {
         getSubscribers: function (topic) {
             if (topic) {
                 return _.filter(this.subscriptions, function (subs) {
-                    return _.contains(subs.topics, topic);
+                    return _.includes(subs.topics, topic);
                 });
             }
             return this.subscriptions;
         },
         getAllTopics: function () {
-            return _(this.subscriptions).pluck('topics').flatten().uniq().value();
+            return _(this.subscriptions).map('topics').flattenDeep().uniq().value();
         },
         getTopicDependencies: function (list) {
             if (!list) {
@@ -198,12 +199,13 @@ module.exports = function (options) {
                     leading: false
                 }, options);
 
-                this.debouncedFetch = _.debounce(function () {
+                var me = this;
+                this.debouncedFetch = debounce(function () {
                     this.fetch(this.unfetched).then(function (changed) {
                         $.extend(currentData, changed);
-                        this.unfetched = [];
-                        this.notify(changed);
-                    }.bind(this));
+                        me.unfetched = [];
+                        me.notify(changed);
+                    });
                 }, channelOptions.autoFetch.debounce, debounceOptions);
             }
 
@@ -220,7 +222,7 @@ module.exports = function (options) {
                 } else {
                     unmappedVariables.push(v);
                 }
-            }, this);
+            }.bind(this));
             if (unmappedVariables.length) {
                 return vs.query(unmappedVariables).then(function (variableValueList) {
                     return $.extend(valueList, variableValueList);
@@ -329,7 +331,7 @@ module.exports = function (options) {
             };
 
             if (!$.isPlainObject(topics)) {
-                topics = _.object([topics], [value]);
+                topics = _.zipObject([topics], [value]);
             }
             _.each(this.subscriptions, function (subscription) {
                 var target = subscription.target;
