@@ -168,7 +168,7 @@ module.exports = function (options) {
             return this.subscriptions;
         },
         getAllTopics: function () {
-            return _(this.subscriptions).pluck('topics').flatten().uniq().value();
+            return _(this.subscriptions).map('topics').flatten().uniq().value();
         },
         getTopicDependencies: function (list) {
             if (!list) {

@@ -181,7 +181,7 @@ module.exports = function (options) {
                 return fn.call(run, operation.operations)
                         .then(function (response) {
                             if (!params || !params.silent) {
-                                me.refresh(_.pluck(operation.operations, 'name'), response);
+                                me.refresh(_.map(operation.operations, 'name'), response);
                             }
                         });
             } else {
