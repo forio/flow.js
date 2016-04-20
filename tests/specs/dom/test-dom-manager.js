@@ -198,6 +198,26 @@
                 domManager.unbindElement(addedNode.get(0));
                 domManager.private.matchedElements.length.should.equal(1);
             });
+            describe('Remove added data items', function () {
+                it.only('should remove data items it adds', function () {
+                    var node = make('<div data-f-bind="a | ##" data-f-other=" b | %"> </div>');
+                    domManager.initialize({
+                        root: node,
+                        channel: dummyChannelManager
+                    });
+                    var keys = _.keys($(node).data());
+
+                    var directTranslates = ['fConvertBind', 'fConvertOther', 'fOther', 'fBind'];
+                    var flowAdded = ['fSubscriptionId', 'fAttrBindings'];
+                    var toMatch = [].concat(directTranslates).concat(flowAdded);
+                    keys.sort().should.eql(toMatch.sort());
+
+                    domManager.unbindElement(node);
+
+                    var newkeys = _.keys($(node).data());
+                    newkeys.should.eql([]);
+                });
+            });
         });
 
         describe('#unbindAll', function () {
