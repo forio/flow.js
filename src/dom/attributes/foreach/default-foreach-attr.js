@@ -89,6 +89,21 @@ module.exports = {
 
     target: '*',
 
+    parse: function (attrVal) {
+        var inMatch = attrVal.match(/(.*) (?:in|of) (.*)/);
+        if (inMatch) {
+            var itMatch = inMatch[1].match(/\((.*),(.*)\)/);
+            if (itMatch) {
+                this.data(config.attrs.keyAs, itMatch[1].trim());
+                this.data(config.attrs.valueAs, itMatch[2].trim());
+            } else {
+                this.data(config.attrs.valueAs, inMatch[1].trim());
+            }
+            attrVal = inMatch[2];
+        }
+        return attrVal;
+    },
+
     handle: function (value, prop) {
         value = ($.isPlainObject(value) ? value : [].concat(value));
         var loopTemplate = this.data(config.attrs.foreachTemplate);

@@ -158,7 +158,7 @@ module.exports = (function () {
 
             var attrBindings = [];
             var nonBatchableVariables = [];
-            //NOTE: looping through attributes instead of .data because .data automatically camelcases properties and make it hard to retrvieve
+            //NOTE: looping through attributes instead of .data because .data automatically camelcases properties and make it hard to retrvieve. Also don't want to index dynamically added (by flow) data attrs
             $(element.attributes).each(function (index, nodeMap) {
                 var attr = nodeMap.nodeName;
                 var attrVal = nodeMap.value;
@@ -183,6 +183,13 @@ module.exports = (function () {
 
                         var binding = { attr: attr };
                         var commaRegex = /,(?![^\[]*\])/;
+
+                        //NOTE: do this within init?
+                        if (handler && handler.parse) {
+                            //Let the handler do any pre-processing of inputs necessary
+                            attrVal = handler.parse.call($el, attrVal);
+                        }
+
                         if (attrVal.indexOf('<%') !== -1) {
                             //Assume it's templated for later use
 

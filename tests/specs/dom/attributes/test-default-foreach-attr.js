@@ -2,7 +2,7 @@
 module.exports = (function () {
     var domManager = require('src/dom/dom-manager');
     var utils = require('../../../testing-utils');
-
+    var config = require('src/config');
     var foreachHandler = require('src/dom/attributes/foreach/default-foreach-attr');
 
     describe('Default Foreach', function () {
@@ -212,6 +212,48 @@ module.exports = (function () {
             });
         });
 
+        describe('#parse', function () {
+            it('should parse un-aliased syntax', function () {
+                var $el = $('<div> </div>');
+                var result = foreachHandler.parse.call($el, 'somearray');
+                result.should.equal('somearray');
+            });
+            describe('Key aliases', function () {
+                it('should support aliases of form `i in somearray`', function () {
+                    var $el = $('<div> </div>');
+                    var result = foreachHandler.parse.call($el, 'i in somearray');
+                    result.should.equal('somearray');
+                });
+                it('should support aliases of form `i in somearray` with irregular spaces', function () {
+                    var $el = $('<div> </div>');
+                    var result = foreachHandler.parse.call($el, ' i  in somearray');
+                    result.should.equal('somearray');
+                });
+                it('should set the appropriate value data attr', function () {
+                    var $el = $('<div> </div>');
+                    foreachHandler.parse.call($el, ' i  in somearray');
+                    $el.data(config.attrs.valueAs).should.equal('i');
+                });
+            });
+            describe('key, value aliases', function () {
+                it('should support aliases of form `(i,j) in somearray`', function () {
+                    var $el = $('<div> </div>');
+                    var result = foreachHandler.parse.call($el, '(i,j) in somearray');
+                    result.should.equal('somearray');
+                });
+                it('should support aliases of form `(i,j) in somearray` with irregular spaces', function () {
+                    var $el = $('<div> </div>');
+                    var result = foreachHandler.parse.call($el, ' ( i, j)  in somearray');
+                    result.should.equal('somearray');
+                });
+                it('should set the appropriate value & key data attr', function () {
+                    var $el = $('<div> </div>');
+                    foreachHandler.parse.call($el, ' ( i, j)  in somearray');
+                    $el.data(config.attrs.keyAs).should.equal('i');
+                    $el.data(config.attrs.valueAs).should.equal('j');
+                });
+            });
+        });
         describe('Variable aliasing', function () {
             it('should provide "key" and "value" variables for objects by default', function () {
                 var $rootNode = $('<ul> <li> <%= key %> <%= value %> </li> </ul>');
