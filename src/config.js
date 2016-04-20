@@ -17,11 +17,14 @@ module.exports = {
         //Subscription id returned by the channel. Used to ubsubscribe later
         subscriptionId: 'f-subscription-id',
 
+        classesAdded: 'f-added-classes',
+
         repeat: {
             template: 'f-repeat-template',
             templateId: 'f-repeat-template-id'
         },
 
-        foreachTemplate: 'f-foreach-template'
+        foreachTemplate: 'f-foreach-template',
+        bindTemplate: 'f-bind-template'
     }
 };

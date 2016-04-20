@@ -81,6 +81,7 @@
  */
 
 'use strict';
+var config = require('../../../config');
 
 module.exports = {
 
@@ -98,7 +99,7 @@ module.exports = {
         } else {
             valueToTemplate.value = value; //If the key has 'weird' characters like '<>' hard to get at with a template otherwise
         }
-        var bindTemplate = this.data('bind-template');
+        var bindTemplate = this.data(config.attrs.bindTemplate);
         if (bindTemplate) {
             templated = _.template(bindTemplate, valueToTemplate);
             this.html(templated);
@@ -113,7 +114,7 @@ module.exports = {
                 value = ($.isPlainObject(value)) ? JSON.stringify(value) : value + '';
                 this.html(value);
             } else {
-                this.data('bind-template', cleanedHTML);
+                this.data(config.attrs.bindTemplate, cleanedHTML);
                 this.html(templated);
             }
         }
