@@ -2,7 +2,6 @@
 (function () {
 
     var Channel = require('src/channels/variables-channel');
-    var lolex = require("lolex");
 
     describe('Variables Channel', function () {
         var core;
@@ -17,7 +16,7 @@
             _ = _.runInContext(window);//eslint-disable-line
         });
         before(function () {
-            clock = lolex.createClock();
+            clock = sinon.useFakeTimers();
 
             server = sinon.fakeServer.create();
             server.respondWith('PATCH', /(.*)\/run\/(.*)\/(.*)/, function (xhr, id) {
@@ -69,7 +68,7 @@
 
         after(function () {
             server.restore();
-            // clock.restore();
+            clock.restore();
 
             mockVariables = null;
             mockRun = null;

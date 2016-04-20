@@ -29,6 +29,7 @@
 
 'use strict';
 var config = require('../config');
+var debounce = require('../utils/debounce'); //FIXME: Sinon's fake timers have an issue with lodash 4's debounce
 
 module.exports = function (options) {
     var defaults = {
@@ -199,7 +200,7 @@ module.exports = function (options) {
                 }, options);
 
                 var me = this;
-                this.debouncedFetch = _.debounce(function () {
+                this.debouncedFetch = debounce(function () {
                     this.fetch(this.unfetched).then(function (changed) {
                         $.extend(currentData, changed);
                         me.unfetched = [];
