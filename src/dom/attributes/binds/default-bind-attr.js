@@ -101,12 +101,12 @@ module.exports = {
         }
         var bindTemplate = this.data(config.attrs.bindTemplate);
         if (bindTemplate) {
-            templated = _.template(bindTemplate, valueToTemplate);
+            templated = _.template(bindTemplate)(valueToTemplate);
             this.html(templated);
         } else {
             var oldHTML = this.html();
             var cleanedHTML = oldHTML.replace(/&lt;/g, '<').replace(/&gt;/g, '>');
-            templated = _.template(cleanedHTML, valueToTemplate);
+            templated = _.template(cleanedHTML)(valueToTemplate);
             if (cleanedHTML === templated) { //templating did nothing
                 if (_.isArray(value)) {
                     value = value[value.length - 1];

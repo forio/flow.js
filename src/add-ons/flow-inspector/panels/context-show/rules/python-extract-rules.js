@@ -36,7 +36,7 @@ module.exports = {
         end: function (fromStart) {
             return _.findIndex(fromStart, function (val, index) {
                 return val.trim() === '' || (val.indexOf('=') !== -1);
-            }, this);
+            });
         },
         offset: 0
     }
