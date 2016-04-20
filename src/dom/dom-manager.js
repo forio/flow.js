@@ -177,7 +177,7 @@ module.exports = (function () {
 
                     if (isBindableAttr) {
                         //Convert pipes to converter attrs
-                        var withConv = _.invoke(attrVal.split('|'), 'trim');
+                        var withConv = _.invokeMap(attrVal.split('|'), 'trim');
                         if (withConv.length > 1) {
                             attrVal = withConv.shift();
                             $el.data('f-convert-' + attr, withConv);
@@ -196,7 +196,7 @@ module.exports = (function () {
                             //Assume it's templated for later use
 
                         } else if (attrVal.split(commaRegex).length > 1) {
-                            var varsToBind = _.invoke(attrVal.split(commaRegex), 'trim');
+                            var varsToBind = _.invokeMap(attrVal.split(commaRegex), 'trim');
                             subscribe(channel, varsToBind, $el, { batch: true });
                             binding.topics = varsToBind;
                         } else {

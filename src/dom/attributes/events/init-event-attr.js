@@ -31,7 +31,7 @@ module.exports = {
         attr = attr.replace('on-init', '');
         var me = this;
         $(function () {
-            var listOfOperations = _.invoke(value.split('|'), 'trim');
+            var listOfOperations = _.invokeMap(value.split('|'), 'trim');
             listOfOperations = listOfOperations.map(function (value) {
                 var fnName = value.split('(')[0];
                 var params = value.substring(value.indexOf('(') + 1, value.indexOf(')'));
