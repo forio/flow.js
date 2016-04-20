@@ -289,15 +289,14 @@ module.exports = (function () {
                         val = converterManager.parse(val, attrConverters);
                         parsedData[key] = parseUtils.toImplicitType(val);
 
-                        $el.trigger('f.convert', { bind: val });
+                        $el.trigger(config.events.convert, { bind: val });
                     });
 
                     channel.variables.publish(parsedData);
                 });
 
                 // Listen for changes from api and update ui
-                $root.off(config.events.react).on(config.events.react, function (evt, data) {
-
+                $root.off(config.events.channelDataReceived).on(config.events.channelDataReceived, function (evt, data) {
                     // console.log(evt.target, data, "root on");
                     var $el = $(evt.target);
                     var bindings = $el.data(config.attrs.bindingsList);
@@ -313,11 +312,11 @@ module.exports = (function () {
                             }
                         });
                     });
-                    $el.trigger('f.convert', toconvert);
+                    $el.trigger(config.events.convert, toconvert);
                 });
 
                 // data = {proptoupdate: value} || just a value (assumes 'bind' if so)
-                $root.off('f.convert').on('f.convert', function (evt, data) {
+                $root.off(config.events.convert).on(config.events.convert, function (evt, data) {
                     var $el = $(evt.target);
 
                     var convert = function (val, prop) {
@@ -336,7 +335,7 @@ module.exports = (function () {
                     }
                 });
 
-                $root.off('f.ui.operate').on('f.ui.operate', function (evt, data) {
+                $root.off(config.events.operate).on(config.events.operate, function (evt, data) {
                     data = $.extend(true, {}, data); //if not all subsequent listeners will get the modified data
                     _.each(data.operations, function (opn) {
                         opn.params = _.map(opn.params, function (val) {

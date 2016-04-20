@@ -324,7 +324,7 @@ module.exports = function (options) {
                 if (_.isFunction(target)) {
                     target(params);
                 } else {
-                    target.trigger(config.events.react, params);
+                    target.trigger(config.events.channelDataReceived, params);
                 }
             };
 
