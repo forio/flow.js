@@ -102,7 +102,15 @@ module.exports = {
                 dataval = dataval + '';
             }
             var cloop = loopTemplate.replace(/&lt;/g, '<').replace(/&gt;/g, '>');
-            var templatedLoop = _.template(cloop, { value: dataval, key: datakey, index: datakey });
+
+            var defaultKey = $.isPlainObject(value) ? 'key' : 'index';
+            var keyAttr = $me.data(config.attrs.keyAs) || defaultKey;
+            var valueAttr = $me.data(config.attrs.valueAs) || 'value';
+            var templateData = {};
+            templateData[keyAttr] = datakey;
+            templateData[valueAttr] = dataval;
+        
+            var templatedLoop = _.template(cloop, templateData);
             var isTemplated = templatedLoop !== cloop;
             var nodes = $(templatedLoop);
 
