@@ -100,11 +100,19 @@ module.exports = (function () {
                 var wantedPrefix = 'data-f-';
                 if (attr.indexOf(wantedPrefix) === 0) {
                     attr = attr.replace(wantedPrefix, '');
-
                     var handler = attrManager.getHandler(attr, $el);
                     if (handler.stopListening) {
                         handler.stopListening.call($el, attr);
                     }
+                }
+            });
+
+            //TODO: ADD tests
+            _.each($el.data(), function (val, key) {
+                if (key.indexOf('f-') === 0 || key.match(/^f[A-Z]/)) {
+                    $el.removeData(key);
+                    // var hyphenated = key.replace(/([A-Z])/g, '-$1').toLowerCase();
+                    // $el.removeData(hyphenated);
                 }
             });
 
@@ -191,9 +199,8 @@ module.exports = (function () {
                     }
                 }
             });
-            $el.data('attr-bindings', attrBindings);
+            $el.data('f-attr-bindings', attrBindings);
             if (nonBatchableVariables.length) {
-                // console.log('subscribe', nonBatchableVariables, $el.get(0))
                 subscribe(channel, nonBatchableVariables, $el, { batch: false });
             }
         },
@@ -290,10 +297,10 @@ module.exports = (function () {
 
                 // Listen for changes from api and update ui
                 $root.off(config.events.react).on(config.events.react, function (evt, data) {
+
                     // console.log(evt.target, data, "root on");
                     var $el = $(evt.target);
-                    var bindings = $el.data('attr-bindings');
-
+                    var bindings = $el.data('f-attr-bindings');
                     var toconvert = {};
                     $.each(data, function (variableName, value) {
                         _.each(bindings, function (binding) {
@@ -312,9 +319,11 @@ module.exports = (function () {
                 // data = {proptoupdate: value} || just a value (assumes 'bind' if so)
                 $root.off('f.convert').on('f.convert', function (evt, data) {
                     var $el = $(evt.target);
+
                     var convert = function (val, prop) {
                         prop = prop.toLowerCase();
                         var attrConverters = domUtils.getConvertersList($el, prop);
+
                         var handler = attrManager.getHandler(prop, $el);
                         var convertedValue = converterManager.convert(val, attrConverters);
                         handler.handle.call($el, convertedValue, prop);
