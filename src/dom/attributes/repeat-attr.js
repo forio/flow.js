@@ -54,6 +54,7 @@
 
 'use strict';
 var parseUtils = require('../../utils/parse-utils');
+var config = require('../../config');
 module.exports = {
 
     test: 'repeat',
@@ -62,17 +63,18 @@ module.exports = {
 
     handle: function (value, prop) {
         value = ($.isPlainObject(value) ? value : [].concat(value));
-        var loopTemplate = this.data('repeat-template');
+        var loopTemplate = this.data(config.attrs.repeat.template);
         var id = '';
         if (!loopTemplate) {
             loopTemplate = this.get(0).outerHTML;
             id = _.uniqueId('repeat-');
-            this.data({
-                'repeat-template': loopTemplate,
-                'repeat-template-id': id
-            });
+
+            var d = {};
+            d[config.attrs.repeat.templateId] = id;
+            d[config.attrs.repeat.template] = loopTemplate;
+            this.data(d);
         } else {
-            id = this.data('repeat-template-id');
+            id = this.data(config.attrs.repeat.templateId);
             this.nextUntil(':not([' + id + '])').remove();
         }
         var last;

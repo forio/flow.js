@@ -15,6 +15,11 @@ module.exports = {
         bindingsList: 'f-attr-bindings',
 
         //Subscription id returned by the channel. Used to ubsubscribe later
-        subscriptionId: 'f-subscription-id'
+        subscriptionId: 'f-subscription-id',
+
+        repeat: {
+            template: 'f-repeat-template',
+            templateId: 'f-repeat-template-id'
+        }
     }
 };
