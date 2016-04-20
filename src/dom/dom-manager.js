@@ -107,7 +107,6 @@ module.exports = (function () {
                 }
             });
 
-            //TODO: ADD tests
             _.each($el.data(), function (val, key) {
                 if (key.indexOf('f-') === 0 || key.match(/^f[A-Z]/)) {
                     $el.removeData(key);
