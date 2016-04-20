@@ -85,7 +85,7 @@ var FlowInspector = function (root) {
                     attr = attr.replace(wantedPrefix, '');
 
                     var displayAttrName = attr.replace('on-', '');
-                    var chain = _.invoke(nodeMap.value.split('|'), 'trim');
+                    var chain = _.invokeMap(nodeMap.value.split('|'), 'trim');
                     var originalVal = chain.shift();
 
                     var $type = $('<span class="f-type"></span>').text(displayAttrName);
