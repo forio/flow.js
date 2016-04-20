@@ -9,7 +9,7 @@ var utils = {
         var dummyChannel = {
             publish: sinon.spy(),
             subscribe: sinon.spy(),
-            unsubscribe:  sinon.spy()
+            unsubscribe: sinon.spy()
         };
 
         var dummyChannelManager = {

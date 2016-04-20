@@ -6,7 +6,39 @@ module.exports = {
     binderAttr: 'f-bind',
 
     events: {
+        //UI Change to publish to the channel.
         trigger: 'update.f.ui',
-        react: 'update.f.model'
+
+        //Payload is of form {topic: value}. When triggered on a element dom-manager will trigger 'f.convert' on every attribute subscribed to that topic
+        channelDataReceived: 'update.f.model',
+
+        //Trigger with payload '{attrToUpdate: value}', for e.g. { bind: 34 }. This will run this through all the converts and pass it to attr handler. Useful to by-pass getting this from the model directly.
+        convert: 'f.convert',
+
+        //When triggered posts the payload to the operations API. Assumes payloaded is formmatted in a way Run Channel can understand
+        operate: 'f.ui.operate'
+    },
+
+    attrs: {
+        //Array with shape [{ attr: attribute, topics:[list of topics attribute is listening to]}]
+        bindingsList: 'f-attr-bindings',
+
+        //Subscription id returned by the channel. Used to ubsubscribe later
+        subscriptionId: 'f-subscription-id',
+
+        //Used by the classes attr handler to keep track of which classes were added by itself
+        classesAdded: 'f-added-classes',
+
+        //Used by repeat attr handler to keep track of template after first evaluation
+        repeat: {
+            template: 'f-repeat-template',
+            templateId: 'f-repeat-template-id'
+        },
+
+        //Used by foreach attr handler to keep track of template after first evaluation
+        foreachTemplate: 'f-foreach-template',
+
+        //Used by bind attr handler to keep track of template after first evaluation
+        bindTemplate: 'f-bind-template'
     }
 };

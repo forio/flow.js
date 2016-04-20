@@ -117,5 +117,5 @@ var Flow = {
     }
 };
 //set by grunt
-Flow.version = RELEASE_VERSION; //eslint-disable-line no-undef
+// if (RELEASE_VERSION) Flow.version = RELEASE_VERSION; //eslint-disable-line no-undef
 module.exports = Flow;

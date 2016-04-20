@@ -39,6 +39,7 @@
  */
 
 'use strict';
+var config = require('../../config');
 
 module.exports = {
 
@@ -51,7 +52,7 @@ module.exports = {
             value = value[value.length - 1];
         }
 
-        var addedClasses = this.data('added-classes');
+        var addedClasses = this.data(config.classesAdded);
         if (!addedClasses) {
             addedClasses = {};
         }
@@ -65,6 +66,6 @@ module.exports = {
         addedClasses[prop] = value;
         //Fixme: prop is always "class"
         this.addClass(value);
-        this.data('added-classes', addedClasses);
+        this.data(config.classesAdded, addedClasses);
     }
 };

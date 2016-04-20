@@ -135,7 +135,7 @@ module.exports = function (options) {
                 if (_.isFunction(target)) {
                     target(params, value, operation);
                 } else if (target.trigger) {
-                    listener.target.trigger(config.events.react, params);
+                    listener.target.trigger(config.events.channelDataReceived, params);
                 } else {
                     throw new Error('Unknown listener format for ' + operation);
                 }

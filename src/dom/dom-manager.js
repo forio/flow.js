@@ -21,15 +21,17 @@ module.exports = (function () {
     var autoUpdatePlugin = require('./plugins/auto-update-bindings');
 
     //Jquery selector to return everything which has a f- property set
-    $.expr[':'][config.prefix] = function (obj) {
-        var $this = $(obj);
-        var dataprops = _.keys($this.data());
-
-        var match = _.find(dataprops, function (attr) {
-            return (attr.indexOf(config.prefix) === 0);
-        });
-
-        return !!(match);
+    $.expr[':'][config.prefix] = function (el) {
+        if (!el || !el.attributes) {
+            return false;
+        }
+        for (var i = 0; i < el.attributes.length; i++) {
+            var attr = el.attributes[i].nodeName;
+            if (attr.indexOf('data-' + config.prefix) === 0) {
+                return true;
+            }
+        }
+        return false;
     };
 
     $.expr[':'].webcomponent = function (obj) {
@@ -98,7 +100,6 @@ module.exports = (function () {
                 var wantedPrefix = 'data-f-';
                 if (attr.indexOf(wantedPrefix) === 0) {
                     attr = attr.replace(wantedPrefix, '');
-
                     var handler = attrManager.getHandler(attr, $el);
                     if (handler.stopListening) {
                         handler.stopListening.call($el, attr);
@@ -106,7 +107,15 @@ module.exports = (function () {
                 }
             });
 
-            var subsid = $el.data('f-subscription-id') || [];
+            _.each($el.data(), function (val, key) {
+                if (key.indexOf('f-') === 0 || key.match(/^f[A-Z]/)) {
+                    $el.removeData(key);
+                    // var hyphenated = key.replace(/([A-Z])/g, '-$1').toLowerCase();
+                    // $el.removeData(hyphenated);
+                }
+            });
+
+            var subsid = $el.data(config.attrs.subscriptionId) || [];
             _.each(subsid, function (subs) {
                 channel.unsubscribe(subs);
             });
@@ -143,8 +152,8 @@ module.exports = (function () {
                     return false;
                 }
                 var subsid = subsChannel.subscribe(varsToBind, $bindEl, options);
-                var newsubs = ($el.data('f-subscription-id') || []).concat(subsid);
-                $el.data('f-subscription-id', newsubs);
+                var newsubs = ($el.data(config.attrs.subscriptionId) || []).concat(subsid);
+                $el.data(config.attrs.subscriptionId, newsubs);
             };
 
             var attrBindings = [];
@@ -189,9 +198,8 @@ module.exports = (function () {
                     }
                 }
             });
-            $el.data('attr-bindings', attrBindings);
+            $el.data(config.attrs.bindingsList, attrBindings);
             if (nonBatchableVariables.length) {
-                // console.log('subscribe', nonBatchableVariables, $el.get(0))
                 subscribe(channel, nonBatchableVariables, $el, { batch: false });
             }
         },
@@ -280,18 +288,17 @@ module.exports = (function () {
                         val = converterManager.parse(val, attrConverters);
                         parsedData[key] = parseUtils.toImplicitType(val);
 
-                        $el.trigger('f.convert', { bind: val });
+                        $el.trigger(config.events.convert, { bind: val });
                     });
 
                     channel.variables.publish(parsedData);
                 });
 
                 // Listen for changes from api and update ui
-                $root.off(config.events.react).on(config.events.react, function (evt, data) {
+                $root.off(config.events.channelDataReceived).on(config.events.channelDataReceived, function (evt, data) {
                     // console.log(evt.target, data, "root on");
                     var $el = $(evt.target);
-                    var bindings = $el.data('attr-bindings');
-
+                    var bindings = $el.data(config.attrs.bindingsList);
                     var toconvert = {};
                     $.each(data, function (variableName, value) {
                         _.each(bindings, function (binding) {
@@ -304,15 +311,17 @@ module.exports = (function () {
                             }
                         });
                     });
-                    $el.trigger('f.convert', toconvert);
+                    $el.trigger(config.events.convert, toconvert);
                 });
 
                 // data = {proptoupdate: value} || just a value (assumes 'bind' if so)
-                $root.off('f.convert').on('f.convert', function (evt, data) {
+                $root.off(config.events.convert).on(config.events.convert, function (evt, data) {
                     var $el = $(evt.target);
+
                     var convert = function (val, prop) {
                         prop = prop.toLowerCase();
                         var attrConverters = domUtils.getConvertersList($el, prop);
+
                         var handler = attrManager.getHandler(prop, $el);
                         var convertedValue = converterManager.convert(val, attrConverters);
                         handler.handle.call($el, convertedValue, prop);
@@ -325,7 +334,7 @@ module.exports = (function () {
                     }
                 });
 
-                $root.off('f.ui.operate').on('f.ui.operate', function (evt, data) {
+                $root.off(config.events.operate).on(config.events.operate, function (evt, data) {
                     data = $.extend(true, {}, data); //if not all subsequent listeners will get the modified data
                     _.each(data.operations, function (opn) {
                         opn.params = _.map(opn.params, function (val) {
