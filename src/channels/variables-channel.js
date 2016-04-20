@@ -329,7 +329,7 @@ module.exports = function (options) {
             };
 
             if (!$.isPlainObject(topics)) {
-                topics = _.object([topics], [value]);
+                topics = _.fromPairs([topics], [value]);
             }
             _.each(this.subscriptions, function (subscription) {
                 var target = subscription.target;
