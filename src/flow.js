@@ -98,7 +98,7 @@ var Flow = {
         var $root = $(options.dom.root);
         var initFn = $root.data('f-on-init');
         var opnSilent = options.channel.run.operations.silent;
-        var isInitOperationSilent = initFn && (opnSilent === true || (_.isArray(opnSilent) && _.contains(opnSilent, initFn)));
+        var isInitOperationSilent = initFn && (opnSilent === true || (_.isArray(opnSilent) && _.includes(opnSilent, initFn)));
         var preFetchVariables = !initFn || isInitOperationSilent;
 
         if (preFetchVariables) {

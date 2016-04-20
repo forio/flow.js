@@ -162,7 +162,7 @@ module.exports = function (options) {
         getSubscribers: function (topic) {
             if (topic) {
                 return _.filter(this.subscriptions, function (subs) {
-                    return _.contains(subs.topics, topic);
+                    return _.includes(subs.topics, topic);
                 });
             }
             return this.subscriptions;

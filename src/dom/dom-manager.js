@@ -137,7 +137,7 @@ module.exports = (function () {
             if (!$el.is(':' + config.prefix)) {
                 return false;
             }
-            if (!_.contains(this.private.matchedElements, element)) {
+            if (!_.includes(this.private.matchedElements, element)) {
                 this.private.matchedElements.push(element);
             }
 
@@ -309,7 +309,7 @@ module.exports = (function () {
                     var toconvert = {};
                     $.each(data, function (variableName, value) {
                         _.each(bindings, function (binding) {
-                            if (_.contains(binding.topics, variableName)) {
+                            if (_.includes(binding.topics, variableName)) {
                                 if (binding.topics.length > 1) {
                                     toconvert[binding.attr] = _.pick(data, binding.topics);
                                 } else {
