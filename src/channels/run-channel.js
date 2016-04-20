@@ -17,7 +17,7 @@ module.exports = function (options, initFn) {
     var config = $.extend(true, {}, defaults, options);
 
     var opnSilent = config.operations.silent;
-    var isInitOperationSilent = initFn && (opnSilent === true || (_.isArray(opnSilent) && _.contains(opnSilent, initFn)));
+    var isInitOperationSilent = initFn && (opnSilent === true || (_.isArray(opnSilent) && _.includes(opnSilent, initFn)));
     var preFetchVariables = !initFn || isInitOperationSilent;
 
     if (preFetchVariables) {
@@ -55,7 +55,7 @@ module.exports = function (options, initFn) {
     //Make sure nothing happens before the run is created
     var nonWrapped = ['variables', 'create', 'load', 'getCurrentConfig', 'updateConfig'];
     _.each(rs, function (value, name) {
-        if (_.isFunction(value) && !_.contains(nonWrapped, name)) {
+        if (_.isFunction(value) && !_.includes(nonWrapped, name)) {
             rs[name] = createAndThen(value, rs);
         }
     });

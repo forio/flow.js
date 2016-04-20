@@ -10,7 +10,7 @@ module.exports = function (published, options) {
         return published;
     } else if ($.isPlainObject(silent)) {
         return Object.keys(published).reduce(function (accum, name) {
-            if (!_.contains(silent, name)) {
+            if (!_.includes(silent, name)) {
                 accum[name] = published[name];
             }
             return accum;

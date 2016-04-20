@@ -214,12 +214,13 @@ module.exports = function (options) {
                     leading: false
                 }, options);
 
+                var me = this;
                 this.debouncedFetch = _.debounce(function () {
                     this.fetch(this.unfetched).then(function (changed) {
                         $.extend(currentData, changed);
-                        this.unfetched = [];
-                        this.notify(changed);
-                    }.bind(this));
+                        me.unfetched = [];
+                        me.notify(changed);
+                    });
                 }, channelOptions.autoFetch.debounce, debounceOptions);
             }
 
@@ -236,7 +237,7 @@ module.exports = function (options) {
                 } else {
                     unmappedVariables.push(v);
                 }
-            }, this);
+            }.bind(this));
             if (unmappedVariables.length) {
                 return queryVars(unmappedVariables).then(function (variableValueList) {
                     return $.extend(valueList, variableValueList);
@@ -347,7 +348,7 @@ module.exports = function (options) {
             };
 
             if (!$.isPlainObject(topics)) {
-                topics = _.object([topics], [value]);
+                topics = _.zipObject([topics], [value]);
             }
             _.each(this.subscriptions, function (subscription) {
                 var target = subscription.target;

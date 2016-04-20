@@ -5,7 +5,6 @@ module.exports = (function () {
         it('should do the equivalent for all supported underscore converters', function () {
             var supported = [
                 'values', 'keys', 'compact', 'difference',
-                'flatten', 'rest',
                 'union',
                 'uniq', 'without',
                 'xor', 'zip'
