@@ -81,6 +81,8 @@
 
 'use strict';
 var parseUtils = require('../../../utils/parse-utils');
+var config = require('../../../config');
+
 module.exports = {
 
     test: 'foreach',
@@ -89,10 +91,10 @@ module.exports = {
 
     handle: function (value, prop) {
         value = ($.isPlainObject(value) ? value : [].concat(value));
-        var loopTemplate = this.data('foreach-template');
+        var loopTemplate = this.data(config.attrs.foreachTemplate);
         if (!loopTemplate) {
             loopTemplate = this.html();
-            this.data('foreach-template', loopTemplate);
+            this.data(config.attrs.foreachTemplate, loopTemplate);
         }
         var $me = this.empty();
         _.each(value, function (dataval, datakey) {

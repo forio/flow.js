@@ -20,6 +20,8 @@ module.exports = {
         repeat: {
             template: 'f-repeat-template',
             templateId: 'f-repeat-template-id'
-        }
+        },
+
+        foreachTemplate: 'f-foreach-template'
     }
 };
