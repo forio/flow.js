@@ -116,7 +116,7 @@ module.exports = (function () {
                 }
             });
 
-            var subsid = $el.data('f-subscription-id') || [];
+            var subsid = $el.data(config.attrs.subscriptionId) || [];
             _.each(subsid, function (subs) {
                 channel.unsubscribe(subs);
             });
@@ -153,8 +153,8 @@ module.exports = (function () {
                     return false;
                 }
                 var subsid = subsChannel.subscribe(varsToBind, $bindEl, options);
-                var newsubs = ($el.data('f-subscription-id') || []).concat(subsid);
-                $el.data('f-subscription-id', newsubs);
+                var newsubs = ($el.data(config.attrs.subscriptionId) || []).concat(subsid);
+                $el.data(config.attrs.subscriptionId, newsubs);
             };
 
             var attrBindings = [];
@@ -199,7 +199,7 @@ module.exports = (function () {
                     }
                 }
             });
-            $el.data('f-attr-bindings', attrBindings);
+            $el.data(config.attrs.bindingsList, attrBindings);
             if (nonBatchableVariables.length) {
                 subscribe(channel, nonBatchableVariables, $el, { batch: false });
             }
@@ -300,7 +300,7 @@ module.exports = (function () {
 
                     // console.log(evt.target, data, "root on");
                     var $el = $(evt.target);
-                    var bindings = $el.data('f-attr-bindings');
+                    var bindings = $el.data(config.attrs.bindingsList);
                     var toconvert = {};
                     $.each(data, function (variableName, value) {
                         _.each(bindings, function (binding) {
