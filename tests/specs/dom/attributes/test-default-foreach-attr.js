@@ -211,6 +211,55 @@ module.exports = (function () {
                 });
             });
         });
+
+        describe('Variable aliasing', function () {
+            it('should provide "key" and "value" variables for objects by default', function () {
+                var $rootNode = $('<ul> <li> <%= key %> <%= value %> </li> </ul>');
+
+                var targetData = { a: 1 };
+                foreachHandler.handle.call($rootNode, targetData);
+
+                var newChildren = $rootNode.children();
+                newChildren.eq(0).html().trim().should.equal('a 1');
+            });
+            it('should provide "index" and "value" variables for arrays by default', function () {
+                var $rootNode = $('<ul> <li> <%= index %> <%= value %> </li> </ul>');
+
+                var targetData = [1];
+                foreachHandler.handle.call($rootNode, targetData);
+
+                var newChildren = $rootNode.children();
+                newChildren.eq(0).html().trim().should.equal('0 1');
+            });
+            it('should replace \'key\' with value in key-as', function () {
+                var $rootNode = $('<ul data-f-foreach-key-as="apples"> <li> <%= apples %> <%= value %> </li> </ul>');
+
+                var targetData = { a: 1 };
+                foreachHandler.handle.call($rootNode, targetData);
+
+                var newChildren = $rootNode.children();
+                newChildren.eq(0).html().trim().should.equal('a 1');
+            });
+            it('should replace \'index\' with value in key-as', function () {
+                var $rootNode = $('<ul data-f-foreach-key-as="apples"> <li> <%= apples %> <%= value %> </li> </ul>');
+
+                var targetData = [1];
+                foreachHandler.handle.call($rootNode, targetData);
+
+                var newChildren = $rootNode.children();
+                newChildren.eq(0).html().trim().should.equal('0 1');
+            });
+            it('should replace \'value\' with value in value-as', function () {
+                var $rootNode = $('<ul data-f-foreach-value-as="oranges"> <li> <%= key %> <%= oranges %> </li> </ul>');
+
+                var targetData = { a: 1 };
+                foreachHandler.handle.call($rootNode, targetData);
+
+                var newChildren = $rootNode.children();
+                newChildren.eq(0).html().trim().should.equal('a 1');
+            });
+        });
+
         describe('integration', function () {
             it('should loop through children for elems with foreach=variableArray', function () {
                 var targetData = [5, 3, 6, 1];
@@ -235,7 +284,7 @@ module.exports = (function () {
             it('should loop through children for elems with foreach=variableObject', function () {
                 var targetData = { a: 3, b: 4 };
 
-                var $node = utils.initWithNode('<ul data-f-foreach="someobject"> <li data-stuff="<%=index%>"> <%= value %> </li> </ul>', domManager);
+                var $node = utils.initWithNode('<ul data-f-foreach="someobject"> <li data-stuff="<%=key%>"> <%= value %> </li> </ul>', domManager);
                 $node.trigger('update.f.model', { someobject: targetData });
 
                 var newChildren = $node.children();
