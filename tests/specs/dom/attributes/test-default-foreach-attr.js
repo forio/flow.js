@@ -377,6 +377,23 @@ module.exports = (function () {
                 });
 
             });
+
+            it('should support nested loops with aliases', function () {
+                var targetData = [1, 2];
+                var targetData2 = [3, 4];
+
+                var $node = utils.initWithNode('<ul data-f-foreach="v1 in somearray">  <li data-f-foreach="v2 in somethingElse">  <%= v1 %> <%= v2 %>  </li></ul>', domManager);
+                $node.trigger('update.f.model', { somearray: targetData });
+                
+                domManager.bindAll();
+                $node.find('li').trigger('update.f.model', { somethingElse: targetData2 });
+
+                $node.children().each(function (index1, el) {
+                    $(el).children().each(function (index2, el2) {
+                        $(el).html().trim().should.equal(targetData[index1] + ' ' + targetData2[index2]);
+                    });
+                });
+            });
         });
     });
 }());
