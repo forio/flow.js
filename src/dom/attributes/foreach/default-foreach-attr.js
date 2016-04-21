@@ -112,29 +112,31 @@ module.exports = {
             this.data(config.attrs.foreachTemplate, loopTemplate);
         }
         var $me = this.empty();
+        var cloop = loopTemplate.replace(/&lt;/g, '<').replace(/&gt;/g, '>');
 
         var defaultKey = $.isPlainObject(value) ? 'key' : 'index';
         var keyAttr = $me.data(config.attrs.keyAs) || defaultKey;
         var valueAttr = $me.data(config.attrs.valueAs) || 'value';
+        
+        var keyRegex = new RegExp('\\b' + keyAttr + '\\b');
+        var valueRegex = new RegExp('\\b' + valueAttr + '\\b');
 
         var closestParentWithMissing = this.closest('[data-missing-references]');
-        if (closestParentWithMissing) {
-            // var missing = JSON.parse(closestParentWithMissing.attr('data-missing-references'));
-            // _.each(missing, function (template, replacement) {
-
-            // });
+        if (closestParentWithMissing.length) {
+            var missing = closestParentWithMissing.data('missing-references');
+            _.each(missing, function (template, replacement) {
+                if (keyRegex.test(template) || valueRegex.test(template)) {
+                    cloop = cloop.replace(replacement, template);
+                }
+            });
         }
         
         var missingReferences = {};
         var missingReferencesInverse = {};
-        var cloop = loopTemplate.replace(/&lt;/g, '<').replace(/&gt;/g, '>');
-        var tagsUsed = cloop.match(/<%[=-]?([\s\S]+?)%>/g);
-        if (tagsUsed) {
-            tagsUsed.forEach(function (tag) {
-                var keyRegex = new RegExp('\\b' + keyAttr + '\\b');
-                var valueRegex = new RegExp('\\b' + valueAttr + '\\b');
-
-                if (tag.match(/^[a-zA-Z0-9_]*$/) && !keyRegex.test(tag) && !valueRegex.test(tag)) {
+        var templateTagsUsed = cloop.match(/<%[=-]?([\s\S]+?)%>/g);
+        if (templateTagsUsed) {
+            templateTagsUsed.forEach(function (tag) {
+                if (tag.match(/\w+/) && !keyRegex.test(tag) && !valueRegex.test(tag)) {
                     var refKey = missingReferencesInverse[tag];
                     if (!refKey) {
                         refKey = _.uniqueId('~~~~missing-reference');
@@ -142,8 +144,8 @@ module.exports = {
                     }
                     missingReferences[refKey] = tag;
                     var r = new RegExp(tag, 'g');
-                    var nl = cloop.replace(r, refKey);
-                    console.log(nl, '---CLOOP--', cloop, '---TAG--', tag);
+                    cloop = cloop.replace(r, refKey);
+                    console.log('---CLOOP--', cloop, '---TAG--', tag);
                 }
             });
         }
