@@ -18,6 +18,19 @@
              </ul>
          </li>
      </ul>
+
+     <ul id="update35" data-f-foreach="r in regions">
+         <li>
+            <strong> SDFSD </strong>
+             <ul data-f-foreach="s in sales">
+                 <li> <strong> <%= r %> </strong> <%= s %></li>
+             </ul>
+              ----------
+             <ul data-f-foreach="y in sales">
+                 <li>  <%= y %></li>
+             </ul>
+         </li>
+     </ul>
      <script>
          var options = {
              channel: {
