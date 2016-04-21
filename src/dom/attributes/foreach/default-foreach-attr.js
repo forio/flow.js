@@ -139,7 +139,7 @@ module.exports = {
                 if (tag.match(/\w+/) && !keyRegex.test(tag) && !valueRegex.test(tag)) {
                     var refKey = missingReferencesInverse[tag];
                     if (!refKey) {
-                        refKey = _.uniqueId('~~~~missing-reference');
+                        refKey = '<!--' + _.uniqueId('missing-reference') + '-->';
                         missingReferencesInverse[tag] = refKey;
                     }
                     missingReferences[refKey] = tag;
