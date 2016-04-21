@@ -433,6 +433,35 @@ module.exports = (function () {
                     $(el).find('ul').eq(0).each(function (index2, el2) {
                         $(el2).html().trim().should.equal(targetData[index1] + ' ' + targetData2[index2]);
                     });
+                    $(el).find('ul').eq(1).each(function (index2, el2) {
+                        $(el2).html().trim().should.equal(targetData[index1] + ' ' + targetData3[index2]);
+                    });
+                });
+            });
+            it('should not be confused by siblings sharing same alias', function () {
+                var targetData = [1, 2];
+                var targetData2 = [3, 4];
+                var targetData3 = [5, 6];
+
+                var $node = utils.initWithNode('<ul class="p" data-f-foreach="v1 in somearray"> <li>'
+                    + '<ul class="ul1" data-f-foreach="v2 in somethingElse"> <li> <%= v1 %> <%= v2 %></li></ul>'
+                    + '<ul class="ul2" data-f-foreach="v2 in somethingElse2"> <li> <%= v1 %> <%= v2 %></li></ul>'
+                    + '</li></ul>', domManager);
+                $node.trigger('update.f.model', { somearray: targetData });
+                
+                domManager.bindAll();
+                $node.find('.ul1').trigger('update.f.model', { somethingElse: targetData2 });
+
+                domManager.bindAll();
+                $node.find('.ul2').trigger('update.f.model', { somethingElse2: targetData3 });
+
+                $node.find('.p').each(function (index1, el) {
+                    $(el).find('ul').eq(0).each(function (index2, el2) {
+                        $(el2).html().trim().should.equal(targetData[index1] + ' ' + targetData2[index2]);
+                    });
+                    $(el).find('ul').eq(1).each(function (index2, el2) {
+                        $(el2).html().trim().should.equal(targetData[index1] + ' ' + targetData3[index2]);
+                    });
                 });
             });
         });

@@ -10,14 +10,14 @@
   </head>
   <body data-f-on-init="saveAll" data-f-model="hello_world_flow.jl">
 
-     <ul id="update35" data-f-foreach="r in regions">
+<!--      <ul id="update35" data-f-foreach="r in regions">
          <li>
             <strong> SDFSD </strong>
              <ul data-f-foreach="s in sales">
                  <li> <strong> <%= r %> </strong> <%= s %></li>
              </ul>
          </li>
-     </ul>
+     </ul> -->
 
      <ul id="update35" data-f-foreach="r in regions">
          <li>
@@ -26,8 +26,8 @@
                  <li> <strong> <%= r %> </strong> <%= s %></li>
              </ul>
               ----------
-             <ul data-f-foreach="y in sales">
-                 <li>  <%= y %></li>
+             <ul data-f-foreach="s in salesSq">
+                 <li>  <%= s %></li>
              </ul>
          </li>
      </ul>
