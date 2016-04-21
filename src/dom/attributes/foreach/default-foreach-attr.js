@@ -122,39 +122,41 @@ module.exports = {
         var valueRegex = new RegExp('\\b' + valueAttr + '\\b');
 
         var closestParentWithMissing = this.closest('[data-missing-references]');
-        if (closestParentWithMissing.length) {
+        if (closestParentWithMissing.length) { //(grand)parent already stubbed out missing references
             var missing = closestParentWithMissing.data('missing-references');
             _.each(missing, function (template, replacement) {
                 if (keyRegex.test(template) || valueRegex.test(template)) {
                     cloop = cloop.replace(replacement, template);
                 }
             });
-        }
-        
-        var missingReferences = {};
-        var missingReferencesInverse = {};
-        var templateTagsUsed = cloop.match(/<%[=-]?([\s\S]+?)%>/g);
-        if (templateTagsUsed) {
-            templateTagsUsed.forEach(function (tag) {
-                if (tag.match(/\w+/) && !keyRegex.test(tag) && !valueRegex.test(tag)) {
-                    var refKey = missingReferencesInverse[tag];
-                    if (!refKey) {
-                        refKey = '<!--' + _.uniqueId('missing-reference') + '-->';
-                        missingReferencesInverse[tag] = refKey;
+        } else {
+            var missingReferences = {};
+            var missingReferencesInverse = {};
+            var templateTagsUsed = cloop.match(/<%[=-]?([\s\S]+?)%>/g);
+            if (templateTagsUsed) {
+                templateTagsUsed.forEach(function (tag) {
+                    if (tag.match(/\w+/) && !keyRegex.test(tag) && !valueRegex.test(tag)) {
+                        var refKey = missingReferencesInverse[tag];
+                        if (!refKey) {
+                            refKey = '<!--' + _.uniqueId('missing-reference') + '-->';
+                            missingReferencesInverse[tag] = refKey;
+                        }
+                        missingReferences[refKey] = tag;
+                        var r = new RegExp(tag, 'g');
+                        cloop = cloop.replace(r, refKey);
                     }
-                    missingReferences[refKey] = tag;
-                    var r = new RegExp(tag, 'g');
-                    cloop = cloop.replace(r, refKey);
-                    console.log('---CLOOP--', cloop, '---TAG--', tag);
-                }
-            });
+                });
+            }
+            if (_.size(missingReferences)) {
+                //Attr, not data, to make jQ selector easy. No f- prefix to keep this from flow.
+                this.attr('data-missing-references', JSON.stringify(missingReferences));
+            }
         }
 
         _.each(value, function (dataval, datakey) {
             if (!dataval) {
                 dataval = dataval + '';
             }
-
             var templateData = {};
             templateData[keyAttr] = datakey;
             templateData[valueAttr] = dataval;
@@ -174,9 +176,5 @@ module.exports = {
             });
             $me.append(nodes);
         });
-
-        if (_.size(missingReferences)) {
-            this.attr('data-missing-references', JSON.stringify(missingReferences));
-        }
     }
 };
