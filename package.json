@@ -40,7 +40,6 @@
   },
   "homepage": "https://github.com/forio/flow.js",
   "dependencies": {
-    "lodash": "^4.11.1",
-    "lolex": "^1.4.0"
+    "lodash": "^4.11.1"
   }
 }

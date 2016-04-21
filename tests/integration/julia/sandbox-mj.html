@@ -297,6 +297,21 @@
         </tr>
 
         <tr>
+            <td>display_foreach</td>
+            <td>data-f-foreach, nested, aliased</td>
+            <td>for testing purposes we'll assume each region sold the same ...
+               <ul id="update35" data-f-foreach="r in regions">
+                   <li>
+                       <ul data-f-foreach="s in sales">
+                           <li> <%= r %></li>
+                       </ul>
+                   </li>
+               </ul>
+            </td>
+            <td class="pass"> </td>
+        </tr>
+
+        <tr>
             <td>regression testing of <a href="https://github.com/forio/flow.js/issues/64">issue #64</a></td>
             <td>data-f-repeat</td>
             <td>
@@ -873,13 +888,13 @@ displayed as 150%.
 </table>
 
 <script src="../../../vendor/jquery/dist/jquery.min.js"></script>
-<script src="../../../vendor/lodash/dist/lodash.js"></script>
+<script src="../../../node_modules/lodash/lodash.js"></script>
 
 <!-- <script src="../../vendor/epicenter-js-libs/dist/epicenter.js"></script> -->
 <script src="https://forio.com/tools/js-libs/1.6.2/epicenter.js"></script>
 
-<!-- <script src="../../../dist/flow-edge.js"></script> -->
-<script src="https://forio.com/tools/js-libs/flow/0.10.0/flow.js"></script>
+<script src="../../../dist/flow-edge.js"></script>
+<!-- <script src="https://forio.com/tools/js-libs/flow/0.10.0/flow.js"></script> -->
 
 
 <script>
