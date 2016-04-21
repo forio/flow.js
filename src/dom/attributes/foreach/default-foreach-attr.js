@@ -112,15 +112,17 @@ module.exports = {
             this.data(config.attrs.foreachTemplate, loopTemplate);
         }
         var $me = this.empty();
+
+        var defaultKey = $.isPlainObject(value) ? 'key' : 'index';
+        var keyAttr = $me.data(config.attrs.keyAs) || defaultKey;
+        var valueAttr = $me.data(config.attrs.valueAs) || 'value';
+        
         _.each(value, function (dataval, datakey) {
             if (!dataval) {
                 dataval = dataval + '';
             }
             var cloop = loopTemplate.replace(/&lt;/g, '<').replace(/&gt;/g, '>');
 
-            var defaultKey = $.isPlainObject(value) ? 'key' : 'index';
-            var keyAttr = $me.data(config.attrs.keyAs) || defaultKey;
-            var valueAttr = $me.data(config.attrs.valueAs) || 'value';
             var templateData = {};
             templateData[keyAttr] = datakey;
             templateData[valueAttr] = dataval;
