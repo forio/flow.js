@@ -117,11 +117,11 @@ module.exports = {
      * @return {Array|Null} An array of matching attribute handlers, or null if no matches found.
      */
     filter: function (attrFilter, nodeFilter) {
-        var filtered = _.select(handlersList, function (handler) {
+        var filtered = _.filter(handlersList, function (handler) {
             return matchAttr(handler.test, attrFilter);
         });
         if (nodeFilter) {
-            filtered = _.select(filtered, function (handler) {
+            filtered = _.filter(filtered, function (handler) {
                 return matchNode(handler.target, nodeFilter);
             });
         }

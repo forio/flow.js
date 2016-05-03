@@ -19,7 +19,6 @@
   ],
   "devDependencies": {
     "epicenter-js-libs": "forio/epicenter-js-libs",
-    "jquery": "~2.1.1",
-    "lodash": "~2.4.1"
+    "jquery": "~2.1.1"
   }
 }

@@ -1,51 +1,56 @@
 <html>
   <head>
     <script src="//ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
-    <script src="//cdnjs.cloudflare.com/ajax/libs/lodash.js/2.4.1/lodash.js"></script>
-    <script src="//forio.com/tools/js-libs/1.5.0/epicenter.min.js"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/lodash.js/4.11.1/lodash.js"></script>
+    <script src="//forio.com/tools/js-libs/1.7.0/epicenter.min.js"></script>
     <script src="../../dist/flow-edge.js"></script>
 
     <link rel="stylesheet" type="text/css" href="test.css">
 
-    <script>
-    $(function() {
-      Flow.initialize({
-          channel: {
-              strategy: 'new-if-initialized',
-              run: {
-                  account: "wglass",
-                  project: "edp"
-              }
-          }
-      });
-    });
-  </script>
   </head>
-  <body data-f-model="model.eqn">
+  <body data-f-on-init="saveAll" data-f-model="hello_world_flow.jl">
 
-    <h2>Control</h2>
+<!--      <ul id="update35" data-f-foreach="r in regions">
+         <li>
+            <strong> SDFSD </strong>
+             <ul data-f-foreach="s in sales">
+                 <li> <strong> <%= r %> </strong> <%= s %></li>
+             </ul>
+         </li>
+     </ul> -->
 
-      <div>
-          <div data-f-bind="time">Time: <%= value %></div>
-          <button data-f-on-click="step(1)">Advance One Step</button>
-          <button data-f-on-click="reset">Reset</button>
+     <ul id="update35" data-f-foreach="r in regions">
+         <li>
+            <strong> SDFSD </strong>
+             <ul data-f-foreach="s in sales">
+                 <li> <strong> <%= r %> </strong> <%= s %></li>
+             </ul>
+              ----------
+             <ul data-f-foreach="s in salesSq">
+                 <li>  <%= s %></li>
+             </ul>
+         </li>
+     </ul>
+     <script>
+         var options = {
+             channel: {
+                 //strategy: 'new-if-persisted',
+                 strategy: 'always-new',
+                 run: {
+                     model: 'hello_world_flow.jl',
+                 //account: 'first-team',
+                     account: 'mjones',
+                     project: 'hello-world-flow',
+                 //server: {host: 'api.epicenter-stable.foriodev.com'}
+                     server: { host: 'api.forio.com' },
+                     //variables: { silent: true },
+                     //operations: { silent: { except: ['saveAll', 'resetInt'] } }
+                 }
+             }
+         };
+         Flow.initialize(options);
 
-      </div>
-
-    <h2>Decisons - Manufacturer 1</h2>
-
-    <h2>Income - Manufacturer 1</h2>
-
-    <div style="clear:both;">
-        <table class="data">
-          <tr>
-                <td> HI! </td>
-                <td data-f-repeat="Global Revenue[Product,1] | $#,##"> <%= value %></td>
-          </tr>
-        </table>
-      </div>
-  </div>
-
+     </script>
   </body>
 
 </html>

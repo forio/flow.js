@@ -310,6 +310,137 @@
               <td class="pass"> </td>
           </tr>
         <tr>
+            <td>display_foreach</td>
+            <td>data-f-foreach, nested, aliased</td>
+            <td>using the aliases at different levels, using lists
+               <ul id="update95" data-f-foreach="r in regions">
+                   <li> <%= r %>
+                       <ul data-f-foreach="s in sales">
+                           <li> <%= s %></li>
+                       </ul>
+                   </li>
+               </ul>
+            </td>
+            <td class="pass"> pass (feature/foreach-aliases), regression testing of <a href="https://github.com/forio/flow.js/pull/79">issue #30 / pr #79</a> </td>
+        </tr>
+
+        <tr>
+            <td>display_foreach</td>
+            <td>data-f-foreach, nested, aliased</td>
+            <td>using both aliases in the inner loop, using lists
+               <ul id="update96" data-f-foreach="r in regions">
+                   <li> 
+                       <ul data-f-foreach="s in sales">
+                           <li> Region: <%= r %>, Sales: <%= s %></li>
+                       </ul>
+                   </li>
+               </ul>
+            </td>
+            <td class="pass"> pass (feature/foreach-aliases), regression testing of <a href="https://github.com/forio/flow.js/pull/79">issue #30 / pr #79</a> </td>
+        </tr>        
+
+        <tr>
+            <td>display_foreach</td>
+            <td>data-f-foreach, nested, aliased</td>
+            <td>using both aliases in the inner element, using tables
+               <table id="update97" border="1">
+                   <tbody data-f-foreach="r in regions">
+                    <tr data-f-foreach="s in sales"> 
+                       <td>
+                           Region: <%=r%>, Sales: <%=s%>
+                       </td>
+                   </tr>
+               </tbody>
+               </table>
+            </td>
+            <td class="pass"> pass (feature/foreach-aliases), regression testing of <a href="https://github.com/forio/flow.js/pull/79">issue #30 / pr #79 (note requires enclosing tbody)</a> </td>
+        </tr> 
+
+        <tr>
+            <td>display_foreach</td>
+            <td>data-f-foreach, nested, sometimes aliased</td>
+            <td>using nested foreachs, alias for outer and value for inner, using tables
+               <table id="update98" border="1">
+                   <tbody data-f-foreach="r in regions">
+                    <tr data-f-foreach="sales"> 
+                       <td>
+                           Region: <%= r %>, Sales: <%= value %>
+                       </td>
+                   </tr>
+               </tbody>
+               </table>
+            </td>
+            <td class="pass"> pass (feature/foreach-aliases), regression testing of <a href="https://github.com/forio/flow.js/pull/79">issue #30 / pr #79 </a> </td>
+        </tr>
+
+        <tr>
+            <td>display_foreach</td>
+            <td>data-f-foreach, with logic </td>
+            <td>add logic during display of a foreach: make everything but the 1st one have leading comma
+               <ul id="update99" data-f-foreach="sales">
+                    <li><%= (index === 0) ? value : ", " + value  %> </li>
+               </ul>
+            </td>
+            <td class="pass"> pass (feature/foreach-aliases), regression testing of <a href="https://github.com/forio/flow.js/pull/79">issue #30 / pr #79 (not directly related to pr, but, same functionality area)</a> </td>
+        </tr>
+
+        <tr>
+            <td>display_foreach</td>
+            <td>data-f-foreach, aliased, with logic</td>
+            <td>add logic during the foreach display of an aliased foreach: only output sales info if sales are greater than 250
+                <table id="update100" border="1">
+                    <tr data-f-foreach="num in sales">
+                        <td><%= (num > 250) ? num : "" %></td>
+                    </tr>
+                </table>
+            </td>
+            <td class="pass"> pass (feature/foreach-aliases), regression testing of <a href="https://github.com/forio/flow.js/pull/79">issue #30 / pr #79 (HOWEVER, note that this shows the empty cells (or empty list bullets, for similar list example))</a> </td>
+        </tr>
+
+        <tr>
+            <td>display_foreach</td>
+            <td>data-f-foreach, with the logic in a converter (that returns an array)</td>
+            <td>add logic during a converter to only output sales info if sales are greater than 250
+                <table id="update103" border="1">
+                    <tr data-f-foreach="sales | checkSize">
+                        <td><%= value %></td>
+                    </tr>
+                </table>
+            </td>
+            <td class="pass"> pass (feature/foreach-aliases), regression testing of <a href="https://github.com/forio/flow.js/pull/79">issue #30 / pr #79 (compare with previous: this one filters before the display, so does not show empty table cells)</a> </td>
+        </tr>
+
+        <tr>
+            <td>display_foreach</td>
+            <td>data-f-foreach, aliased, nested, with logic</td>
+            <td>add logic during display to only output region and sales info if sales are greater than 250
+                <br><emphasis>NOTE: table commented (see source), because otherwise rest of page doesn't load</emphasis>
+                <!--
+                <table id="update101" border="1">
+                    <tbody data-f-foreach="reg in regions">
+                    <tr data-f-foreach="num in sales">
+                        <td><%= (num > 250) ? reg + ": " + num : "" %></td>
+                    </tr>
+                    </tbody>
+                </table>
+                --> 
+            </td>
+            <td class="fail"> FAIL (feature/foreach-aliases): gives message that num is not defined</td>
+        </tr>
+
+        <tr>
+            <td>display_foreach</td>
+            <td>data-f-repeat</td>
+            <td>basic table use case for sales
+                <table id="update102" border="1">
+                    <th>sales</th>
+                    <tr data-f-repeat="sales"><td><%= value %></td></tr>
+                </table>
+            </td>
+            <td class="pass"> pass (feature/foreach-aliases) </td>
+        </tr>
+
+        <tr>
             <td>regression testing of <a href="https://github.com/forio/flow.js/issues/64">issue #64</a></td>
             <td>data-f-repeat</td>
             <td>
@@ -886,10 +1017,10 @@ displayed as 150%.
 </table>
 
 <script src="../../../vendor/jquery/dist/jquery.min.js"></script>
-<script src="../../../vendor/lodash/dist/lodash.js"></script>
+<script src="../../../node_modules/lodash/lodash.js"></script>
 
 <!-- <script src="../../vendor/epicenter-js-libs/dist/epicenter.js"></script> -->
-<script src="https://forio.com/tools/js-libs/1.6.2/epicenter.js"></script>
+<script src="https://forio.com/tools/js-libs/1.7.1/epicenter.js"></script>
 
 <script src="../../../dist/flow-edge.js"></script>
 <!-- <script src="https://forio.com/tools/js-libs/flow/0.10.0/flow.js"></script> -->
@@ -935,6 +1066,13 @@ displayed as 150%.
         return _.max(value);
     }, true);
 
+    Flow.dom.converters.register('checkSize', function (arr) {
+        var returnArray = [];
+        for (var i=0; i < arr.length; i++) {
+            if (arr[i] > 250) { returnArray.push(arr[i]); }
+        }
+        return returnArray;
+    }, true);
 
 </script>
 <script type="text/javascript">
