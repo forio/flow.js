@@ -107,6 +107,11 @@ module.exports = (function () {
                 }
             });
 
+            var subsid = $el.data(config.attrs.subscriptionId) || [];
+            _.each(subsid, function (subs) {
+                channel.unsubscribe(subs);
+            });
+
             _.each($el.data(), function (val, key) {
                 if (key.indexOf('f-') === 0 || key.match(/^f[A-Z]/)) {
                     $el.removeData(key);
@@ -115,10 +120,7 @@ module.exports = (function () {
                 }
             });
 
-            var subsid = $el.data(config.attrs.subscriptionId) || [];
-            _.each(subsid, function (subs) {
-                channel.unsubscribe(subs);
-            });
+            return this;
         },
 
         /**
