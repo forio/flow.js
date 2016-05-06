@@ -30,6 +30,7 @@
 'use strict';
 var config = require('../config');
 
+
 module.exports = function (options) {
     var defaults = {
         /**
@@ -110,6 +111,15 @@ module.exports = function (options) {
             return val.substring(1, val.length - 1);
         });
         return inner;
+    };
+
+    //TODO: Move this check into epijs
+    var queryVars = function (vList) {
+        vList = vList.filter(function (val) {
+            return val.trim() !== '';
+        });
+        console.log('Flow', vList);
+        return vs.query(vList);
     };
 
     //Replaces stubbed out keynames in variablestointerpolate with their corresponding values
@@ -222,7 +232,7 @@ module.exports = function (options) {
                 }
             }, this);
             if (unmappedVariables.length) {
-                return vs.query(unmappedVariables).then(function (variableValueList) {
+                return queryVars(unmappedVariables).then(function (variableValueList) {
                     return $.extend(valueList, variableValueList);
                 });
             }
@@ -237,7 +247,7 @@ module.exports = function (options) {
             }
             var innerVariables = this.getTopicDependencies(variablesList);
             var getVariables = function (vars, interpolationMap) {
-                return vs.query(vars).then(function (variables) {
+                return queryVars(vars).then(function (variables) {
                     // console.log('Got variables', variables);
                     var changeSet = {};
                     _.each(variables, function (value, vname) {
@@ -424,6 +434,9 @@ module.exports = function (options) {
             };
 
             topics = [].concat(topics);
+            if (!topics.length) {
+                console.warn(subscriber, 'tried to subscribe to an empty topic');
+            }
             //use jquery to make event sink
             if (!subscriber.on && !_.isFunction(subscriber)) {
                 subscriber = $(subscriber);
