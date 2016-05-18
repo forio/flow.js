@@ -118,7 +118,6 @@ module.exports = function (options) {
         vList = vList.filter(function (val) {
             return val.trim() !== '';
         });
-        console.log('Flow', vList);
         return vs.query(vList);
     };
 
