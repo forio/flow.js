@@ -125,6 +125,9 @@ module.exports = {
         var keyRegex = new RegExp('\\b' + keyAttr + '\\b');
         var valueRegex = new RegExp('\\b' + valueAttr + '\\b');
 
+        //*
+        //build map like '<v1 > v2 : 2 : 3>: [v2, v1]'
+        //if we have both v2 and v1 , then evaluate, else ignore
         var closestParentWithMissing = this.closest('[data-missing-references]');
         if (closestParentWithMissing.length) { //(grand)parent already stubbed out missing references
             var missing = closestParentWithMissing.data('missing-references');
@@ -164,9 +167,18 @@ module.exports = {
             templateData[keyAttr] = datakey;
             templateData[valueAttr] = dataval;
         
-            var templatedLoop = templateFn(templateData);
-            var isTemplated = templatedLoop !== cloop;
-            var nodes = $(templatedLoop);
+            var nodes;
+            var isTemplated;
+            try {
+                var templatedLoop = templateFn(templateData);
+                isTemplated = templatedLoop !== cloop;
+                nodes = $(templatedLoop);
+               
+            } catch (e) {
+                nodes = $(cloop);
+                isTemplated = true;
+                // $(nodes).attr('data-current-index', JSON.stringify(templateData));
+            }
 
             nodes.each(function (i, newNode) {
                 newNode = $(newNode);
@@ -178,6 +190,7 @@ module.exports = {
                 }
             });
             $me.append(nodes);
+            
         });
     }
 };
