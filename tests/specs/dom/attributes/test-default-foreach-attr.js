@@ -373,7 +373,9 @@ module.exports = (function () {
                     domManager.bindAll();
                     $node.find('li').trigger('update.f.model', { somethingElse: targetData2 });
 
-                    $node.children().each(function (index, el) {
+                    var c = $node.children();
+                    c.length.should.equal(targetData.length);
+                    c.each(function (index, el) {
                         $(el).children().length.should.equal(targetData2.length);
                     });
 
@@ -383,15 +385,19 @@ module.exports = (function () {
                     var targetData = [1, 2];
                     var targetData2 = [3, 4];
 
-                    var $node = utils.initWithNode('<ul data-f-foreach="v1 in somearray">  <li data-f-foreach="v2 in somethingElse">  <%= v1 %> <%= v2 %>  </li></ul>', domManager);
+                    var $node = utils.initWithNode('<ul data-f-foreach="v1 in somearray">  <li data-f-foreach="v2 in somethingElse"> <div> <%= v1 %> <%= v2 %> </div>  </li></ul>', domManager);
                     $node.trigger('update.f.model', { somearray: targetData });
                     
                     domManager.bindAll();
                     $node.find('li').trigger('update.f.model', { somethingElse: targetData2 });
-
-                    $node.children().each(function (index1, el) {
-                        $(el).children().each(function (index2, el2) {
-                            $(el).html().trim().should.equal(targetData[index1] + ' ' + targetData2[index2]);
+                    
+                    var c1 = $node.children();
+                    c1.length.should.equal(targetData.length);
+                    c1.each(function (index1, el) {
+                        var c2 = $(el).children();
+                        (c2.length).should.equal(targetData2.length);
+                        c2.each(function (index2, el2) {
+                            $(el2).text().trim().should.equal(targetData[index1] + ' ' + targetData2[index2]);
                         });
                     });
                 });
@@ -427,15 +433,20 @@ module.exports = (function () {
                     var targetData = [1, 2];
                     var targetData2 = [3, 4];
 
-                    var $node = utils.initWithNode('<ul data-f-foreach="v1 in somearray">  <li data-f-foreach="somethingElse">  <%= v1 %> <%= value %>  </li></ul>', domManager);
+                    var $node = utils.initWithNode('<ul data-f-foreach="v1 in somearray">  <li data-f-foreach="somethingElse"> <div> <%= v1 %> <%= value %> </div>  </li></ul>', domManager);
                     $node.trigger('update.f.model', { somearray: targetData });
                     
                     domManager.bindAll();
                     $node.find('li').trigger('update.f.model', { somethingElse: targetData2 });
 
-                    $node.children().each(function (index1, el) {
-                        $(el).children().each(function (index2, el2) {
-                            $(el2).html().trim().should.equal(targetData[index1] + ' ' + targetData2[index2]);
+                    var c1 = $node.children();
+                    c1.length.should.equal(targetData.length);
+                    c1.each(function (index1, el) {
+                        var c2 = $(el).children();
+                        (c2.length).should.equal(targetData2.length);
+
+                        c2.each(function (index2, el2) {
+                            $(el2).text().trim().should.equal(targetData[index1] + ' ' + targetData2[index2]);
                         });
                     });
                 });
