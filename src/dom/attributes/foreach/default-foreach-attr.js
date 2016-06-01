@@ -131,9 +131,6 @@ module.exports = {
         if (closestKnownDataEl.length) {
             knownData = closestKnownDataEl.data('current-index');
         }
-        //*
-        //build map like '<v1 > v2 : 2 : 3>: [v2, v1]'
-        //if we have both v2 and v1 , then evaluate, else ignore
         var closestParentWithMissing = this.closest('[data-missing-references]');
         if (closestParentWithMissing.length) { //(grand)parent already stubbed out missing references
             var missing = closestParentWithMissing.data('missing-references');
@@ -181,8 +178,7 @@ module.exports = {
                 var templatedLoop = templateFn(templateData);
                 isTemplated = templatedLoop !== cloop;
                 nodes = $(templatedLoop);
-               
-            } catch (e) {
+            } catch (e) { //you don't have all the references you need;
                 nodes = $(cloop);
                 isTemplated = true;
                 $(nodes).attr('data-current-index', JSON.stringify(templateData));

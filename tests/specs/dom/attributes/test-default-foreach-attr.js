@@ -400,7 +400,7 @@ module.exports = (function () {
                     var targetData = [1, 3];
                     var targetData2 = [2, 4];
 
-                    var html = '<ul data-f-foreach="v1 in somearray"><li data-f-foreach="v2 in somethingElse"><%= (v1 > v2 ) ? "greater" : "smaller"%></li></ul>';
+                    var html = '<ul data-f-foreach="v1 in somearray"><li data-f-foreach="v2 in somethingElse"><div> <%= (v1 > v2 ) ? "greater" : "smaller"%> </div></li></ul>';
                     var $node = utils.initWithNode(html, domManager);
                     $node.trigger('update.f.model', { somearray: targetData });
                     
@@ -408,10 +408,17 @@ module.exports = (function () {
                     $node.find('li').trigger('update.f.model', { somethingElse: targetData2 });
                     
                     var op = ['smaller', 'smaller', 'greater', 'smaller'];
-                    $node.children().each(function (index1, el) {
-                        $(el).children().each(function (index2, el2) {
-                            var i = index1 + index2;
-                            $(el).html().trim().should.equal(op[i]);
+                    var c1 = $node.children();
+                    (c1.length).should.equal(targetData.length);
+
+                    var i = 0;
+                    c1.each(function (index1, el) {
+                        var c2 = $(el).children();
+                        (c2.length).should.equal(targetData2.length);
+
+                        c2.each(function (index2, el2) {
+                            $(el2).text().trim().should.equal(op[i]);
+                            i++;
                         });
                     });
                 });
