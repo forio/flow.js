@@ -64,7 +64,8 @@ module.exports = (function () {
                         }
                     });
                 });
-                it.skip('should support block conditions in templates with top-level children', function () {
+                it('should support block conditions in templates with top-level children', function () {
+                    //Maybe deprecate this syntax?
                     var $rootNode = $('<ul> <% if (index === 0) { %> <li> HI </li> <% } %>  <li> <%= value %> </li> </ul>');
                     var targetData = [5, 3, 6, 1];
 
