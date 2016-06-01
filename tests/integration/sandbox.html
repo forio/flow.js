@@ -2,7 +2,7 @@
   <head>
     <script src="//ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
     <script src="//cdnjs.cloudflare.com/ajax/libs/lodash.js/2.4.1/lodash.js"></script>
-    <script src="//forio.com/tools/js-libs/1.5.0/epicenter.min.js"></script>
+    <script src="//forio.com/tools/js-libs/1.7.1/epicenter.min.js"></script>
     <script src="../../dist/flow-edge.js"></script>
 
     <link rel="stylesheet" type="text/css" href="test.css">
@@ -31,6 +31,15 @@
           <button data-f-on-click="reset">Reset</button>
 
       </div>
+
+  <table id="update101" border="1">
+      <tbody data-f-foreach="t in time">
+      <tr data-f-foreach="g in Global Revenue[Product,1]">
+          <td><%= t %> <%= g %> </td>
+          <td><%= ( t > g) ? 'greater' : 'smaller' %> </td>
+      </tr>
+      </tbody>
+  </table>
 
     <h2>Decisons - Manufacturer 1</h2>
 

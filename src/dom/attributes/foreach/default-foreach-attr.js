@@ -125,6 +125,12 @@ module.exports = {
         var keyRegex = new RegExp('\\b' + keyAttr + '\\b');
         var valueRegex = new RegExp('\\b' + valueAttr + '\\b');
 
+
+        var closestKnownDataEl = this.closest('[data-current-index]');
+        var knownData = {};
+        if (closestKnownDataEl.length) {
+            knownData = closestKnownDataEl.data('current-index');
+        }
         //*
         //build map like '<v1 > v2 : 2 : 3>: [v2, v1]'
         //if we have both v2 and v1 , then evaluate, else ignore
@@ -166,7 +172,9 @@ module.exports = {
             var templateData = {};
             templateData[keyAttr] = datakey;
             templateData[valueAttr] = dataval;
-        
+            
+            $.extend(templateData, knownData);
+
             var nodes;
             var isTemplated;
             try {
@@ -177,7 +185,7 @@ module.exports = {
             } catch (e) {
                 nodes = $(cloop);
                 isTemplated = true;
-                // $(nodes).attr('data-current-index', JSON.stringify(templateData));
+                $(nodes).attr('data-current-index', JSON.stringify(templateData));
             }
 
             nodes.each(function (i, newNode) {
