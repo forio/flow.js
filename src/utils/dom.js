@@ -14,13 +14,13 @@ module.exports = {
 
     getConvertersList: function ($el, property) {
         var attrConverters = $el.data('f-convert-' + property);
-
-        if (!attrConverters && (property === 'bind' || property === 'foreach')) {
-            attrConverters = $el.data('f-convert');
+        //FIXME: figure out how not to hard-code names here
+        if (!attrConverters && (property === 'bind' || property === 'foreach' || property === 'repeat')) {
+            attrConverters = $el.attr('data-f-convert'); //.data shows value cached by jquery
             if (!attrConverters) {
                 var $parentEl = $el.closest('[data-f-convert]');
                 if ($parentEl) {
-                    attrConverters = $parentEl.data('f-convert');
+                    attrConverters = $parentEl.attr('data-f-convert');
                 }
             }
             if (attrConverters) {
