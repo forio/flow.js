@@ -14,6 +14,28 @@
         beforeEach(function () {
             //Needed to make _.debounce work correctly with fakeTimers
             _ = _.runInContext(window);//eslint-disable-line
+            mockVariables = {
+                query: sinon.spy(function (variables) {
+                    if (!variables) {
+                        variables = [];
+                    }
+                    var response = {};
+                    variables.forEach(function (v) {
+                        response[v] = 1;
+                    });
+                    return $.Deferred().resolve(response).promise();
+                }),
+                save: sinon.spy(function () {
+                    return $.Deferred().resolve().promise();
+                })
+            };
+            mockRun = {
+                variables: function () {
+                    return mockVariables;
+                }
+            };
+            channel = new Channel({ run: mockRun });
+            core = channel.private;
         });
         before(function () {
             clock = sinon.useFakeTimers();
@@ -41,39 +63,17 @@
                 };
                 xhr.respond(201, { 'Content-Type': 'application/json' }, JSON.stringify(resp));
             });
-
-            mockVariables = {
-                query: sinon.spy(function (variables) {
-                    if (!variables) {
-                        variables = [];
-                    }
-                    var response = {};
-                    variables.forEach(function (v) {
-                        response[v] = 1;
-                    });
-                    return $.Deferred().resolve(response).promise();
-                }),
-                save: sinon.spy(function () {
-                    return $.Deferred().resolve().promise();
-                })
-            };
-            mockRun = {
-                variables: function () {
-                    return mockVariables;
-                }
-            };
-            channel = new Channel({ run: mockRun });
-            core = channel.private;
         });
 
-        after(function () {
-            server.restore();
-            clock.restore();
-
+        afterEach(function () {
             mockVariables = null;
             mockRun = null;
             channel = null;
             core = null;
+        });
+        after(function () {
+            server.restore();
+            clock.restore();
         });
 
         describe('#getInnerVariables', function () {
@@ -295,7 +295,24 @@
 
                 channel.refresh = originalFetch;
             });
+
+            it('should not call save if readonly is true', function () {
+                var mv = {
+                    save: sinon.spy(function () {
+                        return $.Deferred().resolve().promise();
+                    })
+                };
+                var mr = {
+                    variables: function () {
+                        return mv;
+                    }
+                };
+                var c = new Channel({ run: mr, readOnly: true });
+                c.publish({ price: 1 });
+                mv.save.should.not.have.been.called;
+            });
         });
+
 
         describe('#refresh', function () {
             it('should call if no rules are specified', function () {
