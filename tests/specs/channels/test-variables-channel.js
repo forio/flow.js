@@ -285,15 +285,15 @@
 
                 channel.refresh = originalRefresh;
             });
-            it('should not call refresh if silenced', function () {
-                var originalRefresh = channel.refresh;
-                var refSpy = sinon.spy(originalRefresh);
-                channel.refresh = refSpy;
+            it('should not call fetch if silenced', function () {
+                var originalFetch = channel.fetch;
+                var refSpy = sinon.spy(originalFetch);
+                channel.fetch = refSpy;
 
                 channel.publish({ price: 1 }, { silent: true });
                 refSpy.should.not.have.been.called;
 
-                channel.refresh = originalRefresh;
+                channel.refresh = originalFetch;
             });
         });
 

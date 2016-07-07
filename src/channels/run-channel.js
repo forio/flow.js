@@ -64,8 +64,7 @@ module.exports = function (options) {
     };
 
     this.run = rs;
-    var varOptions = config.run.variables;
-    this.variables = new VarsChannel($.extend(true, {}, varOptions, { run: rs }));
+    this.variables = new VarsChannel($.extend(true, {}, config.run.variables, { run: rs }));
     this.operations = new OperationsChannel($.extend(true, {}, config.run.operations, { run: rs }));
 
     var me = this;
