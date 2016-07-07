@@ -117,35 +117,27 @@
             });
 
             describe('silent:true', function () {
+                var original;
+                var refSpy;
+                beforeEach(function () {
+                    original = channel.notify;
+                    refSpy = sinon.spy(original);
+                    channel.notify = refSpy;
+                });
+                afterEach(function () {
+                    channel.notify = original;
+                });
                 it('should not call refresh after publish as string', function () {
-                    var originalRefresh = channel.refresh;
-                    var refSpy = sinon.spy(originalRefresh);
-                    channel.refresh = refSpy;
-
                     channel.publish('step', 1, { silent: true });
                     refSpy.should.not.have.been.called;
-
-                    channel.refresh = originalRefresh;
                 });
                 it('should not call refresh after publish as object', function () {
-                    var originalRefresh = channel.refresh;
-                    var refSpy = sinon.spy(originalRefresh);
-                    channel.refresh = refSpy;
-
                     channel.publish({ step: 1 }, { silent: true });
                     refSpy.should.not.have.been.called;
-
-                    channel.refresh = originalRefresh;
                 });
                 it('should not call refresh after publish as object with operations', function () {
-                    var originalRefresh = channel.refresh;
-                    var refSpy = sinon.spy(originalRefresh);
-                    channel.refresh = refSpy;
-
                     channel.publish({ operations: [{ name: 'step', params: ['1'] }], serial: false }, { silent: true });
                     refSpy.should.not.have.been.called;
-
-                    channel.refresh = originalRefresh;
                 });
 
             });
