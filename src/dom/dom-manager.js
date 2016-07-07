@@ -324,7 +324,7 @@ module.exports = (function () {
                             return parseUtils.toImplicitType($.trim(val));
                         });
                     });
-                    channel.operations.publish(data);
+                    channel.operations.publish(_.omit(data, 'options'), data.options);
                 });
             };
 
