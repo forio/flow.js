@@ -184,6 +184,11 @@ module.exports = function (options) {
             var opts = ($.isPlainObject(operation)) ? params : options;
             opts = $.extend(true, {}, channelOptions, opts);
 
+            if (opts.readOnly) {
+                console.warn('Tried to publish to a read-only channel', operation);
+                return $.Deferred().resolve().promise();
+            }
+
             if ($.isPlainObject(operation) && operation.operations) {
                 var fn = (operation.serial) ? run.serial : run.parallel;
                 _.each(operation.operations, function (opn) {
