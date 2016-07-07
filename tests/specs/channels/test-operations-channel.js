@@ -164,6 +164,16 @@
                     c.publish({ step: 1 });
                     mockRun.do.should.have.been.called;
                 });
+                it('should allow passing a function for true', function () {
+                    var c = new Channel({ vent: mockRunChannel, run: mockRun, readOnly: function () { return true; } });
+                    c.publish({ step: 1 });
+                    mockRun.do.should.not.have.been.called;
+                });
+                it('should allow passing a function for false', function () {
+                    var c = new Channel({ vent: mockRunChannel, run: mockRun, readOnly: function () { return false; } });
+                    c.publish({ step: 1 });
+                    mockRun.do.should.have.been.called;
+                });
             });
         });
 
