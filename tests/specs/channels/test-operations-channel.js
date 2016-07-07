@@ -143,17 +143,6 @@
             });
 
             describe('readonly: true', function () {
-                var original;
-                var refSpy;
-                beforeEach(function () {
-                    original = channel.notify;
-                    refSpy = sinon.spy(original);
-                    channel.notify = refSpy;
-                });
-                afterEach(function () {
-                    channel.notify = original;
-                });
-
                 it('should not call `do` if readonly true', function () {
                     var c = new Channel({ vent: mockRunChannel, run: mockRun, readOnly: true });
                     c.publish({ step: 1 });

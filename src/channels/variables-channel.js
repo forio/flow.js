@@ -91,7 +91,7 @@ module.exports = function (options) {
         },
 
         /**
-         * Allow using the channel for reading data, but dis-allow calls to `publish`
+         * Allow using the channel for reading data, but dis-allow calls to `publish`. If a function is provided, function should return true/false to override
          * @type {Boolean}
          */
         readOnly: false,
@@ -392,7 +392,7 @@ module.exports = function (options) {
 
             var opts = $.extend(true, {}, channelOptions, options);
 
-            if (opts.readOnly) {
+            if (_.result(opts, 'readOnly')) {
                 console.warn('Tried to publish to a read-only channel', variable);
                 return $.Deferred().resolve().promise();
             }

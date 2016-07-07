@@ -296,20 +296,27 @@
                 channel.refresh = originalFetch;
             });
 
-            it('should not call save if readonly is true', function () {
-                var mv = {
-                    save: sinon.spy(function () {
-                        return $.Deferred().resolve().promise();
-                    })
-                };
-                var mr = {
-                    variables: function () {
-                        return mv;
-                    }
-                };
-                var c = new Channel({ run: mr, readOnly: true });
-                c.publish({ price: 1 });
-                mv.save.should.not.have.been.called;
+            describe('readonly: true', function () {
+                it('should not call `do` if readonly true', function () {
+                    var c = new Channel({ run: mockRun, readOnly: true });
+                    c.publish({ price: 1 });
+                    mockVariables.save.should.not.have.been.called;
+                });
+                it('should call `do` if readonly false', function () {
+                    var c = new Channel({ run: mockRun, readOnly: false });
+                    c.publish({ price: 1 });
+                    mockVariables.save.should.have.been.called;
+                });
+                it('should allow passing a function for true', function () {
+                    var c = new Channel({ run: mockRun, readOnly: function () { return true; } });
+                    c.publish({ price: 1 });
+                    mockVariables.save.should.not.have.been.called;
+                });
+                it('should allow passing a function for false', function () {
+                    var c = new Channel({ run: mockRun, readOnly: function () { return false; } });
+                    c.publish({ price: 1 });
+                    mockVariables.save.should.have.been.called;
+                });
             });
         });
 
