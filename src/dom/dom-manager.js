@@ -275,30 +275,8 @@ module.exports = (function () {
 
             var me = this;
             var $root = $(defaults.root);
-            $(function () {
-                me.bindAll();
-                $root.trigger('f.domready');
 
-                //Attach listeners
-                // Listen for changes to ui and publish to api
-                $root.off(config.events.trigger).on(config.events.trigger, function (evt, data) {
-                    var parsedData = {}; //if not all subsequent listeners will get the modified data
-
-                    var $el = $(evt.target);
-                    var attrConverters = domUtils.getConvertersList($el, 'bind');
-
-                    _.each(data, function (val, key) {
-                        key = key.split('|')[0].trim(); //in case the pipe formatting syntax was used
-                        val = converterManager.parse(val, attrConverters);
-                        parsedData[key] = parseUtils.toImplicitType(val);
-
-                        $el.trigger(config.events.convert, { bind: val });
-                    });
-
-                    channel.variables.publish(parsedData);
-                });
-
-                // Listen for changes from api and update ui
+            var attachChannelListener = function ($root) {
                 $root.off(config.events.channelDataReceived).on(config.events.channelDataReceived, function (evt, data) {
                     // console.log(evt.target, data, "root on");
                     var $el = $(evt.target);
@@ -317,7 +295,40 @@ module.exports = (function () {
                     });
                     $el.trigger(config.events.convert, toconvert);
                 });
+            };
 
+            var attachUIVariablesListener = function ($root) {
+                $root.off(config.events.trigger).on(config.events.trigger, function (evt, data) {
+                    var parsedData = {}; //if not all subsequent listeners will get the modified data
+
+                    var $el = $(evt.target);
+                    var attrConverters = domUtils.getConvertersList($el, 'bind');
+
+                    _.each(data, function (val, key) {
+                        key = key.split('|')[0].trim(); //in case the pipe formatting syntax was used
+                        val = converterManager.parse(val, attrConverters);
+                        parsedData[key] = parseUtils.toImplicitType(val);
+
+                        $el.trigger(config.events.convert, { bind: val });
+                    });
+
+                    channel.variables.publish(parsedData);
+                });
+            };
+
+            var attachUIOperationsListener = function ($root) {
+                $root.off(config.events.operate).on(config.events.operate, function (evt, data) {
+                    data = $.extend(true, {}, data); //if not all subsequent listeners will get the modified data
+                    _.each(data.operations, function (opn) {
+                        opn.params = _.map(opn.params, function (val) {
+                            return parseUtils.toImplicitType($.trim(val));
+                        });
+                    });
+                    channel.operations.publish(data);
+                });
+            };
+
+            var attachConversionListner = function ($root) {
                 // data = {proptoupdate: value} || just a value (assumes 'bind' if so)
                 $root.off(config.events.convert).on(config.events.convert, function (evt, data) {
                     var $el = $(evt.target);
@@ -337,16 +348,16 @@ module.exports = (function () {
                         convert(data, 'bind');
                     }
                 });
+            };
 
-                $root.off(config.events.operate).on(config.events.operate, function (evt, data) {
-                    data = $.extend(true, {}, data); //if not all subsequent listeners will get the modified data
-                    _.each(data.operations, function (opn) {
-                        opn.params = _.map(opn.params, function (val) {
-                            return parseUtils.toImplicitType($.trim(val));
-                        });
-                    });
-                    channel.operations.publish(data);
-                });
+            $(function () {
+                me.bindAll();
+                $root.trigger('f.domready');
+
+                attachChannelListener($root);
+                attachUIVariablesListener($root);
+                attachUIOperationsListener($root);
+                attachConversionListner($root);
 
                 if (me.options.autoBind) {
                     autoUpdatePlugin($root.get(0), me);
