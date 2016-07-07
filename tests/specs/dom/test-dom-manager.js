@@ -283,6 +283,17 @@
                 domManager.unbindAll([$(node).find(':text').get(0)]);
                 domManager.private.matchedElements.length.should.equal(2);
             });
+            it('should allow unbinding of children', function () {
+                var node = make('<div data-f-bind="a"> <input type="text" data-f-bind="boo" />  <input type="text" data-f-bind="boos" /> </div>');
+                domManager.initialize({
+                    root: node,
+                    channel: dummyChannelManager
+                });
+
+                domManager.private.matchedElements.length.should.equal(3);
+                domManager.unbindAll(node);
+                domManager.private.matchedElements.length.should.equal(0);
+            });
         });
         describe('#bindAll', function () {
             it('should bind elements from the root if no selector is provided', function () {
@@ -302,6 +313,28 @@
                 textspy.should.not.have.been.called;
 
                 domManager.bindAll();
+
+                $(addedNode).val('hello1').trigger('change');
+                textspy.should.have.been.calledOnce;
+            });
+
+            it('should bind children of added elements', function () {
+                var node = make('<div> </div>');
+                domManager.initialize({
+                    root: node,
+                    channel: dummyChannelManager
+                });
+
+                $(node).append('<input type="text" data-f-bind="boo" />');
+                var addedNode = $(node).find(':text');
+
+                var textspy = sinon.spy();
+                $(addedNode).on('update.f.ui', textspy);
+
+                $(addedNode).val('hello').trigger('change');
+                textspy.should.not.have.been.called;
+
+                domManager.bindAll(node);
 
                 $(addedNode).val('hello1').trigger('change');
                 textspy.should.have.been.calledOnce;

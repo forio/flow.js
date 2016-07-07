@@ -235,6 +235,8 @@ module.exports = (function () {
             var me = this;
             if (!elementsToUnbind) {
                 elementsToUnbind = this.private.matchedElements;
+            } else if (!_.isArray(elementsToUnbind)) {
+                elementsToUnbind = getMatchingElements(elementsToUnbind);
             }
             $.each(elementsToUnbind, function (index, element) {
                 me.unbindElement(element, me.options.channel.variables);
