@@ -394,7 +394,7 @@ module.exports = function (options) {
 
             if (_.result(opts, 'readOnly')) {
                 console.warn('Tried to publish to a read-only channel', variable);
-                return $.Deferred().resolve().promise();
+                return $.Deferred().reject().promise();
             }
             var it = interpolate(_.keys(attrs), currentData);
 
