@@ -121,8 +121,9 @@ module.exports = function (options) {
 
     //TODO: Move this check into epijs
     var queryVars = function (vList) {
-        vList = vList.filter(function (val) {
-            return val.trim() !== '';
+        vList = _.invoke(vList, 'trim');
+        vList = _.filter(vList, function (val) {
+            return val && val !== '';
         });
         return vs.query(vList);
     };
