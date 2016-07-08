@@ -324,7 +324,18 @@ module.exports = (function () {
                             return parseUtils.toImplicitType($.trim(val));
                         });
                     });
-                    channel.operations.publish(_.omit(data, 'options'), data.options);
+
+                    //FIXME: once the channel manager is built out this hacky filtering goes away. There can just be a window channel which catches these
+                    var convertors = _.filter(data.operations, function (opn) {
+                        return !!converterManager.getConverter(opn.name);
+                    });
+                    data.operations = _.difference(data.operations, convertors);
+                    var promise = channel.operations.publish(_.omit(data, 'options'), data.options);
+                    promise.then(function (args) {
+                        _.each(convertors, function (con) {
+                            converterManager.convert(con.params, [con.name]);
+                        });
+                    });
                 });
             };
 

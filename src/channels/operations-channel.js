@@ -186,7 +186,7 @@ module.exports = function (options) {
 
             if (_.result(opts, 'readOnly')) {
                 console.warn('Tried to publish to a read-only channel', operation);
-                return $.Deferred().resolve().promise();
+                return $.Deferred().reject().promise();
             }
 
             if ($.isPlainObject(operation) && operation.operations) {
