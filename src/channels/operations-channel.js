@@ -196,9 +196,7 @@ module.exports = function (options) {
                 }, this);
                 return fn.call(run, operation.operations)
                         .then(function (response) {
-                            if (!params || !params.silent) {
-                                me.refresh(_.pluck(operation.operations, 'name'), response, null, opts);
-                            }
+                            me.refresh(_.pluck(operation.operations, 'name'), response, null, opts);
                         });
             } else {
                 if (!$.isPlainObject(operation) && params) {
