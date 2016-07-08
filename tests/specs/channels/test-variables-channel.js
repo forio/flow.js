@@ -317,6 +317,11 @@
                     c.publish({ price: 1 });
                     mockVariables.save.should.have.been.called;
                 });
+                it('should return a rejected promise when published to readonly channel ', function () {
+                    var c = new Channel({ run: mockRun, readOnly: true });
+                    var prom = c.publish({ price: 1 });
+                    prom.state().should.equal('rejected');
+                });
             });
         });
 
