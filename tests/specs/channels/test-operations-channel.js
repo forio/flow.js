@@ -35,7 +35,7 @@
                     })
                 }
             };
-            channel = new Channel({ vent: mockRunChannel, run: mockRun });
+            channel = new Channel({ run: mockRun });
         });
         afterEach(function () {
             mockRun = mockRunChannel = channel = null;
@@ -144,22 +144,22 @@
 
             describe('readonly: true', function () {
                 it('should not call `do` if readonly true', function () {
-                    var c = new Channel({ vent: mockRunChannel, run: mockRun, readOnly: true });
+                    var c = new Channel({ run: mockRun, readOnly: true });
                     c.publish({ step: 1 });
                     mockRun.do.should.not.have.been.called;
                 });
                 it('should call `do` if readonly false', function () {
-                    var c = new Channel({ vent: mockRunChannel, run: mockRun, readOnly: false });
+                    var c = new Channel({ run: mockRun, readOnly: false });
                     c.publish({ step: 1 });
                     mockRun.do.should.have.been.called;
                 });
                 it('should allow passing a function for true', function () {
-                    var c = new Channel({ vent: mockRunChannel, run: mockRun, readOnly: function () { return true; } });
+                    var c = new Channel({ run: mockRun, readOnly: function () { return true; } });
                     c.publish({ step: 1 });
                     mockRun.do.should.not.have.been.called;
                 });
                 it('should allow passing a function for false', function () {
-                    var c = new Channel({ vent: mockRunChannel, run: mockRun, readOnly: function () { return false; } });
+                    var c = new Channel({ run: mockRun, readOnly: function () { return false; } });
                     c.publish({ step: 1 });
                     mockRun.do.should.have.been.called;
                 });

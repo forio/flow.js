@@ -74,7 +74,7 @@ module.exports = function (options) {
         if (me.variables.options.autoFetch.enable) {
             me.variables.startAutoFetch();
         }
-    }, DEBOUNCE_INTERVAL, { leading: true });
+    }, DEBOUNCE_INTERVAL, { leading: false });
 
     this.operations.subscribe('*', debouncedRefresh);
 };
