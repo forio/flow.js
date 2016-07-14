@@ -7,7 +7,6 @@
         var channel;
         var server;
         var mockRun;
-        var mockRunChannel;
         var mockOperationsResponse = {
             message: 'operation Complete',
             stuff: 1,
@@ -23,22 +22,10 @@
                 parallel: spy
             };
 
-            mockRunChannel = {
-                variables: {
-                    refresh: sinon.spy(),
-                    query: sinon.spy(function () {
-                        return $.Deferred().resolve({
-                            price: 23,
-                            sales: 30,
-                            priceArray: [20, 30]
-                        }).promise();
-                    })
-                }
-            };
             channel = new Channel({ run: mockRun });
         });
         afterEach(function () {
-            mockRun = mockRunChannel = channel = null;
+            mockRun = channel = null;
         });
         before(function () {
             server = sinon.fakeServer.create();

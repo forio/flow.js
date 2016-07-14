@@ -54,7 +54,7 @@
 
 'use strict';
 var parseUtils = require('../../utils/parse-utils');
-var config = require('../../config');
+// var config = require('../../config');
 module.exports = {
 
     test: 'repeat',

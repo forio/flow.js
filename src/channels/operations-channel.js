@@ -108,7 +108,7 @@ module.exports = function (options) {
 
             var silent = opts.silent;
             var toNotify = executedOpns;
-            if (force === true) {
+            if (force === true) { // eslint-disable-line
             } else if (silent === true) {
                 toNotify = [];
             } else if (_.isArray(silent) && executedOpns) {
