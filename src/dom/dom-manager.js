@@ -330,7 +330,9 @@ module.exports = (function () {
                         return !!converterManager.getConverter(opn.name);
                     });
                     data.operations = _.difference(data.operations, convertors);
-                    var promise = channel.operations.publish(_.omit(data, 'options'), data.options);
+                    var promise = (data.operations.length) ?
+                        channel.operations.publish(_.omit(data, 'options'), data.options)
+                        : $.Deferred().reject().promise();
                     promise.then(function (args) {
                         _.each(convertors, function (con) {
                             converterManager.convert(con.params, [con.name]);
