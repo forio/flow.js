@@ -45,7 +45,7 @@ module.exports = function (options) {
     };
 
     //Make sure nothing happens before the run is created
-    var nonWrapped = ['variables', 'create', 'load', 'getCurrentConfig'];
+    var nonWrapped = ['variables', 'create', 'load', 'getCurrentConfig', 'updateConfig'];
     _.each(rs, function (value, name) {
         if (_.isFunction(value) && !_.contains(nonWrapped, name)) {
             rs[name] = createAndThen(value, rs);
