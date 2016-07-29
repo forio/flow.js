@@ -16,8 +16,9 @@
                 it('should select nothing by default', function () {
                     domManager.initialize({
                         channel: dummyChannelManager
+                    }).then(function () {
+                        domManager.private.matchedElements.length.should.equal(0);
                     });
-                    domManager.private.matchedElements.length.should.equal(0);
                 });
 
                 it('should select single nodes', function () {
@@ -25,8 +26,9 @@
                     domManager.initialize({
                         root: node,
                         channel: dummyChannelManager
+                    }).then(function () {
+                        domManager.private.matchedElements.length.should.equal(1);
                     });
-                    domManager.private.matchedElements.length.should.equal(1);
                 });
 
                 it('should select nested nodes', function () {
@@ -34,8 +36,9 @@
                     domManager.initialize({
                         root: node,
                         channel: dummyChannelManager
+                    }).then(function () {
+                        domManager.private.matchedElements.length.should.equal(2);
                     });
-                    domManager.private.matchedElements.length.should.equal(2);
                 });
 
                 it('should select nested nodes with diff F attrs', function () {
@@ -43,8 +46,9 @@
                     domManager.initialize({
                         root: node,
                         channel: dummyChannelManager
+                    }).then(function () {
+                        domManager.private.matchedElements.length.should.equal(2);
                     });
-                    domManager.private.matchedElements.length.should.equal(2);
                 });
             });
 
