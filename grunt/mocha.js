@@ -8,7 +8,8 @@ module.exports = function (grunt) {
             options: {
                 growlOnSuccess: false,
                 reporter: 'Min',
-                run: true
+                run: true,
+                log: true,
             }
         }
     });
