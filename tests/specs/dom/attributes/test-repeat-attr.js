@@ -213,7 +213,7 @@ module.exports = (function () {
                 var targetData = [5, 3, 6, 1];
 
                 utils.initWithNode('<ul> <li data-f-repeat="somearray" data-stuff="<%=index%>"> <%= value %> </li> </ul>', domManager).then(function ($node) {
-                $node.find('li:first').trigger('update.f.model', { somearray: targetData });
+                    $node.find('li:first').trigger('update.f.model', { somearray: targetData });
 
                     var newChildren = $node.children();
                     var childrenCount = newChildren.length;
