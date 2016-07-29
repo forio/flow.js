@@ -238,9 +238,10 @@
                     channel.subscribe('price', cb);
                     channel.getSubscribers('price').length.should.equal(1);
 
-                    channel.publish('price', 32);
-                    cb.should.have.been.called.calledOnce;
-                    cb.should.have.been.calledWith({ price: 1 }); // mock server always returns 1
+                    channel.publish('price', 32).then(function () {
+                        cb.should.have.been.called.calledOnce;
+                        cb.should.have.been.calledWith({ price: 1 }); // mock server always returns 1
+                    });
                 });
 
                //TODO: this will be called twice because the channel can't tell if things have changed or not
@@ -251,71 +252,75 @@
                     channel.getSubscribers('price').length.should.equal(1);
                     channel.getSubscribers('sales').length.should.equal(1);
 
-                    channel.publish('price', 32);
-
-                    cb.should.have.been.called.calledOnce;
-                    cb.should.have.been.calledWith({ price: 1 }); // mock server always returns 1
-
+                    channel.publish('price', 32).then(function () {
+                        cb.should.have.been.called.calledOnce;
+                        cb.should.have.been.calledWith({ price: 1 }); // mock server always returns 1
+                    });
                 });
             });
         });
 
         describe('#publish', function () {
             it('should publish values to the variables service', function () {
-                channel.publish({ price: 1 });
-                mockVariables.save.should.have.been.calledWith({ price: 1 });
-
+                channel.publish({ price: 1 }).then(function () {
+                    mockVariables.save.should.have.been.calledWith({ price: 1 });
+                });
             });
             //Skipping till we figure out a way to set the interpolation map
             it('should interpolate variables', function () {
                 channel.private.currentData.time = 1;
-                channel.publish({ 'price[<time>]': 1 });
-                mockVariables.save.should.have.been.calledWith({ 'price[1]': 1 });
-                channel.private.currentData.time = 1;
-
-
+                channel.publish({ 'price[<time>]': 1 }).then(function () {
+                    mockVariables.save.should.have.been.calledWith({ 'price[1]': 1 });
+                    channel.private.currentData.time = 1;
+                });
             });
             it('should call refresh after publish', function () {
                 var originalRefresh = channel.refresh;
                 var refSpy = sinon.spy(originalRefresh);
                 channel.refresh = refSpy;
 
-                channel.publish({ price: 1 });
-                refSpy.should.have.been.called;
+                channel.publish({ price: 1 }).then(function () {
+                    refSpy.should.have.been.called;
 
-                channel.refresh = originalRefresh;
+                    channel.refresh = originalRefresh;
+                });
             });
             it('should not call fetch if silenced', function () {
                 var originalFetch = channel.fetch;
                 var refSpy = sinon.spy(originalFetch);
                 channel.fetch = refSpy;
 
-                channel.publish({ price: 1 }, { silent: true });
-                refSpy.should.not.have.been.called;
+                channel.publish({ price: 1 }, { silent: true }).then(function () {
+                    refSpy.should.not.have.been.called;
 
-                channel.refresh = originalFetch;
+                    channel.refresh = originalFetch;
+                });
             });
 
             describe('readonly: true', function () {
                 it('should not call `do` if readonly true', function () {
                     var c = new Channel({ run: mockRun, readOnly: true });
-                    c.publish({ price: 1 });
-                    mockVariables.save.should.not.have.been.called;
+                    c.publish({ price: 1 }).then(function () {
+                        mockVariables.save.should.not.have.been.called;
+                    });
                 });
                 it('should call `do` if readonly false', function () {
                     var c = new Channel({ run: mockRun, readOnly: false });
-                    c.publish({ price: 1 });
-                    mockVariables.save.should.have.been.called;
+                    c.publish({ price: 1 }).then(function () {
+                        mockVariables.save.should.have.been.called;
+                    });
                 });
                 it('should allow passing a function for true', function () {
                     var c = new Channel({ run: mockRun, readOnly: function () { return true; } });
-                    c.publish({ price: 1 });
-                    mockVariables.save.should.not.have.been.called;
+                    c.publish({ price: 1 }).then(function () {
+                        mockVariables.save.should.not.have.been.called;
+                    });
                 });
                 it('should allow passing a function for false', function () {
                     var c = new Channel({ run: mockRun, readOnly: function () { return false; } });
-                    c.publish({ price: 1 });
-                    mockVariables.save.should.have.been.called;
+                    c.publish({ price: 1 }).then(function () {
+                        mockVariables.save.should.have.been.called;
+                    });
                 });
                 it('should return a rejected promise when published to readonly channel ', function () {
                     var c = new Channel({ run: mockRun, readOnly: true });
@@ -335,9 +340,9 @@
                 channel.subscribe('price', $sink);
                 $sink.on('update.f.model', modelChangeSpy);
 
-                channel.publish({ price: 24 });
-
-                modelChangeSpy.should.have.been.called;
+                channel.publish({ price: 24 }).then(function () {
+                    modelChangeSpy.should.have.been.called;
+                });
             });
 
             it('should not call refresh if silent is true', function () {
@@ -348,8 +353,9 @@
                 channel.subscribe('price', $sink);
                 $sink.on('update.f.model', modelChangeSpy);
 
-                channel.publish({ price: 24 });
-                modelChangeSpy.should.not.have.been.called;
+                channel.publish({ price: 24 }).then(function () {
+                    modelChangeSpy.should.not.have.been.called;
+                });
             });
 
             it('should call refresh if forced', function () {
@@ -360,11 +366,12 @@
                 channel.subscribe('price', $sink);
                 $sink.on('update.f.model', modelChangeSpy);
 
-                channel.publish({ price: 24 });
-                modelChangeSpy.should.not.have.been.called;
+                channel.publish({ price: 24 }).then(function () {
+                    modelChangeSpy.should.not.have.been.called;
 
-                channel.refresh({ price: 1 }, true);
-                modelChangeSpy.should.have.been.calledOnce;
+                    channel.refresh({ price: 1 }, true);
+                    modelChangeSpy.should.have.been.calledOnce;
+                });
             });
 
 
@@ -377,11 +384,13 @@
                 channel.subscribe('price', $sink);
                 $sink.on('update.f.model', modelChangeSpy);
 
-                channel.publish({ price: 24 });
-                modelChangeSpy.should.have.been.calledOnce;
+                channel.publish({ price: 24 }).then(function () {
+                    modelChangeSpy.should.have.been.calledOnce;
 
-                channel.publish({ stuff: 24 });
-                modelChangeSpy.should.have.been.calledTwice;
+                    channel.publish({ stuff: 24 }).then(function () {
+                        modelChangeSpy.should.have.been.calledTwice;
+                    });
+                });
 
             });
 
@@ -395,11 +404,13 @@
                 channel.subscribe('stuff', $sink);
                 $sink.on('update.f.model', modelChangeSpy);
 
-                channel.publish({ price: 24 });
-                modelChangeSpy.should.not.have.been.called;
+                channel.publish({ price: 24 }).then(function () {
+                    modelChangeSpy.should.not.have.been.called;
 
-                channel.publish({ stuff: 24 });
-                modelChangeSpy.should.have.been.calledTwice;
+                    channel.publish({ stuff: 24 }).then(function () {
+                        modelChangeSpy.should.have.been.calledTwice;
+                    });
+                });
             });
 
             it('should call refresh if silent blacklist match', function () {
@@ -414,11 +425,13 @@
                 channel.subscribe('stuff', $sink);
                 $sink.on('update.f.model', modelChangeSpy);
 
-                channel.publish({ price: 24 });
-                modelChangeSpy.should.have.been.calledTwice;
+                channel.publish({ price: 24 }).then(function () {
+                    modelChangeSpy.should.have.been.calledTwice;
 
-                channel.publish({ stuff: 24 });
-                modelChangeSpy.should.have.been.calledTwice;
+                    channel.publish({ stuff: 24 }).then(function () {
+                        modelChangeSpy.should.have.been.calledTwice;
+                    });
+                });
             });
         });
 
