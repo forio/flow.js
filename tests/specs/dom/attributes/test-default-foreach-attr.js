@@ -215,76 +215,77 @@ module.exports = (function () {
             it('should loop through children for elems with foreach=variableArray', function () {
                 var targetData = [5, 3, 6, 1];
 
-                var $node = utils.initWithNode('<ul data-f-foreach="somearray"> <li data-stuff="<%=index%>"> <%= value %> </li> </ul>', domManager);
-                $node.trigger('update.f.model', { somearray: targetData });
+                utils.initWithNode('<ul data-f-foreach="somearray"> <li data-stuff="<%=index%>"> <%= value %> </li> </ul>', domManager).then(function ($node) {
+                    $node.trigger('update.f.model', { somearray: targetData });
+                    var newChildren = $node.children();
+                    var childrenCount = newChildren.size();
 
-                var newChildren = $node.children();
-                var childrenCount = newChildren.size();
+                    newChildren.each(function (index) {
+                        var data = $(this).html().trim();
+                        data.should.equal(targetData[index] + '');
 
-                newChildren.each(function (index) {
-                    var data = $(this).html().trim();
-                    data.should.equal(targetData[index] + '');
+                        var indexVal = $(this).data('stuff');
+                        indexVal.should.equal(index);
+                    });
 
-                    var indexVal = $(this).data('stuff');
-                    indexVal.should.equal(index);
+                    $node.trigger('update.f.model', { somearray: targetData });
+                    $node.children().length.should.equal(childrenCount);
                 });
-
-                $node.trigger('update.f.model', { somearray: targetData });
-                $node.children().length.should.equal(childrenCount);
             });
             it('should loop through children for elems with foreach=variableObject', function () {
                 var targetData = { a: 3, b: 4 };
 
-                var $node = utils.initWithNode('<ul data-f-foreach="someobject"> <li data-stuff="<%=index%>"> <%= value %> </li> </ul>', domManager);
-                $node.trigger('update.f.model', { someobject: targetData });
+                utils.initWithNode('<ul data-f-foreach="someobject"> <li data-stuff="<%=index%>"> <%= value %> </li> </ul>', domManager).then(function ($node) {
+                    $node.trigger('update.f.model', { someobject: targetData });
 
-                var newChildren = $node.children();
-                var childrenCount = newChildren.size();
+                    var newChildren = $node.children();
+                    var childrenCount = newChildren.size();
 
-                newChildren.each(function () {
-                    var val = $(this).html().trim();
-                    var key = $(this).data('stuff');
+                    newChildren.each(function () {
+                        var val = $(this).html().trim();
+                        var key = $(this).data('stuff');
 
-                    targetData[key].should.equal(+val);
+                        targetData[key].should.equal(+val);
+                    });
+
+                    $node.trigger('update.f.model', { someobject: targetData });
+                    $node.children().length.should.equal(childrenCount);
                 });
-
-                $node.trigger('update.f.model', { someobject: targetData });
-                $node.children().length.should.equal(childrenCount);
             });
             it('should support inline functions in templates', function () {
                 var targetData = [5, 3, 6, 1];
                 var outputdata = ['first', 3, 6, 1];
 
-                var $node = utils.initWithNode('<ul data-f-foreach="somearray"> <li> <%= (index === 0) ? "first" : value %> <%= value %></li> </ul>', domManager);
-                $node.trigger('update.f.model', { somearray: targetData });
+                utils.initWithNode('<ul data-f-foreach="somearray"> <li> <%= (index === 0) ? "first" : value %> <%= value %></li> </ul>', domManager).then(function ($node) {
+                    $node.trigger('update.f.model', { somearray: targetData });
 
-                var newChildren = $node.children();
-                var childrenCount = newChildren.size();
-                newChildren.each(function (index) {
-                    var data = $(this).html().trim();
-                    data.should.equal(outputdata[index] + ' ' + targetData[index]);
+                    var newChildren = $node.children();
+                    var childrenCount = newChildren.size();
+                    newChildren.each(function (index) {
+                        var data = $(this).html().trim();
+                        data.should.equal(outputdata[index] + ' ' + targetData[index]);
+                    });
+
+                    $node.trigger('update.f.model', { somearray: targetData });
+                    $node.children().length.should.equal(childrenCount);
                 });
-
-                $node.trigger('update.f.model', { somearray: targetData });
-                $node.children().length.should.equal(childrenCount);
-
             });
 
             it('should support nested loops', function () {
                 var targetData = [5, 3, 6, 1];
                 var targetData2 = [5, 3];
 
-                var $node = utils.initWithNode('<ul data-f-foreach="somearray">  <li data-f-foreach="somethingElse"> <span> </span> </li></ul>', domManager);
-                $node.trigger('update.f.model', { somearray: targetData });
-                $node.children().length.should.equal(targetData.length);
+                utils.initWithNode('<ul data-f-foreach="somearray">  <li data-f-foreach="somethingElse"> <span> </span> </li></ul>', domManager).then(function ($node) {
+                    $node.trigger('update.f.model', { somearray: targetData });
+                    $node.children().length.should.equal(targetData.length);
 
-                domManager.bindAll();
-                $node.find('li').trigger('update.f.model', { somethingElse: targetData2 });
+                    domManager.bindAll();
+                    $node.find('li').trigger('update.f.model', { somethingElse: targetData2 });
 
-                $node.children().each(function (index, el) {
-                    $(el).children().length.should.equal(targetData2.length);
+                    $node.children().each(function (index, el) {
+                        $(el).children().length.should.equal(targetData2.length);
+                    });
                 });
-
             });
         });
     });

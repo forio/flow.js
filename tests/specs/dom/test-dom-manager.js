@@ -62,24 +62,24 @@
                         '   <span> nothing </span>',
                         '</div>'
                     ];
-                    var $node = utils.initWithNode(nested.join(), domManager);
+                    utils.initWithNode(nested.join(), domManager).then(function ($node) {
+                        var $textNode = $node.find(':text');
 
-                    var $textNode = $node.find(':text');
+                        var textspy = sinon.spy();
+                        $textNode.on('update.f.ui', textspy);
 
-                    var textspy = sinon.spy();
-                    $textNode.on('update.f.ui', textspy);
+                        var parentSpy = sinon.spy();
+                        $node.find('.abc').on('update.f.ui', parentSpy);
 
-                    var parentSpy = sinon.spy();
-                    $node.find('.abc').on('update.f.ui', parentSpy);
-
-                    var rootSpy = sinon.spy();
-                    $node.on('update.f.ui', rootSpy);
+                        var rootSpy = sinon.spy();
+                        $node.on('update.f.ui', rootSpy);
 
 
-                    $textNode.trigger('change');
-                    textspy.should.have.been.called.once;
-                    parentSpy.should.have.been.called.once;
-                    rootSpy.should.have.been.called.once;
+                        $textNode.trigger('change');
+                        textspy.should.have.been.called.once;
+                        parentSpy.should.have.been.called.once;
+                        rootSpy.should.have.been.called.once;
+                    });
                 });
 
                 require('./element-tests/test-checkbox');
@@ -109,16 +109,17 @@
                     };
                     var toggleSpy = sinon.spy(toggle);
                     domManager.attributes.register('toggle', '*', toggleSpy);
-                    var $node = utils.initWithNode('<input type="text" data-f-toggle="shouldIHide" data-f-bind="stuff"/>', domManager);
-                    $node.trigger('update.f.model', { shouldIHide: 1 });
+                    utils.initWithNode('<input type="text" data-f-toggle="shouldIHide" data-f-bind="stuff"/>', domManager).then(function ($node) {
+                        $node.trigger('update.f.model', { shouldIHide: 1 });
 
-                    toggleSpy.should.have.been.called;
-                    toggleSpy.should.have.been.calledWith(1);
+                        toggleSpy.should.have.been.called;
+                        toggleSpy.should.have.been.calledWith(1);
 
-                    $node.css('display').should.equal('block');
+                        $node.css('display').should.equal('block');
 
-                    $node.trigger('update.f.model', { shouldIHide: 0 });
-                    $node.css('display').should.equal('none');
+                        $node.trigger('update.f.model', { shouldIHide: 0 });
+                        $node.css('display').should.equal('none');
+                    });
                 });
             });
 

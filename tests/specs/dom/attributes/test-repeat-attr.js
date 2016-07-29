@@ -212,60 +212,63 @@ module.exports = (function () {
             it('should loop through children for elems with repeat=variableArray', function () {
                 var targetData = [5, 3, 6, 1];
 
-                var $node = utils.initWithNode('<ul> <li data-f-repeat="somearray" data-stuff="<%=index%>"> <%= value %> </li> </ul>', domManager);
+                utils.initWithNode('<ul> <li data-f-repeat="somearray" data-stuff="<%=index%>"> <%= value %> </li> </ul>', domManager).then(function ($node) {
                 $node.find('li:first').trigger('update.f.model', { somearray: targetData });
 
-                var newChildren = $node.children();
-                var childrenCount = newChildren.size();
+                    var newChildren = $node.children();
+                    var childrenCount = newChildren.size();
 
-                newChildren.each(function (index) {
-                    var data = $(this).html().trim();
-                    data.should.equal(targetData[index] + '');
+                    newChildren.each(function (index) {
+                        var data = $(this).html().trim();
+                        data.should.equal(targetData[index] + '');
 
-                    var indexVal = $(this).data('stuff');
-                    indexVal.should.equal(index);
+                        var indexVal = $(this).data('stuff');
+                        indexVal.should.equal(index);
+                    });
+
+                    $node.find('li:first').trigger('update.f.model', { somearray: targetData });
+                    $node.children().length.should.equal(childrenCount);
                 });
-
-                $node.find('li:first').trigger('update.f.model', { somearray: targetData });
-                $node.children().length.should.equal(childrenCount);
             });
             it('should loop through children for elems with repeat=variableObject', function () {
                 var targetData = { a: 3, b: 4 };
 
-                var $node = utils.initWithNode('<ul> <li data-f-repeat="someobject" data-stuff="<%=index%>"> <%= value %> </li> </ul>', domManager);
-                $node.find('li:first').trigger('update.f.model', { someobject: targetData });
+                utils.initWithNode('<ul> <li data-f-repeat="someobject" data-stuff="<%=index%>"> <%= value %> </li> </ul>', domManager).then(function ($node) {
+                    $node.find('li:first').trigger('update.f.model', { someobject: targetData });
 
-                var newChildren = $node.children();
-                var childrenCount = newChildren.size();
+                    var newChildren = $node.children();
+                    var childrenCount = newChildren.size();
 
-                newChildren.each(function () {
-                    var val = $(this).html().trim();
-                    var key = $(this).data('stuff');
+                    newChildren.each(function () {
+                        var val = $(this).html().trim();
+                        var key = $(this).data('stuff');
 
-                    targetData[key].should.equal(+val);
+                        targetData[key].should.equal(+val);
+                    });
+
+                    $node.find('li:first').trigger('update.f.model', { someobject: targetData });
+                    $node.children().length.should.equal(childrenCount);
                 });
-
-                $node.find('li:first').trigger('update.f.model', { someobject: targetData });
-                $node.children().length.should.equal(childrenCount);
             });
             it('should support nested repeats', function () {
                 var targetData = [5, 3, 6, 1];
                 var targetData2 = ['a', 'b', 'c'];
 
-                var $node = utils.initWithNode('<ul> <li data-f-repeat="somearray"> <div class="children" data-f-repeat="somethingElse"> </div> </li> </ul>', domManager);
-                $node.find('li:first').trigger('update.f.model', { somearray: targetData });
+                utils.initWithNode('<ul> <li data-f-repeat="somearray"> <div class="children" data-f-repeat="somethingElse"> </div> </li> </ul>', domManager).then(function ($node) {
+                    $node.find('li:first').trigger('update.f.model', { somearray: targetData });
 
-                domManager.bindAll();
+                    domManager.bindAll();
 
-                $node.find('div').trigger('update.f.model', { somethingElse: targetData2 });
+                    $node.find('div').trigger('update.f.model', { somethingElse: targetData2 });
 
-                var newChildren = $node.children();
-                newChildren.length.should.equal(targetData.length);
-                newChildren.each(function (index, el) {
-                    $(el).children().length.should.equal(targetData2.length);
-                    $(el).children().each(function (i2) {
-                        var data = $(this).html().trim();
-                        data.should.equal(targetData2[i2]);
+                    var newChildren = $node.children();
+                    newChildren.length.should.equal(targetData.length);
+                    newChildren.each(function (index, el) {
+                        $(el).children().length.should.equal(targetData2.length);
+                        $(el).children().each(function (i2) {
+                            var data = $(this).html().trim();
+                            data.should.equal(targetData2[i2]);
+                        });
                     });
                 });
             });

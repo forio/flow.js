@@ -376,7 +376,7 @@ module.exports = (function () {
                     autoUpdatePlugin($root.get(0), me);
                 }
                 
-                promise.resolve();
+                promise.resolve($root);
                 $root.trigger('f.domready');
             });
 

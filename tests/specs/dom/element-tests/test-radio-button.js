@@ -10,14 +10,16 @@ module.exports = (function () {
                     '<input type="radio" name="a" id="x" data-f-bind="stuff" value="1" checked/>',
                     '<input type="radio" name="a" id="y" data-f-bind="stuff" value="2"/>'
                 ].join('');
-                var $node1 = utils.initWithNode(nodes, domManager).filter('#x');
-                var $node2 = utils.initWithNode(nodes, domManager).filter('#y');
+                utils.initWithNode(nodes, domManager).then(function ($node) {
+                    var $node1 = $node.filter('#x');
+                    var $node2 = $node.filter('#y');
 
-                var spy = utils.spyOnNode($node1);
-                utils.spyOnNode($node2, spy);
+                    var spy = utils.spyOnNode($node1);
+                    utils.spyOnNode($node2, spy);
 
-                $node1.trigger('change');
-                spy.should.have.been.called.once;
+                    $node1.trigger('change');
+                    spy.should.have.been.called.once;
+                });
             });
 
             describe('On Check', function () {
@@ -28,12 +30,14 @@ module.exports = (function () {
                         '<input type="radio" name="a" id="x" data-f-bind="stuff" value="8"/>',
                         '<input type="radio" name="a" id="y" data-f-bind="stuff" value="2"/>'
                     ].join('');
-                    var $node = utils.initWithNode(nodes, domManager, channel).filter('#x');
-                    var spy = sinon.spy();
-                    $node.on('update.f.ui', spy);
+                    utils.initWithNode(nodes, domManager, channel).then(function ($node) {
+                        $node = $node.filter('#x');
+                        var spy = sinon.spy();
+                        $node.on('update.f.ui', spy);
 
-                    $node.prop('checked', true).trigger('change');
-                    spy.getCall(0).args[1].should.eql({ stuff: '8' });
+                        $node.prop('checked', true).trigger('change');
+                        spy.getCall(0).args[1].should.eql({ stuff: '8' });
+                    });
                 });
             });
             describe('On UnCheck', function () {
@@ -44,19 +48,23 @@ module.exports = (function () {
                         '<input type="radio" name="a" id="x" data-f-bind="stuff" value="8" checked/>',
                         '<input type="radio" name="a" id="y" data-f-bind="stuff" value="2"/>'
                     ].join('');
-                    var $node = utils.initWithNode(nodes, domManager, channel).filter('#x');
-                    var $othernode = utils.initWithNode(nodes, domManager, channel).filter('#y');
+                    utils.initWithNode(nodes, domManager, channel).then(function ($node) {
+                        $node = $node.filter('#x');
+                        utils.initWithNode(nodes, domManager, channel).then(function ($othernode) {
+                            $othernode = $othernode.filter('#y');
 
-                    var spy = sinon.spy();
-                    $othernode.on('update.f.ui', spy);
-                    $node.on('update.f.ui', spy);
+                            var spy = sinon.spy();
+                            $othernode.on('update.f.ui', spy);
+                            $node.on('update.f.ui', spy);
 
-                    //not entirely sure this is simulating well enough
-                    $node.prop('checked', false);
-                    $othernode.prop('checked', true).trigger('change');
+                            //not entirely sure this is simulating well enough
+                            $node.prop('checked', false);
+                            $othernode.prop('checked', true).trigger('change');
 
-                    spy.getCall(0).args[1].should.eql({ stuff: '2' });
-                    spy.callCount.should.equal(1);
+                            spy.getCall(0).args[1].should.eql({ stuff: '2' });
+                            spy.callCount.should.equal(1);
+                        });
+                    });
                 });
             });
         });
@@ -69,11 +77,12 @@ module.exports = (function () {
                     '<input type="radio" name="a" id="y" data-f-bind="stuff" value="2"/>'
                 ].join('');
 
-                var $nodes = utils.initWithNode(nodes, domManager, channel);
-                $nodes.trigger('update.f.model', { stuff: '8' });
+                utils.initWithNode(nodes, domManager, channel).then(function ($nodes) {
+                    $nodes.trigger('update.f.model', { stuff: '8' });
 
-                $nodes.filter('#x').prop('checked').should.equal(true);
-                $nodes.filter('#y').prop('checked').should.equal(false);
+                    $nodes.filter('#x').prop('checked').should.equal(true);
+                    $nodes.filter('#y').prop('checked').should.equal(false);
+                });
             });
 
             it('should not select anything if it doesnt match', function () {
@@ -84,11 +93,12 @@ module.exports = (function () {
                     '<input type="radio" name="a" id="y" data-f-bind="stuff" value="2"/>'
                 ].join('');
 
-                var $nodes = utils.initWithNode(nodes, domManager, channel);
-                $nodes.trigger('update.f.model', { stuff: true });
+                utils.initWithNode(nodes, domManager, channel).then(function ($nodes) {
+                    $nodes.trigger('update.f.model', { stuff: true });
 
-                $nodes.filter('#x').prop('checked').should.equal(false);
-                $nodes.filter('#y').prop('checked').should.equal(false);
+                    $nodes.filter('#x').prop('checked').should.equal(false);
+                    $nodes.filter('#y').prop('checked').should.equal(false);
+                });
             });
         });
     });

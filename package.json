@@ -38,5 +38,8 @@
   "bugs": {
     "url": "https://github.com/forio/flow.js/issues"
   },
-  "homepage": "https://github.com/forio/flow.js"
+  "homepage": "https://github.com/forio/flow.js",
+  "dependencies": {
+    "jquery": "^3.0.0"
+  }
 }

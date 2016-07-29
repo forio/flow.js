@@ -28,11 +28,11 @@ var utils = {
         }
         var $node = $(utils.create(str));
 
-        domManager.initialize({
+        return domManager.initialize({
             root: $node,
             channel: channel
         });
-        return $node;
+        // return $node;
     },
     spyOnNode: function ($node, spy) {
         if (!spy) {
