@@ -186,7 +186,7 @@ module.exports = (function () {
                         foreachHandler.handle.call($rootNode, targetData);
 
                         var newChildren = $rootNode.children();
-                        newChildren.size().should.equal(6);
+                        newChildren.length.should.equal(6);
                     });
 
                     it('should process data attributes for all children', function () {
@@ -218,7 +218,7 @@ module.exports = (function () {
                 utils.initWithNode('<ul data-f-foreach="somearray"> <li data-stuff="<%=index%>"> <%= value %> </li> </ul>', domManager).then(function ($node) {
                     $node.trigger('update.f.model', { somearray: targetData });
                     var newChildren = $node.children();
-                    var childrenCount = newChildren.size();
+                    var childrenCount = newChildren.length;
 
                     newChildren.each(function (index) {
                         var data = $(this).html().trim();
@@ -239,7 +239,7 @@ module.exports = (function () {
                     $node.trigger('update.f.model', { someobject: targetData });
 
                     var newChildren = $node.children();
-                    var childrenCount = newChildren.size();
+                    var childrenCount = newChildren.length;
 
                     newChildren.each(function () {
                         var val = $(this).html().trim();
@@ -260,7 +260,7 @@ module.exports = (function () {
                     $node.trigger('update.f.model', { somearray: targetData });
 
                     var newChildren = $node.children();
-                    var childrenCount = newChildren.size();
+                    var childrenCount = newChildren.length;
                     newChildren.each(function (index) {
                         var data = $(this).html().trim();
                         data.should.equal(outputdata[index] + ' ' + targetData[index]);
