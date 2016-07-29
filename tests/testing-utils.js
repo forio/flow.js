@@ -6,17 +6,19 @@ var utils = {
         return (div.childNodes.length === 1) ? div.childNodes[0] : div.childNodes;
     },
     createDummyChannel: function () {
-        var dummyChannel = {
-            publish: sinon.spy(function () {
-                return $.Deferred().resolve().promise();
-            }),
-            subscribe: sinon.spy(),
-            unsubscribe: sinon.spy()
+        var dummyChannel = function () {
+            return {
+                publish: sinon.spy(function () {
+                    return $.Deferred().resolve().promise();
+                }),
+                subscribe: sinon.spy(),
+                unsubscribe: sinon.spy()
+            };
         };
 
         var dummyChannelManager = {
-            variables: (dummyChannel),
-            operations: (dummyChannel)
+            variables: dummyChannel(),
+            operations: dummyChannel()
         };
 
         return dummyChannelManager;
