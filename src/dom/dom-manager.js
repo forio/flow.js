@@ -362,7 +362,8 @@ module.exports = (function () {
                     }
                 });
             };
-
+            
+            var promise = $.Deferred();
             $(function () {
                 me.bindAll();
 
@@ -375,8 +376,11 @@ module.exports = (function () {
                     autoUpdatePlugin($root.get(0), me);
                 }
                 
+                promise.resolve();
                 $root.trigger('f.domready');
             });
+
+            return promise;
         }
     };
 
