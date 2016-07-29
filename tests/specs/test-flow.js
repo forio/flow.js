@@ -107,15 +107,15 @@ module.exports = (function () {
                     dom: {
                         root: $elWithoutInit
                     }
+                }).then(function () {
+                    $elWithoutInit.find(':text').val('32').trigger('change');
+                    server.respond();
+                    var req = server.requests[2];//POST, GET, PATCH, GET
+                    req.method.toUpperCase().should.equal('PATCH');
+                    req.requestBody.should.equal(JSON.stringify({
+                        price: 32
+                    }));
                 });
-
-                $elWithoutInit.find(':text').val('32').trigger('change');
-                server.respond();
-                var req = server.requests[2];//POST, GET, PATCH, GET
-                req.method.toUpperCase().should.equal('PATCH');
-                req.requestBody.should.equal(JSON.stringify({
-                    price: 32
-                }));
             });
 
             it('should re-fetch variables after change', function () {
@@ -124,14 +124,15 @@ module.exports = (function () {
                     dom: {
                         root: $elWithoutInit
                     }
-                });
-                server.respond();
-                $elWithoutInit.find(':text').val('33').trigger('change');
-                server.respond();
-                server.respond();
+                }).then(function () {
+                    server.respond();
+                    $elWithoutInit.find(':text').val('33').trigger('change');
+                    server.respond();
+                    server.respond();
 
-                var req = server.requests[server.requests.length - 1];
-                req.method.toUpperCase().should.equal('GET');
+                    var req = server.requests[server.requests.length - 1];
+                    req.method.toUpperCase().should.equal('GET');
+                });
             });
 
             it('should not re-fetch variables after change if set to silent mode', function () {
@@ -146,11 +147,12 @@ module.exports = (function () {
                     dom: {
                         root: $elWithoutInit
                     }
-                });
-                $elWithoutInit.find(':text').val('34').trigger('change');
+                }).then(function () {
+                    $elWithoutInit.find(':text').val('34').trigger('change');
 
-                server.respond();
-                server.requests.length.should.equal(3); //POST, GET, PATCH
+                    server.respond();
+                    server.requests.length.should.equal(3); //POST, GET, PATCH
+                });
             });
         });
 
@@ -161,13 +163,13 @@ module.exports = (function () {
                     dom: {
                         root: $elWithoutInit
                     }
+                }).then(function () {
+                    server.respond();
+                    server.requests.length.should.equal(2); //POST, GET
+
+                    server.requests[0].method.toUpperCase().should.equal('POST');
+                    server.requests[1].method.toUpperCase().should.equal('GET');
                 });
-
-                server.respond();
-                server.requests.length.should.equal(2); //POST, GET
-
-                server.requests[0].method.toUpperCase().should.equal('POST');
-                server.requests[1].method.toUpperCase().should.equal('GET');
             });
             it('should fetch variables if operations is set to silent', function () {
                 Flow.initialize({
@@ -181,13 +183,13 @@ module.exports = (function () {
                     dom: {
                         root: $elWithoutInit
                     }
+                }).then(function () {
+                    server.respond();
+                    server.requests.length.should.equal(2); //POST, GET
+
+                    server.requests[0].method.toUpperCase().should.equal('POST');
+                    server.requests[1].method.toUpperCase().should.equal('GET');
                 });
-
-                server.respond();
-                server.requests.length.should.equal(2); //POST, GET
-
-                server.requests[0].method.toUpperCase().should.equal('POST');
-                server.requests[1].method.toUpperCase().should.equal('GET');
             });
 
             describe('with on-init', function () {
@@ -206,15 +208,15 @@ module.exports = (function () {
                         dom: {
                             root: $elWithInit
                         }
+                    }).then(function () {
+                        // server.respond();
+                        clock.tick(500);
+                        server.requests.length.should.equal(3); //POST, POST, GET
+
+                        server.requests[0].method.toUpperCase().should.equal('POST');
+                        server.requests[1].method.toUpperCase().should.equal('POST');
+                        server.requests[2].method.toUpperCase().should.equal('GET');
                     });
-
-                    // server.respond();
-                    clock.tick(500);
-                    server.requests.length.should.equal(3); //POST, POST, GET
-
-                    server.requests[0].method.toUpperCase().should.equal('POST');
-                    server.requests[1].method.toUpperCase().should.equal('POST');
-                    server.requests[2].method.toUpperCase().should.equal('GET');
                 });
 
                 //Skipping this because the sion server is failing because of a timing issue, not sure where. Maybe in runchannel debounce?
@@ -224,16 +226,16 @@ module.exports = (function () {
                         dom: {
                             root: $elWithInit
                         }
+                    }).then(function () {
+                        server.respond();
+                        server.respond();
+                        server.requests.length.should.equal(3); //POST, POST, GET
+
+                        $elWithInit.append('<span data-f-bind="sales">Y</span>');
+                        server.respond();
+
+                        server.requests.length.should.equal(4); //POST, POST, GET, GET
                     });
-
-                    server.respond();
-                    server.respond();
-                    server.requests.length.should.equal(3); //POST, POST, GET
-
-                    $elWithInit.append('<span data-f-bind="sales">Y</span>');
-                    server.respond();
-
-                    server.requests.length.should.equal(4); //POST, POST, GET, GET
                 });
             });
         });

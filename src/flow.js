@@ -111,7 +111,7 @@ var Flow = {
             this.channel = new Channel(options.channel);
         }
 
-        domManager.initialize($.extend(true, {
+        return domManager.initialize($.extend(true, {
             channel: this.channel
         }, options.dom));
     }
