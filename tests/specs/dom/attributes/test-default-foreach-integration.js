@@ -155,10 +155,10 @@ module.exports = (function () {
                 var targetData2 = [3, 4];
                 var targetData3 = [5, 6];
 
-                var $node = utils.initWithNode('<ul class="p" data-f-foreach="v1 in somearray"> <li>'
-                    + '<ul class="ul1" data-f-foreach="v2 in somethingElse"> <li> <%= v1 %> <%= v2 %></li></ul>'
-                    + '<ul class="ul2" data-f-foreach="v3 in somethingElse2"> <li> <%= v1 %> <%= v3 %></li></ul>'
-                    + '</li></ul>', domManager);
+                var $node = utils.initWithNode('<ul class="p" data-f-foreach="v1 in somearray"> <li>' +
+                    '<ul class="ul1" data-f-foreach="v2 in somethingElse"> <li> <%= v1 %> <%= v2 %></li></ul>' +
+                    '<ul class="ul2" data-f-foreach="v3 in somethingElse2"> <li> <%= v1 %> <%= v3 %></li></ul>' +
+                    '</li></ul>', domManager);
                 $node.trigger('update.f.model', { somearray: targetData });
                 
                 domManager.bindAll();
@@ -181,10 +181,10 @@ module.exports = (function () {
                 var targetData2 = [3, 4];
                 var targetData3 = [5, 6];
 
-                var $node = utils.initWithNode('<ul class="p" data-f-foreach="v1 in somearray"> <li>'
-                    + '<ul class="ul1" data-f-foreach="v2 in somethingElse"> <li> <%= v1 %> <%= v2 %></li></ul>'
-                    + '<ul class="ul2" data-f-foreach="v2 in somethingElse2"> <li> <%= v1 %> <%= v2 %></li></ul>'
-                    + '</li></ul>', domManager);
+                var $node = utils.initWithNode('<ul class="p" data-f-foreach="v1 in somearray"> <li>' +
+                    '<ul class="ul1" data-f-foreach="v2 in somethingElse"> <li> <%= v1 %> <%= v2 %></li></ul>' +
+                    '<ul class="ul2" data-f-foreach="v2 in somethingElse2"> <li> <%= v1 %> <%= v2 %></li></ul>' +
+                    '</li></ul>', domManager);
                 $node.trigger('update.f.model', { somearray: targetData });
                 
                 domManager.bindAll();

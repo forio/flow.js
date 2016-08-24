@@ -174,7 +174,8 @@
         "operator-linebreak": [2, "before", {
             "overrides": {
                 "?": "after",
-                "|": "after"
+                "|": "after",
+                "+": "after"
             }
         }],
         "padded-blocks": [0, "never"],
