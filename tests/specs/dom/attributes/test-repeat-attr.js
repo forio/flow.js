@@ -18,7 +18,18 @@ module.exports = (function () {
                 it('should put the value inside the element if it`s not templated', function () {
                     var $rootNode = $('<ul> <li> </li> </ul>');
 
-                    var data = [1, 2, 3, 4];
+                    var data = [0, 1, 2, 3, 4];
+                    repeatHandler.handle.call($rootNode.find('li:first'), data);
+                    var newChildren = $rootNode.children();
+
+                    for (var i = 0; i < data.length; i++) {
+                        $(newChildren[i]).html().should.equal(data[i] + '');
+                    }
+                });
+                it('should replace existing content', function () {
+                    var $rootNode = $('<ul> <li>stuff</li> </ul>');
+
+                    var data = [0, 1, 2, 3, 4];
                     repeatHandler.handle.call($rootNode.find('li:first'), data);
                     var newChildren = $rootNode.children();
 

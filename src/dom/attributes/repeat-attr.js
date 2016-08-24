@@ -83,13 +83,11 @@ module.exports = {
         var last;
         var me = this;
         _.each(value, function (dataval, datakey) {
-            if (!dataval) {
-                dataval = dataval + '';
-            }
             var cloop = loopTemplate.replace(/&lt;/g, '<').replace(/&gt;/g, '>');
             var templatedLoop = _.template(cloop, { value: dataval, key: datakey, index: datakey });
             var isTemplated = templatedLoop !== cloop;
             var nodes = $(templatedLoop);
+            var hasData = (dataval !== null && dataval !== undefined);
 
             nodes.each(function (i, newNode) {
                 newNode = $(newNode).removeAttr('data-f-repeat');
@@ -101,8 +99,8 @@ module.exports = {
                     }
                 });
                 newNode.attr(id, true);
-                if (!isTemplated && !newNode.html().trim()) {
-                    newNode.html(dataval);
+                if (!isTemplated && !newNode.children().length && hasData) {
+                    newNode.html(dataval + '');
                 }
             });
             if (!last) {
