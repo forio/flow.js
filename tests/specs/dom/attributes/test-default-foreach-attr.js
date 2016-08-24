@@ -1,13 +1,13 @@
 'use strict';
 module.exports = (function () {
-    var domManager = require('src/dom/dom-manager');
-    var utils = require('../../../testing-utils');
-
+    var config = require('src/config');
     var foreachHandler = require('src/dom/attributes/foreach/default-foreach-attr');
 
     describe('Default Foreach', function () {
+
         describe('#handle', function () {
             describe('Arrays', function () {
+
                 it('should clone children for arrays', function () {
                     var $rootNode = $('<ul> <li> </li> </ul>');
 
@@ -64,7 +64,8 @@ module.exports = (function () {
                         }
                     });
                 });
-                it.skip('should support block conditions in templates with top-level children', function () {
+                it('should support block conditions in templates with top-level children', function () {
+                    //Maybe deprecate this syntax?
                     var $rootNode = $('<ul> <% if (index === 0) { %> <li> HI </li> <% } %>  <li> <%= value %> </li> </ul>');
                     var targetData = [5, 3, 6, 1];
 
@@ -211,81 +212,96 @@ module.exports = (function () {
                 });
             });
         });
-        describe('integration', function () {
-            it('should loop through children for elems with foreach=variableArray', function () {
-                var targetData = [5, 3, 6, 1];
 
-                var $node = utils.initWithNode('<ul data-f-foreach="somearray"> <li data-stuff="<%=index%>"> <%= value %> </li> </ul>', domManager);
-                $node.trigger('update.f.model', { somearray: targetData });
-
-                var newChildren = $node.children();
-                var childrenCount = newChildren.size();
-
-                newChildren.each(function (index) {
-                    var data = $(this).html().trim();
-                    data.should.equal(targetData[index] + '');
-
-                    var indexVal = $(this).data('stuff');
-                    indexVal.should.equal(index);
-                });
-
-                $node.trigger('update.f.model', { somearray: targetData });
-                $node.children().length.should.equal(childrenCount);
+        describe('#parse', function () {
+            it('should parse un-aliased syntax', function () {
+                var $el = $('<div> </div>');
+                var result = foreachHandler.parse.call($el, 'somearray');
+                result.should.equal('somearray');
             });
-            it('should loop through children for elems with foreach=variableObject', function () {
-                var targetData = { a: 3, b: 4 };
-
-                var $node = utils.initWithNode('<ul data-f-foreach="someobject"> <li data-stuff="<%=index%>"> <%= value %> </li> </ul>', domManager);
-                $node.trigger('update.f.model', { someobject: targetData });
-
-                var newChildren = $node.children();
-                var childrenCount = newChildren.size();
-
-                newChildren.each(function () {
-                    var val = $(this).html().trim();
-                    var key = $(this).data('stuff');
-
-                    targetData[key].should.equal(+val);
+            describe('Key aliases', function () {
+                it('should support aliases of form `i in somearray`', function () {
+                    var $el = $('<div> </div>');
+                    var result = foreachHandler.parse.call($el, 'i in somearray');
+                    result.should.equal('somearray');
                 });
-
-                $node.trigger('update.f.model', { someobject: targetData });
-                $node.children().length.should.equal(childrenCount);
+                it('should support aliases of form `i in somearray` with irregular spaces', function () {
+                    var $el = $('<div> </div>');
+                    var result = foreachHandler.parse.call($el, ' i  in somearray');
+                    result.should.equal('somearray');
+                });
+                it('should set the appropriate value data attr', function () {
+                    var $el = $('<div> </div>');
+                    foreachHandler.parse.call($el, ' i  in somearray');
+                    $el.data(config.attrs.valueAs).should.equal('i');
+                });
             });
-            it('should support inline functions in templates', function () {
-                var targetData = [5, 3, 6, 1];
-                var outputdata = ['first', 3, 6, 1];
-
-                var $node = utils.initWithNode('<ul data-f-foreach="somearray"> <li> <%= (index === 0) ? "first" : value %> <%= value %></li> </ul>', domManager);
-                $node.trigger('update.f.model', { somearray: targetData });
-
-                var newChildren = $node.children();
-                var childrenCount = newChildren.size();
-                newChildren.each(function (index) {
-                    var data = $(this).html().trim();
-                    data.should.equal(outputdata[index] + ' ' + targetData[index]);
+            describe('key, value aliases', function () {
+                it('should support aliases of form `(i,j) in somearray`', function () {
+                    var $el = $('<div> </div>');
+                    var result = foreachHandler.parse.call($el, '(i,j) in somearray');
+                    result.should.equal('somearray');
                 });
-
-                $node.trigger('update.f.model', { somearray: targetData });
-                $node.children().length.should.equal(childrenCount);
-
-            });
-
-            it('should support nested loops', function () {
-                var targetData = [5, 3, 6, 1];
-                var targetData2 = [5, 3];
-
-                var $node = utils.initWithNode('<ul data-f-foreach="somearray">  <li data-f-foreach="somethingElse"> <span> </span> </li></ul>', domManager);
-                $node.trigger('update.f.model', { somearray: targetData });
-                $node.children().length.should.equal(targetData.length);
-
-                domManager.bindAll();
-                $node.find('li').trigger('update.f.model', { somethingElse: targetData2 });
-
-                $node.children().each(function (index, el) {
-                    $(el).children().length.should.equal(targetData2.length);
+                it('should support aliases of form `(i,j) in somearray` with irregular spaces', function () {
+                    var $el = $('<div> </div>');
+                    var result = foreachHandler.parse.call($el, ' ( i, j)  in somearray');
+                    result.should.equal('somearray');
                 });
-
+                it('should set the appropriate value & key data attr', function () {
+                    var $el = $('<div> </div>');
+                    foreachHandler.parse.call($el, ' ( i, j)  in somearray');
+                    $el.data(config.attrs.keyAs).should.equal('i');
+                    $el.data(config.attrs.valueAs).should.equal('j');
+                });
             });
         });
+        describe('Variable aliasing', function () {
+            it('should provide "key" and "value" variables for objects by default', function () {
+                var $rootNode = $('<ul> <li> <%= key %> <%= value %> </li> </ul>');
+
+                var targetData = { a: 1 };
+                foreachHandler.handle.call($rootNode, targetData);
+
+                var newChildren = $rootNode.children();
+                newChildren.eq(0).html().trim().should.equal('a 1');
+            });
+            it('should provide "index" and "value" variables for arrays by default', function () {
+                var $rootNode = $('<ul> <li> <%= index %> <%= value %> </li> </ul>');
+
+                var targetData = [1];
+                foreachHandler.handle.call($rootNode, targetData);
+
+                var newChildren = $rootNode.children();
+                newChildren.eq(0).html().trim().should.equal('0 1');
+            });
+            it('should replace \'key\' with value in key-as', function () {
+                var $rootNode = $('<ul data-f-foreach-key-as="apples"> <li> <%= apples %> <%= value %> </li> </ul>');
+
+                var targetData = { a: 1 };
+                foreachHandler.handle.call($rootNode, targetData);
+
+                var newChildren = $rootNode.children();
+                newChildren.eq(0).html().trim().should.equal('a 1');
+            });
+            it('should replace \'index\' with value in key-as', function () {
+                var $rootNode = $('<ul data-f-foreach-key-as="apples"> <li> <%= apples %> <%= value %> </li> </ul>');
+
+                var targetData = [1];
+                foreachHandler.handle.call($rootNode, targetData);
+
+                var newChildren = $rootNode.children();
+                newChildren.eq(0).html().trim().should.equal('0 1');
+            });
+            it('should replace \'value\' with value in value-as', function () {
+                var $rootNode = $('<ul data-f-foreach-value-as="oranges"> <li> <%= key %> <%= oranges %> </li> </ul>');
+
+                var targetData = { a: 1 };
+                foreachHandler.handle.call($rootNode, targetData);
+
+                var newChildren = $rootNode.children();
+                newChildren.eq(0).html().trim().should.equal('a 1');
+            });
+        });
+        require('./test-default-foreach-integration.js');
     });
 }());
