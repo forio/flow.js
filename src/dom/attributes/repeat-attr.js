@@ -54,6 +54,7 @@
 
 'use strict';
 var parseUtils = require('../../utils/parse-utils');
+var gutils = require('../../utils/general');
 // var config = require('../../config');
 module.exports = {
 
@@ -67,19 +68,19 @@ module.exports = {
         //Possible fixes: Let this handle it's own unbind (which does nothing), or
         //have unbind remove all generated elements as well
         var loopTemplate = this.data('repeat-template');
-        var id = '';
+        var id = this.data('repeat-template-id');
+
+        if (id) {
+            this.nextUntil(':not([data-' + id + '])').remove(); //clean-up pre-saved html
+        } else {
+            id = gutils.random('repeat-');
+            this.data('repeat-template-id', id);
+        }
         if (!loopTemplate) {
             loopTemplate = this.get(0).outerHTML;
-            id = _.uniqueId('repeat-');
-
-            var d = {};
-            d['repeat-template-id'] = id;
-            d['repeat-template'] = loopTemplate;
-            this.data(d);
-        } else {
-            id = this.data('repeat-template-id');
-            this.nextUntil(':not([' + id + '])').remove();
+            this.data('repeat-template', loopTemplate);
         }
+
         var last;
         var me = this;
         _.each(value, function (dataval, datakey) {
@@ -98,7 +99,7 @@ module.exports = {
                         newNode.data(key, parseUtils.toImplicitType(val));
                     }
                 });
-                newNode.attr(id, true);
+                newNode.attr('data-' + id, true);
                 if (!isTemplated && !newNode.children().length && hasData) {
                     newNode.html(dataval + '');
                 }

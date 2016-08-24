@@ -240,6 +240,18 @@ module.exports = (function () {
                 $node.find('li:first').trigger('update.f.model', { somearray: targetData });
                 $node.children().length.should.equal(childrenCount);
             });
+            it('should clean-up explicitly dirty nodes', function () {
+                var targetData = [1, 2];
+                var html = '<ul> <li data-f-repeat="somearray" data-repeat-template-id="repeat-1"></li>' +
+                    '<li data-repeat-1="true"></li><li data-repeat-1="true"></li>' +
+                    '<li data-repeat-2="true"></li><li data-repeat-4="true"></li>' +
+                '</ul>';
+                var $node = utils.initWithNode(html, domManager);
+                $node.find('li:first').trigger('update.f.model', { somearray: targetData });
+                
+                $node.children().length.should.equal(4);
+            });
+
             it('should loop through children for elems with repeat=variableObject', function () {
                 var targetData = { a: 3, b: 4 };
 
