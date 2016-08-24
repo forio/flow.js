@@ -7,7 +7,9 @@ var utils = {
     },
     createDummyChannel: function () {
         var dummyChannel = {
-            publish: sinon.spy(),
+            publish: sinon.spy(function () {
+                return $.Deferred().resolve().promise();
+            }),
             subscribe: sinon.spy(),
             unsubscribe: sinon.spy()
         };

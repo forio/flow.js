@@ -52,7 +52,7 @@ var Flow =
 	 *
 	 * However, sometimes you want to be explicit in your initialization call, and there are also some additional parameters that let you customize your use of Flow.js.
 	 *
-	 * ####Parameters
+	 * #### Parameters
 	 *
 	 * The parameters for initializing Flow.js include:
 	 *
@@ -84,7 +84,7 @@ var Flow =
 	 *
 	 * The `Flow.initialize()` call is based on the Epicenter.js [Run Service](../../../api_adapters/generated/run-api-service/) from the [API Adapters](../../../api_adapters/). See those pages for additional information on parameters.
 	 *
-	 * ####Example
+	 * #### Example
 	 *
 	 *      Flow.initialize({
 	 *          channel: {
@@ -164,7 +164,7 @@ var Flow =
 	    }
 	};
 	//set by grunt
-	Flow.version = ("0.9.0"); //eslint-disable-line no-undef
+	// if (RELEASE_VERSION) Flow.version = RELEASE_VERSION; //eslint-disable-line no-undef
 	module.exports = Flow;
 
 
@@ -195,15 +195,17 @@ var Flow =
 	    var autoUpdatePlugin = __webpack_require__(29);
 	
 	    //Jquery selector to return everything which has a f- property set
-	    $.expr[':'][config.prefix] = function (obj) {
-	        var $this = $(obj);
-	        var dataprops = _.keys($this.data());
-	
-	        var match = _.find(dataprops, function (attr) {
-	            return (attr.indexOf(config.prefix) === 0);
-	        });
-	
-	        return !!(match);
+	    $.expr[':'][config.prefix] = function (el) {
+	        if (!el || !el.attributes) {
+	            return false;
+	        }
+	        for (var i = 0; i < el.attributes.length; i++) {
+	            var attr = el.attributes[i].nodeName;
+	            if (attr.indexOf('data-' + config.prefix) === 0) {
+	                return true;
+	            }
+	        }
+	        return false;
 	    };
 	
 	    $.expr[':'].webcomponent = function (obj) {
@@ -272,7 +274,6 @@ var Flow =
 	                var wantedPrefix = 'data-f-';
 	                if (attr.indexOf(wantedPrefix) === 0) {
 	                    attr = attr.replace(wantedPrefix, '');
-	
 	                    var handler = attrManager.getHandler(attr, $el);
 	                    if (handler.stopListening) {
 	                        handler.stopListening.call($el, attr);
@@ -280,10 +281,20 @@ var Flow =
 	                }
 	            });
 	
-	            var subsid = $el.data('f-subscription-id') || [];
+	            var subsid = $el.data(config.attrs.subscriptionId) || [];
 	            _.each(subsid, function (subs) {
 	                channel.unsubscribe(subs);
 	            });
+	
+	            _.each($el.data(), function (val, key) {
+	                if (key.indexOf('f-') === 0 || key.match(/^f[A-Z]/)) {
+	                    $el.removeData(key);
+	                    // var hyphenated = key.replace(/([A-Z])/g, '-$1').toLowerCase();
+	                    // $el.removeData(hyphenated);
+	                }
+	            });
+	
+	            return this;
 	        },
 	
 	        /**
@@ -317,8 +328,8 @@ var Flow =
 	                    return false;
 	                }
 	                var subsid = subsChannel.subscribe(varsToBind, $bindEl, options);
-	                var newsubs = ($el.data('f-subscription-id') || []).concat(subsid);
-	                $el.data('f-subscription-id', newsubs);
+	                var newsubs = ($el.data(config.attrs.subscriptionId) || []).concat(subsid);
+	                $el.data(config.attrs.subscriptionId, newsubs);
 	            };
 	
 	            var attrBindings = [];
@@ -363,9 +374,8 @@ var Flow =
 	                    }
 	                }
 	            });
-	            $el.data('attr-bindings', attrBindings);
+	            $el.data(config.attrs.bindingsList, attrBindings);
 	            if (nonBatchableVariables.length) {
-	                // console.log('subscribe', nonBatchableVariables, $el.get(0))
 	                subscribe(channel, nonBatchableVariables, $el, { batch: false });
 	            }
 	        },
@@ -399,6 +409,8 @@ var Flow =
 	            var me = this;
 	            if (!elementsToUnbind) {
 	                elementsToUnbind = this.private.matchedElements;
+	            } else if (!_.isArray(elementsToUnbind)) {
+	                elementsToUnbind = getMatchingElements(elementsToUnbind);
 	            }
 	            $.each(elementsToUnbind, function (index, element) {
 	                me.unbindElement(element, me.options.channel.variables);
@@ -437,35 +449,12 @@ var Flow =
 	
 	            var me = this;
 	            var $root = $(defaults.root);
-	            $(function () {
-	                me.bindAll();
-	                $root.trigger('f.domready');
 	
-	                //Attach listeners
-	                // Listen for changes to ui and publish to api
-	                $root.off(config.events.trigger).on(config.events.trigger, function (evt, data) {
-	                    var parsedData = {}; //if not all subsequent listeners will get the modified data
-	
-	                    var $el = $(evt.target);
-	                    var attrConverters = domUtils.getConvertersList($el, 'bind');
-	
-	                    _.each(data, function (val, key) {
-	                        key = key.split('|')[0].trim(); //in case the pipe formatting syntax was used
-	                        val = converterManager.parse(val, attrConverters);
-	                        parsedData[key] = parseUtils.toImplicitType(val);
-	
-	                        $el.trigger('f.convert', { bind: val });
-	                    });
-	
-	                    channel.variables.publish(parsedData);
-	                });
-	
-	                // Listen for changes from api and update ui
-	                $root.off(config.events.react).on(config.events.react, function (evt, data) {
+	            var attachChannelListener = function ($root) {
+	                $root.off(config.events.channelDataReceived).on(config.events.channelDataReceived, function (evt, data) {
 	                    // console.log(evt.target, data, "root on");
 	                    var $el = $(evt.target);
-	                    var bindings = $el.data('attr-bindings');
-	
+	                    var bindings = $el.data(config.attrs.bindingsList);
 	                    var toconvert = {};
 	                    $.each(data, function (variableName, value) {
 	                        _.each(bindings, function (binding) {
@@ -478,15 +467,63 @@ var Flow =
 	                            }
 	                        });
 	                    });
-	                    $el.trigger('f.convert', toconvert);
+	                    $el.trigger(config.events.convert, toconvert);
 	                });
+	            };
 	
-	                // data = {proptoupdate: value} || just a value (assumes 'bind' if so)
-	                $root.off('f.convert').on('f.convert', function (evt, data) {
+	            var attachUIVariablesListener = function ($root) {
+	                $root.off(config.events.trigger).on(config.events.trigger, function (evt, data) {
+	                    var parsedData = {}; //if not all subsequent listeners will get the modified data
+	
 	                    var $el = $(evt.target);
+	                    var attrConverters = domUtils.getConvertersList($el, 'bind');
+	
+	                    _.each(data, function (val, key) {
+	                        key = key.split('|')[0].trim(); //in case the pipe formatting syntax was used
+	                        val = converterManager.parse(val, attrConverters);
+	                        parsedData[key] = parseUtils.toImplicitType(val);
+	
+	                        $el.trigger(config.events.convert, { bind: val });
+	                    });
+	
+	                    channel.variables.publish(parsedData);
+	                });
+	            };
+	
+	            var attachUIOperationsListener = function ($root) {
+	                $root.off(config.events.operate).on(config.events.operate, function (evt, data) {
+	                    data = $.extend(true, {}, data); //if not all subsequent listeners will get the modified data
+	                    _.each(data.operations, function (opn) {
+	                        opn.params = _.map(opn.params, function (val) {
+	                            return parseUtils.toImplicitType($.trim(val));
+	                        });
+	                    });
+	
+	                    //FIXME: once the channel manager is built out this hacky filtering goes away. There can just be a window channel which catches these
+	                    var convertors = _.filter(data.operations, function (opn) {
+	                        return !!converterManager.getConverter(opn.name);
+	                    });
+	                    data.operations = _.difference(data.operations, convertors);
+	                    var promise = (data.operations.length) ?
+	                        channel.operations.publish(_.omit(data, 'options'), data.options)
+	                        : $.Deferred().resolve().promise();
+	                    promise.then(function (args) {
+	                        _.each(convertors, function (con) {
+	                            converterManager.convert(con.params, [con.name]);
+	                        });
+	                    });
+	                });
+	            };
+	
+	            var attachConversionListner = function ($root) {
+	                // data = {proptoupdate: value} || just a value (assumes 'bind' if so)
+	                $root.off(config.events.convert).on(config.events.convert, function (evt, data) {
+	                    var $el = $(evt.target);
+	
 	                    var convert = function (val, prop) {
 	                        prop = prop.toLowerCase();
 	                        var attrConverters = domUtils.getConvertersList($el, prop);
+	
 	                        var handler = attrManager.getHandler(prop, $el);
 	                        var convertedValue = converterManager.convert(val, attrConverters);
 	                        handler.handle.call($el, convertedValue, prop);
@@ -498,16 +535,16 @@ var Flow =
 	                        convert(data, 'bind');
 	                    }
 	                });
+	            };
 	
-	                $root.off('f.ui.operate').on('f.ui.operate', function (evt, data) {
-	                    data = $.extend(true, {}, data); //if not all subsequent listeners will get the modified data
-	                    _.each(data.operations, function (opn) {
-	                        opn.params = _.map(opn.params, function (val) {
-	                            return parseUtils.toImplicitType($.trim(val));
-	                        });
-	                    });
-	                    channel.operations.publish(data);
-	                });
+	            $(function () {
+	                me.bindAll();
+	                $root.trigger('f.domready');
+	
+	                attachChannelListener($root);
+	                attachUIVariablesListener($root);
+	                attachUIOperationsListener($root);
+	                attachConversionListner($root);
 	
 	                if (me.options.autoBind) {
 	                    autoUpdatePlugin($root.get(0), me);
@@ -532,8 +569,40 @@ var Flow =
 	    binderAttr: 'f-bind',
 	
 	    events: {
+	        //UI Change to publish to the channel.
 	        trigger: 'update.f.ui',
-	        react: 'update.f.model'
+	
+	        //Payload is of form {topic: value}. When triggered on a element dom-manager will trigger 'f.convert' on every attribute subscribed to that topic
+	        channelDataReceived: 'update.f.model',
+	
+	        //Trigger with payload '{attrToUpdate: value}', for e.g. { bind: 34 }. This will run this through all the converts and pass it to attr handler. Useful to by-pass getting this from the model directly.
+	        convert: 'f.convert',
+	
+	        //When triggered posts the payload to the operations API. Assumes payloaded is formmatted in a way Run Channel can understand
+	        operate: 'f.ui.operate'
+	    },
+	
+	    attrs: {
+	        //Array with shape [{ attr: attribute, topics:[list of topics attribute is listening to]}]
+	        bindingsList: 'f-attr-bindings',
+	
+	        //Subscription id returned by the channel. Used to ubsubscribe later
+	        subscriptionId: 'f-subscription-id',
+	
+	        //Used by the classes attr handler to keep track of which classes were added by itself
+	        classesAdded: 'f-added-classes',
+	
+	        //Used by repeat attr handler to keep track of template after first evaluation
+	        repeat: {
+	            template: 'f-repeat-template',
+	            templateId: 'f-repeat-template-id'
+	        },
+	
+	        //Used by foreach attr handler to keep track of template after first evaluation
+	        foreachTemplate: 'f-foreach-template',
+	
+	        //Used by bind attr handler to keep track of template after first evaluation
+	        bindTemplate: 'f-bind-template'
 	    }
 	};
 
@@ -955,11 +1024,11 @@ var Flow =
 /***/ function(module, exports) {
 
 	/**
-	 * ##Call Operation when Element Added to DOM
+	 * ## Call Operation when Element Added to DOM
 	 *
 	 * Many models call an initialization operation when the [run](../../../../../../glossary/#run) is first created. This is particularly common with [Vensim](../../../../../../model_code/vensim/) models, which need to initialize variables ('startGame') before stepping. You can use the `data-f-on-init` attribute to call an operation from the model when a particular element is added to the DOM.
 	 *
-	 * ####data-f-on-init
+	 * #### data-f-on-init
 	 *
 	 * Add the attribute `data-f-on-init`, and set the value to the name of the operation. To call multiple operations, use the `|` (pipe) character to chain operations. Operations are called serially, in the order listed. Typically you add this attribute to the `<body>` element.
 	 *
@@ -993,7 +1062,8 @@ var Flow =
 	                return { name: fnName, params: args };
 	            });
 	
-	            me.trigger('f.ui.operate', { operations: listOfOperations, serial: true });
+	            //FIXME: this knows too much about the channel
+	            me.trigger('f.ui.operate', { operations: listOfOperations, serial: true, options: { readOnly: false } });
 	        });
 	        return false; //Don't bother binding on this attr. NOTE: Do readonly, true instead?;
 	    }
@@ -1005,11 +1075,11 @@ var Flow =
 /***/ function(module, exports) {
 
 	/**
-	 * ##Call Operation in Response to User Action
+	 * ## Call Operation in Response to User Action
 	 *
 	 * Many models call particular operations in response to end user actions, such as clicking a button or submitting a form.
 	 *
-	 * ####data-f-on-event
+	 * #### data-f-on-event
 	 *
 	 * For any HTML attribute using `on` -- typically on click or on submit -- you can add the attribute `data-f-on-XXX`, and set the value to the name of the operation. To call multiple operations, use the `|` (pipe) character to chain operations. Operations are called serially, in the order listed.
 	 *
@@ -1131,40 +1201,19 @@ var Flow =
 	 *          <li> Year <%= index %>: Sales of <%= value %> </li>
 	 *      </ul>
 	 *
-	 * You can also use nested `data-f-foreach` attributes. For example, suppose you have in your model two arrays, `Outer` (1, 2) and `Inner` (10, 9, 8, 7), and you want to display all values of `Inner` each time you show a value of `Outer`. You can use nested `data-f-foreach` for this:
-	 *
-	 *      <ul data-f-foreach="Outer">
-	 *          <li><%= value %>
-	 *              <ul data-f-foreach="Inner">
-	 *                  <li></li>
-	 *              </ul>
-	 *          </li>
-	 *       </ul>
-	 *
-	 * which appears as:
-	 *
-	 *      * 1
-	 *          * 10
-	 *          * 9
-	 *          * 8
-	 *          * 7
-	 *      * 2
-	 *          * 10
-	 *          * 9
-	 *          * 8
-	 *          * 7
 	 *
 	 * **Notes:**
 	 *
 	 * * You can use the `data-f-foreach` attribute with both arrays and objects. If the model variable is an object, reference the `key` instead of the `index` in your templates.
 	 * * The `key`, `index`, and `value` are special variables that Flow.js populates for you.
 	 * * The template syntax is to enclose each keyword (`index`, `key`, `variable`) in `<%=` and `%>`. Templates are available as part of Flow.js's lodash dependency. See more background on [working with templates](../../../../../#templates).
-	 * * When you are working with nested `data-f-foreach` attributes, templates *only work once, at exactly the level specified*. In the example above, the sample code references `value` in the outer `<li>` to refer to the elements of the `Outer` array. Alternatively, you could reference `value` in the inner `<li`> to refer to the elements of the `Inner` array. However, you cannot do both -- the `value` is not scoped by the hierarchy of your HTML.
 	 * * The `data-f-foreach` attribute is [similar to the `data-f-repeat` attribute](../../repeat-attr/), so you may want to review the examples there as well.
 	 */
 	
 	'use strict';
 	var parseUtils = __webpack_require__(13);
+	var config = __webpack_require__(2);
+	
 	module.exports = {
 	
 	    test: 'foreach',
@@ -1173,10 +1222,10 @@ var Flow =
 	
 	    handle: function (value, prop) {
 	        value = ($.isPlainObject(value) ? value : [].concat(value));
-	        var loopTemplate = this.data('foreach-template');
+	        var loopTemplate = this.data(config.attrs.foreachTemplate);
 	        if (!loopTemplate) {
 	            loopTemplate = this.html();
-	            this.data('foreach-template', loopTemplate);
+	            this.data(config.attrs.foreachTemplate, loopTemplate);
 	        }
 	        var $me = this.empty();
 	        _.each(value, function (dataval, datakey) {
@@ -1323,7 +1372,7 @@ var Flow =
 
 /***/ },
 /* 16 */
-/***/ function(module, exports) {
+/***/ function(module, exports, __webpack_require__) {
 
 	/**
 	 * ## Class Attribute: data-f-class
@@ -1366,6 +1415,7 @@ var Flow =
 	 */
 	
 	'use strict';
+	var config = __webpack_require__(2);
 	
 	module.exports = {
 	
@@ -1378,7 +1428,7 @@ var Flow =
 	            value = value[value.length - 1];
 	        }
 	
-	        var addedClasses = this.data('added-classes');
+	        var addedClasses = this.data(config.classesAdded);
 	        if (!addedClasses) {
 	            addedClasses = {};
 	        }
@@ -1392,7 +1442,7 @@ var Flow =
 	        addedClasses[prop] = value;
 	        //Fixme: prop is always "class"
 	        this.addClass(value);
-	        this.data('added-classes', addedClasses);
+	        this.data(config.classesAdded, addedClasses);
 	    }
 	};
 
@@ -1457,6 +1507,7 @@ var Flow =
 	
 	'use strict';
 	var parseUtils = __webpack_require__(13);
+	// var config = require('../../config');
 	module.exports = {
 	
 	    test: 'repeat',
@@ -1465,15 +1516,19 @@ var Flow =
 	
 	    handle: function (value, prop) {
 	        value = ($.isPlainObject(value) ? value : [].concat(value));
+	        //FIXME: should ideally pull from config, but problem is, once it's unbound don't know what to remove
+	        //Possible fixes: Let this handle it's own unbind (which does nothing), or
+	        //have unbind remove all generated elements as well
 	        var loopTemplate = this.data('repeat-template');
 	        var id = '';
 	        if (!loopTemplate) {
 	            loopTemplate = this.get(0).outerHTML;
 	            id = _.uniqueId('repeat-');
-	            this.data({
-	                'repeat-template': loopTemplate,
-	                'repeat-template-id': id
-	            });
+	
+	            var d = {};
+	            d['repeat-template-id'] = id;
+	            d['repeat-template'] = loopTemplate;
+	            this.data(d);
 	        } else {
 	            id = this.data('repeat-template-id');
 	            this.nextUntil(':not([' + id + '])').remove();
@@ -1599,14 +1654,14 @@ var Flow =
 
 /***/ },
 /* 20 */
-/***/ function(module, exports) {
+/***/ function(module, exports, __webpack_require__) {
 
 	/**
 	 * ## Default Bi-directional Binding: data-f-bind
 	 *
 	 * The most commonly used attribute provided by Flow.js is the `data-f-bind` attribute.
 	 *
-	 * ####data-f-bind with a single value
+	 * #### data-f-bind with a single value
 	 *
 	 * You can bind variables from the model in your interface by setting the `data-f-bind` attribute. This attribute binding is bi-directional, meaning that as the model changes, the interface is automatically updated; and when users change values in the interface, the model is automatically updated. Specifically:
 	 *
@@ -1631,10 +1686,10 @@ var Flow =
 	 *
 	 * * Use square brackets, `[]`, to reference arrayed variables: `sales[West]`.
 	 * * Use angle brackets, `<>`, to reference other variables in your array index: `sales[<currentRegion>]`.
-	 * * Remember that if your model is in Vensim, the time step can be the first array index or the last array index, depending on your [model.cfg](../../../../../../model_code/vensim/#creating-cfg) file.
+	 * * Remember that if your model is in Vensim, the time step is the last array index.
 	 * * By default, all HTML elements update for any change for each variable. However, you can prevent the user interface from updating &mdash; either for all variables or for particular variables &mdash; by setting the `silent` property when you initialize Flow.js. See more on [additional options for the Flow.initialize() method](../../../../../#custom-initialize).
 	 *
-	 * ####data-f-bind with multiple values and templates
+	 * #### data-f-bind with multiple values and templates
 	 *
 	 * If you have multiple variables, you can use the shortcut of listing multiple variables in an enclosing HTML element and then referencing each variable using templates. (Templates are available as part of Flow.js's lodash dependency. See more background on [working with templates](../../../../../#templates).)
 	 *
@@ -1684,6 +1739,7 @@ var Flow =
 	 */
 	
 	'use strict';
+	var config = __webpack_require__(2);
 	
 	module.exports = {
 	
@@ -1701,7 +1757,7 @@ var Flow =
 	        } else {
 	            valueToTemplate.value = value; //If the key has 'weird' characters like '<>' hard to get at with a template otherwise
 	        }
-	        var bindTemplate = this.data('bind-template');
+	        var bindTemplate = this.data(config.attrs.bindTemplate);
 	        if (bindTemplate) {
 	            templated = _.template(bindTemplate, valueToTemplate);
 	            this.html(templated);
@@ -1716,7 +1772,7 @@ var Flow =
 	                value = ($.isPlainObject(value)) ? JSON.stringify(value) : value + '';
 	                this.html(value);
 	            } else {
-	                this.data('bind-template', cleanedHTML);
+	                this.data(config.attrs.bindTemplate, cleanedHTML);
 	                this.html(templated);
 	            }
 	        }
@@ -2468,7 +2524,7 @@ var Flow =
 	            return (fixesTXT.length > 1) ? fixesTXT[1].toString() : '';
 	        }
 	
-	        function isCurrency (string) {
+	        function isCurrency (string) { // eslint-disable-line
 	            var s = $.trim(string);
 	
 	            if (s === '$'
@@ -2491,7 +2547,7 @@ var Flow =
 	            return false;
 	        }
 	
-	        function format (number, formatTXT) {
+	        function format (number, formatTXT) { // eslint-disable-line
 	            if (_.isArray(number)) {
 	                number = number[number.length - 1];
 	            }
@@ -2643,13 +2699,13 @@ var Flow =
 	
 	    getConvertersList: function ($el, property) {
 	        var attrConverters = $el.data('f-convert-' + property);
-	
-	        if (!attrConverters && (property === 'bind' || property === 'foreach')) {
-	            attrConverters = $el.data('f-convert');
+	        //FIXME: figure out how not to hard-code names here
+	        if (!attrConverters && (property === 'bind' || property === 'foreach' || property === 'repeat')) {
+	            attrConverters = $el.attr('data-f-convert'); //.data shows value cached by jquery
 	            if (!attrConverters) {
 	                var $parentEl = $el.closest('[data-f-convert]');
 	                if ($parentEl) {
-	                    attrConverters = $parentEl.data('f-convert');
+	                    attrConverters = $parentEl.attr('data-f-convert');
 	                }
 	            }
 	            if (attrConverters) {
@@ -2775,8 +2831,7 @@ var Flow =
 	    };
 	
 	    this.run = rs;
-	    var varOptions = config.run.variables;
-	    this.variables = new VarsChannel($.extend(true, {}, varOptions, { run: rs }));
+	    this.variables = new VarsChannel($.extend(true, {}, config.run.variables, { run: rs }));
 	    this.operations = new OperationsChannel($.extend(true, {}, config.run.operations, { run: rs }));
 	
 	    var me = this;
@@ -2786,7 +2841,7 @@ var Flow =
 	        if (me.variables.options.autoFetch.enable) {
 	            me.variables.startAutoFetch();
 	        }
-	    }, DEBOUNCE_INTERVAL, { leading: true });
+	    }, DEBOUNCE_INTERVAL, { leading: false });
 	
 	    this.operations.subscribe('*', debouncedRefresh);
 	};
@@ -2827,6 +2882,7 @@ var Flow =
 	
 	'use strict';
 	var config = __webpack_require__(2);
+	
 	
 	module.exports = function (options) {
 	    var defaults = {
@@ -2887,6 +2943,12 @@ var Flow =
 	            debounce: 200
 	        },
 	
+	        /**
+	         * Allow using the channel for reading data, but dis-allow calls to `publish`. If a function is provided, function should return true/false to override
+	         * @type {Boolean}
+	         */
+	        readOnly: false,
+	
 	        interpolate: {}
 	    };
 	
@@ -2908,6 +2970,15 @@ var Flow =
 	            return val.substring(1, val.length - 1);
 	        });
 	        return inner;
+	    };
+	
+	    //TODO: Move this check into epijs
+	    var queryVars = function (vList) {
+	        vList = _.invoke(vList, 'trim');
+	        vList = _.filter(vList, function (val) {
+	            return val && val !== '';
+	        });
+	        return vs.query(vList);
 	    };
 	
 	    //Replaces stubbed out keynames in variablestointerpolate with their corresponding values
@@ -3020,7 +3091,7 @@ var Flow =
 	                }
 	            }, this);
 	            if (unmappedVariables.length) {
-	                return vs.query(unmappedVariables).then(function (variableValueList) {
+	                return queryVars(unmappedVariables).then(function (variableValueList) {
 	                    return $.extend(valueList, variableValueList);
 	                });
 	            }
@@ -3035,7 +3106,7 @@ var Flow =
 	            }
 	            var innerVariables = this.getTopicDependencies(variablesList);
 	            var getVariables = function (vars, interpolationMap) {
-	                return vs.query(vars).then(function (variables) {
+	                return queryVars(vars).then(function (variables) {
 	                    // console.log('Got variables', variables);
 	                    var changeSet = {};
 	                    _.each(variables, function (value, vname) {
@@ -3078,11 +3149,13 @@ var Flow =
 	         *
 	         * @param {Object|Array} changeList Key-value pairs of changed variables.
 	         * @param {Boolean} force  Ignore all `silent` options and force refresh.
+	         * @param {Object} options (Optional) Overrides for the default channel options.
 	         * @returns {promise} Promise on completion
 	         */
-	        refresh: function (changeList, force) {
+	        refresh: function (changeList, force, options) {
+	            var opts = $.extend(true, {}, channelOptions, options);
 	            var me = this;
-	            var silent = channelOptions.silent;
+	            var silent = opts.silent;
 	            var changedVariables = _.isArray(changeList) ? changeList : _.keys(changeList);
 	
 	            var shouldSilence = silent === true;
@@ -3122,7 +3195,7 @@ var Flow =
 	                if (_.isFunction(target)) {
 	                    target(params);
 	                } else {
-	                    target.trigger(config.events.react, params);
+	                    target.trigger(config.events.channelDataReceived, params);
 	                }
 	            };
 	
@@ -3170,6 +3243,13 @@ var Flow =
 	            } else {
 	                (attrs = {})[variable] = value;
 	            }
+	
+	            var opts = $.extend(true, {}, channelOptions, options);
+	
+	            if (_.result(opts, 'readOnly')) {
+	                console.warn('Tried to publish to a read-only channel', variable);
+	                return $.Deferred().reject().promise();
+	            }
 	            var it = interpolate(_.keys(attrs), currentData);
 	
 	            var toSave = {};
@@ -3180,9 +3260,7 @@ var Flow =
 	            var me = this;
 	            return vs.save(toSave)
 	                .then(function () {
-	                    if (!options || !options.silent) {
-	                        me.refresh(attrs);
-	                    }
+	                    me.refresh(attrs, null, opts);
 	                });
 	        },
 	
@@ -3222,6 +3300,9 @@ var Flow =
 	            };
 	
 	            topics = [].concat(topics);
+	            if (!topics.length) {
+	                console.warn(subscriber, 'tried to subscribe to an empty topic');
+	            }
 	            //use jquery to make event sink
 	            if (!subscriber.on && !_.isFunction(subscriber)) {
 	                subscriber = $(subscriber);
@@ -3336,6 +3417,12 @@ var Flow =
 	         */
 	        silent: false,
 	
+	        /**
+	         * Allow using the channel for reading data, but dis-allow calls to `publish`. If a function is provided, function should return true/false to override
+	         * @type {Boolean | Function}
+	         */
+	        readOnly: false,
+	
 	        interpolate: {}
 	    };
 	
@@ -3365,14 +3452,16 @@ var Flow =
 	         * @param {String|Array}  executedOpns Operations which just happened.
 	         * @param {Any} response  Response from the operation.
 	         * @param {Boolean} force  Ignore all `silent` options and force refresh.
+	         * @param {Object} options (Optional) Overrides for the default channel options.
 	         * @returns {undefined}
 	         */
-	        refresh: function (executedOpns, response, force) {
+	        refresh: function (executedOpns, response, force, options) {
 	            // console.log('Operations refresh', executedOpns);
-	            var silent = channelOptions.silent;
+	            var opts = $.extend(true, {}, channelOptions, options);
 	
+	            var silent = opts.silent;
 	            var toNotify = executedOpns;
-	            if (force === true) {
+	            if (force === true) { // eslint-disable-line
 	            } else if (silent === true) {
 	                toNotify = [];
 	            } else if (_.isArray(silent) && executedOpns) {
@@ -3407,7 +3496,7 @@ var Flow =
 	                if (_.isFunction(target)) {
 	                    target(params, value, operation);
 	                } else if (target.trigger) {
-	                    listener.target.trigger(config.events.react, params);
+	                    listener.target.trigger(config.events.channelDataReceived, params);
 	                } else {
 	                    throw new Error('Unknown listener format for ' + operation);
 	                }
@@ -3445,6 +3534,14 @@ var Flow =
 	         */
 	        publish: function (operation, params, options) {
 	            var me = this;
+	            var opts = ($.isPlainObject(operation)) ? params : options;
+	            opts = $.extend(true, {}, channelOptions, opts);
+	
+	            if (_.result(opts, 'readOnly')) {
+	                console.warn('Tried to publish to a read-only channel', operation);
+	                return $.Deferred().reject().promise();
+	            }
+	
 	            if ($.isPlainObject(operation) && operation.operations) {
 	                var fn = (operation.serial) ? run.serial : run.parallel;
 	                _.each(operation.operations, function (opn) {
@@ -3452,20 +3549,15 @@ var Flow =
 	                }, this);
 	                return fn.call(run, operation.operations)
 	                        .then(function (response) {
-	                            if (!params || !params.silent) {
-	                                me.refresh(_.pluck(operation.operations, 'name'), response);
-	                            }
+	                            me.refresh(_.pluck(operation.operations, 'name'), response, null, opts);
 	                        });
 	            } else {
-	                var opts = ($.isPlainObject(operation)) ? params : options;
 	                if (!$.isPlainObject(operation) && params) {
 	                    params = this.interpolate(params);
 	                }
 	                return run.do(operation, params)
 	                    .then(function (response) {
-	                        if (!opts || !opts.silent) {
-	                            me.refresh([operation], response);
-	                        }
+	                        me.refresh([operation], response, null, opts);
 	                        return response.result;
 	                    });
 	            }

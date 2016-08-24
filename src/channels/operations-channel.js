@@ -64,6 +64,12 @@ module.exports = function (options) {
          */
         silent: false,
 
+        /**
+         * Allow using the channel for reading data, but dis-allow calls to `publish`. If a function is provided, function should return true/false to override
+         * @type {Boolean | Function}
+         */
+        readOnly: false,
+
         interpolate: {}
     };
 
@@ -93,14 +99,16 @@ module.exports = function (options) {
          * @param {String|Array}  executedOpns Operations which just happened.
          * @param {Any} response  Response from the operation.
          * @param {Boolean} force  Ignore all `silent` options and force refresh.
+         * @param {Object} options (Optional) Overrides for the default channel options.
          * @returns {undefined}
          */
-        refresh: function (executedOpns, response, force) {
+        refresh: function (executedOpns, response, force, options) {
             // console.log('Operations refresh', executedOpns);
-            var silent = channelOptions.silent;
+            var opts = $.extend(true, {}, channelOptions, options);
 
+            var silent = opts.silent;
             var toNotify = executedOpns;
-            if (force === true) {
+            if (force === true) { // eslint-disable-line
             } else if (silent === true) {
                 toNotify = [];
             } else if (_.isArray(silent) && executedOpns) {
@@ -173,27 +181,30 @@ module.exports = function (options) {
          */
         publish: function (operation, params, options) {
             var me = this;
+            var opts = ($.isPlainObject(operation)) ? params : options;
+            opts = $.extend(true, {}, channelOptions, opts);
+
+            if (_.result(opts, 'readOnly')) {
+                console.warn('Tried to publish to a read-only channel', operation);
+                return $.Deferred().reject().promise();
+            }
+
             if ($.isPlainObject(operation) && operation.operations) {
                 var fn = (operation.serial) ? run.serial : run.parallel;
                 _.each(operation.operations, function (opn) {
                     opn.params = this.interpolate(opn.params);
                 }, this);
                 return fn.call(run, operation.operations)
-                        .then(function (response) {
-                            if (!params || !params.silent) {
-                                me.refresh(_.pluck(operation.operations, 'name'), response);
-                            }
-                        });
+                    .then(function (response) {
+                        me.refresh(_.pluck(operation.operations, 'name'), response, null, opts);
+                    });
             } else {
-                var opts = ($.isPlainObject(operation)) ? params : options;
                 if (!$.isPlainObject(operation) && params) {
                     params = this.interpolate(params);
                 }
                 return run.do(operation, params)
                     .then(function (response) {
-                        if (!opts || !opts.silent) {
-                            me.refresh([operation], response);
-                        }
+                        me.refresh([operation], response, null, opts);
                         return response.result;
                     });
             }

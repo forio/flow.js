@@ -188,7 +188,7 @@ module.exports = {
             return (fixesTXT.length > 1) ? fixesTXT[1].toString() : '';
         }
 
-        function isCurrency (string) {
+        function isCurrency (string) { // eslint-disable-line
             var s = $.trim(string);
 
             if (s === '$'
@@ -211,7 +211,7 @@ module.exports = {
             return false;
         }
 
-        function format (number, formatTXT) {
+        function format (number, formatTXT) { // eslint-disable-line
             if (_.isArray(number)) {
                 number = number[number.length - 1];
             }

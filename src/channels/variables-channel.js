@@ -30,6 +30,7 @@
 'use strict';
 var config = require('../config');
 
+
 module.exports = function (options) {
     var defaults = {
         /**
@@ -89,6 +90,12 @@ module.exports = function (options) {
             debounce: 200
         },
 
+        /**
+         * Allow using the channel for reading data, but dis-allow calls to `publish`. If a function is provided, function should return true/false to override
+         * @type {Boolean}
+         */
+        readOnly: false,
+
         interpolate: {}
     };
 
@@ -110,6 +117,15 @@ module.exports = function (options) {
             return val.substring(1, val.length - 1);
         });
         return inner;
+    };
+
+    //TODO: Move this check into epijs
+    var queryVars = function (vList) {
+        vList = _.invoke(vList, 'trim');
+        vList = _.filter(vList, function (val) {
+            return val && val !== '';
+        });
+        return vs.query(vList);
     };
 
     //Replaces stubbed out keynames in variablestointerpolate with their corresponding values
@@ -222,7 +238,7 @@ module.exports = function (options) {
                 }
             }, this);
             if (unmappedVariables.length) {
-                return vs.query(unmappedVariables).then(function (variableValueList) {
+                return queryVars(unmappedVariables).then(function (variableValueList) {
                     return $.extend(valueList, variableValueList);
                 });
             }
@@ -237,7 +253,7 @@ module.exports = function (options) {
             }
             var innerVariables = this.getTopicDependencies(variablesList);
             var getVariables = function (vars, interpolationMap) {
-                return vs.query(vars).then(function (variables) {
+                return queryVars(vars).then(function (variables) {
                     // console.log('Got variables', variables);
                     var changeSet = {};
                     _.each(variables, function (value, vname) {
@@ -280,11 +296,13 @@ module.exports = function (options) {
          *
          * @param {Object|Array} changeList Key-value pairs of changed variables.
          * @param {Boolean} force  Ignore all `silent` options and force refresh.
+         * @param {Object} options (Optional) Overrides for the default channel options.
          * @returns {promise} Promise on completion
          */
-        refresh: function (changeList, force) {
+        refresh: function (changeList, force, options) {
+            var opts = $.extend(true, {}, channelOptions, options);
             var me = this;
-            var silent = channelOptions.silent;
+            var silent = opts.silent;
             var changedVariables = _.isArray(changeList) ? changeList : _.keys(changeList);
 
             var shouldSilence = silent === true;
@@ -372,6 +390,13 @@ module.exports = function (options) {
             } else {
                 (attrs = {})[variable] = value;
             }
+
+            var opts = $.extend(true, {}, channelOptions, options);
+
+            if (_.result(opts, 'readOnly')) {
+                console.warn('Tried to publish to a read-only channel', variable);
+                return $.Deferred().reject().promise();
+            }
             var it = interpolate(_.keys(attrs), currentData);
 
             var toSave = {};
@@ -382,9 +407,7 @@ module.exports = function (options) {
             var me = this;
             return vs.save(toSave)
                 .then(function () {
-                    if (!options || !options.silent) {
-                        me.refresh(attrs);
-                    }
+                    me.refresh(attrs, null, opts);
                 });
         },
 
@@ -424,6 +447,9 @@ module.exports = function (options) {
             };
 
             topics = [].concat(topics);
+            if (!topics.length) {
+                console.warn(subscriber, 'tried to subscribe to an empty topic');
+            }
             //use jquery to make event sink
             if (!subscriber.on && !_.isFunction(subscriber)) {
                 subscriber = $(subscriber);

@@ -45,7 +45,7 @@ module.exports = function (options) {
     };
 
     //Make sure nothing happens before the run is created
-    var nonWrapped = ['variables', 'create', 'load', 'getCurrentConfig'];
+    var nonWrapped = ['variables', 'create', 'load', 'getCurrentConfig', 'updateConfig'];
     _.each(rs, function (value, name) {
         if (_.isFunction(value) && !_.contains(nonWrapped, name)) {
             rs[name] = createAndThen(value, rs);
@@ -64,8 +64,7 @@ module.exports = function (options) {
     };
 
     this.run = rs;
-    var varOptions = config.run.variables;
-    this.variables = new VarsChannel($.extend(true, {}, varOptions, { run: rs }));
+    this.variables = new VarsChannel($.extend(true, {}, config.run.variables, { run: rs }));
     this.operations = new OperationsChannel($.extend(true, {}, config.run.operations, { run: rs }));
 
     var me = this;
@@ -75,7 +74,7 @@ module.exports = function (options) {
         if (me.variables.options.autoFetch.enable) {
             me.variables.startAutoFetch();
         }
-    }, DEBOUNCE_INTERVAL, { leading: true });
+    }, DEBOUNCE_INTERVAL, { leading: false });
 
     this.operations.subscribe('*', debouncedRefresh);
 };

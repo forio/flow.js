@@ -14,6 +14,28 @@
         beforeEach(function () {
             //Needed to make _.debounce work correctly with fakeTimers
             _ = _.runInContext(window);//eslint-disable-line
+            mockVariables = {
+                query: sinon.spy(function (variables) {
+                    if (!variables) {
+                        variables = [];
+                    }
+                    var response = {};
+                    variables.forEach(function (v) {
+                        response[v] = 1;
+                    });
+                    return $.Deferred().resolve(response).promise();
+                }),
+                save: sinon.spy(function () {
+                    return $.Deferred().resolve().promise();
+                })
+            };
+            mockRun = {
+                variables: function () {
+                    return mockVariables;
+                }
+            };
+            channel = new Channel({ run: mockRun });
+            core = channel.private;
         });
         before(function () {
             clock = sinon.useFakeTimers();
@@ -41,39 +63,17 @@
                 };
                 xhr.respond(201, { 'Content-Type': 'application/json' }, JSON.stringify(resp));
             });
-
-            mockVariables = {
-                query: sinon.spy(function (variables) {
-                    if (!variables) {
-                        variables = [];
-                    }
-                    var response = {};
-                    variables.forEach(function (v) {
-                        response[v] = 1;
-                    });
-                    return $.Deferred().resolve(response).promise();
-                }),
-                save: sinon.spy(function () {
-                    return $.Deferred().resolve().promise();
-                })
-            };
-            mockRun = {
-                variables: function () {
-                    return mockVariables;
-                }
-            };
-            channel = new Channel({ run: mockRun });
-            core = channel.private;
         });
 
-        after(function () {
-            server.restore();
-            clock.restore();
-
+        afterEach(function () {
             mockVariables = null;
             mockRun = null;
             channel = null;
             core = null;
+        });
+        after(function () {
+            server.restore();
+            clock.restore();
         });
 
         describe('#getInnerVariables', function () {
@@ -285,17 +285,46 @@
 
                 channel.refresh = originalRefresh;
             });
-            it('should not call refresh if silenced', function () {
-                var originalRefresh = channel.refresh;
-                var refSpy = sinon.spy(originalRefresh);
-                channel.refresh = refSpy;
+            it('should not call fetch if silenced', function () {
+                var originalFetch = channel.fetch;
+                var refSpy = sinon.spy(originalFetch);
+                channel.fetch = refSpy;
 
                 channel.publish({ price: 1 }, { silent: true });
                 refSpy.should.not.have.been.called;
 
-                channel.refresh = originalRefresh;
+                channel.refresh = originalFetch;
+            });
+
+            describe('readonly: true', function () {
+                it('should not call `do` if readonly true', function () {
+                    var c = new Channel({ run: mockRun, readOnly: true });
+                    c.publish({ price: 1 });
+                    mockVariables.save.should.not.have.been.called;
+                });
+                it('should call `do` if readonly false', function () {
+                    var c = new Channel({ run: mockRun, readOnly: false });
+                    c.publish({ price: 1 });
+                    mockVariables.save.should.have.been.called;
+                });
+                it('should allow passing a function for true', function () {
+                    var c = new Channel({ run: mockRun, readOnly: function () { return true; } });
+                    c.publish({ price: 1 });
+                    mockVariables.save.should.not.have.been.called;
+                });
+                it('should allow passing a function for false', function () {
+                    var c = new Channel({ run: mockRun, readOnly: function () { return false; } });
+                    c.publish({ price: 1 });
+                    mockVariables.save.should.have.been.called;
+                });
+                it('should return a rejected promise when published to readonly channel ', function () {
+                    var c = new Channel({ run: mockRun, readOnly: true });
+                    var prom = c.publish({ price: 1 });
+                    prom.state().should.equal('rejected');
+                });
             });
         });
+
 
         describe('#refresh', function () {
             it('should call if no rules are specified', function () {

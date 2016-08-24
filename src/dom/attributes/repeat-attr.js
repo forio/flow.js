@@ -54,7 +54,7 @@
 
 'use strict';
 var parseUtils = require('../../utils/parse-utils');
-var config = require('../../config');
+// var config = require('../../config');
 module.exports = {
 
     test: 'repeat',
@@ -63,18 +63,21 @@ module.exports = {
 
     handle: function (value, prop) {
         value = ($.isPlainObject(value) ? value : [].concat(value));
-        var loopTemplate = this.data(config.attrs.repeat.template);
+        //FIXME: should ideally pull from config, but problem is, once it's unbound don't know what to remove
+        //Possible fixes: Let this handle it's own unbind (which does nothing), or
+        //have unbind remove all generated elements as well
+        var loopTemplate = this.data('repeat-template');
         var id = '';
         if (!loopTemplate) {
             loopTemplate = this.get(0).outerHTML;
             id = _.uniqueId('repeat-');
 
             var d = {};
-            d[config.attrs.repeat.templateId] = id;
-            d[config.attrs.repeat.template] = loopTemplate;
+            d['repeat-template-id'] = id;
+            d['repeat-template'] = loopTemplate;
             this.data(d);
         } else {
-            id = this.data(config.attrs.repeat.templateId);
+            id = this.data('repeat-template-id');
             this.nextUntil(':not([' + id + '])').remove();
         }
         var last;

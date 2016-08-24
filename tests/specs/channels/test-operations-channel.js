@@ -7,12 +7,26 @@
         var channel;
         var server;
         var mockRun;
-        var mockRunChannel;
         var mockOperationsResponse = {
             message: 'operation Complete',
             stuff: 1,
             data: [1, 2]
         };
+        beforeEach(function () {
+            var spy = sinon.spy(function () {
+                return $.Deferred().resolve(mockOperationsResponse).promise();
+            });
+            mockRun = {
+                do: spy,
+                serial: spy,
+                parallel: spy
+            };
+
+            channel = new Channel({ run: mockRun });
+        });
+        afterEach(function () {
+            mockRun = channel = null;
+        });
         before(function () {
             server = sinon.fakeServer.create();
             server.respondWith('PATCH', /(.*)\/run\/(.*)\/(.*)/, function (xhr, id) {
@@ -41,32 +55,6 @@
                 xhr.respond(201, { 'Content-Type': 'application/json' }, JSON.stringify(resp));
             });
 
-            mockRun = {
-                do: sinon.spy(function () {
-                    return $.Deferred().resolve(mockOperationsResponse).promise();
-                }),
-                serial: sinon.spy(function () {
-                    return $.Deferred().resolve(mockOperationsResponse).promise();
-                }),
-                parallel: sinon.spy(function () {
-                    return $.Deferred().resolve(mockOperationsResponse).promise();
-                })
-            };
-
-            mockRunChannel = {
-                variables: {
-                    refresh: sinon.spy(),
-                    query: sinon.spy(function () {
-                        return $.Deferred().resolve({
-                            price: 23,
-                            sales: 30,
-                            priceArray: [20, 30]
-                        }).promise();
-                    })
-                }
-            };
-
-            channel = new Channel({ vent: mockRunChannel, run: mockRun });
         });
 
         after(function () {
@@ -117,37 +105,56 @@
             });
 
             describe('silent:true', function () {
+                var original;
+                var refSpy;
+                beforeEach(function () {
+                    original = channel.notify;
+                    refSpy = sinon.spy(original);
+                    channel.notify = refSpy;
+                });
+                afterEach(function () {
+                    channel.notify = original;
+                });
                 it('should not call refresh after publish as string', function () {
-                    var originalRefresh = channel.refresh;
-                    var refSpy = sinon.spy(originalRefresh);
-                    channel.refresh = refSpy;
-
                     channel.publish('step', 1, { silent: true });
                     refSpy.should.not.have.been.called;
-
-                    channel.refresh = originalRefresh;
                 });
                 it('should not call refresh after publish as object', function () {
-                    var originalRefresh = channel.refresh;
-                    var refSpy = sinon.spy(originalRefresh);
-                    channel.refresh = refSpy;
-
                     channel.publish({ step: 1 }, { silent: true });
                     refSpy.should.not.have.been.called;
-
-                    channel.refresh = originalRefresh;
                 });
                 it('should not call refresh after publish as object with operations', function () {
-                    var originalRefresh = channel.refresh;
-                    var refSpy = sinon.spy(originalRefresh);
-                    channel.refresh = refSpy;
-
                     channel.publish({ operations: [{ name: 'step', params: ['1'] }], serial: false }, { silent: true });
                     refSpy.should.not.have.been.called;
-
-                    channel.refresh = originalRefresh;
                 });
+            });
 
+            describe('readonly: true', function () {
+                it('should not call `do` if readonly true', function () {
+                    var c = new Channel({ run: mockRun, readOnly: true });
+                    c.publish({ step: 1 });
+                    mockRun.do.should.not.have.been.called;
+                });
+                it('should call `do` if readonly false', function () {
+                    var c = new Channel({ run: mockRun, readOnly: false });
+                    c.publish({ step: 1 });
+                    mockRun.do.should.have.been.called;
+                });
+                it('should allow passing a function for true', function () {
+                    var c = new Channel({ run: mockRun, readOnly: function () { return true; } });
+                    c.publish({ step: 1 });
+                    mockRun.do.should.not.have.been.called;
+                });
+                it('should allow passing a function for false', function () {
+                    var c = new Channel({ run: mockRun, readOnly: function () { return false; } });
+                    c.publish({ step: 1 });
+                    mockRun.do.should.have.been.called;
+                });
+                it('should return a rejected promise when published to readonly channel ', function () {
+                    var c = new Channel({ run: mockRun, readOnly: true });
+                    var prom = c.publish({ step: 1 });
+                    prom.state().should.equal('rejected');
+                });
             });
         });
 

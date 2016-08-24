@@ -1,20 +1,17 @@
 'use strict';
 module.exports = (function () {
     var Flow = require('src/flow');
+
     describe('Flow Epicenter integration', function () {
         var server;
         var channelOpts;
         var $elWithoutInit;
+        var clock;
+
         before(function () {
             server = sinon.fakeServer.create();
+            clock = sinon.useFakeTimers();
 
-            server.respondWith('GET', /(.*)/, function (xhr, id) {
-                xhr.respond(200, {
-                    'Content-Type': 'application/json'
-                }, JSON.stringify({
-                    price: 1
-                }));
-            });
             server.respondWith('PATCH', /(.*)\/run\/(.*)\/variables\/(.*)/, function (xhr, id) {
                 xhr.respond(201, {
                     'Content-Type': 'application/json'
@@ -23,6 +20,7 @@ module.exports = (function () {
                 }));
             });
             server.respondWith('POST', /(.*)\/run/, function (xhr, id) {
+                // console.log('POST');
                 var resp = {
                     id: '065dfe50-d29d-4b55-a0fd-30868d7dd26c',
                     model: 'model.vmf',
@@ -36,6 +34,14 @@ module.exports = (function () {
                     'Content-Type': 'application/json'
                 }, JSON.stringify(resp));
             });
+            server.respondWith('GET', /(.*)/, function (xhr, id) {
+                // console.log('GET');
+                xhr.respond(200, {
+                    'Content-Type': 'application/json'
+                }, JSON.stringify({
+                    price: 1
+                }));
+            });
             server.respondImmediately = true;
 
             $elWithoutInit = $([
@@ -47,6 +53,7 @@ module.exports = (function () {
 
         var cookey;
         beforeEach(function () {
+            _ = _.runInContext(window);//eslint-disable-line
             cookey = 'flowtest' + Math.random();
             channelOpts = {
                 strategy: 'always-new',
@@ -201,8 +208,8 @@ module.exports = (function () {
                         }
                     });
 
-                    server.respond();
-                    server.respond();
+                    // server.respond();
+                    clock.tick(500);
                     server.requests.length.should.equal(3); //POST, POST, GET
 
                     server.requests[0].method.toUpperCase().should.equal('POST');

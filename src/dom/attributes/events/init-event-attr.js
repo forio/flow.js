@@ -37,7 +37,8 @@ module.exports = {
                 return { name: fnName, params: args };
             });
 
-            me.trigger('f.ui.operate', { operations: listOfOperations, serial: true });
+            //FIXME: this knows too much about the channel
+            me.trigger('f.ui.operate', { operations: listOfOperations, serial: true, options: { readOnly: false } });
         });
         return false; //Don't bother binding on this attr. NOTE: Do readonly, true instead?;
     }

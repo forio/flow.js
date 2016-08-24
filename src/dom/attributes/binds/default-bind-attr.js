@@ -28,7 +28,7 @@
  *
  * * Use square brackets, `[]`, to reference arrayed variables: `sales[West]`.
  * * Use angle brackets, `<>`, to reference other variables in your array index: `sales[<currentRegion>]`.
- * * Remember that if your model is in Vensim, the time step can be the first array index or the last array index, depending on your [model.cfg](../../../../../../model_code/vensim/#creating-cfg) file.
+ * * Remember that if your model is in Vensim, the time step is the last array index.
  * * By default, all HTML elements update for any change for each variable. However, you can prevent the user interface from updating &mdash; either for all variables or for particular variables &mdash; by setting the `silent` property when you initialize Flow.js. See more on [additional options for the Flow.initialize() method](../../../../../#custom-initialize).
  *
  * #### data-f-bind with multiple values and templates
