@@ -11,6 +11,7 @@ pids
 !.bowerrc
 !.eslintrc.*
 !.gitignore
+!.gitattributes
 
 
 # sass
