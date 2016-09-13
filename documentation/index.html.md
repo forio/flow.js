@@ -72,6 +72,7 @@ The `run` is an object that includes:
 * `account`: Optional, **User ID** or **Team ID**
 * `project`: Optional, **Project ID**
 * `model`: Optional, name of primary model file (repeated from `data-f-model` in your HTML `<body>` tag)
+* `files`: Optional, object with name : value pairs for files with additional data to pass into your model, e.g. `"files": {"file1": "myFirstFile.xlsx", "file2": "mySecondFile.xlsx"}`. Only applicable to [Vensim](../model_code/vensim/) models. See a complete example in [How To: Use External Data in Vensim](../model_code/vensim/vensim_example_xls/).
 
 These parameters are optional because the `run` information defaults correctly based on the location of your user interface file within your Epicenter project and the `data-f-model` element in your `<body>` tag. But you can add it if desired: 
 
