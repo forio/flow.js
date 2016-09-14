@@ -44,10 +44,25 @@ module.exports = (function () {
                     bindHandler.handle.call($rootNode, { a: 'Hello', b: 'World' });
                     $rootNode.html().should.equal('Hello World');
                 });
+                it('should show handle variables with spaces', function () {
+                    var $rootNode = $('<div><%= a %> <%= value["b c"] %></div>');
+                    bindHandler.handle.call($rootNode, { a: 'Hello', 'b c': 'World' });
+                    $rootNode.html().should.equal('Hello World');
+                });
                 it('should show templatize Arrays', function () {
                     var $rootNode = $('<div><%= value[value.length - 1] %></div>');
                     bindHandler.handle.call($rootNode, ['Hello']);
                     $rootNode.html().should.equal('Hello');
+                });
+                it('should show stringified Arrays', function () {
+                    var $rootNode = $('<div><%= value %></div>');
+                    bindHandler.handle.call($rootNode, ['Hello', 'there', 'world']);
+                    $rootNode.html().should.equal('Hello,there,world');
+                });
+                it('should treat items as js objects', function () {
+                    var $rootNode = $('<div><%= words.join(",") %></div>');
+                    bindHandler.handle.call($rootNode, { words: ['Hello', 'there', 'world'] });
+                    $rootNode.html().should.equal('Hello,there,world');
                 });
 
                 it('should update templates when called multiple times', function () {
