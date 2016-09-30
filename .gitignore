@@ -43,3 +43,5 @@ tests/dist/*
 .DS_Store
 instrument/
 coverage/
+
+*.orig

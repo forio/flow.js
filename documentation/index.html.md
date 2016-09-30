@@ -49,9 +49,9 @@ Learn more about advanced topics:
 		<html>
 			<head>
 				<script src="//ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
-				<script src="http://cdnjs.cloudflare.com/ajax/libs/lodash.js/2.4.1/lodash.js"></script>
-				<script src="https://forio.com/tools/js-libs/1.6.1/epicenter.min.js"></script>
-				<script src="https://forio.com/tools/js-libs/flow/latest/flow.js"></script>
+				<script src="//cdnjs.cloudflare.com/ajax/libs/lodash.js/2.4.1/lodash.js"></script>
+				<script src="//forio.com/tools/js-libs/2.0/epicenter.min.js"></script>
+				<script src="//forio.com/tools/js-libs/flow/latest/flow.js"></script>
 				
 				<script>
 				$(function() { Flow.initialize(); });
