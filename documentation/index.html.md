@@ -4,7 +4,7 @@ layout: "flow"
 isPage: true
 ---
 
-##Flow.js: Overview
+## Flow.js: Overview
 
 Flow.js provides two-way data bindings between variables and operations in your project's model and HTML elements in your project's user interface. In this way, Flow.js decouples the model from its interface. This is beneficial as a general design principle, and can be especially helpful for larger development teams where the UI developers and the modelers are different people. If you are comfortable writing HTML and basic JavaScript, using Flow.js can save you significant development time.
 
@@ -30,7 +30,7 @@ Learn more about advanced topics:
 
 
 <a name="using_in_project"></a>
-###Using Flow.js in your Project
+### Using Flow.js in your Project
 
 **To use Flow.js in your project:**
 
@@ -91,7 +91,7 @@ In fact, you can add any of the [Model Run API parameters](../rest_apis/other_ap
 
 
 <a name="templates"></a>
-####Working with Templates
+#### Working with Templates
 
 Several common JavaScript libraries embed a simple template engine, including `lodash.js`, which Flow.js [already requires](#using_in_project)as one of its dependencies. You can use this templating in your project's user interface.
 

@@ -4,7 +4,7 @@ layout: "flow"
 isPage: true
 ---
 
-##Flow.js and Data Visualization: Graphing with Contour
+## Flow.js and Data Visualization: Graphing with Contour
 
 
 Flow.js makes it easy to show data from your model variables in [text](../generated/dom/attributes/binds/default-bind-attr/) or [lists](../generated/dom/attributes/foreach/default-foreach-attr/). However, often you want more than just textual output &mdash; you want to visualize the results of your simulation!
@@ -270,7 +270,7 @@ Here's the complete sample code:
 	
 	</html>			
 
-####Learn More
+#### Learn More
 
 * [Flow.js Variables Channel](../generated/channels/variables-channel/)
 * [Flow.js Operations Channel](../generated/channels/operations-channel/)
