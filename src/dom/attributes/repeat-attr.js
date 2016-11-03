@@ -42,6 +42,15 @@
  *          </tr>
  *      </table>
  *
+ * You can also use this with a `<div>` and have the `<div>` itself repeated. For example:
+ *
+ *      <div data-f-repeat="sample_array"></div>
+ *
+ * generates:
+ *
+ *      <div data-f-repeat="sample_array">2</div>
+ *      <div>4</div>
+ *      <div>6</div>
  *
  * **Notes:**
  *
