@@ -37,6 +37,17 @@ module.exports = (function () {
                         $(newChildren[i]).html().should.equal(data[i] + '');
                     }
                 });
+                it('should not replace existing content with nulls', function () {
+                    var $rootNode = $('<ul> <li>stuff</li> </ul>');
+
+                    var data = [undefined, undefined, undefined];
+                    repeatHandler.handle.call($rootNode.find('li:first'), data);
+                    var newChildren = $rootNode.children();
+
+                    for (var i = 0; i < data.length; i++) {
+                        $(newChildren[i]).html().should.equal('stuff');
+                    }
+                });
                 it('should treat single values as arrays with 1 iteam', function () {
                     var $rootNode = $('<ul> <li> </li> </ul>');
 
@@ -67,6 +78,22 @@ module.exports = (function () {
                     repeatHandler.handle.call($rootNode.find('li:first'), [1, 2, 3, 4, 5]);
                     newChildren = $rootNode.children();
                     newChildren.length.should.equal(5);
+                });
+                it('should replace older values with new ones', function () {
+                    var $rootNode = $('<ul> <li data-stuff="<%=index%>"> <%= value %> </li> </ul>');
+
+                    repeatHandler.handle.call($rootNode.find('li:first'), [1, 2, 3, 4]);
+                    var targetData = [5, 3, 6, 1];
+                    repeatHandler.handle.call($rootNode.find('li:first'), targetData);
+
+                    var newChildren = $rootNode.children();
+                    newChildren.each(function (index) {
+                        var data = $(this).html().trim();
+                        data.should.equal(targetData[index] + '');
+
+                        var indexVal = $(this).data('stuff');
+                        indexVal.should.equal(index);
+                    });
                 });
             });
 
@@ -158,24 +185,6 @@ module.exports = (function () {
 
                             targetData[key].should.equal(+val);
                         });
-                    });
-                });
-            });
-            describe('Update behavior', function () {
-                it('should replace older values with new ones', function () {
-                    var $rootNode = $('<ul> <li data-stuff="<%=index%>"> <%= value %> </li> </ul>');
-
-                    repeatHandler.handle.call($rootNode.find('li:first'), [1, 2, 3, 4]);
-                    var targetData = [5, 3, 6, 1];
-                    repeatHandler.handle.call($rootNode.find('li:first'), targetData);
-
-                    var newChildren = $rootNode.children();
-                    newChildren.each(function (index) {
-                        var data = $(this).html().trim();
-                        data.should.equal(targetData[index] + '');
-
-                        var indexVal = $(this).data('stuff');
-                        indexVal.should.equal(index);
                     });
                 });
             });
