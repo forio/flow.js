@@ -836,7 +836,8 @@
             <span id="update79" data-f-bind="sampleString"></span>
         </td>
         <td class="pass">
-            pass (0.10.0), see also <a href="https://github.com/forio/flow.js/issues/12">issue #12</a>
+            pass (0.11.0), see also <a href="https://github.com/forio/flow.js/issues/12">issue #12</a><br>
+            also! pass (0.11.0): update the Flow.initialize call to include "readOnly: true" and this should NOT work, per <a href="https://github.com/forio/flow.js/issues/85">issue #85</a> 
         </td>
     </tr>
 
@@ -891,7 +892,6 @@
         </td>
         <td class="pass">pass (0.10.0)</td>
     </tr>
-
 
     <tr>
         <td>regression testing: <a href="https://github.com/forio/flow.js/issues/8">issue #8</a></td>
@@ -1005,10 +1005,10 @@ displayed as 150%.
 <script src="../../../vendor/lodash/dist/lodash.js"></script>
 
 <!-- <script src="../../vendor/epicenter-js-libs/dist/epicenter.js"></script> -->
-<script src="https://forio.com/tools/js-libs/1.7.1/epicenter.js"></script>
+<script src="https://forio.com/tools/js-libs/1.8.1/epicenter.js"></script>
 
-<script src="../../../dist/flow-edge.js"></script>
-<!-- <script src="https://forio.com/tools/js-libs/flow/0.10.0/flow.js"></script> -->
+<!-- <script src="../../../dist/flow-edge.js"></script> -->
+<script src="https://forio.com/tools/js-libs/flow/0.11.0/flow.js"></script>
 
 
 <script>
@@ -1028,6 +1028,7 @@ displayed as 150%.
                 project: 'hello-world-flow',
             //server: {host: 'api.epicenter-stable.foriodev.com'}
                 server: { host: 'api.forio.com' },
+                // readOnly: true
                 //variables: { silent: true },
                 //operations: { silent: { except: ['saveAll', 'resetInt'] } }
             }
