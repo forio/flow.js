@@ -120,9 +120,9 @@
  * * The `key`, `index`, and `value` are special variables that Flow.js populates for you. However, they are *no longer available* if you use aliases.
  * * As with other `data-f-` attributes, you can specify [converters](../../../../../converter-overview) to convert data from one form to another:
  *
- *      <ul data-f-foreach="Sales | $x,xxx">
- *          <li> Year <%= index %>: Sales of <%= value %> </li>
- *      </ul>
+ *          <ul data-f-foreach="Sales | $x,xxx">
+ *              <li> Year <%= index %>: Sales of <%= value %> </li>
+ *          </ul>
  *
  * * The `data-f-foreach` attribute is [similar to the `data-f-repeat` attribute](../../repeat-attr/), so you may want to review the examples there as well.
  */
