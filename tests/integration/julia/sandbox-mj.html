@@ -405,7 +405,7 @@
                 <table id="update101" border="1">
                     <tbody data-f-foreach="reg in regions">
                     <tr data-f-foreach="num in sales">
-                        <td><%= (num > 250) ? reg + ": " + num : "smaller" %></td>
+                        <td><%= reg + ": " %> <%= (num > 250) ?  num : "smaller" %></td>
                     </tr>
                     </tbody>
                 </table>
