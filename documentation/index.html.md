@@ -93,7 +93,7 @@ In fact, you can add any of the [Model Run API parameters](../rest_apis/other_ap
 <a name="templates"></a>
 #### Working with Templates
 
-Several common JavaScript libraries embed a simple template engine, including `lodash.js`, which Flow.js [already requires](#using_in_project)as one of its dependencies. You can use this templating in your project's user interface.
+Several common JavaScript libraries embed a simple template engine, including `lodash.js`, which Flow.js [already requires](#using_in_project) as one of its dependencies. You can use this templating in your project's user interface.
 
 Some basic examples are [adding variables to an enclosing tag](./generated/dom/attributes/binds/default-bind-attr/) and [working with array variables](./generated/dom/attributes/foreach/default-foreach-attr/):
 
