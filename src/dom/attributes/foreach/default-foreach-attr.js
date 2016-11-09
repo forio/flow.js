@@ -81,20 +81,11 @@
  * 
  * **Nesting with aliases.** An advantage to introducing aliases is that you can nest HTML elements that have repeated sub-elements. For example:
  *
+ *      <!-- given Sales, an array whose elements are themselves arrays of the sales for each Region -->
  *      <ul data-f-foreach="r in Regions">
  *          <li>Region <%= r %>: 
- *              <ul data-f-foreach="s in Sales">
+ *              <ul data-f-foreach="s in Sales[<%= r %>]">
  *                  <li>Sales <%= s %></li>
- *              </ul>
- *          </li>
- *      </ul>
- *
- * Or even:
- *
- *      <ul data-f-foreach="r in Regions">
- *          <li>
- *              <ul data-f-foreach="s in Sales">
- *                  <li>Region <%= r %>: Sales <%= s %></li>
  *              </ul>
  *          </li>
  *      </ul>
