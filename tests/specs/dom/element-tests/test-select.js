@@ -12,7 +12,7 @@ module.exports = (function () {
                     '<option value="2"> B </option>',
                     '</select>'
                 ].join('');
-                utils.initWithNode(nodes, domManager).then(function ($node) {
+                return utils.initWithNode(nodes, domManager).then(function ($node) {
                     var spy = utils.spyOnNode($node);
                     $node.trigger('change');
                     spy.should.have.been.called.once;
@@ -29,7 +29,7 @@ module.exports = (function () {
                     '<option value="B"> B </option>',
                     '</select>'
                 ].join('');
-                utils.initWithNode(nodes, domManager, channel).then(function ($node) {
+                return utils.initWithNode(nodes, domManager, channel).then(function ($node) {
                     var spy = sinon.spy();
                     $node.on('update.f.ui', spy);
 
@@ -50,7 +50,7 @@ module.exports = (function () {
                     '<option value="2"> B </option>',
                     '</select>'
                 ].join('');
-                utils.initWithNode(nodes, domManager).then(function ($node) {
+                return utils.initWithNode(nodes, domManager).then(function ($node) {
                     $node.trigger('update.f.model', { stuff: 1 });
                     $node.val().should.equal('1');
                 });
@@ -63,7 +63,7 @@ module.exports = (function () {
                     '<option value="2" selected> B </option>',
                     '</select>'
                 ].join('');
-                utils.initWithNode(nodes, domManager).then(function ($node) {
+                return utils.initWithNode(nodes, domManager).then(function ($node) {
                     $node.trigger('update.f.model', { stuff: true });
                     should.not.exist($node.val());
                 });
