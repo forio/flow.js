@@ -29,7 +29,7 @@ module.exports = function ($container, configFunction) {
     };
     var opts = $.extend(true, {}, defaults, config);
     var file = new F.service.File(opts);
-    file.getContents(config.model)
+    file.getContents(config.model, 'model')
         .then(function (response) {
             var extractor = new ContextExtractor(config.model, response);
             $container.on('click', '.f-bind, .f-loop, .f-on', function (evt) {
