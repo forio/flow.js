@@ -12,25 +12,25 @@
             describe('Selectors', function () {
 
                 it('should select nothing by default', function () {
-                    utils.initWithNode('<div></div>', domManager).then(function () {
+                    return utils.initWithNode('<div></div>', domManager).then(function () {
                         domManager.private.matchedElements.length.should.equal(0);
                     });
                 });
 
                 it('should select single nodes', function () {
-                    utils.initWithNode('<input type="text" data-f-bind="stuff"/>', domManager).then(function ($node) {
+                    return utils.initWithNode('<input type="text" data-f-bind="stuff"/>', domManager).then(function ($node) {
                         domManager.private.matchedElements.length.should.equal(1);
                     });
                 });
 
                 it('should select nested nodes', function () {
-                    utils.initWithNode('<div data-f-bind="a"> <input type="text" data-f-bind="stuff"/> <span> nothing </span> </div>', domManager).then(function ($node) {
+                    return utils.initWithNode('<div data-f-bind="a"> <input type="text" data-f-bind="stuff"/> <span> nothing </span> </div>', domManager).then(function ($node) {
                         domManager.private.matchedElements.length.should.equal(2);
                     });
                 });
 
                 it('should select nested nodes with diff F attrs', function () {
-                    utils.initWithNode('<div data-f-a="a"> <input type="text" data-f-b="stuff"/> <span> nothing </span> </div>', domManager).then(function ($node) {
+                    return utils.initWithNode('<div data-f-a="a"> <input type="text" data-f-b="stuff"/> <span> nothing </span> </div>', domManager).then(function ($node) {
                         domManager.private.matchedElements.length.should.equal(2);
                     });
                 });
@@ -46,7 +46,7 @@
                         '   <span> nothing </span>',
                         '</div>'
                     ];
-                    utils.initWithNode(nested.join(), domManager).then(function ($node) {
+                    return utils.initWithNode(nested.join(), domManager).then(function ($node) {
                         var $textNode = $node.find(':text');
 
                         var textspy = sinon.spy();
@@ -93,7 +93,7 @@
                     };
                     var toggleSpy = sinon.spy(toggle);
                     domManager.attributes.register('toggle', '*', toggleSpy);
-                    utils.initWithNode('<input type="text" data-f-toggle="shouldIHide" data-f-bind="stuff"/>', domManager).then(function ($node) {
+                    return utils.initWithNode('<input type="text" data-f-toggle="shouldIHide" data-f-bind="stuff"/>', domManager).then(function ($node) {
                         $node.trigger('update.f.model', { shouldIHide: 1 });
 
                         toggleSpy.should.have.been.called;
@@ -116,7 +116,7 @@
 
         describe('#bindElement', function () {
             it('should bind elements added to the dom', function () {
-                utils.initWithNode('<div data-f-bind="a"> </div>', domManager).then(function ($node) {
+                return utils.initWithNode('<div data-f-bind="a"> </div>', domManager).then(function ($node) {
                     $node.append('<input type="text" data-f-bind="boo" />');
                     var addedNode = $node.find(':text');
 
@@ -134,7 +134,7 @@
             });
 
             it('should update list of added items', function () {
-                utils.initWithNode('<div data-f-bind="a"> </div>', domManager).then(function ($node) {
+                return utils.initWithNode('<div data-f-bind="a"> </div>', domManager).then(function ($node) {
                     $node.append('<input type="text" data-f-bind="boo" />');
                     var addedNode = $node.find(':text');
 
@@ -147,7 +147,7 @@
 
         describe('#unbindElement', function () {
             it('should unbindElement elements added to the dom', function () {
-                utils.initWithNode('<div data-f-bind="a"> <input type="text" data-f-bind="boo" /> </div>', domManager).then(function ($node) {
+                return utils.initWithNode('<div data-f-bind="a"> <input type="text" data-f-bind="boo" /> </div>', domManager).then(function ($node) {
                     var addedNode = $node.find(':text');
 
                     var textspy = sinon.spy();
@@ -163,7 +163,7 @@
                 });
             });
             it('should update list of added items', function () {
-                utils.initWithNode('<div data-f-bind="a"> <input type="text" data-f-bind="boo" /> </div>', domManager).then(function ($node) {
+                return utils.initWithNode('<div data-f-bind="a"> <input type="text" data-f-bind="boo" /> </div>', domManager).then(function ($node) {
                     var addedNode = $node.find(':text');
 
                     domManager.private.matchedElements.length.should.equal(2);
@@ -173,7 +173,7 @@
             });
             describe('Remove added data items', function () {
                 it('should remove data items it adds', function () {
-                    utils.initWithNode('<div data-f-bind="a | ##" data-f-other=" b | %"> </div>', domManager).then(function ($node) {
+                    return utils.initWithNode('<div data-f-bind="a | ##" data-f-other=" b | %"> </div>', domManager).then(function ($node) {
                         var keys = _.keys($node.data());
 
                         var directTranslates = ['fConvertBind', 'fConvertOther', 'fOther', 'fBind'];
@@ -189,7 +189,7 @@
                 });
 
                 it('should not remove data items it doesn\'t add', function () {
-                    utils.initWithNode('<div data-f-bind="a | ##" data-f-other=" b | %" data-my-stuff="1" data-fsomething="1"> </div>', domManager).then(function ($node) {
+                    return utils.initWithNode('<div data-f-bind="a | ##" data-f-other=" b | %" data-my-stuff="1" data-fsomething="1"> </div>', domManager).then(function ($node) {
                         var keys = _.keys($node.data());
 
                         var notAddedByFlow = ['myStuff', 'fsomething'];
@@ -209,7 +209,7 @@
 
         describe('#unbindAll', function () {
             it('should unbindElement all elements added to the dom', function () {
-                utils.initWithNode('<div data-f-bind="a"> <input type="text" data-f-bind="boo" /> </div>', domManager).then(function ($node) {
+                return utils.initWithNode('<div data-f-bind="a"> <input type="text" data-f-bind="boo" /> </div>', domManager).then(function ($node) {
                     var addedNode = $node.find(':text');
 
                     var textspy = sinon.spy();
@@ -225,21 +225,21 @@
                 });
             });
             it('should update list of added items', function () {
-                utils.initWithNode('<div data-f-bind="a"> <input type="text" data-f-bind="boo" /> </div>', domManager).then(function ($node) {
+                return utils.initWithNode('<div data-f-bind="a"> <input type="text" data-f-bind="boo" /> </div>', domManager).then(function ($node) {
                     domManager.private.matchedElements.length.should.equal(2);
                     domManager.unbindAll();
                     domManager.private.matchedElements.length.should.equal(0);
                 });
             });
             it('should allow unbinding specified array of elements', function () {
-                utils.initWithNode('<div data-f-bind="a"> <input type="text" data-f-bind="boo" />  <input type="text" data-f-bind="boos" /> </div>', domManager).then(function ($node) {
+                return utils.initWithNode('<div data-f-bind="a"> <input type="text" data-f-bind="boo" />  <input type="text" data-f-bind="boos" /> </div>', domManager).then(function ($node) {
                     domManager.private.matchedElements.length.should.equal(3);
                     domManager.unbindAll($node.find(':text').get(0));
                     domManager.private.matchedElements.length.should.equal(2);
                 });
             });
             it('should allow unbinding of children', function () {
-                utils.initWithNode('<div data-f-bind="a"> <input type="text" data-f-bind="boo" />  <input type="text" data-f-bind="boos" /> </div>', domManager).then(function ($node) {
+                return utils.initWithNode('<div data-f-bind="a"> <input type="text" data-f-bind="boo" />  <input type="text" data-f-bind="boos" /> </div>', domManager).then(function ($node) {
                     domManager.private.matchedElements.length.should.equal(3);
                     domManager.unbindAll($node.get(0));
                     domManager.private.matchedElements.length.should.equal(0);
@@ -248,7 +248,7 @@
         });
         describe('#bindAll', function () {
             it('should bind elements from the root if no selector is provided', function () {
-                utils.initWithNode('<div data-f-bind="a"> </div>', domManager).then(function ($node) {
+                return utils.initWithNode('<div data-f-bind="a"> </div>', domManager).then(function ($node) {
                     $node.append('<input type="text" data-f-bind="boo" />');
                     var addedNode = $node.find(':text');
 
@@ -266,7 +266,7 @@
             });
 
             it('should bind children of added elements', function () {
-                utils.initWithNode('<div> </div>', domManager).then(function ($node) {
+                return utils.initWithNode('<div> </div>', domManager).then(function ($node) {
                     $node.append('<input type="text" data-f-bind="boo" />');
                     var addedNode = $node.find(':text');
 
@@ -284,7 +284,7 @@
             });
 
             it('should update list of added items', function () {
-                utils.initWithNode('<div data-f-bind="a"> </div>', domManager).then(function ($node) {
+                return utils.initWithNode('<div data-f-bind="a"> </div>', domManager).then(function ($node) {
                     domManager.private.matchedElements.length.should.equal(1);
 
                     $node.append('<input type="text" data-f-bind="boo" />');
@@ -294,7 +294,7 @@
             });
 
             it('should allow providing list of elements to bind', function () {
-                utils.initWithNode('<div data-f-bind="a"> </div>', domManager).then(function ($node) {
+                return utils.initWithNode('<div data-f-bind="a"> </div>', domManager).then(function ($node) {
                     domManager.private.matchedElements.length.should.equal(1);
 
                     $node.append('<input type="text" data-f-bind="boo" /> <input type="text" data-f-bind="boos" /> <input type="text" data-f-bind="booss" />');
@@ -303,7 +303,7 @@
                 });
             });
             it('should allow providing jquery selector', function () {
-                utils.initWithNode('<div data-f-bind="a"> </div>', domManager).then(function ($node) {
+                return utils.initWithNode('<div data-f-bind="a"> </div>', domManager).then(function ($node) {
                     domManager.private.matchedElements.length.should.equal(1);
 
                     $node.append('<div> <input type="text" data-f-bind="boo" /> <input type="text" data-f-bind="boos" /> </div> <div> <input type="text" data-f-bind="booss" /> </div>');
