@@ -10,7 +10,7 @@ module.exports = (function () {
                     '<input type="radio" name="a" id="x" data-f-bind="stuff" value="1" checked/>',
                     '<input type="radio" name="a" id="y" data-f-bind="stuff" value="2"/>'
                 ].join('');
-                utils.initWithNode(nodes, domManager).then(function ($node) {
+                return utils.initWithNode(nodes, domManager).then(function ($node) {
                     var $node1 = $node.filter('#x');
                     var $node2 = $node.filter('#y');
 
@@ -30,7 +30,7 @@ module.exports = (function () {
                         '<input type="radio" name="a" id="x" data-f-bind="stuff" value="8"/>',
                         '<input type="radio" name="a" id="y" data-f-bind="stuff" value="2"/>'
                     ].join('');
-                    utils.initWithNode(nodes, domManager, channel).then(function ($node) {
+                    return utils.initWithNode(nodes, domManager, channel).then(function ($node) {
                         $node = $node.filter('#x');
                         var spy = sinon.spy();
                         $node.on('update.f.ui', spy);
@@ -48,9 +48,9 @@ module.exports = (function () {
                         '<input type="radio" name="a" id="x" data-f-bind="stuff" value="8" checked/>',
                         '<input type="radio" name="a" id="y" data-f-bind="stuff" value="2"/>'
                     ].join('');
-                    utils.initWithNode(nodes, domManager, channel).then(function ($node) {
+                    return utils.initWithNode(nodes, domManager, channel).then(function ($node) {
                         $node = $node.filter('#x');
-                        utils.initWithNode(nodes, domManager, channel).then(function ($othernode) {
+                        return utils.initWithNode(nodes, domManager, channel).then(function ($othernode) {
                             $othernode = $othernode.filter('#y');
 
                             var spy = sinon.spy();
@@ -77,7 +77,7 @@ module.exports = (function () {
                     '<input type="radio" name="a" id="y" data-f-bind="stuff" value="2"/>'
                 ].join('');
 
-                utils.initWithNode(nodes, domManager, channel).then(function ($nodes) {
+                return utils.initWithNode(nodes, domManager, channel).then(function ($nodes) {
                     $nodes.trigger('update.f.model', { stuff: '8' });
 
                     $nodes.filter('#x').prop('checked').should.equal(true);
@@ -93,7 +93,7 @@ module.exports = (function () {
                     '<input type="radio" name="a" id="y" data-f-bind="stuff" value="2"/>'
                 ].join('');
 
-                utils.initWithNode(nodes, domManager, channel).then(function ($nodes) {
+                return utils.initWithNode(nodes, domManager, channel).then(function ($nodes) {
                     $nodes.trigger('update.f.model', { stuff: true });
 
                     $nodes.filter('#x').prop('checked').should.equal(false);
