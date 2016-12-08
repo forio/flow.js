@@ -5,7 +5,7 @@ module.exports = (function () {
 
     describe('update.f.model', function () {
         it('should trigger f.convert with multiple attributes if provided an object with multiple keys', function () {
-            utils.initWithNode('<input type="text" data-f-stuff="apple" data-f-other="orange"/>', domManager).then(function ($node) {
+            return utils.initWithNode('<input type="text" data-f-stuff="apple" data-f-other="orange"/>', domManager).then(function ($node) {
                 var spy = sinon.spy();
                 $node.on('f.convert', spy);
 
@@ -22,7 +22,7 @@ module.exports = (function () {
             });
         });
         it('should trigger f.convert with single attribute if provided an object with same keys', function () {
-            utils.initWithNode('<input type="text" data-f-stuff="apple" data-f-other="apple"/>', domManager).then(function ($node) {
+            return utils.initWithNode('<input type="text" data-f-stuff="apple" data-f-other="apple"/>', domManager).then(function ($node) {
                 var spy = sinon.spy();
                 $node.on('f.convert', spy);
 
@@ -36,7 +36,7 @@ module.exports = (function () {
             });
         });
         it('should trigger f.convert with an object if provided an object with multiple keys', function () {
-            utils.initWithNode('<input type="text" data-f-stuff="apple, orange"/>', domManager).then(function ($node) {
+            return utils.initWithNode('<input type="text" data-f-stuff="apple, orange"/>', domManager).then(function ($node) {
                 var spy = sinon.spy();
                 $node.on('f.convert', spy);
 
@@ -54,21 +54,21 @@ module.exports = (function () {
     describe('f.convert', function () {
         it('should work if triggered with objects', function () {
             var channel = utils.createDummyChannel();
-            utils.initWithNode('<input type="text" data-f-bind="price" data-f-stuff="43 | $0.00" />', domManager, channel).then(function ($node) {
+            return utils.initWithNode('<input type="text" data-f-bind="price" data-f-stuff="43 | $0.00" />', domManager, channel).then(function ($node) {
                 $node.trigger('f.convert', { stuff: '43' });
                 $node.prop('stuff').should.equal('$43.00');
             });
         });
         it('should work if triggered with value directly', function () {
             var channel = utils.createDummyChannel();
-            utils.initWithNode('<input type="text" data-f-bind="43 | $0.00"/>', domManager, channel).then(function ($node) {
+            return utils.initWithNode('<input type="text" data-f-bind="43 | $0.00"/>', domManager, channel).then(function ($node) {
                 $node.trigger('f.convert', 43);
                 $node.val().should.equal('$43.00');
             });
         });
         it('should work if triggered with value objects', function () {
             var channel = utils.createDummyChannel();
-            utils.initWithNode('<input type="text" data-f-bind="price" data-f-stuff="a,b" />', domManager, channel).then(function ($node) {
+            return utils.initWithNode('<input type="text" data-f-bind="price" data-f-stuff="a,b" />', domManager, channel).then(function ($node) {
                 var data = { a: 1, b: 2 };
                 $node.trigger('f.convert', { stuff: data });
                 $node.prop('stuff').should.eql(data);
@@ -76,7 +76,7 @@ module.exports = (function () {
         });
         it('should work if triggered with value objects piped to converters', function () {
             var channel = utils.createDummyChannel();
-            utils.initWithNode('<input type="text" data-f-bind="price" data-f-stuff="a,b | s" />', domManager, channel).then(function ($node) {
+            return utils.initWithNode('<input type="text" data-f-bind="price" data-f-stuff="a,b | s" />', domManager, channel).then(function ($node) {
                 var data = { a: 1, b: 2 };
                 $node.trigger('f.convert', { stuff: data });
                 $node.prop('stuff').should.eql({ a: '1', b: '2' });
@@ -87,14 +87,14 @@ module.exports = (function () {
     describe('f.ui.operate', function () {
         it('should call the operations channel', function () {
             var channel = utils.createDummyChannel();
-            utils.initWithNode('<button data-f-on-click="reset"> Click </button>', domManager, channel).then(function ($node) {
+            return utils.initWithNode('<button data-f-on-click="reset"> Click </button>', domManager, channel).then(function ($node) {
                 $node.trigger('f.ui.operate', { operations: [{ name: 'stuff', params: [] }], serial: true });
                 channel.operations.publish.should.have.been.calledOnce;
             });
         });
         it('should pass the right parameters to the operations channel', function () {
             var channel = utils.createDummyChannel();
-            utils.initWithNode('<button data-f-on-click="reset"> Click </button>', domManager, channel).then(function ($node) {
+            return utils.initWithNode('<button data-f-on-click="reset"> Click </button>', domManager, channel).then(function ($node) {
                 var payload = { operations: [{ name: 'stuff', params: [] }], serial: true };
                 $node.trigger('f.ui.operate', payload);
                 channel.operations.publish.should.have.been.calledWith(payload);
@@ -102,7 +102,7 @@ module.exports = (function () {
         });
         it('should implicitly convert parameters to send to the operations channel', function () {
             var channel = utils.createDummyChannel();
-            utils.initWithNode('<button data-f-on-click="reset"> Click </button>', domManager, channel).then(function ($node) {
+            return utils.initWithNode('<button data-f-on-click="reset"> Click </button>', domManager, channel).then(function ($node) {
                 var payload = { operations: [{ name: 'stuff', params: ['1', 0] }], serial: true };
                 $node.trigger('f.ui.operate', payload);
                 channel.operations.publish.should.have.been.calledWith({ operations: [{ name: 'stuff', params: [1, 0] }], serial: true });
@@ -113,14 +113,14 @@ module.exports = (function () {
     describe('update.f.ui', function () {
         it('should call the variables channel', function () {
             var channel = utils.createDummyChannel();
-            utils.initWithNode('<input type="text" data-f-bind="apple"/>', domManager, channel).then(function ($node) {
+            return utils.initWithNode('<input type="text" data-f-bind="apple"/>', domManager, channel).then(function ($node) {
                 $node.trigger('update.f.ui', { apple: 2 });
                 channel.variables.publish.should.have.been.calledOnce;
             });
         });
         it('should pass the right parameters to the variables channel', function () {
             var channel = utils.createDummyChannel();
-            utils.initWithNode('<input type="text" data-f-bind="apple"/>', domManager, channel).then(function ($node) {
+            return utils.initWithNode('<input type="text" data-f-bind="apple"/>', domManager, channel).then(function ($node) {
                 var payload = { apple: 2 };
                 $node.trigger('update.f.ui', payload);
                 channel.variables.publish.should.have.been.calledWith(payload);
@@ -128,7 +128,7 @@ module.exports = (function () {
         });
         it('should implicitly convert parameters to send to the variables channel', function () {
             var channel = utils.createDummyChannel();
-            utils.initWithNode('<input type="text" data-f-bind="apple"/>', domManager, channel).then(function ($node) {
+            return utils.initWithNode('<input type="text" data-f-bind="apple"/>', domManager, channel).then(function ($node) {
                 var payload = { apple: '2' };
                 $node.trigger('update.f.ui', payload);
                 channel.variables.publish.should.have.been.calledWith({ apple: 2 });
@@ -137,7 +137,7 @@ module.exports = (function () {
 
         it('should run values through parsers before sending to the variables channel', function () {
             var channel = utils.createDummyChannel();
-            utils.initWithNode('<input type="text" data-f-bind="apple | $#,###.00"/>', domManager, channel).then(function ($node) {
+            return utils.initWithNode('<input type="text" data-f-bind="apple | $#,###.00"/>', domManager, channel).then(function ($node) {
                 var payload = { apple: '$20,000.00' };
                 $node.trigger('update.f.ui', payload);
                 channel.variables.publish.should.have.been.calledWith({ apple: 20000 });
@@ -145,7 +145,7 @@ module.exports = (function () {
         });
         it('should trigger f.convert to convert values', function () {
             var channel = utils.createDummyChannel();
-            utils.initWithNode('<input type="text" data-f-bind="apple | $#,###.00"/>', domManager, channel).then(function ($node) {
+            return utils.initWithNode('<input type="text" data-f-bind="apple | $#,###.00"/>', domManager, channel).then(function ($node) {
                 var spy = sinon.spy();
                 $node.on('f.convert', spy);
                 var payload = { apple: '20000' };
