@@ -13,7 +13,7 @@ module.exports = (function () {
             describe('bind', function () {
                 describe('convert', function () {
                     it('should convert values with single converters', function () {
-                        utils.initWithNode('<input type="text" data-f-bind="apple | titleCase"/>', domManager).then(function ($node) {
+                        return utils.initWithNode('<input type="text" data-f-bind="apple | titleCase"/>', domManager).then(function ($node) {
                             $node.trigger('update.f.model', {
                                 apple: 'sauce'
                             });
@@ -27,7 +27,7 @@ module.exports = (function () {
                             return val.split('').reverse().join('');
                         });
 
-                        utils.initWithNode('<input type="text" data-f-bind="apple | titleCase | flip"/>', domManager).then(function ($node) {
+                        return utils.initWithNode('<input type="text" data-f-bind="apple | titleCase | flip"/>', domManager).then(function ($node) {
                             $node.trigger('update.f.model', {
                                 apple: 'sauce'
                             });
@@ -37,7 +37,7 @@ module.exports = (function () {
 
                     describe('arrays', function () {
                         it('should convert arrays into values without converters', function () {
-                            utils.initWithNode('<input type="text" data-f-bind="apple"/>', domManager).then(function ($node) {
+                            return utils.initWithNode('<input type="text" data-f-bind="apple"/>', domManager).then(function ($node) {
                                 $node.trigger('update.f.model', {
                                     apple: [1, 2, 3]
                                 });
@@ -48,7 +48,7 @@ module.exports = (function () {
                         it('should pass arrays into converters if defined', function () {
                             var spy = sinon.spy();
                             domManager.converters.register('spy', spy, true);
-                            utils.initWithNode('<input type="text" data-f-bind="apple | spy"/>', domManager).then(function ($node) {
+                            return utils.initWithNode('<input type="text" data-f-bind="apple | spy"/>', domManager).then(function ($node) {
                                 $node.trigger('update.f.model', {
                                     apple: [1, 2, 3]
                                 });
@@ -61,7 +61,7 @@ module.exports = (function () {
                 describe('parse', function () {
                     it('should convert values with single converters', function () {
                         var channel = utils.createDummyChannel();
-                        utils.initWithNode('<input type="text" data-f-bind="price | $#,### "/>', domManager, channel).then(function ($node) {
+                        return utils.initWithNode('<input type="text" data-f-bind="price | $#,### "/>', domManager, channel).then(function ($node) {
                             $node.val('2,345').trigger('change');
                             channel.variables.publish.should.have.been.calledWith({
                                 price: 2345
@@ -79,7 +79,7 @@ module.exports = (function () {
                         });
 
                         var channel = utils.createDummyChannel();
-                        utils.initWithNode('<input type="text" data-f-bind="price | $#,### | flip"/>', domManager, channel).then(function ($node) {
+                        return utils.initWithNode('<input type="text" data-f-bind="price | $#,### | flip"/>', domManager, channel).then(function ($node) {
                             $node.val('$2,345').trigger('change');
                             channel.variables.publish.should.have.been.calledWith({
                                 price: 5432
@@ -98,7 +98,7 @@ module.exports = (function () {
                         });
 
                         var channel = utils.createDummyChannel();
-                        utils.initWithNode('<input type="text" data-f-bind="price | flips | $#,### "/>', domManager, channel).then(function ($node) {
+                        return utils.initWithNode('<input type="text" data-f-bind="price | flips | $#,### "/>', domManager, channel).then(function ($node) {
                             $node.val('$2,345').trigger('change');
                             channel.variables.publish.should.have.been.calledWith({
                                 price: 'abc'
@@ -115,7 +115,7 @@ module.exports = (function () {
                         });
 
                         var channel = utils.createDummyChannel();
-                        utils.initWithNode('<input type="text" data-f-bind="price | flip | $#,### "/>', domManager, channel).then(function ($node) {
+                        return utils.initWithNode('<input type="text" data-f-bind="price | flip | $#,### "/>', domManager, channel).then(function ($node) {
                             $node.val('$2,345').trigger('change');
                             channel.variables.publish.should.have.been.calledWith({
                                 price: 2345
@@ -126,7 +126,7 @@ module.exports = (function () {
             });
             describe('other attributes', function () {
                 it('should convert values with single converters', function () {
-                    utils.initWithNode('<input type="text" data-f-stuff="apple | titleCase"/>', domManager).then(function ($node) {
+                    return utils.initWithNode('<input type="text" data-f-stuff="apple | titleCase"/>', domManager).then(function ($node) {
                         $node.trigger('update.f.model', {
                             apple: 'sauce'
                         });
@@ -135,7 +135,7 @@ module.exports = (function () {
                     });
                 });
                 it('should convert values with multiple converters', function () {
-                    utils.initWithNode('<input type="text" data-f-stuff="apple | titleCase | flip"/>', domManager).then(function ($node) {
+                    return utils.initWithNode('<input type="text" data-f-stuff="apple | titleCase | flip"/>', domManager).then(function ($node) {
                         $node.trigger('update.f.model', {
                             apple: 'sauce'
                         });
@@ -149,7 +149,7 @@ module.exports = (function () {
         describe('f-convert', function () {
             describe('convert', function () {
                 it('should work if specified directly on the element', function () {
-                    utils.initWithNode('<input type="text" data-f-bind="apple" data-f-convert="titleCase | flip"/>', domManager).then(function ($node) {
+                    return utils.initWithNode('<input type="text" data-f-bind="apple" data-f-convert="titleCase | flip"/>', domManager).then(function ($node) {
                         $node.trigger('update.f.model', {
                             apple: 'sauce'
                         });
@@ -166,7 +166,7 @@ module.exports = (function () {
                         '   <span> nothing </span>',
                         '</div>'
                     ];
-                    utils.initWithNode(nested.join(), domManager).then(function ($node) {
+                    return utils.initWithNode(nested.join(), domManager).then(function ($node) {
                         var $textNode = $node.find(':text');
 
                         $textNode.trigger('update.f.model', {
@@ -185,7 +185,7 @@ module.exports = (function () {
                         '   <span> nothing </span>',
                         '</div>'
                     ];
-                    utils.initWithNode(nested.join(), domManager).then(function ($node) {
+                    return utils.initWithNode(nested.join(), domManager).then(function ($node) {
                         var $textNode = $node.find(':text');
 
                         $textNode.trigger('update.f.model', {
@@ -208,7 +208,7 @@ module.exports = (function () {
                     });
 
                     var channel = utils.createDummyChannel();
-                    utils.initWithNode('<input type="text" data-f-bind="price" data-f-convert="$#,### | flip"/>', domManager, channel).then(function ($node) {
+                    return utils.initWithNode('<input type="text" data-f-bind="price" data-f-convert="$#,### | flip"/>', domManager, channel).then(function ($node) {
                         $node.val('$2,345').trigger('change');
                         channel.variables.publish.should.have.been.calledWith({
                             price: 5432
@@ -225,7 +225,7 @@ module.exports = (function () {
                         '</div>'
                     ];
                     var channel = utils.createDummyChannel();
-                    utils.initWithNode(nested.join(), domManager, channel).then(function ($node) {
+                    return utils.initWithNode(nested.join(), domManager, channel).then(function ($node) {
                         var $textNode = $node.find(':text');
 
                         $textNode.val('$2,345').trigger('change');
