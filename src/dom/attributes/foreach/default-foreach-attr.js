@@ -83,7 +83,7 @@
 var parseUtils = require('../../../utils/parse-utils');
 var config = require('../../../config');
 
-function refToMarkup (refKey) {
+function refToMarkup(refKey) {
     return '<!--' + refKey + '-->';
 }
 
