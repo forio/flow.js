@@ -157,7 +157,10 @@
                 });
                 it('should allow passing a function for true', function () {
                     var c = new Channel({ run: mockRun, readOnly: function () { return true; } });
-                    return c.publish({ step: 1 }).then(function () {
+
+                    var successSpy = sinon.spy();
+                    var failSpy = sinon.spy();
+                    return c.publish({ step: 1 }).then(successSpy).catch(failSpy).then(function () {
                         mockRun.do.should.not.have.been.called;
                     });
                 });
