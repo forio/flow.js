@@ -54,6 +54,7 @@
                 };
                 xhr.respond(201, { 'Content-Type': 'application/json' }, JSON.stringify(resp));
             });
+            server.respondImmediately = true;
 
         });
 
@@ -64,18 +65,18 @@
 
         describe('#publish', function () {
             it('should publish single to the run service', function () {
-                channel.publish('step', 1).then(function () {
+                return channel.publish('step', 1).then(function () {
                     mockRun.do.should.have.been.calledWith('step', 1);
                 });
             });
 
             it('should publish multiple parallel values to the run service', function () {
-                channel.publish({ operations: [{ name: 'step', params: ['1'] }], serial: false }).then(function () {
+                return channel.publish({ operations: [{ name: 'step', params: ['1'] }], serial: false }).then(function () {
                     mockRun.parallel.should.have.been.calledWith([{ name: 'step', params: ['1'] }]);
                 });
             });
             it('should publish multiple serial values to the run service', function () {
-                channel.publish({ operations: [{ name: 'step', params: ['1'] }], serial: true }).then(function () {
+                return channel.publish({ operations: [{ name: 'step', params: ['1'] }], serial: true }).then(function () {
                     mockRun.serial.should.have.been.calledWith([{ name: 'step', params: ['1'] }]);
                 });
             });
@@ -85,7 +86,7 @@
                 var spy = sinon.spy();
                 channel.subscribe('step', spy);
 
-                channel.publish({
+                return channel.publish({
                     operations: [
                         { name: 'step', params: [] },
                         { name: 'reset', params: [] },
@@ -101,7 +102,7 @@
                 var refSpy = sinon.spy(originalRefresh);
                 channel.refresh = refSpy;
 
-                channel.publish('step', 1).then(function () {
+                return channel.publish('step', 1).then(function () {
                     refSpy.should.have.been.called;
                     refSpy.should.have.been.calledWith(['step']);
 
@@ -121,17 +122,17 @@
                     channel.notify = original;
                 });
                 it('should not call refresh after publish as string', function () {
-                    channel.publish('step', 1, { silent: true }).then(function () {
+                    return channel.publish('step', 1, { silent: true }).then(function () {
                         refSpy.should.not.have.been.called;
                     });
                 });
                 it('should not call refresh after publish as object', function () {
-                    channel.publish({ step: 1 }, { silent: true }).then(function () {
+                    return channel.publish({ step: 1 }, { silent: true }).then(function () {
                         refSpy.should.not.have.been.called;
                     });
                 });
                 it('should not call refresh after publish as object with operations', function () {
-                    channel.publish({ operations: [{ name: 'step', params: ['1'] }], serial: false }, { silent: true }).then(function () {
+                    return channel.publish({ operations: [{ name: 'step', params: ['1'] }], serial: false }, { silent: true }).then(function () {
                         refSpy.should.not.have.been.called;
                     });
                 });
@@ -140,25 +141,29 @@
             describe('readonly: true', function () {
                 it('should not call `do` if readonly true', function () {
                     var c = new Channel({ run: mockRun, readOnly: true });
-                    c.publish({ step: 1 }).then(function () {
+                    var successSpy = sinon.spy();
+                    var failSpy = sinon.spy();
+                    return c.publish({ step: 1 }).then(successSpy).catch(failSpy).then(function () {
+                        successSpy.should.not.have.been.called;
+                        failSpy.should.have.been.calledOnce;
                         mockRun.do.should.not.have.been.called;
                     });
                 });
                 it('should call `do` if readonly false', function () {
                     var c = new Channel({ run: mockRun, readOnly: false });
-                    c.publish({ step: 1 }).then(function () {
+                    return c.publish({ step: 1 }).then(function () {
                         mockRun.do.should.have.been.called;
                     });
                 });
                 it('should allow passing a function for true', function () {
                     var c = new Channel({ run: mockRun, readOnly: function () { return true; } });
-                    c.publish({ step: 1 }).then(function () {
+                    return c.publish({ step: 1 }).then(function () {
                         mockRun.do.should.not.have.been.called;
                     });
                 });
                 it('should allow passing a function for false', function () {
                     var c = new Channel({ run: mockRun, readOnly: function () { return false; } });
-                    c.publish({ step: 1 }).then(function () {
+                    return c.publish({ step: 1 }).then(function () {
                         mockRun.do.should.have.been.called;
                     });
                 });
@@ -182,7 +187,7 @@
                 var spy = sinon.spy();
                 channel.subscribe('*', spy);
 
-                channel.publish('step', 1).then(function () {
+                return channel.publish('step', 1).then(function () {
                     spy.should.have.been.calledOnce;
                     spy.getCall(0).args[1].should.eql(mockOperationsResponse);
                     spy.getCall(0).args[2].should.eql('step');
@@ -195,7 +200,7 @@
                 var spy = sinon.spy();
                 channel.subscribe('*', spy);
 
-                channel.publish('step', 1).then(function () {
+                return channel.publish('step', 1).then(function () {
                     spy.should.not.have.been.called;
                 });
             });
@@ -205,7 +210,7 @@
                 var spy = sinon.spy();
                 channel.subscribe('*', spy);
 
-                channel.publish('step', 1).then(function () {
+                return channel.publish('step', 1).then(function () {
                     spy.should.have.been.calledOnce;
                 });
             });
@@ -215,7 +220,7 @@
                 var spy = sinon.spy();
                 channel.subscribe('*', spy);
 
-                channel.publish('step', 1).then(function () {
+                return channel.publish('step', 1).then(function () {
                     spy.should.not.have.been.called;
                 });
             });
@@ -225,7 +230,7 @@
                 var spy = sinon.spy();
                 channel.subscribe('*', spy);
 
-                channel.publish('step', 1).then(function () {
+                return channel.publish('step', 1).then(function () {
                     spy.should.not.have.been.called;
 
                     channel.refresh(['step'], null, true);
@@ -240,10 +245,10 @@
                 var spy = sinon.spy();
                 channel.subscribe('*', spy);
 
-                channel.publish('step', 1).then(function () {
+                return channel.publish('step', 1).then(function () {
                     spy.should.have.been.calledOnce;
 
-                    channel.publish('reset').then(function () {
+                    return channel.publish('reset').then(function () {
                         spy.should.have.been.calledOnce;
                     });
                 });
@@ -255,7 +260,7 @@
                 var spy = sinon.spy();
                 channel.subscribe('*', spy);
 
-                channel.publish({
+                return channel.publish({
                     operations: [
                         { name: 'c', params: [] },
                         { name: 'd', params: [] },
