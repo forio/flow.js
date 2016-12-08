@@ -195,9 +195,9 @@ module.exports = function (options) {
                     opn.params = this.interpolate(opn.params);
                 }, this);
                 return fn.call(run, operation.operations)
-                        .then(function (response) {
-                            me.refresh(_.pluck(operation.operations, 'name'), response, null, opts);
-                        });
+                    .then(function (response) {
+                        me.refresh(_.pluck(operation.operations, 'name'), response, null, opts);
+                    });
             } else {
                 if (!$.isPlainObject(operation) && params) {
                     params = this.interpolate(params);

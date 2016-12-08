@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <title>Mocha Spec Runner</title>
-    <link rel="stylesheet" href="vendor/mocha/mocha.css">
+    <link rel="stylesheet" href="./node_modules/mocha/mocha.css">
     <script>
         if (!Function.prototype.bind) {
           Function.prototype.bind = function (oThis) {
@@ -33,11 +33,11 @@
 </head>
 <body>
     <div id="mocha"></div>
-    <script src="vendor/mocha/mocha.js"></script>
+    <script src="./node_modules/mocha/mocha.js"></script>
     <script>mocha.setup('bdd')</script>
-    <script src="vendor/chai/chai.js"></script>
-    <script src="vendor/sinon-chai/lib/sinon-chai.js"></script>
-    <script src="vendor/sinon/index.js"></script>
+    <script src="./node_modules/chai/chai.js"></script>
+    <script src="./node_modules/sinon/pkg/sinon.js"></script>
+    <script src="./node_modules/sinon-chai/lib/sinon-chai.js"></script>
     <script>
         var assert = chai.assert;
         var expect = chai.expect;
@@ -45,10 +45,9 @@
     </script>
 
     <!-- include source files here... -->
-    <script src="../node_modules/jquery/dist/jquery.min.js"></script>
-    <!-- <script src="../vendor/jquery/dist/jquery.min.js"></script> -->
-    <script src="../vendor/lodash/dist/lodash.js"></script>
-    <script src="../vendor/epicenter-js-libs/dist/epicenter.js"></script>
+    <script src="./node_modules/jquery/dist/jquery.js"></script>
+    <script src="./node_modules/lodash/lodash.js"></script>
+    <script src="../node_modules/epicenter-js/dist/epicenter.min.js"></script>
     <script>
         //Instrumented doesn't do sourcemaps, so put it in the console. Open up the nicer version in the browser
          if (navigator.userAgent.indexOf('PhantomJS') ===  -1) {

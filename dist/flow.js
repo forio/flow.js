@@ -108,7 +108,7 @@ var Flow =
 	'use strict';
 	
 	var domManager = __webpack_require__(1);
-	var Channel = __webpack_require__(30);
+	var Channel = __webpack_require__(31);
 	var BaseView = __webpack_require__(7);
 	
 	var Flow = {
@@ -187,12 +187,12 @@ var Flow =
 	
 	    var nodeManager = __webpack_require__(3);
 	    var attrManager = __webpack_require__(8);
-	    var converterManager = __webpack_require__(22);
+	    var converterManager = __webpack_require__(23);
 	
 	    var parseUtils = __webpack_require__(13);
-	    var domUtils = __webpack_require__(28);
+	    var domUtils = __webpack_require__(29);
 	
-	    var autoUpdatePlugin = __webpack_require__(29);
+	    var autoUpdatePlugin = __webpack_require__(30);
 	
 	    //Jquery selector to return everything which has a f- property set
 	    $.expr[':'][config.prefix] = function (el) {
@@ -334,7 +334,7 @@ var Flow =
 	
 	            var attrBindings = [];
 	            var nonBatchableVariables = [];
-	            //NOTE: looping through attributes instead of .data because .data automatically camelcases properties and make it hard to retrvieve
+	            //NOTE: looping through attributes instead of .data because .data automatically camelcases properties and make it hard to retrvieve. Also don't want to index dynamically added (by flow) data attrs
 	            $(element.attributes).each(function (index, nodeMap) {
 	                var attr = nodeMap.nodeName;
 	                var attrVal = nodeMap.value;
@@ -359,6 +359,13 @@ var Flow =
 	
 	                        var binding = { attr: attr };
 	                        var commaRegex = /,(?![^\[]*\])/;
+	
+	                        //NOTE: do this within init?
+	                        if (handler && handler.parse) {
+	                            //Let the handler do any pre-processing of inputs necessary
+	                            attrVal = handler.parse.call($el, attrVal);
+	                        }
+	
 	                        if (attrVal.indexOf('<%') !== -1) {
 	                            //Assume it's templated for later use
 	
@@ -600,6 +607,8 @@ var Flow =
 	
 	        //Used by foreach attr handler to keep track of template after first evaluation
 	        foreachTemplate: 'f-foreach-template',
+	        keyAs: 'f-foreach-key-as',
+	        valueAs: 'f-foreach-value-as',
 	
 	        //Used by bind attr handler to keep track of template after first evaluation
 	        bindTemplate: 'f-bind-template'
@@ -878,10 +887,10 @@ var Flow =
 	    __webpack_require__(15),
 	    __webpack_require__(16),
 	    __webpack_require__(17),
-	    __webpack_require__(18),
 	    __webpack_require__(19),
 	    __webpack_require__(20),
-	    __webpack_require__(21)
+	    __webpack_require__(21),
+	    __webpack_require__(22)
 	];
 	
 	var handlersList = [];
@@ -1214,11 +1223,30 @@ var Flow =
 	var parseUtils = __webpack_require__(13);
 	var config = __webpack_require__(2);
 	
+	function refToMarkup (refKey) {
+	    return '<!--' + refKey + '-->';
+	}
+	
 	module.exports = {
 	
 	    test: 'foreach',
 	
 	    target: '*',
+	
+	    parse: function (attrVal) {
+	        var inMatch = attrVal.match(/(.*) (?:in|of) (.*)/);
+	        if (inMatch) {
+	            var itMatch = inMatch[1].match(/\((.*),(.*)\)/);
+	            if (itMatch) {
+	                this.data(config.attrs.keyAs, itMatch[1].trim());
+	                this.data(config.attrs.valueAs, itMatch[2].trim());
+	            } else {
+	                this.data(config.attrs.valueAs, inMatch[1].trim());
+	            }
+	            attrVal = inMatch[2];
+	        }
+	        return attrVal;
+	    },
 	
 	    handle: function (value, prop) {
 	        value = ($.isPlainObject(value) ? value : [].concat(value));
@@ -1228,14 +1256,73 @@ var Flow =
 	            this.data(config.attrs.foreachTemplate, loopTemplate);
 	        }
 	        var $me = this.empty();
+	        var cloop = loopTemplate.replace(/&lt;/g, '<').replace(/&gt;/g, '>');
+	
+	        var defaultKey = $.isPlainObject(value) ? 'key' : 'index';
+	        var keyAttr = $me.data(config.attrs.keyAs) || defaultKey;
+	        var valueAttr = $me.data(config.attrs.valueAs) || 'value';
+	        
+	        var keyRegex = new RegExp('\\b' + keyAttr + '\\b');
+	        var valueRegex = new RegExp('\\b' + valueAttr + '\\b');
+	
+	
+	        var closestKnownDataEl = this.closest('[data-current-index]');
+	        var knownData = {};
+	        if (closestKnownDataEl.length) {
+	            knownData = closestKnownDataEl.data('current-index');
+	        }
+	        var closestParentWithMissing = this.closest('[data-missing-references]');
+	        if (closestParentWithMissing.length) { //(grand)parent already stubbed out missing references
+	            var missing = closestParentWithMissing.data('missing-references');
+	            _.each(missing, function (replacement, template) {
+	                if (keyRegex.test(template) || valueRegex.test(template)) {
+	                    cloop = cloop.replace(refToMarkup(replacement), template);
+	                }
+	            });
+	        } else {
+	            var missingReferences = {};
+	            var templateTagsUsed = cloop.match(/<%[=-]?([\s\S]+?)%>/g);
+	            if (templateTagsUsed) {
+	                templateTagsUsed.forEach(function (tag) {
+	                    if (tag.match(/\w+/) && !keyRegex.test(tag) && !valueRegex.test(tag)) {
+	                        var refKey = missingReferences[tag];
+	                        if (!refKey) {
+	                            refKey = _.uniqueId('no-ref');
+	                            missingReferences[tag] = refKey;
+	                        }
+	                        var r = new RegExp(tag, 'g');
+	                        cloop = cloop.replace(r, refToMarkup(refKey));
+	                    }
+	                });
+	            }
+	            if (_.size(missingReferences)) {
+	                //Attr, not data, to make jQ selector easy. No f- prefix to keep this from flow.
+	                this.attr('data-missing-references', JSON.stringify(missingReferences));
+	            }
+	        }
+	
+	        var templateFn = _.template(cloop);
 	        _.each(value, function (dataval, datakey) {
 	            if (!dataval) {
 	                dataval = dataval + '';
 	            }
-	            var cloop = loopTemplate.replace(/&lt;/g, '<').replace(/&gt;/g, '>');
-	            var templatedLoop = _.template(cloop, { value: dataval, key: datakey, index: datakey });
-	            var isTemplated = templatedLoop !== cloop;
-	            var nodes = $(templatedLoop);
+	            var templateData = {};
+	            templateData[keyAttr] = datakey;
+	            templateData[valueAttr] = dataval;
+	            
+	            $.extend(templateData, knownData);
+	
+	            var nodes;
+	            var isTemplated;
+	            try {
+	                var templatedLoop = templateFn(templateData);
+	                isTemplated = templatedLoop !== cloop;
+	                nodes = $(templatedLoop);
+	            } catch (e) { //you don't have all the references you need;
+	                nodes = $(cloop);
+	                isTemplated = true;
+	                $(nodes).attr('data-current-index', JSON.stringify(templateData));
+	            }
 	
 	            nodes.each(function (i, newNode) {
 	                newNode = $(newNode);
@@ -1247,6 +1334,7 @@ var Flow =
 	                }
 	            });
 	            $me.append(nodes);
+	            
 	        });
 	    }
 	};
@@ -1507,6 +1595,7 @@ var Flow =
 	
 	'use strict';
 	var parseUtils = __webpack_require__(13);
+	var gutils = __webpack_require__(18);
 	// var config = require('../../config');
 	module.exports = {
 	
@@ -1520,29 +1609,27 @@ var Flow =
 	        //Possible fixes: Let this handle it's own unbind (which does nothing), or
 	        //have unbind remove all generated elements as well
 	        var loopTemplate = this.data('repeat-template');
-	        var id = '';
+	        var id = this.data('repeat-template-id');
+	
+	        if (id) {
+	            this.nextUntil(':not([data-' + id + '])').remove(); //clean-up pre-saved html
+	        } else {
+	            id = gutils.random('repeat-');
+	            this.data('repeat-template-id', id);
+	        }
 	        if (!loopTemplate) {
 	            loopTemplate = this.get(0).outerHTML;
-	            id = _.uniqueId('repeat-');
-	
-	            var d = {};
-	            d['repeat-template-id'] = id;
-	            d['repeat-template'] = loopTemplate;
-	            this.data(d);
-	        } else {
-	            id = this.data('repeat-template-id');
-	            this.nextUntil(':not([' + id + '])').remove();
+	            this.data('repeat-template', loopTemplate);
 	        }
+	
 	        var last;
 	        var me = this;
 	        _.each(value, function (dataval, datakey) {
-	            if (!dataval) {
-	                dataval = dataval + '';
-	            }
 	            var cloop = loopTemplate.replace(/&lt;/g, '<').replace(/&gt;/g, '>');
 	            var templatedLoop = _.template(cloop, { value: dataval, key: datakey, index: datakey });
 	            var isTemplated = templatedLoop !== cloop;
 	            var nodes = $(templatedLoop);
+	            var hasData = (dataval !== null && dataval !== undefined);
 	
 	            nodes.each(function (i, newNode) {
 	                newNode = $(newNode).removeAttr('data-f-repeat');
@@ -1553,9 +1640,9 @@ var Flow =
 	                        newNode.data(key, parseUtils.toImplicitType(val));
 	                    }
 	                });
-	                newNode.attr(id, true);
-	                if (!isTemplated && !newNode.html().trim()) {
-	                    newNode.html(dataval);
+	                newNode.attr('data-' + id, true);
+	                if (!isTemplated && !newNode.children().length && hasData) {
+	                    newNode.html(dataval + '');
 	                }
 	            });
 	            if (!last) {
@@ -1570,6 +1657,29 @@ var Flow =
 
 /***/ },
 /* 18 */
+/***/ function(module, exports) {
+
+	'use strict';
+	
+	module.exports = {
+	    random: function (prefix, min, max) {
+	        if (!min) {
+	            min = parseInt(_.uniqueId(), 10);
+	        }
+	        if (!max) {
+	            max = 100000;
+	        }
+	        var number = _.random(min, max, false) + '';
+	        if (prefix) {
+	            number = prefix + number;
+	        }
+	        return number;
+	    }
+	};
+
+
+/***/ },
+/* 19 */
 /***/ function(module, exports) {
 
 	/**
@@ -1611,7 +1721,7 @@ var Flow =
 
 
 /***/ },
-/* 19 */
+/* 20 */
 /***/ function(module, exports) {
 
 	/**
@@ -1653,7 +1763,7 @@ var Flow =
 
 
 /***/ },
-/* 20 */
+/* 21 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/**
@@ -1781,7 +1891,7 @@ var Flow =
 
 
 /***/ },
-/* 21 */
+/* 22 */
 /***/ function(module, exports) {
 
 	/**
@@ -1824,7 +1934,7 @@ var Flow =
 
 
 /***/ },
-/* 22 */
+/* 23 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/**
@@ -2025,11 +2135,11 @@ var Flow =
 	
 	//Bootstrap
 	var defaultconverters = [
-	    __webpack_require__(23),
 	    __webpack_require__(24),
 	    __webpack_require__(25),
 	    __webpack_require__(26),
 	    __webpack_require__(27),
+	    __webpack_require__(28),
 	];
 	
 	$.each(defaultconverters.reverse(), function (index, converter) {
@@ -2046,7 +2156,7 @@ var Flow =
 
 
 /***/ },
-/* 23 */
+/* 24 */
 /***/ function(module, exports) {
 
 	/**
@@ -2083,7 +2193,7 @@ var Flow =
 
 
 /***/ },
-/* 24 */
+/* 25 */
 /***/ function(module, exports) {
 
 	/**
@@ -2176,7 +2286,7 @@ var Flow =
 
 
 /***/ },
-/* 25 */
+/* 26 */
 /***/ function(module, exports) {
 
 	/**
@@ -2301,7 +2411,7 @@ var Flow =
 
 
 /***/ },
-/* 26 */
+/* 27 */
 /***/ function(module, exports) {
 
 	'use strict';
@@ -2331,7 +2441,7 @@ var Flow =
 
 
 /***/ },
-/* 27 */
+/* 28 */
 /***/ function(module, exports) {
 
 	/**
@@ -2680,7 +2790,7 @@ var Flow =
 
 
 /***/ },
-/* 28 */
+/* 29 */
 /***/ function(module, exports) {
 
 	'use strict';
@@ -2719,7 +2829,7 @@ var Flow =
 
 
 /***/ },
-/* 29 */
+/* 30 */
 /***/ function(module, exports) {
 
 	'use strict';
@@ -2762,13 +2872,13 @@ var Flow =
 
 
 /***/ },
-/* 30 */
+/* 31 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 	
-	var VarsChannel = __webpack_require__(31);
-	var OperationsChannel = __webpack_require__(32);
+	var VarsChannel = __webpack_require__(32);
+	var OperationsChannel = __webpack_require__(33);
 	
 	module.exports = function (options) {
 	    var defaults = {
@@ -2812,7 +2922,7 @@ var Flow =
 	    };
 	
 	    //Make sure nothing happens before the run is created
-	    var nonWrapped = ['variables', 'create', 'load', 'getCurrentConfig'];
+	    var nonWrapped = ['variables', 'create', 'load', 'getCurrentConfig', 'updateConfig'];
 	    _.each(rs, function (value, name) {
 	        if (_.isFunction(value) && !_.contains(nonWrapped, name)) {
 	            rs[name] = createAndThen(value, rs);
@@ -2848,7 +2958,7 @@ var Flow =
 
 
 /***/ },
-/* 31 */
+/* 32 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/**
@@ -3348,7 +3458,7 @@ var Flow =
 
 
 /***/ },
-/* 32 */
+/* 33 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/**
@@ -3548,9 +3658,9 @@ var Flow =
 	                    opn.params = this.interpolate(opn.params);
 	                }, this);
 	                return fn.call(run, operation.operations)
-	                        .then(function (response) {
-	                            me.refresh(_.pluck(operation.operations, 'name'), response, null, opts);
-	                        });
+	                    .then(function (response) {
+	                        me.refresh(_.pluck(operation.operations, 'name'), response, null, opts);
+	                    });
 	            } else {
 	                if (!$.isPlainObject(operation) && params) {
 	                    params = this.interpolate(params);

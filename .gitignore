@@ -8,9 +8,9 @@ pids
 *.seed
 
 .*
-!.bowerrc
 !.eslintrc.*
 !.gitignore
+!.gitattributes
 
 
 # sass
@@ -33,7 +33,6 @@ build/Release
 # see https://npmjs.org/doc/faq.html#Should-I-check-my-node_modules-folder-into-git
 node_modules
 documentation/generated
-**/vendor/**
 
 dist/flow-edge.js
 tests/dist/*

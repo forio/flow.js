@@ -14,6 +14,7 @@
     "url": "https://github.com/forio/flow.js.git"
   },
   "devDependencies": {
+    "eslint": "^3.5.0",
     "fs-walk": "0.0.1",
     "growl": "^1.9.2",
     "grunt": "^1.0.1",
@@ -23,10 +24,11 @@
     "grunt-eslint": "^19.0.0",
     "grunt-markdox": "^1.2.1",
     "grunt-mocha": "^1.0.2",
-    "grunt-sass": "^1.2.0",
-    "grunt-webpack": "^1.0.11",
+    "grunt-mocha-phantom-istanbul": "^0.2.1",
+    "grunt-sass": "^1.2.1",
+    "grunt-webpack": "^1.0.14",
     "husky": "^0.11.6",
-    "istanbul": "~0.4.4",
+    "istanbul": "^0.4.5",
     "jit-grunt": "^0.10.0",
     "raw-loader": "^0.5.1",
     "stringify": "^5.1.0",
@@ -41,7 +43,8 @@
   },
   "homepage": "https://github.com/forio/flow.js",
   "dependencies": {
-    "jquery": "^3.1.0",
+    "epicenter-js": "github:forio/epicenter-js-libs",
+    "jquery": "^3.1.1",
     "lodash": "^2.4.2"
   }
 }

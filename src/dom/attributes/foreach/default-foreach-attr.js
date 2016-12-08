@@ -83,11 +83,30 @@
 var parseUtils = require('../../../utils/parse-utils');
 var config = require('../../../config');
 
+function refToMarkup (refKey) {
+    return '<!--' + refKey + '-->';
+}
+
 module.exports = {
 
     test: 'foreach',
 
     target: '*',
+
+    parse: function (attrVal) {
+        var inMatch = attrVal.match(/(.*) (?:in|of) (.*)/);
+        if (inMatch) {
+            var itMatch = inMatch[1].match(/\((.*),(.*)\)/);
+            if (itMatch) {
+                this.data(config.attrs.keyAs, itMatch[1].trim());
+                this.data(config.attrs.valueAs, itMatch[2].trim());
+            } else {
+                this.data(config.attrs.valueAs, inMatch[1].trim());
+            }
+            attrVal = inMatch[2];
+        }
+        return attrVal;
+    },
 
     handle: function (value, prop) {
         value = ($.isPlainObject(value) ? value : [].concat(value));
@@ -97,14 +116,73 @@ module.exports = {
             this.data(config.attrs.foreachTemplate, loopTemplate);
         }
         var $me = this.empty();
+        var cloop = loopTemplate.replace(/&lt;/g, '<').replace(/&gt;/g, '>');
+
+        var defaultKey = $.isPlainObject(value) ? 'key' : 'index';
+        var keyAttr = $me.data(config.attrs.keyAs) || defaultKey;
+        var valueAttr = $me.data(config.attrs.valueAs) || 'value';
+        
+        var keyRegex = new RegExp('\\b' + keyAttr + '\\b');
+        var valueRegex = new RegExp('\\b' + valueAttr + '\\b');
+
+
+        var closestKnownDataEl = this.closest('[data-current-index]');
+        var knownData = {};
+        if (closestKnownDataEl.length) {
+            knownData = closestKnownDataEl.data('current-index');
+        }
+        var closestParentWithMissing = this.closest('[data-missing-references]');
+        if (closestParentWithMissing.length) { //(grand)parent already stubbed out missing references
+            var missing = closestParentWithMissing.data('missing-references');
+            _.each(missing, function (replacement, template) {
+                if (keyRegex.test(template) || valueRegex.test(template)) {
+                    cloop = cloop.replace(refToMarkup(replacement), template);
+                }
+            });
+        } else {
+            var missingReferences = {};
+            var templateTagsUsed = cloop.match(/<%[=-]?([\s\S]+?)%>/g);
+            if (templateTagsUsed) {
+                templateTagsUsed.forEach(function (tag) {
+                    if (tag.match(/\w+/) && !keyRegex.test(tag) && !valueRegex.test(tag)) {
+                        var refKey = missingReferences[tag];
+                        if (!refKey) {
+                            refKey = _.uniqueId('no-ref');
+                            missingReferences[tag] = refKey;
+                        }
+                        var r = new RegExp(tag, 'g');
+                        cloop = cloop.replace(r, refToMarkup(refKey));
+                    }
+                });
+            }
+            if (_.size(missingReferences)) {
+                //Attr, not data, to make jQ selector easy. No f- prefix to keep this from flow.
+                this.attr('data-missing-references', JSON.stringify(missingReferences));
+            }
+        }
+
+        var templateFn = _.template(cloop);
         _.each(value, function (dataval, datakey) {
             if (!dataval) {
                 dataval = dataval + '';
             }
-            var cloop = loopTemplate.replace(/&lt;/g, '<').replace(/&gt;/g, '>');
-            var templatedLoop = _.template(cloop, { value: dataval, key: datakey, index: datakey });
-            var isTemplated = templatedLoop !== cloop;
-            var nodes = $(templatedLoop);
+            var templateData = {};
+            templateData[keyAttr] = datakey;
+            templateData[valueAttr] = dataval;
+            
+            $.extend(templateData, knownData);
+
+            var nodes;
+            var isTemplated;
+            try {
+                var templatedLoop = templateFn(templateData);
+                isTemplated = templatedLoop !== cloop;
+                nodes = $(templatedLoop);
+            } catch (e) { //you don't have all the references you need;
+                nodes = $(cloop);
+                isTemplated = true;
+                $(nodes).attr('data-current-index', JSON.stringify(templateData));
+            }
 
             nodes.each(function (i, newNode) {
                 newNode = $(newNode);
@@ -116,6 +194,7 @@ module.exports = {
                 }
             });
             $me.append(nodes);
+            
         });
     }
 };

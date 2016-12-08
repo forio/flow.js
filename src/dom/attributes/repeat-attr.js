@@ -54,6 +54,7 @@
 
 'use strict';
 var parseUtils = require('../../utils/parse-utils');
+var gutils = require('../../utils/general');
 // var config = require('../../config');
 module.exports = {
 
@@ -67,29 +68,27 @@ module.exports = {
         //Possible fixes: Let this handle it's own unbind (which does nothing), or
         //have unbind remove all generated elements as well
         var loopTemplate = this.data('repeat-template');
-        var id = '';
+        var id = this.data('repeat-template-id');
+
+        if (id) {
+            this.nextUntil(':not([data-' + id + '])').remove(); //clean-up pre-saved html
+        } else {
+            id = gutils.random('repeat-');
+            this.data('repeat-template-id', id);
+        }
         if (!loopTemplate) {
             loopTemplate = this.get(0).outerHTML;
-            id = _.uniqueId('repeat-');
-
-            var d = {};
-            d['repeat-template-id'] = id;
-            d['repeat-template'] = loopTemplate;
-            this.data(d);
-        } else {
-            id = this.data('repeat-template-id');
-            this.nextUntil(':not([' + id + '])').remove();
+            this.data('repeat-template', loopTemplate);
         }
+
         var last;
         var me = this;
         _.each(value, function (dataval, datakey) {
-            if (!dataval) {
-                dataval = dataval + '';
-            }
             var cloop = loopTemplate.replace(/&lt;/g, '<').replace(/&gt;/g, '>');
             var templatedLoop = _.template(cloop, { value: dataval, key: datakey, index: datakey });
             var isTemplated = templatedLoop !== cloop;
             var nodes = $(templatedLoop);
+            var hasData = (dataval !== null && dataval !== undefined);
 
             nodes.each(function (i, newNode) {
                 newNode = $(newNode).removeAttr('data-f-repeat');
@@ -100,9 +99,9 @@ module.exports = {
                         newNode.data(key, parseUtils.toImplicitType(val));
                     }
                 });
-                newNode.attr(id, true);
-                if (!isTemplated && !newNode.html().trim()) {
-                    newNode.html(dataval);
+                newNode.attr('data-' + id, true);
+                if (!isTemplated && !newNode.children().length && hasData) {
+                    newNode.html(dataval + '');
                 }
             });
             if (!last) {
