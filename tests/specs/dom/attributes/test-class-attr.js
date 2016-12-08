@@ -6,14 +6,14 @@ module.exports = (function () {
     describe('Classes', function () {
 
         it('should able to add classes if there are none', function () {
-            utils.initWithNode('<input type="text" data-f-class="apple" data-f-bind="stuff"/>', domManager).then(function ($node) {
+            return utils.initWithNode('<input type="text" data-f-class="apple" data-f-bind="stuff"/>', domManager).then(function ($node) {
                 $node.trigger('update.f.model', { apple: 'sauce' });
                 $node.hasClass('sauce').should.equal(true);
             });
         });
 
         it('should able to append classes some already exist', function () {
-            utils.initWithNode('<input type="text" data-f-class="apple" class="exist" data-f-bind="stuff"/>', domManager).then(function ($node) {
+            return utils.initWithNode('<input type="text" data-f-class="apple" class="exist" data-f-bind="stuff"/>', domManager).then(function ($node) {
                 $node.trigger('update.f.model', { apple: 'sauce' });
                 $node.hasClass('sauce').should.equal(true);
                 $node.hasClass('exist').should.equal(true);
@@ -21,7 +21,7 @@ module.exports = (function () {
         });
 
         it('should able to change value of existing classes when model value changes', function () {
-            utils.initWithNode('<input type="text" data-f-class="apple" class="exist" data-f-bind="stuff"/>', domManager).then(function ($node) {
+            return utils.initWithNode('<input type="text" data-f-class="apple" class="exist" data-f-bind="stuff"/>', domManager).then(function ($node) {
                 $node.trigger('update.f.model', { apple: 'sauce' });
                 $node.hasClass('sauce').should.equal(true);
 
@@ -33,14 +33,14 @@ module.exports = (function () {
         });
 
         it('should prefix value- if passed in a number', function () {
-            utils.initWithNode('<input type="text" data-f-class="data" data-f-bind="stuff"/>', domManager).then(function ($node) {
+            return utils.initWithNode('<input type="text" data-f-class="data" data-f-bind="stuff"/>', domManager).then(function ($node) {
                 $node.trigger('update.f.model', { data: 2 });
                 $node.hasClass('value-2').should.equal(true);
             });
         });
 
         it('should use the last item if it\'s an array', function () {
-            utils.initWithNode('<input type="text" data-f-class="data" data-f-bind="stuff"/>', domManager).then(function ($node) {
+            return utils.initWithNode('<input type="text" data-f-class="data" data-f-bind="stuff"/>', domManager).then(function ($node) {
                 $node.trigger('update.f.model', { data: [1, 2, 3] });
                 $node.hasClass('value-3').should.equal(true);
             });
