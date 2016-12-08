@@ -15,9 +15,8 @@ Questions?  Contact us at support@forio.com or file an issue on github!
 To run locally
 ```
     npm install
-    bower install
     cd tests
-    bower install
+    npm install
 
     grunt
 ```
