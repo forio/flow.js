@@ -5,7 +5,6 @@
     var lolex = require('lolex');
 
     describe('Variables Channel', function () {
-        var channel;
         var server;
         var mockVariables;
         var mockRun;
@@ -39,8 +38,6 @@
                     return mockVariables;
                 }
             };
-            channel = new Channel({ run: mockRun });
-            core = channel.private;
         });
         before(function () {
             server = sinon.fakeServer.create();
@@ -71,8 +68,6 @@
         afterEach(function () {
             mockVariables = null;
             mockRun = null;
-            channel = null;
-            core = null;
             clock.uninstall();
         });
         after(function () {
