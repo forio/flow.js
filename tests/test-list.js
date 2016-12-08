@@ -11,6 +11,7 @@ require('./specs/dom/test-default-input-node');
 require('./specs/utils/test-parse-utils');
 require('./specs/channels/test-run-channel');
 require('./specs/channels/test-variables-channel');
+require('./specs/channels/test-variables-timer');
 require('./specs/channels/test-operations-channel');
 
 require('./specs/dom/attributes/test-default-foreach-attr');
