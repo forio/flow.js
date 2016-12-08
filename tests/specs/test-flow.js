@@ -93,7 +93,7 @@ module.exports = (function () {
 
             var req = server.requests.pop();
             req.method.toUpperCase().should.equal('POST');
-            req.url.should.equal('https://api.forio.com/run/flow/test/');
+            req.url.should.equal('https://api.forio.com/v2/run/flow/test/');
             req.requestBody.should.equal(JSON.stringify({
                 scope: {},
                 model: 'model.vmf'
