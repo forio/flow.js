@@ -9,7 +9,7 @@ module.exports = function (grunt) {
                 growlOnSuccess: false,
                 reporter: 'Min',
                 run: true,
-                log: true,
+                // log: true,
             }
         }
     });
