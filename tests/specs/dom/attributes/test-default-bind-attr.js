@@ -79,7 +79,7 @@ module.exports = (function () {
             it('should output last values for arrays', function () {
                 var targetData = { Price: [10, 30] };
 
-                utils.initWithNode('<div data-f-bind="Price"> </div>', domManager).then(function ($node) {
+                return utils.initWithNode('<div data-f-bind="Price"> </div>', domManager).then(function ($node) {
                     $node.trigger('update.f.model', targetData);
                     $node.html().trim().should.equal('30');
                 });
@@ -87,7 +87,7 @@ module.exports = (function () {
 
             it('should convert values to strings', function () {
                 var targetData = { Price: false };
-                utils.initWithNode('<div data-f-bind="Price"> </div>', domManager).then(function ($node) {
+                return utils.initWithNode('<div data-f-bind="Price"> </div>', domManager).then(function ($node) {
                     $node.trigger('update.f.model', targetData);
                     $node.html().trim().should.equal('false');
                 });
@@ -95,7 +95,7 @@ module.exports = (function () {
             it('should templatize multiple-bound variables', function () {
                 var targetData = { Price: '20', Sales: 30 };
 
-                utils.initWithNode('<div data-f-bind="Price, Sales"> <%= Price %> <%= Sales %> </div>', domManager).then(function ($node) {
+                return utils.initWithNode('<div data-f-bind="Price, Sales"> <%= Price %> <%= Sales %> </div>', domManager).then(function ($node) {
                     $node.trigger('update.f.model', targetData);
                     $node.html().trim().should.equal('20 30');
                 });
@@ -103,7 +103,7 @@ module.exports = (function () {
             it('should templatize single variables', function () {
                 var targetData = { Price: '20' };
 
-                utils.initWithNode('<div data-f-bind="Price"> <%= Price %> </div>', domManager).then(function ($node) {
+                return utils.initWithNode('<div data-f-bind="Price"> <%= Price %> </div>', domManager).then(function ($node) {
                     $node.trigger('update.f.model', targetData);
                     $node.html().trim().should.equal('20');
                 });
@@ -111,7 +111,7 @@ module.exports = (function () {
             it('should allow templating by variable name for single items', function () {
                 var targetData = { Price: '20', Sales: 30 };
 
-                utils.initWithNode('<div data-f-bind="Price"> <%= value %> </div>', domManager).then(function ($node) {
+                return utils.initWithNode('<div data-f-bind="Price"> <%= value %> </div>', domManager).then(function ($node) {
                     $node.trigger('update.f.model', targetData);
                     $node.html().trim().should.equal('20');
                 });
@@ -120,7 +120,7 @@ module.exports = (function () {
             it('should template arrays in accordance with converters', function () {
                 var targetData = { Price: [10, 30] };
 
-                utils.initWithNode('<div data-f-bind="Price|last"> <%= value %> </div>', domManager).then(function ($node) {
+                return utils.initWithNode('<div data-f-bind="Price|last"> <%= value %> </div>', domManager).then(function ($node) {
                     $node.trigger('update.f.model', targetData);
                     $node.html().trim().should.equal('30');
                 });
@@ -128,7 +128,7 @@ module.exports = (function () {
             it('should template objects in accordance with converters', function () {
                 var targetData = { Price: [10, 3000], Sales: [20, 1100] };
 
-                utils.initWithNode('<div data-f-bind="Price, Sales | #,### |last"> <%= Price %> <%= Sales %> </div>', domManager).then(function ($node) {
+                return utils.initWithNode('<div data-f-bind="Price, Sales | #,### |last"> <%= Price %> <%= Sales %> </div>', domManager).then(function ($node) {
                     $node.trigger('update.f.model', targetData);
                     $node.html().trim().should.equal('3,000 1,100');
                 });
