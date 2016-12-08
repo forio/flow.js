@@ -5,7 +5,6 @@
     var lolex = require('lolex');
 
     describe('Variables Channel', function () {
-        var core;
         var channel;
         var server;
         var mockVariables;
