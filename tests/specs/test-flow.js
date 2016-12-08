@@ -109,7 +109,6 @@ module.exports = (function () {
                     }
                 }).then(function () {
                     $elWithoutInit.find(':text').val('32').trigger('change');
-                    server.respond();
                     var req = server.requests[2];//POST, GET, PATCH, GET
                     req.method.toUpperCase().should.equal('PATCH');
                     req.requestBody.should.equal(JSON.stringify({
@@ -125,11 +124,7 @@ module.exports = (function () {
                         root: $elWithoutInit
                     }
                 }).then(function () {
-                    server.respond();
                     $elWithoutInit.find(':text').val('33').trigger('change');
-                    server.respond();
-                    server.respond();
-
                     var req = server.requests[server.requests.length - 1];
                     req.method.toUpperCase().should.equal('GET');
                 });
@@ -150,7 +145,6 @@ module.exports = (function () {
                 }).then(function () {
                     $elWithoutInit.find(':text').val('34').trigger('change');
 
-                    server.respond();
                     server.requests.length.should.equal(3); //POST, GET, PATCH
                 });
             });
@@ -164,7 +158,6 @@ module.exports = (function () {
                         root: $elWithoutInit
                     }
                 }).then(function () {
-                    server.respond();
                     server.requests.length.should.equal(2); //POST, GET
 
                     server.requests[0].method.toUpperCase().should.equal('POST');
@@ -184,7 +177,6 @@ module.exports = (function () {
                         root: $elWithoutInit
                     }
                 }).then(function () {
-                    server.respond();
                     server.requests.length.should.equal(2); //POST, GET
 
                     server.requests[0].method.toUpperCase().should.equal('POST');
@@ -227,13 +219,9 @@ module.exports = (function () {
                             root: $elWithInit
                         }
                     }).then(function () {
-                        server.respond();
-                        server.respond();
                         server.requests.length.should.equal(3); //POST, POST, GET
 
                         $elWithInit.append('<span data-f-bind="sales">Y</span>');
-                        server.respond();
-
                         server.requests.length.should.equal(4); //POST, POST, GET, GET
                     });
                 });
