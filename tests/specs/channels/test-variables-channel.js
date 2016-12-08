@@ -8,7 +8,6 @@
         var server;
         var mockVariables;
         var mockRun;
-        var clock;
 
         beforeEach(function () {
             //Needed to make _.debounce work correctly with fakeTimers
@@ -37,8 +36,6 @@
             core = channel.private;
         });
         before(function () {
-            // clock = lolex.install(_);
-
             server = sinon.fakeServer.create();
             server.respondWith('PATCH', /(.*)\/run\/(.*)\/(.*)/, function (xhr, id) {
                 xhr.respond(200, { 'Content-Type': 'application/json' }, JSON.stringify({ url: xhr.url }));
@@ -72,8 +69,6 @@
         });
         after(function () {
             server.restore();
-            // clock.uninstall();
-            // clock.restore();
         });
 
         describe('#getInnerVariables', function () {
