@@ -12,7 +12,7 @@
             describe('Selectors', function () {
 
                 it('should select nothing by default', function () {
-                    utils.initWithNode('', domManager).then(function () {
+                    utils.initWithNode('<div></div>', domManager).then(function () {
                         domManager.private.matchedElements.length.should.equal(0);
                     });
                 });

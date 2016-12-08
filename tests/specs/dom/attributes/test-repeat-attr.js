@@ -232,7 +232,7 @@ module.exports = (function () {
             it('should loop through children for elems with repeat=variableArray', function () {
                 var targetData = [5, 3, 6, 1];
 
-                utils.initWithNode('<ul> <li data-f-repeat="somearray" data-stuff="<%=index%>"> <%= value %> </li> </ul>', domManager).then(function ($node) {
+                return utils.initWithNode('<ul> <li data-f-repeat="somearray" data-stuff="<%=index%>"> <%= value %> </li> </ul>', domManager).then(function ($node) {
                     $node.find('li:first').trigger('update.f.model', { somearray: targetData });
 
                     var newChildren = $node.children();
@@ -256,16 +256,16 @@ module.exports = (function () {
                     '<li data-repeat-1="true"></li><li data-repeat-1="true"></li>' +
                     '<li data-repeat-2="true"></li><li data-repeat-4="true"></li>' +
                 '</ul>';
-                var $node = utils.initWithNode(html, domManager);
-                $node.find('li:first').trigger('update.f.model', { somearray: targetData });
-                
-                $node.children().length.should.equal(4);
+                return utils.initWithNode(html, domManager).then(function ($node) {
+                    $node.find('li:first').trigger('update.f.model', { somearray: targetData });
+                    $node.children().length.should.equal(4);
+                });
             });
 
             it('should loop through children for elems with repeat=variableObject', function () {
                 var targetData = { a: 3, b: 4 };
 
-                utils.initWithNode('<ul> <li data-f-repeat="someobject" data-stuff="<%=index%>"> <%= value %> </li> </ul>', domManager).then(function ($node) {
+                return utils.initWithNode('<ul> <li data-f-repeat="someobject" data-stuff="<%=index%>"> <%= value %> </li> </ul>', domManager).then(function ($node) {
                     $node.find('li:first').trigger('update.f.model', { someobject: targetData });
 
                     var newChildren = $node.children();
@@ -286,7 +286,7 @@ module.exports = (function () {
                 var targetData = [5, 3, 6, 1];
                 var targetData2 = ['a', 'b', 'c'];
 
-                utils.initWithNode('<ul> <li data-f-repeat="somearray"> <div class="children" data-f-repeat="somethingElse"> </div> </li> </ul>', domManager).then(function ($node) {
+                return utils.initWithNode('<ul> <li data-f-repeat="somearray"> <div class="children" data-f-repeat="somethingElse"> </div> </li> </ul>', domManager).then(function ($node) {
                     $node.find('li:first').trigger('update.f.model', { somearray: targetData });
 
                     domManager.bindAll();
