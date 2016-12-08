@@ -1,11 +1,12 @@
 <html>
   <head>
-    <script src="//ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/3.0.0/jquery.min.js"></script>
     <script src="//cdnjs.cloudflare.com/ajax/libs/lodash.js/2.4.1/lodash.js"></script>
-    <script src="//forio.com/tools/js-libs/1.7.1/epicenter.min.js"></script>
+    <script src="//forio.com/tools/js-libs/2.0.1/epicenter.min.js"></script>
     <script src="../../dist/flow-edge.js"></script>
 
     <link rel="stylesheet" type="text/css" href="test.css">
+
 
     <script>
     $(function() {
@@ -13,45 +14,27 @@
           channel: {
               strategy: 'new-if-initialized',
               run: {
-                  account: "wglass",
-                  project: "edp"
+                 account: 'jaimedp',
+                 project: 'glasses',
               }
           }
       });
+      Flow.dom.converters.register('custom', function (value) {
+        console.log(value);
+          return [1, 2];
+       }, false);
     });
   </script>
   </head>
-  <body data-f-model="model.eqn">
+  <body data-f-model="gglasses.vmf" data-f-on-init="start_game">
 
     <h2>Control</h2>
-
       <div>
-          <div data-f-bind="time">Time: <%= value %></div>
+          <div data-f-bind="Price, Revenue | custom"><%= Price %> || <%= Revenue %> </div>
+          <div data-f-bind="Time">Time: <%= value %></div>
           <button data-f-on-click="step(1)">Advance One Step</button>
           <button data-f-on-click="reset">Reset</button>
 
-      </div>
-
-  <table id="update101" border="1">
-      <tbody data-f-foreach="t in time">
-      <tr data-f-foreach="g in Global Revenue[Product,1]">
-          <td><%= t %> <%= g %> </td>
-          <td><%= ( t > g) ? 'greater' : 'smaller' %> </td>
-      </tr>
-      </tbody>
-  </table>
-
-    <h2>Decisons - Manufacturer 1</h2>
-
-    <h2>Income - Manufacturer 1</h2>
-
-    <div style="clear:both;">
-        <table class="data">
-          <tr>
-                <td> HI! </td>
-                <td data-f-repeat="Global Revenue[Product,1] | $#,##"> <%= value %></td>
-          </tr>
-        </table>
       </div>
   </div>
 
