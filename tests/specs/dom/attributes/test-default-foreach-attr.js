@@ -187,7 +187,7 @@ module.exports = (function () {
                         foreachHandler.handle.call($rootNode, targetData);
 
                         var newChildren = $rootNode.children();
-                        newChildren.size().should.equal(6);
+                        newChildren.length.should.equal(6);
                     });
 
                     it('should process data attributes for all children', function () {

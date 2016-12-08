@@ -12,7 +12,7 @@ module.exports = (function () {
                 $node.trigger('update.f.model', { somearray: targetData });
 
                 var newChildren = $node.children();
-                var childrenCount = newChildren.size();
+                var childrenCount = newChildren.length;
 
                 newChildren.each(function (index) {
                     var data = $(this).html().trim();
@@ -34,7 +34,7 @@ module.exports = (function () {
                 $node.trigger('update.f.model', { someobject: targetData });
 
                 var newChildren = $node.children();
-                var childrenCount = newChildren.size();
+                var childrenCount = newChildren.length;
 
                 newChildren.each(function () {
                     var val = $(this).html().trim();
@@ -56,7 +56,7 @@ module.exports = (function () {
                 $node.trigger('update.f.model', { somearray: targetData });
 
                 var newChildren = $node.children();
-                var childrenCount = newChildren.size();
+                var childrenCount = newChildren.length;
                 newChildren.each(function (index) {
                     var data = $(this).html().trim();
                     data.should.equal(outputdata[index] + ' ' + targetData[index]);
