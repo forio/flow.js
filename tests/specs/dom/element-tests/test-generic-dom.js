@@ -5,17 +5,17 @@ module.exports = (function () {
 
     describe('all dom nodes', function () {
         it('should update itself with values passed in', function () {
-            var $node = utils.initWithNode('<div data-f-bind="stuff" value="3"> </div>', domManager);
-            $node.trigger('update.f.model', { stuff: 5 });
-
-            $node.html().should.equal('5');
+            return utils.initWithNode('<div data-f-bind="stuff" value="3"> </div>', domManager).then(function ($node) {
+                $node.trigger('update.f.model', { stuff: 5 });
+                $node.html().should.equal('5');
+            });
         });
 
         it('should replace existing values', function () {
-            var $node = utils.initWithNode('<div data-f-bind="stuff" value="3"> asdasdas </div>', domManager);
-            $node.trigger('update.f.model', { stuff: 5 });
-
-            $node.html().should.equal('5');
+            return utils.initWithNode('<div data-f-bind="stuff" value="3"> asdasdas </div>', domManager).then(function ($node) {
+                $node.trigger('update.f.model', { stuff: 5 });
+                $node.html().should.equal('5');
+            });
         });
     });
 }());

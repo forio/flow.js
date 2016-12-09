@@ -21,7 +21,7 @@ module.exports = (function () {
     var autoUpdatePlugin = require('./plugins/auto-update-bindings');
 
     //Jquery selector to return everything which has a f- property set
-    $.expr[':'][config.prefix] = function (el) {
+    $.expr.pseudos[config.prefix] = function (el) {
         if (!el || !el.attributes) {
             return false;
         }
@@ -34,7 +34,7 @@ module.exports = (function () {
         return false;
     };
 
-    $.expr[':'].webcomponent = function (obj) {
+    $.expr.pseudos.webcomponent = function (obj) {
         return obj.nodeName.indexOf('-') !== -1;
     };
 
@@ -369,10 +369,10 @@ module.exports = (function () {
                     }
                 });
             };
-
+            
+            var promise = $.Deferred();
             $(function () {
                 me.bindAll();
-                $root.trigger('f.domready');
 
                 attachChannelListener($root);
                 attachUIVariablesListener($root);
@@ -382,7 +382,12 @@ module.exports = (function () {
                 if (me.options.autoBind) {
                     autoUpdatePlugin($root.get(0), me);
                 }
+                
+                promise.resolve($root);
+                $root.trigger('f.domready');
             });
+
+            return promise;
         }
     };
 
