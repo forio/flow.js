@@ -9,15 +9,13 @@
 'use strict';
 
 module.exports = (function () {
-    var config = require('../config');
+    var config = require('config');
+    var parseUtils = require('utils/parse-utils');
+    var domUtils = require('utils/dom');
 
+    var converterManager = require('converters/converter-manager');
     var nodeManager = require('./nodes/node-manager');
     var attrManager = require('./attributes/attribute-manager');
-    var converterManager = require('../converters/converter-manager');
-
-    var parseUtils = require('../utils/parse-utils');
-    var domUtils = require('../utils/dom');
-
     var autoUpdatePlugin = require('./plugins/auto-update-bindings');
 
     //Jquery selector to return everything which has a f- property set
