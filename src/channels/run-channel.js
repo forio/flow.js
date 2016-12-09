@@ -7,7 +7,7 @@ module.exports = function (options, initFn) {
     var defaults = {
         variables: {
             autoFetch: {
-                start: true
+                start: false
             }
         },
         operations: {
@@ -23,7 +23,6 @@ module.exports = function (options, initFn) {
     if (preFetchVariables) {
         config.variables.autoFetch.start = true;
     }
-
 
     var rm = new window.F.manager.RunManager({ run: config });
     var rs = rm.run;

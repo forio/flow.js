@@ -84,14 +84,6 @@ var Flow = {
                     account: '',
                     project: '',
                     model: model,
-
-                    operations: {
-                    },
-                    variables: {
-                        autoFetch: {
-                            start: false
-                        }
-                    }
                 }
             },
             dom: {

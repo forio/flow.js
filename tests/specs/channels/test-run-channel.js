@@ -39,10 +39,25 @@
                 });
                 c.operations.private.options.refresh.should.eql(refreshOptions);
             });
+
+            describe('#autoFetch', function () {
+                it('should autofetch by default', function () {
+                    var c = new Channel();
+                    expect(c.variables.private.options.autoFetch.start).to.equal(true);
+                });
+                it('should not auto-fetch if there\'s an initial operation', function () {
+                    var c = new Channel({}, 'my-init-fun');
+                    expect(c.variables.private.options.autoFetch.start).to.equal(false);
+                });
+                it('should  auto-fetch if the initial operation is silent', function () {
+                    var c = new Channel({
+                        operations: {
+                            silent: ['my-init-fun']
+                        }
+                    }, 'my-init-fun');
+                    expect(c.variables.private.options.autoFetch.start).to.equal(true);
+                });
+            });
         });
-    });
-
-    describe('run', function () {
-
     });
 }());
