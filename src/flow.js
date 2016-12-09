@@ -66,8 +66,9 @@
 'use strict';
 
 var domManager = require('./dom/dom-manager');
-var Channel = require('./channels/run-channel');
 var BaseView = require('./utils/base-view');
+
+var ChannelManager = require('channels/channel-manager');
 
 var Flow = {
     dom: domManager,
@@ -101,19 +102,13 @@ var Flow = {
 
         var options = $.extend(true, {}, defaults, config);
         var $root = $(options.dom.root);
-        var initFn = $root.data('f-on-init');
-        var opnSilent = options.channel.run.operations.silent;
-        var isInitOperationSilent = initFn && (opnSilent === true || (_.isArray(opnSilent) && _.contains(opnSilent, initFn)));
-        var preFetchVariables = !initFn || isInitOperationSilent;
 
-        if (preFetchVariables) {
-            options.channel.run.variables.autoFetch.start = true;
-        }
-
-        if (config && config.channel && (config.channel instanceof Channel)) {
+        options.channel.initFn = $root.data('f-on-init');
+   
+        if (config && config.channel && (config.channel instanceof ChannelManager)) {
             this.channel = config.channel;
         } else {
-            this.channel = new Channel(options.channel);
+            this.channel = new ChannelManager(options.channel);
         }
 
         return domManager.initialize($.extend(true, {

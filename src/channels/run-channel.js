@@ -5,18 +5,16 @@ var OperationsChannel = require('./operations-channel');
 
 module.exports = function (options) {
     var defaults = {
-        run: {
-            variables: {
+        variables: {
 
-            },
-            operations: {
+        },
+        operations: {
 
-            }
         }
     };
     var config = $.extend(true, {}, defaults, options);
 
-    var rm = new window.F.manager.RunManager(config);
+    var rm = new window.F.manager.RunManager({ run: config });
     var rs = rm.run;
 
     var $creationPromise = rm.getRun();
@@ -64,8 +62,8 @@ module.exports = function (options) {
     };
 
     this.run = rs;
-    this.variables = new VarsChannel($.extend(true, {}, config.run.variables, { run: rs }));
-    this.operations = new OperationsChannel($.extend(true, {}, config.run.operations, { run: rs }));
+    this.variables = new VarsChannel($.extend(true, {}, config.variables, { run: rs }));
+    this.operations = new OperationsChannel($.extend(true, {}, config.operations, { run: rs }));
 
     var me = this;
     var DEBOUNCE_INTERVAL = 200;

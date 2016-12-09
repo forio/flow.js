@@ -21,13 +21,12 @@
         });
 
         describe('options', function () {
-
             it('should pass options to the variables service', function () {
                 var options = {
                     refresh: refreshOptions
                 };
                 var c = new Channel({
-                    run: { variables: options }
+                    variables: options
                 });
                 c.variables.private.options.refresh.should.eql(refreshOptions);
             });
@@ -36,7 +35,7 @@
                     refresh: refreshOptions
                 };
                 var c = new Channel({
-                    run: { operations: options }
+                    operations: options
                 });
                 c.operations.private.options.refresh.should.eql(refreshOptions);
             });
