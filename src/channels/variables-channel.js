@@ -405,10 +405,9 @@ module.exports = function (options) {
                 toSave[key] = val;
             });
             var me = this;
-            return vs.save(toSave)
-                .then(function () {
-                    me.refresh(attrs, null, opts);
-                });
+            return vs.save(toSave).then(function () {
+                return me.refresh(attrs, null, opts);
+            });
         },
 
         /**

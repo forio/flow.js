@@ -37,6 +37,8 @@
  *
  * The `Flow.initialize()` call is based on the Epicenter.js [Run Service](../../../api_adapters/generated/run-api-service/) from the [API Adapters](../../../api_adapters/). See those pages for additional information on parameters.
  *
+ * The `Flow.initialize()` call returns a promise, which is resolved when initialization is complete.
+ *
  * #### Example
  *
  *      Flow.initialize({
@@ -55,7 +57,10 @@
  *                  }
  *              }
  *          }
+ *      }).then(function() {
+ *          // code that depends on initialization
  *      });
+ *
  */
 
 'use strict';
@@ -111,7 +116,7 @@ var Flow = {
             this.channel = new Channel(options.channel);
         }
 
-        domManager.initialize($.extend(true, {
+        return domManager.initialize($.extend(true, {
             channel: this.channel
         }, options.dom));
     }

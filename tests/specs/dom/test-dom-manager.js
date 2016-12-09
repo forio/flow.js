@@ -2,8 +2,6 @@
 (function () {
 
     var utils = require('../../testing-utils');
-    var make = utils.create;
-    var dummyChannelManager = utils.createDummyChannel();
     var domManager = require('src/dom/dom-manager');
 
     describe('DOM Manager', function () {
@@ -14,37 +12,27 @@
             describe('Selectors', function () {
 
                 it('should select nothing by default', function () {
-                    domManager.initialize({
-                        channel: dummyChannelManager
+                    return utils.initWithNode('<div></div>', domManager).then(function () {
+                        domManager.private.matchedElements.length.should.equal(0);
                     });
-                    domManager.private.matchedElements.length.should.equal(0);
                 });
 
                 it('should select single nodes', function () {
-                    var node = make('<input type="text" data-f-bind="stuff"/>');
-                    domManager.initialize({
-                        root: node,
-                        channel: dummyChannelManager
+                    return utils.initWithNode('<input type="text" data-f-bind="stuff"/>', domManager).then(function ($node) {
+                        domManager.private.matchedElements.length.should.equal(1);
                     });
-                    domManager.private.matchedElements.length.should.equal(1);
                 });
 
                 it('should select nested nodes', function () {
-                    var node = make('<div data-f-bind="a"> <input type="text" data-f-bind="stuff"/> <span> nothing </span> </div>');
-                    domManager.initialize({
-                        root: node,
-                        channel: dummyChannelManager
+                    return utils.initWithNode('<div data-f-bind="a"> <input type="text" data-f-bind="stuff"/> <span> nothing </span> </div>', domManager).then(function ($node) {
+                        domManager.private.matchedElements.length.should.equal(2);
                     });
-                    domManager.private.matchedElements.length.should.equal(2);
                 });
 
                 it('should select nested nodes with diff F attrs', function () {
-                    var node = make('<div data-f-a="a"> <input type="text" data-f-b="stuff"/> <span> nothing </span> </div>');
-                    domManager.initialize({
-                        root: node,
-                        channel: dummyChannelManager
+                    return utils.initWithNode('<div data-f-a="a"> <input type="text" data-f-b="stuff"/> <span> nothing </span> </div>', domManager).then(function ($node) {
+                        domManager.private.matchedElements.length.should.equal(2);
                     });
-                    domManager.private.matchedElements.length.should.equal(2);
                 });
             });
 
@@ -58,24 +46,24 @@
                         '   <span> nothing </span>',
                         '</div>'
                     ];
-                    var $node = utils.initWithNode(nested.join(), domManager);
+                    return utils.initWithNode(nested.join(), domManager).then(function ($node) {
+                        var $textNode = $node.find(':text');
 
-                    var $textNode = $node.find(':text');
+                        var textspy = sinon.spy();
+                        $textNode.on('update.f.ui', textspy);
 
-                    var textspy = sinon.spy();
-                    $textNode.on('update.f.ui', textspy);
+                        var parentSpy = sinon.spy();
+                        $node.find('.abc').on('update.f.ui', parentSpy);
 
-                    var parentSpy = sinon.spy();
-                    $node.find('.abc').on('update.f.ui', parentSpy);
-
-                    var rootSpy = sinon.spy();
-                    $node.on('update.f.ui', rootSpy);
+                        var rootSpy = sinon.spy();
+                        $node.on('update.f.ui', rootSpy);
 
 
-                    $textNode.trigger('change');
-                    textspy.should.have.been.called.once;
-                    parentSpy.should.have.been.called.once;
-                    rootSpy.should.have.been.called.once;
+                        $textNode.trigger('change');
+                        textspy.should.have.been.called.once;
+                        parentSpy.should.have.been.called.once;
+                        rootSpy.should.have.been.called.once;
+                    });
                 });
 
                 require('./element-tests/test-checkbox');
@@ -105,16 +93,17 @@
                     };
                     var toggleSpy = sinon.spy(toggle);
                     domManager.attributes.register('toggle', '*', toggleSpy);
-                    var $node = utils.initWithNode('<input type="text" data-f-toggle="shouldIHide" data-f-bind="stuff"/>', domManager);
-                    $node.trigger('update.f.model', { shouldIHide: 1 });
+                    return utils.initWithNode('<input type="text" data-f-toggle="shouldIHide" data-f-bind="stuff"/>', domManager).then(function ($node) {
+                        $node.trigger('update.f.model', { shouldIHide: 1 });
 
-                    toggleSpy.should.have.been.called;
-                    toggleSpy.should.have.been.calledWith(1);
+                        toggleSpy.should.have.been.called;
+                        toggleSpy.should.have.been.calledWith(1);
 
-                    $node.css('display').should.equal('block');
+                        $node.css('display').should.equal('block');
 
-                    $node.trigger('update.f.model', { shouldIHide: 0 });
-                    $node.css('display').should.equal('none');
+                        $node.trigger('update.f.model', { shouldIHide: 0 });
+                        $node.css('display').should.equal('none');
+                    });
                 });
             });
 
@@ -127,255 +116,200 @@
 
         describe('#bindElement', function () {
             it('should bind elements added to the dom', function () {
-                var node = make('<div data-f-bind="a"> </div>');
-                domManager.initialize({
-                    root: node,
-                    channel: dummyChannelManager
+                return utils.initWithNode('<div data-f-bind="a"> </div>', domManager).then(function ($node) {
+                    $node.append('<input type="text" data-f-bind="boo" />');
+                    var addedNode = $node.find(':text');
+
+                    var textspy = sinon.spy();
+                    $(addedNode).on('update.f.ui', textspy);
+
+                    $(addedNode).val('hello').trigger('change');
+                    textspy.should.not.have.been.called;
+
+                    domManager.bindElement(addedNode);
+
+                    $(addedNode).val('hello1').trigger('change');
+                    textspy.should.have.been.calledOnce;
                 });
-
-                $(node).append('<input type="text" data-f-bind="boo" />');
-                var addedNode = $(node).find(':text');
-
-                var textspy = sinon.spy();
-                $(addedNode).on('update.f.ui', textspy);
-
-                $(addedNode).val('hello').trigger('change');
-                textspy.should.not.have.been.called;
-
-                domManager.bindElement(addedNode);
-
-                $(addedNode).val('hello1').trigger('change');
-                textspy.should.have.been.calledOnce;
             });
 
             it('should update list of added items', function () {
-                var node = make('<div data-f-bind="a"> </div>');
-                domManager.initialize({
-                    root: node,
-                    channel: dummyChannelManager
+                return utils.initWithNode('<div data-f-bind="a"> </div>', domManager).then(function ($node) {
+                    $node.append('<input type="text" data-f-bind="boo" />');
+                    var addedNode = $node.find(':text');
+
+                    domManager.private.matchedElements.length.should.equal(1);
+                    domManager.bindElement(addedNode);
+                    domManager.private.matchedElements.length.should.equal(2);
                 });
-
-                $(node).append('<input type="text" data-f-bind="boo" />');
-                var addedNode = $(node).find(':text');
-
-                domManager.private.matchedElements.length.should.equal(1);
-                domManager.bindElement(addedNode);
-                domManager.private.matchedElements.length.should.equal(2);
             });
         });
 
         describe('#unbindElement', function () {
             it('should unbindElement elements added to the dom', function () {
-                var node = make('<div data-f-bind="a"> <input type="text" data-f-bind="boo" /> </div>');
-                domManager.initialize({
-                    root: node,
-                    channel: dummyChannelManager
+                return utils.initWithNode('<div data-f-bind="a"> <input type="text" data-f-bind="boo" /> </div>', domManager).then(function ($node) {
+                    var addedNode = $node.find(':text');
+
+                    var textspy = sinon.spy();
+                    $(addedNode).on('update.f.ui', textspy);
+
+                    $(addedNode).val('hello').trigger('change');
+                    textspy.should.have.been.calledOnce;
+
+                    domManager.unbindElement(addedNode.get(0));
+
+                    $(addedNode).val('hello1').trigger('change');
+                    textspy.should.have.been.calledOnce;
                 });
-
-                var addedNode = $(node).find(':text');
-
-                var textspy = sinon.spy();
-                $(addedNode).on('update.f.ui', textspy);
-
-                $(addedNode).val('hello').trigger('change');
-                textspy.should.have.been.calledOnce;
-
-                domManager.unbindElement(addedNode.get(0));
-
-                $(addedNode).val('hello1').trigger('change');
-                textspy.should.have.been.calledOnce;
             });
             it('should update list of added items', function () {
-                var node = make('<div data-f-bind="a"> <input type="text" data-f-bind="boo" /> </div>');
-                domManager.initialize({
-                    root: node,
-                    channel: dummyChannelManager
+                return utils.initWithNode('<div data-f-bind="a"> <input type="text" data-f-bind="boo" /> </div>', domManager).then(function ($node) {
+                    var addedNode = $node.find(':text');
+
+                    domManager.private.matchedElements.length.should.equal(2);
+                    domManager.unbindElement(addedNode.get(0));
+                    domManager.private.matchedElements.length.should.equal(1);
                 });
-
-                var addedNode = $(node).find(':text');
-
-                domManager.private.matchedElements.length.should.equal(2);
-                domManager.unbindElement(addedNode.get(0));
-                domManager.private.matchedElements.length.should.equal(1);
             });
             describe('Remove added data items', function () {
                 it('should remove data items it adds', function () {
-                    var node = make('<div data-f-bind="a | ##" data-f-other=" b | %"> </div>');
-                    domManager.initialize({
-                        root: node,
-                        channel: dummyChannelManager
+                    return utils.initWithNode('<div data-f-bind="a | ##" data-f-other=" b | %"> </div>', domManager).then(function ($node) {
+                        var keys = _.keys($node.data());
+
+                        var directTranslates = ['fConvertBind', 'fConvertOther', 'fOther', 'fBind'];
+                        var flowAdded = ['fSubscriptionId', 'fAttrBindings'];
+                        var toMatch = [].concat(directTranslates).concat(flowAdded);
+                        keys.sort().should.eql(toMatch.sort());
+
+                        domManager.unbindElement($node.get(0));
+
+                        var newkeys = _.keys($node.data());
+                        newkeys.should.eql([]);
                     });
-                    var keys = _.keys($(node).data());
-
-                    var directTranslates = ['fConvertBind', 'fConvertOther', 'fOther', 'fBind'];
-                    var flowAdded = ['fSubscriptionId', 'fAttrBindings'];
-                    var toMatch = [].concat(directTranslates).concat(flowAdded);
-                    keys.sort().should.eql(toMatch.sort());
-
-                    domManager.unbindElement(node);
-
-                    var newkeys = _.keys($(node).data());
-                    newkeys.should.eql([]);
                 });
 
                 it('should not remove data items it doesn\'t add', function () {
-                    var node = make('<div data-f-bind="a | ##" data-f-other=" b | %" data-my-stuff="1" data-fsomething="1"> </div>');
-                    domManager.initialize({
-                        root: node,
-                        channel: dummyChannelManager
+                    return utils.initWithNode('<div data-f-bind="a | ##" data-f-other=" b | %" data-my-stuff="1" data-fsomething="1"> </div>', domManager).then(function ($node) {
+                        var keys = _.keys($node.data());
+
+                        var notAddedByFlow = ['myStuff', 'fsomething'];
+                        var directTranslates = ['fConvertBind', 'fConvertOther', 'fOther', 'fBind'];
+                        var flowAdded = ['fSubscriptionId', 'fAttrBindings'];
+                        var toMatch = [].concat(directTranslates).concat(flowAdded).concat(notAddedByFlow);
+                        keys.sort().should.eql(toMatch.sort());
+
+                        domManager.unbindElement($node);
+
+                        var newkeys = _.keys($node.data());
+                        newkeys.should.eql(notAddedByFlow.sort());
                     });
-                    var keys = _.keys($(node).data());
-
-                    var notAddedByFlow = ['myStuff', 'fsomething'];
-                    var directTranslates = ['fConvertBind', 'fConvertOther', 'fOther', 'fBind'];
-                    var flowAdded = ['fSubscriptionId', 'fAttrBindings'];
-                    var toMatch = [].concat(directTranslates).concat(flowAdded).concat(notAddedByFlow);
-                    keys.sort().should.eql(toMatch.sort());
-
-                    domManager.unbindElement(node);
-
-                    var newkeys = _.keys($(node).data());
-                    newkeys.should.eql(notAddedByFlow.sort());
                 });
             });
         });
 
         describe('#unbindAll', function () {
             it('should unbindElement all elements added to the dom', function () {
-                var node = make('<div data-f-bind="a"> <input type="text" data-f-bind="boo" /> </div>');
-                domManager.initialize({
-                    root: node,
-                    channel: dummyChannelManager
+                return utils.initWithNode('<div data-f-bind="a"> <input type="text" data-f-bind="boo" /> </div>', domManager).then(function ($node) {
+                    var addedNode = $node.find(':text');
+
+                    var textspy = sinon.spy();
+                    $(addedNode).on('update.f.ui', textspy);
+
+                    $(addedNode).val('hello').trigger('change');
+                    textspy.should.have.been.calledOnce;
+
+                    domManager.unbindAll();
+
+                    $(addedNode).val('hello1').trigger('change');
+                    textspy.should.have.been.calledOnce;
                 });
-
-                var addedNode = $(node).find(':text');
-
-                var textspy = sinon.spy();
-                $(addedNode).on('update.f.ui', textspy);
-
-                $(addedNode).val('hello').trigger('change');
-                textspy.should.have.been.calledOnce;
-
-                domManager.unbindAll();
-
-                $(addedNode).val('hello1').trigger('change');
-                textspy.should.have.been.calledOnce;
             });
             it('should update list of added items', function () {
-                var node = make('<div data-f-bind="a"> <input type="text" data-f-bind="boo" /> </div>');
-                domManager.initialize({
-                    root: node,
-                    channel: dummyChannelManager
+                return utils.initWithNode('<div data-f-bind="a"> <input type="text" data-f-bind="boo" /> </div>', domManager).then(function ($node) {
+                    domManager.private.matchedElements.length.should.equal(2);
+                    domManager.unbindAll();
+                    domManager.private.matchedElements.length.should.equal(0);
                 });
-
-                domManager.private.matchedElements.length.should.equal(2);
-                domManager.unbindAll();
-                domManager.private.matchedElements.length.should.equal(0);
             });
             it('should allow unbinding specified array of elements', function () {
-                var node = make('<div data-f-bind="a"> <input type="text" data-f-bind="boo" />  <input type="text" data-f-bind="boos" /> </div>');
-                domManager.initialize({
-                    root: node,
-                    channel: dummyChannelManager
+                return utils.initWithNode('<div data-f-bind="a"> <input type="text" data-f-bind="boo" />  <input type="text" data-f-bind="boos" /> </div>', domManager).then(function ($node) {
+                    domManager.private.matchedElements.length.should.equal(3);
+                    domManager.unbindAll($node.find(':text').get(0));
+                    domManager.private.matchedElements.length.should.equal(2);
                 });
-
-                domManager.private.matchedElements.length.should.equal(3);
-                domManager.unbindAll([$(node).find(':text').get(0)]);
-                domManager.private.matchedElements.length.should.equal(2);
             });
             it('should allow unbinding of children', function () {
-                var node = make('<div data-f-bind="a"> <input type="text" data-f-bind="boo" />  <input type="text" data-f-bind="boos" /> </div>');
-                domManager.initialize({
-                    root: node,
-                    channel: dummyChannelManager
+                return utils.initWithNode('<div data-f-bind="a"> <input type="text" data-f-bind="boo" />  <input type="text" data-f-bind="boos" /> </div>', domManager).then(function ($node) {
+                    domManager.private.matchedElements.length.should.equal(3);
+                    domManager.unbindAll($node.get(0));
+                    domManager.private.matchedElements.length.should.equal(0);
                 });
-
-                domManager.private.matchedElements.length.should.equal(3);
-                domManager.unbindAll(node);
-                domManager.private.matchedElements.length.should.equal(0);
             });
         });
         describe('#bindAll', function () {
             it('should bind elements from the root if no selector is provided', function () {
-                var node = make('<div data-f-bind="a"> </div>');
-                domManager.initialize({
-                    root: node,
-                    channel: dummyChannelManager
+                return utils.initWithNode('<div data-f-bind="a"> </div>', domManager).then(function ($node) {
+                    $node.append('<input type="text" data-f-bind="boo" />');
+                    var addedNode = $node.find(':text');
+
+                    var textspy = sinon.spy();
+                    $(addedNode).on('update.f.ui', textspy);
+
+                    $(addedNode).val('hello').trigger('change');
+                    textspy.should.not.have.been.called;
+
+                    domManager.bindAll();
+
+                    $(addedNode).val('hello1').trigger('change');
+                    textspy.should.have.been.calledOnce;
                 });
-
-                $(node).append('<input type="text" data-f-bind="boo" />');
-                var addedNode = $(node).find(':text');
-
-                var textspy = sinon.spy();
-                $(addedNode).on('update.f.ui', textspy);
-
-                $(addedNode).val('hello').trigger('change');
-                textspy.should.not.have.been.called;
-
-                domManager.bindAll();
-
-                $(addedNode).val('hello1').trigger('change');
-                textspy.should.have.been.calledOnce;
             });
 
             it('should bind children of added elements', function () {
-                var node = make('<div> </div>');
-                domManager.initialize({
-                    root: node,
-                    channel: dummyChannelManager
+                return utils.initWithNode('<div> </div>', domManager).then(function ($node) {
+                    $node.append('<input type="text" data-f-bind="boo" />');
+                    var addedNode = $node.find(':text');
+
+                    var textspy = sinon.spy();
+                    $(addedNode).on('update.f.ui', textspy);
+
+                    $(addedNode).val('hello').trigger('change');
+                    textspy.should.not.have.been.called;
+
+                    domManager.bindAll($node);
+
+                    $(addedNode).val('hello1').trigger('change');
+                    textspy.should.have.been.calledOnce;
                 });
-
-                $(node).append('<input type="text" data-f-bind="boo" />');
-                var addedNode = $(node).find(':text');
-
-                var textspy = sinon.spy();
-                $(addedNode).on('update.f.ui', textspy);
-
-                $(addedNode).val('hello').trigger('change');
-                textspy.should.not.have.been.called;
-
-                domManager.bindAll(node);
-
-                $(addedNode).val('hello1').trigger('change');
-                textspy.should.have.been.calledOnce;
             });
 
             it('should update list of added items', function () {
-                var node = make('<div data-f-bind="a"> </div>');
-                domManager.initialize({
-                    root: node,
-                    channel: dummyChannelManager
-                });
-                domManager.private.matchedElements.length.should.equal(1);
+                return utils.initWithNode('<div data-f-bind="a"> </div>', domManager).then(function ($node) {
+                    domManager.private.matchedElements.length.should.equal(1);
 
-                $(node).append('<input type="text" data-f-bind="boo" />');
-                domManager.bindAll();
-                domManager.private.matchedElements.length.should.equal(2);
+                    $node.append('<input type="text" data-f-bind="boo" />');
+                    domManager.bindAll();
+                    domManager.private.matchedElements.length.should.equal(2);
+                });
             });
 
             it('should allow providing list of elements to bind', function () {
-                var node = make('<div data-f-bind="a"> </div>');
-                domManager.initialize({
-                    root: node,
-                    channel: dummyChannelManager
-                });
-                domManager.private.matchedElements.length.should.equal(1);
+                return utils.initWithNode('<div data-f-bind="a"> </div>', domManager).then(function ($node) {
+                    domManager.private.matchedElements.length.should.equal(1);
 
-                $(node).append('<input type="text" data-f-bind="boo" /> <input type="text" data-f-bind="boos" /> <input type="text" data-f-bind="booss" />');
-                domManager.bindAll($(node).find(':text').get().slice(0, 2));
-                domManager.private.matchedElements.length.should.equal(3);
+                    $node.append('<input type="text" data-f-bind="boo" /> <input type="text" data-f-bind="boos" /> <input type="text" data-f-bind="booss" />');
+                    domManager.bindAll($node.find(':text').get().slice(0, 2));
+                    domManager.private.matchedElements.length.should.equal(3);
+                });
             });
             it('should allow providing jquery selector', function () {
-                var node = make('<div data-f-bind="a"> </div>');
-                domManager.initialize({
-                    root: node,
-                    channel: dummyChannelManager
-                });
-                domManager.private.matchedElements.length.should.equal(1);
+                return utils.initWithNode('<div data-f-bind="a"> </div>', domManager).then(function ($node) {
+                    domManager.private.matchedElements.length.should.equal(1);
 
-                $(node).append('<div> <input type="text" data-f-bind="boo" /> <input type="text" data-f-bind="boos" /> </div> <div> <input type="text" data-f-bind="booss" /> </div>');
-                domManager.bindAll($(node).find('div').get(0));
-                domManager.private.matchedElements.length.should.equal(3);
+                    $node.append('<div> <input type="text" data-f-bind="boo" /> <input type="text" data-f-bind="boos" /> </div> <div> <input type="text" data-f-bind="booss" /> </div>');
+                    domManager.bindAll($node.find('div').get(0));
+                    domManager.private.matchedElements.length.should.equal(3);
+                });
             });
         });
 
