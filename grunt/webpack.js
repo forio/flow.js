@@ -3,19 +3,23 @@ var webpack = require('webpack');
 var uglifyOptions = {
     mangle: false,
     warnings: true,
-    compress:{
+    compress: {
         screw_ie8: true,
         join_vars: false
     }
 };
 
 module.exports = function (grunt) {
-
     var version = grunt.file.readJSON('package.json').version;
     var banner = grunt.file.read('banner.txt');
     banner = banner.replace('RELEASE_VERSION', version);
 
     grunt.config.set('webpack', {
+        options: {
+            resolve: {
+                modulesDirectories: [__dirname + '/../src', 'node_modules']
+            }
+        },
         edge: {
             entry: './src/flow.js',
             output: {
@@ -115,7 +119,5 @@ module.exports = function (grunt) {
                 ]
             }
         }
-
-        
     });
 };

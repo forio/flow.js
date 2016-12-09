@@ -3,7 +3,7 @@
 module.exports = function (grunt) {
     grunt.config.set('incrementVersion', {
         options: {
-            files:  ['./dist/*.js']
+            files: ['./dist/*.js']
         }
     });
     grunt.registerTask('incrementVersion', function () {
