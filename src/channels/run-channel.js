@@ -3,16 +3,27 @@
 var VarsChannel = require('./variables-channel');
 var OperationsChannel = require('./operations-channel');
 
-module.exports = function (options) {
+module.exports = function (options, initFn) {
     var defaults = {
         variables: {
-
+            autoFetch: {
+                start: true
+            }
         },
         operations: {
 
         }
     };
     var config = $.extend(true, {}, defaults, options);
+
+    var opnSilent = config.operations.silent;
+    var isInitOperationSilent = initFn && (opnSilent === true || (_.isArray(opnSilent) && _.contains(opnSilent, initFn)));
+    var preFetchVariables = !initFn || isInitOperationSilent;
+
+    if (preFetchVariables) {
+        config.variables.autoFetch.start = true;
+    }
+
 
     var rm = new window.F.manager.RunManager({ run: config });
     var rs = rm.run;
