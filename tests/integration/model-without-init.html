@@ -10,9 +10,9 @@
     Sales <span data-f-bind="sales"></span>
 
     <button id='addElement'> Add Element</button>
-    <div id="elementContainer">
+    <ul id="elementContainer">
 
-    </div>
+    </ul>
     <script src="/node_modules/jquery/dist/jquery.min.js"></script>
     <script src="/node_modules/lodash/lodash.js"></script>
     <script src="/node_modules/epicenter-js/dist/epicenter.min.js"></script>
@@ -31,10 +31,10 @@
         });
 
         $('#addElement').click(function () {
-            $('#elementContainer').append('<span> SampleINT </span> <span data-f-bind="sampleInt"> </span>');
+            $('#elementContainer').append('<li> SampleINT  <span data-f-bind="sampleInt"> </span></li>');
         });
 
-        new window.Flow.Inspector('body');
+        // new window.Flow.Inspector('body');
     </script>
 </body>
 </html>
