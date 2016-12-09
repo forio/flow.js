@@ -6,6 +6,9 @@ var utils = {
         return (div.childNodes.length === 1) ? div.childNodes[0] : div.childNodes;
     },
     createDummyChannel: function () {
+        var publishSpy = sinon.spy(function () {
+            return $.Deferred().resolve().promise();
+        });
         var dummyChannel = function () {
             return {
                 publish: sinon.spy(function () {
@@ -15,10 +18,14 @@ var utils = {
                 unsubscribe: sinon.spy()
             };
         };
-
+        
         var dummyChannelManager = {
             variables: dummyChannel(),
-            operations: dummyChannel()
+            operations: dummyChannel(),
+            publish: publishSpy,
+            subscribe: function () {
+
+            }
         };
 
         return dummyChannelManager;

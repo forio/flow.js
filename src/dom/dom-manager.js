@@ -317,7 +317,7 @@ module.exports = (function () {
                         $el.trigger(config.events.convert, { bind: val });
                     });
 
-                    channel.variables.publish(parsedData);
+                    channel.publish(parsedData, {}, { type: 'variables' });
                 });
             };
 
@@ -336,7 +336,7 @@ module.exports = (function () {
                     });
                     data.operations = _.difference(data.operations, convertors);
                     var promise = (data.operations.length) ?
-                        channel.operations.publish(_.omit(data, 'options'), data.options) :
+                        channel.publish(_.omit(data, 'options'), data.options, { type: 'operations' }) :
                         $.Deferred().resolve().promise();
                     promise.then(function (args) {
                         _.each(convertors, function (con) {

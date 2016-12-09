@@ -74,7 +74,7 @@ module.exports = function (options, initFn) {
     this.run = rs;
     this.variables = new VarsChannel($.extend(true, {}, config.variables, { run: rs }));
     this.operations = new OperationsChannel($.extend(true, {}, config.operations, { run: rs }));
-
+    
     var me = this;
     var DEBOUNCE_INTERVAL = 200;
     var debouncedRefresh = _.debounce(function () {
@@ -85,4 +85,24 @@ module.exports = function (options, initFn) {
     }, DEBOUNCE_INTERVAL, { leading: false });
 
     this.operations.subscribe('*', debouncedRefresh);
+
+
+    this.publish = function (topic, value, publishOptions, context) {
+        var attrs;
+        var publishOptionsToSend = publishOptions;
+        if ($.isPlainObject(topic)) {
+            attrs = topic;
+            publishOptionsToSend = value;
+            context = publishOptions;
+        } else {
+            (attrs = {})[topic] = value;
+        }
+        
+        var channel = (context.type === 'variables') ? this.variables : this.operations;
+        return channel.publish(attrs, publishOptionsToSend);
+    };
+
+    this.subscribe = function (topic, context) {
+
+    };
 };
