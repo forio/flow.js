@@ -2,6 +2,7 @@
 module.exports = (function () {
     var domManager = require('src/dom/dom-manager');
     var utils = require('../../testing-utils');
+    var config = require('config');
 
     describe('update.f.model', function () {
         it('should trigger f.convert with multiple attributes if provided an object with multiple keys', function () {
@@ -84,11 +85,11 @@ module.exports = (function () {
         });
     });
 
-    describe('f.ui.operate', function () {
+    describe(config.events.operate, function () {
         it('should call the operations channel', function () {
             var channel = utils.createDummyChannel();
             return utils.initWithNode('<button data-f-on-click="reset"> Click </button>', domManager, channel).then(function ($node) {
-                $node.trigger('f.ui.operate', { operations: [{ name: 'stuff', params: [] }], serial: true });
+                $node.trigger(config.events.operate, { operations: [{ name: 'stuff', params: [] }], serial: true });
                 channel.operations.publish.should.have.been.calledOnce;
             });
         });
@@ -96,7 +97,7 @@ module.exports = (function () {
             var channel = utils.createDummyChannel();
             return utils.initWithNode('<button data-f-on-click="reset"> Click </button>', domManager, channel).then(function ($node) {
                 var payload = { operations: [{ name: 'stuff', params: [] }], serial: true };
-                $node.trigger('f.ui.operate', payload);
+                $node.trigger(config.events.operate, payload);
                 channel.operations.publish.should.have.been.calledWith(payload);
             });
         });
@@ -104,7 +105,7 @@ module.exports = (function () {
             var channel = utils.createDummyChannel();
             return utils.initWithNode('<button data-f-on-click="reset"> Click </button>', domManager, channel).then(function ($node) {
                 var payload = { operations: [{ name: 'stuff', params: ['1', 0] }], serial: true };
-                $node.trigger('f.ui.operate', payload);
+                $node.trigger(config.events.operate, payload);
                 channel.operations.publish.should.have.been.calledWith({ operations: [{ name: 'stuff', params: [1, 0] }], serial: true });
             });
         });

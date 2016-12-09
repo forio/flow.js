@@ -1,7 +1,8 @@
 'use strict';
 module.exports = (function () {
-
+    var config = require('config');
     var defaultEventAttr = require('src/dom/attributes/events/default-event-attr');
+    
     describe('Default Event attribute', function () {
         describe('#init', function () {
             it('should attach event listeners for properties prefixed with on-', function () {
@@ -9,7 +10,7 @@ module.exports = (function () {
                 defaultEventAttr.init.call($node, 'on-click', 'stuff');
 
                 var spy = sinon.spy();
-                $node.on('f.ui.operate', spy);
+                $node.on(config.events.operate, spy);
                 $node.trigger('click');
 
                 spy.should.have.been.called;
@@ -20,7 +21,7 @@ module.exports = (function () {
                 defaultEventAttr.init.call($node, 'on-click', 'stuff');
 
                 var spy = sinon.spy();
-                $node.on('f.ui.operate', spy);
+                $node.on(config.events.operate, spy);
                 $node.trigger('click');
 
                 spy.should.have.been.calledOnce;
@@ -35,7 +36,7 @@ module.exports = (function () {
                 defaultEventAttr.init.call($node, 'on-click', 'stuff');
 
                 var spy = sinon.spy();
-                $node.on('f.ui.operate', spy);
+                $node.on(config.events.operate, spy);
                 $node.trigger('click');
 
                 spy.getCall(0).args[1].should.eql({ operations: [{ name: 'stuff', params: [] }], serial: true });
@@ -47,7 +48,7 @@ module.exports = (function () {
                 defaultEventAttr.init.call($node, 'on-click', 'stuff(1)| reset(0)');
 
                 var spy = sinon.spy();
-                $node.on('f.ui.operate', spy);
+                $node.on(config.events.operate, spy);
                 $node.trigger('click');
 
                 spy.getCall(0).args[1].should.eql({
@@ -63,7 +64,7 @@ module.exports = (function () {
             defaultEventAttr.init.call($node, 'on-click', 'stuff');
 
             var spy = sinon.spy();
-            $node.on('f.ui.operate', spy);
+            $node.on(config.events.operate, spy);
             $node.trigger('click');
 
             spy.should.have.been.calledOnce;

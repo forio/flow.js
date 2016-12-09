@@ -16,6 +16,8 @@
  */
 
 'use strict';
+var config = require('config');
+
 
 module.exports = {
 
@@ -42,7 +44,7 @@ module.exports = {
                 return { name: fnName, params: args };
             });
 
-            me.trigger('f.ui.operate', { operations: listOfOperations, serial: true });
+            me.trigger(config.events.operate, { operations: listOfOperations, serial: true });
         });
         return false; //Don't bother binding on this attr. NOTE: Do readonly, true instead?;
     }

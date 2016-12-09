@@ -17,6 +17,8 @@
 
 'use strict';
 
+var config = require('config');
+
 module.exports = {
 
     target: '*',
@@ -38,7 +40,7 @@ module.exports = {
             });
 
             //FIXME: this knows too much about the channel
-            me.trigger('f.ui.operate', { operations: listOfOperations, serial: true, options: { readOnly: false } });
+            me.trigger(config.events.operate, { operations: listOfOperations, serial: true, options: { readOnly: false } });
         });
         return false; //Don't bother binding on this attr. NOTE: Do readonly, true instead?;
     }
