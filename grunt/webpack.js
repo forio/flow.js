@@ -50,6 +50,17 @@ module.exports = function (grunt) {
             },
             module: {
                 loaders: [
+                    { 
+                        test: /\.js$/, 
+                        exclude: /node_modules/,
+                        loader: 'babel-loader',
+                        query: {
+                            plugins: [
+                                'babel-plugin-transform-es2015-arrow-functions',
+                                'babel-plugin-transform-es2015-template-literals'
+                            ]
+                        }
+                    },
                     { test: /\.py$/, loader: 'raw' },
                     { test: /\.jl$/, loader: 'raw' },
                 ]
