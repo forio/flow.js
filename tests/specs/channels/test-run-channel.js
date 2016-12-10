@@ -71,7 +71,7 @@
             });
         });
 
-        describe.only('#publish', function () {
+        describe('#publish', function () {
             var c, varPubStub, opPubStub;
             beforeEach(()=> {
                 c = new Channel();

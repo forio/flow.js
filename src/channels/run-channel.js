@@ -98,11 +98,16 @@ module.exports = function (options, initFn) {
             (attrs = {})[topic] = value;
         }
         
-        var channel = (context.type === 'variables') ? this.variables : this.operations;
+        var channel = (context.type === 'operations') ? this.operations : this.variables;
         return channel.publish(attrs, publishOptionsToSend);
     };
 
-    this.subscribe = function (topic, context) {
-
+    this.subscribe = function (topics, subscriber, subscribeOptions, context) {
+        var channel = (context.type === 'operations') ? this.operations : this.variables;
+        return channel.subscribe(topics, subscriber, subscribeOptions);
+    };
+    this.unsubscribe = function (token, context) {
+        var channel = (context.type === 'operations') ? this.operations : this.variables;
+        return channel.unsubscribe(token);
     };
 };

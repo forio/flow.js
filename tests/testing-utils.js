@@ -11,24 +11,13 @@ var utils = {
         });
         var dummyChannel = function () {
             return {
-                publish: sinon.spy(function () {
-                    return $.Deferred().resolve().promise();
-                }),
+                publish: publishSpy,
                 subscribe: sinon.spy(),
                 unsubscribe: sinon.spy()
             };
         };
-        
-        var dummyChannelManager = {
-            variables: dummyChannel(),
-            operations: dummyChannel(),
-            publish: publishSpy,
-            subscribe: function () {
-
-            }
-        };
-
-        return dummyChannelManager;
+   
+        return dummyChannel();
     },
 
     initWithNode: function (str, domManager, channel) {
