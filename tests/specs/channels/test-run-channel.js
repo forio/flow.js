@@ -2,6 +2,17 @@
 (function () {
 
     var Channel = require('src/channels/run-channel');
+
+    var dummyChannel = function () {
+        return {
+            publish: sinon.spy(function () {
+                return $.Deferred().resolve().promise();
+            }),
+            subscribe: sinon.spy(),
+            unsubscribe: sinon.spy()
+        };
+    };
+
     describe('Run Channel', function () {
         var refreshOptions = {
             on: 'stuff',
@@ -57,6 +68,44 @@
                     }, 'my-init-fun');
                     expect(c.variables.private.options.autoFetch.start).to.equal(true);
                 });
+            });
+        });
+
+        describe.only('#publish', function () {
+            var c, varPubStub, opPubStub;
+            beforeEach(()=> {
+                c = new Channel();
+                varPubStub = sinon.stub(c.variables, 'publish', ()=> {
+                    return $.Deferred().resolve().promise();
+                });
+                opPubStub = sinon.stub(c.operations, 'publish', ()=> {
+                    return $.Deferred().resolve().promise();
+                });
+            });
+            it('should call pick the variables channel based on context', function () {
+                //FIXME: This will obviously be more robust later
+                c.publish({}, {}, { type: 'variables' });
+                expect(varPubStub).to.have.been.calledOnce;
+                expect(opPubStub).to.not.have.been.called;
+            }); 
+            it('should call pick the operations channel based on context', function () {
+                c.publish({}, {}, { type: 'operations' });
+                expect(opPubStub).to.have.been.calledOnce;
+                expect(varPubStub).to.not.have.been.called;
+            });
+            it('should support key, value arguments', ()=> {
+                c.publish('key', 'value', { batch: true }, { type: 'variables' });
+
+                var args = varPubStub.getCall(0).args;
+                expect(args[0]).to.eql({ key: 'value' });
+                expect(args[1]).to.eql({ batch: true });
+            });
+            it('should support object arguments', ()=> {
+                c.publish({ key: 'value' }, { batch: true }, { type: 'variables' });
+
+                var args = varPubStub.getCall(0).args;
+                expect(args[0]).to.eql({ key: 'value' });
+                expect(args[1]).to.eql({ batch: true });
             });
         });
     });
