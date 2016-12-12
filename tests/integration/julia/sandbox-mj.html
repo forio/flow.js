@@ -255,7 +255,7 @@
                     <li>Index is <%= index %> and value is <%= value %></li>
                 </ul>
             </td>
-            <td class="pass">pass (0.10.0)</td>
+            <td class="pass">pass (0.11.0)</td>
         </tr>
 
         <tr>
@@ -266,7 +266,7 @@
                     <li></li>
                 </ul>
             </td>
-            <td class="pass">pass (0.10.0)</td>
+            <td class="pass">pass (0.11.0)</td>
         </tr>
 
         <tr>
@@ -277,7 +277,7 @@
                     <li>Field is <%= key %> and value is <%= value %></li>
                 </ul>
             </td>
-            <td class="pass">pass (0.10.0)</td>
+            <td class="pass">pass (0.11.0)</td>
         </tr>
 
         <tr>
@@ -293,7 +293,7 @@
                    </li>
                </ul>
             </td>
-            <td class="pass">pass (0.10.0), regression testing of <a href="https://github.com/forio/flow.js/issues/30">issue #30</a></td>
+            <td class="pass">pass (0.11.0), regression testing of <a href="https://github.com/forio/flow.js/issues/30">issue #30</a></td>
         </tr>
 
         <tr>
@@ -308,7 +308,7 @@
                    </li>
                </ul>
             </td>
-            <td class="pass"> pass (feature/foreach-aliases), regression testing of <a href="https://github.com/forio/flow.js/pull/79">issue #30 / pr #79</a> </td>
+            <td class="pass"> pass (0.11.0), regression testing of <a href="https://github.com/forio/flow.js/pull/79">issue #30 / pr #79</a> </td>
         </tr>
 
         <tr>
@@ -323,7 +323,7 @@
                    </li>
                </ul>
             </td>
-            <td class="pass"> pass (feature/foreach-aliases), regression testing of <a href="https://github.com/forio/flow.js/pull/79">issue #30 / pr #79</a> </td>
+            <td class="pass"> pass (0.11.0), regression testing of <a href="https://github.com/forio/flow.js/pull/79">issue #30 / pr #79</a> </td>
         </tr>        
 
         <tr>
@@ -340,7 +340,7 @@
                </tbody>
                </table>
             </td>
-            <td class="pass"> pass (feature/foreach-aliases), regression testing of <a href="https://github.com/forio/flow.js/pull/79">issue #30 / pr #79 (note requires enclosing tbody)</a> </td>
+            <td class="pass"> pass (0.11.0), regression testing of <a href="https://github.com/forio/flow.js/pull/79">issue #30 / pr #79 (note requires enclosing tbody)</a> </td>
         </tr> 
 
         <tr>
@@ -357,7 +357,7 @@
                </tbody>
                </table>
             </td>
-            <td class="pass"> pass (feature/foreach-aliases), regression testing of <a href="https://github.com/forio/flow.js/pull/79">issue #30 / pr #79 </a> </td>
+            <td class="pass"> pass (0.11.0), regression testing of <a href="https://github.com/forio/flow.js/pull/79">issue #30 / pr #79 </a> </td>
         </tr>
 
         <tr>
@@ -368,7 +368,7 @@
                     <li><%= (index === 0) ? value : ", " + value  %> </li>
                </ul>
             </td>
-            <td class="pass"> pass (feature/foreach-aliases), regression testing of <a href="https://github.com/forio/flow.js/pull/79">issue #30 / pr #79 (not directly related to pr, but, same functionality area)</a> </td>
+            <td class="pass"> pass (0.11.0), regression testing of <a href="https://github.com/forio/flow.js/pull/79">issue #30 / pr #79 (not directly related to pr, but, same functionality area)</a> </td>
         </tr>
 
         <tr>
@@ -377,11 +377,11 @@
             <td>add logic during the foreach display of an aliased foreach: only output sales info if sales are greater than 250
                 <table id="update100" border="1">
                     <tr data-f-foreach="num in sales">
-                        <td><%= (num > 250) ? num : "is lesser" %> || <%= num %> </td>
+                        <td><%= (num > 250) ? num : "is lesser" || num %> </td>
                     </tr>
                 </table>
             </td>
-            <td class="pass"> pass (feature/foreach-aliases), regression testing of <a href="https://github.com/forio/flow.js/pull/79">issue #30 / pr #79 (HOWEVER, note that this shows the empty cells (or empty list bullets, for similar list example))</a> </td>
+            <td class="pass"> pass (0.11.0), regression testing of <a href="https://github.com/forio/flow.js/pull/79">issue #30 / pr #79 (HOWEVER, note that this shows the 'empty' cells (w/ text 'is lesser') (or empty list bullets, for similar list example))</a> </td>
         </tr>
 
         <tr>
@@ -394,23 +394,23 @@
                     </tr>
                 </table>
             </td>
-            <td class="pass"> pass (feature/foreach-aliases), regression testing of <a href="https://github.com/forio/flow.js/pull/79">issue #30 / pr #79 (compare with previous: this one filters before the display, so does not show empty table cells)</a> </td>
+            <td class="pass"> pass (0.11.0), regression testing of <a href="https://github.com/forio/flow.js/pull/79">issue #30 / pr #79 (compare with previous: this one filters before the display, so does not show empty table cells)</a> </td>
         </tr>
 
         <tr>
             <td>display_foreach</td>
             <td>data-f-foreach, aliased, nested, with logic</td>
             <td>add logic during display to only output region and sales info if sales are greater than 250
-                <br><emphasis>NOTE: table commented (see source), because otherwise rest of page doesn't load</emphasis>
+                <br>
                 <table id="update101" border="1">
                     <tbody data-f-foreach="reg in regions">
                     <tr data-f-foreach="num in sales">
-                        <td><%= (num > 250) ? reg + ": " + num : "smaller" %></td>
+                        <td><%= reg + ": " %> <%= (num > 250) ?  num : "smaller" %></td>
                     </tr>
                     </tbody>
                 </table>
             </td>
-            <td class="fail"> FAIL (feature/foreach-aliases): gives message that num is not defined</td>
+            <td class="pass"> pass (0.11.0) </td>
         </tr>
 
         <tr>
@@ -422,7 +422,7 @@
                     <tr data-f-repeat="sales"><td><%= value %></td></tr>
                 </table>
             </td>
-            <td class="pass"> pass (feature/foreach-aliases) </td>
+            <td class="pass"> pass (0.11.0) </td>
         </tr>
 
         <tr>
@@ -836,7 +836,8 @@
             <span id="update79" data-f-bind="sampleString"></span>
         </td>
         <td class="pass">
-            pass (0.10.0), see also <a href="https://github.com/forio/flow.js/issues/12">issue #12</a>
+            pass (0.11.0), see also <a href="https://github.com/forio/flow.js/issues/12">issue #12</a><br>
+            also! pass (0.11.0): update the Flow.initialize call to include "readOnly: true" and this should NOT work, per <a href="https://github.com/forio/flow.js/issues/85">issue #85</a> 
         </td>
     </tr>
 
@@ -891,7 +892,6 @@
         </td>
         <td class="pass">pass (0.10.0)</td>
     </tr>
-
 
     <tr>
         <td>regression testing: <a href="https://github.com/forio/flow.js/issues/8">issue #8</a></td>
@@ -1001,10 +1001,13 @@ displayed as 150%.
 
 </table>
 
-<script src="../node_modules/jquery/dist/jquery.min.js"></script>
-<script src="../node_modules/lodash/lodash.js"></script>
-<script src="../node_modules/epicenter-js/dist/epicenter.min.js"></script>
-<script src="../../dist/flow-edge.js"></script>
+<script src="/node_modules/jquery/dist/jquery.min.js"></script>
+<script src="/node_modules/lodash/lodash.js"></script>
+<!-- <script src="/node_modules/epicenter-js/dist/epicenter.min.js"></script> -->
+<script src="https://forio.com/tools/js-libs/1.8.1/epicenter.js"></script>
+<!-- <script src="/dist/flow-edge.js"></script> -->
+<script src="https://forio.com/tools/js-libs/flow/0.11.0/flow.js"></script>
+
 
 <script>
     'use strict';
@@ -1023,6 +1026,7 @@ displayed as 150%.
                 project: 'hello-world-flow',
             //server: {host: 'api.epicenter-stable.foriodev.com'}
                 server: { host: 'api.forio.com' },
+                // readOnly: true
                 //variables: { silent: true },
                 //operations: { silent: { except: ['saveAll', 'resetInt'] } }
             }
