@@ -44,10 +44,25 @@ module.exports = (function () {
                     bindHandler.handle.call($rootNode, { a: 'Hello', b: 'World' });
                     $rootNode.html().should.equal('Hello World');
                 });
+                it('should show handle variables with spaces', function () {
+                    var $rootNode = $('<div><%= a %> <%= value["b c"] %></div>');
+                    bindHandler.handle.call($rootNode, { a: 'Hello', 'b c': 'World' });
+                    $rootNode.html().should.equal('Hello World');
+                });
                 it('should show templatize Arrays', function () {
                     var $rootNode = $('<div><%= value[value.length - 1] %></div>');
                     bindHandler.handle.call($rootNode, ['Hello']);
                     $rootNode.html().should.equal('Hello');
+                });
+                it('should show stringified Arrays', function () {
+                    var $rootNode = $('<div><%= value %></div>');
+                    bindHandler.handle.call($rootNode, ['Hello', 'there', 'world']);
+                    $rootNode.html().should.equal('Hello,there,world');
+                });
+                it('should treat items as js objects', function () {
+                    var $rootNode = $('<div><%= words.join(",") %></div>');
+                    bindHandler.handle.call($rootNode, { words: ['Hello', 'there', 'world'] });
+                    $rootNode.html().should.equal('Hello,there,world');
                 });
 
                 it('should update templates when called multiple times', function () {
@@ -64,59 +79,59 @@ module.exports = (function () {
             it('should output last values for arrays', function () {
                 var targetData = { Price: [10, 30] };
 
-                var $node = utils.initWithNode('<div data-f-bind="Price"> </div>', domManager);
-                $node.trigger('update.f.model', targetData);
-
-                $node.html().trim().should.equal('30');
+                return utils.initWithNode('<div data-f-bind="Price"> </div>', domManager).then(function ($node) {
+                    $node.trigger('update.f.model', targetData);
+                    $node.html().trim().should.equal('30');
+                });
             });
 
             it('should convert values to strings', function () {
                 var targetData = { Price: false };
-                var $node = utils.initWithNode('<div data-f-bind="Price"> </div>', domManager);
-                $node.trigger('update.f.model', targetData);
-
-                $node.html().trim().should.equal('false');
+                return utils.initWithNode('<div data-f-bind="Price"> </div>', domManager).then(function ($node) {
+                    $node.trigger('update.f.model', targetData);
+                    $node.html().trim().should.equal('false');
+                });
             });
             it('should templatize multiple-bound variables', function () {
                 var targetData = { Price: '20', Sales: 30 };
 
-                var $node = utils.initWithNode('<div data-f-bind="Price, Sales"> <%= Price %> <%= Sales %> </div>', domManager);
-                $node.trigger('update.f.model', targetData);
-
-                $node.html().trim().should.equal('20 30');
+                return utils.initWithNode('<div data-f-bind="Price, Sales"> <%= Price %> <%= Sales %> </div>', domManager).then(function ($node) {
+                    $node.trigger('update.f.model', targetData);
+                    $node.html().trim().should.equal('20 30');
+                });
             });
             it('should templatize single variables', function () {
                 var targetData = { Price: '20' };
 
-                var $node = utils.initWithNode('<div data-f-bind="Price"> <%= Price %> </div>', domManager);
-                $node.trigger('update.f.model', targetData);
-
-                $node.html().trim().should.equal('20');
+                return utils.initWithNode('<div data-f-bind="Price"> <%= Price %> </div>', domManager).then(function ($node) {
+                    $node.trigger('update.f.model', targetData);
+                    $node.html().trim().should.equal('20');
+                });
             });
             it('should allow templating by variable name for single items', function () {
                 var targetData = { Price: '20', Sales: 30 };
 
-                var $node = utils.initWithNode('<div data-f-bind="Price"> <%= value %> </div>', domManager);
-                $node.trigger('update.f.model', targetData);
-
-                $node.html().trim().should.equal('20');
+                return utils.initWithNode('<div data-f-bind="Price"> <%= value %> </div>', domManager).then(function ($node) {
+                    $node.trigger('update.f.model', targetData);
+                    $node.html().trim().should.equal('20');
+                });
             });
 
             it('should template arrays in accordance with converters', function () {
                 var targetData = { Price: [10, 30] };
 
-                var $node = utils.initWithNode('<div data-f-bind="Price|last"> <%= value %> </div>', domManager);
-                $node.trigger('update.f.model', targetData);
-
-                $node.html().trim().should.equal('30');
+                return utils.initWithNode('<div data-f-bind="Price|last"> <%= value %> </div>', domManager).then(function ($node) {
+                    $node.trigger('update.f.model', targetData);
+                    $node.html().trim().should.equal('30');
+                });
             });
             it('should template objects in accordance with converters', function () {
                 var targetData = { Price: [10, 3000], Sales: [20, 1100] };
 
-                var $node = utils.initWithNode('<div data-f-bind="Price, Sales | #,### |last"> <%= Price %> <%= Sales %> </div>', domManager);
-                $node.trigger('update.f.model', targetData);
-
-                $node.html().trim().should.equal('3,000 1,100');
+                return utils.initWithNode('<div data-f-bind="Price, Sales | #,### |last"> <%= Price %> <%= Sales %> </div>', domManager).then(function ($node) {
+                    $node.trigger('update.f.model', targetData);
+                    $node.html().trim().should.equal('3,000 1,100');
+                });
             });
         });
     });

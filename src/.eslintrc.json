@@ -1,9 +1,5 @@
 {
-    "globals": {
-        "$": true,
-        "_": false,
-        "F": true
-    },
+    "extends": ["../.eslintrc.json"],
     "rules": {
         "new-cap": 0
     }

@@ -89,6 +89,12 @@ These parameters are optional because the `run` information defaults correctly b
 	
 In fact, you can add any of the [Model Run API parameters](../rest_apis/other_apis/model_apis/run/) to the `run` object here. See also more details on [customizing the Flow.initialize() method](./generated/flow-js/).
 
+Additionally, the `Flow.initialize()` call returns a promise, which is resolved when initialization is complete:
+
+		Flow.initialize(...).then(function() {
+			// code that depends on initialization goes here
+		});
+
 
 <a name="templates"></a>
 #### Working with Templates

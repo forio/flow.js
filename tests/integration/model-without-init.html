@@ -3,41 +3,38 @@
 <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <link rel="stylesheet" href="../../dist/add-ons/flow-inspector.css">
+    <link rel="stylesheet" href="/dist/add-ons/flow-inspector.css">
 
 </head>
 <body>
-
-
     Sales <span data-f-bind="sales"></span>
 
     <button id='addElement'> Add Element</button>
     <div id="elementContainer">
 
     </div>
-    <script src="../../vendor/jquery/dist/jquery.min.js"></script>
-    <script src="../../vendor/lodash/dist/lodash.js"></script>
-    <script src="//local.forio.com:8084/dist/epicenter-edge.js"></script>
-    <script src="../../dist/flow-edge.js"></script>
-    <script src="../../dist/add-ons/flow-inspector.min.js"></script>
+    <script src="/node_modules/jquery/dist/jquery.min.js"></script>
+    <script src="/node_modules/lodash/lodash.js"></script>
+    <script src="/node_modules/epicenter-js/dist/epicenter.min.js"></script>
+    <script src="/dist/flow-edge.js"></script>
+    <script src="/dist/add-ons/flow-inspector.min.js"></script>
 
     <script>
-    Flow.initialize({
-        channel: {
-           run: {
-                model: 'hello_world.jl',
-                account: 'nranjit',
-                project: 'flow-test'
-           }
-        }
-    });
+        Flow.initialize({
+            channel: {
+               run: {
+                    model: 'hello_world.jl',
+                    account: 'nranjit',
+                    project: 'flow-test'
+               }
+            }
+        });
 
-    $('#addElement').click(function () {
-        $('#elementContainer').append('<span> SampleINT </span> <span data-f-bind="sampleInt"> </span>');
-    });
+        $('#addElement').click(function () {
+            $('#elementContainer').append('<span> SampleINT </span> <span data-f-bind="sampleInt"> </span>');
+        });
 
-    new window.Flow.Inspector('body');
-
+        new window.Flow.Inspector('body');
     </script>
 </body>
 </html>

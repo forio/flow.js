@@ -87,19 +87,19 @@ module.exports = {
 
         /*eslint no-magic-numbers: 0*/
         switch (suffix) {
-        case '%':
-            number = number / 100;
-            break;
-        case 'k':
-            number = number * 1000;
-            break;
-        case 'm':
-            number = number * 1000000;
-            break;
-        case 'b':
-            number = number * 1000000000;
-            break;
-        default:
+            case '%':
+                number = number / 100;
+                break;
+            case 'k':
+                number = number * 1000;
+                break;
+            case 'm':
+                number = number * 1000000;
+                break;
+            case 'b':
+                number = number * 1000000000;
+                break;
+            default:
         }
         number = parseFloat(number);
         if (isNegative && number > 0) {
@@ -110,11 +110,11 @@ module.exports = {
 
     convert: (function (value) {
         var scales = ['', 'K', 'M', 'B', 'T'];
-        function roundTo (value, digits) {
+        function roundTo(value, digits) {
             return Math.round(value * Math.pow(10, digits)) / Math.pow(10, digits);
         }
 
-        function getDigits (value, digits) {
+        function getDigits(value, digits) {
             value = value === 0 ? 0 : roundTo(value, Math.max(0, digits - Math.ceil(Math.log(value) / Math.LN10)));
 
             var TXT = '';
@@ -144,7 +144,7 @@ module.exports = {
             return TXT;
         }
 
-        function addDecimals (value, decimals, minDecimals, hasCommas) {
+        function addDecimals(value, decimals, minDecimals, hasCommas) {
             hasCommas = !!hasCommas;
             var numberTXT = value.toString();
             var hasDecimals = (numberTXT.split('.').length > 1);
@@ -182,28 +182,28 @@ module.exports = {
             return numberTXT;
         }
 
-        function getSuffix (formatTXT) {
+        function getSuffix(formatTXT) {
             formatTXT = formatTXT.replace('.', '');
             var fixesTXT = formatTXT.split(new RegExp('[0|,|#]+', 'g'));
             return (fixesTXT.length > 1) ? fixesTXT[1].toString() : '';
         }
 
-        function isCurrency (string) { // eslint-disable-line
+        function isCurrency(string) { // eslint-disable-line
             var s = $.trim(string);
 
-            if (s === '$'
-                || s === 'â‚¬'
-                || s === 'Â¥'
-                || s === 'Â£'
-                || s === 'â‚¡'
-                || s === 'â‚±'
-                || s === 'KÄ?'
-                || s === 'kr'
-                || s === 'Â¢'
-                || s === 'â‚ª'
-                || s === 'Æ’'
-                || s === 'â‚©'
-                || s === 'â‚«') {
+            if (s === '$' ||
+                s === 'â‚¬' ||
+                s === 'Â¥' ||
+                s === 'Â£' ||
+                s === 'â‚¡' ||
+                s === 'â‚±' ||
+                s === 'KÄ?' ||
+                s === 'kr' ||
+                s === 'Â¢' ||
+                s === 'â‚ª' ||
+                s === 'Æ’' ||
+                s === 'â‚©' ||
+                s === 'â‚«') {
 
                 return true;
             }

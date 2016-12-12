@@ -16,7 +16,7 @@
   "devDependencies": {
     "eslint": "^3.5.0",
     "fs-walk": "0.0.1",
-    "growl": "^1.8.1",
+    "growl": "^1.9.2",
     "grunt": "^1.0.1",
     "grunt-bump": "^0.8.0",
     "grunt-contrib-watch": "^1.0.0",
@@ -31,13 +31,20 @@
     "istanbul": "^0.4.5",
     "jit-grunt": "^0.10.0",
     "raw-loader": "^0.5.1",
-    "time-grunt": "^1.1.0",
-    "webpack": "^1.13.2",
-    "webpack-dev-server": "^1.15.0"
+    "stringify": "^5.1.0",
+    "time-grunt": "^1.4.0",
+    "uglify-js": "^2.7.0",
+    "webpack": "^1.13.1",
+    "webpack-dev-server": "^1.14.1"
   },
   "author": "Naren Ranjit",
   "bugs": {
     "url": "https://github.com/forio/flow.js/issues"
   },
-  "homepage": "https://github.com/forio/flow.js"
+  "homepage": "https://github.com/forio/flow.js",
+  "dependencies": {
+    "epicenter-js": "github:forio/epicenter-js-libs",
+    "jquery": "^3.1.1",
+    "lodash": "^2.4.2"
+  }
 }

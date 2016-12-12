@@ -16,7 +16,7 @@ module.exports = function (options) {
     };
     var config = $.extend(true, {}, defaults, options);
 
-    var rm = new F.manager.RunManager(config);
+    var rm = new window.F.manager.RunManager(config);
     var rs = rm.run;
 
     var $creationPromise = rm.getRun();

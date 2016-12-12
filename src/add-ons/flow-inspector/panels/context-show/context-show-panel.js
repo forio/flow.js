@@ -24,7 +24,7 @@ module.exports = function ($container, configFunction) {
         return false;
     }
 
-    var file = new F.service.File(config);
+    var file = new window.F.service.File(config);
     file.getContents(config.model, 'model')
         .then(function (response) {
             var extractor = new ContextExtractor(config.model, response);

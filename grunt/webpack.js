@@ -16,6 +16,13 @@ module.exports = function (grunt) {
     banner = banner.replace('RELEASE_VERSION', version);
 
     grunt.config.set('webpack', {
+        options: {
+            plugins: [
+                new webpack.DefinePlugin({
+                    RELEASE_VERSION: JSON.stringify(version)
+                })
+            ]
+        },
         edge: {
             entry: './src/flow.js',
             output: {
@@ -51,13 +58,6 @@ module.exports = function (grunt) {
                 ]
             },
             devtool: 'eval',
-            // watch: true,
-            // keepalive: true,
-            plugins: [
-                new webpack.DefinePlugin({
-                    RELEASE_VERSION: JSON.stringify(version)
-                })
-            ],
             resolve: {
                 alias: {
                     src: __dirname + '/../src'
@@ -73,11 +73,6 @@ module.exports = function (grunt) {
                 library: 'Flow',
                 libraryTarget: 'var'
             },
-            plugins: [
-                new webpack.DefinePlugin({
-                    RELEASE_VERSION: JSON.stringify(version)
-                })
-            ],
             devtool: 'source-map',
         },
         min: {
