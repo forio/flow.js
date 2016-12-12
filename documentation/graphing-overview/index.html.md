@@ -4,7 +4,7 @@ layout: "flow"
 isPage: true
 ---
 
-##Flow.js and Data Visualization: Graphing with Contour
+## Flow.js and Data Visualization: Graphing with Contour
 
 
 Flow.js makes it easy to show data from your model variables in [text](../generated/dom/attributes/binds/default-bind-attr/) or [lists](../generated/dom/attributes/foreach/default-foreach-attr/). However, often you want more than just textual output &mdash; you want to visualize the results of your simulation!
@@ -29,10 +29,10 @@ Add `contour.js` and `contour.css` to the page of your project where the visuali
 
 	<html>
 		<head>
-			<link rel="stylesheet" href="https://forio.com/tools/contour/contour.min.css">
-			<script src="http://d3js.org/d3.v3.js"></script>
-			<script src="http://cdnjs.cloudflare.com/ajax/libs/lodash.js/2.4.1/lodash.js"></script>
-			<script src="https://forio.com/tools/contour/contour.min.js"></script>
+			<link rel="stylesheet" href="//forio.com/tools/contour/contour.min.css">
+			<script src="//d3js.org/d3.v3.js"></script>
+			<script src="//cdnjs.cloudflare.com/ajax/libs/lodash.js/2.4.1/lodash.js"></script>
+			<script src="//forio.com/tools/contour/contour.min.js"></script>
 		</head>
 		
 		<body>
@@ -42,7 +42,7 @@ Add `contour.js` and `contour.css` to the page of your project where the visuali
 
 Including `contour.js` from the top-level `forio.com/tools/contour/` directory guarantees you'll always be using the latest version. If you want to work with a particular version of Contour, you can include the version number in the path:
 	
-	<script src="https://forio.com/tools/contour/1.0.1/contour.min.js"></script>
+	<script src="//forio.com/tools/contour/1.0.1/contour.min.js"></script>
 
 See more about <a href="http://forio.com/contour/documentation.html#quickstart" target="_blank">including Contour</a>.
 
@@ -157,15 +157,15 @@ Here's the complete sample code:
 	<head>
 
 		<!-- for Contour -->
-		<link rel="stylesheet" href="http://forio.com/tools/contour/contour.min.css">
-		<script src="http://d3js.org/d3.v3.js"></script>
-		<script src="http://cdnjs.cloudflare.com/ajax/libs/lodash.js/2.4.1/lodash.js"></script>
-		<script src="https://forio.com/tools/contour/contour.js"></script>
+		<link rel="stylesheet" href="//forio.com/tools/contour/contour.min.css">
+		<script src="//d3js.org/d3.v3.js"></script>
+		<script src="//cdnjs.cloudflare.com/ajax/libs/lodash.js/2.4.1/lodash.js"></script>
+		<script src="//forio.com/tools/contour/contour.js"></script>
 
 		<!-- for Flow.js -->
 		<script src="//ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
-		<script src="https://forio.com/tools/js-libs/1.5.0/epicenter.min.js"></script>
-		<script src="https://forio.com/tools/js-libs/flow/0.9.0/flow.js"></script>
+		<script src="//forio.com/tools/js-libs/2.1.0/epicenter.min.js"></script>
+		<script src="//forio.com/tools/js-libs/flow/latest/flow.js"></script>
 
 	</head>
 
@@ -270,7 +270,7 @@ Here's the complete sample code:
 	
 	</html>			
 
-####Learn More
+#### Learn More
 
 * [Flow.js Variables Channel](../generated/channels/variables-channel/)
 * [Flow.js Operations Channel](../generated/channels/operations-channel/)
