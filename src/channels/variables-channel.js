@@ -91,8 +91,8 @@ module.exports = function (options) {
         },
 
         /**
-         * Allow using the channel for reading data, but dis-allow calls to `publish`. If a function is provided, function should return true/false to override
-         * @type {Boolean}
+         * Allow using the channel for reading data (subscribing), but disallow calls to `publish`. Defaults to `false`: allow both subscribing and publishing. If a function is provided, the function should return a Boolean value to override.
+         * @type {Boolean | Function}
          */
         readOnly: false,
 
