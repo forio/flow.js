@@ -26,7 +26,7 @@ Learn more about advanced topics:
 * [Flow.js and data visualization: graphing with Contour](./graphing-overview/)
 * [Flow Inspector: debugging with Flow.js](./inspector-overview/)
 
-**The current version of Flow is 0.10.0.** See the [Using Flow.js in your Project](#using_in_project) section below. You can also view the history of releases on <a href="https://github.com/forio/flow.js/releases/" "target=_blank">GitHub</a>.
+**The current version of Flow is 0.11.0.** See the [Using Flow.js in your Project](#using_in_project) section below. You can also view the history of releases on <a href="https://github.com/forio/flow.js/releases/" "target=_blank">GitHub</a>.
 
 
 <a name="using_in_project"></a>
