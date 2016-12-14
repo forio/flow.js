@@ -169,7 +169,7 @@ var Flow =
 	    }
 	};
 	//set by grunt
-	if (true) Flow.version = ("0.10.0"); //eslint-disable-line no-undef
+	if (true) Flow.version = ("0.11.0"); //eslint-disable-line no-undef
 	module.exports = Flow;
 
 
