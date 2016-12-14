@@ -28,7 +28,7 @@ module.exports = function ($container, configFunction) {
         folderType: 'model'
     };
     var opts = $.extend(true, {}, defaults, config);
-    var file = new F.service.File(opts);
+    var file = new window.F.service.File(opts);
     file.getContents(config.model, 'model')
         .then(function (response) {
             var extractor = new ContextExtractor(config.model, response);
