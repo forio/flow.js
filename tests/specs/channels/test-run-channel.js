@@ -72,41 +72,60 @@
         });
 
         describe('#publish', function () {
-            var c, varPubStub, opPubStub;
+            var c, varStub, opsStub;
             beforeEach(()=> {
                 c = new Channel();
-                varPubStub = sinon.stub(c.variables, 'publish', ()=> {
+                varStub = sinon.stub(c.variables, 'publish', ()=> {
                     return $.Deferred().resolve().promise();
                 });
-                opPubStub = sinon.stub(c.operations, 'publish', ()=> {
+                opsStub = sinon.stub(c.operations, 'publish', ()=> {
                     return $.Deferred().resolve().promise();
                 });
             });
             it('should call pick the variables channel based on context', function () {
                 //FIXME: This will obviously be more robust later
                 c.publish({}, {}, { type: 'variables' });
-                expect(varPubStub).to.have.been.calledOnce;
-                expect(opPubStub).to.not.have.been.called;
+                expect(varStub).to.have.been.calledOnce;
+                expect(opsStub).to.not.have.been.called;
             }); 
             it('should call pick the operations channel based on context', function () {
                 c.publish({}, {}, { type: 'operations' });
-                expect(opPubStub).to.have.been.calledOnce;
-                expect(varPubStub).to.not.have.been.called;
+                expect(opsStub).to.have.been.calledOnce;
+                expect(varStub).to.not.have.been.called;
             });
             it('should support key, value arguments', ()=> {
                 c.publish('key', 'value', { batch: true }, { type: 'variables' });
 
-                var args = varPubStub.getCall(0).args;
+                var args = varStub.getCall(0).args;
                 expect(args[0]).to.eql({ key: 'value' });
                 expect(args[1]).to.eql({ batch: true });
             });
             it('should support object arguments', ()=> {
                 c.publish({ key: 'value' }, { batch: true }, { type: 'variables' });
 
-                var args = varPubStub.getCall(0).args;
+                var args = varStub.getCall(0).args;
                 expect(args[0]).to.eql({ key: 'value' });
                 expect(args[1]).to.eql({ batch: true });
             });
+        });
+
+        describe('#subscribe', ()=> {
+            var c, varStub, opsStub;
+            beforeEach(()=> {
+                c = new Channel();
+                varStub = sinon.stub(c.variables, 'subscribe', ()=> {
+                    return $.Deferred().resolve().promise();
+                });
+                opsStub = sinon.stub(c.operations, 'subscribe', ()=> {
+                    return $.Deferred().resolve().promise();
+                });
+            });
+            it('should call pick the variables channel based on context', function () {
+                //FIXME: This will obviously be more robust later
+                c.subscribe({}, {}, {}, { type: 'variables' });
+                expect(varStub).to.have.been.calledOnce;
+                expect(opsStub).to.not.have.been.called;
+            }); 
         });
     });
 }());
