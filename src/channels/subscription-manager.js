@@ -5,29 +5,38 @@ var createClass = require('utils/create-class');
 var makeSubs = function makeSubs(topics, callback, options) {
     var id = _.uniqueId('subs-');
     var defaults = {
-        batch: true
+        batch: false
     };
+    var opts = $.extend({}, defaults, options);
     return $.extend(true, {
         id: id,
         topics: topics,
         callback: callback,
         lastSent: {}
-    }, defaults, options);
+    }, opts);
 };
 
-function checkAndNotifyBatch(publishedTopics, subscription, data) {
+function checkAndNotifyBatch(publishObj, subscription) {
+    var publishedTopics = Object.keys(publishObj);
+
     var matchingTopics = _.intersection(publishedTopics, subscription.topics);
     if (matchingTopics.length === subscription.topics.length) {
-        subscription.callback(data);
+        var toSend = subscription.topics.reduce(function (accum, topic) {
+            accum[topic] = publishObj[topic];
+            return accum;
+        }, {});
+        subscription.callback(toSend);
     }
     publishedTopics.forEach(function (topic) {
-        subscription.lastSent[publishedTopics] = data;
+        subscription.lastSent[topic] = publishObj[topic];
     });
 }
 
-function checkAndNotify(publishedTopics, subscription, data) {
+function checkAndNotify(publishObj, subscription) {
+    var publishedTopics = Object.keys(publishObj);
     publishedTopics.forEach(function (topic) {
-        if (_.includes(subscription.topics, topic) && !_.isEqual(subscription.lastSent[topic], data)) {
+        var data = publishObj[topic];
+        if (_.contains(subscription.topics, topic) && !_.isEqual(subscription.lastSent[topic], data)) {
             subscription.lastSent[topic] = data;
             subscription.callback(data);
         }
@@ -40,22 +49,39 @@ var SubscriptionManager = (function () {
     }
 
     createClass(SubscriptionManager, {
-        publish: function (topics, data) {
-            topics = [].concat(topics);
+        publish: function (topic, value, options) {
+            // console.log('publish', arguments);
+            var attrs;
+            if ($.isPlainObject(topic)) {
+                attrs = topic;
+                options = value;
+            } else {
+                (attrs = {})[topic] = value;
+            }
+            
+            var $d = $.Deferred();
+
             this.subscriptions.forEach(function (subs) {
                 var fn = subs.batch ? checkAndNotifyBatch : checkAndNotify;
-                fn(topics, subs);
+                fn(attrs, subs);
             });
+            $d.resolve();
+
+            return $d.promise();
         },
         subscribe: function (topics, cb, options) {
             var subs = makeSubs(topics, cb, options);
             this.subscriptions = this.subscriptions.concat(subs);
-            return subs;
+            return subs.id;
         },
         unsubscribe: function (token) {
+            var oldLength = this.subscriptions.length;
             this.subscriptions = _.reject(this.subscriptions, function (subs) {
                 return subs.id === token;
             });
+            if (oldLength === this.subscriptions.length) {
+                throw new Error('No subscription found for token ' + token);
+            }
         },
         unsubscribeAll: function () {
             this.subscriptions = [];
