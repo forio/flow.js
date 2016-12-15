@@ -40,26 +40,37 @@ var SubscriptionManager = (function () {
     }
 
     createClass(SubscriptionManager, {
-        publish: function publish(topics, data) {
+        publish: function (topics, data) {
             topics = [].concat(topics);
             this.subscriptions.forEach(function (subs) {
                 var fn = subs.batch ? checkAndNotifyBatch : checkAndNotify;
                 fn(topics, subs);
             });
         },
-        subscribe: function subscribe(topics, cb, options) {
+        subscribe: function (topics, cb, options) {
             var subs = makeSubs(topics, cb, options);
             this.subscriptions = this.subscriptions.concat(subs);
             return subs;
         },
-        unsubscribe: function unsubscribe(token) {
+        unsubscribe: function (token) {
             this.subscriptions = _.reject(this.subscriptions, function (subs) {
                 return subs.id === token;
             });
         },
-        getSubscribedTopics: function getSubscribedTopics() {
+        unsubscribeAll: function () {
+            this.subscriptions = [];
+        },
+        getSubscribedTopics: function () {
             var list = _.uniq(_.flatten(_.map(this.subscriptions, 'topics')));
             return list;
+        },
+        getSubscribers: function (topic) {
+            if (topic) {
+                return _.filter(this.subscriptions, function (subs) {
+                    return _.contains(subs.topics, topic);
+                });
+            }
+            return this.subscriptions;
         }
     });
 
