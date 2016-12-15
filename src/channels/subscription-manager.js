@@ -1,21 +1,6 @@
 'use strict';
 
-var _createClass = (function () {
-    function defineProperties(target, props) {
-        for (var i = 0; i < props.length; i++) {
-            var descriptor = props[i];
-            descriptor.enumerable = descriptor.enumerable || false;
-            descriptor.configurable = true;
-            if ('value' in descriptor) descriptor.writable = true;
-            Object.defineProperty(target, descriptor.key, descriptor); 
-        } 
-    }
-    return function (Constructor, protoProps, staticProps) {
-        if (protoProps) defineProperties(Constructor.prototype, protoProps);
-        if (staticProps) defineProperties(Constructor, staticProps);
-        return Constructor; 
-    }; 
-}());
+var createClass = require('utils/create-class');
 
 var makeSubs = function makeSubs(topics, callback, options) {
     var id = _.uniqueId('subs-');
@@ -54,38 +39,31 @@ var SubscriptionManager = (function () {
         this.subscriptions = [];
     }
 
-    _createClass(SubscriptionManager, [{
-        key: 'publish',
-        value: function publish(topics, data) {
+    createClass(SubscriptionManager, {
+        publish: function publish(topics, data) {
             topics = [].concat(topics);
             this.subscriptions.forEach(function (subs) {
                 var fn = subs.batch ? checkAndNotifyBatch : checkAndNotify;
                 fn(topics, subs);
             });
-        }
-    }, {
-        key: 'subscribe',
-        value: function subscribe(topics, cb, options) {
+        },
+        subscribe: function subscribe(topics, cb, options) {
             var subs = makeSubs(topics, cb, options);
             this.subscriptions = this.subscriptions.concat(subs);
             return subs;
-        }
-    }, {
-        key: 'unsubscribe',
-        value: function unsubscribe(token) {
+        },
+        unsubscribe: function unsubscribe(token) {
             this.subscriptions = _.reject(this.subscriptions, function (subs) {
                 return subs.id === token;
             });
-        }
-    }, {
-        key: 'getSubscribedTopics',
-        value: function getSubscribedTopics() {
+        },
+        getSubscribedTopics: function getSubscribedTopics() {
             var list = _.uniq(_.flatten(_.map(this.subscriptions, 'topics')));
             return list;
         }
-    }]);
+    });
 
     return SubscriptionManager;
 }());
 
-exports.default = SubscriptionManager;
+module.exports = SubscriptionManager;
