@@ -2,6 +2,17 @@
 (function () {
 
     var Channel = require('src/channels/run-channel');
+
+    var dummyChannel = function () {
+        return {
+            publish: sinon.spy(function () {
+                return $.Deferred().resolve().promise();
+            }),
+            subscribe: sinon.spy(),
+            unsubscribe: sinon.spy()
+        };
+    };
+
     describe('Run Channel', function () {
         var refreshOptions = {
             on: 'stuff',
@@ -21,13 +32,12 @@
         });
 
         describe('options', function () {
-
             it('should pass options to the variables service', function () {
                 var options = {
                     refresh: refreshOptions
                 };
                 var c = new Channel({
-                    run: { variables: options }
+                    variables: options
                 });
                 c.variables.private.options.refresh.should.eql(refreshOptions);
             });
@@ -36,14 +46,86 @@
                     refresh: refreshOptions
                 };
                 var c = new Channel({
-                    run: { operations: options }
+                    operations: options
                 });
                 c.operations.private.options.refresh.should.eql(refreshOptions);
             });
+
+            describe('#autoFetch', function () {
+                it('should autofetch by default', function () {
+                    var c = new Channel();
+                    expect(c.variables.private.options.autoFetch.start).to.equal(true);
+                });
+                it('should not auto-fetch if there\'s an initial operation', function () {
+                    var c = new Channel({}, 'my-init-fun');
+                    expect(c.variables.private.options.autoFetch.start).to.equal(false);
+                });
+                it('should  auto-fetch if the initial operation is silent', function () {
+                    var c = new Channel({
+                        operations: {
+                            silent: ['my-init-fun']
+                        }
+                    }, 'my-init-fun');
+                    expect(c.variables.private.options.autoFetch.start).to.equal(true);
+                });
+            });
         });
-    });
 
-    describe('run', function () {
+        describe('#publish', function () {
+            var c, varStub, opsStub;
+            beforeEach(()=> {
+                c = new Channel();
+                varStub = sinon.stub(c.variables, 'publish', ()=> {
+                    return $.Deferred().resolve().promise();
+                });
+                opsStub = sinon.stub(c.operations, 'publish', ()=> {
+                    return $.Deferred().resolve().promise();
+                });
+            });
+            it('should call pick the variables channel based on context', function () {
+                //FIXME: This will obviously be more robust later
+                c.publish({}, {}, { type: 'variables' });
+                expect(varStub).to.have.been.calledOnce;
+                expect(opsStub).to.not.have.been.called;
+            }); 
+            it('should call pick the operations channel based on context', function () {
+                c.publish({}, {}, { type: 'operations' });
+                expect(opsStub).to.have.been.calledOnce;
+                expect(varStub).to.not.have.been.called;
+            });
+            it('should support key, value arguments', ()=> {
+                c.publish('key', 'value', { batch: true }, { type: 'variables' });
 
+                var args = varStub.getCall(0).args;
+                expect(args[0]).to.eql({ key: 'value' });
+                expect(args[1]).to.eql({ batch: true });
+            });
+            it('should support object arguments', ()=> {
+                c.publish({ key: 'value' }, { batch: true }, { type: 'variables' });
+
+                var args = varStub.getCall(0).args;
+                expect(args[0]).to.eql({ key: 'value' });
+                expect(args[1]).to.eql({ batch: true });
+            });
+        });
+
+        describe('#subscribe', ()=> {
+            var c, varStub, opsStub;
+            beforeEach(()=> {
+                c = new Channel();
+                varStub = sinon.stub(c.variables, 'subscribe', ()=> {
+                    return $.Deferred().resolve().promise();
+                });
+                opsStub = sinon.stub(c.operations, 'subscribe', ()=> {
+                    return $.Deferred().resolve().promise();
+                });
+            });
+            it('should call pick the variables channel based on context', function () {
+                //FIXME: This will obviously be more robust later
+                c.subscribe({}, {}, {}, { type: 'variables' });
+                expect(varStub).to.have.been.calledOnce;
+                expect(opsStub).to.not.have.been.called;
+            }); 
+        });
     });
 }());

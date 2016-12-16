@@ -9,7 +9,7 @@ module.exports = (function () {
                 var channel = utils.createDummyChannel();
                 return utils.initWithNode('<input type="button" data-f-on-click="step(1)"/>', domManager, channel).then(function ($node) {
                     $node.trigger('click');
-                    channel.operations.publish.should.have.been.calledWith({ operations: [{ name: 'step', params: [1] }], serial: true });
+                    channel.publish.should.have.been.calledWith({ operations: [{ name: 'step', params: [1] }], serial: true });
                 });
             });
 
@@ -17,7 +17,7 @@ module.exports = (function () {
                 var channel = utils.createDummyChannel();
                 return utils.initWithNode('<input type="button" data-f-on-click="step(1, 2)"/>', domManager, channel).then(function ($node) {
                     $node.trigger('click');
-                    channel.operations.publish.should.have.been.calledWith({ operations: [{ name: 'step', params: [1, 2] }], serial: true });
+                    channel.publish.should.have.been.calledWith({ operations: [{ name: 'step', params: [1, 2] }], serial: true });
                 });
             });
 
@@ -25,7 +25,7 @@ module.exports = (function () {
                 var channel = utils.createDummyChannel();
                 return utils.initWithNode('<input type="button" data-f-on-click="step(1, abc)"/>', domManager, channel).then(function ($node) {
                     $node.trigger('click');
-                    channel.operations.publish.should.have.been.calledWith({ operations: [{ name: 'step', params: [1, 'abc'] }], serial: true });
+                    channel.publish.should.have.been.calledWith({ operations: [{ name: 'step', params: [1, 'abc'] }], serial: true });
                 });
             });
 
@@ -33,7 +33,7 @@ module.exports = (function () {
                 var channel = utils.createDummyChannel();
                 return utils.initWithNode('<input type="button" data-f-on-click="step(1,\'2\')"/>', domManager, channel).then(function ($node) {
                     $node.trigger('click');
-                    channel.operations.publish.should.have.been.calledWith({ operations: [{ name: 'step', params: [1, '2'] }], serial: true });
+                    channel.publish.should.have.been.calledWith({ operations: [{ name: 'step', params: [1, '2'] }], serial: true });
                 });
             });
 
@@ -41,7 +41,7 @@ module.exports = (function () {
                 var channel = utils.createDummyChannel();
                 return utils.initWithNode('<input type="button" data-f-on-click="step(1, 2) | reset()"/>', domManager, channel).then(function ($node) {
                     $node.trigger('click');
-                    channel.operations.publish.should.have.been.calledWith({ operations: [
+                    channel.publish.should.have.been.calledWith({ operations: [
                         { name: 'step', params: [1, 2] },
                         { name: 'reset', params: [] }], serial: true });
                 });
@@ -51,7 +51,7 @@ module.exports = (function () {
                 var channel = utils.createDummyChannel();
                 return utils.initWithNode('<input type="button" data-f-on-click=\'step(1, {\"hello\": \"world\" })\'/>', domManager, channel).then(function ($node) {
                     $node.trigger('click');
-                    channel.operations.publish.should.have.been.calledWith({ operations: [{ name: 'step', params: [1, { hello: 'world' }] }], serial: true });
+                    channel.publish.should.have.been.calledWith({ operations: [{ name: 'step', params: [1, { hello: 'world' }] }], serial: true });
                 });
             });
         });

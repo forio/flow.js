@@ -86,62 +86,62 @@ module.exports = (function () {
     });
 
     describe(config.events.operate, function () {
-        it('should call the operations channel', function () {
+        it('should call publish', function () {
             var channel = utils.createDummyChannel();
             return utils.initWithNode('<button data-f-on-click="reset"> Click </button>', domManager, channel).then(function ($node) {
                 $node.trigger(config.events.operate, { operations: [{ name: 'stuff', params: [] }], serial: true });
-                channel.operations.publish.should.have.been.calledOnce;
+                channel.publish.should.have.been.calledOnce;
             });
         });
-        it('should pass the right parameters to the operations channel', function () {
+        it('should pass the right parameters to publish', function () {
             var channel = utils.createDummyChannel();
             return utils.initWithNode('<button data-f-on-click="reset"> Click </button>', domManager, channel).then(function ($node) {
                 var payload = { operations: [{ name: 'stuff', params: [] }], serial: true };
                 $node.trigger(config.events.operate, payload);
-                channel.operations.publish.should.have.been.calledWith(payload);
+                channel.publish.should.have.been.calledWith(payload);
             });
         });
-        it('should implicitly convert parameters to send to the operations channel', function () {
+        it('should implicitly convert parameters to send to publish', function () {
             var channel = utils.createDummyChannel();
             return utils.initWithNode('<button data-f-on-click="reset"> Click </button>', domManager, channel).then(function ($node) {
                 var payload = { operations: [{ name: 'stuff', params: ['1', 0] }], serial: true };
                 $node.trigger(config.events.operate, payload);
-                channel.operations.publish.should.have.been.calledWith({ operations: [{ name: 'stuff', params: [1, 0] }], serial: true });
+                channel.publish.should.have.been.calledWith({ operations: [{ name: 'stuff', params: [1, 0] }], serial: true });
             });
         });
     });
 
     describe('update.f.ui', function () {
-        it('should call the variables channel', function () {
+        it('should call publish on the channel', function () {
             var channel = utils.createDummyChannel();
             return utils.initWithNode('<input type="text" data-f-bind="apple"/>', domManager, channel).then(function ($node) {
                 $node.trigger('update.f.ui', { apple: 2 });
-                channel.variables.publish.should.have.been.calledOnce;
+                channel.publish.should.have.been.calledOnce;
             });
         });
-        it('should pass the right parameters to the variables channel', function () {
+        it('should pass the right parameters to publish', function () {
             var channel = utils.createDummyChannel();
             return utils.initWithNode('<input type="text" data-f-bind="apple"/>', domManager, channel).then(function ($node) {
                 var payload = { apple: 2 };
                 $node.trigger('update.f.ui', payload);
-                channel.variables.publish.should.have.been.calledWith(payload);
+                channel.publish.should.have.been.calledWith(payload);
             });
         });
-        it('should implicitly convert parameters to send to the variables channel', function () {
+        it('should implicitly convert parameters to send to tpublish', function () {
             var channel = utils.createDummyChannel();
             return utils.initWithNode('<input type="text" data-f-bind="apple"/>', domManager, channel).then(function ($node) {
                 var payload = { apple: '2' };
                 $node.trigger('update.f.ui', payload);
-                channel.variables.publish.should.have.been.calledWith({ apple: 2 });
+                channel.publish.should.have.been.calledWith({ apple: 2 });
             });
         });
 
-        it('should run values through parsers before sending to the variables channel', function () {
+        it('should run values through parsers before sending to publish', function () {
             var channel = utils.createDummyChannel();
             return utils.initWithNode('<input type="text" data-f-bind="apple | $#,###.00"/>', domManager, channel).then(function ($node) {
                 var payload = { apple: '$20,000.00' };
                 $node.trigger('update.f.ui', payload);
-                channel.variables.publish.should.have.been.calledWith({ apple: 20000 });
+                channel.publish.should.have.been.calledWith({ apple: 20000 });
             });
         });
         it('should trigger f.convert to convert values', function () {

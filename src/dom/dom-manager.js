@@ -75,7 +75,7 @@ module.exports = (function () {
          */
         unbindElement: function (element, channel) {
             if (!channel) {
-                channel = this.options.channel.variables;
+                channel = this.options.channel;
             }
             element = getElementOrError(element);
             var $el = $(element);
@@ -125,12 +125,12 @@ module.exports = (function () {
          * Bind the element: subscribe from updates on the relevant channels.
          *
          * @param {DomElement} element The element to add to the data binding.
-         * @param {ChannelInstance} channel (Optional) The channel to subscribe to. Defaults to the [variables channel](../channels/variables-channel/).
+         * @param {ChannelInstance} channel (Optional) The channel to subscribe to. Defaults to the [run channel](../channels/run-channel/).
          * @returns {undefined}
          */
         bindElement: function (element, channel) {
             if (!channel) {
-                channel = this.options.channel.variables;
+                channel = this.options.channel;
             }
             element = getElementOrError(element);
             var $el = $(element);
@@ -227,7 +227,7 @@ module.exports = (function () {
             var me = this;
             //parse through dom and find everything with matching attributes
             $.each(elementsToBind, function (index, element) {
-                me.bindElement(element, me.options.channel.variables);
+                me.bindElement(element, me.options.channel);
             });
         },
         /**
@@ -244,7 +244,7 @@ module.exports = (function () {
                 elementsToUnbind = getMatchingElements(elementsToUnbind);
             }
             $.each(elementsToUnbind, function (index, element) {
-                me.unbindElement(element, me.options.channel.variables);
+                me.unbindElement(element, me.options.channel);
             });
         },
 
@@ -317,7 +317,7 @@ module.exports = (function () {
                         $el.trigger(config.events.convert, { bind: val });
                     });
 
-                    channel.variables.publish(parsedData);
+                    channel.publish(parsedData, {}, { type: 'variables' });
                 });
             };
 
@@ -336,7 +336,7 @@ module.exports = (function () {
                     });
                     data.operations = _.difference(data.operations, convertors);
                     var promise = (data.operations.length) ?
-                        channel.operations.publish(_.omit(data, 'options'), data.options) :
+                        channel.publish(_.omit(data, 'options'), data.options, { type: 'operations' }) :
                         $.Deferred().resolve().promise();
                     promise.then(function (args) {
                         _.each(convertors, function (con) {

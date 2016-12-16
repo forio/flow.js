@@ -3,20 +3,28 @@
 var VarsChannel = require('./variables-channel');
 var OperationsChannel = require('./operations-channel');
 
-module.exports = function (options) {
+module.exports = function (options, initFn) {
     var defaults = {
-        run: {
-            variables: {
-
-            },
-            operations: {
-
+        variables: {
+            autoFetch: {
+                start: false
             }
+        },
+        operations: {
+
         }
     };
     var config = $.extend(true, {}, defaults, options);
 
-    var rm = new window.F.manager.RunManager(config);
+    var opnSilent = config.operations.silent;
+    var isInitOperationSilent = initFn && (opnSilent === true || (_.isArray(opnSilent) && _.contains(opnSilent, initFn)));
+    var preFetchVariables = !initFn || isInitOperationSilent;
+
+    if (preFetchVariables) {
+        config.variables.autoFetch.start = true;
+    }
+
+    var rm = new window.F.manager.RunManager({ run: config });
     var rs = rm.run;
 
     var $creationPromise = rm.getRun();
@@ -64,9 +72,9 @@ module.exports = function (options) {
     };
 
     this.run = rs;
-    this.variables = new VarsChannel($.extend(true, {}, config.run.variables, { run: rs }));
-    this.operations = new OperationsChannel($.extend(true, {}, config.run.operations, { run: rs }));
-
+    this.variables = new VarsChannel($.extend(true, {}, config.variables, { run: rs }));
+    this.operations = new OperationsChannel($.extend(true, {}, config.operations, { run: rs }));
+    
     var me = this;
     var DEBOUNCE_INTERVAL = 200;
     var debouncedRefresh = _.debounce(function () {
@@ -77,4 +85,29 @@ module.exports = function (options) {
     }, DEBOUNCE_INTERVAL, { leading: false });
 
     this.operations.subscribe('*', debouncedRefresh);
+
+
+    this.publish = function (topic, value, publishOptions, context) {
+        var attrs;
+        var publishOptionsToSend = publishOptions;
+        if ($.isPlainObject(topic)) {
+            attrs = topic;
+            publishOptionsToSend = value;
+            context = publishOptions;
+        } else {
+            (attrs = {})[topic] = value;
+        }
+        
+        var channel = (context.type === 'operations') ? this.operations : this.variables;
+        return channel.publish(attrs, publishOptionsToSend);
+    };
+
+    this.subscribe = function (topics, subscriber, subscribeOptions, context) {
+        var channel = (context.type === 'operations') ? this.operations : this.variables;
+        return channel.subscribe(topics, subscriber, subscribeOptions);
+    };
+    this.unsubscribe = function (token, context) {
+        var channel = (context.type === 'operations') ? this.operations : this.variables;
+        return channel.unsubscribe(token);
+    };
 };
