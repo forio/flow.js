@@ -12,7 +12,6 @@ var makeSubs = function makeSubs(topics, callback, options) {
         id: id,
         topics: topics,
         callback: callback,
-        lastSent: {}
     }, opts);
 };
 
@@ -27,18 +26,16 @@ function checkAndNotifyBatch(publishObj, subscription) {
         }, {});
         subscription.callback(toSend);
     }
-    publishedTopics.forEach(function (topic) {
-        subscription.lastSent[topic] = publishObj[topic];
-    });
 }
 
 function checkAndNotify(publishObj, subscription) {
     var publishedTopics = Object.keys(publishObj);
     publishedTopics.forEach(function (topic) {
         var data = publishObj[topic];
-        if (_.contains(subscription.topics, topic) && !_.isEqual(subscription.lastSent[topic], data)) {
-            subscription.lastSent[topic] = data;
-            subscription.callback(data);
+        if (_.contains(subscription.topics, topic)) {
+            var toSend = {};
+            toSend[topic] = data;
+            subscription.callback(toSend);
         }
     });
 }

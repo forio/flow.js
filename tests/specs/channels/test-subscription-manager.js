@@ -34,11 +34,59 @@ describe.only('Subscription Manager', ()=> {
             var p = channel.publish('booo', 'yes');
             expect(p.then).to.be.a('function');
         });
-        it.only('should notify listeners', ()=> {
+        it('should notify listeners', ()=> {
             var spy1 = sinon.spy();
             channel.subscribe(['price', 'cost'], spy1);
             channel.publish({ price: 2, cost: 1 });
             spy1.should.have.been.calledTwice;
+        });
+        it('should pass the right arguments to listeners', ()=> {
+            var spy1 = sinon.spy();
+            channel.subscribe(['price', 'cost'], spy1);
+            channel.publish({ price: 2, cost: 1 });
+
+            var args1 = spy1.getCall(0).args[0];
+            var args2 = spy1.getCall(1).args[0];
+
+            expect(args1).to.eql({ price: 2 });
+            expect(args2).to.eql({ cost: 1 });
+        });
+    });
+
+    describe('batch', ()=> {
+        var spy1, spy2;
+        beforeEach(()=> {
+            spy1 = sinon.spy();
+            spy2 = sinon.spy();
+
+            channel.subscribe(['price', 'cost'], spy1, { batch: true });
+            channel.subscribe(['price', 'cost'], spy2, { batch: false });
+        });
+        afterEach(function () {
+            channel.unsubscribeAll();
+        });
+        it('should batch calls if subscribe is called with batch:true', function () {
+            channel.publish({ price: 2, cost: 1 });
+
+            spy1.should.have.been.calledOnce;
+            spy2.should.have.been.calledTwice;
+        });
+        it('should pass the correct parameters to batched calls', function () {
+            channel.publish({ price: 2, cost: 1 });
+
+            spy1.should.have.been.calledWith({ price: 2, cost: 1 });
+            spy2.getCall(0).args[0].should.eql({ price: 2 });
+            spy2.getCall(1).args[0].should.eql({ cost: 1 });
+        });
+
+        it('should not re-trigger non-batched calls', function () {
+            var spy1 = sinon.spy();
+            channel.subscribe(['price', 'cost'], spy1, { batch: true });
+            channel.subscribe(['something', 'else'], spy1, { batch: false });
+
+            channel.publish({ price: 2, cost: 1 });
+
+            spy1.should.have.been.calledOnce;
         });
     });
     describe('#subscribe', function () {
