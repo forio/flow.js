@@ -55,6 +55,36 @@ describe.only('Subscription Manager', ()=> {
         });
     });
 
+    describe('Publish Middleware', ()=> {
+        var m1, m2, channel;
+        beforeEach(()=> {
+            m1 = sinon.spy(function () {
+                return 'lol';
+            })
+            m2 = sinon.spy();
+            channel = new SubsManager({
+                publishMiddlewares: [m1, m2]
+            });
+        });
+        it('should be settable in the constructor', ()=> {
+            expect(channel.publishMiddlewares).to.eql([m1, m2]);
+        });
+        it('should be called in the right order each time there\'s a publish call', ()=> {
+            return channel.publish({ foo: 'bar' }).then(()=> {
+                expect(m1).to.have.been.calledOnce;
+                expect(m2).to.have.been.calledOnce;
+
+                expect(m1).to.have.been.calledBefore(m2);
+            });
+        });
+        it('should be called with the right arguments', ()=> {
+            return channel.publish({ foo: 'bar' }).then(()=> {
+                expect(m1).to.have.been.calledWith({ foo: 'bar' });
+                expect(m2).to.have.been.calledWith('lol');
+            });
+        });
+    });
+
     describe('batch', ()=> {
         var spy1, spy2;
         beforeEach(()=> {

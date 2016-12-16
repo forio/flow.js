@@ -41,9 +41,13 @@ function checkAndNotify(publishObj, subscription) {
 }
 
 var SubscriptionManager = (function () {
-    function SubscriptionManager() {
-        this.subscriptions = [];
-        this.publishMiddlewares = [];
+    function SubscriptionManager(options) {
+        var defaults = {
+            subscriptions: [],
+            publishMiddlewares: []
+        };
+        var opts = $.extend(true, {}, defaults, options);
+        $.extend(this, opts);
     }
 
     createClass(SubscriptionManager, {
