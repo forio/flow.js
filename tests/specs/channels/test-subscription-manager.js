@@ -60,7 +60,7 @@ describe.only('Subscription Manager', ()=> {
         beforeEach(()=> {
             m1 = sinon.spy(function () {
                 return 'lol';
-            })
+            });
             m2 = sinon.spy();
             channel = new SubsManager({
                 publishMiddlewares: [m1, m2]
@@ -81,6 +81,27 @@ describe.only('Subscription Manager', ()=> {
             return channel.publish({ foo: 'bar' }).then(()=> {
                 expect(m1).to.have.been.calledWith({ foo: 'bar' });
                 expect(m2).to.have.been.calledWith('lol');
+            });
+        });
+        it('should reject the publish call each time one of the intermediate middleware fails', ()=> {
+            var m1 = sinon.spy(function () {
+                return 'lol';
+            });
+            var m2 = sinon.spy(function () {
+                return $.Deferred().reject().promise();
+            });
+            var m3 = sinon.spy();
+            var channel = new SubsManager({
+                publishMiddlewares: [m1, m2, m3]
+            });
+            var successSpy = sinon.spy();
+            var failSpy = sinon.spy();
+            return channel.publish({ foo: 'bar' }).then(successSpy).catch(failSpy).then(function () {
+                expect(successSpy).to.not.have.been.called;
+                expect(failSpy).to.have.been.called;
+
+                expect(m2).to.have.been.called;
+                expect(m3).to.not.have.been.called;
             });
         });
     });
