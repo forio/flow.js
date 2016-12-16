@@ -38,19 +38,20 @@ describe.only('Subscription Manager', ()=> {
         it('should notify listeners', ()=> {
             var spy1 = sinon.spy();
             channel.subscribe(['price', 'cost'], spy1);
-            channel.publish({ price: 2, cost: 1 });
-            spy1.should.have.been.calledTwice;
+            return channel.publish({ price: 2, cost: 1 }).then(()=> {
+                spy1.should.have.been.calledTwice;
+            });
         });
         it('should pass the right arguments to listeners', ()=> {
             var spy1 = sinon.spy();
             channel.subscribe(['price', 'cost'], spy1);
-            channel.publish({ price: 2, cost: 1 });
+            return channel.publish({ price: 2, cost: 1 }).then(()=> {
+                var args1 = spy1.getCall(0).args[0];
+                var args2 = spy1.getCall(1).args[0];
 
-            var args1 = spy1.getCall(0).args[0];
-            var args2 = spy1.getCall(1).args[0];
-
-            expect(args1).to.eql({ price: 2 });
-            expect(args2).to.eql({ cost: 1 });
+                expect(args1).to.eql({ price: 2 });
+                expect(args2).to.eql({ cost: 1 });
+            });
         });
     });
 

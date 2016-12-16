@@ -43,6 +43,7 @@ function checkAndNotify(publishObj, subscription) {
 var SubscriptionManager = (function () {
     function SubscriptionManager() {
         this.subscriptions = [];
+        this.publishMiddlewares = [];
     }
 
     createClass(SubscriptionManager, {
@@ -57,14 +58,18 @@ var SubscriptionManager = (function () {
             }
             
             var $d = $.Deferred();
-
-            this.subscriptions.forEach(function (subs) {
-                var fn = subs.batch ? checkAndNotifyBatch : checkAndNotify;
-                fn(attrs, subs);
+            var prom = $d.resolve(attrs).promise();
+            this.publishMiddlewares.forEach(function (middleware) {
+                prom = prom.then(middleware);
             });
-            $d.resolve();
+            prom.then(function (val) {
+                this.subscriptions.forEach(function (subs) {
+                    var fn = subs.batch ? checkAndNotifyBatch : checkAndNotify;
+                    fn(val, subs);
+                });
+            }.bind(this));
 
-            return $d.promise();
+            return prom;
         },
         subscribe: function (topics, cb, options) {
             var subs = makeSubs(topics, cb, options);
