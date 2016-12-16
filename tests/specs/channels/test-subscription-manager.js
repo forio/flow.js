@@ -29,6 +29,7 @@ describe.only('Subscription Manager', ()=> {
             expect(channel.getSubscribers('sales').length).to.equal(1);
         });
     });
+
     describe('Publish', ()=> {
         it('should return a promise', ()=> {
             var p = channel.publish('booo', 'yes');
@@ -66,17 +67,17 @@ describe.only('Subscription Manager', ()=> {
             channel.unsubscribeAll();
         });
         it('should batch calls if subscribe is called with batch:true', function () {
-            channel.publish({ price: 2, cost: 1 });
-
-            spy1.should.have.been.calledOnce;
-            spy2.should.have.been.calledTwice;
+            return channel.publish({ price: 2, cost: 1 }).then(()=> {
+                spy1.should.have.been.calledOnce;
+                spy2.should.have.been.calledTwice;
+            });
         });
         it('should pass the correct parameters to batched calls', function () {
-            channel.publish({ price: 2, cost: 1 });
-
-            spy1.should.have.been.calledWith({ price: 2, cost: 1 });
-            spy2.getCall(0).args[0].should.eql({ price: 2 });
-            spy2.getCall(1).args[0].should.eql({ cost: 1 });
+            return channel.publish({ price: 2, cost: 1 }).then(()=> {
+                spy1.should.have.been.calledWith({ price: 2, cost: 1 });
+                spy2.getCall(0).args[0].should.eql({ price: 2 });
+                spy2.getCall(1).args[0].should.eql({ cost: 1 });
+            });
         });
 
         it('should not re-trigger non-batched calls', function () {
@@ -84,9 +85,21 @@ describe.only('Subscription Manager', ()=> {
             channel.subscribe(['price', 'cost'], spy1, { batch: true });
             channel.subscribe(['something', 'else'], spy1, { batch: false });
 
-            channel.publish({ price: 2, cost: 1 });
+            return channel.publish({ price: 2, cost: 1 }).then(()=> {
+                spy1.should.have.been.calledOnce;
+            });
+        });
 
-            spy1.should.have.been.calledOnce;
+        it('should not call batch for partial matches', ()=> {
+            var spy1 = sinon.spy();
+            var spy2 = sinon.spy();
+            channel.subscribe(['price', 'cost'], spy1, { batch: true });
+            channel.subscribe(['price', 'something', 'else'], spy2, { batch: false });
+
+            return channel.publish({ price: 2 }).then(()=> {
+                spy2.should.have.been.calledOnce;
+                spy1.should.not.have.been.called;
+            });
         });
     });
     describe('#subscribe', function () {
@@ -123,34 +136,9 @@ describe.only('Subscription Manager', ()=> {
             var token = channel.subscribe(['price', 'apples'], dummyObject);
             expect(token).to.be.a('string');
         });
-
-        describe.skip('functions', function () {
-            it('to allow subscribing functions to single variables', function () {
-                var cb = sinon.spy();
-                channel.subscribe('price', cb);
-                expect(channel.getSubscribers('price').length).to.equal(1);
-
-                channel.publish('price', 32).then(function () {
-                    expect(cb).to.have.been.calledOnce;
-                    expect(cb).to.have.been.calledWith({ price: 1 }); // mock server always returns 1
-                });
-            });
-
-           //TODO: this will be called twice because the channel can't tell if things have changed or not
-            it.skip('to allow subscribing functions to multi variables', function () {
-                var cb = sinon.spy();
-                channel.subscribe(['price', 'sales'], cb);
-
-                expect(channel.getSubscribers('price').length).to.equal(1);
-                expect(channel.getSubscribers('sales').length).to.equal(1);
-
-                channel.publish('price', 32).then(function () {
-                    cb.to.have.been.called.calledOnce;
-                    cb.to.have.been.calledWith({ price: 1 }); // mock server always returns 1
-                });
-            });
-        });
     });
+
+
     describe('#unsubscribe', function () {
         afterEach(function () {
             channel.unsubscribeAll();
