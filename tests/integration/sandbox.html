@@ -1,43 +1,34 @@
 <html>
-  <head>
+
+<head>
     <script src="/node_modules/jquery/dist/jquery.min.js"></script>
     <script src="/node_modules/lodash/lodash.js"></script>
     <script src="/node_modules/epicenter-js/dist/epicenter.min.js"></script>
     <script src="/dist/flow-edge.js"></script>
-
     <link rel="stylesheet" type="text/css" href="test.css">
+</head>
 
-
+<body data-f-model="">
     <script>
-    $(function() {
-      Flow.initialize({
-          channel: {
-              strategy: 'new-if-initialized',
-              run: {
-                 account: 'jaimedp',
-                 project: 'glasses',
-              }
-          }
-      });
-      Flow.dom.converters.register('custom', function (value) {
-        console.log(value);
-          return [1, 2];
-       }, false);
+    // Flow.initialize({
+    //     channel: {
+    //         strategy: 'new-if-initialized',
+    //         run: {
+    //             account: 'jaimedp',
+    //             project: 'glasses',
+    //         }
+    //     }
+    // });
+
+    var sm = new Flow.SubsManager({
+        run: {
+            account: 'jaimedp',
+            project: 'glasses',
+            model: 'gglasses.vmf'
+        }
     });
-  </script>
-  </head>
-  <body data-f-model="gglasses.vmf" data-f-on-init="start_game">
-
-    <h2>Control</h2>
-      <div>
-          <div data-f-bind="Price, Revenue | custom"><%= Price %> || <%= Revenue %> </div>
-          <div data-f-bind="Time">Time: <%= value %></div>
-          <button data-f-on-click="step(1)">Advance One Step</button>
-          <button data-f-on-click="reset">Reset</button>
-
-      </div>
-  </div>
-
-  </body>
+    window.sm = sm;
+    </script>
+</body>
 
 </html>

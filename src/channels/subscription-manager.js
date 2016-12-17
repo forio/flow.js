@@ -2,6 +2,8 @@
 
 var createClass = require('utils/create-class');
 
+var RunMiddleware = require('./middleware/run-middleware');
+
 var makeSubs = function makeSubs(topics, callback, options) {
     var id = _.uniqueId('subs-');
     var defaults = {
@@ -47,7 +49,13 @@ var SubscriptionManager = (function () {
             publishMiddlewares: []
         };
         var opts = $.extend(true, {}, defaults, options);
-        $.extend(this, opts);
+
+        if (opts.run) {
+            var rm = new RunMiddleware(opts.run);
+            opts.publishMiddlewares.push(rm.publishInterceptor);
+        }
+      
+        $.extend(this, { subscriptions: opts.subscriptions, publishMiddlewares: opts.publishMiddlewares });
     }
 
     createClass(SubscriptionManager, {
@@ -66,7 +74,7 @@ var SubscriptionManager = (function () {
             this.publishMiddlewares.forEach(function (middleware) {
                 prom = prom.then(middleware);
             });
-            prom.then(function (val) {
+            prom = prom.then(function (val) {
                 this.subscriptions.forEach(function (subs) {
                     var fn = subs.batch ? checkAndNotifyBatch : checkAndNotify;
                     fn(val, subs);
