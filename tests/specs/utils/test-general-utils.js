@@ -1,7 +1,7 @@
 'use strict';
 var lolex = require('lolex');
 
-var deounce = require('src/utils/general').debounceWithStore;
+var debounce = require('src/utils/general').debounceWithStore;
 
 describe('Test general utils', ()=> {
     describe('#debounceWithStore', ()=> {
@@ -15,14 +15,14 @@ describe('Test general utils', ()=> {
 
         it('should not call original function immediately', ()=> {
             var spy1 = sinon.spy();
-            var debounced = deounce(spy1, 200);
+            var debounced = debounce(spy1, 200);
             
             debounced();
             expect(spy1).to.not.have.been.called;
         });
         it('should call function after a timeperid', ()=> {
             var spy1 = sinon.spy();
-            var debounced = deounce(spy1, 200);
+            var debounced = debounce(spy1, 200);
            
             debounced();
 
@@ -31,14 +31,14 @@ describe('Test general utils', ()=> {
         });
         it('should only call function once', ()=> {
             var spy1 = sinon.spy();
-            var debounced = deounce(spy1, 200);
+            var debounced = debounce(spy1, 200);
             debounced();
             clock.tick(501);
             expect(spy1).to.have.been.calledOnce; 
         });
         it('should hold the door for multiple calls', ()=> {
             var spy1 = sinon.spy();
-            var debounced = deounce(spy1, 200);
+            var debounced = debounce(spy1, 200);
 
             debounced();
             clock.tick(100);
@@ -50,7 +50,7 @@ describe('Test general utils', ()=> {
         });
         it('should concatenate multiple arguments', ()=> {
             var spy1 = sinon.spy();
-            var debounced = deounce(spy1, 200);
+            var debounced = debounce(spy1, 200);
 
             debounced([1]);
             clock.tick(100);
@@ -61,7 +61,7 @@ describe('Test general utils', ()=> {
         });
         it('should clear arguments after being called once', ()=> {
             var spy1 = sinon.spy();
-            var debounced = deounce(spy1, 200);
+            var debounced = debounce(spy1, 200);
 
             debounced([1]);
             clock.tick(100);

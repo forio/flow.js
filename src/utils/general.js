@@ -14,18 +14,27 @@ module.exports = {
         }
         return number;
     },
-    debounceWithStore: function (fn, debounceInterval) {
+    debounceWithStore: function (fn, debounceInterval, argumentsReducer) {
         var timer = null;
-        var unfetched = [];
-        return function (variables) {
-            unfetched = _.uniq(unfetched.concat(variables));
+
+        var argsToPass = null;
+        if (!argumentsReducer) {
+            argumentsReducer = function (currentArgs, newArgs) {
+                if (!currentArgs) {
+                    currentArgs = [];
+                }
+                return _.uniq(currentArgs.concat(newArgs));
+            };
+        }
+        return function (newArgs) {
+            argsToPass = argumentsReducer(argsToPass, newArgs);
             if (timer) {
                 clearTimeout(timer);
             }
             timer = setTimeout(function () {
                 timer = null;
-                fn(unfetched);
-                unfetched = [];
+                fn(argsToPass);
+                argsToPass = null;
             }, debounceInterval);
         };
     }
