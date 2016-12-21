@@ -69,7 +69,15 @@ module.exports = function (config) {
                 }
                 if (!_.isEmpty(toSave.operations)) {
                     prom = prom.then(function () {
-                        return runService.serial(toSave.operations); //TODO: Check serial vs parallel here.
+                        //TODO: Check serial vs parallel here.
+                        return runService.serial(toSave.operations).then(function (result) {
+                            var toNotify = _.reduce([].concat(result), function (accum, res) {
+                                var key = OPERATIONS_PREFIX + res.name;
+                                accum[key] = res.result;
+                                return accum;
+                            }, {});
+                            return toNotify;
+                        });
                     });
                 }
                 return prom;

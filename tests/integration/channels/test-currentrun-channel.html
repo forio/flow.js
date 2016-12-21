@@ -30,7 +30,10 @@
         }
     });
     sm.subscribe(['variable:Price'], function (val) {
-        console.log('Subscribe callback called', val);
+        console.log('Variable Subscribe callback called', val);
+    });
+    sm.subscribe(['operation:step'], function (val) {
+        console.log('Operation Subscribe callback called', val);
     });
 
     $('#txtPrice').on('change', function (evt) {
