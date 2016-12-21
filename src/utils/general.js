@@ -13,5 +13,20 @@ module.exports = {
             number = prefix + number;
         }
         return number;
+    },
+    debounceWithStore: function (fn, debounceInterval) {
+        var timer = null;
+        var unfetched = [];
+        return function (variables) {
+            unfetched = _.uniq(unfetched.concat(variables));
+            if (timer) {
+                clearTimeout(timer);
+            }
+            timer = setTimeout(function () {
+                timer = null;
+                fn(unfetched);
+                unfetched = [];
+            }, debounceInterval);
+        };
     }
 };

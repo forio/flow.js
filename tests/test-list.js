@@ -4,7 +4,8 @@
 
 'use strict';
 
-require('./specs/channels/test-subscription-manager');
+require('./specs/utils/test-general-utils');
+// require('./specs/channels/test-subscription-manager');
 // require('./specs/dom/test-dom-manager');
 // require('./specs/converters/test-converter-manager');
 // require('./specs/dom/attributes/test-attribute-manager');
