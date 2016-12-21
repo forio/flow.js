@@ -14,27 +14,31 @@ module.exports = {
         }
         return number;
     },
-    debounceWithStore: function (fn, debounceInterval, argumentsReducer) {
+    debounceAndMerge: function (fn, debounceInterval, argumentsReducers) {
         var timer = null;
 
-        var argsToPass = null;
-        if (!argumentsReducer) {
+        var argsToPass = [];
+        if (!argumentsReducers) {
             var arrayReducer = function (accum, newVal) {
                 if (!accum) {
-                    return newVal ? [newVal] : [];
+                    accum = [];
                 }
                 return accum.concat(newVal);
             };
-            argumentsReducer = function (accum, newArgs) {
-                if (!accum) {
-                    return newArgs;
-                }
-                return [arrayReducer(accum[0], newArgs[0])];
-            };
+            argumentsReducers = [
+                arrayReducer
+            ];
         }
         return function () {
             var newArgs = _.toArray(arguments);
-            argsToPass = argumentsReducer(argsToPass, newArgs);
+            argsToPass = newArgs.map(function (arg, index) {
+                var reducer = argumentsReducers[index];
+                if (reducer) {
+                    return reducer(argsToPass[index], arg);
+                } else {
+                    return arg;
+                }
+            });
 
             if (timer) {
                 clearTimeout(timer);
@@ -42,7 +46,7 @@ module.exports = {
             timer = setTimeout(function () {
                 timer = null;
                 fn.apply(fn, argsToPass);
-                argsToPass = null;
+                argsToPass = [];
             }, debounceInterval);
         };
     }

@@ -1,7 +1,7 @@
 'use strict';
 var lolex = require('lolex');
 
-var debounce = require('src/utils/general').debounceWithStore;
+var debounce = require('src/utils/general').debounceAndMerge;
 
 describe('Test general utils', ()=> {
     describe('#debounceWithStore', ()=> {
