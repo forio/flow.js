@@ -19,21 +19,29 @@ module.exports = {
 
         var argsToPass = null;
         if (!argumentsReducer) {
-            argumentsReducer = function (currentArgs, newArgs) {
-                if (!currentArgs) {
-                    currentArgs = [];
+            var arrayReducer = function (accum, newVal) {
+                if (!accum) {
+                    return newVal ? [newVal] : [];
                 }
-                return _.uniq(currentArgs.concat(newArgs));
+                return accum.concat(newVal);
+            };
+            argumentsReducer = function (accum, newArgs) {
+                if (!accum) {
+                    accum = [[]];
+                }
+                return [arrayReducer(accum[0], newArgs[0])];
             };
         }
-        return function (newArgs) {
+        return function () {
+            var newArgs = _.toArray(arguments);
             argsToPass = argumentsReducer(argsToPass, newArgs);
+
             if (timer) {
                 clearTimeout(timer);
             }
             timer = setTimeout(function () {
                 timer = null;
-                fn(argsToPass);
+                fn.apply(fn, argsToPass);
                 argsToPass = null;
             }, debounceInterval);
         };
