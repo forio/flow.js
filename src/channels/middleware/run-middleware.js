@@ -1,11 +1,11 @@
+var debounceAndMerge = require('utils/general').debounceAndMerge;
+
 module.exports = function (config) {
     //TODO: Pass in a 'notify' function here?
     //
     var defaults = {
         variables: {
-            autoFetch: {
-                start: false
-            },
+            autoFetch: true,
             readOnly: false,
         },
         operations: {
@@ -26,24 +26,23 @@ module.exports = function (config) {
     var OPERATIONS_PREFIX = 'operation:';
 
     
-    function debounce(fn) {
-        var timer = null;
-        var debounceInterval = 200;
-        var unfetched = [];
-        return function (variables) {
-            unfetched = _.uniq(unfetched.concat(variables));
-            if (timer) {
-                clearTimeout(timer);
-                timer = setTimeout(function () {
-                    timer = null;
-                    fn(unfetched);
-                }, debounceInterval);
-            } else {
-                unfetched = [];
-                fn(unfetched);
+    var debouncedFetch = function (runService, variablesToFetch, notifyCallback) {
+        return debounceAndMerge(function () {
+            return runService.variables().query(variablesToFetch).then(function (result) {
+                var toNotify = _.reduce(result, function (accum, value, variable) {
+                    var key = VARIABLES_PREFIX + variable;
+                    accum[key] = value;
+                    return accum;
+                }, {});
+                return notifyCallback(toNotify);
+            });
+        }, 200, [function (accum, newval) {
+            if (!accum) {
+                accum = [];
             }
-        };
-    }
+            return _.uniq(accum.concat(newval));
+        }])();
+    };
 
     var publicAPI = {
         //TODO: Need to 'refresh' variables when operations are called. So keep track of subscriptions internally?
@@ -57,15 +56,7 @@ module.exports = function (config) {
             // TODO: Pre-fetch checking happens here
             if (_.result(opts.variables, 'autoFetch') && variablesToFetch.length) {
                 return $creationPromise.then(function (runService) {
-                    return runService.variables().query(variablesToFetch).then(function (result) {
-                        var toNotify = _.reduce(result, function (accum, value, variable) {
-                            var key = VARIABLES_PREFIX + variable;
-                            accum[key] = value;
-                            return accum;
-                        }, {});
-                        unfetched = [];
-                        return notifyCallback(toNotify);
-                    });
+                    debouncedFetch(runService, variablesToFetch, notifyCallback);
                 });
             }
            
