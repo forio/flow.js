@@ -34,7 +34,7 @@
     });
 
     $('#txtPrice').on('change', function (evt) {
-        var val = $(evt.target).val();
+        var val = Number($(evt.target).val());
         sm.publish('variable:Price', val);
     });
 
