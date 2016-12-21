@@ -35,22 +35,85 @@ describe.only('Subscription Manager', ()=> {
             var p = channel.publish('booo', 'yes');
             expect(p.then).to.be.a('function');
         });
-        it('should notify listeners', ()=> {
+        it('should notify subscribed listeners', ()=> {
             var spy1 = sinon.spy();
+            var spy2 = sinon.spy();
             channel.subscribe(['price', 'cost'], spy1);
-            channel.publish({ price: 2, cost: 1 });
-            spy1.should.have.been.calledTwice;
+            channel.subscribe(['blah', 'blew'], spy2);
+            return channel.publish({ price: 2, cost: 1 }).then(()=> {
+                spy1.should.have.been.calledTwice;
+                spy2.should.not.have.been.called;
+            });
         });
+        it('should alert subscribers on *', ()=> {
+            var spy2 = sinon.spy();
+            channel.subscribe('*', spy2);
+            return channel.publish({ price: 2, cost: 1 }).then(()=> {
+                spy2.should.have.been.calledTwice;
+            });
+        });
+
         it('should pass the right arguments to listeners', ()=> {
             var spy1 = sinon.spy();
             channel.subscribe(['price', 'cost'], spy1);
-            channel.publish({ price: 2, cost: 1 });
+            return channel.publish({ price: 2, cost: 1 }).then(()=> {
+                var args1 = spy1.getCall(0).args[0];
+                var args2 = spy1.getCall(1).args[0];
 
-            var args1 = spy1.getCall(0).args[0];
-            var args2 = spy1.getCall(1).args[0];
+                expect(args1).to.eql({ price: 2 });
+                expect(args2).to.eql({ cost: 1 });
+            });
+        });
+    });
 
-            expect(args1).to.eql({ price: 2 });
-            expect(args2).to.eql({ cost: 1 });
+    describe('Publish Middleware', ()=> {
+        var m1, m2, channel;
+        beforeEach(()=> {
+            m1 = sinon.spy(function () {
+                return 'lol';
+            });
+            m2 = sinon.spy();
+            channel = new SubsManager({
+                publishMiddlewares: [m1, m2]
+            });
+        });
+        it('should be settable in the constructor', ()=> {
+            expect(channel.publishMiddlewares).to.eql([m1, m2]);
+        });
+        it('should be called in the right order each time there\'s a publish call', ()=> {
+            return channel.publish({ foo: 'bar' }).then(()=> {
+                expect(m1).to.have.been.calledOnce;
+                expect(m2).to.have.been.calledOnce;
+
+                expect(m1).to.have.been.calledBefore(m2);
+            });
+        });
+        it('should be called with the right arguments', ()=> {
+            return channel.publish({ foo: 'bar' }).then(()=> {
+                expect(m1).to.have.been.calledWith({ foo: 'bar' });
+                expect(m2).to.have.been.calledWith('lol');
+            });
+        });
+        it('should reject the publish call each time one of the intermediate middleware fails', ()=> {
+            var m1 = sinon.spy(function () {
+                return 'lol';
+            });
+            var m2 = sinon.spy(function () {
+                return $.Deferred().reject().promise();
+            });
+            var m3 = sinon.spy();
+            var channel = new SubsManager({
+                publishMiddlewares: [m1, m2, m3]
+            });
+            var successSpy = sinon.spy();
+            var failSpy = sinon.spy();
+            return channel.publish({ foo: 'bar' }).then(successSpy).catch(failSpy).then(function () {
+                expect(successSpy).to.not.have.been.called;
+                expect(failSpy).to.have.been.called;
+
+                expect(m2).to.have.been.called;
+                expect(m3).to.not.have.been.called;
+            });
         });
     });
 
