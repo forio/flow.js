@@ -48,5 +48,30 @@ describe('Test general utils', ()=> {
             clock.tick(100);
             expect(spy1).to.have.have.been.calledOnce; 
         });
+        it('should concatenate multiple arguments', ()=> {
+            var spy1 = sinon.spy();
+            var debounced = deounce(spy1, 200);
+
+            debounced([1]);
+            clock.tick(100);
+            debounced([2]);
+            clock.tick(200);
+            clock.tick(100);
+            expect(spy1).to.have.have.been.calledWith([1, 2]); 
+        });
+        it('should clear arguments after being called once', ()=> {
+            var spy1 = sinon.spy();
+            var debounced = deounce(spy1, 200);
+
+            debounced([1]);
+            clock.tick(100);
+            debounced([2]);
+            clock.tick(200);
+            clock.tick(100);
+            expect(spy1).to.have.have.been.calledWith([1, 2]); 
+            debounced([2]);
+            clock.tick(200);
+            expect(spy1).to.have.have.been.calledWith([2]); 
+        });
     });
 });
