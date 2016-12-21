@@ -35,13 +35,24 @@ describe.only('Subscription Manager', ()=> {
             var p = channel.publish('booo', 'yes');
             expect(p.then).to.be.a('function');
         });
-        it('should notify listeners', ()=> {
+        it('should notify subscribed listeners', ()=> {
             var spy1 = sinon.spy();
+            var spy2 = sinon.spy();
             channel.subscribe(['price', 'cost'], spy1);
+            channel.subscribe(['blah', 'blew'], spy2);
             return channel.publish({ price: 2, cost: 1 }).then(()=> {
                 spy1.should.have.been.calledTwice;
+                spy2.should.not.have.been.called;
             });
         });
+        it('should alert subscribers on *', ()=> {
+            var spy2 = sinon.spy();
+            channel.subscribe('*', spy2);
+            return channel.publish({ price: 2, cost: 1 }).then(()=> {
+                spy2.should.have.been.calledTwice;
+            });
+        });
+
         it('should pass the right arguments to listeners', ()=> {
             var spy1 = sinon.spy();
             channel.subscribe(['price', 'cost'], spy1);

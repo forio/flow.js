@@ -34,7 +34,7 @@ function checkAndNotify(publishObj, subscription) {
     var publishedTopics = Object.keys(publishObj);
     publishedTopics.forEach(function (topic) {
         var data = publishObj[topic];
-        if (_.contains(subscription.topics, topic)) {
+        if (_.contains(subscription.topics, topic) || _.contains(subscription.topics, '*')) {
             var toSend = {};
             toSend[topic] = data;
             subscription.callback(toSend);
@@ -91,6 +91,7 @@ var SubscriptionManager = (function () {
             });
         },
 
+        //TODO: Allow subscribing to regex? Will solve problem of listening only to variables etc
         subscribe: function (topics, cb, options) {
             var subs = makeSubs(topics, cb, options);
             var boundNotify = this.notify.bind(this);
