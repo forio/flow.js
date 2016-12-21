@@ -46,6 +46,8 @@ var SubscriptionManager = (function () {
     function SubscriptionManager(options) {
         var defaults = {
             subscriptions: [],
+
+            subscribeMiddleWares: [],
             publishMiddlewares: []
         };
         var opts = $.extend(true, {}, defaults, options);
@@ -53,9 +55,14 @@ var SubscriptionManager = (function () {
         if (opts.run) {
             var rm = new RunMiddleware(opts.run);
             opts.publishMiddlewares.push(rm.publishInterceptor);
+            opts.subscribeMiddleWares.push(rm.subscribeInterceptor);
         }
       
-        $.extend(this, { subscriptions: opts.subscriptions, publishMiddlewares: opts.publishMiddlewares });
+        $.extend(this, { 
+            subscriptions: opts.subscriptions, 
+            publishMiddlewares: opts.publishMiddlewares,
+            subscribeMiddleWares: opts.subscribeMiddleWares,
+        });
     }
 
     createClass(SubscriptionManager, {
@@ -69,22 +76,27 @@ var SubscriptionManager = (function () {
                 (attrs = {})[topic] = value;
             }
             
-            var $d = $.Deferred();
-            var prom = $d.resolve(attrs).promise();
+            var prom = $.Deferred().resolve(attrs).promise();
             this.publishMiddlewares.forEach(function (middleware) {
                 prom = prom.then(middleware);
             });
-            prom = prom.then(function (val) {
-                this.subscriptions.forEach(function (subs) {
-                    var fn = subs.batch ? checkAndNotifyBatch : checkAndNotify;
-                    fn(val, subs);
-                });
-            }.bind(this));
-
+            prom = prom.then(this.notify.bind(this));
             return prom;
         },
+
+        notify: function (value) {
+            return this.subscriptions.forEach(function (subs) {
+                var fn = subs.batch ? checkAndNotifyBatch : checkAndNotify;
+                fn(value, subs);
+            });
+        },
+
         subscribe: function (topics, cb, options) {
             var subs = makeSubs(topics, cb, options);
+            var boundNotify = this.notify.bind(this);
+            this.subscribeMiddleWares.forEach(function (middleware) {
+                return middleware(subs.topics, boundNotify);
+            });
             this.subscriptions = this.subscriptions.concat(subs);
             return subs.id;
         },
@@ -93,6 +105,7 @@ var SubscriptionManager = (function () {
             this.subscriptions = _.reject(this.subscriptions, function (subs) {
                 return subs.id === token;
             });
+            //TODO: Make this call subscription middleware with _.partition too?
             if (oldLength === this.subscriptions.length) {
                 throw new Error('No subscription found for token ' + token);
             }
