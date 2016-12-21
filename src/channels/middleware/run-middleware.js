@@ -1,11 +1,11 @@
+var debounceAndMerge = require('utils/general').debounceAndMerge;
+
 module.exports = function (config) {
     //TODO: Pass in a 'notify' function here?
     //
     var defaults = {
         variables: {
-            autoFetch: {
-                start: false
-            },
+            autoFetch: true,
             readOnly: false,
         },
         operations: {
@@ -25,6 +25,23 @@ module.exports = function (config) {
     var VARIABLES_PREFIX = 'variable:';
     var OPERATIONS_PREFIX = 'operation:';
 
+    
+    var debouncedFetch = debounceAndMerge(function (variables, runService, notifyCallback) {
+        runService.variables().query(variables).then(function (result) {
+            var toNotify = _.reduce(result, function (accum, value, variable) {
+                var key = VARIABLES_PREFIX + variable;
+                accum[key] = value;
+                return accum;
+            }, {});
+            notifyCallback(toNotify);
+        });
+    }, 200, [function mergeVariables(accum, newval) {
+        if (!accum) {
+            accum = [];
+        }
+        return _.uniq(accum.concat(newval));
+    }]);
+
     var publicAPI = {
         //TODO: Need to 'refresh' variables when operations are called. So keep track of subscriptions internally?
         subscribeInterceptor: function (topics, notifyCallback) {
@@ -34,20 +51,11 @@ module.exports = function (config) {
                 }
                 return accum;
             }, []);
-            // TODO: Pre-fetch checking happens here
-            if (variablesToFetch.length) {
+            if (_.result(opts.variables, 'autoFetch') && variablesToFetch.length) {
                 return $creationPromise.then(function (runService) {
-                    return runService.variables().query(variablesToFetch).then(function (result) {
-                        var toNotify = _.reduce(result, function (accum, value, variable) {
-                            var key = VARIABLES_PREFIX + variable;
-                            accum[key] = value;
-                            return accum;
-                        }, {});
-                        return notifyCallback(toNotify);
-                    });
+                    debouncedFetch(variablesToFetch, runService, notifyCallback);
                 });
             }
-           
         },
         publishInterceptor: function (inputObj) {
             return $creationPromise.then(function (runService) {
@@ -66,10 +74,12 @@ module.exports = function (config) {
                 }, { variables: {}, operations: [] });
 
                 var prom = $.Deferred().resolve().promise();
+                var msg = '';
                 if (!_.isEmpty(toSave.variables)) {
                     if (_.result(opts.variables, 'readOnly')) {
-                        console.warn('Tried to publish to a read-only variables channel', toSave.variables);
-                        return $.Deferred().reject('Tried to publish to readonly channel').promise();
+                        msg = 'Tried to publish to a read-only variables channel';
+                        console.warn(msg, toSave.variables);
+                        return $.Deferred().reject(msg).promise();
                     }
                     prom = prom.then(function () {
                         return runService.variables().save(toSave.variables).then(function (result) {
@@ -84,8 +94,9 @@ module.exports = function (config) {
                 }
                 if (!_.isEmpty(toSave.operations)) {
                     if (_.result(opts.operations, 'readOnly')) {
-                        console.warn('Tried to publish to a read-only operations channel', toSave.operations);
-                        return $.Deferred().reject('Tried to publish to readonly channel').promise();
+                        msg = 'Tried to publish to a read-only operations channel';
+                        console.warn(msg, toSave.operations);
+                        return $.Deferred().reject(msg).promise();
                     }
                     prom = prom.then(function () {
                         //TODO: Check serial vs parallel here.

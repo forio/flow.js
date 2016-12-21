@@ -1,16 +1,12 @@
 Test: 
-readonly mode
-batch subscriptions
+readonly mode - @done
+batch subscriptions - @done
 prefetch variables
 silent
 interpolation
 
-- Run channel with init operation @done
+- Run channel with init operation
 - Run channel with silent init operation (pre-fetching shouldn't happen)
-
-
-Prefetch
-PAssing to operations vs variable channel
     
 
 
@@ -49,5 +45,11 @@ Central channel manages *all* subscriptions
 Option 2:
 Make each channel inherit from the same subscription manager, and override publish/subs as required. This mean it keeps track of their own subscriptions
 
+
+-----
+
+DomManager should add default prefix
+
+At worst, this should act as simple pubsub. .subsribe('Bluw') and .publish('sdfds') should work.
 
 
