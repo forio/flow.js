@@ -27,7 +27,7 @@ module.exports = {
             };
             argumentsReducer = function (accum, newArgs) {
                 if (!accum) {
-                    accum = [[]];
+                    return newArgs;
                 }
                 return [arrayReducer(accum[0], newArgs[0])];
             };
