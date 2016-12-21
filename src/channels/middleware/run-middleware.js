@@ -1,7 +1,19 @@
 module.exports = function (config) {
     //TODO: Pass in a 'notify' function here?
     //
-    var rm = new window.F.manager.RunManager({ run: config });
+    var defaults = {
+        variables: {
+            autoFetch: {
+                start: false
+            },
+            readOnly: false,
+        },
+        operations: {
+            readOnly: false,
+        }
+    };
+    var opts = $.extend(true, {}, defaults, config);
+    var rm = new window.F.manager.RunManager({ run: opts });
     // var rs = rm.run;
 
     var $creationPromise = rm.getRun().then(function () {
@@ -37,7 +49,6 @@ module.exports = function (config) {
             }
            
         },
-        //TODO: Ensure one broken promise doesn't BORK the entire thing
         publishInterceptor: function (inputObj) {
             return $creationPromise.then(function (runService) {
                 //TODO: This means variables are always set before operations happen, make that more dynamic and by occurence order
@@ -56,6 +67,10 @@ module.exports = function (config) {
 
                 var prom = $.Deferred().resolve().promise();
                 if (!_.isEmpty(toSave.variables)) {
+                    if (_.result(opts.variables, 'readOnly')) {
+                        console.warn('Tried to publish to a read-only variables channel', toSave.variables);
+                        return $.Deferred().reject('Tried to publish to readonly channel').promise();
+                    }
                     prom = prom.then(function () {
                         return runService.variables().save(toSave.variables).then(function (result) {
                             var toNotify = _.reduce(result, function (accum, value, variable) {
@@ -68,6 +83,10 @@ module.exports = function (config) {
                     });
                 }
                 if (!_.isEmpty(toSave.operations)) {
+                    if (_.result(opts.operations, 'readOnly')) {
+                        console.warn('Tried to publish to a read-only operations channel', toSave.operations);
+                        return $.Deferred().reject('Tried to publish to readonly channel').promise();
+                    }
                     prom = prom.then(function () {
                         //TODO: Check serial vs parallel here.
                         return runService.serial(toSave.operations).then(function (result) {

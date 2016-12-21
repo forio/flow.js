@@ -26,7 +26,10 @@
         run: {
             account: 'jaimedp',
             project: 'glasses',
-            model: 'gglasses.vmf'
+            model: 'gglasses.vmf',
+            variables: {
+                readOnly: true
+            }
         }
     });
     sm.subscribe(['variable:Price'], function (val) {
