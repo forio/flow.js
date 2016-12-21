@@ -26,23 +26,21 @@ module.exports = function (config) {
     var OPERATIONS_PREFIX = 'operation:';
 
     
-    var debouncedFetch = function (runService, variablesToFetch, notifyCallback) {
-        return debounceAndMerge(function () {
-            return runService.variables().query(variablesToFetch).then(function (result) {
-                var toNotify = _.reduce(result, function (accum, value, variable) {
-                    var key = VARIABLES_PREFIX + variable;
-                    accum[key] = value;
-                    return accum;
-                }, {});
-                return notifyCallback(toNotify);
-            });
-        }, 200, [function (accum, newval) {
-            if (!accum) {
-                accum = [];
-            }
-            return _.uniq(accum.concat(newval));
-        }])();
-    };
+    var debouncedFetch = debounceAndMerge(function (variables, runService, notifyCallback) {
+        runService.variables().query(variables).then(function (result) {
+            var toNotify = _.reduce(result, function (accum, value, variable) {
+                var key = VARIABLES_PREFIX + variable;
+                accum[key] = value;
+                return accum;
+            }, {});
+            notifyCallback(toNotify);
+        });
+    }, 200, [function mergeVariables(accum, newval) {
+        if (!accum) {
+            accum = [];
+        }
+        return _.uniq(accum.concat(newval));
+    }]);
 
     var publicAPI = {
         //TODO: Need to 'refresh' variables when operations are called. So keep track of subscriptions internally?
@@ -53,13 +51,11 @@ module.exports = function (config) {
                 }
                 return accum;
             }, []);
-            // TODO: Pre-fetch checking happens here
             if (_.result(opts.variables, 'autoFetch') && variablesToFetch.length) {
                 return $creationPromise.then(function (runService) {
-                    debouncedFetch(runService, variablesToFetch, notifyCallback);
+                    debouncedFetch(variablesToFetch, runService, notifyCallback);
                 });
             }
-           
         },
         publishInterceptor: function (inputObj) {
             return $creationPromise.then(function (runService) {

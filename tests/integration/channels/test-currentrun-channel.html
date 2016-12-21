@@ -35,6 +35,9 @@
     sm.subscribe(['variable:Price'], function (val) {
         console.log('Variable Subscribe callback called', val);
     });
+    sm.subscribe(['variable:Revenue'], function (val) {
+        console.log('Variable Subscribe callback called', val);
+    });
     sm.subscribe(['operation:step'], function (val) {
         console.log('Operation Subscribe callback called', val);
     });
