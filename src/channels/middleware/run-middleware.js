@@ -10,7 +10,8 @@ module.exports = function (config, notifier) {
         operations: {
             readOnly: false,
             silent: false,
-        }
+        },
+        initialOperation: '',
     };
     var opts = $.extend(true, {}, defaults, config);
     var rm = new window.F.manager.RunManager({ run: opts });
@@ -19,6 +20,13 @@ module.exports = function (config, notifier) {
     var $creationPromise = rm.getRun().then(function () {
         return rm.run;
     });
+    if (opts.initialOperation) {
+        $creationPromise = $creationPromise.then(function () {
+            return rm.run.do(opts.initialOperation);
+        }).then(function () {
+            return rm.run;
+        });
+    }
     // rs.currentPromise = $creationPromise;
 
     //TODO: Figure out 'on init'
