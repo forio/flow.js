@@ -9,7 +9,15 @@
 
 <body data-f-model="">
 
+    <label for="txtPrice">Price</label>
     <input type="text" id="txtPrice" />
+    <div id="priceop"></div>
+    <br>
+
+    <label for="txtName">Name</label>
+    <input type="text" id="txtName" />
+    <div id="nameop"></div>
+
     <button id="btnStep">Step</button>
     <script>
     // Flow.initialize({
@@ -24,21 +32,32 @@
 
     var sm = new Flow.SubsManager({
         run: {
-            account: 'jaimedp',
-            project: 'glasses',
-            model: 'gglasses.vmf',
-
-            initialOperation: 'start_game',
+            serviceOptions: {
+                strategy: 'new-if-missing',
+                run: {
+                    account: 'jaimedp',
+                    project: 'glasses',
+                    model: 'gglasses.vmf',
+                }
+            },
+            // initialOperation: 'start_game',
             variables: {
                 readOnly: false,
-                silent: true,
+                silent: false,
             },
             operations: {
                 silent: true,
             }
         }
     });
+
+    sm.subscribe(['meta:name'], function (val) {
+        $('#nameop').html(val['meta:name']);
+
+        console.log('Meta Subscribe callback called', val);
+    });
     sm.subscribe(['variable:Price'], function (val) {
+        $('#priceop').html(val['variable:Price']);
         console.log('Variable Subscribe callback called', val);
     });
     sm.subscribe(['variable:Revenue'], function (val) {
@@ -51,6 +70,10 @@
     $('#txtPrice').on('change', function (evt) {
         var val = Number($(evt.target).val());
         sm.publish('variable:Price', val);
+    });
+    $('#txtName').on('change', function (evt) {
+        var val = ($(evt.target).val());
+        sm.publish('meta:name', val);
     });
 
     $('#btnStep').on('click', function (evt) {
