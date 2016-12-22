@@ -32,11 +32,15 @@
 
     var sm = new Flow.SubsManager({
         run: {
-            account: 'jaimedp',
-            project: 'glasses',
-            model: 'gglasses.vmf',
-
-            initialOperation: 'start_game',
+            serviceOptions: {
+                strategy: 'new-if-missing',
+                run: {
+                    account: 'jaimedp',
+                    project: 'glasses',
+                    model: 'gglasses.vmf',
+                }
+            },
+            // initialOperation: 'start_game',
             variables: {
                 readOnly: false,
                 silent: false,
