@@ -3,6 +3,7 @@
 var createClass = require('utils/create-class');
 
 var RunMiddleware = require('./middleware/run-middleware');
+var ScenarioMiddleware = require('./middleware/scenario-middleware');
 
 var makeSubs = function makeSubs(topics, callback, options) {
     var id = _.uniqueId('subs-');
@@ -58,6 +59,10 @@ var SubscriptionManager = (function () {
             var rm = new RunMiddleware(opts.run, boundNotify);
             opts.publishMiddlewares.push(rm.publishInterceptor);
             opts.subscribeMiddleWares.push(rm.subscribeInterceptor);
+        } else if (options.scenario) {
+            var sm = new ScenarioMiddleware(opts.run, boundNotify);
+            // opts.publishMiddlewares.push(rm.publishInterceptor);
+            // opts.subscribeMiddleWares.push(rm.subscribeInterceptor);
         }
       
         $.extend(this, { 
