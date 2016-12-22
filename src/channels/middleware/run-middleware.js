@@ -9,6 +9,7 @@ module.exports = function (config, notifier) {
         },
         operations: {
             readOnly: false,
+            silent: false,
         }
     };
     var opts = $.extend(true, {}, defaults, config);
@@ -125,7 +126,7 @@ module.exports = function (config, notifier) {
                     prom = prom.then(function () {
                         //TODO: Check serial vs parallel here.
                         return runService.serial(toSave.operations).then(function (publishedOperations) {
-                            var operationNames = publishedOperations.map(function (operation) {
+                            var operationNames = ([].concat(publishedOperations)).map(function (operation) {
                                 return operation.name;
                             });
 
