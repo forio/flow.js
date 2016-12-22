@@ -2,11 +2,11 @@ Test:
 readonly mode - @done
 batch subscriptions - @done
 prefetch variables - @done
-silent
+silent - @done
 interpolation
 
-- Run channel with init operation
-- Run channel with silent init operation (pre-fetching shouldn't happen)
+- Run channel with init operation @done
+- Run channel with silent init operation (pre-fetching shouldn't happen) ---- is there a reason?
     
 
 

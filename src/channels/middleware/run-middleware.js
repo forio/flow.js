@@ -10,18 +10,23 @@ module.exports = function (config, notifier) {
         operations: {
             readOnly: false,
             silent: false,
-        }
+        },
+        initialOperation: '',
     };
     var opts = $.extend(true, {}, defaults, config);
     var rm = new window.F.manager.RunManager({ run: opts });
-    // var rs = rm.run;
 
     var $creationPromise = rm.getRun().then(function () {
         return rm.run;
     });
-    // rs.currentPromise = $creationPromise;
+    if (opts.initialOperation) {
+        $creationPromise = $creationPromise.then(function () {
+            return rm.run.do(opts.initialOperation);
+        }).then(function () {
+            return rm.run;
+        });
+    }
 
-    //TODO: Figure out 'on init'
     var VARIABLES_PREFIX = 'variable:';
     var OPERATIONS_PREFIX = 'operation:';
 
@@ -44,7 +49,6 @@ module.exports = function (config, notifier) {
     var subscribedVariables = {};
 
     var publicAPI = {
-        //TODO: Need to 'refresh' variables when operations are called. So keep track of subscriptions internally?
         subscribeInterceptor: function (topics) {
             var variablesToFetch = ([].concat(topics)).reduce(function (accum, topic) {
                 if (topic.indexOf(VARIABLES_PREFIX) === 0) {
