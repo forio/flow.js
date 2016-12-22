@@ -70,7 +70,6 @@ module.exports = function (config, notifier) {
         },
 
         //TODO: Break this into multiple middlewares?
-        //TODO: Also intercept saves on run meta data
         publishInterceptor: function (inputObj) {
             return $creationPromise.then(function (runService) {
                 //TODO: This means variables are always set before operations happen, make that more dynamic and by occurence order
