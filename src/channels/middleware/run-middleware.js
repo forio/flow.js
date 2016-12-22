@@ -1,15 +1,15 @@
 var debounceAndMerge = require('utils/general').debounceAndMerge;
 
-module.exports = function (config) {
-    //TODO: Pass in a 'notify' function here?
-    //
+module.exports = function (config, notifier) {
     var defaults = {
         variables: {
             autoFetch: true,
+            silent: false,
             readOnly: false,
         },
         operations: {
             readOnly: false,
+            silent: false,
         }
     };
     var opts = $.extend(true, {}, defaults, config);
@@ -25,7 +25,6 @@ module.exports = function (config) {
     var VARIABLES_PREFIX = 'variable:';
     var OPERATIONS_PREFIX = 'operation:';
 
-    
     var debouncedFetch = debounceAndMerge(function (variables, runService, notifyCallback) {
         runService.variables().query(variables).then(function (result) {
             var toNotify = _.reduce(result, function (accum, value, variable) {
@@ -42,21 +41,27 @@ module.exports = function (config) {
         return _.uniq(accum.concat(newval));
     }]);
 
+    var subscribedVariables = {};
+
     var publicAPI = {
         //TODO: Need to 'refresh' variables when operations are called. So keep track of subscriptions internally?
-        subscribeInterceptor: function (topics, notifyCallback) {
+        subscribeInterceptor: function (topics) {
             var variablesToFetch = ([].concat(topics)).reduce(function (accum, topic) {
                 if (topic.indexOf(VARIABLES_PREFIX) === 0) {
-                    accum.push(topic.replace(VARIABLES_PREFIX, ''));
+                    var vname = topic.replace(VARIABLES_PREFIX, '');
+                    subscribedVariables[vname] = true;
+                    accum.push(vname);
                 }
                 return accum;
             }, []);
             if (_.result(opts.variables, 'autoFetch') && variablesToFetch.length) {
                 return $creationPromise.then(function (runService) {
-                    debouncedFetch(variablesToFetch, runService, notifyCallback);
+                    debouncedFetch(variablesToFetch, runService, notifier);
                 });
             }
         },
+
+        //TODO: Break this into multiple middlewares?
         publishInterceptor: function (inputObj) {
             return $creationPromise.then(function (runService) {
                 //TODO: This means variables are always set before operations happen, make that more dynamic and by occurence order
@@ -65,7 +70,7 @@ module.exports = function (config) {
                     var val = inputObj[key];
                     if (key.indexOf(VARIABLES_PREFIX) === 0) {
                         key = key.replace(VARIABLES_PREFIX, '');
-                        accum.variables[key] = val;
+                        accum.variables[key] = val; //TODO: Delete this on unsubscribe
                     } else if (key.indexOf(OPERATIONS_PREFIX) === 0) {
                         key = key.replace(OPERATIONS_PREFIX, '');
                         accum.operations.push({ name: key, params: val });
@@ -82,7 +87,27 @@ module.exports = function (config) {
                         return $.Deferred().reject(msg).promise();
                     }
                     prom = prom.then(function () {
-                        return runService.variables().save(toSave.variables).then(function (result) {
+                        return runService.variables().save(toSave.variables).then(function (changeList) {
+                            var changedVariables = _.isArray(changeList) ? changeList : _.keys(changeList);
+
+                            var silent = opts.variables.silent;
+                            var shouldSilence = silent === true;
+                            if (_.isArray(silent) && changedVariables) {
+                                shouldSilence = _.intersection(silent, changedVariables).length >= 1;
+                            }
+                            if ($.isPlainObject(silent) && changedVariables) {
+                                shouldSilence = _.intersection(silent.except, changedVariables).length !== changedVariables.length;
+                            }
+                            if (shouldSilence) {
+                                return changeList;
+                            }
+
+                            var variables = Object.keys(subscribedVariables);
+                            $creationPromise.then(function (runService) { //this isn't a publish dependency, so don't return this
+                                debouncedFetch(variables, runService, notifier);
+                            });
+                            return changeList;
+                        }).then(function (result) {
                             var toNotify = _.reduce(result, function (accum, value, variable) {
                                 var key = VARIABLES_PREFIX + variable;
                                 accum[key] = value;
@@ -100,7 +125,29 @@ module.exports = function (config) {
                     }
                     prom = prom.then(function () {
                         //TODO: Check serial vs parallel here.
-                        return runService.serial(toSave.operations).then(function (result) {
+                        return runService.serial(toSave.operations).then(function (publishedOperations) {
+                            var operationNames = ([].concat(publishedOperations)).map(function (operation) {
+                                return operation.name;
+                            });
+
+                            var silent = opts.operations.silent;
+                            var shouldSilence = silent === true;
+                            if (_.isArray(silent) && operationNames) {
+                                shouldSilence = _.intersection(silent, operationNames).length >= 1;
+                            }
+                            if ($.isPlainObject(silent) && operationNames) {
+                                shouldSilence = _.intersection(silent.except, operationNames).length !== operationNames.length;
+                            }
+                            if (shouldSilence) {
+                                return publishedOperations;
+                            }
+
+                            var variables = Object.keys(subscribedVariables);
+                            $creationPromise.then(function (runService) { //this isn't a publish dependency, so don't return this
+                                debouncedFetch(variables, runService, notifier);
+                            });
+                            return publishedOperations;
+                        }).then(function (result) {
                             var toNotify = _.reduce([].concat(result), function (accum, res) {
                                 var key = OPERATIONS_PREFIX + res.name;
                                 accum[key] = res.result;

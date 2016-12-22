@@ -1,7 +1,7 @@
 Test: 
 readonly mode - @done
 batch subscriptions - @done
-prefetch variables
+prefetch variables - @done
 silent
 interpolation
 
@@ -53,3 +53,33 @@ DomManager should add default prefix
 At worst, this should act as simple pubsub. .subsribe('Bluw') and .publish('sdfds') should work.
 
 
+-- 
+Silent mode:
+
+When i PUBLISH a variable, I need to fetch the rest to know what else changed
+    - variables: { silent: true } //There are no interdependent variables on the current step
+    - operations: {
+        silent: {
+            except: ['price'] //only Step affects other variables
+        }
+    }
+
+    * On variables channel, listen for all variable publishes
+        ? Publish middleware which sits after variables.publish
+        ? Just hijack the .then on publishInterceptor since it's on the same fn anyway
+        ? Subscribe to operations from within the `init` code and trigger fetches that way
+            x the whole point is to catch this _before_ subscribers get notified
+
+When i PUBLISH an operation, i need to fetch variables to know what else changed
+    - operations: { silent: true } //Operations don't affect variables
+    - operations: {
+        silent: {
+            except: ['step'] //only Step affects variables
+        }
+    }
+
+    * On variables channel, listen for all operation publishes
+        ? Publish middleware which sits after operations.publish
+        ? Just hijack the .then on publishInterceptor since it's on the same fn anyway
+        ? Subscribe to operations from within the `init` code and trigger fetches that way
+            x the whole point is to catch this _before_ subscribers get notified
