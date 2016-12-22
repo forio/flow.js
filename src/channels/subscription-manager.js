@@ -52,8 +52,10 @@ var SubscriptionManager = (function () {
         };
         var opts = $.extend(true, {}, defaults, options);
 
+        var boundNotify = this.notify.bind(this);
+
         if (opts.run) {
-            var rm = new RunMiddleware(opts.run);
+            var rm = new RunMiddleware(opts.run, boundNotify);
             opts.publishMiddlewares.push(rm.publishInterceptor);
             opts.subscribeMiddleWares.push(rm.subscribeInterceptor);
         }
@@ -94,9 +96,8 @@ var SubscriptionManager = (function () {
         //TODO: Allow subscribing to regex? Will solve problem of listening only to variables etc
         subscribe: function (topics, cb, options) {
             var subs = makeSubs(topics, cb, options);
-            var boundNotify = this.notify.bind(this);
             this.subscribeMiddleWares.forEach(function (middleware) {
-                return middleware(subs.topics, boundNotify);
+                return middleware(subs.topics);
             });
             this.subscriptions = this.subscriptions.concat(subs);
             return subs.id;
