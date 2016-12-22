@@ -11,6 +11,9 @@ module.exports = function (config, notifier) {
             readOnly: false,
             silent: false,
         },
+        meta: {
+            readOnly: false
+        },
         initialOperation: '',
     };
     var opts = $.extend(true, {}, defaults, config);
@@ -29,6 +32,7 @@ module.exports = function (config, notifier) {
 
     var VARIABLES_PREFIX = 'variable:';
     var OPERATIONS_PREFIX = 'operation:';
+    var META_PREFIX = 'meta:';
 
     var debouncedFetch = debounceAndMerge(function (variables, runService, notifyCallback) {
         runService.variables().query(variables).then(function (result) {
@@ -66,6 +70,7 @@ module.exports = function (config, notifier) {
         },
 
         //TODO: Break this into multiple middlewares?
+        //TODO: Also intercept saves on run meta data
         publishInterceptor: function (inputObj) {
             return $creationPromise.then(function (runService) {
                 //TODO: This means variables are always set before operations happen, make that more dynamic and by occurence order
@@ -78,12 +83,27 @@ module.exports = function (config, notifier) {
                     } else if (key.indexOf(OPERATIONS_PREFIX) === 0) {
                         key = key.replace(OPERATIONS_PREFIX, '');
                         accum.operations.push({ name: key, params: val });
+                    } else if (key.indexOf(META_PREFIX) === 0) {
+                        key = key.replace(META_PREFIX, '');
+                        accum.meta[key] = val;
                     }
                     return accum;
-                }, { variables: {}, operations: [] });
+                }, { variables: {}, operations: [], meta: {} });
 
                 var prom = $.Deferred().resolve().promise();
                 var msg = '';
+                if (!_.isEmpty(toSave.meta)) {
+                    if (_.result(opts.meta, 'readOnly')) {
+                        msg = 'Tried to publish to a read-only meta channel';
+                        console.warn(msg, toSave.meta);
+                        return $.Deferred().reject(msg).promise();
+                    }
+                    prom = prom.then(function () {
+                        return runService.save(toSave.meta);
+                    }).then(function () {
+                        return inputObj;
+                    });
+                }
                 if (!_.isEmpty(toSave.variables)) {
                     if (_.result(opts.variables, 'readOnly')) {
                         msg = 'Tried to publish to a read-only variables channel';
@@ -111,14 +131,9 @@ module.exports = function (config, notifier) {
                                 debouncedFetch(variables, runService, notifier);
                             });
                             return changeList;
-                        }).then(function (result) {
-                            var toNotify = _.reduce(result, function (accum, value, variable) {
-                                var key = VARIABLES_PREFIX + variable;
-                                accum[key] = value;
-                                return accum;
-                            }, {});
-                            return toNotify;
                         });
+                    }).then(function () {
+                        return inputObj;
                     });
                 }
                 if (!_.isEmpty(toSave.operations)) {
@@ -151,14 +166,13 @@ module.exports = function (config, notifier) {
                                 debouncedFetch(variables, runService, notifier);
                             });
                             return publishedOperations;
-                        }).then(function (result) {
-                            var toNotify = _.reduce([].concat(result), function (accum, res) {
-                                var key = OPERATIONS_PREFIX + res.name;
-                                accum[key] = res.result;
-                                return accum;
-                            }, {});
-                            return toNotify;
                         });
+                    }).then(function (result) {
+                        ([].concat(result)).forEach(function (res) {
+                            var key = OPERATIONS_PREFIX + res.name;
+                            inputObj[key] = res.result;
+                        });
+                        return inputObj;
                     });
                 }
                 return prom;
