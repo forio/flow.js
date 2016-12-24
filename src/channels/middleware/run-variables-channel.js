@@ -1,6 +1,37 @@
 var debounceAndMerge = require('utils/general').debounceAndMerge;
 var VARIABLES_PREFIX = 'variable:';
 
+var debouncedFetch = debounceAndMerge(function (variables, runService, notifyCallback) {
+    runService.variables().query(variables).then(function (result) {
+        var toNotify = _.reduce(result, function (accum, value, variable) {
+            var key = VARIABLES_PREFIX + variable;
+            accum[key] = value;
+            return accum;
+        }, {});
+        notifyCallback(toNotify);
+    });
+}, 200, [function mergeVariables(accum, newval) {
+    if (!accum) {
+        accum = [];
+    }
+    return _.uniq(accum.concat(newval));
+}]);
+
+exports.subscribeHandler = function (topics, options, runservice, runData, notifier) {
+    var toFetch = ([].concat(topics)).reduce(function (accum, topic) {
+        if (topic.indexOf(VARIABLES_PREFIX) === 0) {
+            var metaName = topic.replace(VARIABLES_PREFIX, '');
+            accum.push(metaName);
+        }
+        return accum;
+    }, []);
+
+    if (_.result(options, 'autoFetch') && toFetch.length) {
+        debouncedFetch(toFetch, runservice, notifier);
+    }
+};
+
+
 exports.publishHander = function (runservice, inputObj, options) {
     var toSave = Object.keys(inputObj).reduce(function (accum, key) {
         var val = inputObj[key];

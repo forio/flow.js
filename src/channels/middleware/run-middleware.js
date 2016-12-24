@@ -35,7 +35,6 @@ module.exports = function (config, notifier) {
     }
 
     var VARIABLES_PREFIX = 'variable:';
-    var OPERATIONS_PREFIX = 'operation:';
     var META_PREFIX = 'meta:';
 
     var debouncedFetch = debounceAndMerge(function (variables, runService, notifyCallback) {
@@ -58,34 +57,10 @@ module.exports = function (config, notifier) {
 
     var publicAPI = {
         subscribeInterceptor: function (topics) {
-            var toFetch = ([].concat(topics)).reduce(function (accum, topic) {
-                if (topic.indexOf(VARIABLES_PREFIX) === 0) {
-                    var vname = topic.replace(VARIABLES_PREFIX, '');
-                    subscribedVariables[vname] = true;
-                    accum.variables.push(vname);
-                } else if (topic.indexOf(META_PREFIX) === 0) {
-                    var metaName = topic.replace(META_PREFIX, '');
-                    accum.meta.push(metaName);
-                }
-                return accum;
-            }, { variables: [], meta: [] });
-
-            if (_.result(opts.meta, 'autoFetch') && toFetch.meta.length) {
-                $creationPromise.then(function (runData) {
-                    var toSend = toFetch.meta.reduce(function (accum, meta) {
-                        if (runData[meta] !== undefined) {
-                            accum[META_PREFIX + meta] = runData[meta];
-                        }
-                        return accum;
-                    }, {});
-                    notifier(toSend);
-                });
-            }
-            if (_.result(opts.variables, 'autoFetch') && toFetch.variables.length) {
-                return $creationPromise.then(function (runData) {
-                    debouncedFetch(toFetch.variables, rm.run, notifier);
-                });
-            }
+            $creationPromise.then(function (runData) {
+                metaChannel.subscribeHandler(topics, opts.meta, rm.run, runData, notifier);
+                variablesChannel.subscribeHandler(topics, opts.meta, rm.run, runData, notifier);
+            });
         },
 
         //TODO: Break this into multiple middlewares?
