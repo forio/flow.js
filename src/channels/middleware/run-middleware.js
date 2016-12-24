@@ -93,29 +93,12 @@ module.exports = function (config, notifier) {
             return $creationPromise.then(function (runData) {
                 //TODO: This means variables are always set before operations happen, make that more dynamic and by occurence order
                 //TODO: Have publish on subsmanager return a series of [{ key: val} ..] instead of 1 big object?
-                var toSave = Object.keys(inputObj).reduce(function (accum, key) {
-                    var val = inputObj[key];
-                    if (key.indexOf(VARIABLES_PREFIX) === 0) {
-                        key = key.replace(VARIABLES_PREFIX, '');
-                        accum.variables[key] = val; //TODO: Delete this on unsubscribe
-                    } else if (key.indexOf(OPERATIONS_PREFIX) === 0) {
-                        key = key.replace(OPERATIONS_PREFIX, '');
-                        accum.operations.push({ name: key, params: val });
-                    } else if (key.indexOf(META_PREFIX) === 0) {
-                        key = key.replace(META_PREFIX, '');
-                        accum.meta[key] = val;
-                    }
-                    return accum;
-                }, { variables: {}, operations: [], meta: {} });
-
                 var prom = $.Deferred().resolve().promise();
                 prom = prom.then(function () {
-                    return metaChannel.publishHander(rm.run, toSave.meta, opts.meta).then(function () {
-                        return inputObj;
-                    });
+                    return metaChannel.publishHander(rm.run, inputObj, opts.meta);
                 });
                 prom = prom.then(function () {
-                    return variablesChannel.publishHander(rm.run, toSave.variables, opts.variables).then(function (changeList) {
+                    return variablesChannel.publishHander(rm.run, inputObj, opts.variables).then(function (changeList) {
                         var changedVariables = _.isArray(changeList) ? changeList : _.keys(changeList);
 
                         var silent = opts.variables.silent;
@@ -133,12 +116,10 @@ module.exports = function (config, notifier) {
                         var variables = Object.keys(subscribedVariables);
                         debouncedFetch(variables, rm.run, notifier);
                         return changeList;
-                    }).then(function () {
-                        return inputObj;
                     });
                 });
                 prom = prom.then(function () {
-                    return operationsChannel.publishHander(rm.run, toSave.operations, opts.operations).then(function (publishedOperations) {
+                    return operationsChannel.publishHander(rm.run, inputObj, opts.operations).then(function (publishedOperations) {
                         var operationNames = ([].concat(publishedOperations)).map(function (operation) {
                             return operation.name;
                         });
@@ -158,12 +139,6 @@ module.exports = function (config, notifier) {
                         var variables = Object.keys(subscribedVariables);
                         debouncedFetch(variables, rm.run, notifier);
                         return publishedOperations;
-                    }).then(function (result) {
-                        ([].concat(result)).forEach(function (res) {
-                            var key = OPERATIONS_PREFIX + res.name;
-                            inputObj[key] = res.result;
-                        });
-                        return inputObj;
                     });
                 });
                 return prom;
