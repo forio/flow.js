@@ -10,6 +10,8 @@
         "_": false
     },
     "rules": {
+        "array-callback-return": 2,
+        "no-useless-escape": 2,
         "comma-dangle": [0, "always-multiline"],
         "no-cond-assign": [2, "always"],
         "no-console": 0,

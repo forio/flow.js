@@ -60,9 +60,9 @@ var SubscriptionManager = (function () {
             opts.publishMiddlewares.push(rm.publishInterceptor);
             opts.subscribeMiddleWares.push(rm.subscribeInterceptor);
         } else if (options.scenario) {
-            var sm = new ScenarioMiddleware(opts.run, boundNotify);
-            // opts.publishMiddlewares.push(rm.publishInterceptor);
-            // opts.subscribeMiddleWares.push(rm.subscribeInterceptor);
+            var sm = new ScenarioMiddleware(opts.scenario, boundNotify);
+            opts.publishMiddlewares.push(sm.publishInterceptor);
+            opts.subscribeMiddleWares.push(sm.subscribeInterceptor);
         }
       
         $.extend(this, { 

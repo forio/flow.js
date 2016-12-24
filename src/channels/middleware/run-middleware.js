@@ -1,5 +1,9 @@
 var debounceAndMerge = require('utils/general').debounceAndMerge;
 
+var metaChannel = require('./run-meta-channel');
+var variablesChannel = require('./run-variables-channel');
+var operationsChannel = require('./run-operations-channel');
+
 module.exports = function (config, notifier) {
     var defaults = {
         serviceOptions: {},
@@ -105,82 +109,55 @@ module.exports = function (config, notifier) {
                 }, { variables: {}, operations: [], meta: {} });
 
                 var prom = $.Deferred().resolve().promise();
-                var msg = '';
-                if (!_.isEmpty(toSave.meta)) {
-                    if (_.result(opts.meta, 'readOnly')) {
-                        msg = 'Tried to publish to a read-only meta channel';
-                        console.warn(msg, toSave.meta);
-                        return $.Deferred().reject(msg).promise();
-                    }
-                    prom = prom.then(function () {
-                        return rm.run.save(toSave.meta);
-                    }).then(function () {
+                prom = prom.then(function () {
+                    return metaChannel.publishHander(rm.run, toSave.meta, opts.meta).then(function () {
                         return inputObj;
                     });
-                }
-                if (!_.isEmpty(toSave.variables)) {
-                    if (_.result(opts.variables, 'readOnly')) {
-                        msg = 'Tried to publish to a read-only variables channel';
-                        console.warn(msg, toSave.variables);
-                        return $.Deferred().reject(msg).promise();
-                    }
-                    prom = prom.then(function () {
-                        return rm.run.variables().save(toSave.variables).then(function (changeList) {
-                            var changedVariables = _.isArray(changeList) ? changeList : _.keys(changeList);
+                });
+                prom = prom.then(function () {
+                    return variablesChannel.publishHander(rm.run, toSave.variables, opts.variables).then(function (changeList) {
+                        var changedVariables = _.isArray(changeList) ? changeList : _.keys(changeList);
 
-                            var silent = opts.variables.silent;
-                            var shouldSilence = silent === true;
-                            if (_.isArray(silent) && changedVariables) {
-                                shouldSilence = _.intersection(silent, changedVariables).length >= 1;
-                            }
-                            if ($.isPlainObject(silent) && changedVariables) {
-                                shouldSilence = _.intersection(silent.except, changedVariables).length !== changedVariables.length;
-                            }
-                            if (shouldSilence) {
-                                return changeList;
-                            }
-
-                            var variables = Object.keys(subscribedVariables);
-                            $creationPromise.then(function (runService) { //this isn't a publish dependency, so don't return this
-                                debouncedFetch(variables, runService, notifier);
-                            });
+                        var silent = opts.variables.silent;
+                        var shouldSilence = silent === true;
+                        if (_.isArray(silent) && changedVariables) {
+                            shouldSilence = _.intersection(silent, changedVariables).length >= 1;
+                        }
+                        if ($.isPlainObject(silent) && changedVariables) {
+                            shouldSilence = _.intersection(silent.except, changedVariables).length !== changedVariables.length;
+                        }
+                        if (shouldSilence) {
                             return changeList;
-                        });
+                        }
+
+                        var variables = Object.keys(subscribedVariables);
+                        debouncedFetch(variables, rm.run, notifier);
+                        return changeList;
                     }).then(function () {
                         return inputObj;
                     });
-                }
-                if (!_.isEmpty(toSave.operations)) {
-                    if (_.result(opts.operations, 'readOnly')) {
-                        msg = 'Tried to publish to a read-only operations channel';
-                        console.warn(msg, toSave.operations);
-                        return $.Deferred().reject(msg).promise();
-                    }
-                    prom = prom.then(function () {
-                        //TODO: Check serial vs parallel here.
-                        return rm.run.serial(toSave.operations).then(function (publishedOperations) {
-                            var operationNames = ([].concat(publishedOperations)).map(function (operation) {
-                                return operation.name;
-                            });
-
-                            var silent = opts.operations.silent;
-                            var shouldSilence = silent === true;
-                            if (_.isArray(silent) && operationNames) {
-                                shouldSilence = _.intersection(silent, operationNames).length >= 1;
-                            }
-                            if ($.isPlainObject(silent) && operationNames) {
-                                shouldSilence = _.intersection(silent.except, operationNames).length !== operationNames.length;
-                            }
-                            if (shouldSilence) {
-                                return publishedOperations;
-                            }
-
-                            var variables = Object.keys(subscribedVariables);
-                            $creationPromise.then(function (runService) { //this isn't a publish dependency, so don't return this
-                                debouncedFetch(variables, runService, notifier);
-                            });
-                            return publishedOperations;
+                });
+                prom = prom.then(function () {
+                    return operationsChannel.publishHander(rm.run, toSave.operations, opts.operations).then(function (publishedOperations) {
+                        var operationNames = ([].concat(publishedOperations)).map(function (operation) {
+                            return operation.name;
                         });
+
+                        var silent = opts.operations.silent;
+                        var shouldSilence = silent === true;
+                        if (_.isArray(silent) && operationNames) {
+                            shouldSilence = _.intersection(silent, operationNames).length >= 1;
+                        }
+                        if ($.isPlainObject(silent) && operationNames) {
+                            shouldSilence = _.intersection(silent.except, operationNames).length !== operationNames.length;
+                        }
+                        if (shouldSilence) {
+                            return publishedOperations;
+                        }
+
+                        var variables = Object.keys(subscribedVariables);
+                        debouncedFetch(variables, rm.run, notifier);
+                        return publishedOperations;
                     }).then(function (result) {
                         ([].concat(result)).forEach(function (res) {
                             var key = OPERATIONS_PREFIX + res.name;
@@ -188,7 +165,7 @@ module.exports = function (config, notifier) {
                         });
                         return inputObj;
                     });
-                }
+                });
                 return prom;
             });
         }
