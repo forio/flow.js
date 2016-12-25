@@ -3,6 +3,7 @@ var debounceAndMerge = require('utils/general').debounceAndMerge;
 var metaChannel = require('./run-meta-channel');
 var variablesChannel = require('./run-variables-channel');
 var operationsChannel = require('./run-operations-channel');
+var silencable = require('./silencable');
 
 module.exports = function (config, notifier) {
     var defaults = {
@@ -17,6 +18,7 @@ module.exports = function (config, notifier) {
             silent: false,
         },
         meta: {
+            silent: true,
             autoFetch: true,
             readOnly: false
         },
@@ -35,7 +37,6 @@ module.exports = function (config, notifier) {
     }
 
     var VARIABLES_PREFIX = 'variable:';
-    var META_PREFIX = 'meta:';
 
     var debouncedFetch = debounceAndMerge(function (variables, runService, notifyCallback) {
         runService.variables().query(variables).then(function (result) {
@@ -55,11 +56,44 @@ module.exports = function (config, notifier) {
 
     var subscribedVariables = {};
 
+    var handlers = [
+        {
+            name: 'variables',
+            prefix: 'variables:',
+            subscribe: variablesChannel.subscribeHandler,
+            publish: variablesChannel.publishHander
+        },
+        {
+            name: 'meta',
+            prefix: 'meta:',
+            subscribe: metaChannel.subscribeHandler,
+            publish: metaChannel.publishHander
+        },
+        {
+            name: 'operations',
+            prefix: 'operations:',
+            publish: operationsChannel.publishHander
+        },
+    ];
+
     var publicAPI = {
         subscribeInterceptor: function (topics) {
             $creationPromise.then(function (runData) {
-                metaChannel.subscribeHandler(topics, opts.meta, rm.run, runData, notifier);
-                variablesChannel.subscribeHandler(topics, opts.meta, rm.run, runData, notifier);
+                handlers.forEach(function (ph) {
+                    var toFetch = ([].concat(topics)).reduce(function (accum, topic) {
+                        if (topic.indexOf(ph.prefix) === 0) {
+                            var metaName = topic.replace(ph.prefix, '');
+                            accum.push(metaName);
+                        }
+                        return accum;
+                    }, []);
+
+                    var handlerOptions = opts[ph.name];
+                    var shouldFetch = _.result(handlerOptions, 'autoFetch');
+                    if (toFetch.length && ph.subscribe && shouldFetch) {
+                        ph.subscribe(toFetch, opts[ph.nam], rm.run, runData, notifier);
+                    }
+                });
             });
         },
 
@@ -68,55 +102,43 @@ module.exports = function (config, notifier) {
             return $creationPromise.then(function (runData) {
                 //TODO: This means variables are always set before operations happen, make that more dynamic and by occurence order
                 //TODO: Have publish on subsmanager return a series of [{ key: val} ..] instead of 1 big object?
-                var prom = $.Deferred().resolve().promise();
-                prom = prom.then(function () {
-                    return metaChannel.publishHander(rm.run, inputObj, opts.meta);
-                });
-                prom = prom.then(function () {
-                    return variablesChannel.publishHander(rm.run, inputObj, opts.variables).then(function (changeList) {
-                        var changedVariables = _.isArray(changeList) ? changeList : _.keys(changeList);
+                var promises = handlers.reduce(function (promisesSoFar, ph) {
+                    var topicsToHandle = Object.keys(inputObj).reduce(function (accum, inputKey) {
+                        if (inputKey.indexOf(ph.prefix) !== -1) {
+                            var cleanedKey = inputKey.replace(ph.prefix, '');
+                            accum[cleanedKey] = inputObj[inputKey];
+                        }
+                        return accum;
+                    }, {});
 
-                        var silent = opts.variables.silent;
-                        var shouldSilence = silent === true;
-                        if (_.isArray(silent) && changedVariables) {
-                            shouldSilence = _.intersection(silent, changedVariables).length >= 1;
-                        }
-                        if ($.isPlainObject(silent) && changedVariables) {
-                            shouldSilence = _.intersection(silent.except, changedVariables).length !== changedVariables.length;
-                        }
-                        if (shouldSilence) {
-                            return changeList;
-                        }
+                    if (!Object.keys(topicsToHandle).length) {
+                        return promisesSoFar;
+                    }
 
-                        var variables = Object.keys(subscribedVariables);
-                        debouncedFetch(variables, rm.run, notifier);
-                        return changeList;
-                    });
-                });
-                prom = prom.then(function () {
-                    return operationsChannel.publishHander(rm.run, inputObj, opts.operations).then(function (publishedOperations) {
-                        var operationNames = ([].concat(publishedOperations)).map(function (operation) {
-                            return operation.name;
+                    var handlerOptions = opts[ph.name];
+                    if (_.result(handlerOptions, 'readOnly')) {
+                        var msg = 'Tried to publish to a read-only operations channel';
+                        console.warn(msg, topicsToHandle);
+                        return promisesSoFar;
+                    } 
+
+                    var thisProm = ph.publish(rm.run, topicsToHandle, opts[ph.name]).then(function (resultObj) {
+                        Object.keys(resultObj).forEach(function (key) {
+                            inputObj[ph.prefix + key] = resultObj[key];
                         });
-
-                        var silent = opts.operations.silent;
-                        var shouldSilence = silent === true;
-                        if (_.isArray(silent) && operationNames) {
-                            shouldSilence = _.intersection(silent, operationNames).length >= 1;
+                        var changed = Object.keys(resultObj);
+                        var shouldSilence = silencable(changed, opts[ph.name]);
+                        if (!shouldSilence) {
+                            var variables = Object.keys(subscribedVariables);
+                            debouncedFetch(variables, rm.run, notifier);
                         }
-                        if ($.isPlainObject(silent) && operationNames) {
-                            shouldSilence = _.intersection(silent.except, operationNames).length !== operationNames.length;
-                        }
-                        if (shouldSilence) {
-                            return publishedOperations;
-                        }
-
-                        var variables = Object.keys(subscribedVariables);
-                        debouncedFetch(variables, rm.run, notifier);
-                        return publishedOperations;
+                        
                     });
-                });
-                return prom;
+                    promisesSoFar.push(thisProm);
+                    return promisesSoFar;
+                }, []);
+
+                return $.when.apply(null, promises);
             });
         }
     };
