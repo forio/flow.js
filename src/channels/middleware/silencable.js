@@ -16,4 +16,5 @@ module.exports = function (published, options) {
             return accum;
         }, {});
     }
+    return published;
 };
