@@ -1,25 +1,32 @@
 var debounceAndMerge = require('utils/general').debounceAndMerge;
 
-//TODO: None of this is scoped by run...
-var debouncedFetch = debounceAndMerge(function (variables, runService, callback) {
-    runService.variables().query(variables).then(callback);
-}, 200, [function mergeVariables(accum, newval) {
-    if (!accum) {
-        accum = [];
-    }
-    return _.uniq(accum.concat(newval));
-}]);
+module.exports = function () {
 
-var knownTopics = [];
-exports.fetch = function (runservice, callback) {
-    debouncedFetch(knownTopics, runservice, callback);
-};
-exports.subscribeHandler = function (topics, runservice, runData, callback) {
-    knownTopics = _.uniq(knownTopics.concat(topics));
-    debouncedFetch(topics, runservice, callback);
-};
+    var fetchFn = function (runService) {
+        var debounced = runService.patchedFetch ? runService.patchedFetch : runService.patchedFetch = debounceAndMerge(function (variables) {
+            return runService.variables().query(variables);
+        }, 200, [function mergeVariables(accum, newval) {
+            if (!accum) {
+                accum = [];
+            }
+            return _.uniq(accum.concat(newval));
+        }]);
 
+        return debounced;
+    };
+     
 
-exports.publishHander = function (runservice, toSave, options) {
-    return runservice.variables().save(toSave);
+    var knownTopics = [];
+    return { 
+        fetch: function (runService, callback) {
+            return fetchFn(runService)(knownTopics);
+        },
+        subscribeHandler: function (runService, topics) {
+            knownTopics = _.uniq(knownTopics.concat(topics));
+            return fetchFn(runService)(topics);
+        },
+        publishHander: function (runService, toSave, options) {
+            return runService.variables().save(toSave);
+        }
+    };
 };

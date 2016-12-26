@@ -92,8 +92,10 @@ Flow.subscribe('scenario: currentRun: variables');
 Flow.subscribe('scenario: savedRuns');
     //only allowed operations are `add` and `remove`
 
+Flow.subscribe('run:current:variables');
 Flow.subscribe('run: <runid>:variables');
 if runid not provided default to 'currentrun'
+
 
 Flow.subscribe('<runid>:variables');
 if no meta provided, default to 'currentRun'

@@ -1,11 +1,19 @@
 module.exports = function (published, options) {
     var silent = options.silent;
-    var shouldSilence = silent === true;
-    if (_.isArray(silent) && published) {
-        shouldSilence = _.intersection(silent, published).length >= 1;
+    if (silent === true || !published) {
+        return {};
     }
-    if ($.isPlainObject(silent) && published) {
-        shouldSilence = _.intersection(silent.except, published).length !== published.length;
+    if (_.isArray(silent)) {
+        silent.forEach(function (name) {
+            delete published[name];
+        });
+        return published;
+    } else if ($.isPlainObject(silent)) {
+        return Object.keys(published).reduce(function (accum, name) {
+            if (!_.contains(silent, name)) {
+                accum[name] = published[name];
+            }
+            return accum;
+        }, {});
     }
-    return shouldSilence;
 };

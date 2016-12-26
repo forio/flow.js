@@ -1,10 +1,14 @@
-var debounceAndMerge = require('utils/general').debounceAndMerge;
-
-var metaChannel = require('./run-meta-channel');
-var variablesChannel = require('./run-variables-channel');
-var operationsChannel = require('./run-operations-channel');
+var MetaChannel = require('./run-meta-channel');
+var VariablesChannel = require('./run-variables-channel');
+var OperationsChannel = require('./run-operations-channel');
 var silencable = require('./silencable');
 
+function addPrefixToKey(obj, prefix) {
+    return Object.keys(obj).reduce(function (accum, key) {
+        accum[key] = obj[key];
+        return accum;
+    }, {});
+}
 module.exports = function (config, notifier) {
     var defaults = {
         serviceOptions: {},
@@ -25,36 +29,26 @@ module.exports = function (config, notifier) {
         initialOperation: '',
     };
     var opts = $.extend(true, {}, defaults, config);
-    var rm = new window.F.manager.RunManager(opts.serviceOptions);
 
-    var $creationPromise = rm.getRun();
-    if (opts.initialOperation) { //TODO: Only do this for newly created runs;
-        $creationPromise = $creationPromise.then(function (rundata) {
-            return rm.run.do(opts.initialOperation).then(function () {
-                return rundata;
-            });
-        });
+    var serviceOptions = _.result(opts, 'serviceOptions');
+    var $initialProm = null;
+    if (serviceOptions instanceof window.F.service.Run) {
+        $initialProm = $.Deferred().resolve(serviceOptions).promise();
+    } else if (serviceOptions.then) {
+        $initialProm = serviceOptions;
+    } else {
+        var rs = new window.F.service.Run(serviceOptions);
+        $initialProm = $.Deferred().resolve(rs).promise();
     }
 
-    var variableschannel = {
-        name: 'variables',
-        prefix: 'variables:',
-        subscribe: variablesChannel.subscribeHandler,
-        publish: variablesChannel.publishHander
-    };
+    var variableschannel = new VariablesChannel();
+    var metaChannel = new MetaChannel();
+    var operationsChannel = new OperationsChannel();
+
     var handlers = [
-        variableschannel,
-        {
-            name: 'meta',
-            prefix: 'meta:',
-            subscribe: metaChannel.subscribeHandler,
-            publish: metaChannel.publishHander
-        },
-        {
-            name: 'operations',
-            prefix: 'operations:',
-            publish: operationsChannel.publishHander
-        },
+        $.extend(variableschannel, { name: 'variables', prefix: 'variables:' }),
+        $.extend(metaChannel, { name: 'meta', prefix: 'meta:' }),
+        $.extend(operationsChannel, { name: 'operations', prefix: 'operations:' }),
     ];
 
     var notifyWithPrefix = function (prefix, data) {
@@ -68,7 +62,7 @@ module.exports = function (config, notifier) {
 
     var publicAPI = {
         subscribeInterceptor: function (topics) {
-            $creationPromise.then(function (runData) {
+            $initialProm.then(function (runService) {
                 handlers.forEach(function (ph) {
                     var toFetch = ([].concat(topics)).reduce(function (accum, topic) {
                         if (topic.indexOf(ph.prefix) === 0) {
@@ -80,8 +74,11 @@ module.exports = function (config, notifier) {
 
                     var handlerOptions = opts[ph.name];
                     var shouldFetch = _.result(handlerOptions, 'autoFetch');
-                    if (toFetch.length && ph.subscribe && shouldFetch) {
-                        ph.subscribe(toFetch, rm.run, runData, notifyWithPrefix.bind(ph.prefix));
+                    if (toFetch.length && ph.subscribeHandler && shouldFetch) {
+                        var returned = ph.subscribeHandler(runService, toFetch);
+                        if (returned && returned.then) {
+                            returned.then(notifyWithPrefix.bind(null, ph.prefix));
+                        }
                     }
                 });
             });
@@ -89,7 +86,7 @@ module.exports = function (config, notifier) {
 
         //TODO: Break this into multiple middlewares?
         publishInterceptor: function (inputObj) {
-            return $creationPromise.then(function (runData) {
+            return $initialProm.then(function (runService) {
                 //TODO: This means variables are always set before operations happen, make that more dynamic and by occurence order
                 //TODO: Have publish on subsmanager return a series of [{ key: val} ..] instead of 1 big object?
                 var promises = handlers.reduce(function (promisesSoFar, ph) {
@@ -112,22 +109,25 @@ module.exports = function (config, notifier) {
                         return promisesSoFar;
                     } 
 
-                    var thisProm = ph.publish(rm.run, topicsToHandle, opts[ph.name]).then(function (resultObj) {
-                        var changed = Object.keys(resultObj);
-                        var shouldSilence = silencable(changed, opts[ph.name]);
-                        if (!shouldSilence) {
-                            variableschannel.fetch(rm.run, notifyWithPrefix.bind(variableschannel.prefix));
+                    var thisProm = ph.publishHander(runService, topicsToHandle, opts[ph.name]).then(function (resultObj) {
+                        var unsilenced = silencable(resultObj, opts[ph.name]);
+                        if (Object.keys(unsilenced).length) {
+                            variableschannel.fetch(runService).then(notifyWithPrefix.bind(null, variableschannel.prefix));
                         }
-                        Object.keys(resultObj).forEach(function (key) {
-                            inputObj[ph.prefix + key] = resultObj[key];
-                        });
-                        return inputObj;
+                        var mapped = addPrefixToKey(unsilenced, ph.prefix);
+                        return mapped;
                     });
                     promisesSoFar.push(thisProm);
                     return promisesSoFar;
                 }, []);
 
-                return $.when.apply(null, promises);
+                return $.when.apply(null, promises).then(function () {
+                    var args = Array.apply(null, arguments);
+                    var merged = args.reduce(function (accum, arg) {
+                        return $.extend(true, {}, accum, arg);
+                    }, {});
+                    return merged;
+                });
             });
         }
     };

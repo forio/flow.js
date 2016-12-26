@@ -2,7 +2,7 @@
 
 var createClass = require('utils/create-class');
 
-var RunMiddleware = require('./middleware/run-middleware');
+var RunMiddleware = require('./middleware/run-manager-middleware');
 var ScenarioMiddleware = require('./middleware/scenario-middleware');
 
 var makeSubs = function makeSubs(topics, callback, options) {
