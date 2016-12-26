@@ -1,41 +1,5 @@
 'use strict';
 
-var debounceAndMerge = function (fn, debounceInterval, argumentsReducers) {
-    var timer = null;
-
-    var argsToPass = [];
-    if (!argumentsReducers) {
-        var arrayReducer = function (accum, newVal) {
-            if (!accum) {
-                accum = [];
-            }
-            return accum.concat(newVal);
-        };
-        argumentsReducers = [
-            arrayReducer
-        ];
-    }
-    return function () {
-        var newArgs = _.toArray(arguments);
-        argsToPass = newArgs.map(function (arg, index) {
-            var reducer = argumentsReducers[index];
-            if (reducer) {
-                return reducer(argsToPass[index], arg);
-            } else {
-                return arg;
-            }
-        });
-
-        if (timer) {
-            clearTimeout(timer);
-        }
-        timer = setTimeout(function () {
-            timer = null;
-            fn.apply(fn, argsToPass);
-            argsToPass = [];
-        }, debounceInterval);
-    };
-};
 module.exports = {
     random: function (prefix, min, max) {
         if (!min) {
@@ -50,9 +14,8 @@ module.exports = {
         }
         return number;
     },
-    debounceAndMerge: debounceAndMerge,
 
-    debounceAndMergePromise: function (fn, debounceInterval, argumentsReducers) {
+    debounceAndMerge: function (fn, debounceInterval, argumentsReducers) {
         var timer = null;
 
         var argsToPass = [];
