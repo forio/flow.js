@@ -47,8 +47,16 @@ module.exports = {
             }
             timer = setTimeout(function () {
                 timer = null;
-                $def.resolve(fn.apply(fn, argsToPass));
-                argsToPass = [];
+                var res = fn.apply(fn, argsToPass);
+                if (res && res.then) {
+                    return res.then(function (arg) {
+                        argsToPass = [];
+                        $def.resolve(arg);
+                    });
+                } else {
+                    argsToPass = [];
+                    $def.resolve(res);
+                }
             }, debounceInterval);
 
             return $def.promise();

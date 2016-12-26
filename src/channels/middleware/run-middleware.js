@@ -46,9 +46,9 @@ module.exports = function (config, notifier) {
     var operationsChannel = new OperationsChannel();
 
     var handlers = [
-        $.extend(variableschannel, { name: 'variables', prefix: 'variables:' }),
+        $.extend(variableschannel, { name: 'variables', prefix: 'variable:' }),
         $.extend(metaChannel, { name: 'meta', prefix: 'meta:' }),
-        $.extend(operationsChannel, { name: 'operations', prefix: 'operations:' }),
+        $.extend(operationsChannel, { name: 'operations', prefix: 'operation:' }),
     ];
 
     var notifyWithPrefix = function (prefix, data) {
