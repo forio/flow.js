@@ -5,7 +5,7 @@ var silencable = require('./silencable');
 
 function addPrefixToKey(obj, prefix) {
     return Object.keys(obj).reduce(function (accum, key) {
-        accum[key] = obj[key];
+        accum[prefix + key] = obj[key];
         return accum;
     }, {});
 }
@@ -22,7 +22,7 @@ module.exports = function (config, notifier) {
             silent: false,
         },
         meta: {
-            silent: true,
+            silent: false,
             autoFetch: true,
             readOnly: false
         },
@@ -111,7 +111,7 @@ module.exports = function (config, notifier) {
 
                     var thisProm = ph.publishHander(runService, topicsToHandle, opts[ph.name]).then(function (resultObj) {
                         var unsilenced = silencable(resultObj, opts[ph.name]);
-                        if (Object.keys(unsilenced).length) {
+                        if (Object.keys(unsilenced).length && ph.name !== 'meta') {
                             variableschannel.fetch(runService).then(notifyWithPrefix.bind(null, variableschannel.prefix));
                         }
                         var mapped = addPrefixToKey(unsilenced, ph.prefix);
