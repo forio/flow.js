@@ -1,13 +1,11 @@
-var META_PREFIX = 'meta:';
-
-exports.subscribeHandler = function (topics, options, runservice, runData, notifier) {
+exports.subscribeHandler = function (topics, runservice, runData, callback) {
     var toSend = topics.reduce(function (accum, meta) {
         if (runData[meta] !== undefined) {
-            accum[META_PREFIX + meta] = runData[meta];
+            accum[meta] = runData[meta];
         }
         return accum;
     }, {});
-    notifier(toSend);
+    callback(toSend);
 };
 
 exports.publishHander = function (runservice, toSave, options) {

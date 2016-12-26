@@ -2,6 +2,7 @@
 var lolex = require('lolex');
 
 var debounce = require('src/utils/general').debounceAndMerge;
+var debouncePromise = require('src/utils/general').debounceAndMergePromise;
 
 describe('Test general utils', ()=> {
     describe('#debounceWithStore', ()=> {
@@ -72,6 +73,39 @@ describe('Test general utils', ()=> {
             debounced([2]);
             clock.tick(200);
             expect(spy1).to.have.have.been.calledWith([2]); 
+        });
+    });
+
+    describe.only('debounceAndMergePromise', ()=> {
+        var clock;
+        beforeEach(()=> {
+            clock = lolex.install();
+        });
+        afterEach(()=> {
+            clock.uninstall();
+        });
+        it('should return a promise', ()=> {
+            var spy1 = sinon.spy();
+            var prom = debouncePromise(spy1, 200)();
+            expect(prom.then).to.exist;
+        });
+        it('should resolve when debounced function is called', ()=> {
+            var spy1 = sinon.spy((input)=> input.reduce((a, v)=> a + v, 0));
+            var spy2 = sinon.spy();
+            var debounced = debouncePromise(spy1, 200);
+            console.log(debounced[1]);
+            debounced([1]).then(spy2);
+            clock.tick(100);
+            debounced([2]).then(spy2);
+            clock.tick(200);
+            clock.tick(100);
+            expect(spy1).to.have.have.been.calledWith([1, 2]); 
+            expect(spy2).to.have.been.calledOnce;
+            expect(spy2).to.have.have.been.calledWith(3); 
+            // debounced([2]);
+            // clock.tick(200);
+            // expect(spy1).to.have.have.been.calledWith([2]); 
+            // expect(spy2).to.have.have.been.calledWith(2); 
         });
     });
 });

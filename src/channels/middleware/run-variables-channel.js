@@ -1,15 +1,8 @@
 var debounceAndMerge = require('utils/general').debounceAndMerge;
-var VARIABLES_PREFIX = 'variable:';
 
-var debouncedFetch = debounceAndMerge(function (variables, runService, notifyCallback) {
-    runService.variables().query(variables).then(function (result) {
-        var toNotify = _.reduce(result, function (accum, value, variable) {
-            var key = VARIABLES_PREFIX + variable;
-            accum[key] = value;
-            return accum;
-        }, {});
-        notifyCallback(toNotify);
-    });
+//TODO: None of this is scoped by run...
+var debouncedFetch = debounceAndMerge(function (variables, runService, callback) {
+    runService.variables().query(variables).then(callback);
 }, 200, [function mergeVariables(accum, newval) {
     if (!accum) {
         accum = [];
@@ -17,8 +10,13 @@ var debouncedFetch = debounceAndMerge(function (variables, runService, notifyCal
     return _.uniq(accum.concat(newval));
 }]);
 
-exports.subscribeHandler = function (topics, options, runservice, runData, notifier) {
-    debouncedFetch(topics, runservice, notifier);
+var knownTopics = [];
+exports.fetch = function (runservice, callback) {
+    debouncedFetch(knownTopics, runservice, callback);
+};
+exports.subscribeHandler = function (topics, runservice, runData, callback) {
+    knownTopics = _.uniq(knownTopics.concat(topics));
+    debouncedFetch(topics, runservice, callback);
 };
 
 

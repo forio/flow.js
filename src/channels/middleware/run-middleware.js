@@ -36,33 +36,14 @@ module.exports = function (config, notifier) {
         });
     }
 
-    var VARIABLES_PREFIX = 'variable:';
-
-    var debouncedFetch = debounceAndMerge(function (variables, runService, notifyCallback) {
-        runService.variables().query(variables).then(function (result) {
-            var toNotify = _.reduce(result, function (accum, value, variable) {
-                var key = VARIABLES_PREFIX + variable;
-                accum[key] = value;
-                return accum;
-            }, {});
-            notifyCallback(toNotify);
-        });
-    }, 200, [function mergeVariables(accum, newval) {
-        if (!accum) {
-            accum = [];
-        }
-        return _.uniq(accum.concat(newval));
-    }]);
-
-    var subscribedVariables = {};
-
+    var variableschannel = {
+        name: 'variables',
+        prefix: 'variables:',
+        subscribe: variablesChannel.subscribeHandler,
+        publish: variablesChannel.publishHander
+    };
     var handlers = [
-        {
-            name: 'variables',
-            prefix: 'variables:',
-            subscribe: variablesChannel.subscribeHandler,
-            publish: variablesChannel.publishHander
-        },
+        variableschannel,
         {
             name: 'meta',
             prefix: 'meta:',
@@ -75,6 +56,15 @@ module.exports = function (config, notifier) {
             publish: operationsChannel.publishHander
         },
     ];
+
+    var notifyWithPrefix = function (prefix, data) {
+        var toNotify = _.reduce(data, function (accum, value, variable) {
+            var key = prefix + variable;
+            accum[key] = value;
+            return accum;
+        }, {});
+        notifier(toNotify);
+    };
 
     var publicAPI = {
         subscribeInterceptor: function (topics) {
@@ -91,7 +81,7 @@ module.exports = function (config, notifier) {
                     var handlerOptions = opts[ph.name];
                     var shouldFetch = _.result(handlerOptions, 'autoFetch');
                     if (toFetch.length && ph.subscribe && shouldFetch) {
-                        ph.subscribe(toFetch, opts[ph.nam], rm.run, runData, notifier);
+                        ph.subscribe(toFetch, rm.run, runData, notifyWithPrefix.bind(ph.prefix));
                     }
                 });
             });
@@ -123,16 +113,15 @@ module.exports = function (config, notifier) {
                     } 
 
                     var thisProm = ph.publish(rm.run, topicsToHandle, opts[ph.name]).then(function (resultObj) {
-                        Object.keys(resultObj).forEach(function (key) {
-                            inputObj[ph.prefix + key] = resultObj[key];
-                        });
                         var changed = Object.keys(resultObj);
                         var shouldSilence = silencable(changed, opts[ph.name]);
                         if (!shouldSilence) {
-                            var variables = Object.keys(subscribedVariables);
-                            debouncedFetch(variables, rm.run, notifier);
+                            variableschannel.fetch(rm.run, notifyWithPrefix.bind(variableschannel.prefix));
                         }
-                        
+                        Object.keys(resultObj).forEach(function (key) {
+                            inputObj[ph.prefix + key] = resultObj[key];
+                        });
+                        return inputObj;
                     });
                     promisesSoFar.push(thisProm);
                     return promisesSoFar;
