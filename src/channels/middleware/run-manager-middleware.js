@@ -1,12 +1,19 @@
 var RunChannel = require('./run-middleware');
 
+function addPrefixToKey(obj, prefix) {
+    return Object.keys(obj).reduce(function (accum, key) {
+        accum[prefix + key] = obj[key];
+        return accum;
+    }, {});
+}
+
 module.exports = function (config, notifier) {
     var defaults = {
         serviceOptions: {},
         initialOperation: '',
     };
     var opts = $.extend(true, {}, defaults, config);
-    
+
     var rm = new window.F.manager.RunManager(opts.serviceOptions);
     var $creationPromise = rm.getRun();
     if (opts.initialOperation) { //TODO: Only do this for newly created runs;
@@ -20,20 +27,80 @@ module.exports = function (config, notifier) {
         return rm.run;
     });
     var currentRunChannel = new RunChannel({ serviceOptions: $creationPromise }, notifier);
+    var defaultRunChannel = new RunChannel({ serviceOptions: $creationPromise }, notifier);
+    // return currentRunChannel;
+    var handlers = [
+        $.extend(currentRunChannel, { name: 'current', prefix: 'current:' }),
+        // $.extend(metaChannel, { name: 'meta', prefix: 'meta:' }),
+        $.extend(defaultRunChannel, { name: 'current', prefix: '' }),
+    ];
 
-    return currentRunChannel;
-    // var handlers = [
-    //     $.extend(variableschannel, { name: 'curren', prefix: 'variable:' }),
-    //     $.extend(metaChannel, { name: 'meta', prefix: 'meta:' }),
-    //     $.extend(operationsChannel, { name: 'operations', prefix: 'operation:' }),
-    // ];
+    var notifyWithPrefix = function (prefix, data) {
+        var toNotify = _.reduce(data, function (accum, value, variable) {
+            var key = prefix + variable;
+            accum[key] = value;
+            return accum;
+        }, {});
+        notifier(toNotify);
+    };
 
-    // return {
-    //     subscribeInterceptor: function (topics) {
-            
-    //     },
-    //     publishInterceptor: function () {
+    return {
+        subscribeHandler: function (topics) {
+            handlers.reduce(function (pendingTopics, ph) {
+                var toFetch = ([].concat(pendingTopics)).reduce(function (accum, topic) {
+                    if (topic.indexOf(ph.prefix) === 0) {
+                        var stripped = topic.replace(ph.prefix, '');
+                        accum.myTopics.push(stripped);
+                    } else {
+                        accum.otherTopics.push(topic);
+                    }
+                    return accum;
+                }, { myTopics: [], otherTopics: [] });
 
-    //     },
-    // };
+                // var handlerOptions = opts[ph.name];
+                if (ph.subscribeHandler) {
+                    var returned = ph.subscribeHandler(toFetch.myTopics);
+                    if (returned && returned.then) {
+                        returned.then(notifyWithPrefix.bind(null, ph.prefix));
+                    }
+                }
+                return toFetch.otherTopics;
+            }, topics);
+        },
+        publishHandler: function (inputObj) {
+            var status = handlers.reduce(function (accum, ph) {
+                var topicsToHandle = Object.keys(accum.unhandled).reduce(function (soFar, inputKey) {
+                    var value = accum.unhandled[inputKey];
+                    if (inputKey.indexOf(ph.prefix) !== -1) {
+                        var cleanedKey = inputKey.replace(ph.prefix, '');
+                        soFar.myTopics[cleanedKey] = value;
+                    } else {
+                        soFar.otherTopics[inputKey] = value;
+                    }
+                    return soFar;
+                }, { myTopics: {}, otherTopics: {} });
+
+                var myTopics = topicsToHandle.myTopics;
+                if (!Object.keys(myTopics).length) {
+                    return accum;
+                }
+
+                var thisProm = ph.publishHandler(myTopics).then(function (resultObj) {
+                    var mapped = addPrefixToKey(resultObj, ph.prefix);
+                    return mapped;
+                });
+                accum.promises.push(thisProm);
+                accum.unhandled = topicsToHandle.otherTopics;
+                return accum;
+            }, { promises: [], unhandled: inputObj });
+
+            return $.when.apply(null, status.promises).then(function () {
+                var args = Array.apply(null, arguments);
+                var merged = args.reduce(function (accum, arg) {
+                    return $.extend(true, {}, accum, arg);
+                }, {});
+                return merged;
+            });
+        },
+    };
 };

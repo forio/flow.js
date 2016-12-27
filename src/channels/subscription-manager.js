@@ -57,12 +57,12 @@ var SubscriptionManager = (function () {
 
         if (opts.run) {
             var rm = new RunMiddleware(opts.run, boundNotify);
-            opts.publishMiddlewares.push(rm.publishInterceptor);
-            opts.subscribeMiddleWares.push(rm.subscribeInterceptor);
+            opts.publishMiddlewares.push(rm.publishHandler);
+            opts.subscribeMiddleWares.push(rm.subscribeHandler);
         } else if (options.scenario) {
             var sm = new ScenarioMiddleware(opts.scenario, boundNotify);
-            opts.publishMiddlewares.push(sm.publishInterceptor);
-            opts.subscribeMiddleWares.push(sm.subscribeInterceptor);
+            opts.publishMiddlewares.push(sm.publishHandler);
+            opts.subscribeMiddleWares.push(sm.subscribeHandler);
         }
       
         $.extend(this, { 

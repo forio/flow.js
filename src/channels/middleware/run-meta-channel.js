@@ -21,7 +21,7 @@ module.exports = function () {
             }
             
         },
-        publishHander: function (runService, toSave, options) {
+        publishHandler: function (runService, toSave, options) {
             return runService.save(toSave).then(function (res) {
                 runService.runMeta = $.extend({}, true, runService.runMeta, res);
                 return res;

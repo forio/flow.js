@@ -1,6 +1,6 @@
 module.exports = function () {
     return {
-        publishHander: function (runService, toSave, options) {
+        publishHandler: function (runService, toSave, options) {
             toSave = Object.keys(toSave).reduce(function (accum, key) {
                 accum.push({ name: key, params: toSave[key] });
                 return accum;

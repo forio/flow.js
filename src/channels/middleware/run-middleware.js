@@ -63,7 +63,7 @@ module.exports = function (config, notifier) {
     };
 
     var publicAPI = {
-        subscribeInterceptor: function (topics) {
+        subscribeHandler: function (topics) {
             $initialProm.then(function (runService) {
                 handlers.reduce(function (pendingTopics, ph) {
                     var toFetch = ([].concat(pendingTopics)).reduce(function (accum, topic) {
@@ -90,7 +90,7 @@ module.exports = function (config, notifier) {
         },
 
         //TODO: Break this into multiple middlewares?
-        publishInterceptor: function (inputObj) {
+        publishHandler: function (inputObj) {
             return $initialProm.then(function (runService) {
                 //TODO: This means variables are always set before operations happen, make that more dynamic and by occurence order
                 //TODO: Have publish on subsmanager return a series of [{ key: val} ..] instead of 1 big object?
@@ -118,7 +118,7 @@ module.exports = function (config, notifier) {
                         return accum;
                     } 
 
-                    var thisProm = ph.publishHander(runService, myTopics, handlerOptions).then(function (resultObj) {
+                    var thisProm = ph.publishHandler(runService, myTopics, handlerOptions).then(function (resultObj) {
                         var unsilenced = silencable(resultObj, handlerOptions);
                         if (Object.keys(unsilenced).length && ph.name !== 'meta') {
                             //TOD: Better way?

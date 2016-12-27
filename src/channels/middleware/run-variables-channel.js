@@ -34,7 +34,7 @@ module.exports = function () {
             }
             return fetchFn(runService)(topics);
         },
-        publishHander: function (runService, toSave, options) {
+        publishHandler: function (runService, toSave, options) {
             return runService.variables().save(toSave);
         }
     };
