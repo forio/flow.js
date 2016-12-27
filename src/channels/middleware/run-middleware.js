@@ -46,7 +46,6 @@ module.exports = function (config, notifier) {
     var metaChannel = new MetaChannel();
     var operationsChannel = new OperationsChannel();
 
-    //TODO: Make this a hash?
     var handlers = [
         $.extend(variableschannel, { name: 'variables', prefix: 'variable:' }),
         $.extend(metaChannel, { name: 'meta', prefix: 'meta:' }),
@@ -107,20 +106,22 @@ module.exports = function (config, notifier) {
                         return soFar;
                     }, { myTopics: {}, otherTopics: {} });
 
-                    if (!Object.keys(topicsToHandle.myTopics).length) {
+                    var myTopics = topicsToHandle.myTopics;
+                    if (!Object.keys(myTopics).length) {
                         return accum;
                     }
 
                     var handlerOptions = opts[ph.name];
                     if (_.result(handlerOptions, 'readOnly')) {
                         var msg = 'Tried to publish to a read-only operations channel';
-                        console.warn(msg, topicsToHandle.myTopics);
+                        console.warn(msg, myTopics);
                         return accum;
                     } 
 
-                    var thisProm = ph.publishHander(runService, topicsToHandle.myTopics, opts[ph.name]).then(function (resultObj) {
-                        var unsilenced = silencable(resultObj, opts[ph.name]);
+                    var thisProm = ph.publishHander(runService, myTopics, handlerOptions).then(function (resultObj) {
+                        var unsilenced = silencable(resultObj, handlerOptions);
                         if (Object.keys(unsilenced).length && ph.name !== 'meta') {
+                            //TOD: Better way?
                             variableschannel.fetch(runService).then(notifyWithPrefix.bind(null, variableschannel.prefix));
                             defaultVariablesChannel.fetch(runService).then(notifyWithPrefix.bind(null, defaultVariablesChannel.prefix));
                         }
