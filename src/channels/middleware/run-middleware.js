@@ -95,27 +95,30 @@ module.exports = function (config, notifier) {
             return $initialProm.then(function (runService) {
                 //TODO: This means variables are always set before operations happen, make that more dynamic and by occurence order
                 //TODO: Have publish on subsmanager return a series of [{ key: val} ..] instead of 1 big object?
-                var promises = handlers.reduce(function (promisesSoFar, ph) {
-                    var topicsToHandle = Object.keys(inputObj).reduce(function (accum, inputKey) {
+                var status = handlers.reduce(function (accum, ph) {
+                    var topicsToHandle = Object.keys(accum.unhandled).reduce(function (soFar, inputKey) {
+                        var value = accum.unhandled[inputKey];
                         if (inputKey.indexOf(ph.prefix) !== -1) {
                             var cleanedKey = inputKey.replace(ph.prefix, '');
-                            accum[cleanedKey] = inputObj[inputKey];
+                            soFar.myTopics[cleanedKey] = value;
+                        } else {
+                            soFar.otherTopics[inputKey] = value;
                         }
-                        return accum;
-                    }, {});
+                        return soFar;
+                    }, { myTopics: {}, otherTopics: {} });
 
-                    if (!Object.keys(topicsToHandle).length) {
-                        return promisesSoFar;
+                    if (!Object.keys(topicsToHandle.myTopics).length) {
+                        return accum;
                     }
 
                     var handlerOptions = opts[ph.name];
                     if (_.result(handlerOptions, 'readOnly')) {
                         var msg = 'Tried to publish to a read-only operations channel';
-                        console.warn(msg, topicsToHandle);
-                        return promisesSoFar;
+                        console.warn(msg, topicsToHandle.myTopics);
+                        return accum;
                     } 
 
-                    var thisProm = ph.publishHander(runService, topicsToHandle, opts[ph.name]).then(function (resultObj) {
+                    var thisProm = ph.publishHander(runService, topicsToHandle.myTopics, opts[ph.name]).then(function (resultObj) {
                         var unsilenced = silencable(resultObj, opts[ph.name]);
                         if (Object.keys(unsilenced).length && ph.name !== 'meta') {
                             variableschannel.fetch(runService).then(notifyWithPrefix.bind(null, variableschannel.prefix));
@@ -124,11 +127,12 @@ module.exports = function (config, notifier) {
                         var mapped = addPrefixToKey(unsilenced, ph.prefix);
                         return mapped;
                     });
-                    promisesSoFar.push(thisProm);
-                    return promisesSoFar;
-                }, []);
+                    accum.promises.push(thisProm);
+                    accum.unhandled = topicsToHandle.otherTopics;
+                    return accum;
+                }, { promises: [], unhandled: inputObj });
 
-                return $.when.apply(null, promises).then(function () {
+                return $.when.apply(null, status.promises).then(function () {
                     var args = Array.apply(null, arguments);
                     var merged = args.reduce(function (accum, arg) {
                         return $.extend(true, {}, accum, arg);

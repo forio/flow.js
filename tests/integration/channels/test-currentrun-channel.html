@@ -9,10 +9,16 @@
 
 <body data-f-model="">
 
+    <h6>Explicit variable scope</h6>
     <label for="txtPrice">Price</label>
     <input type="text" id="txtPrice" />
     <div id="priceop"></div>
     <br>
+
+    <h6>shorthand variable scope</h6>
+    <label for="txtPrice2">Price</label>
+    <input type="text" id="txtPrice2" />
+    <div id="priceop2"></div>
 
     <label for="txtName">Name</label>
     <input type="text" id="txtName" />
@@ -50,6 +56,11 @@
         $('#priceop').html(val['variable:Price']);
         console.log('Variable Subscribe callback called', val);
     });
+    sm.subscribe(['Price'], function (val) {
+        $('#priceop2').html(val['Price']);
+        console.log('Shorthand Subscribe callback called', val);
+    });
+
     sm.subscribe(['Costs'], function (val) {
         console.log('Shortcut Variable Subscribe callback called', val);
     });
@@ -64,6 +75,11 @@
         var val = Number($(evt.target).val());
         sm.publish('variable:Price', val);
     });
+    $('#txtPrice2').on('change', function (evt) {
+        var val = Number($(evt.target).val());
+        sm.publish('Price', val);
+    });
+
     $('#txtName').on('change', function (evt) {
         var val = ($(evt.target).val());
         sm.publish('meta:name', val);
