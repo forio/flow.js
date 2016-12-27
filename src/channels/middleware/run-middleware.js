@@ -42,13 +42,16 @@ module.exports = function (config, notifier) {
     }
 
     var variableschannel = new VariablesChannel();
+    var defaultVariablesChannel = new VariablesChannel();
     var metaChannel = new MetaChannel();
     var operationsChannel = new OperationsChannel();
 
+    //TODO: Make this a hash?
     var handlers = [
         $.extend(variableschannel, { name: 'variables', prefix: 'variable:' }),
         $.extend(metaChannel, { name: 'meta', prefix: 'meta:' }),
         $.extend(operationsChannel, { name: 'operations', prefix: 'operation:' }),
+        $.extend(defaultVariablesChannel, { name: 'variables', prefix: '' }),
     ];
 
     var notifyWithPrefix = function (prefix, data) {
@@ -63,24 +66,27 @@ module.exports = function (config, notifier) {
     var publicAPI = {
         subscribeInterceptor: function (topics) {
             $initialProm.then(function (runService) {
-                handlers.forEach(function (ph) {
-                    var toFetch = ([].concat(topics)).reduce(function (accum, topic) {
+                handlers.reduce(function (pendingTopics, ph) {
+                    var toFetch = ([].concat(pendingTopics)).reduce(function (accum, topic) {
                         if (topic.indexOf(ph.prefix) === 0) {
-                            var metaName = topic.replace(ph.prefix, '');
-                            accum.push(metaName);
+                            var stripped = topic.replace(ph.prefix, '');
+                            accum.myTopics.push(stripped);
+                        } else {
+                            accum.otherTopics.push(topic);
                         }
                         return accum;
-                    }, []);
+                    }, { myTopics: [], otherTopics: [] });
 
                     var handlerOptions = opts[ph.name];
                     var shouldFetch = _.result(handlerOptions, 'autoFetch');
-                    if (toFetch.length && ph.subscribeHandler && shouldFetch) {
-                        var returned = ph.subscribeHandler(runService, toFetch);
+                    if (toFetch.myTopics.length && ph.subscribeHandler && shouldFetch) {
+                        var returned = ph.subscribeHandler(runService, toFetch.myTopics);
                         if (returned && returned.then) {
                             returned.then(notifyWithPrefix.bind(null, ph.prefix));
                         }
                     }
-                });
+                    return toFetch.otherTopics;
+                }, topics);
             });
         },
 
@@ -113,6 +119,7 @@ module.exports = function (config, notifier) {
                         var unsilenced = silencable(resultObj, opts[ph.name]);
                         if (Object.keys(unsilenced).length && ph.name !== 'meta') {
                             variableschannel.fetch(runService).then(notifyWithPrefix.bind(null, variableschannel.prefix));
+                            defaultVariablesChannel.fetch(runService).then(notifyWithPrefix.bind(null, defaultVariablesChannel.prefix));
                         }
                         var mapped = addPrefixToKey(unsilenced, ph.prefix);
                         return mapped;
