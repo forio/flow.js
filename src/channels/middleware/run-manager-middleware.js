@@ -19,6 +19,21 @@ module.exports = function (config, notifier) {
     $creationPromise = $creationPromise.then(function () {
         return rm.run;
     });
-    var runChannel = new RunChannel({ serviceOptions: $creationPromise }, notifier);
-    return runChannel;
+    var currentRunChannel = new RunChannel({ serviceOptions: $creationPromise }, notifier);
+
+    return currentRunChannel;
+    // var handlers = [
+    //     $.extend(variableschannel, { name: 'curren', prefix: 'variable:' }),
+    //     $.extend(metaChannel, { name: 'meta', prefix: 'meta:' }),
+    //     $.extend(operationsChannel, { name: 'operations', prefix: 'operation:' }),
+    // ];
+
+    // return {
+    //     subscribeInterceptor: function (topics) {
+            
+    //     },
+    //     publishInterceptor: function () {
+
+    //     },
+    // };
 };

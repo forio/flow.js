@@ -50,6 +50,9 @@
         $('#priceop').html(val['variable:Price']);
         console.log('Variable Subscribe callback called', val);
     });
+    sm.subscribe(['Costs'], function (val) {
+        console.log('Shortcut Variable Subscribe callback called', val);
+    });
     sm.subscribe(['variable:Revenue'], function (val) {
         console.log('Variable Subscribe callback called', val);
     });
