@@ -28,9 +28,16 @@ module.exports = function (config, notifier) {
     });
     var currentRunChannel = new RunChannel({ serviceOptions: $creationPromise }, notifier);
     var defaultRunChannel = new RunChannel({ serviceOptions: $creationPromise }, notifier);
-    // return currentRunChannel;
+
+    var sampleRunid = '000001593dd81950d4ee4f3df14841769a0b';
+    //define a match function
+    //define a prefix function which takes in the match result as a parameter
+    // create a new channel and push onto handlers to catch further
     var handlers = [
         $.extend(currentRunChannel, { name: 'current', prefix: 'current:' }),
+        // $.extend({ name: 'custom', match: function () {
+            
+        // }})
         // $.extend(metaChannel, { name: 'meta', prefix: 'meta:' }),
         $.extend(defaultRunChannel, { name: 'current', prefix: '' }),
     ];
@@ -48,7 +55,12 @@ module.exports = function (config, notifier) {
         subscribeHandler: function (topics) {
             handlers.reduce(function (pendingTopics, ph) {
                 var toFetch = ([].concat(pendingTopics)).reduce(function (accum, topic) {
-                    if (topic.indexOf(ph.prefix) === 0) {
+                    // var notify = 
+                    if (ph.match && ph.match(topic)) {
+                        var match = ph.match(topic);
+                        var cleaned = topic.replace(match, '');
+                        accum.myTopics.push(cleaned);
+                    } else if (topic.indexOf(ph.prefix) === 0) {
                         var stripped = topic.replace(ph.prefix, '');
                         accum.myTopics.push(stripped);
                     } else {
