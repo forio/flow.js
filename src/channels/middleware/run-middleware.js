@@ -50,7 +50,8 @@ module.exports = function (config, notifier) {
     }
 
     var variableschannel = new VariablesChannel();
-    var defaultVariablesChannel = new VariablesChannel(); //TODO: Need 2 different channel instances just because notify needs to be called twice. Different way?
+    //TODO: Need 2 different channel instances just because notify needs to be called twice (with different arguments). Different way?
+    var defaultVariablesChannel = new VariablesChannel();
     var metaChannel = new MetaChannel();
     var operationsChannel = new OperationsChannel();
 
