@@ -20,7 +20,6 @@ module.exports = function (config, notifier) {
     var currentRunPromise = sm.current.getRun().then(function () {
         return sm.current.run;
     });
-    //TODO: Also check for initial operation here
     var baselineRunChannel = new RunChannel( 
         $.extend(true, {}, {
             serviceOptions: baselinePromise,

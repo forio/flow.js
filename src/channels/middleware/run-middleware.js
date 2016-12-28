@@ -9,6 +9,7 @@ var mapWithPrefix = require('./middleware-utils').mapWithPrefix;
 module.exports = function (config, notifier) {
     var defaults = {
         serviceOptions: {},
+        initialOperation: '',
         variables: {
             autoFetch: true,
             silent: false,
@@ -35,6 +36,17 @@ module.exports = function (config, notifier) {
     } else {
         var rs = new window.F.service.Run(serviceOptions);
         $initialProm = $.Deferred().resolve(rs).promise();
+    }
+
+    if (opts.initialOperation) { //TODO: Only do this for newly created runs;
+        $initialProm = $initialProm.then(function (runService) {
+            if (runService.isInitialOperationComplete) {
+                return runService;
+            }
+            return runService.do(opts.initialOperation).then(function () {
+                return runService;
+            });
+        });
     }
 
     var variableschannel = new VariablesChannel();
