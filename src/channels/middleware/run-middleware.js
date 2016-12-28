@@ -3,12 +3,9 @@ var VariablesChannel = require('./run-variables-channel');
 var OperationsChannel = require('./run-operations-channel');
 var silencable = require('./silencable');
 
-function addPrefixToKey(obj, prefix) {
-    return Object.keys(obj).reduce(function (accum, key) {
-        accum[prefix + key] = obj[key];
-        return accum;
-    }, {});
-}
+var prefix = require('./middleware-utils').prefix;
+var mapWithPrefix = require('./middleware-utils').mapWithPrefix;
+
 module.exports = function (config, notifier) {
     var defaults = {
         serviceOptions: {},
@@ -46,11 +43,6 @@ module.exports = function (config, notifier) {
     var metaChannel = new MetaChannel();
     var operationsChannel = new OperationsChannel();
 
-    function prefix(prefix) {
-        return function match(topic) {
-            return (topic.indexOf(prefix) === 0) ? prefix : false;
-        };
-    }
     var handlers = [
         $.extend(variableschannel, { name: 'variables', match: prefix('variable:') }),
         $.extend(metaChannel, { name: 'meta', match: prefix('meta:') }),
@@ -132,7 +124,7 @@ module.exports = function (config, notifier) {
                             variableschannel.fetch(runService).then(notifyWithPrefix.bind(null, variableschannel.prefix));
                             defaultVariablesChannel.fetch(runService).then(notifyWithPrefix.bind(null, defaultVariablesChannel.prefix));
                         }
-                        var mapped = addPrefixToKey(unsilenced, ph.prefix);
+                        var mapped = mapWithPrefix(unsilenced, ph.prefix);
                         return mapped;
                     });
                     accum.promises.push(thisProm);

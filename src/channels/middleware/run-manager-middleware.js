@@ -1,11 +1,7 @@
 var RunChannel = require('./run-middleware');
 
-function addPrefixToKey(obj, prefix) {
-    return Object.keys(obj).reduce(function (accum, key) {
-        accum[prefix + key] = obj[key];
-        return accum;
-    }, {});
-}
+var prefix = require('./middleware-utils').prefix;
+var mapWithPrefix = require('./middleware-utils').mapWithPrefix;
 
 module.exports = function (config, notifier) {
     var defaults = {
@@ -34,12 +30,12 @@ module.exports = function (config, notifier) {
     //define a prefix function which takes in the match result as a parameter
     // create a new channel and push onto handlers to catch further
     var handlers = [
-        $.extend(currentRunChannel, { name: 'current', prefix: 'current:' }),
+        $.extend(currentRunChannel, { name: 'current', match: prefix('current:') }),
         // $.extend({ name: 'custom', match: function () {
             
         // }})
         // $.extend(metaChannel, { name: 'meta', prefix: 'meta:' }),
-        $.extend(defaultRunChannel, { name: 'current', prefix: '' }),
+        $.extend(defaultRunChannel, { name: 'current', match: prefix('') }),
     ];
 
     var notifyWithPrefix = function (prefix, data) {
@@ -55,25 +51,22 @@ module.exports = function (config, notifier) {
         subscribeHandler: function (topics) {
             handlers.reduce(function (pendingTopics, ph) {
                 var toFetch = ([].concat(pendingTopics)).reduce(function (accum, topic) {
-                    // var notify = 
-                    if (ph.match && ph.match(topic)) {
-                        var match = ph.match(topic);
-                        var cleaned = topic.replace(match, '');
-                        accum.myTopics.push(cleaned);
-                    } else if (topic.indexOf(ph.prefix) === 0) {
-                        var stripped = topic.replace(ph.prefix, '');
+                    var prefixMatch = ph.match(topic, ph.prefix);
+                    if (prefixMatch !== false) {
+                        var stripped = topic.replace(prefixMatch, '');
                         accum.myTopics.push(stripped);
+                        accum.prefix = prefixMatch;
                     } else {
                         accum.otherTopics.push(topic);
                     }
                     return accum;
-                }, { myTopics: [], otherTopics: [] });
+                }, { myTopics: [], otherTopics: [], prefix: '' });
 
                 // var handlerOptions = opts[ph.name];
                 if (ph.subscribeHandler) {
                     var returned = ph.subscribeHandler(toFetch.myTopics);
                     if (returned && returned.then) {
-                        returned.then(notifyWithPrefix.bind(null, ph.prefix));
+                        returned.then(notifyWithPrefix.bind(null, toFetch.prefix));
                     }
                 }
                 return toFetch.otherTopics;
@@ -98,7 +91,7 @@ module.exports = function (config, notifier) {
                 }
 
                 var thisProm = ph.publishHandler(myTopics).then(function (resultObj) {
-                    var mapped = addPrefixToKey(resultObj, ph.prefix);
+                    var mapped = mapWithPrefix(resultObj, ph.prefix);
                     return mapped;
                 });
                 accum.promises.push(thisProm);
