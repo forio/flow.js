@@ -9,33 +9,18 @@
 </head>
 
 <body data-f-model="">
-
     <section>
-        <h3>Specific Run</h3>
-        <div>
-        </div>
-        <label for="">Name</label>
-        <input type="text" id="specificRunName" bind="000001592427458bc60275dfdbad64f4d25a:meta:name">
-    </section>
-    <section>
-        <h3>Default Run</h3>
-        <h6>Explicit variable scope</h6>
-        <label for="txtPrice">Price</label>
-        <input type="text" id="txtPrice" bind="variable:Price"/>
-        <br>
-
-        <h6>shorthand variable scope</h6>
-        <label for="txtPrice2">Price</label>
-        <input type="text" id="txtPrice2" bind="Price"/>
-
-        
-        <label for="txtName">Name</label>
-        <input type="text" id="txtName" bind="meta:name"/>
-
         <button id="btnStep">Step</button>
     </section>
 
-    <table class="table">
+    <table class="table" style="width: 600px;">
+        <thead>
+            <tr>
+                <th>Type</th>
+                <th>Input</th>
+                <th>Output</th>
+            </tr>
+        </thead>
         <tbody id="outputs">
         </tbody>
     </table>
@@ -62,13 +47,7 @@
     });
 
 
-    $('#specificRunName, #txtPrice, #txtPrice2, #txtName').on('change', function (evt) {
-        var val = ($(evt.target).val());
-        val = isNaN(Number(val)) ? val : Number(val);
-        sm.publish($(evt.target).attr('bind'), val);
-    });
-
-    sm.subscribe([
+    var toTest = [
         'variable:Price',
         'Price',
         'meta:name',
@@ -77,19 +56,27 @@
         '000001592427458bc60275dfdbad64f4d25a:Price',
         '000001592427458bc60275dfdbad64f4d25a:meta:name',
         '000001592427458bc60275dfdbad64f4d25a:meta:id',
-    ], function (val) {
+    ];
+
+    toTest.forEach(function (key) {
+        $('#outputs').append(`
+            <tr>
+                <td>${key}</td>
+                <td><input class="input" type="text" bind=${key} /></td>
+                <td class="output" bind="${key}"></td>
+            </tr>
+        `);
+    });
+    $('body').on('change', '.input', function (evt) {
+        var val = ($(evt.target).val());
+        val = isNaN(Number(val)) ? val : Number(val);
+        sm.publish($(evt.target).attr('bind'), val);
+    });
+
+    sm.subscribe(toTest, function (val) {
         Object.keys(val).forEach(function (key) {
             var $target = $('.output[bind="' + key + '"]');
-            if (!$target.length) {
-                $('#outputs').append(`
-                    <tr>
-                        <td>${key}</td>
-                        <td bind="${key}">${val[key]}</td>
-                    </tr>
-                `);
-            } else {
-                $target.html(val[key]);
-            }
+            $target.html(val[key]);
         });
     });
 
