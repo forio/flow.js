@@ -53,6 +53,7 @@ module.exports = function (config, notifier) {
                 return knownRunIDServiceChannels[prefix].subscribeHandler(topics);
             },
             publishHandler: function (topics, prefix) {
+                prefix = prefix.replace(':', '');
                 if (!knownRunIDServiceChannels[prefix]) {
                     var newNotifier = notifyWithPrefix.bind(null, prefix + ':');
                     var runOptions = $.extend(true, {}, opts.serviceOptions.run, { id: prefix });
@@ -98,22 +99,23 @@ module.exports = function (config, notifier) {
             var status = handlers.reduce(function (accum, ph) {
                 var topicsToHandle = Object.keys(accum.unhandled).reduce(function (soFar, inputKey) {
                     var value = accum.unhandled[inputKey];
-                    if (inputKey.indexOf(ph.prefix) !== -1) {
-                        var cleanedKey = inputKey.replace(ph.prefix, '');
+                    var prefixMatch = ph.match(inputKey, ph.prefix);
+                    if (prefixMatch !== false) {
+                        var cleanedKey = inputKey.replace(prefixMatch, '');
                         soFar.myTopics[cleanedKey] = value;
+                        soFar.prefix = prefixMatch;
                     } else {
                         soFar.otherTopics[inputKey] = value;
                     }
                     return soFar;
-                }, { myTopics: {}, otherTopics: {} });
-
+                }, { myTopics: {}, otherTopics: {}, prefix: '' });
                 var myTopics = topicsToHandle.myTopics;
                 if (!Object.keys(myTopics).length) {
                     return accum;
                 }
 
-                var thisProm = ph.publishHandler(myTopics).then(function (resultObj) {
-                    var mapped = mapWithPrefix(resultObj, ph.prefix);
+                var thisProm = ph.publishHandler(myTopics, topicsToHandle.prefix).then(function (resultObj) {
+                    var mapped = mapWithPrefix(resultObj, topicsToHandle.prefix);
                     return mapped;
                 });
                 accum.promises.push(thisProm);

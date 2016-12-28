@@ -9,22 +9,35 @@
 
 <body data-f-model="">
 
-    <h6>Explicit variable scope</h6>
-    <label for="txtPrice">Price</label>
-    <input type="text" id="txtPrice" />
-    <div id="priceop"></div>
-    <br>
+    <section>
+        <h3>Specific Run</h3>
+        <div>
+            Run <span id="specificrunid"></span>
+        </div>
+        <label for="">Name</label>
+        <input type="text" id="specificRunName">
+        <div id="specificRunNameOutput"></div>
+    </section>
+    <section>
+        <h3>Current Run</h3>
+        <h6>Explicit variable scope</h6>
+        <label for="txtPrice">Price</label>
+        <input type="text" id="txtPrice" />
+        <div id="priceop"></div>
+        <br>
 
-    <h6>shorthand variable scope</h6>
-    <label for="txtPrice2">Price</label>
-    <input type="text" id="txtPrice2" />
-    <div id="priceop2"></div>
+        <h6>shorthand variable scope</h6>
+        <label for="txtPrice2">Price</label>
+        <input type="text" id="txtPrice2" />
+        <div id="priceop2"></div>
 
-    <label for="txtName">Name</label>
-    <input type="text" id="txtName" />
-    <div id="nameop"></div>
+        <label for="txtName">Name</label>
+        <input type="text" id="txtName" />
+        <div id="nameop"></div>
 
-    <button id="btnStep">Step</button>
+        <button id="btnStep">Step</button>
+    </section>
+   
     <script>
     var sm = new Flow.SubsManager({
         run: {
@@ -47,11 +60,32 @@
         }
     });
 
-    sm.subscribe(['000001592427458bc60275dfdbad64f4d25a:meta:name'], function (val) {
-        console.log('000001592427458bc60275dfdbad64f4d25a name is', val);
+    //TODO: FIX batch; needs to store 'current data' and merge
+    // sm.subscribe([
+    //     '000001592427458bc60275dfdbad64f4d25a:meta:name',
+    //     '000001592427458bc60275dfdbad64f4d25a:meta:id',
+    // ], function (val) {
+    //     $('#specificRunNameOutput').html(val['000001592427458bc60275dfdbad64f4d25a:meta:name']);
+    //     $('#specificrunid').html(val['000001592427458bc60275dfdbad64f4d25a:meta:id']);
+    // }, { batch: true });
+
+
+    sm.subscribe([
+        '000001592427458bc60275dfdbad64f4d25a:meta:name',
+    ], function (val) {
+        $('#specificRunNameOutput').html(val['000001592427458bc60275dfdbad64f4d25a:meta:name']);
     });
-    sm.subscribe(['000001592427458bc60275dfdbad64f4d25a:meta:id'], function (val) {
-        console.log('000001592427458bc60275dfdbad64f4d25a id is', val);
+
+    sm.subscribe([
+        '000001592427458bc60275dfdbad64f4d25a:meta:id',
+    ], function (val) {
+        $('#specificrunid').html(val['000001592427458bc60275dfdbad64f4d25a:meta:id']);
+    });
+
+
+    $('#specificRunName').on('change', function (evt) {
+        var val = ($(evt.target).val());
+        sm.publish('000001592427458bc60275dfdbad64f4d25a:meta:name', val);
     });
     // sm.subscribe(['meta:name'], function (val) {
     //     $('#nameop').html(val['meta:name']);

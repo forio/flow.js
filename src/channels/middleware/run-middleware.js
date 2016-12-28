@@ -91,14 +91,16 @@ module.exports = function (config, notifier) {
                 var status = handlers.reduce(function (accum, ph) {
                     var topicsToHandle = Object.keys(accum.unhandled).reduce(function (soFar, inputKey) {
                         var value = accum.unhandled[inputKey];
-                        if (inputKey.indexOf(ph.prefix) !== -1) {
-                            var cleanedKey = inputKey.replace(ph.prefix, '');
+                        var prefixMatch = ph.match(inputKey, ph.prefix);
+                        if (prefixMatch !== false) {
+                            var cleanedKey = inputKey.replace(prefixMatch, '');
                             soFar.myTopics[cleanedKey] = value;
+                            soFar.prefix = prefixMatch;
                         } else {
                             soFar.otherTopics[inputKey] = value;
                         }
                         return soFar;
-                    }, { myTopics: {}, otherTopics: {} });
+                    }, { myTopics: {}, otherTopics: {}, prefix: '' });
 
                     var myTopics = topicsToHandle.myTopics;
                     if (!Object.keys(myTopics).length) {
@@ -115,11 +117,11 @@ module.exports = function (config, notifier) {
                     var thisProm = ph.publishHandler(runService, myTopics, handlerOptions).then(function (resultObj) {
                         var unsilenced = silencable(resultObj, handlerOptions);
                         if (Object.keys(unsilenced).length && ph.name !== 'meta') {
-                            //TOD: Better way?
-                            variableschannel.fetch(runService).then(notifyWithPrefix.bind(null, variableschannel.prefix));
-                            defaultVariablesChannel.fetch(runService).then(notifyWithPrefix.bind(null, defaultVariablesChannel.prefix));
+                            //FIXME: Better way?
+                            variableschannel.fetch(runService).then(notifyWithPrefix.bind(null, 'variables:'));
+                            defaultVariablesChannel.fetch(runService).then(notifyWithPrefix.bind(null, ''));
                         }
-                        var mapped = mapWithPrefix(unsilenced, ph.prefix);
+                        var mapped = mapWithPrefix(unsilenced, topicsToHandle.prefix);
                         return mapped;
                     });
                     accum.promises.push(thisProm);
