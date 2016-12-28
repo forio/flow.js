@@ -169,20 +169,37 @@ describe.only('Subscription Manager', ()=> {
                 spy1.should.not.have.been.called;
             });
         });
-        it.only('should call batch if existing data is available', ()=> {
-            var spy1 = sinon.spy();
-            channel.subscribe(['price', 'cost'], spy1, { batch: true });
+        describe('Cache', ()=> {
+            describe('When on', ()=> {
+                it('should call batch if existing data is available', ()=> {
+                    var spy1 = sinon.spy();
+                    channel.subscribe(['price', 'cost'], spy1, { batch: true });
 
-            return channel.publish({ price: 2 }).then(()=> {
-                spy1.should.not.have.been.called;
-                return channel.publish({ cost: 4 }).then(()=> {
-                    spy1.should.have.been.calledOnce;
-                    spy1.should.have.been.calledWith({
-                        price: 2,
-                        cost: 4,
+                    return channel.publish({ price: 2 }).then(()=> {
+                        spy1.should.not.have.been.called;
+                        return channel.publish({ cost: 4 }).then(()=> {
+                            spy1.should.have.been.calledOnce;
+                            spy1.should.have.been.calledWith({
+                                price: 2,
+                                cost: 4,
+                            });
+                        });
                     });
                 });
             });
+            describe('When off', ()=> {
+                it('should call batch if existing data is available', ()=> {
+                    var spy1 = sinon.spy();
+                    channel.subscribe(['price', 'cost'], spy1, { batch: true, cache: false });
+                    return channel.publish({ price: 2 }).then(()=> {
+                        spy1.should.not.have.been.called;
+                        return channel.publish({ cost: 4 }).then(()=> {
+                            spy1.should.not.have.been.called;
+                        });
+                    });
+                });
+            });
+            
         });
     });
     describe('#subscribe', function () {

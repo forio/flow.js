@@ -9,6 +9,25 @@ var makeSubs = function makeSubs(topics, callback, options) {
     var id = _.uniqueId('subs-');
     var defaults = {
         batch: false,
+
+        /**
+         * Determines if the last published data should be cached for future notifications. For e.g.,
+         *
+         * channel.subscribe(['price', 'cost'], callback1, { batch: true, cache: false });
+         * channel.subscribe(['price', 'cost'], callback2, { batch: true, cache: true });
+         *
+         * channel.publish({ price: 1 });
+         * channel.publish({ cost: 1 });
+         *
+         * callback1 will have been called once, and callback2 will not have been called. i.e., the channel caches the first publish value and notifies after all dependent topics have data
+         * If we'd done channel.publish({ price: 1, cost: 1 }) would have called both callback1 and callback2
+         *
+         * `cache: true` is useful if you know if your topics will can published individually, but you still want to handle them together.
+         * `cache: false` is useful if you know if your topics will *always* be published together and they'll be called at the same time.
+         *
+         * Note this has no discernible effect if batch is false
+         * @type {Boolean}
+         */
         cache: true,
     };
     var opts = $.extend({}, defaults, options);
@@ -19,7 +38,7 @@ var makeSubs = function makeSubs(topics, callback, options) {
     }, opts);
 };
 
-function checkAndNotifyBatch(publishObj, subscription, options) {
+function checkAndNotifyBatch(publishObj, subscription) {
     var merged = $.extend(true, {}, subscription.availableData, publishObj);
     var matchingTopics = _.intersection(Object.keys(merged), subscription.topics);
     if (matchingTopics.length > 0) {
@@ -27,7 +46,10 @@ function checkAndNotifyBatch(publishObj, subscription, options) {
             accum[topic] = merged[topic];
             return accum;
         }, {});
-        subscription.availableData = toSend;
+
+        if (subscription.cache) {
+            subscription.availableData = toSend;
+        }
         if (matchingTopics.length === subscription.topics.length) {
             subscription.callback(toSend);
         }
