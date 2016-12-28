@@ -171,6 +171,3 @@ Once we have context
 ```
 
 
-? Should require prefixing 'scenario' or 'run' to differentiate between which middleware handles it?
-    -- Could have a scenario where a custom run-manager could exist in parallel with runmanager.
-    

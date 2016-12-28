@@ -60,28 +60,13 @@
         }
     });
 
-    //TODO: FIX batch; needs to store 'current data' and merge
-    // sm.subscribe([
-    //     '000001592427458bc60275dfdbad64f4d25a:meta:name',
-    //     '000001592427458bc60275dfdbad64f4d25a:meta:id',
-    // ], function (val) {
-    //     $('#specificRunNameOutput').html(val['000001592427458bc60275dfdbad64f4d25a:meta:name']);
-    //     $('#specificrunid').html(val['000001592427458bc60275dfdbad64f4d25a:meta:id']);
-    // }, { batch: true });
-
-
     sm.subscribe([
         '000001592427458bc60275dfdbad64f4d25a:meta:name',
-    ], function (val) {
-        $('#specificRunNameOutput').html(val['000001592427458bc60275dfdbad64f4d25a:meta:name']);
-    });
-
-    sm.subscribe([
         '000001592427458bc60275dfdbad64f4d25a:meta:id',
     ], function (val) {
+        $('#specificRunNameOutput').html(val['000001592427458bc60275dfdbad64f4d25a:meta:name']);
         $('#specificrunid').html(val['000001592427458bc60275dfdbad64f4d25a:meta:id']);
-    });
-
+    }, { batch: true });
 
     $('#specificRunName').on('change', function (evt) {
         var val = ($(evt.target).val());
