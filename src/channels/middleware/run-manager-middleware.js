@@ -22,13 +22,14 @@ module.exports = function (config, notifier) {
     $creationPromise = $creationPromise.then(function () {
         return rm.run;
     });
-    var currentRunChannel = new RunChannel({ serviceOptions: $creationPromise }, notifier);
-    var defaultRunChannel = new RunChannel({ serviceOptions: $creationPromise }, notifier);
-
-    var sampleRunid = '000001593dd81950d4ee4f3df14841769a0b';
     var notifyWithPrefix = function (prefix, data) {
         notifier(mapWithPrefix(data, prefix));
     };
+    var currentRunChannel = new RunChannel({ serviceOptions: $creationPromise }, notifyWithPrefix.bind(null, 'current:'));
+    var defaultRunChannel = new RunChannel({ serviceOptions: $creationPromise }, notifier);
+
+    var sampleRunid = '000001593dd81950d4ee4f3df14841769a0b';
+   
     // create a new channel and push onto handlers to catch further
     var knownRunIDServiceChannels = {};
     var handlers = [
