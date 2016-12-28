@@ -1,6 +1,7 @@
 <html>
 
 <head>
+    <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css">
     <script src="/node_modules/jquery/dist/jquery.min.js"></script>
     <script src="/node_modules/lodash/lodash.js"></script>
     <script src="/node_modules/epicenter-js/dist/epicenter.min.js"></script>
@@ -12,32 +13,32 @@
     <section>
         <h3>Specific Run</h3>
         <div>
-            Run <span class="output"  bind="000001592427458bc60275dfdbad64f4d25a:meta:id"></span>
         </div>
         <label for="">Name</label>
         <input type="text" id="specificRunName" bind="000001592427458bc60275dfdbad64f4d25a:meta:name">
-        <div class="output" bind="000001592427458bc60275dfdbad64f4d25a:meta:name"></div>
     </section>
     <section>
         <h3>Default Run</h3>
         <h6>Explicit variable scope</h6>
         <label for="txtPrice">Price</label>
         <input type="text" id="txtPrice" bind="variable:Price"/>
-        <div class="output" bind="variable:Price"></div>
         <br>
 
         <h6>shorthand variable scope</h6>
         <label for="txtPrice2">Price</label>
         <input type="text" id="txtPrice2" bind="Price"/>
-        <div class="output" bind="Price"></div>
 
         
         <label for="txtName">Name</label>
         <input type="text" id="txtName" bind="meta:name"/>
-        <div class="output" bind="meta:name"></div>
 
         <button id="btnStep">Step</button>
     </section>
+
+    <table class="table">
+        <tbody id="outputs">
+        </tbody>
+    </table>
     <script>
     var sm = new Flow.SubsManager({
         run: {
@@ -72,11 +73,23 @@
         'Price',
         'meta:name',
 
+        '000001592427458bc60275dfdbad64f4d25a:variable:Price',
+        '000001592427458bc60275dfdbad64f4d25a:Price',
         '000001592427458bc60275dfdbad64f4d25a:meta:name',
         '000001592427458bc60275dfdbad64f4d25a:meta:id',
     ], function (val) {
         Object.keys(val).forEach(function (key) {
-            $('.output[bind="' + key + '"]').html(val[key]);
+            var $target = $('.output[bind="' + key + '"]');
+            if (!$target.length) {
+                $('#outputs').append(`
+                    <tr>
+                        <td>${key}</td>
+                        <td bind="${key}">${val[key]}</td>
+                    </tr>
+                `);
+            } else {
+                $target.html(val[key]);
+            }
         });
     });
 
