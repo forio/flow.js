@@ -80,7 +80,7 @@ module.exports = function (config, notifier) {
                 }, { myTopics: [], otherTopics: [], prefix: '' });
 
                 // var handlerOptions = opts[ph.name];
-                if (ph.subscribeHandler) {
+                if (toFetch.myTopics.length && ph.subscribeHandler) {
                     var returned = ph.subscribeHandler(toFetch.myTopics, toFetch.prefix);
                     if (returned && returned.then) {
                         returned.then(notifyWithPrefix.bind(null, toFetch.prefix));
