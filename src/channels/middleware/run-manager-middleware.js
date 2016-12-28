@@ -26,26 +26,48 @@ module.exports = function (config, notifier) {
     var defaultRunChannel = new RunChannel({ serviceOptions: $creationPromise }, notifier);
 
     var sampleRunid = '000001593dd81950d4ee4f3df14841769a0b';
+    var notifyWithPrefix = function (prefix, data) {
+        notifier(mapWithPrefix(data, prefix));
+    };
     //define a match function
     //define a prefix function which takes in the match result as a parameter
     // create a new channel and push onto handlers to catch further
+    var knownRunIDServiceChannels = {};
     var handlers = [
         $.extend(currentRunChannel, { name: 'current', match: prefix('current:') }),
+        { 
+            name: 'custom', 
+            match: function (topic) { 
+                var topicRoot = topic.split(':')[0];
+                return (topicRoot.length === sampleRunid.length) ? topicRoot + ':' : false;
+            },
+            subscribeHandler: function (topics, prefix) {
+                prefix = prefix.replace(':', '');
+                if (!knownRunIDServiceChannels[prefix]) {
+                    var newNotifier = notifyWithPrefix.bind(null, prefix + ':');
+                    var runOptions = $.extend(true, {}, opts.serviceOptions.run, { id: prefix });
+                    var runChannel = new RunChannel({ serviceOptions: runOptions }, newNotifier);
+
+                    knownRunIDServiceChannels[prefix] = runChannel;
+                }
+                return knownRunIDServiceChannels[prefix].subscribeHandler(topics);
+            },
+            publishHandler: function (topics, prefix) {
+                if (!knownRunIDServiceChannels[prefix]) {
+                    var newNotifier = notifyWithPrefix.bind(null, prefix + ':');
+                    var runOptions = $.extend(true, {}, opts.serviceOptions.run, { id: prefix });
+                    var runChannel = new RunChannel({ serviceOptions: runOptions }, newNotifier);
+                    knownRunIDServiceChannels[prefix] = runChannel;
+                }
+                return knownRunIDServiceChannels[prefix].publishHandler(topics);
+            }
+        },
         // $.extend({ name: 'custom', match: function () {
             
         // }})
         // $.extend(metaChannel, { name: 'meta', prefix: 'meta:' }),
         $.extend(defaultRunChannel, { name: 'current', match: prefix('') }),
     ];
-
-    var notifyWithPrefix = function (prefix, data) {
-        var toNotify = _.reduce(data, function (accum, value, variable) {
-            var key = prefix + variable;
-            accum[key] = value;
-            return accum;
-        }, {});
-        notifier(toNotify);
-    };
 
     return {
         subscribeHandler: function (topics) {
@@ -64,7 +86,7 @@ module.exports = function (config, notifier) {
 
                 // var handlerOptions = opts[ph.name];
                 if (ph.subscribeHandler) {
-                    var returned = ph.subscribeHandler(toFetch.myTopics);
+                    var returned = ph.subscribeHandler(toFetch.myTopics, toFetch.prefix);
                     if (returned && returned.then) {
                         returned.then(notifyWithPrefix.bind(null, toFetch.prefix));
                     }

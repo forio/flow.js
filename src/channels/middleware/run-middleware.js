@@ -51,12 +51,7 @@ module.exports = function (config, notifier) {
     ];
 
     var notifyWithPrefix = function (prefix, data) {
-        var toNotify = _.reduce(data, function (accum, value, variable) {
-            var key = prefix + variable;
-            accum[key] = value;
-            return accum;
-        }, {});
-        notifier(toNotify);
+        notifier(mapWithPrefix(data, prefix));
     };
 
     var publicAPI = {
