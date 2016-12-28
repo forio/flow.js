@@ -15,20 +15,26 @@ channel({
         }
     },
     scenarioManager: {
-        model: 'supply-chain-game.py',
-        account: 'acme-simulations',
-        project: 'supply-chain-game',
+        run: {
+            model: 'supply-chain-game.py',
+            account: 'acme-simulations',
+            project: 'supply-chain-game',
+        }
     },
 
     options: {
         scenarioManager: {
-            initialOperation: '',
+            defaults: {
+                initialOperaton: '',
+            },
             baseline: {
 
             }
         },
         runManager: {
-            initialOperation: '',
+            defaults: {
+                initialOperaton: '',
+            },
             current: {
                 variables: { silent: ['price', 'sales'] },
                 operations: { silent: false },

@@ -16,8 +16,10 @@ module.exports = function (config, notifier) {
     var notifyWithPrefix = function (prefix, data) {
         notifier(mapWithPrefix(data, prefix));
     };
-    var currentRunChannel = new RunChannel($.extend(true, { serviceOptions: $creationPromise }, opts.current), notifyWithPrefix.bind(null, 'current:'));
-    var defaultRunChannel = new RunChannel($.extend(true, { serviceOptions: $creationPromise }, opts.current), notifier);
+    var currentRunChannel = new RunChannel($.extend(true, 
+        { serviceOptions: $creationPromise }, opts.defaults, opts.current), notifyWithPrefix.bind(null, 'current:'));
+    var defaultRunChannel = new RunChannel($.extend(true, 
+        { serviceOptions: $creationPromise }, opts.defaults, opts.current), notifier);
 
     var sampleRunid = '000001593dd81950d4ee4f3df14841769a0b';
    

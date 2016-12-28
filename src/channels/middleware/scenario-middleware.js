@@ -29,11 +29,11 @@ module.exports = function (config, notifier) {
             variables: {
                 readOnly: true
             }
-        }, opts.baseline)
+        }, opts.defaults, opts.baseline)
     , notifyWithPrefix.bind(null, 'baseline:'));
     var currentRunChannel = new RunChannel($.extend(true, {}, {
         serviceOptions: currentRunPromise,
-    }, opts.current), notifyWithPrefix.bind(null, 'current:'));
+    }, opts.defaults, opts.current), notifyWithPrefix.bind(null, 'current:'));
     // var defaultRunChannel = new RunChannel({ serviceOptions: currentRunPromise }, notifier);
 
     var sampleRunid = '000001593dd81950d4ee4f3df14841769a0b';
