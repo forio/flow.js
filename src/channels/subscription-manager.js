@@ -68,28 +68,34 @@ function checkAndNotify(publishObj, subscription) {
     });
 }
 
+var availableMiddlewares = [
+    { name: 'runManager', handler: RunMiddleware },
+    { name: 'scenarioManager', handler: ScenarioMiddleware },
+];
 var SubscriptionManager = (function () {
     function SubscriptionManager(options) {
         var defaults = {
             subscriptions: [],
 
             subscribeMiddleWares: [],
-            publishMiddlewares: []
+            publishMiddlewares: [],
+            options: {},
         };
         var opts = $.extend(true, {}, defaults, options);
 
         var boundNotify = this.notify.bind(this);
 
-        if (opts.run) {
-            var rm = new RunMiddleware(opts.run, boundNotify);
-            opts.publishMiddlewares.push(rm.publishHandler);
-            opts.subscribeMiddleWares.push(rm.subscribeHandler);
-        } else if (opts.scenario) {
-            var sm = new ScenarioMiddleware(opts.scenario, boundNotify);
-            opts.publishMiddlewares.push(sm.publishHandler);
-            opts.subscribeMiddleWares.push(sm.subscribeHandler);
-        }
-      
+        availableMiddlewares.forEach(function (middleware) {
+            if (opts[middleware.name]) {
+                var Handler = middleware.handler;
+                var m = new Handler($.extend(true, {}, opts.options[middleware.name], {
+                    serviceOptions: opts[middleware.name]
+                }), boundNotify);
+                opts.publishMiddlewares.push(m.publishHandler);
+                opts.subscribeMiddleWares.push(m.subscribeHandler);
+            }
+        });
+
         $.extend(this, { 
             subscriptions: opts.subscriptions, 
             publishMiddlewares: opts.publishMiddlewares,

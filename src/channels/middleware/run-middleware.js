@@ -9,6 +9,7 @@ var mapWithPrefix = require('./middleware-utils').mapWithPrefix;
 module.exports = function (config, notifier) {
     var defaults = {
         serviceOptions: {},
+        initialOperation: '',
         variables: {
             autoFetch: true,
             silent: false,
@@ -23,7 +24,6 @@ module.exports = function (config, notifier) {
             autoFetch: true,
             readOnly: false
         },
-        initialOperation: '',
     };
     var opts = $.extend(true, {}, defaults, config);
 
@@ -38,16 +38,27 @@ module.exports = function (config, notifier) {
         $initialProm = $.Deferred().resolve(rs).promise();
     }
 
+    if (opts.initialOperation) {
+        $initialProm = $initialProm.then(function (runService) {
+            if (!runService.initialize) {
+                runService.initialize = runService.do(opts.initialOperation);
+            }
+            return runService.initialize.then(function () {
+                return runService;
+            });
+        });
+    }
+
     var variableschannel = new VariablesChannel();
-    var defaultVariablesChannel = new VariablesChannel();
+    var defaultVariablesChannel = new VariablesChannel(); //TODO: Need 2 different channel instances just because notify needs to be called twice. Different way?
     var metaChannel = new MetaChannel();
     var operationsChannel = new OperationsChannel();
 
     var handlers = [
-        $.extend(variableschannel, { name: 'variables', match: prefix('variable:') }),
-        $.extend(metaChannel, { name: 'meta', match: prefix('meta:') }),
-        $.extend(operationsChannel, { name: 'operations', match: prefix('operation:') }),
-        $.extend(defaultVariablesChannel, { name: 'variables', match: prefix('') }),
+        $.extend({}, variableschannel, { name: 'variables', match: prefix('variable:') }),
+        $.extend({}, metaChannel, { name: 'meta', match: prefix('meta:') }),
+        $.extend({}, operationsChannel, { name: 'operations', match: prefix('operation:') }),
+        $.extend({}, defaultVariablesChannel, { name: 'variables', match: prefix('') }),
     ];
 
     var notifyWithPrefix = function (prefix, data) {
