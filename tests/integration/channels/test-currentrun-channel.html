@@ -50,6 +50,9 @@
     sm.subscribe(['000001592427458bc60275dfdbad64f4d25a:meta:name'], function (val) {
         console.log('000001592427458bc60275dfdbad64f4d25a name is', val);
     });
+    sm.subscribe(['000001592427458bc60275dfdbad64f4d25a:meta:id'], function (val) {
+        console.log('000001592427458bc60275dfdbad64f4d25a id is', val);
+    });
     // sm.subscribe(['meta:name'], function (val) {
     //     $('#nameop').html(val['meta:name']);
 
