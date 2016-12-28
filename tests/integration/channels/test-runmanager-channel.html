@@ -1,0 +1,135 @@
+<html>
+
+<head>
+    <script src="/node_modules/jquery/dist/jquery.min.js"></script>
+    <script src="/node_modules/lodash/lodash.js"></script>
+    <script src="/node_modules/epicenter-js/dist/epicenter.min.js"></script>
+    <script src="/dist/flow-edge.js"></script>
+</head>
+
+<body data-f-model="">
+
+    <section>
+        <h3>Specific Run</h3>
+        <div>
+            Run <span id="specificrunid"></span>
+        </div>
+        <label for="">Name</label>
+        <input type="text" id="specificRunName">
+        <div id="specificRunNameOutput"></div>
+    </section>
+    <section>
+        <h3>Current Run</h3>
+        <h6>Explicit variable scope</h6>
+        <label for="txtPrice">Price</label>
+        <input type="text" id="txtPrice" />
+        <div id="priceop"></div>
+        <br>
+
+        <h6>shorthand variable scope</h6>
+        <label for="txtPrice2">Price</label>
+        <input type="text" id="txtPrice2" />
+        <div id="priceop2"></div>
+
+        <label for="txtName">Name</label>
+        <input type="text" id="txtName" />
+        <div id="nameop"></div>
+
+        <button id="btnStep">Step</button>
+    </section>
+   
+    <script>
+    var sm = new Flow.SubsManager({
+        run: {
+            serviceOptions: {
+                strategy: 'new-if-missing',
+                run: {
+                    account: 'jaimedp',
+                    project: 'glasses',
+                    model: 'gglasses.vmf',
+                }
+            },
+            // initialOperation: 'start_game',
+            variables: {
+                readOnly: false,
+                silent: false,
+            },
+            operations: {
+                silent: true,
+            }
+        }
+    });
+
+    //TODO: FIX batch; needs to store 'current data' and merge
+    // sm.subscribe([
+    //     '000001592427458bc60275dfdbad64f4d25a:meta:name',
+    //     '000001592427458bc60275dfdbad64f4d25a:meta:id',
+    // ], function (val) {
+    //     $('#specificRunNameOutput').html(val['000001592427458bc60275dfdbad64f4d25a:meta:name']);
+    //     $('#specificrunid').html(val['000001592427458bc60275dfdbad64f4d25a:meta:id']);
+    // }, { batch: true });
+
+
+    sm.subscribe([
+        '000001592427458bc60275dfdbad64f4d25a:meta:name',
+    ], function (val) {
+        $('#specificRunNameOutput').html(val['000001592427458bc60275dfdbad64f4d25a:meta:name']);
+    });
+
+    sm.subscribe([
+        '000001592427458bc60275dfdbad64f4d25a:meta:id',
+    ], function (val) {
+        $('#specificrunid').html(val['000001592427458bc60275dfdbad64f4d25a:meta:id']);
+    });
+
+
+    $('#specificRunName').on('change', function (evt) {
+        var val = ($(evt.target).val());
+        sm.publish('000001592427458bc60275dfdbad64f4d25a:meta:name', val);
+    });
+    sm.subscribe(['meta:name'], function (val) {
+        $('#nameop').html(val['meta:name']);
+
+        console.log('Meta Subscribe callback called', val);
+    });
+    sm.subscribe(['variable:Price'], function (val) {
+        $('#priceop').html(val['variable:Price']);
+        console.log('Variable Subscribe callback called', val);
+    });
+    sm.subscribe(['Price'], function (val) {
+        $('#priceop2').html(val['Price']);
+        console.log('Shorthand Subscribe callback called', val);
+    });
+
+    sm.subscribe(['Costs'], function (val) {
+        console.log('Shortcut Variable Subscribe callback called', val);
+    });
+    sm.subscribe(['variable:Revenue'], function (val) {
+        console.log('Variable Subscribe callback called', val);
+    });
+    sm.subscribe(['operation:step'], function (val) {
+        console.log('Operation Subscribe callback called', val);
+    });
+
+    $('#txtPrice').on('change', function (evt) {
+        var val = Number($(evt.target).val());
+        sm.publish('variable:Price', val);
+    });
+    $('#txtPrice2').on('change', function (evt) {
+        var val = Number($(evt.target).val());
+        sm.publish('Price', val);
+    });
+
+    $('#txtName').on('change', function (evt) {
+        var val = ($(evt.target).val());
+        sm.publish('meta:name', val);
+    });
+
+    $('#btnStep').on('click', function (evt) {
+        sm.publish('operation:step');
+    });
+    window.sm = sm;
+    </script>
+</body>
+
+</html>

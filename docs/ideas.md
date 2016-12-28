@@ -83,3 +83,55 @@ When i PUBLISH an operation, i need to fetch variables to know what else changed
         ? Just hijack the .then on publishInterceptor since it's on the same fn anyway
         ? Subscribe to operations from within the `init` code and trigger fetches that way
             x the whole point is to catch this _before_ subscribers get notified
+
+
+Flow.publish('scenario:baseline:variables', { price: 20});
+
+Flow.subscribe('scenario: baseline: variables');
+Flow.subscribe('scenario: currentRun: variables');
+Flow.subscribe('scenario: savedRuns');
+    //only allowed operations are `add` and `remove`
+
+Flow.subscribe('run:current:variables');
+Flow.subscribe('run: <runid>:variables');
+if runid not provided default to 'currentrun'
+
+
+Flow.subscribe('<runid>:variables');
+if no meta provided, default to 'currentRun'
+
+== Flow.subscribe('Price'); == defaults to 'variables', defaults to currentrun
+
+```html
+<div data-f-bind="scenario:baseline:meta:name"></div>
+<div data-f-bind="name" data-f-bind-context="scenario:baseline:meta:"></div>
+
+
+<ul data-f-foreach="scenario:savedRuns">
+    <li data-f-bind="<%= savedRuns[index] >:name"> </li>
+    <li>
+        <input type="checkbox" data-f-bind="<%= savedRuns[index] >:isSelected">
+    </li>
+</ul>
+```
+
+Once we have context
+```html
+<div data-f-context="scenario:baseline:meta">
+    <label for="" data-f-bind="name"></label>
+    <label for="" data-f-bind="../name"></label> -- NO
+    <label for="" data-f-bind="price" data-f-context="run"></label> -- NO
+</div>
+
+
+<ul data-f-foreach="scenario:savedRuns">
+    <li data-f-bind="<%= savedRuns[index] >:name"> </li>
+    <li>
+        <input type="checkbox" data-f-bind="<%= savedRuns[index] >:isSelected">
+    </li>
+</ul>
+
+<div data-f-context="runid=X"> // toggling context should update everything within it
+    <span data-f-bind="price"></span>
+</div>
+```

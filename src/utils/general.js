@@ -14,6 +14,7 @@ module.exports = {
         }
         return number;
     },
+
     debounceAndMerge: function (fn, debounceInterval, argumentsReducers) {
         var timer = null;
 
@@ -30,6 +31,7 @@ module.exports = {
             ];
         }
         return function () {
+            var $def = $.Deferred();
             var newArgs = _.toArray(arguments);
             argsToPass = newArgs.map(function (arg, index) {
                 var reducer = argumentsReducers[index];
@@ -45,9 +47,19 @@ module.exports = {
             }
             timer = setTimeout(function () {
                 timer = null;
-                fn.apply(fn, argsToPass);
-                argsToPass = [];
+                var res = fn.apply(fn, argsToPass);
+                if (res && res.then) {
+                    return res.then(function (arg) {
+                        argsToPass = [];
+                        $def.resolve(arg);
+                    });
+                } else {
+                    argsToPass = [];
+                    $def.resolve(res);
+                }
             }, debounceInterval);
+
+            return $def.promise();
         };
     }
 };
