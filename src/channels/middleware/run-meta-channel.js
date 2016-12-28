@@ -11,15 +11,12 @@ module.exports = function () {
     }
     return {
         subscribeHandler: function (runService, topics) {
-            if (runService.runMeta) {
-                return $.Deferred().resolve(mergeAndSend(runService.runMeta, topics)).promise();
-            } else {
-                return runService.load().then(function (data) {
-                    runService.runMeta = data;
-                    return mergeAndSend(data, topics);
-                });
-            }
-            
+            if (!runService.loadMeta) {
+                runService.loadMeta = runService.load();
+            } 
+            return runService.loadMeta.then(function (data) {
+                return mergeAndSend(data, topics);
+            });
         },
         publishHandler: function (runService, toSave, options) {
             return runService.save(toSave).then(function (res) {

@@ -3,12 +3,9 @@ var VariablesChannel = require('./run-variables-channel');
 var OperationsChannel = require('./run-operations-channel');
 var silencable = require('./silencable');
 
-function addPrefixToKey(obj, prefix) {
-    return Object.keys(obj).reduce(function (accum, key) {
-        accum[prefix + key] = obj[key];
-        return accum;
-    }, {});
-}
+var prefix = require('./middleware-utils').prefix;
+var mapWithPrefix = require('./middleware-utils').mapWithPrefix;
+
 module.exports = function (config, notifier) {
     var defaults = {
         serviceOptions: {},
@@ -47,19 +44,14 @@ module.exports = function (config, notifier) {
     var operationsChannel = new OperationsChannel();
 
     var handlers = [
-        $.extend(variableschannel, { name: 'variables', prefix: 'variable:' }),
-        $.extend(metaChannel, { name: 'meta', prefix: 'meta:' }),
-        $.extend(operationsChannel, { name: 'operations', prefix: 'operation:' }),
-        $.extend(defaultVariablesChannel, { name: 'variables', prefix: '' }),
+        $.extend(variableschannel, { name: 'variables', match: prefix('variable:') }),
+        $.extend(metaChannel, { name: 'meta', match: prefix('meta:') }),
+        $.extend(operationsChannel, { name: 'operations', match: prefix('operation:') }),
+        $.extend(defaultVariablesChannel, { name: 'variables', match: prefix('') }),
     ];
 
     var notifyWithPrefix = function (prefix, data) {
-        var toNotify = _.reduce(data, function (accum, value, variable) {
-            var key = prefix + variable;
-            accum[key] = value;
-            return accum;
-        }, {});
-        notifier(toNotify);
+        notifier(mapWithPrefix(data, prefix));
     };
 
     var publicAPI = {
@@ -67,21 +59,23 @@ module.exports = function (config, notifier) {
             $initialProm.then(function (runService) {
                 handlers.reduce(function (pendingTopics, ph) {
                     var toFetch = ([].concat(pendingTopics)).reduce(function (accum, topic) {
-                        if (topic.indexOf(ph.prefix) === 0) {
-                            var stripped = topic.replace(ph.prefix, '');
+                        var prefixMatch = ph.match(topic, ph.prefix);
+                        if (prefixMatch !== false) {
+                            var stripped = topic.replace(prefixMatch, '');
                             accum.myTopics.push(stripped);
+                            accum.prefix = prefixMatch;
                         } else {
                             accum.otherTopics.push(topic);
                         }
                         return accum;
-                    }, { myTopics: [], otherTopics: [] });
+                    }, { myTopics: [], otherTopics: [], prefix: '' });
 
                     var handlerOptions = opts[ph.name];
                     var shouldFetch = _.result(handlerOptions, 'autoFetch');
                     if (toFetch.myTopics.length && ph.subscribeHandler && shouldFetch) {
                         var returned = ph.subscribeHandler(runService, toFetch.myTopics);
                         if (returned && returned.then) {
-                            returned.then(notifyWithPrefix.bind(null, ph.prefix));
+                            returned.then(notifyWithPrefix.bind(null, toFetch.prefix));
                         }
                     }
                     return toFetch.otherTopics;
@@ -97,14 +91,16 @@ module.exports = function (config, notifier) {
                 var status = handlers.reduce(function (accum, ph) {
                     var topicsToHandle = Object.keys(accum.unhandled).reduce(function (soFar, inputKey) {
                         var value = accum.unhandled[inputKey];
-                        if (inputKey.indexOf(ph.prefix) !== -1) {
-                            var cleanedKey = inputKey.replace(ph.prefix, '');
+                        var prefixMatch = ph.match(inputKey, ph.prefix);
+                        if (prefixMatch !== false) {
+                            var cleanedKey = inputKey.replace(prefixMatch, '');
                             soFar.myTopics[cleanedKey] = value;
+                            soFar.prefix = prefixMatch;
                         } else {
                             soFar.otherTopics[inputKey] = value;
                         }
                         return soFar;
-                    }, { myTopics: {}, otherTopics: {} });
+                    }, { myTopics: {}, otherTopics: {}, prefix: '' });
 
                     var myTopics = topicsToHandle.myTopics;
                     if (!Object.keys(myTopics).length) {
@@ -121,11 +117,11 @@ module.exports = function (config, notifier) {
                     var thisProm = ph.publishHandler(runService, myTopics, handlerOptions).then(function (resultObj) {
                         var unsilenced = silencable(resultObj, handlerOptions);
                         if (Object.keys(unsilenced).length && ph.name !== 'meta') {
-                            //TOD: Better way?
-                            variableschannel.fetch(runService).then(notifyWithPrefix.bind(null, variableschannel.prefix));
-                            defaultVariablesChannel.fetch(runService).then(notifyWithPrefix.bind(null, defaultVariablesChannel.prefix));
+                            //FIXME: Better way?
+                            variableschannel.fetch(runService).then(notifyWithPrefix.bind(null, 'variables:'));
+                            defaultVariablesChannel.fetch(runService).then(notifyWithPrefix.bind(null, ''));
                         }
-                        var mapped = addPrefixToKey(unsilenced, ph.prefix);
+                        var mapped = mapWithPrefix(unsilenced, topicsToHandle.prefix);
                         return mapped;
                     });
                     accum.promises.push(thisProm);
