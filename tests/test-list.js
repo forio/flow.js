@@ -5,7 +5,7 @@
 'use strict';
 
 require('./specs/utils/test-general-utils');
-// require('./specs/channels/test-subscription-manager');
+require('./specs/channels/test-subscription-manager');
 // require('./specs/dom/test-dom-manager');
 // require('./specs/converters/test-converter-manager');
 // require('./specs/dom/attributes/test-attribute-manager');
@@ -13,7 +13,7 @@ require('./specs/utils/test-general-utils');
 // require('./specs/utils/test-parse-utils');
 // require('./specs/channels/test-run-channel');
 // require('./specs/channels/test-variables-channel');
-// require('./specs/channels/test-variables-timer');
+require('./specs/channels/test-variables-timer');
 // require('./specs/channels/test-operations-channel');
 
 // require('./specs/dom/attributes/test-default-foreach-attr');

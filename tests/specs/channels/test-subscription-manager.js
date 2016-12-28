@@ -142,6 +142,11 @@ describe.only('Subscription Manager', ()=> {
                 spy2.getCall(1).args[0].should.eql({ cost: 1 });
             });
         });
+        it('should call batch if it was provided more info than it asked for', function () {
+            return channel.publish({ price: 2, cost: 1, blah: 3 }).then(()=> {
+                spy1.should.have.been.calledWith({ price: 2, cost: 1 });
+            });
+        });
 
         it('should not re-trigger non-batched calls', function () {
             var spy1 = sinon.spy();
@@ -162,6 +167,21 @@ describe.only('Subscription Manager', ()=> {
             return channel.publish({ price: 2 }).then(()=> {
                 spy2.should.have.been.calledOnce;
                 spy1.should.not.have.been.called;
+            });
+        });
+        it.only('should call batch if existing data is available', ()=> {
+            var spy1 = sinon.spy();
+            channel.subscribe(['price', 'cost'], spy1, { batch: true });
+
+            return channel.publish({ price: 2 }).then(()=> {
+                spy1.should.not.have.been.called;
+                return channel.publish({ cost: 4 }).then(()=> {
+                    spy1.should.have.been.calledOnce;
+                    spy1.should.have.been.calledWith({
+                        price: 2,
+                        cost: 4,
+                    });
+                });
             });
         });
     });

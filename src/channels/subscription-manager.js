@@ -8,7 +8,8 @@ var ScenarioMiddleware = require('./middleware/scenario-middleware');
 var makeSubs = function makeSubs(topics, callback, options) {
     var id = _.uniqueId('subs-');
     var defaults = {
-        batch: false
+        batch: false,
+        cache: true,
     };
     var opts = $.extend({}, defaults, options);
     return $.extend(true, {
@@ -18,16 +19,18 @@ var makeSubs = function makeSubs(topics, callback, options) {
     }, opts);
 };
 
-function checkAndNotifyBatch(publishObj, subscription) {
-    var publishedTopics = Object.keys(publishObj);
-
-    var matchingTopics = _.intersection(publishedTopics, subscription.topics);
-    if (matchingTopics.length === subscription.topics.length) {
+function checkAndNotifyBatch(publishObj, subscription, options) {
+    var merged = $.extend(true, {}, subscription.availableData, publishObj);
+    var matchingTopics = _.intersection(Object.keys(merged), subscription.topics);
+    if (matchingTopics.length > 0) {
         var toSend = subscription.topics.reduce(function (accum, topic) {
-            accum[topic] = publishObj[topic];
+            accum[topic] = merged[topic];
             return accum;
         }, {});
-        subscription.callback(toSend);
+        subscription.availableData = toSend;
+        if (matchingTopics.length === subscription.topics.length) {
+            subscription.callback(toSend);
+        }
     }
 }
 
@@ -59,7 +62,7 @@ var SubscriptionManager = (function () {
             var rm = new RunMiddleware(opts.run, boundNotify);
             opts.publishMiddlewares.push(rm.publishHandler);
             opts.subscribeMiddleWares.push(rm.subscribeHandler);
-        } else if (options.scenario) {
+        } else if (opts.scenario) {
             var sm = new ScenarioMiddleware(opts.scenario, boundNotify);
             opts.publishMiddlewares.push(sm.publishHandler);
             opts.subscribeMiddleWares.push(sm.subscribeHandler);
