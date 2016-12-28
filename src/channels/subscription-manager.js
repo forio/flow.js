@@ -74,18 +74,23 @@ var SubscriptionManager = (function () {
             subscriptions: [],
 
             subscribeMiddleWares: [],
-            publishMiddlewares: []
+            publishMiddlewares: [],
+            options: {},
         };
         var opts = $.extend(true, {}, defaults, options);
 
         var boundNotify = this.notify.bind(this);
 
-        if (opts.run) {
-            var rm = new RunMiddleware(opts.run, boundNotify);
+        if (opts.runManager) {
+            var rm = new RunMiddleware($.extend(true, {}, opts.options.runManager, {
+                serviceOptions: opts.runManager
+            }), boundNotify);
             opts.publishMiddlewares.push(rm.publishHandler);
             opts.subscribeMiddleWares.push(rm.subscribeHandler);
-        } else if (opts.scenario) {
-            var sm = new ScenarioMiddleware(opts.scenario, boundNotify);
+        } else if (opts.scenarioManager) {
+            var sm = new ScenarioMiddleware($.extend(true, {}, opts.options.scenarioManager, {
+                serviceOptions: opts.scenarioManager
+            }), boundNotify);
             opts.publishMiddlewares.push(sm.publishHandler);
             opts.subscribeMiddleWares.push(sm.subscribeHandler);
         }

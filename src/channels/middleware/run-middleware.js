@@ -23,7 +23,6 @@ module.exports = function (config, notifier) {
             autoFetch: true,
             readOnly: false
         },
-        initialOperation: '',
     };
     var opts = $.extend(true, {}, defaults, config);
 

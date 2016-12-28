@@ -26,23 +26,22 @@
     </table>
     <script>
     var sm = new Flow.SubsManager({
-        run: {
-            serviceOptions: {
-                strategy: 'new-if-missing',
-                run: {
-                    account: 'jaimedp',
-                    project: 'glasses',
-                    model: 'gglasses.vmf',
-                }
-            },
-            // initialOperation: 'start_game',
-            variables: {
-                readOnly: false,
-                silent: false,
-            },
-            operations: {
-                silent: true,
+        runManager: {
+            strategy: 'new-if-missing',
+            run: {
+                account: 'jaimedp',
+                project: 'glasses',
+                model: 'gglasses.vmf',
             }
+        },
+        options: {
+            // variables: {
+            //     readOnly: false,
+            //     silent: false,
+            // },
+            // operations: {
+            //     silent: true,
+            // }
         }
     });
 

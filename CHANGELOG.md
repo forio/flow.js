@@ -1,3 +1,43 @@
+New Format:
+
+channel({
+    runManager: {
+        strategy: 'new-if-persisted',
+        run: {
+            model: 'supply-chain-game.py',
+            account: 'acme-simulations',
+            project: 'supply-chain-game',
+            server: { host: 'api.forio.com' },
+            transport: {
+                beforeSend: function() { $('body').addClass('loading'); },
+                complete: function() { $('body').removeClass('loading'); }
+            }
+        }
+    },
+    scenarioManager: {
+        model: 'supply-chain-game.py',
+        account: 'acme-simulations',
+        project: 'supply-chain-game',
+    },
+
+    options: {
+        scenarioManager: {
+            initialOperation: '',
+            baseline: {
+
+            }
+        },
+        runManager: {
+            initialOperation: '',
+            current: {
+                variables: { silent: ['price', 'sales'] },
+                operations: { silent: false },
+            }
+        }
+    }
+});
+
+
 <a name"0.10.0"></a>
 ## 0.10.0 (2015-12-29)
 
