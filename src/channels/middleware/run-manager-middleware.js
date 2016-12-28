@@ -29,8 +29,6 @@ module.exports = function (config, notifier) {
     var notifyWithPrefix = function (prefix, data) {
         notifier(mapWithPrefix(data, prefix));
     };
-    //define a match function
-    //define a prefix function which takes in the match result as a parameter
     // create a new channel and push onto handlers to catch further
     var knownRunIDServiceChannels = {};
     var handlers = [
@@ -63,10 +61,6 @@ module.exports = function (config, notifier) {
                 return knownRunIDServiceChannels[prefix].publishHandler(topics);
             }
         },
-        // $.extend({ name: 'custom', match: function () {
-            
-        // }})
-        // $.extend(metaChannel, { name: 'meta', prefix: 'meta:' }),
         $.extend(defaultRunChannel, { name: 'current', match: prefix('') }),
     ];
 
