@@ -38,27 +38,27 @@ module.exports = function (config, notifier) {
         $initialProm = $.Deferred().resolve(rs).promise();
     }
 
-    if (opts.initialOperation) { //TODO: Only do this for newly created runs;
+    if (opts.initialOperation) {
         $initialProm = $initialProm.then(function (runService) {
-            if (runService.isInitialOperationComplete) {
-                return runService;
+            if (!runService.initialize) {
+                runService.initialize = runService.do(opts.initialOperation);
             }
-            return runService.do(opts.initialOperation).then(function () {
+            return runService.initialize.then(function () {
                 return runService;
             });
         });
     }
 
     var variableschannel = new VariablesChannel();
-    var defaultVariablesChannel = new VariablesChannel();
+    var defaultVariablesChannel = new VariablesChannel(); //TODO: Need 2 different channel instances just because notify needs to be called twice. Different way?
     var metaChannel = new MetaChannel();
     var operationsChannel = new OperationsChannel();
 
     var handlers = [
-        $.extend(variableschannel, { name: 'variables', match: prefix('variable:') }),
-        $.extend(metaChannel, { name: 'meta', match: prefix('meta:') }),
-        $.extend(operationsChannel, { name: 'operations', match: prefix('operation:') }),
-        $.extend(defaultVariablesChannel, { name: 'variables', match: prefix('') }),
+        $.extend({}, variableschannel, { name: 'variables', match: prefix('variable:') }),
+        $.extend({}, metaChannel, { name: 'meta', match: prefix('meta:') }),
+        $.extend({}, operationsChannel, { name: 'operations', match: prefix('operation:') }),
+        $.extend({}, defaultVariablesChannel, { name: 'variables', match: prefix('') }),
     ];
 
     var notifyWithPrefix = function (prefix, data) {
