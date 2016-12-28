@@ -46,11 +46,16 @@ module.exports = function (config, notifier) {
     var metaChannel = new MetaChannel();
     var operationsChannel = new OperationsChannel();
 
+    function prefix(prefix) {
+        return function match(topic) {
+            return (topic.indexOf(prefix) === 0) ? prefix : false;
+        };
+    }
     var handlers = [
-        $.extend(variableschannel, { name: 'variables', prefix: 'variable:' }),
-        $.extend(metaChannel, { name: 'meta', prefix: 'meta:' }),
-        $.extend(operationsChannel, { name: 'operations', prefix: 'operation:' }),
-        $.extend(defaultVariablesChannel, { name: 'variables', prefix: '' }),
+        $.extend(variableschannel, { name: 'variables', match: prefix('variable:') }),
+        $.extend(metaChannel, { name: 'meta', match: prefix('meta:') }),
+        $.extend(operationsChannel, { name: 'operations', match: prefix('operation:') }),
+        $.extend(defaultVariablesChannel, { name: 'variables', match: prefix('') }),
     ];
 
     var notifyWithPrefix = function (prefix, data) {
@@ -67,21 +72,23 @@ module.exports = function (config, notifier) {
             $initialProm.then(function (runService) {
                 handlers.reduce(function (pendingTopics, ph) {
                     var toFetch = ([].concat(pendingTopics)).reduce(function (accum, topic) {
-                        if (topic.indexOf(ph.prefix) === 0) {
-                            var stripped = topic.replace(ph.prefix, '');
+                        var prefixMatch = ph.match(topic, ph.prefix);
+                        if (prefixMatch !== false) {
+                            var stripped = topic.replace(prefixMatch, '');
                             accum.myTopics.push(stripped);
+                            accum.prefix = prefixMatch;
                         } else {
                             accum.otherTopics.push(topic);
                         }
                         return accum;
-                    }, { myTopics: [], otherTopics: [] });
+                    }, { myTopics: [], otherTopics: [], prefix: '' });
 
                     var handlerOptions = opts[ph.name];
                     var shouldFetch = _.result(handlerOptions, 'autoFetch');
                     if (toFetch.myTopics.length && ph.subscribeHandler && shouldFetch) {
                         var returned = ph.subscribeHandler(runService, toFetch.myTopics);
                         if (returned && returned.then) {
-                            returned.then(notifyWithPrefix.bind(null, ph.prefix));
+                            returned.then(notifyWithPrefix.bind(null, toFetch.prefix));
                         }
                     }
                     return toFetch.otherTopics;
