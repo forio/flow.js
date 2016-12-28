@@ -135,3 +135,42 @@ Once we have context
     <span data-f-bind="price"></span>
 </div>
 ```
+
+
+```
+<div class="decisons">
+    <label for="">Price</label>
+    <input type="text" data-f-bind="price">
+
+
+    <label for="">run namae</label>
+    <input type="text" data-f-bind="meta:name">
+
+    <button data-f-on-click="savedruns:add && stepTo('end')">Save</button> <!-- make saveAndStep operation in flow handle this? -->
+</div>
+
+<table>
+    <tbody>
+        <tr data-f-foreach="baseline:Price">
+            <td data-f-bind=""><%= value %></td>
+        </tr>
+        <td>
+            
+        </td>
+    </tbody>
+</table>   
+
+
+<table>
+    <tbody data-f-foreach="savedruns">
+        <tr> <!-- Auto populate context? -->
+            <td data-f-bind=""><%= run.name %></td>
+        </tr>
+    </tbody>
+</table>
+```
+
+
+? Should require prefixing 'scenario' or 'run' to differentiate between which middleware handles it?
+    -- Could have a scenario where a custom run-manager could exist in parallel with runmanager.
+    
