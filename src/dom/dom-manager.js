@@ -110,7 +110,7 @@ module.exports = (function () {
                 channel.unsubscribe(subs);
             });
 
-            var templatedAttributes = [config.attrs.bindTemplate, config.attrs.foreachTemplate];
+            var templatedAttributes = [config.attrs.bindTemplate, config.attrs.foreachTemplate, config.attrs.repeat.template];
             templatedAttributes.forEach(function (attr) {
                 var boundTemplate = $el.data(attr);
                 if (boundTemplate) {

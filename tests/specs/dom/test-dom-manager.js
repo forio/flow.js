@@ -241,6 +241,24 @@
                         expect($node.html()).to.equal(originalHTML);
                     });
                 });
+                it('should remove templated repeat items', ()=> {
+                    var nodes = `
+                        <ul>
+                            <li data-f-repeat="fruits">Love <%= value %></li>
+                        </ul>
+                    `.trim();
+                    return utils.initWithNode(nodes, domManager).then(($node)=> {
+                        var originalHTML = $node.html();
+
+                        $node.find('li').trigger(config.events.channelDataReceived, { fruits: ['apples', 'organges'] });
+                        expect($node.children().length).to.equal(2);
+                        
+                        // domManager.unbindElement($node);
+
+                        // expect($node.children().length).to.equal(1);
+                        // expect($node.html()).to.equal(originalHTML);
+                    });
+                });
             });
         });
 
