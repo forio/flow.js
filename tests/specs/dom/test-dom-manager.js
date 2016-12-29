@@ -214,12 +214,30 @@
                     return utils.initWithNode(nodes, domManager).then(($node)=> {
                         var originalHTML = $node.html();
 
-                        $node.trigger(config.events.trigger, { a: 'apple' });
+                        $node.trigger(config.events.channelDataReceived, { a: 'apple' });
                         var newhtml = $node.html();
                         expect(newhtml).to.equal('Hello apple! <span> some child apple</span>');
                         
                         domManager.unbindElement($node);
                         
+                        expect($node.html()).to.equal(originalHTML);
+                    });
+                });
+                it('should remove templated foreach items', ()=> {
+                    var nodes = `
+                        <ul data-f-foreach="fruits">
+                            <li>Love <%= value %></li>
+                        </ul>
+                    `.trim();
+                    return utils.initWithNode(nodes, domManager).then(($node)=> {
+                        var originalHTML = $node.html();
+
+                        $node.trigger(config.events.channelDataReceived, { fruits: ['apples', 'organges'] });
+                        expect($node.children().length).to.equal(2);
+                        
+                        domManager.unbindElement($node);
+
+                        expect($node.children().length).to.equal(1);
                         expect($node.html()).to.equal(originalHTML);
                     });
                 });
