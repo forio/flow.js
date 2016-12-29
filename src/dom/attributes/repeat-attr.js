@@ -73,9 +73,13 @@ module.exports = {
 
     unbind: function (attr) {
         var id = this.data(config.repeat.templateId);
-        var loopTemplate = this.data(config.repeat.template);
         if (id) {
             this.nextUntil(':not([data-' + id + '])').remove();
+            // this.removeAttr('data-' + config.repeat.templateId);
+        }
+        var loopTemplate = this.data(config.repeat.template);
+        if (loopTemplate) {
+            this.removeData(config.repeat.template);
             this.replaceWith(loopTemplate);
         }
     },
