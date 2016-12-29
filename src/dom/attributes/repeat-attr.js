@@ -64,30 +64,40 @@
 'use strict';
 var parseUtils = require('../../utils/parse-utils');
 var gutils = require('../../utils/general');
-// var config = require('../../config');
+var config = require('../../config').attrs;
 module.exports = {
 
     test: 'repeat',
 
     target: '*',
 
+    unbind: function (attr) {
+        var id = this.data(config.repeat.templateId);
+        if (id) {
+            this.nextUntil(':not([data-' + id + '])').remove();
+            // this.removeAttr('data-' + config.repeat.templateId);
+        }
+        var loopTemplate = this.data(config.repeat.template);
+        if (loopTemplate) {
+            this.removeData(config.repeat.template);
+            this.replaceWith(loopTemplate);
+        }
+    },
+
     handle: function (value, prop) {
         value = ($.isPlainObject(value) ? value : [].concat(value));
-        //FIXME: should ideally pull from config, but problem is, once it's unbound don't know what to remove
-        //Possible fixes: Let this handle it's own unbind (which does nothing), or
-        //have unbind remove all generated elements as well
-        var loopTemplate = this.data('repeat-template');
-        var id = this.data('repeat-template-id');
+        var loopTemplate = this.data(config.repeat.template);
+        var id = this.data(config.repeat.templateId);
 
         if (id) {
-            this.nextUntil(':not([data-' + id + '])').remove(); //clean-up pre-saved html
+            this.nextUntil(':not([data-' + id + '])').remove();
         } else {
             id = gutils.random('repeat-');
-            this.data('repeat-template-id', id);
+            this.data(config.repeat.templateId, id);
         }
         if (!loopTemplate) {
             loopTemplate = this.get(0).outerHTML;
-            this.data('repeat-template', loopTemplate);
+            this.data(config.repeat.template, loopTemplate);
         }
 
         var last;

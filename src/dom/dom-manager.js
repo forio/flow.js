@@ -99,8 +99,8 @@ module.exports = (function () {
                 if (attr.indexOf(wantedPrefix) === 0) {
                     attr = attr.replace(wantedPrefix, '');
                     var handler = attrManager.getHandler(attr, $el);
-                    if (handler.stopListening) {
-                        handler.stopListening.call($el, attr);
+                    if (handler.unbind) {
+                        handler.unbind.call($el, attr);
                     }
                 }
             });
