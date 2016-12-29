@@ -206,7 +206,7 @@
                     });
                 });
             });
-            describe.only('remove items generated through templates', ()=> {
+            describe('remove items generated through templates', ()=> {
                 it('should remove templated bind items', ()=> {
                     var nodes = `
                         <div data-f-bind="a">Hello <%= value %>! <span> some child <%= a %></span</div>
@@ -259,7 +259,7 @@
                         expect($node.html()).to.equal(originalHTML);
                     });
                 });
-                it.skip('should remove templated repeat items', ()=> {
+                it.only('should remove templated repeat items', ()=> {
                     //See comments in repeat - can't find a good way to remove those
                     var nodes = `
                         <ul>
