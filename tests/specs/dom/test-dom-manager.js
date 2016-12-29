@@ -241,7 +241,26 @@
                         expect($node.html()).to.equal(originalHTML);
                     });
                 });
-                it('should remove templated repeat items', ()=> {
+                it('should restore untemplated foreach items', ()=> {
+                    var nodes = `
+                        <ul data-f-foreach="fruits">
+                            <li>Foo</li>
+                        </ul>
+                    `.trim();
+                    return utils.initWithNode(nodes, domManager).then(($node)=> {
+                        var originalHTML = $node.html();
+
+                        $node.trigger(config.events.channelDataReceived, { fruits: ['apples', 'organges'] });
+                        expect($node.children().length).to.equal(2);
+                        
+                        domManager.unbindElement($node);
+
+                        expect($node.children().length).to.equal(1);
+                        expect($node.html()).to.equal(originalHTML);
+                    });
+                });
+                it.skip('should remove templated repeat items', ()=> {
+                    //See comments in repeat - can't find a good way to remove those
                     var nodes = `
                         <ul>
                             <li data-f-repeat="fruits">Love <%= value %></li>
@@ -250,13 +269,13 @@
                     return utils.initWithNode(nodes, domManager).then(($node)=> {
                         var originalHTML = $node.html();
 
-                        $node.find('li').trigger(config.events.channelDataReceived, { fruits: ['apples', 'organges'] });
+                        $node.find('li:first').trigger(config.events.channelDataReceived, { fruits: ['apples', 'organges'] });
                         expect($node.children().length).to.equal(2);
                         
-                        // domManager.unbindElement($node);
+                        domManager.unbindElement($node.find('li:first'));
 
-                        // expect($node.children().length).to.equal(1);
-                        // expect($node.html()).to.equal(originalHTML);
+                        expect($node.children().length).to.equal(1);
+                        expect($node.html()).to.equal(originalHTML);
                     });
                 });
             });
