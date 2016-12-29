@@ -38,6 +38,12 @@ var makeSubs = function makeSubs(topics, callback, options) {
     }, opts);
 };
 
+function callbackIfChanged(subscription, data) {
+    if (!_.isEqual(subscription.lastSent, data)) {
+        subscription.lastSent = data;
+        subscription.callback(data);
+    }
+}
 function checkAndNotifyBatch(publishObj, subscription) {
     var merged = $.extend(true, {}, subscription.availableData, publishObj);
     var matchingTopics = _.intersection(Object.keys(merged), subscription.topics);
@@ -51,7 +57,7 @@ function checkAndNotifyBatch(publishObj, subscription) {
             subscription.availableData = toSend;
         }
         if (matchingTopics.length === subscription.topics.length) {
-            subscription.callback(toSend);
+            callbackIfChanged(subscription, toSend);
         }
     }
 }
@@ -63,7 +69,7 @@ function checkAndNotify(publishObj, subscription) {
         if (_.contains(subscription.topics, topic) || _.contains(subscription.topics, '*')) {
             var toSend = {};
             toSend[topic] = data;
-            subscription.callback(toSend);
+            callbackIfChanged(subscription, toSend);
         }
     });
 }
