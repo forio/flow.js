@@ -329,13 +329,26 @@ module.exports = (function () {
                         operation.params = operation.params.map(function (val) {
                             return parseUtils.toImplicitType($.trim(val));
                         });
-                        accum['operation:' + operation.name] = operation.params;
+                        var isConverter = converterManager.getConverter(operation.name);
+                        if (isConverter) {
+                            accum.operations['operation:' + operation.name] = operation.params;
+                        } else {
+                            accum.converters.push(operation);
+                        }
                         return accum;
-                    }, {});
+                    }, { operations: {}, converters: [] });
 
-                    if (Object.keys(filtered).length) {
-                        channel.publish(filtered);
-                    }
+                    var promise = (Object.keys(filtered.operations).length) ?
+                            channel.publish(filtered.operations) :
+                            $.Deferred().resolve().promise();
+                     
+                    //FIXME: Needed for the 'gotopage' in interfacebuilder. Remove this once we add a window channel
+                    promise.then(function (args) {
+                        _.each(filtered.converters, function (con) {
+                            converterManager.convert(con.params, [con.name]);
+                        });
+                    });
+
                 });
             };
 
