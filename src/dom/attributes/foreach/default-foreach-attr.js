@@ -132,6 +132,16 @@ module.exports = {
 
     target: '*',
 
+    unbind: function (attr) {
+        var template = this.data(config.attrs.foreachTemplate);
+        if (template) {
+            this.html(template);
+            this.removeData(config.attrs.foreachTemplate);
+            this.removeData(config.attrs.keyAs);
+            this.removeData(config.attrs.valueAs);
+        }
+    },
+
     parse: function (attrVal) {
         var inMatch = attrVal.match(/(.*) (?:in|of) (.*)/);
         if (inMatch) {

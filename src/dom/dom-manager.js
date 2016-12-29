@@ -110,15 +110,6 @@ module.exports = (function () {
                 channel.unsubscribe(subs);
             });
 
-            var templatedAttributes = [config.attrs.bindTemplate, config.attrs.foreachTemplate];
-            templatedAttributes.forEach(function (attr) {
-                var boundTemplate = $el.data(attr);
-                if (boundTemplate) {
-                    $el.html(boundTemplate);
-                }
-            });
-           
-
             _.each($el.data(), function (val, key) {
                 if (key.indexOf('f-') === 0 || key.match(/^f[A-Z]/)) {
                     $el.removeData(key);

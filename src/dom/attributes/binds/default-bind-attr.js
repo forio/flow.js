@@ -89,6 +89,13 @@ module.exports = {
 
     test: 'bind',
 
+    unbind: function (attr) {
+        var template = this.data(config.attrs.bindTemplate);
+        if (template) {
+            this.html(template);
+        }
+    },
+
     handle: function (value) {
         var templated;
         var valueToTemplate = $.extend({}, value);

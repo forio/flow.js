@@ -259,8 +259,7 @@
                         expect($node.html()).to.equal(originalHTML);
                     });
                 });
-                it.only('should remove templated repeat items', ()=> {
-                    //See comments in repeat - can't find a good way to remove those
+                it('should remove templated repeat items', ()=> {
                     var nodes = `
                         <ul>
                             <li data-f-repeat="fruits">Love <%= value %></li>
