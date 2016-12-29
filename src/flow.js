@@ -69,6 +69,7 @@ var domManager = require('./dom/dom-manager');
 var BaseView = require('./utils/base-view');
 
 var ChannelManager = require('channels/channel-manager');
+var parseUtils = require('utils/parse-utils');
 
 var Flow = {
     dom: domManager,
@@ -88,7 +89,9 @@ var Flow = {
                     }
                 },
                 options: {
-                    runManager: {}
+                    runManager: {
+                        defaults: {}
+                    }
                 }
             },
             dom: {
@@ -100,7 +103,22 @@ var Flow = {
         var options = $.extend(true, {}, defaults, config);
         var $root = $(options.dom.root);
 
-        options.channel.options.runManager.initFn = $root.data('f-on-init');
+        var initialFn = $root.data('f-on-init');
+        if (initialFn) {
+            var listOfOperations = _.invoke(initialFn.split('|'), 'trim');
+            listOfOperations = listOfOperations.map(function (value) {
+                var fnName = value.split('(')[0];
+                var params = value.substring(value.indexOf('(') + 1, value.indexOf(')'));
+                var args = ($.trim(params) !== '') ? params.split(',') : [];
+                args = args.map(function (a) {
+                    return parseUtils.toImplicitType(a.trim());
+                });
+                var toReturn = {};
+                toReturn[fnName] = args;
+                return toReturn;
+            });
+            options.channel.options.runManager.defaults.initialOperation = listOfOperations;
+        }
    
         if (config && config.channel && (config.channel instanceof ChannelManager)) {
             this.channel = config.channel;

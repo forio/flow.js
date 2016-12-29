@@ -152,7 +152,6 @@ module.exports = (function () {
                     return false;
                 }
                 var subsid = subsChannel.subscribe(varsToBind, function (params) {
-                    console.log(params);
                     $bindEl.trigger(config.events.channelDataReceived, params);
                 }, options);
                 var newsubs = ($el.data(config.attrs.subscriptionId) || []).concat(subsid);

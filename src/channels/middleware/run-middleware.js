@@ -9,7 +9,7 @@ var mapWithPrefix = require('./middleware-utils').mapWithPrefix;
 module.exports = function (config, notifier) {
     var defaults = {
         serviceOptions: {},
-        initialOperation: '',
+        initialOperation: [],
         variables: {
             autoFetch: true,
             silent: false,
@@ -38,10 +38,10 @@ module.exports = function (config, notifier) {
         $initialProm = $.Deferred().resolve(rs).promise();
     }
 
-    if (opts.initialOperation) {
+    if (opts.initialOperation.length) {
         $initialProm = $initialProm.then(function (runService) {
             if (!runService.initialize) {
-                runService.initialize = runService.do(opts.initialOperation);
+                runService.initialize = runService.serial(opts.initialOperation);
             }
             return runService.initialize.then(function () {
                 return runService;
