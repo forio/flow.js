@@ -85,6 +85,8 @@ var SubscriptionManager = (function () {
 
             subscribeMiddleWares: [],
             publishMiddlewares: [],
+            unsubscribeMiddlewares: [],
+
             options: {},
         };
         var opts = $.extend(true, {}, defaults, options);
@@ -97,6 +99,9 @@ var SubscriptionManager = (function () {
                 var m = new Handler($.extend(true, {}, opts.options[middleware.name], {
                     serviceOptions: opts[middleware.name]
                 }), boundNotify);
+                if (m.unsubscribeHandler) {
+                    opts.unsubscribeMiddlewares.push(m.unsubscribeHandler);
+                }
                 opts.publishMiddlewares.push(m.publishHandler);
                 opts.subscribeMiddleWares.push(m.subscribeHandler);
             }
@@ -105,6 +110,7 @@ var SubscriptionManager = (function () {
         $.extend(this, { 
             subscriptions: opts.subscriptions, 
             publishMiddlewares: opts.publishMiddlewares,
+            unsubscribeMiddlewares: opts.unsubscribeMiddlewares,
             subscribeMiddleWares: opts.subscribeMiddleWares,
         });
     }
@@ -138,10 +144,11 @@ var SubscriptionManager = (function () {
         //TODO: Allow subscribing to regex? Will solve problem of listening only to variables etc
         subscribe: function (topics, cb, options) {
             var subs = makeSubs(topics, cb, options);
+            this.subscriptions = this.subscriptions.concat(subs);
+
             this.subscribeMiddleWares.forEach(function (middleware) {
                 return middleware(subs.topics);
             });
-            this.subscriptions = this.subscriptions.concat(subs);
             return subs.id;
         },
         unsubscribe: function (token) {
@@ -149,13 +156,22 @@ var SubscriptionManager = (function () {
             this.subscriptions = _.reject(this.subscriptions, function (subs) {
                 return subs.id === token;
             });
+
             //TODO: Make this call subscription middleware with _.partition(for matching subs) too?
             if (oldLength === this.subscriptions.length) {
                 throw new Error('No subscription found for token ' + token);
+            } else {
+                var remainingTopics = this.getSubscribedTopics();
+                this.unsubscribeMiddlewares.forEach(function (middleware) {
+                    return middleware(remainingTopics);
+                });
             }
         },
         unsubscribeAll: function () {
             this.subscriptions = [];
+            this.unsubscribeMiddlewares.forEach(function (middleware) {
+                return middleware([]);
+            });
         },
         getSubscribedTopics: function () {
             var list = _.uniq(_.flatten(_.map(this.subscriptions, 'topics')));

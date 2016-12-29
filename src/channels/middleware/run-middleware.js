@@ -95,6 +95,27 @@ module.exports = function (config, notifier) {
             });
         },
 
+        unsubscribeHandler: function (remainingTopics) {
+            handlers.reduce(function (pendingTopics, ph) {
+                var unsubs = ([].concat(pendingTopics)).reduce(function (accum, topic) {
+                    var prefixMatch = ph.match(topic, ph.prefix);
+                    if (prefixMatch !== false) {
+                        var stripped = topic.replace(prefixMatch, '');
+                        accum.myTopics.push(stripped);
+                        accum.prefix = prefixMatch;
+                    } else {
+                        accum.otherTopics.push(topic);
+                    }
+                    return accum;
+                }, { myTopics: [], otherTopics: [], prefix: '' });
+
+                if (unsubs.myTopics.length && ph.unsubscribeHandler) {
+                    ph.unsubscribeHandler(unsubs.myTopics);
+                }
+                return unsubs.otherTopics;
+            }, remainingTopics);
+        },
+
         //TODO: Break this into multiple middlewares?
         publishHandler: function (inputObj) {
             return $initialProm.then(function (runService) {
@@ -130,8 +151,8 @@ module.exports = function (config, notifier) {
                         var unsilenced = silencable(resultObj, handlerOptions);
                         if (Object.keys(unsilenced).length && ph.name !== 'meta') {
                             //FIXME: Better way?
-                            variableschannel.fetch(runService).then(notifyWithPrefix.bind(null, 'variables:'));
-                            defaultVariablesChannel.fetch(runService).then(notifyWithPrefix.bind(null, ''));
+                            // variableschannel.fetch(runService).then(notifyWithPrefix.bind(null, 'variables:'));
+                            // defaultVariablesChannel.fetch(runService).then(notifyWithPrefix.bind(null, ''));
                         }
                         var mapped = mapWithPrefix(unsilenced, topicsToHandle.prefix);
                         return mapped;

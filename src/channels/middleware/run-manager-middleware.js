@@ -83,6 +83,28 @@ module.exports = function (config, notifier) {
                 return toFetch.otherTopics;
             }, topics);
         },
+
+        unsubscribeHandler: function (remainingTopics) {
+            handlers.reduce(function (pendingTopics, ph) {
+                var unsubs = ([].concat(pendingTopics)).reduce(function (accum, topic) {
+                    var prefixMatch = ph.match(topic, ph.prefix);
+                    if (prefixMatch !== false) {
+                        var stripped = topic.replace(prefixMatch, '');
+                        accum.myTopics.push(stripped);
+                        accum.prefix = prefixMatch;
+                    } else {
+                        accum.otherTopics.push(topic);
+                    }
+                    return accum;
+                }, { myTopics: [], otherTopics: [], prefix: '' });
+
+                if (unsubs.myTopics.length && ph.unsubscribeHandler) {
+                    ph.unsubscribeHandler(unsubs.myTopics);
+                }
+                return unsubs.otherTopics;
+            }, remainingTopics);
+        },
+        
         publishHandler: function (inputObj) {
             var status = handlers.reduce(function (accum, ph) {
                 var topicsToHandle = Object.keys(accum.unhandled).reduce(function (soFar, inputKey) {

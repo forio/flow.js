@@ -362,7 +362,9 @@ module.exports = (function () {
             };
             
             channel.subscribe('operation:reset', function () {
-                console.log('Reset called');
+                me.unbindAll();
+                me.bindAll();
+                console.log('Reset called', channel);
             });
             var promise = $.Deferred();
             $(function () {
