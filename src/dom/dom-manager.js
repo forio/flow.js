@@ -151,7 +151,10 @@ module.exports = (function () {
                 if (!varsToBind || !varsToBind.length) {
                     return false;
                 }
-                var subsid = subsChannel.subscribe(varsToBind, $bindEl, options);
+                var subsid = subsChannel.subscribe(varsToBind, function (params) {
+                    console.log(params);
+                    $bindEl.trigger(config.events.channelDataReceived, params);
+                }, options);
                 var newsubs = ($el.data(config.attrs.subscriptionId) || []).concat(subsid);
                 $el.data(config.attrs.subscriptionId, newsubs);
             };
@@ -317,7 +320,7 @@ module.exports = (function () {
                         $el.trigger(config.events.convert, { bind: val });
                     });
 
-                    channel.publish(parsedData, {}, { type: 'variables' });
+                    channel.publish(parsedData);
                 });
             };
 

@@ -80,10 +80,15 @@ var Flow = {
 
         var defaults = {
             channel: {
-                run: {
-                    account: '',
-                    project: '',
-                    model: model,
+                runManager: {
+                    run: {
+                        account: '',
+                        project: '',
+                        model: model,
+                    }
+                },
+                options: {
+                    runManager: {}
                 }
             },
             dom: {
@@ -95,7 +100,7 @@ var Flow = {
         var options = $.extend(true, {}, defaults, config);
         var $root = $(options.dom.root);
 
-        options.channel.initFn = $root.data('f-on-init');
+        options.channel.options.runManager.initFn = $root.data('f-on-init');
    
         if (config && config.channel && (config.channel instanceof ChannelManager)) {
             this.channel = config.channel;
