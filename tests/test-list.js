@@ -5,7 +5,7 @@
 'use strict';
 
 require('./specs/utils/test-general-utils');
-require('./specs/channels/test-subscription-manager');
+require('./specs/channels/test-channel-manager');
 // require('./specs/dom/test-dom-manager');
 // require('./specs/converters/test-converter-manager');
 // require('./specs/dom/attributes/test-attribute-manager');
