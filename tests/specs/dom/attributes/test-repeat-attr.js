@@ -252,7 +252,7 @@ module.exports = (function () {
             });
             it('should clean-up explicitly dirty nodes', function () {
                 var targetData = [1, 2];
-                var html = '<ul> <li data-f-repeat="somearray" data-repeat-template-id="repeat-1"></li>' +
+                var html = '<ul> <li data-f-repeat="somearray" data-f-repeat-template-id="repeat-1"></li>' +
                     '<li data-repeat-1="true"></li><li data-repeat-1="true"></li>' +
                     '<li data-repeat-2="true"></li><li data-repeat-4="true"></li>' +
                 '</ul>';
