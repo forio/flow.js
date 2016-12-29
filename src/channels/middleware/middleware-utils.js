@@ -5,6 +5,9 @@ exports.prefix = function prefix(prefix) {
 };
 
 exports.mapWithPrefix = function mapWithPrefix(obj, prefix) {
+    if (!obj) {
+        return {};
+    }
     return Object.keys(obj).reduce(function (accum, key) {
         accum[prefix + key] = obj[key];
         return accum;

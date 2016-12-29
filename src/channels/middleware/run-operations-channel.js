@@ -6,11 +6,11 @@ module.exports = function () {
                 return accum;
             }, []);
             return runService.serial(toSave).then(function (result) {
-                var mapped = ([].concat(result)).reduce(function (accum, res) {
-                    accum[res.name] = res.result;
+                var toReturn = toSave.reduce(function (accum, operation, index) {
+                    accum[operation.name] = result[index];
                     return accum;
-                });
-                return mapped;
+                }, {});
+                return toReturn;
             });
         }
     };

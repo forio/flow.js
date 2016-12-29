@@ -329,12 +329,12 @@ module.exports = (function () {
                         operation.params = operation.params.map(function (val) {
                             return parseUtils.toImplicitType($.trim(val));
                         });
-                        accum.operations['operation:' + operation.name] = operation.params;
+                        accum['operation:' + operation.name] = operation.params;
                         return accum;
                     }, {});
 
-                    if (Object.keys(filtered.operations).length) {
-                        channel.publish(filtered.operations);
+                    if (Object.keys(filtered).length) {
+                        channel.publish(filtered);
                     }
                 });
             };
@@ -361,6 +361,9 @@ module.exports = (function () {
                 });
             };
             
+            channel.subscribe('operation:reset', function () {
+                console.log('Reset called');
+            });
             var promise = $.Deferred();
             $(function () {
                 me.bindAll();
