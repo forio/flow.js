@@ -27,7 +27,7 @@ module.exports = {
         return (attr.indexOf('on-') === 0);
     },
 
-    stopListening: function (attr) {
+    unbind: function (attr) {
         attr = attr.replace('on-', '');
         this.off(attr);
     },

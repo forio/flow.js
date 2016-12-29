@@ -228,6 +228,20 @@ module.exports = (function () {
                 $rootNode.find('.second').length.should.equal(4 * 4);
             });
         });
+
+        describe('unbind', ()=> {
+            it('should cleanup existing bound nodes', ()=> {
+                var html = '<ul> <li data-f-repeat="somearray" data-repeat-template-id="repeat-1"></li>' +
+                    '<li data-repeat-1="true"></li><li data-repeat-1="true"></li>' +
+                    '<li data-repeat-2="true"></li><li data-repeat-4="true"></li>' +
+                '</ul>';
+
+                var $rootNode = $(html);
+                repeatHandler.unbind.call($rootNode.find('li:first'));
+
+                $rootNode.children().length.should.equal(3);
+            });
+        });
         describe('integration', function () {
             it('should loop through children for elems with repeat=variableArray', function () {
                 var targetData = [5, 3, 6, 1];

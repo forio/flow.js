@@ -59,7 +59,7 @@ module.exports = (function () {
             });
         });
 
-        describe('#stopListening', function () {
+        describe('#unbind', function () {
             var $node = $('<button data-f-on-click="stuff"> Click </button>');
             defaultEventAttr.init.call($node, 'on-click', 'stuff');
 
@@ -69,7 +69,7 @@ module.exports = (function () {
 
             spy.should.have.been.calledOnce;
 
-            defaultEventAttr.stopListening.call($node, 'on-click');
+            defaultEventAttr.unbind.call($node, 'on-click');
             $node.trigger('click');
 
             spy.should.have.been.calledOnce;
