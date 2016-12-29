@@ -326,28 +326,16 @@ module.exports = (function () {
             var attachUIOperationsListener = function ($root) {
                 $root.off(config.events.operate).on(config.events.operate, function (evt, data) {
                     var filtered = ([].concat(data.operations || [])).reduce(function (accum, operation) {
-                        var isConverter = converterManager.getConverter(operation.name);
                         operation.params = operation.params.map(function (val) {
                             return parseUtils.toImplicitType($.trim(val));
                         });
-                        if (!isConverter) {
-                            //FIXME: once the channel manager is built out this hacky filtering goes away. There can just be a window channel which catches these
-                            accum.operations['operation:' + operation.name] = operation.params;
-                        } else {
-                            accum.converters.push(operation);
-                        }
+                        accum.operations['operation:' + operation.name] = operation.params;
                         return accum;
-                    }, { operations: {}, converters: [] });
+                    }, {});
 
-                    var promise = (Object.keys(filtered.operations).length) ?
-                        channel.publish(filtered.operations) :
-                        $.Deferred().resolve().promise();
-
-                    promise.then(function (args) {
-                        _.each(filtered.converters, function (con) {
-                            converterManager.convert(con.params, [con.name]);
-                        });
-                    });
+                    if (Object.keys(filtered.operations).length) {
+                        channel.publish(filtered.operations);
+                    }
                 });
             };
 
