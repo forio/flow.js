@@ -110,6 +110,11 @@ module.exports = (function () {
                 channel.unsubscribe(subs);
             });
 
+            var boundTemplate = $el.data(config.attrs.bindTemplate);
+            if (boundTemplate) {
+                $el.html(boundTemplate);
+            }
+
             _.each($el.data(), function (val, key) {
                 if (key.indexOf('f-') === 0 || key.match(/^f[A-Z]/)) {
                     $el.removeData(key);

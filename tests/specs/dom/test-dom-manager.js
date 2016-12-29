@@ -3,6 +3,7 @@
 
     var utils = require('../../testing-utils');
     var domManager = require('src/dom/dom-manager');
+    var config = require('src/config');
 
     describe('DOM Manager', function () {
         afterEach(function () {
@@ -202,6 +203,24 @@
 
                         var newkeys = _.keys($node.data());
                         newkeys.should.eql(notAddedByFlow.sort());
+                    });
+                });
+            });
+            describe.only('remove items generated through templates', ()=> {
+                it('should remove templated bind items', ()=> {
+                    var nodes = `
+                        <div data-f-bind="a">Hello <%= value %>! <span> some child <%= a %></span</div>
+                    `.trim();
+                    return utils.initWithNode(nodes, domManager).then(($node)=> {
+                        var originalHTML = $node.html();
+
+                        $node.trigger(config.events.trigger, { a: 'apple' });
+                        var newhtml = $node.html();
+                        expect(newhtml).to.equal('Hello apple! <span> some child apple</span>');
+                        
+                        domManager.unbindElement($node);
+                        
+                        expect($node.html()).to.equal(originalHTML);
                     });
                 });
             });
