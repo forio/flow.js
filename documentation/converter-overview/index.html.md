@@ -4,7 +4,7 @@ layout: "flow"
 isPage: true
 ---
 
-##Flow.js: Converters
+## Flow.js: Converters
 
 
 Converters allow you to convert data -- for example, values of variables in your model that you display in your project's user interface -- from one form to another.
@@ -17,7 +17,7 @@ There are two ways to specify conversion or formatting for the display output of
 Additionally, converters are chainable, so you can apply several in a row to a particular variable. Basic converting and formatting options are built in to Flow.js. You can also create your own.
 
 
-####Learn More
+#### Learn More
 
 * [Array Converters](../generated/converters/array-converter/)
 * [Number Converters](../generated/converters/number-converter/)

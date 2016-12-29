@@ -11,13 +11,47 @@
 
 
 <body data-f-model="model.py">
+<div class="col-xs-6">
+    <form action="">
+      <label for="">Account</label>
+      <input type="text" id="txtAccount"  value="team-naren">
+      <br/>
 
-<link rel="stylesheet" href="/dist/add-ons/flow-inspector.css">
-<script src="/dist/add-ons/flow-inspector.min.js"></script>	
+      <label for="">Project</label>
+      <input type="text" id="txtProject" value="multiplayer-test" >
+      <br/>
+
+      <label for="">Username</label>
+      <input type="text" id="txtUsername" value="a1" >
+      <br/>
+
+      <label for="">Password</label>
+      <input type="text" id="txtPassword" value="a1a1a1a1" >
+      <br/>
+      <button id="btnLogin"> Login </button>
+    </form>
+</div>
+
+<link rel="stylesheet" href="../../../dist/add-ons/flow-inspector.css">
+<script src="../../../dist/add-ons/flow-inspector.min.js"></script>	
 
     <script>
 
         'use strict';
+
+        var am = new F.manager.AuthManager();
+        $('#btnLogin').click(function (evt) {
+            evt.preventDefault();
+            am.login({
+                userName: $('#txtUsername').val(),
+                password: $('#txtPassword').val(),
+                account: $('#txtAccount').val(),
+                project: $('#txtProject').val()
+            }).then(function () {
+                window.alert('login successful');
+            });
+        });
+
         Flow.initialize({
             channel: { 
                 strategy: 'always-new' ,

@@ -4,7 +4,7 @@ layout: "flow"
 isPage: true
 ---
 
-##Flow Inspector: Debugging with Flow.js
+## Flow Inspector: Debugging with Flow.js
 
 
 Flow Inspector is an add-on component of Flow.js that allows you to easily determine which model variables are being used where and in which Flow.js (`data-f-`) attributes in your user interface.
@@ -25,7 +25,7 @@ Read more about:
 
 
 <a name="enable"></a>
-####Enabling Flow Inspector
+#### Enabling Flow Inspector
 
 There are two ways to enable Flow Inspector. You can add it to specific pages (always enabled). Or, you can add it to your browser as a bookmark, and turn it on for a specific page by clicking the bookmark link while you are visiting that page.
 
@@ -33,17 +33,17 @@ There are two ways to enable Flow Inspector. You can add it to specific pages (a
 
 1. Make sure you're using the latest version of Flow.js: 
 
-		<script src="https://forio.com/tools/js-libs/flow/latest/flow.min.js"></script>
+		<script src="//forio.com/tools/js-libs/flow/latest/flow.min.js"></script>
 		
 	Minimum version of Flow.js 0.10 is required to use Flow Inspector; using `latest` in your `script src` tag ensures that you are always using the most current version.
 
 2. Add the Flow Inspector stylesheet to your page:
 	
-		<link rel="stylesheet" href="https://forio.com/tools/js-libs/flow/latest/add-ons/flow-inspector.css">
+		<link rel="stylesheet" href="//forio.com/tools/js-libs/flow/latest/add-ons/flow-inspector.css">
 	
 3. Add the Flow Inspector source to your page:
 
-		<script src="https://forio.com/tools/js-libs/flow/latest/add-ons/flow-inspector.min.js"></script>
+		<script src="//forio.com/tools/js-libs/flow/latest/add-ons/flow-inspector.min.js"></script>
 
 4. Add Flow Inspector to the body of your HTML, by placing a call in the script of your page, anytime after your call to initialize Flow:
 
@@ -66,11 +66,11 @@ Flow Inspector goes away when you reload the page, but you can re-enable it by c
 (If your browser doesn't support clicking and dragging the bookmarklet, it's likely that [your browser doesn't support Flow.js anyway](../). However, you can create a bookmark manually by setting the URL to the URL in the <a href="https://github.com/forio/flow.js/blob/master/dist/add-ons/readme.md" target="_blank">Flow Inspector Read Me file on Github</a>.)
 
 <a name="features"></a>
-####Features of Flow Inspector
+#### Features of Flow Inspector
 
 Once you've enabled Flow Inspector for a page in your project, you see two windows appear. You can drag each window, independently, as needed.
 
-#####Legend Window
+##### Legend Window
 
 The Legend window displays a legend of different kinds of Flow.js attributes. You can choose to show all kinds of attributes (default) or  use the checkboxes to show only those you need.
 
@@ -107,7 +107,7 @@ Mousing over the Inspector for the element displays the full contents of all thr
 <br>
 
 
-#####Context Window
+##### Context Window
 
 The Context Window of Flow Inspector provides additional data on model variables and model operations. These data appear when you click a Flow Inspector element.
 
