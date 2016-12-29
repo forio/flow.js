@@ -325,23 +325,26 @@ module.exports = (function () {
 
             var attachUIOperationsListener = function ($root) {
                 $root.off(config.events.operate).on(config.events.operate, function (evt, data) {
-                    data = $.extend(true, {}, data); //if not all subsequent listeners will get the modified data
-                    _.each(data.operations, function (opn) {
-                        opn.params = _.map(opn.params, function (val) {
+                    var filtered = ([].concat(data.operations || [])).reduce(function (accum, operation) {
+                        var isConverter = converterManager.getConverter(operation.name);
+                        operation.params = operation.params.map(function (val) {
                             return parseUtils.toImplicitType($.trim(val));
                         });
-                    });
+                        if (!isConverter) {
+                            //FIXME: once the channel manager is built out this hacky filtering goes away. There can just be a window channel which catches these
+                            accum.operations['operation:' + operation.name] = operation.params;
+                        } else {
+                            accum.converters.push(operation);
+                        }
+                        return accum;
+                    }, { operations: {}, converters: [] });
 
-                    //FIXME: once the channel manager is built out this hacky filtering goes away. There can just be a window channel which catches these
-                    var convertors = _.filter(data.operations, function (opn) {
-                        return !!converterManager.getConverter(opn.name);
-                    });
-                    data.operations = _.difference(data.operations, convertors);
-                    var promise = (data.operations.length) ?
-                        channel.publish(_.omit(data, 'options'), data.options, { type: 'operations' }) :
+                    var promise = (Object.keys(filtered.operations).length) ?
+                        channel.publish(filtered.operations) :
                         $.Deferred().resolve().promise();
+
                     promise.then(function (args) {
-                        _.each(convertors, function (con) {
+                        _.each(filtered.converters, function (con) {
                             converterManager.convert(con.params, [con.name]);
                         });
                     });

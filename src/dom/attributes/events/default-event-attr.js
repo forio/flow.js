@@ -37,15 +37,15 @@ module.exports = {
         var me = this;
         this.off(attr).on(attr, function () {
             var listOfOperations = _.invoke(value.split('|'), 'trim');
-            listOfOperations = listOfOperations.reduce(function (accum, value) {
+            listOfOperations = listOfOperations.map(function (value) {
                 var fnName = value.split('(')[0];
                 var params = value.substring(value.indexOf('(') + 1, value.indexOf(')'));
                 var args = ($.trim(params) !== '') ? params.split(',') : [];
-                accum[fnName] = args;
-                return accum;
-            }, {});
 
-            me.trigger(config.events.operate, listOfOperations);
+                return { name: fnName, params: args };
+            });
+
+            me.trigger(config.events.operate, { operations: listOfOperations });
         });
         return false; //Don't bother binding on this attr. NOTE: Do readonly, true instead?;
     }
