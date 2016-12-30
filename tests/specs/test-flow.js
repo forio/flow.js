@@ -56,16 +56,13 @@ module.exports = (function () {
             _ = _.runInContext(window);//eslint-disable-line
             cookey = 'flowtest' + Math.random();
             channelOpts = {
-                strategy: 'always-new',
-                sessionKey: cookey,
-                run: {
-                    account: 'flow',
-                    project: 'test',
-                    model: 'model.vmf',
-                    variables: {
-                        autoFetch: {
-                            debounce: 0
-                        }
+                runManager: {
+                    strategy: 'always-new',
+                    sessionKey: cookey,
+                    run: {
+                        account: 'flow',
+                        project: 'test',
+                        model: 'model.vmf'
                     }
                 }
             };
