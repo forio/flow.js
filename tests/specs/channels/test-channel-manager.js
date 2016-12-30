@@ -1,6 +1,6 @@
 var ChannelManager = require('src/channels/channel-manager');
 
-describe.only('Subscription Manager', ()=> {
+describe('Subscription Manager', ()=> {
     var channel;
     beforeEach(()=> {
         channel = new ChannelManager();

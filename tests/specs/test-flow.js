@@ -157,7 +157,7 @@ module.exports = (function () {
         });
 
         describe('Fetch variables on load', function () {
-            it.only('should fetch variables if there is no default init operation', function (done) {
+            it('should fetch variables if there is no default init operation', function (done) {
                 Flow.initialize({
                     channel: $.extend(true, {}, channelOpts),
                     dom: {

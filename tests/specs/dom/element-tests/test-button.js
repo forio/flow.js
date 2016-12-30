@@ -49,10 +49,12 @@ module.exports = (function () {
 
             it('should call operation with double params with no, object', function () {
                 var channel = utils.createDummyChannel();
-                return utils.initWithNode('<input type="button" data-f-on-click=\'step(1, {\"hello\": \"world\" })\'/>', domManager, channel).then(function ($node) {
-                    $node.trigger('click');
-                    channel.publish.should.have.been.calledWith([{ 'operation:step': [1, { hello: 'world' }] }]);
-                });
+                return utils.initWithNode(`
+                        <input type="button" data-f-on-click='step(1, {"hello": "world" })'/>
+                    `, domManager, channel).then(function ($node) {
+                        $node.trigger('click');
+                        channel.publish.should.have.been.calledWith([{ 'operation:step': [1, { hello: 'world' }] }]);
+                    });
             });
         });
     });
