@@ -16,6 +16,11 @@ module.exports = function (grunt) {
 
     grunt.config.set('webpack', {
         options: {
+            plugins: [
+                new webpack.DefinePlugin({
+                    RELEASE_VERSION: JSON.stringify(version)
+                })
+            ],
             resolve: {
                 modulesDirectories: [__dirname + '/../src', 'node_modules']
             }
@@ -66,13 +71,6 @@ module.exports = function (grunt) {
                 ]
             },
             devtool: 'eval',
-            // watch: true,
-            // keepalive: true,
-            plugins: [
-                new webpack.DefinePlugin({
-                    RELEASE_VERSION: JSON.stringify(version)
-                })
-            ],
             resolve: {
                 alias: {
                     src: __dirname + '/../src'
@@ -88,11 +86,6 @@ module.exports = function (grunt) {
                 library: 'Flow',
                 libraryTarget: 'var'
             },
-            plugins: [
-                new webpack.DefinePlugin({
-                    RELEASE_VERSION: JSON.stringify(version)
-                })
-            ],
             devtool: 'source-map',
         },
         min: {

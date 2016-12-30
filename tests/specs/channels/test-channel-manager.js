@@ -1,15 +1,15 @@
-var SubsManager = require('src/channels/subscription-manager');
+var ChannelManager = require('src/channels/channel-manager');
 
-describe.only('Subscription Manager', ()=> {
+describe('Subscription Manager', ()=> {
     var channel;
     beforeEach(()=> {
-        channel = new SubsManager();
+        channel = new ChannelManager();
     });
 
     describe('Constructor', ()=> {
         it('should have the right instance', ()=> {
-            var sm = new SubsManager();
-            expect(sm).to.be.instanceof(SubsManager);
+            var sm = new ChannelManager();
+            expect(sm).to.be.instanceof(ChannelManager);
             expect(sm.subscribe).to.be.a('function');
         });
     });
@@ -73,7 +73,7 @@ describe.only('Subscription Manager', ()=> {
                 return 'lol';
             });
             m2 = sinon.spy();
-            channel = new SubsManager({
+            channel = new ChannelManager({
                 publishMiddlewares: [m1, m2]
             });
         });
@@ -102,7 +102,7 @@ describe.only('Subscription Manager', ()=> {
                 return $.Deferred().reject().promise();
             });
             var m3 = sinon.spy();
-            var channel = new SubsManager({
+            var channel = new ChannelManager({
                 publishMiddlewares: [m1, m2, m3]
             });
             var successSpy = sinon.spy();

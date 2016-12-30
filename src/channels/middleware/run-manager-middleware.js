@@ -6,27 +6,20 @@ var mapWithPrefix = require('./middleware-utils').mapWithPrefix;
 module.exports = function (config, notifier) {
     var defaults = {
         serviceOptions: {},
-        initialOperation: '',
     };
     var opts = $.extend(true, {}, defaults, config);
 
     var rm = new window.F.manager.RunManager(opts.serviceOptions);
-    var $creationPromise = rm.getRun();
-    if (opts.initialOperation) { //TODO: Only do this for newly created runs;
-        $creationPromise = $creationPromise.then(function (rundata) {
-            return rm.run.do(opts.initialOperation).then(function () {
-                return rundata;
-            });
-        });
-    }
-    $creationPromise = $creationPromise.then(function () {
+    var $creationPromise = rm.getRun().then(function () {
         return rm.run;
     });
     var notifyWithPrefix = function (prefix, data) {
         notifier(mapWithPrefix(data, prefix));
     };
-    var currentRunChannel = new RunChannel({ serviceOptions: $creationPromise }, notifyWithPrefix.bind(null, 'current:'));
-    var defaultRunChannel = new RunChannel({ serviceOptions: $creationPromise }, notifier);
+    var currentRunChannel = new RunChannel($.extend(true, 
+        { serviceOptions: $creationPromise }, opts.defaults, opts.current), notifyWithPrefix.bind(null, 'current:'));
+    var defaultRunChannel = new RunChannel($.extend(true, 
+        { serviceOptions: $creationPromise }, opts.defaults, opts.current), notifier);
 
     var sampleRunid = '000001593dd81950d4ee4f3df14841769a0b';
    
@@ -90,6 +83,28 @@ module.exports = function (config, notifier) {
                 return toFetch.otherTopics;
             }, topics);
         },
+
+        unsubscribeHandler: function (remainingTopics) {
+            handlers.reduce(function (pendingTopics, ph) {
+                var unsubs = ([].concat(pendingTopics)).reduce(function (accum, topic) {
+                    var prefixMatch = ph.match(topic, ph.prefix);
+                    if (prefixMatch !== false) {
+                        var stripped = topic.replace(prefixMatch, '');
+                        accum.myTopics.push(stripped);
+                        accum.prefix = prefixMatch;
+                    } else {
+                        accum.otherTopics.push(topic);
+                    }
+                    return accum;
+                }, { myTopics: [], otherTopics: [], prefix: '' });
+
+                if (unsubs.myTopics.length && ph.unsubscribeHandler) {
+                    ph.unsubscribeHandler(unsubs.myTopics);
+                }
+                return unsubs.otherTopics;
+            }, remainingTopics);
+        },
+        
         publishHandler: function (inputObj) {
             var status = handlers.reduce(function (accum, ph) {
                 var topicsToHandle = Object.keys(accum.unhandled).reduce(function (soFar, inputKey) {

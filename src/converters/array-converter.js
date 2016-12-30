@@ -46,6 +46,7 @@ var list = [
             return val[val.length - 1];
         }
     },
+    {
         /**
          * Reverse the array.
          *
@@ -58,7 +59,6 @@ var list = [
          *
          * @param {Array} val The array model variable.
          */
-    {
         alias: 'reverse',
         acceptList: true,
         convert: function (val) {

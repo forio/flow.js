@@ -6,7 +6,6 @@ var mapWithPrefix = require('./middleware-utils').mapWithPrefix;
 module.exports = function (config, notifier) {
     var defaults = {
         serviceOptions: {},
-        initialOperation: '',
     };
     var opts = $.extend(true, {}, defaults, config);
 
@@ -21,14 +20,24 @@ module.exports = function (config, notifier) {
     var currentRunPromise = sm.current.getRun().then(function () {
         return sm.current.run;
     });
-    //TODO: Also check for initial operation here
-    var baselineRunChannel = new RunChannel({ serviceOptions: baselinePromise }, notifyWithPrefix.bind(null, 'baseline:'));
-    var currentRunChannel = new RunChannel({ serviceOptions: currentRunPromise }, notifyWithPrefix.bind(null, 'current:'));
+    var baselineRunChannel = new RunChannel( 
+        $.extend(true, {}, {
+            serviceOptions: baselinePromise,
+            meta: {
+                readOnly: true
+            },
+            variables: {
+                readOnly: true
+            }
+        }, opts.defaults, opts.baseline)
+    , notifyWithPrefix.bind(null, 'baseline:'));
+    var currentRunChannel = new RunChannel($.extend(true, {}, {
+        serviceOptions: currentRunPromise,
+    }, opts.defaults, opts.current), notifyWithPrefix.bind(null, 'current:'));
     // var defaultRunChannel = new RunChannel({ serviceOptions: currentRunPromise }, notifier);
 
     var sampleRunid = '000001593dd81950d4ee4f3df14841769a0b';
    
-    // create a new channel and push onto handlers to catch further
     var knownRunIDServiceChannels = {};
     var handlers = [
         $.extend(baselineRunChannel, { name: 'baseline', match: prefix('baseline:') }),

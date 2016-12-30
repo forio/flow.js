@@ -39,7 +39,7 @@ module.exports = (function () {
                 $node.on(config.events.operate, spy);
                 $node.trigger('click');
 
-                spy.getCall(0).args[1].should.eql({ operations: [{ name: 'stuff', params: [] }], serial: true });
+                spy.getCall(0).args[1].should.eql({ operations: [{ name: 'stuff', params: [] }] });
 
             });
 
@@ -53,13 +53,12 @@ module.exports = (function () {
 
                 spy.getCall(0).args[1].should.eql({
                     operations: [{ name: 'stuff', params: ['1'] }, { name: 'reset', params: ['0'] }],
-                    serial: true
                 });
 
             });
         });
 
-        describe('#stopListening', function () {
+        describe('#unbind', function () {
             var $node = $('<button data-f-on-click="stuff"> Click </button>');
             defaultEventAttr.init.call($node, 'on-click', 'stuff');
 
@@ -69,7 +68,7 @@ module.exports = (function () {
 
             spy.should.have.been.calledOnce;
 
-            defaultEventAttr.stopListening.call($node, 'on-click');
+            defaultEventAttr.unbind.call($node, 'on-click');
             $node.trigger('click');
 
             spy.should.have.been.calledOnce;

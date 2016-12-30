@@ -3,6 +3,7 @@
 
     var utils = require('../../testing-utils');
     var domManager = require('src/dom/dom-manager');
+    var config = require('src/config');
 
     describe('DOM Manager', function () {
         afterEach(function () {
@@ -202,6 +203,78 @@
 
                         var newkeys = _.keys($node.data());
                         newkeys.should.eql(notAddedByFlow.sort());
+                    });
+                });
+            });
+            describe('remove items generated through templates', ()=> {
+                it('should remove templated bind items', ()=> {
+                    var nodes = `
+                        <div data-f-bind="a">Hello <%= value %>! <span> some child <%= a %></span</div>
+                    `.trim();
+                    return utils.initWithNode(nodes, domManager).then(($node)=> {
+                        var originalHTML = $node.html();
+
+                        $node.trigger(config.events.channelDataReceived, { a: 'apple' });
+                        var newhtml = $node.html();
+                        expect(newhtml).to.equal('Hello apple! <span> some child apple</span>');
+                        
+                        domManager.unbindElement($node);
+                        
+                        expect($node.html()).to.equal(originalHTML);
+                    });
+                });
+                it('should remove templated foreach items', ()=> {
+                    var nodes = `
+                        <ul data-f-foreach="fruits">
+                            <li>Love <%= value %></li>
+                        </ul>
+                    `.trim();
+                    return utils.initWithNode(nodes, domManager).then(($node)=> {
+                        var originalHTML = $node.html();
+
+                        $node.trigger(config.events.channelDataReceived, { fruits: ['apples', 'organges'] });
+                        expect($node.children().length).to.equal(2);
+                        
+                        domManager.unbindElement($node);
+
+                        expect($node.children().length).to.equal(1);
+                        expect($node.html()).to.equal(originalHTML);
+                    });
+                });
+                it('should restore untemplated foreach items', ()=> {
+                    var nodes = `
+                        <ul data-f-foreach="fruits">
+                            <li>Foo</li>
+                        </ul>
+                    `.trim();
+                    return utils.initWithNode(nodes, domManager).then(($node)=> {
+                        var originalHTML = $node.html();
+
+                        $node.trigger(config.events.channelDataReceived, { fruits: ['apples', 'organges'] });
+                        expect($node.children().length).to.equal(2);
+                        
+                        domManager.unbindElement($node);
+
+                        expect($node.children().length).to.equal(1);
+                        expect($node.html()).to.equal(originalHTML);
+                    });
+                });
+                it('should remove templated repeat items', ()=> {
+                    var nodes = `
+                        <ul>
+                            <li data-f-repeat="fruits">Love <%= value %></li>
+                        </ul>
+                    `.trim();
+                    return utils.initWithNode(nodes, domManager).then(($node)=> {
+                        var originalHTML = $node.html();
+
+                        $node.find('li:first').trigger(config.events.channelDataReceived, { fruits: ['apples', 'organges'] });
+                        expect($node.children().length).to.equal(2);
+                        
+                        domManager.unbindElement($node.find('li:first'));
+
+                        expect($node.children().length).to.equal(1);
+                        expect($node.html()).to.equal(originalHTML);
                     });
                 });
             });

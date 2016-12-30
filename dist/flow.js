@@ -84,6 +84,8 @@ var Flow =
 	 *
 	 * The `Flow.initialize()` call is based on the Epicenter.js [Run Service](../../../api_adapters/generated/run-api-service/) from the [API Adapters](../../../api_adapters/). See those pages for additional information on parameters.
 	 *
+	 * The `Flow.initialize()` call returns a promise, which is resolved when initialization is complete.
+	 *
 	 * #### Example
 	 *
 	 *      Flow.initialize({
@@ -102,14 +104,17 @@ var Flow =
 	 *                  }
 	 *              }
 	 *          }
+	 *      }).then(function() {
+	 *          // code that depends on initialization
 	 *      });
+	 *
 	 */
 	
 	'use strict';
 	
 	var domManager = __webpack_require__(1);
 	var Channel = __webpack_require__(31);
-	var BaseView = __webpack_require__(7);
+	var BaseView = __webpack_require__(15);
 	
 	var Flow = {
 	    dom: domManager,
@@ -158,13 +163,13 @@ var Flow =
 	            this.channel = new Channel(options.channel);
 	        }
 	
-	        domManager.initialize($.extend(true, {
+	        return domManager.initialize($.extend(true, {
 	            channel: this.channel
 	        }, options.dom));
 	    }
 	};
 	//set by grunt
-	// if (RELEASE_VERSION) Flow.version = RELEASE_VERSION; //eslint-disable-line no-undef
+	if (true) Flow.version = ("0.11.0"); //eslint-disable-line no-undef
 	module.exports = Flow;
 
 
@@ -184,18 +189,16 @@ var Flow =
 	
 	module.exports = (function () {
 	    var config = __webpack_require__(2);
+	    var parseUtils = __webpack_require__(3);
+	    var domUtils = __webpack_require__(4);
 	
-	    var nodeManager = __webpack_require__(3);
-	    var attrManager = __webpack_require__(8);
-	    var converterManager = __webpack_require__(23);
-	
-	    var parseUtils = __webpack_require__(13);
-	    var domUtils = __webpack_require__(29);
-	
+	    var converterManager = __webpack_require__(5);
+	    var nodeManager = __webpack_require__(11);
+	    var attrManager = __webpack_require__(16);
 	    var autoUpdatePlugin = __webpack_require__(30);
 	
 	    //Jquery selector to return everything which has a f- property set
-	    $.expr[':'][config.prefix] = function (el) {
+	    $.expr.pseudos[config.prefix] = function (el) {
 	        if (!el || !el.attributes) {
 	            return false;
 	        }
@@ -208,7 +211,7 @@ var Flow =
 	        return false;
 	    };
 	
-	    $.expr[':'].webcomponent = function (obj) {
+	    $.expr.pseudos.webcomponent = function (obj) {
 	        return obj.nodeName.indexOf('-') !== -1;
 	    };
 	
@@ -275,8 +278,8 @@ var Flow =
 	                if (attr.indexOf(wantedPrefix) === 0) {
 	                    attr = attr.replace(wantedPrefix, '');
 	                    var handler = attrManager.getHandler(attr, $el);
-	                    if (handler.stopListening) {
-	                        handler.stopListening.call($el, attr);
+	                    if (handler.unbind) {
+	                        handler.unbind.call($el, attr);
 	                    }
 	                }
 	            });
@@ -512,8 +515,8 @@ var Flow =
 	                    });
 	                    data.operations = _.difference(data.operations, convertors);
 	                    var promise = (data.operations.length) ?
-	                        channel.operations.publish(_.omit(data, 'options'), data.options)
-	                        : $.Deferred().resolve().promise();
+	                        channel.operations.publish(_.omit(data, 'options'), data.options) :
+	                        $.Deferred().resolve().promise();
 	                    promise.then(function (args) {
 	                        _.each(convertors, function (con) {
 	                            converterManager.convert(con.params, [con.name]);
@@ -543,10 +546,10 @@ var Flow =
 	                    }
 	                });
 	            };
-	
+	            
+	            var promise = $.Deferred();
 	            $(function () {
 	                me.bindAll();
-	                $root.trigger('f.domready');
 	
 	                attachChannelListener($root);
 	                attachUIVariablesListener($root);
@@ -556,7 +559,12 @@ var Flow =
 	                if (me.options.autoBind) {
 	                    autoUpdatePlugin($root.get(0), me);
 	                }
+	                
+	                promise.resolve($root);
+	                $root.trigger('f.domready');
 	            });
+	
+	            return promise;
 	        }
 	    };
 	
@@ -601,8 +609,8 @@ var Flow =
 	
 	        //Used by repeat attr handler to keep track of template after first evaluation
 	        repeat: {
-	            template: 'f-repeat-template',
-	            templateId: 'f-repeat-template-id'
+	            template: 'repeat-template',
+	            templateId: 'repeat-template-id'
 	        },
 	
 	        //Used by foreach attr handler to keep track of template after first evaluation
@@ -618,730 +626,6 @@ var Flow =
 
 /***/ },
 /* 3 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-	
-	var normalize = function (selector, handler) {
-	    if (_.isFunction(handler)) {
-	        handler = {
-	            handle: handler
-	        };
-	    }
-	    if (!selector) {
-	        selector = '*';
-	    }
-	    handler.selector = selector;
-	    return handler;
-	};
-	
-	var match = function (toMatch, node) {
-	    if (_.isString(toMatch)) {
-	        return toMatch === node.selector;
-	    }
-	    return $(toMatch).is(node.selector);
-	};
-	
-	var nodeManager = {
-	    list: [],
-	
-	    /**
-	     * Add a new node handler
-	     * @param  {string} selector jQuery-compatible selector to use to match nodes
-	     * @param  {function} handler  Handlers are new-able functions. They will be called with $el as context.? TODO: Think this through
-	     * @returns {undefined}
-	     */
-	    register: function (selector, handler) {
-	        this.list.unshift(normalize(selector, handler));
-	    },
-	
-	    getHandler: function (selector) {
-	        return _.find(this.list, function (node) {
-	            return match(selector, node);
-	        });
-	    },
-	
-	    replace: function (selector, handler) {
-	        var index;
-	        _.each(this.list, function (currentHandler, i) {
-	            if (selector === currentHandler.selector) {
-	                index = i;
-	                return false;
-	            }
-	        });
-	        this.list.splice(index, 1, normalize(selector, handler));
-	    }
-	};
-	
-	//bootstraps
-	var defaultHandlers = [
-	    __webpack_require__(4),
-	    __webpack_require__(5),
-	    __webpack_require__(6)
-	];
-	_.each(defaultHandlers.reverse(), function (handler) {
-	    nodeManager.register(handler.selector, handler);
-	});
-	
-	module.exports = nodeManager;
-
-
-/***/ },
-/* 4 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-	var BaseView = __webpack_require__(5);
-	
-	module.exports = BaseView.extend({
-	
-	    propertyHandlers: [
-	
-	    ],
-	
-	    getUIValue: function () {
-	        var $el = this.$el;
-	        //TODO: file a issue for the vensim manager to convert trues to 1s and set this to true and false
-	
-	        var offVal = (typeof $el.data('f-off') !== 'undefined') ? $el.data('f-off') : 0;
-	        //attr = initial value, prop = current value
-	        var onVal = (typeof $el.attr('value') !== 'undefined') ? $el.prop('value') : 1;
-	
-	        var val = ($el.is(':checked')) ? onVal : offVal;
-	        return val;
-	    },
-	    initialize: function () {
-	        BaseView.prototype.initialize.apply(this, arguments);
-	    }
-	}, { selector: ':checkbox,:radio' });
-
-
-/***/ },
-/* 5 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-	var config = __webpack_require__(2);
-	var BaseView = __webpack_require__(6);
-	
-	module.exports = BaseView.extend({
-	    propertyHandlers: [],
-	
-	    uiChangeEvent: 'change',
-	    getUIValue: function () {
-	        return this.$el.val();
-	    },
-	
-	    removeEvents: function () {
-	        this.$el.off(this.uiChangeEvent);
-	    },
-	
-	    initialize: function () {
-	        var me = this;
-	        var propName = this.$el.data(config.binderAttr);
-	
-	        if (propName) {
-	            this.$el.off(this.uiChangeEvent).on(this.uiChangeEvent, function () {
-	                var val = me.getUIValue();
-	
-	                var params = {};
-	                params[propName] = val;
-	
-	                me.$el.trigger(config.events.trigger, params);
-	            });
-	        }
-	        BaseView.prototype.initialize.apply(this, arguments);
-	    }
-	}, { selector: 'input, select' });
-
-
-/***/ },
-/* 6 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-	
-	var BaseView = __webpack_require__(7);
-	
-	module.exports = BaseView.extend({
-	    propertyHandlers: [
-	
-	    ],
-	
-	    initialize: function () {
-	    }
-	}, { selector: '*' });
-
-
-/***/ },
-/* 7 */
-/***/ function(module, exports) {
-
-	'use strict';
-	
-	var extend = function (protoProps, staticProps) {
-	    var me = this;
-	    var child;
-	
-	    // The constructor function for the new subclass is either defined by you
-	    // (the "constructor" property in your `extend` definition), or defaulted
-	    // by us to simply call the parent's constructor.
-	    if (protoProps && _.has(protoProps, 'constructor')) {
-	        child = protoProps.constructor;
-	    } else {
-	        child = function () { return me.apply(this, arguments); };
-	    }
-	
-	    // Add static properties to the constructor function, if supplied.
-	    _.extend(child, me, staticProps);
-	
-	    // Set the prototype chain to inherit from `parent`, without calling
-	    // `parent`'s constructor function.
-	    var Surrogate = function () { this.constructor = child; };
-	    Surrogate.prototype = me.prototype;
-	    child.prototype = new Surrogate();
-	
-	    // Add prototype properties (instance properties) to the subclass,
-	    // if supplied.
-	    if (protoProps) {
-	        _.extend(child.prototype, protoProps);
-	    }
-	
-	    // Set a convenience property in case the parent's prototype is needed
-	    // later.
-	    child.__super__ = me.prototype; //eslint-disable-line no-underscore-dangle
-	
-	    return child;
-	};
-	
-	var View = function (options) {
-	    this.$el = (options.$el) || $(options.el);
-	    this.el = options.el;
-	    this.initialize.apply(this, arguments);
-	
-	};
-	
-	_.extend(View.prototype, {
-	    initialize: function () {},
-	});
-	
-	View.extend = extend;
-	
-	module.exports = View;
-
-
-/***/ },
-/* 8 */
-/***/ function(module, exports, __webpack_require__) {
-
-	/**
-	 * ## Attribute Manager
-	 *
-	 * Flow.js provides a set of custom DOM attributes that serve as a data binding between variables and operations in your project's model and HTML elements in your project's user interface. Under the hood, Flow.js is doing automatic conversion of these custom attributes, like `data-f-bind`, into HTML specific to the attribute's assigned value, like the current value of `myModelVar`.
-	 *
-	 * If you are looking for examples of using particular attributes, see the [specific attributes subpages](../../../../attributes-overview/).
-	 *
-	 * If you would like to extend Flow.js with your own custom attributes, you can add them to Flow.js using the Attribute Manager.
-	 *
-	 * The Attribute Manager is specific to adding custom attributes and describing their implementation (handlers). (The [Dom Manager](../../) contains the general implementation.)
-	 *
-	 *
-	 * **Examples**
-	 *
-	 * Built-in attribute handlers like `data-f-value` and `data-f-foreach` automatically bind variables in your project's model to particular HTML elements. However, your UI may sometimes require displaying only part of the variable (e.g. if it's an object), or "doing something" with the value of the variable, rather than simply displaying it.
-	 *
-	 * One example of when custom attribute handlers are useful is when your model variable is a complex object and you want to display the fields in a particular way, or you only want to display some of the fields. While the combination of the [`data-f-foreach` attribute](../foreach/default-foreach-attr/) and [templating](../../../../#templates) can help with this, sometimes it's easier to write your own attribute handler. (This is especially true if you will be reusing the attribute handler -- you won't have to copy your templating code over and over.)
-	 *
-	 *      Flow.dom.attributes.register('showSched', '*', function (sched) {
-	 *            // display all the schedule milestones
-	 *            // sched is an object, each element is an array
-	 *            // of ['Formal Milestone Name', milestoneMonth, completionPercentage]
-	 *
-	 *            var schedStr = '<ul>';
-	 *            var sortedSched = _.sortBy(sched, function(el) { return el[1]; });
-	 *
-	 *            for (var i = 0; i < sortedSched.length; i++) {
-	 *                  schedStr += '<li><strong>' + sortedSched[i][0]
-	 *                        + '</strong> currently scheduled for <strong>Month '
-	 *                        + sortedSched[i][1] + '</strong></li>';
-	 *            }
-	 *            schedStr += '</ul>';
-	 *
-	 *            this.html(schedStr);
-	 *      });
-	 *
-	 * Then, you can use the attribute handler in your HTML just like other Flow.js attributes:
-	 *
-	 *      <div data-f-showSched="schedule"></div>
-	 *
-	 */
-	
-	'use strict';
-	
-	var defaultHandlers = [
-	    __webpack_require__(9),
-	    __webpack_require__(10),
-	    __webpack_require__(11),
-	    __webpack_require__(12),
-	    __webpack_require__(14),
-	    __webpack_require__(15),
-	    __webpack_require__(16),
-	    __webpack_require__(17),
-	    __webpack_require__(19),
-	    __webpack_require__(20),
-	    __webpack_require__(21),
-	    __webpack_require__(22)
-	];
-	
-	var handlersList = [];
-	
-	var normalize = function (attributeMatcher, nodeMatcher, handler) {
-	    if (!nodeMatcher) {
-	        nodeMatcher = '*';
-	    }
-	    if (_.isFunction(handler)) {
-	        handler = {
-	            handle: handler
-	        };
-	    }
-	    return $.extend(handler, { test: attributeMatcher, target: nodeMatcher });
-	};
-	
-	$.each(defaultHandlers, function (index, handler) {
-	    handlersList.push(normalize(handler.test, handler.target, handler));
-	});
-	
-	
-	var matchAttr = function (matchExpr, attr, $el) {
-	    var attrMatch;
-	
-	    if (_.isString(matchExpr)) {
-	        attrMatch = (matchExpr === '*' || (matchExpr.toLowerCase() === attr.toLowerCase()));
-	    } else if (_.isFunction(matchExpr)) {
-	        //TODO: remove element selectors from attributes
-	        attrMatch = matchExpr(attr, $el);
-	    } else if (_.isRegExp(matchExpr)) {
-	        attrMatch = attr.match(matchExpr);
-	    }
-	    return attrMatch;
-	};
-	
-	var matchNode = function (target, nodeFilter) {
-	    return (_.isString(nodeFilter)) ? (nodeFilter === target) : nodeFilter.is(target);
-	};
-	
-	module.exports = {
-	    list: handlersList,
-	    /**
-	     * Add a new attribute handler.
-	     *
-	     * @param  {String|Function|Regex} attributeMatcher Description of which attributes to match.
-	     * @param  {String} nodeMatcher Which nodes to add attributes to. Use [jquery Selector syntax](https://api.jquery.com/category/selectors/).
-	     * @param  {Function|Object} handler If `handler` is a function, the function is called with `$element` as context, and attribute value + name. If `handler` is an object, it should include two functions, and have the form: `{ init: fn,  handle: fn }`. The `init` function is called when the page loads; use this to define event handlers. The `handle` function is called with `$element` as context, and attribute value + name.
-	     * @returns {undefined}
-	     */
-	    register: function (attributeMatcher, nodeMatcher, handler) {
-	        handlersList.unshift(normalize.apply(null, arguments));
-	    },
-	
-	    /**
-	     * Find an attribute matcher matching some criteria.
-	     *
-	     * @param  {String} attrFilter Attribute to match.
-	     * @param  {String|$el} nodeFilter Node to match.
-	     *
-	     * @return {Array|Null} An array of matching attribute handlers, or null if no matches found.
-	     */
-	    filter: function (attrFilter, nodeFilter) {
-	        var filtered = _.select(handlersList, function (handler) {
-	            return matchAttr(handler.test, attrFilter);
-	        });
-	        if (nodeFilter) {
-	            filtered = _.select(filtered, function (handler) {
-	                return matchNode(handler.target, nodeFilter);
-	            });
-	        }
-	        return filtered;
-	    },
-	
-	    /**
-	     * Replace an existing attribute handler.
-	     *
-	     * @param  {String} attrFilter Attribute to match.
-	     * @param  {String | $el} nodeFilter Node to match.
-	     * @param  {Function|Object} handler The updated attribute handler. If `handler` is a function, the function is called with `$element` as context, and attribute value + name. If `handler` is an object, it should include two functions, and have the form: `{ init: fn,  handle: fn }`. The `init` function is called when the page loads; use this to define event handlers. The `handle` function is called with `$element` as context, and attribute value + name.
-	     * @returns {undefined}
-	     */
-	    replace: function (attrFilter, nodeFilter, handler) {
-	        var index;
-	        _.each(handlersList, function (currentHandler, i) {
-	            if (matchAttr(currentHandler.test, attrFilter) && matchNode(currentHandler.target, nodeFilter)) {
-	                index = i;
-	                return false;
-	            }
-	        });
-	        handlersList.splice(index, 1, normalize(attrFilter, nodeFilter, handler));
-	    },
-	
-	    /**
-	     *  Retrieve the appropriate handler for a particular attribute. There may be multiple matching handlers, but the first (most exact) match is always used.
-	     *
-	     * @param {String} property The attribute.
-	     * @param {$el} $el The DOM element.
-	     *
-	     * @return {Object} The attribute handler.
-	     */
-	    getHandler: function (property, $el) {
-	        var filtered = this.filter(property, $el);
-	        //There could be multiple matches, but the top first has the most priority
-	        return filtered[0];
-	    }
-	};
-	
-
-
-/***/ },
-/* 9 */
-/***/ function(module, exports) {
-
-	/**
-	 * ## No-op Attributes
-	 *
-	 * Flow.js provides special handling for both `data-f-model` (described [here](../../../../#using_in_project)) and `data-f-convert` (described [here](../../../../converter-overview/)). For these attributes, the default behavior is to do nothing, so that this additional special handling can take precendence.
-	 *
-	 */
-	
-	'use strict';
-	
-	// Attributes which are just parameters to others and can just be ignored
-	module.exports = {
-	
-	    target: '*',
-	
-	    test: /^(?:model|convert)$/i,
-	
-	    handle: $.noop,
-	
-	    init: function () {
-	        return false;
-	    }
-	};
-
-
-/***/ },
-/* 10 */
-/***/ function(module, exports) {
-
-	/**
-	 * ## Call Operation when Element Added to DOM
-	 *
-	 * Many models call an initialization operation when the [run](../../../../../../glossary/#run) is first created. This is particularly common with [Vensim](../../../../../../model_code/vensim/) models, which need to initialize variables ('startGame') before stepping. You can use the `data-f-on-init` attribute to call an operation from the model when a particular element is added to the DOM.
-	 *
-	 * #### data-f-on-init
-	 *
-	 * Add the attribute `data-f-on-init`, and set the value to the name of the operation. To call multiple operations, use the `|` (pipe) character to chain operations. Operations are called serially, in the order listed. Typically you add this attribute to the `<body>` element.
-	 *
-	 * **Example**
-	 *
-	 *      <body data-f-on-init="startGame">
-	 *
-	 *      <body data-f-on-init="startGame | step(3)">
-	 *
-	 */
-	
-	'use strict';
-	
-	module.exports = {
-	
-	    target: '*',
-	
-	    test: function (attr, $node) {
-	        return (attr.indexOf('on-init') === 0);
-	    },
-	
-	    init: function (attr, value) {
-	        attr = attr.replace('on-init', '');
-	        var me = this;
-	        $(function () {
-	            var listOfOperations = _.invoke(value.split('|'), 'trim');
-	            listOfOperations = listOfOperations.map(function (value) {
-	                var fnName = value.split('(')[0];
-	                var params = value.substring(value.indexOf('(') + 1, value.indexOf(')'));
-	                var args = ($.trim(params) !== '') ? params.split(',') : [];
-	                return { name: fnName, params: args };
-	            });
-	
-	            //FIXME: this knows too much about the channel
-	            me.trigger('f.ui.operate', { operations: listOfOperations, serial: true, options: { readOnly: false } });
-	        });
-	        return false; //Don't bother binding on this attr. NOTE: Do readonly, true instead?;
-	    }
-	};
-
-
-/***/ },
-/* 11 */
-/***/ function(module, exports) {
-
-	/**
-	 * ## Call Operation in Response to User Action
-	 *
-	 * Many models call particular operations in response to end user actions, such as clicking a button or submitting a form.
-	 *
-	 * #### data-f-on-event
-	 *
-	 * For any HTML attribute using `on` -- typically on click or on submit -- you can add the attribute `data-f-on-XXX`, and set the value to the name of the operation. To call multiple operations, use the `|` (pipe) character to chain operations. Operations are called serially, in the order listed.
-	 *
-	 * **Example**
-	 *
-	 *      <button data-f-on-click="reset">Reset</button>
-	 *
-	 *      <button data-f-on-click="step(1)">Advance One Step</button>
-	 *
-	 */
-	
-	'use strict';
-	
-	module.exports = {
-	
-	    target: '*',
-	
-	    test: function (attr, $node) {
-	        return (attr.indexOf('on-') === 0);
-	    },
-	
-	    stopListening: function (attr) {
-	        attr = attr.replace('on-', '');
-	        this.off(attr);
-	    },
-	
-	    init: function (attr, value) {
-	        attr = attr.replace('on-', '');
-	        var me = this;
-	        this.off(attr).on(attr, function () {
-	            var listOfOperations = _.invoke(value.split('|'), 'trim');
-	            listOfOperations = listOfOperations.map(function (value) {
-	                var fnName = value.split('(')[0];
-	                var params = value.substring(value.indexOf('(') + 1, value.indexOf(')'));
-	                var args = ($.trim(params) !== '') ? params.split(',') : [];
-	                return { name: fnName, params: args };
-	            });
-	
-	            me.trigger('f.ui.operate', { operations: listOfOperations, serial: true });
-	        });
-	        return false; //Don't bother binding on this attr. NOTE: Do readonly, true instead?;
-	    }
-	};
-
-
-/***/ },
-/* 12 */
-/***/ function(module, exports, __webpack_require__) {
-
-	/**
-	 * ## Display Array and Object Variables: data-f-foreach
-	 *
-	 * The `data-f-foreach` attribute allows you to automatically loop over all the `children` of a referenced variable -- e.g. all elements of the array, or all the fields of an object.
-	 *
-	 * As background, if your model variable is an array, you can reference specific elements of the array using `data-f-bind`: `data-f-bind="sales[3]"` or `data-f-bind="sales[<currentRegion>]"`, as described under [data-f-bind](../../binds/default-bind-attr/).
-	 *
-	 * However, sometimes you want to loop over *all* of the children of the referenced variable. You can use the `data-f-foreach` attribute to name the variable, then use templates to access the index and value of each child for display. (Templates are available as part of Flow.js's lodash dependency. See more background on [working with templates](../../../../../#templates).) Additionally, you can use nested `data-f-foreach` attributes to created nested loops of your data. Note that templates *only work once, at exactly the level specified* when working with nested `data-f-foreach` attributes. See the examples below for more detail.
-	 *
-	 * **To display a DOM element based on an array variable from the model:**
-	 *
-	 * 1. Add the `data-f-foreach` attribute to any HTML element that has repeated sub-elements. The two most common examples are lists and tables.
-	 * 2. Set the value of the `data-f-foreach` attribute in your top-level HTML element to the name of the array variable.
-	 * 3. Add the HTML in which the value of your array variable should appear.
-	 * 4. Optionally, inside the inner HTML element, use templates (`<%= %>`) to reference the `index` (for arrays) or `key` (for objects) and `value` to display. The `index`, `key`, and `value` are special variables that Flow.js populates for you.
-	 *
-	 *
-	 * **Examples:**
-	 *
-	 * By default &mdash; that is, if you do not include templates in your HTML &mdash; the `value` of the array element or object field appears:
-	 *
-	 *      <!-- the model variable Time is an array of years
-	 *          create a list that shows which year -->
-	 *
-	 *      <ul data-f-foreach="Time">
-	 *          <li></li>
-	 *      </ul>
-	 *
-	 * In the third step of the model, this example generates the HTML:
-	 *
-	 *      <ul data-f-foreach="Time">
-	 *            <li>2015</li>
-	 *            <li>2016</li>
-	 *            <li>2017</li>
-	 *      </ul>
-	 *
-	 * which appears as:
-	 *
-	 *      * 2015
-	 *      * 2016
-	 *      * 2017
-	 *
-	 * Optionally, you can use templates (`<%= %>`) to reference the `index` and `value` of the array element to display.
-	 *
-	 *
-	 *      <!-- the model variable Time is an array of years
-	 *          create a list that shows which year -->
-	 *
-	 *      <ul data-f-foreach="Time">
-	 *          <li> Year <%= index %>: <%= value %> </li>
-	 *      </ul>
-	 *
-	 * In the third step of the model, this example generates:
-	 *
-	 *      <ul data-f-foreach="Time">
-	 *          <li>Year 1: 2015</li>
-	 *          <li>Year 2: 2016</li>
-	 *          <li>Year 3: 2017</li>
-	 *      </ul>
-	 *
-	 * which appears as:
-	 *
-	 *      * Year 1: 2015
-	 *      * Year 2: 2016
-	 *      * Year 3: 2017
-	 *
-	 * As with other `data-f-` attributes, you can specify [converters](../../../../../converter-overview) to convert data from one form to another:
-	 *
-	 *      <ul data-f-foreach="Sales | $x,xxx">
-	 *          <li> Year <%= index %>: Sales of <%= value %> </li>
-	 *      </ul>
-	 *
-	 *
-	 * **Notes:**
-	 *
-	 * * You can use the `data-f-foreach` attribute with both arrays and objects. If the model variable is an object, reference the `key` instead of the `index` in your templates.
-	 * * The `key`, `index`, and `value` are special variables that Flow.js populates for you.
-	 * * The template syntax is to enclose each keyword (`index`, `key`, `variable`) in `<%=` and `%>`. Templates are available as part of Flow.js's lodash dependency. See more background on [working with templates](../../../../../#templates).
-	 * * The `data-f-foreach` attribute is [similar to the `data-f-repeat` attribute](../../repeat-attr/), so you may want to review the examples there as well.
-	 */
-	
-	'use strict';
-	var parseUtils = __webpack_require__(13);
-	var config = __webpack_require__(2);
-	
-	function refToMarkup (refKey) {
-	    return '<!--' + refKey + '-->';
-	}
-	
-	module.exports = {
-	
-	    test: 'foreach',
-	
-	    target: '*',
-	
-	    parse: function (attrVal) {
-	        var inMatch = attrVal.match(/(.*) (?:in|of) (.*)/);
-	        if (inMatch) {
-	            var itMatch = inMatch[1].match(/\((.*),(.*)\)/);
-	            if (itMatch) {
-	                this.data(config.attrs.keyAs, itMatch[1].trim());
-	                this.data(config.attrs.valueAs, itMatch[2].trim());
-	            } else {
-	                this.data(config.attrs.valueAs, inMatch[1].trim());
-	            }
-	            attrVal = inMatch[2];
-	        }
-	        return attrVal;
-	    },
-	
-	    handle: function (value, prop) {
-	        value = ($.isPlainObject(value) ? value : [].concat(value));
-	        var loopTemplate = this.data(config.attrs.foreachTemplate);
-	        if (!loopTemplate) {
-	            loopTemplate = this.html();
-	            this.data(config.attrs.foreachTemplate, loopTemplate);
-	        }
-	        var $me = this.empty();
-	        var cloop = loopTemplate.replace(/&lt;/g, '<').replace(/&gt;/g, '>');
-	
-	        var defaultKey = $.isPlainObject(value) ? 'key' : 'index';
-	        var keyAttr = $me.data(config.attrs.keyAs) || defaultKey;
-	        var valueAttr = $me.data(config.attrs.valueAs) || 'value';
-	        
-	        var keyRegex = new RegExp('\\b' + keyAttr + '\\b');
-	        var valueRegex = new RegExp('\\b' + valueAttr + '\\b');
-	
-	
-	        var closestKnownDataEl = this.closest('[data-current-index]');
-	        var knownData = {};
-	        if (closestKnownDataEl.length) {
-	            knownData = closestKnownDataEl.data('current-index');
-	        }
-	        var closestParentWithMissing = this.closest('[data-missing-references]');
-	        if (closestParentWithMissing.length) { //(grand)parent already stubbed out missing references
-	            var missing = closestParentWithMissing.data('missing-references');
-	            _.each(missing, function (replacement, template) {
-	                if (keyRegex.test(template) || valueRegex.test(template)) {
-	                    cloop = cloop.replace(refToMarkup(replacement), template);
-	                }
-	            });
-	        } else {
-	            var missingReferences = {};
-	            var templateTagsUsed = cloop.match(/<%[=-]?([\s\S]+?)%>/g);
-	            if (templateTagsUsed) {
-	                templateTagsUsed.forEach(function (tag) {
-	                    if (tag.match(/\w+/) && !keyRegex.test(tag) && !valueRegex.test(tag)) {
-	                        var refKey = missingReferences[tag];
-	                        if (!refKey) {
-	                            refKey = _.uniqueId('no-ref');
-	                            missingReferences[tag] = refKey;
-	                        }
-	                        var r = new RegExp(tag, 'g');
-	                        cloop = cloop.replace(r, refToMarkup(refKey));
-	                    }
-	                });
-	            }
-	            if (_.size(missingReferences)) {
-	                //Attr, not data, to make jQ selector easy. No f- prefix to keep this from flow.
-	                this.attr('data-missing-references', JSON.stringify(missingReferences));
-	            }
-	        }
-	
-	        var templateFn = _.template(cloop);
-	        _.each(value, function (dataval, datakey) {
-	            if (!dataval) {
-	                dataval = dataval + '';
-	            }
-	            var templateData = {};
-	            templateData[keyAttr] = datakey;
-	            templateData[valueAttr] = dataval;
-	            
-	            $.extend(templateData, knownData);
-	
-	            var nodes;
-	            var isTemplated;
-	            try {
-	                var templatedLoop = templateFn(templateData);
-	                isTemplated = templatedLoop !== cloop;
-	                nodes = $(templatedLoop);
-	            } catch (e) { //you don't have all the references you need;
-	                nodes = $(cloop);
-	                isTemplated = true;
-	                $(nodes).attr('data-current-index', JSON.stringify(templateData));
-	            }
-	
-	            nodes.each(function (i, newNode) {
-	                newNode = $(newNode);
-	                _.each(newNode.data(), function (val, key) {
-	                    newNode.data(key, parseUtils.toImplicitType(val));
-	                });
-	                if (!isTemplated && !newNode.html().trim()) {
-	                    newNode.html(dataval);
-	                }
-	            });
-	            $me.append(nodes);
-	            
-	        });
-	    }
-	};
-
-
-/***/ },
-/* 13 */
 /***/ function(module, exports) {
 
 	'use strict';
@@ -1368,7 +652,7 @@ var Flow =
 	                converted = +data;
 	            } else if (rbrace.test(data)) {
 	                //TODO: This only works with double quotes, i.e., [1,"2"] works but not [1,'2']
-	                converted = $.parseJSON(data);
+	                converted = JSON.parse(data);
 	            }
 	        }
 	        return converted;
@@ -1377,564 +661,46 @@ var Flow =
 
 
 /***/ },
-/* 14 */
+/* 4 */
 /***/ function(module, exports) {
 
-	/**
-	 * ## Checkboxes and Radio Buttons
-	 *
-	 * In the [default case](../default-bind-attr/), the `data-f-bind` attribute creates a bi-directional binding between the DOM element and the model variable. This binding is **bi-directional**, meaning that as the model changes, the interface is automatically updated; and when end users change values in the interface, the model is automatically updated.
-	 *
-	 * Flow.js provides special handling for DOM elements with `type="checkbox"` and `type="radio"`.
-	 *
-	 * In particular, if you add the `data-f-bind` attribute to an `input` with `type="checkbox"` and `type="radio"`, the checkbox or radio button is automatically selected if the `value` matches the value of the model variable referenced, or if the model variable is `true`.
-	 *
-	 * **Example**
-	 *
-	 *      <!-- radio button, selected if sampleInt is 8 -->
-	 *      <input type="radio" data-f-bind="sampleInt" value="8" />
-	 *
-	 *      <!-- checkbox, checked if sampleBool is true -->
-	 *      <input type="checkbox" data-f-bind="sampleBool" />
-	 *
-	 */
-	
 	'use strict';
 	
 	module.exports = {
 	
-	    target: ':checkbox,:radio',
-	
-	    test: 'bind',
-	
-	    handle: function (value) {
-	        if (_.isArray(value)) {
-	            value = value[value.length - 1];
+	    match: function (matchExpr, matchValue, context) {
+	        if (_.isString(matchExpr)) {
+	            return (matchExpr === '*' || (matchExpr.toLowerCase() === matchValue.toLowerCase()));
+	        } else if (_.isFunction(matchExpr)) {
+	            return matchExpr(matchValue, context);
+	        } else if (_.isRegExp(matchExpr)) {
+	            return matchValue.match(matchExpr);
 	        }
-	        var settableValue = this.attr('value'); //initial value
-	        var isChecked = (typeof settableValue !== 'undefined') ? (settableValue == value) : !!value; //eslint-disable-line eqeqeq
-	        this.prop('checked', isChecked);
-	    }
-	};
-
-
-/***/ },
-/* 15 */
-/***/ function(module, exports) {
-
-	/**
-	 * ## Inputs and Selects
-	 *
-	 * In the [default case](../default-bind-attr/), the `data-f-bind` attribute creates a bi-directional binding between the DOM element and the model variable. This binding is **bi-directional**, meaning that as the model changes, the interface is automatically updated; and when end users change values in the interface, the model is automatically updated.
-	 *
-	 * Flow.js provides special handling for DOM elements `input` and `select`.
-	 *
-	 * In particular, if you add the `data-f-bind` attribute to a `select` or `input` element, the option matching the value of the model variable is automatically selected.
-	 *
-	 * **Example**
-	 *
-	 * 		<!-- option selected if sample_int is 8, 10, or 12 -->
-	 * 		<select data-f-bind="sample_int">
-	 * 			<option value="8"> 8 </option>
-	 * 			<option value="10"> 10 </option>
-	 * 			<option value="12"> 12 </option>
-	 * 		</select>
-	 *
-	 */
+	    },
 	
-	'use strict';
-	
-	module.exports = {
-	    target: 'input, select',
-	
-	    test: 'bind',
-	
-	    handle: function (value) {
-	        if (_.isArray(value)) {
-	            value = value[value.length - 1];
-	        }
-	        this.val(value);
-	    }
-	};
-
-
-/***/ },
-/* 16 */
-/***/ function(module, exports, __webpack_require__) {
-
-	/**
-	 * ## Class Attribute: data-f-class
-	 *
-	 * You can bind model variables to names of CSS classes, so that you can easily change the styling of HTML elements based on the values of model variables.
-	 *
-	 * **To bind model variables to CSS classes:**
-	 *
-	 * 1. Add the `data-f-class` attribute to an HTML element.
-	 * 2. Set the value to the name of the model variable.
-	 * 3. Optionally, add an additional `class` attribute to the HTML element.
-	 *      * If you only use the `data-f-class` attribute, the value of `data-f-class` is the class name.
-	 *      * If you *also* add a `class` attribute, the value of `data-f-class` is *appended* to the class name.
-	 * 4. Add classes to your CSS code whose names include possible values of that model variable.
-	 *
-	 * **Example**
-	 *
-	 *      <style type="text/css">
-	 *          .North { color: grey }
-	 *          .South { color: purple }
-	 *          .East { color: blue }
-	 *          .West { color: orange }
-	 *          .sales.good { color: green }
-	 *          .sales.bad { color: red }
-	 *          .sales.value-100 { color: yellow }
-	 *       </style>
-	 *
-	 *       <div data-f-class="salesMgr.region">
-	 *           Content colored by region
-	 *       </div>
-	 *
-	 *       <div data-f-class="salesMgr.performance" class="sales">
-	 *           Content green if salesMgr.performance is good, red if bad
-	 *       </div>
-	 *
-	 *       <div data-f-class="salesMgr.numRegions" class="sales">
-	 *           Content yellow if salesMgr.numRegions is 100
-	 *       </div>
-	 *
-	 */
-	
-	'use strict';
-	var config = __webpack_require__(2);
-	
-	module.exports = {
-	
-	    test: 'class',
-	
-	    target: '*',
-	
-	    handle: function (value, prop) {
-	        if (_.isArray(value)) {
-	            value = value[value.length - 1];
-	        }
-	
-	        var addedClasses = this.data(config.classesAdded);
-	        if (!addedClasses) {
-	            addedClasses = {};
-	        }
-	        if (addedClasses[prop]) {
-	            this.removeClass(addedClasses[prop]);
-	        }
-	
-	        if (_.isNumber(value)) {
-	            value = 'value-' + value;
-	        }
-	        addedClasses[prop] = value;
-	        //Fixme: prop is always "class"
-	        this.addClass(value);
-	        this.data(config.classesAdded, addedClasses);
-	    }
-	};
-
-
-/***/ },
-/* 17 */
-/***/ function(module, exports, __webpack_require__) {
-
-	/**
-	 * ## Display Array Variables: data-f-repeat
-	 *
-	 * The `data-f-repeat` attribute allows you to automatically loop over a referenced variable. The most common use case is in time-based models, like those written in [SimLang](../../../../../model_code/forio_simlang/) or [Vensim](../../../../../model_code/vensim/), when you want to report the value of the variable at every time step so far. The `data-f-repeat` attribute automatically repeats the DOM element it's attached to, filling in the value.
-	 *
-	 * **To display a DOM element repeatedly based on an array variable from the model:**
-	 *
-	 * 1. Add the `data-f-repeat` attribute to any HTML element that has repeated sub-elements. The two most common examples are lists and tables.
-	 * 2. Set the value of the `data-f-repeat` attribute in the HTML element you want to repeat to the name of the array variable.
-	 * 3. Optionally, inside the inner HTML element, use templates (`<%= %>`) to reference the `index` (for arrays) or `key` (for objects) and `value` to display. The `index`, `key`, and `value` are special variables that Flow.js populates for you.
-	 *
-	 *
-	 * **Examples:**
-	 *
-	 * For example, to create a table that displays the year and cost for every step of the model that has occurred so far:
-	 *
-	 *      <table>
-	 *          <tr>
-	 *              <td>Year</td>
-	 *              <td data-f-repeat="Cost[Products]"><%= index + 1 %></td>
-	 *          </tr>
-	 *          <tr>
-	 *              <td>Cost of Products</td>
-	 *              <td data-f-repeat="Cost[Products]"></td>
-	 *          </tr>
-	 *      </table>
-	 *
-	 * In the third step of the model, this example generates the HTML:
-	 *
-	 *      <table>
-	 *          <tr>
-	 *              <td>Year</td>
-	 *              <td data-f-repeat="Cost[Products]">1</td>
-	 *              <td>2</td>
-	 *              <td>3</td>
-	 *          </tr>
-	 *          <tr>
-	 *              <td>Cost of Products</td>
-	 *              <td data-f-repeat="Cost[Products]">100</td>
-	 *              <td>102</td>
-	 *              <td>105</td>
-	 *          </tr>
-	 *      </table>
-	 *
-	 *
-	 * **Notes:**
-	 *
-	 * * In most cases the same effect can be achieved with the [`data-f-foreach` attribute](../../attributes/foreach/default-foreach-attr/), which is similar. However, in the common use case of a table of data displayed over time, the `data-f-repeat` can be more concise and easier to read.
-	 * * You can use the `data-f-repeat` attribute with both arrays and objects. If the model variable is an object, reference the `key` instead of the `index` in your templates.
-	 * * The `key`, `index`, and `value` are special variables that Flow.js populates for you.
-	 * * The template syntax is to enclose each keyword (`index`, `key`, `variable`) in `<%=` and `%>`. Templates are available as part of Flow.js's lodash dependency. See more background on [working with templates](../../../../#templates).
-	 *
-	 */
-	
-	'use strict';
-	var parseUtils = __webpack_require__(13);
-	var gutils = __webpack_require__(18);
-	// var config = require('../../config');
-	module.exports = {
-	
-	    test: 'repeat',
-	
-	    target: '*',
-	
-	    handle: function (value, prop) {
-	        value = ($.isPlainObject(value) ? value : [].concat(value));
-	        //FIXME: should ideally pull from config, but problem is, once it's unbound don't know what to remove
-	        //Possible fixes: Let this handle it's own unbind (which does nothing), or
-	        //have unbind remove all generated elements as well
-	        var loopTemplate = this.data('repeat-template');
-	        var id = this.data('repeat-template-id');
-	
-	        if (id) {
-	            this.nextUntil(':not([data-' + id + '])').remove(); //clean-up pre-saved html
-	        } else {
-	            id = gutils.random('repeat-');
-	            this.data('repeat-template-id', id);
-	        }
-	        if (!loopTemplate) {
-	            loopTemplate = this.get(0).outerHTML;
-	            this.data('repeat-template', loopTemplate);
-	        }
-	
-	        var last;
-	        var me = this;
-	        _.each(value, function (dataval, datakey) {
-	            var cloop = loopTemplate.replace(/&lt;/g, '<').replace(/&gt;/g, '>');
-	            var templatedLoop = _.template(cloop, { value: dataval, key: datakey, index: datakey });
-	            var isTemplated = templatedLoop !== cloop;
-	            var nodes = $(templatedLoop);
-	            var hasData = (dataval !== null && dataval !== undefined);
-	
-	            nodes.each(function (i, newNode) {
-	                newNode = $(newNode).removeAttr('data-f-repeat');
-	                _.each(newNode.data(), function (val, key) {
-	                    if (!last) {
-	                        me.data(key, parseUtils.toImplicitType(val));
-	                    } else {
-	                        newNode.data(key, parseUtils.toImplicitType(val));
-	                    }
-	                });
-	                newNode.attr('data-' + id, true);
-	                if (!isTemplated && !newNode.children().length && hasData) {
-	                    newNode.html(dataval + '');
+	    getConvertersList: function ($el, property) {
+	        var attrConverters = $el.data('f-convert-' + property);
+	        //FIXME: figure out how not to hard-code names here
+	        if (!attrConverters && (property === 'bind' || property === 'foreach' || property === 'repeat')) {
+	            attrConverters = $el.attr('data-f-convert'); //.data shows value cached by jquery
+	            if (!attrConverters) {
+	                var $parentEl = $el.closest('[data-f-convert]');
+	                if ($parentEl) {
+	                    attrConverters = $parentEl.attr('data-f-convert');
 	                }
-	            });
-	            if (!last) {
-	                last = me.html(nodes.html());
-	            } else {
-	                last = nodes.insertAfter(last);
 	            }
-	        });
-	    }
-	};
-
-
-/***/ },
-/* 18 */
-/***/ function(module, exports) {
-
-	'use strict';
-	
-	module.exports = {
-	    random: function (prefix, min, max) {
-	        if (!min) {
-	            min = parseInt(_.uniqueId(), 10);
-	        }
-	        if (!max) {
-	            max = 100000;
-	        }
-	        var number = _.random(min, max, false) + '';
-	        if (prefix) {
-	            number = prefix + number;
-	        }
-	        return number;
-	    }
-	};
-
-
-/***/ },
-/* 19 */
-/***/ function(module, exports) {
-
-	/**
-	 * ## Binding for data-f-[boolean]
-	 *
-	 * Flow.js provides special handling for HTML attributes that take Boolean values.
-	 *
-	 * In particular, for most HTML attributes that expect Boolean values, the attribute is directly set to the value of the model variable. This is true for `checked`, `selected`, `async`, `autofocus`, `autoplay`, `controls`, `defer`, `ismap`, `loop`, `multiple`, `open`, `required`, and `scoped`.
-	 *
-	 * However, there are a few notable exceptions. For the HTML attributes `disabled`, `hidden`, and `readonly`, the attribute is set to the *opposite* of the value of the model variable. This makes the resulting HTML easier to read.
-	 *
-	 * **Example**
-	 *
-	 *      <!-- this checkbox is CHECKED when sampleBool is TRUE,
-	 *           and UNCHECKED when sampleBool is FALSE -->
-	 *      <input type="checkbox" data-f-checked="sampleBool" />
-	 *
-	 *      <!-- this button is ENABLED when sampleBool is TRUE,
-	 *           and DISABLED when sampleBool is FALSE -->
-	 *      <button data-f-disabled="sampleBool">Click Me</button>
-	 *
-	 */
-	
-	'use strict';
-	
-	module.exports = {
-	    target: '*',
-	
-	    test: /^(?:checked|selected|async|autofocus|autoplay|controls|defer|ismap|loop|multiple|open|required|scoped)$/i,
-	
-	    handle: function (value, prop) {
-	        if (_.isArray(value)) {
-	            value = value[value.length - 1];
-	        }
-	        var val = (this.attr('value')) ? (value == this.prop('value')) : !!value; //eslint-disable-line eqeqeq
-	        this.prop(prop, val);
-	    }
-	};
-
-
-/***/ },
-/* 20 */
-/***/ function(module, exports) {
-
-	/**
-	 * ## Binding for data-f-[boolean]
-	 *
-	 * Flow.js provides special handling for HTML attributes that take Boolean values.
-	 *
-	 * In particular, for most HTML attributes that expect Boolean values, the attribute is directly set to the value of the model variable. This is true for `checked`, `selected`, `async`, `autofocus`, `autoplay`, `controls`, `defer`, `ismap`, `loop`, `multiple`, `open`, `required`, and `scoped`.
-	 *
-	 * However, there are a few notable exceptions. For the HTML attributes `disabled`, `hidden`, and `readonly`, the attribute is set to the *opposite* of the value of the model variable. This makes the resulting HTML easier to read.
-	 *
-	 * **Example**
-	 *
-	 *      <!-- this checkbox is CHECKED when sampleBool is TRUE,
-	 *           and UNCHECKED when sampleBool is FALSE -->
-	 *      <input type="checkbox" data-f-checked="sampleBool" />
-	 *
-	 *      <!-- this button is ENABLED when sampleBool is TRUE,
-	 *           and DISABLED when sampleBool is FALSE -->
-	 *      <button data-f-disabled="sampleBool">Click Me</button>
-	 *
-	 */
-	
-	'use strict';
-	
-	module.exports = {
-	
-	    target: '*',
-	
-	    test: /^(?:disabled|hidden|readonly)$/i,
-	
-	    handle: function (value, prop) {
-	        if (_.isArray(value)) {
-	            value = value[value.length - 1];
-	        }
-	        this.prop(prop, !value);
-	    }
-	};
-
-
-/***/ },
-/* 21 */
-/***/ function(module, exports, __webpack_require__) {
-
-	/**
-	 * ## Default Bi-directional Binding: data-f-bind
-	 *
-	 * The most commonly used attribute provided by Flow.js is the `data-f-bind` attribute.
-	 *
-	 * #### data-f-bind with a single value
-	 *
-	 * You can bind variables from the model in your interface by setting the `data-f-bind` attribute. This attribute binding is bi-directional, meaning that as the model changes, the interface is automatically updated; and when users change values in the interface, the model is automatically updated. Specifically:
-	 *
-	 * * The binding from the model to the interface ensures that the current value of the variable is displayed in the HTML element. This includes automatic updates to the displayed value if something else changes in the model.
-	 *
-	 * * The binding from the interface to the model ensures that if the HTML element is editable, changes are sent to the model.
-	 *
-	 * Once you set `data-f-bind`, Flow.js figures out the appropriate action to take based on the element type and the data response from your model.
-	 *
-	 * **To display and automatically update a variable in the interface:**
-	 *
-	 * 1. Add the `data-f-bind` attribute to any HTML element that normally takes a value.
-	 * 2. Set the value of the `data-f-bind` attribute to the name of the variable.
-	 *
-	 * **Example**
-	 *
-	 *      <span data-f-bind="salesManager.name" />
-	 *
-	 *      <input type="text" data-f-bind="sampleString" />
-	 *
-	 * **Notes:**
-	 *
-	 * * Use square brackets, `[]`, to reference arrayed variables: `sales[West]`.
-	 * * Use angle brackets, `<>`, to reference other variables in your array index: `sales[<currentRegion>]`.
-	 * * Remember that if your model is in Vensim, the time step is the last array index.
-	 * * By default, all HTML elements update for any change for each variable. However, you can prevent the user interface from updating &mdash; either for all variables or for particular variables &mdash; by setting the `silent` property when you initialize Flow.js. See more on [additional options for the Flow.initialize() method](../../../../../#custom-initialize).
-	 *
-	 * #### data-f-bind with multiple values and templates
-	 *
-	 * If you have multiple variables, you can use the shortcut of listing multiple variables in an enclosing HTML element and then referencing each variable using templates. (Templates are available as part of Flow.js's lodash dependency. See more background on [working with templates](../../../../../#templates).)
-	 *
-	 * **To display and automatically update multiple variables in the interface:**
-	 *
-	 * 1. Add the `data-f-bind` attribute to any HTML element from which you want to reference model variables, such as a `div` or `table`.
-	 * 2. Set the value of the `data-f-bind` attribute in your top-level HTML element to a comma-separated list of the variables. (The variables may or may not be case-sensitive, depending on your modeling language.)
-	 *
-	 * 3. Inside the HTML element, use templates (`<%= %>`) to reference the specific variable names. These variable names are case-sensitive: they should match the case you used in the `data-f-bind` in step 2.
-	 *
-	 * **Example**
-	 *
-	 *      <!-- make these three model variables available throughout div -->
-	 *
-	 *      <div data-f-bind="CurrentYear, Revenue, Profit">
-	 *          In <%= CurrentYear %>,
-	 *          our company earned <%= Revenue %>,
-	 *          resulting in <%= Profit %> profit.
-	 *      </div>
-	 *
-	 * This example is shorthand for repeatedly using data-f-bind. For instance, this code also generates the same output:
-	 *
-	 *      <div>
-	 *          In <span data-f-bind="CurrentYear"></span>,
-	 *          our company earned <span data-f-bind="Revenue"></span>,
-	 *          resulting in <span data-f-bind="Profit"> profit</span>.
-	 *      </div>
-	 *
-	 * **Notes:**
-	 *
-	 * * Adding `data-f-bind` to the enclosing HTML element rather than repeatedly using it within the element is a code style preference. In many cases, adding `data-f-bind` at the top level, as in the first example, can make your code easier to read and maintain.
-	 * * However, you might choose to repeatedly use `data-f-bind` in some cases, for example if you want different [formatting](../../../../../converter-overview/) for different variables:
-	 *
-	 *          <div>
-	 *              In <span data-f-bind="CurrentYear | #"></span>,
-	 *              our company earned <span data-f-bind="Revenue | $#,###"></span>
-	 *          </div>
-	 *
-	 * * Because everything within your template (`<%= %>`) is evaluated as JavaScript, you can use templates to pass expressions to other Flow.js attributes. For example,
-	 *
-	 *          <div data-f-bind="myCurrentTimeStep">
-	 *              <div data-f-bind="Revenue[<%= value + 1%>]"></div>
-	 *          </div>
-	 *
-	 * will display the value of `Revenue[myCurrentTimeStep + 1]` (for example an estimate of future revenue in your model).
-	 *
-	 */
-	
-	'use strict';
-	var config = __webpack_require__(2);
-	
-	module.exports = {
-	
-	    target: '*',
-	
-	    test: 'bind',
-	
-	    handle: function (value) {
-	        var templated;
-	        var valueToTemplate = $.extend({}, value);
-	        if (!$.isPlainObject(value)) {
-	            var variableName = this.data('f-bind');//Hack because i don't have access to variable name here otherwise
-	            valueToTemplate = { value: value };
-	            valueToTemplate[variableName] = value;
-	        } else {
-	            valueToTemplate.value = value; //If the key has 'weird' characters like '<>' hard to get at with a template otherwise
-	        }
-	        var bindTemplate = this.data(config.attrs.bindTemplate);
-	        if (bindTemplate) {
-	            templated = _.template(bindTemplate, valueToTemplate);
-	            this.html(templated);
-	        } else {
-	            var oldHTML = this.html();
-	            var cleanedHTML = oldHTML.replace(/&lt;/g, '<').replace(/&gt;/g, '>');
-	            templated = _.template(cleanedHTML, valueToTemplate);
-	            if (cleanedHTML === templated) { //templating did nothing
-	                if (_.isArray(value)) {
-	                    value = value[value.length - 1];
-	                }
-	                value = ($.isPlainObject(value)) ? JSON.stringify(value) : value + '';
-	                this.html(value);
-	            } else {
-	                this.data(config.attrs.bindTemplate, cleanedHTML);
-	                this.html(templated);
+	            if (attrConverters) {
+	                attrConverters = _.invoke(attrConverters.split('|'), 'trim');
 	            }
 	        }
+	
+	        return attrConverters;
 	    }
 	};
 
 
 /***/ },
-/* 22 */
-/***/ function(module, exports) {
-
-	/**
-	 * ## Default Attribute Handling: Read-only Binding
-	 *
-	 * Flow.js uses the HTML5 convention of prepending data- to any custom HTML attribute. Flow.js also adds `f` for easy identification of Flow.js. For example, Flow.js provides several custom attributes and attribute handlers -- including [data-f-bind](../binds/default-bind-attr), [data-f-foreach](../foreach/default-foreach-attr/), [data-f-on-init](../events/init-event-attr/), etc. You can also [add your own attribute handlers](../attribute-manager/).
-	 *
-	 * The default behavior for handling a known attribute is to use the value of the model variable as the value of the attribute. (There are exceptions for some [boolean attributes](../boolean-attr/).)
-	 *
-	 * This means you can bind variables from the model in your interface by adding the `data-f-` prefix to any standard DOM attribute. This attribute binding is **read-only**, so as the model changes, the interface is automatically updated; but when users change values in the interface, no action occurs.
-	 *
-	 * **To display a DOM element based on a variable from the model:**
-	 *
-	 * 1. Add the prefix `data-f-` to any attribute in any HTML element that normally takes a value.
-	 * 2. Set the value of the attribute to the name of the model variable.
-	 *
-	 * **Example**
-	 *
-	 * 		<!-- input element displays value of sample_int, however,
-	 * 			no call to the model is made if user changes sample_int
-	 *
-	 *			if sample_int is 8, this is the equivalent of <input value="8"></input> -->
-	 *
-	 *		<input data-f-value="sample_int"></input>
-	 *
-	 */
-	
-	'use strict';
-	
-	module.exports = {
-	
-	    test: '*',
-	
-	    target: '*',
-	
-	    handle: function (value, prop) {
-	        this.prop(prop, value);
-	    }
-	};
-
-
-/***/ },
-/* 23 */
+/* 5 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/**
@@ -2135,11 +901,11 @@ var Flow =
 	
 	//Bootstrap
 	var defaultconverters = [
-	    __webpack_require__(24),
-	    __webpack_require__(25),
-	    __webpack_require__(26),
-	    __webpack_require__(27),
-	    __webpack_require__(28),
+	    __webpack_require__(6),
+	    __webpack_require__(7),
+	    __webpack_require__(8),
+	    __webpack_require__(9),
+	    __webpack_require__(10),
 	];
 	
 	$.each(defaultconverters.reverse(), function (index, converter) {
@@ -2156,7 +922,7 @@ var Flow =
 
 
 /***/ },
-/* 24 */
+/* 6 */
 /***/ function(module, exports) {
 
 	/**
@@ -2193,7 +959,7 @@ var Flow =
 
 
 /***/ },
-/* 25 */
+/* 7 */
 /***/ function(module, exports) {
 
 	/**
@@ -2286,7 +1052,7 @@ var Flow =
 
 
 /***/ },
-/* 26 */
+/* 8 */
 /***/ function(module, exports) {
 
 	/**
@@ -2337,6 +1103,7 @@ var Flow =
 	            return val[val.length - 1];
 	        }
 	    },
+	    {
 	        /**
 	         * Reverse the array.
 	         *
@@ -2349,7 +1116,6 @@ var Flow =
 	         *
 	         * @param {Array} val The array model variable.
 	         */
-	    {
 	        alias: 'reverse',
 	        acceptList: true,
 	        convert: function (val) {
@@ -2411,7 +1177,7 @@ var Flow =
 
 
 /***/ },
-/* 27 */
+/* 9 */
 /***/ function(module, exports) {
 
 	'use strict';
@@ -2441,7 +1207,7 @@ var Flow =
 
 
 /***/ },
-/* 28 */
+/* 10 */
 /***/ function(module, exports) {
 
 	/**
@@ -2533,19 +1299,19 @@ var Flow =
 	
 	        /*eslint no-magic-numbers: 0*/
 	        switch (suffix) {
-	        case '%':
-	            number = number / 100;
-	            break;
-	        case 'k':
-	            number = number * 1000;
-	            break;
-	        case 'm':
-	            number = number * 1000000;
-	            break;
-	        case 'b':
-	            number = number * 1000000000;
-	            break;
-	        default:
+	            case '%':
+	                number = number / 100;
+	                break;
+	            case 'k':
+	                number = number * 1000;
+	                break;
+	            case 'm':
+	                number = number * 1000000;
+	                break;
+	            case 'b':
+	                number = number * 1000000000;
+	                break;
+	            default:
 	        }
 	        number = parseFloat(number);
 	        if (isNegative && number > 0) {
@@ -2556,11 +1322,11 @@ var Flow =
 	
 	    convert: (function (value) {
 	        var scales = ['', 'K', 'M', 'B', 'T'];
-	        function roundTo (value, digits) {
+	        function roundTo(value, digits) {
 	            return Math.round(value * Math.pow(10, digits)) / Math.pow(10, digits);
 	        }
 	
-	        function getDigits (value, digits) {
+	        function getDigits(value, digits) {
 	            value = value === 0 ? 0 : roundTo(value, Math.max(0, digits - Math.ceil(Math.log(value) / Math.LN10)));
 	
 	            var TXT = '';
@@ -2590,7 +1356,7 @@ var Flow =
 	            return TXT;
 	        }
 	
-	        function addDecimals (value, decimals, minDecimals, hasCommas) {
+	        function addDecimals(value, decimals, minDecimals, hasCommas) {
 	            hasCommas = !!hasCommas;
 	            var numberTXT = value.toString();
 	            var hasDecimals = (numberTXT.split('.').length > 1);
@@ -2628,28 +1394,28 @@ var Flow =
 	            return numberTXT;
 	        }
 	
-	        function getSuffix (formatTXT) {
+	        function getSuffix(formatTXT) {
 	            formatTXT = formatTXT.replace('.', '');
 	            var fixesTXT = formatTXT.split(new RegExp('[0|,|#]+', 'g'));
 	            return (fixesTXT.length > 1) ? fixesTXT[1].toString() : '';
 	        }
 	
-	        function isCurrency (string) { // eslint-disable-line
+	        function isCurrency(string) { // eslint-disable-line
 	            var s = $.trim(string);
 	
-	            if (s === '$'
-	                || s === 'â‚¬'
-	                || s === 'Â¥'
-	                || s === 'Â£'
-	                || s === 'â‚¡'
-	                || s === 'â‚±'
-	                || s === 'KÄ?'
-	                || s === 'kr'
-	                || s === 'Â¢'
-	                || s === 'â‚ª'
-	                || s === 'Æ’'
-	                || s === 'â‚©'
-	                || s === 'â‚«') {
+	            if (s === '$' ||
+	                s === 'â‚¬' ||
+	                s === 'Â¥' ||
+	                s === 'Â£' ||
+	                s === 'â‚¡' ||
+	                s === 'â‚±' ||
+	                s === 'KÄ?' ||
+	                s === 'kr' ||
+	                s === 'Â¢' ||
+	                s === 'â‚ª' ||
+	                s === 'Æ’' ||
+	                s === 'â‚©' ||
+	                s === 'â‚«') {
 	
 	                return true;
 	            }
@@ -2790,40 +1556,1357 @@ var Flow =
 
 
 /***/ },
-/* 29 */
+/* 11 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+	
+	var normalize = function (selector, handler) {
+	    if (_.isFunction(handler)) {
+	        handler = {
+	            handle: handler
+	        };
+	    }
+	    if (!selector) {
+	        selector = '*';
+	    }
+	    handler.selector = selector;
+	    return handler;
+	};
+	
+	var match = function (toMatch, node) {
+	    if (_.isString(toMatch)) {
+	        return toMatch === node.selector;
+	    }
+	    return $(toMatch).is(node.selector);
+	};
+	
+	var nodeManager = {
+	    list: [],
+	
+	    /**
+	     * Add a new node handler
+	     * @param  {string} selector jQuery-compatible selector to use to match nodes
+	     * @param  {function} handler  Handlers are new-able functions. They will be called with $el as context.? TODO: Think this through
+	     * @returns {undefined}
+	     */
+	    register: function (selector, handler) {
+	        this.list.unshift(normalize(selector, handler));
+	    },
+	
+	    getHandler: function (selector) {
+	        return _.find(this.list, function (node) {
+	            return match(selector, node);
+	        });
+	    },
+	
+	    replace: function (selector, handler) {
+	        var index;
+	        _.each(this.list, function (currentHandler, i) {
+	            if (selector === currentHandler.selector) {
+	                index = i;
+	                return false;
+	            }
+	        });
+	        this.list.splice(index, 1, normalize(selector, handler));
+	    }
+	};
+	
+	//bootstraps
+	var defaultHandlers = [
+	    __webpack_require__(12),
+	    __webpack_require__(13),
+	    __webpack_require__(14)
+	];
+	_.each(defaultHandlers.reverse(), function (handler) {
+	    nodeManager.register(handler.selector, handler);
+	});
+	
+	module.exports = nodeManager;
+
+
+/***/ },
+/* 12 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+	var BaseView = __webpack_require__(13);
+	
+	module.exports = BaseView.extend({
+	
+	    propertyHandlers: [
+	
+	    ],
+	
+	    getUIValue: function () {
+	        var $el = this.$el;
+	        //TODO: file a issue for the vensim manager to convert trues to 1s and set this to true and false
+	
+	        var offVal = (typeof $el.data('f-off') !== 'undefined') ? $el.data('f-off') : 0;
+	        //attr = initial value, prop = current value
+	        var onVal = (typeof $el.attr('value') !== 'undefined') ? $el.prop('value') : 1;
+	
+	        var val = ($el.is(':checked')) ? onVal : offVal;
+	        return val;
+	    },
+	    initialize: function () {
+	        BaseView.prototype.initialize.apply(this, arguments);
+	    }
+	}, { selector: ':checkbox,:radio' });
+
+
+/***/ },
+/* 13 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+	var config = __webpack_require__(2);
+	var BaseView = __webpack_require__(14);
+	
+	module.exports = BaseView.extend({
+	    propertyHandlers: [],
+	
+	    uiChangeEvent: 'change',
+	    getUIValue: function () {
+	        return this.$el.val();
+	    },
+	
+	    removeEvents: function () {
+	        this.$el.off(this.uiChangeEvent);
+	    },
+	
+	    initialize: function () {
+	        var me = this;
+	        var propName = this.$el.data(config.binderAttr);
+	
+	        if (propName) {
+	            this.$el.off(this.uiChangeEvent).on(this.uiChangeEvent, function () {
+	                var val = me.getUIValue();
+	
+	                var params = {};
+	                params[propName] = val;
+	
+	                me.$el.trigger(config.events.trigger, params);
+	            });
+	        }
+	        BaseView.prototype.initialize.apply(this, arguments);
+	    }
+	}, { selector: 'input, select' });
+
+
+/***/ },
+/* 14 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+	
+	var BaseView = __webpack_require__(15);
+	
+	module.exports = BaseView.extend({
+	    propertyHandlers: [
+	
+	    ],
+	
+	    initialize: function () {
+	    }
+	}, { selector: '*' });
+
+
+/***/ },
+/* 15 */
+/***/ function(module, exports) {
+
+	'use strict';
+	
+	var extend = function (protoProps, staticProps) {
+	    var me = this;
+	    var child;
+	
+	    // The constructor function for the new subclass is either defined by you
+	    // (the "constructor" property in your `extend` definition), or defaulted
+	    // by us to simply call the parent's constructor.
+	    if (protoProps && _.has(protoProps, 'constructor')) {
+	        child = protoProps.constructor;
+	    } else {
+	        child = function () { return me.apply(this, arguments); };
+	    }
+	
+	    // Add static properties to the constructor function, if supplied.
+	    _.extend(child, me, staticProps);
+	
+	    // Set the prototype chain to inherit from `parent`, without calling
+	    // `parent`'s constructor function.
+	    var Surrogate = function () { this.constructor = child; };
+	    Surrogate.prototype = me.prototype;
+	    child.prototype = new Surrogate();
+	
+	    // Add prototype properties (instance properties) to the subclass,
+	    // if supplied.
+	    if (protoProps) {
+	        _.extend(child.prototype, protoProps);
+	    }
+	
+	    // Set a convenience property in case the parent's prototype is needed
+	    // later.
+	    child.__super__ = me.prototype; //eslint-disable-line no-underscore-dangle
+	
+	    return child;
+	};
+	
+	var View = function (options) {
+	    this.$el = (options.$el) || $(options.el);
+	    this.el = options.el;
+	    this.initialize.apply(this, arguments);
+	
+	};
+	
+	_.extend(View.prototype, {
+	    initialize: function () {},
+	});
+	
+	View.extend = extend;
+	
+	module.exports = View;
+
+
+/***/ },
+/* 16 */
+/***/ function(module, exports, __webpack_require__) {
+
+	/**
+	 * ## Attribute Manager
+	 *
+	 * Flow.js provides a set of custom DOM attributes that serve as a data binding between variables and operations in your project's model and HTML elements in your project's user interface. Under the hood, Flow.js is doing automatic conversion of these custom attributes, like `data-f-bind`, into HTML specific to the attribute's assigned value, like the current value of `myModelVar`.
+	 *
+	 * If you are looking for examples of using particular attributes, see the [specific attributes subpages](../../../../attributes-overview/).
+	 *
+	 * If you would like to extend Flow.js with your own custom attributes, you can add them to Flow.js using the Attribute Manager.
+	 *
+	 * The Attribute Manager is specific to adding custom attributes and describing their implementation (handlers). (The [Dom Manager](../../) contains the general implementation.)
+	 *
+	 *
+	 * **Examples**
+	 *
+	 * Built-in attribute handlers like `data-f-value` and `data-f-foreach` automatically bind variables in your project's model to particular HTML elements. However, your UI may sometimes require displaying only part of the variable (e.g. if it's an object), or "doing something" with the value of the variable, rather than simply displaying it.
+	 *
+	 * One example of when custom attribute handlers are useful is when your model variable is a complex object and you want to display the fields in a particular way, or you only want to display some of the fields. While the combination of the [`data-f-foreach` attribute](../foreach/default-foreach-attr/) and [templating](../../../../#templates) can help with this, sometimes it's easier to write your own attribute handler. (This is especially true if you will be reusing the attribute handler -- you won't have to copy your templating code over and over.)
+	 *
+	 *      Flow.dom.attributes.register('showSched', '*', function (sched) {
+	 *            // display all the schedule milestones
+	 *            // sched is an object, each element is an array
+	 *            // of ['Formal Milestone Name', milestoneMonth, completionPercentage]
+	 *
+	 *            var schedStr = '<ul>';
+	 *            var sortedSched = _.sortBy(sched, function(el) { return el[1]; });
+	 *
+	 *            for (var i = 0; i < sortedSched.length; i++) {
+	 *                  schedStr += '<li><strong>' + sortedSched[i][0]
+	 *                        + '</strong> currently scheduled for <strong>Month '
+	 *                        + sortedSched[i][1] + '</strong></li>';
+	 *            }
+	 *            schedStr += '</ul>';
+	 *
+	 *            this.html(schedStr);
+	 *      });
+	 *
+	 * Then, you can use the attribute handler in your HTML just like other Flow.js attributes:
+	 *
+	 *      <div data-f-showSched="schedule"></div>
+	 *
+	 */
+	
+	'use strict';
+	
+	var defaultHandlers = [
+	    __webpack_require__(17),
+	    __webpack_require__(18),
+	    __webpack_require__(19),
+	    __webpack_require__(20),
+	    __webpack_require__(21),
+	    __webpack_require__(22),
+	    __webpack_require__(23),
+	    __webpack_require__(24),
+	    __webpack_require__(26),
+	    __webpack_require__(27),
+	    __webpack_require__(28),
+	    __webpack_require__(29)
+	];
+	
+	var handlersList = [];
+	
+	var normalize = function (attributeMatcher, nodeMatcher, handler) {
+	    if (!nodeMatcher) {
+	        nodeMatcher = '*';
+	    }
+	    if (_.isFunction(handler)) {
+	        handler = {
+	            handle: handler
+	        };
+	    }
+	    return $.extend(handler, { test: attributeMatcher, target: nodeMatcher });
+	};
+	
+	$.each(defaultHandlers, function (index, handler) {
+	    handlersList.push(normalize(handler.test, handler.target, handler));
+	});
+	
+	
+	var matchAttr = function (matchExpr, attr, $el) {
+	    var attrMatch;
+	
+	    if (_.isString(matchExpr)) {
+	        attrMatch = (matchExpr === '*' || (matchExpr.toLowerCase() === attr.toLowerCase()));
+	    } else if (_.isFunction(matchExpr)) {
+	        //TODO: remove element selectors from attributes
+	        attrMatch = matchExpr(attr, $el);
+	    } else if (_.isRegExp(matchExpr)) {
+	        attrMatch = attr.match(matchExpr);
+	    }
+	    return attrMatch;
+	};
+	
+	var matchNode = function (target, nodeFilter) {
+	    return (_.isString(nodeFilter)) ? (nodeFilter === target) : nodeFilter.is(target);
+	};
+	
+	module.exports = {
+	    list: handlersList,
+	    /**
+	     * Add a new attribute handler.
+	     *
+	     * @param  {String|Function|Regex} attributeMatcher Description of which attributes to match.
+	     * @param  {String} nodeMatcher Which nodes to add attributes to. Use [jquery Selector syntax](https://api.jquery.com/category/selectors/).
+	     * @param  {Function|Object} handler If `handler` is a function, the function is called with `$element` as context, and attribute value + name. If `handler` is an object, it should include two functions, and have the form: `{ init: fn,  handle: fn }`. The `init` function is called when the page loads; use this to define event handlers. The `handle` function is called with `$element` as context, and attribute value + name.
+	     * @returns {undefined}
+	     */
+	    register: function (attributeMatcher, nodeMatcher, handler) {
+	        handlersList.unshift(normalize.apply(null, arguments));
+	    },
+	
+	    /**
+	     * Find an attribute matcher matching some criteria.
+	     *
+	     * @param  {String} attrFilter Attribute to match.
+	     * @param  {String|$el} nodeFilter Node to match.
+	     *
+	     * @return {Array|Null} An array of matching attribute handlers, or null if no matches found.
+	     */
+	    filter: function (attrFilter, nodeFilter) {
+	        var filtered = _.select(handlersList, function (handler) {
+	            return matchAttr(handler.test, attrFilter);
+	        });
+	        if (nodeFilter) {
+	            filtered = _.select(filtered, function (handler) {
+	                return matchNode(handler.target, nodeFilter);
+	            });
+	        }
+	        return filtered;
+	    },
+	
+	    /**
+	     * Replace an existing attribute handler.
+	     *
+	     * @param  {String} attrFilter Attribute to match.
+	     * @param  {String | $el} nodeFilter Node to match.
+	     * @param  {Function|Object} handler The updated attribute handler. If `handler` is a function, the function is called with `$element` as context, and attribute value + name. If `handler` is an object, it should include two functions, and have the form: `{ init: fn,  handle: fn }`. The `init` function is called when the page loads; use this to define event handlers. The `handle` function is called with `$element` as context, and attribute value + name.
+	     * @returns {undefined}
+	     */
+	    replace: function (attrFilter, nodeFilter, handler) {
+	        var index;
+	        _.each(handlersList, function (currentHandler, i) {
+	            if (matchAttr(currentHandler.test, attrFilter) && matchNode(currentHandler.target, nodeFilter)) {
+	                index = i;
+	                return false;
+	            }
+	        });
+	        handlersList.splice(index, 1, normalize(attrFilter, nodeFilter, handler));
+	    },
+	
+	    /**
+	     *  Retrieve the appropriate handler for a particular attribute. There may be multiple matching handlers, but the first (most exact) match is always used.
+	     *
+	     * @param {String} property The attribute.
+	     * @param {$el} $el The DOM element.
+	     *
+	     * @return {Object} The attribute handler.
+	     */
+	    getHandler: function (property, $el) {
+	        var filtered = this.filter(property, $el);
+	        //There could be multiple matches, but the top first has the most priority
+	        return filtered[0];
+	    }
+	};
+	
+
+
+/***/ },
+/* 17 */
+/***/ function(module, exports) {
+
+	/**
+	 * ## No-op Attributes
+	 *
+	 * Flow.js provides special handling for both `data-f-model` (described [here](../../../../#using_in_project)) and `data-f-convert` (described [here](../../../../converter-overview/)). For these attributes, the default behavior is to do nothing, so that this additional special handling can take precendence.
+	 *
+	 */
+	
+	'use strict';
+	
+	// Attributes which are just parameters to others and can just be ignored
+	module.exports = {
+	
+	    target: '*',
+	
+	    test: /^(?:model|convert)$/i,
+	
+	    handle: $.noop,
+	
+	    init: function () {
+	        return false;
+	    }
+	};
+
+
+/***/ },
+/* 18 */
+/***/ function(module, exports) {
+
+	/**
+	 * ## Call Operation when Element Added to DOM
+	 *
+	 * Many models call an initialization operation when the [run](../../../../../../glossary/#run) is first created. This is particularly common with [Vensim](../../../../../../model_code/vensim/) models, which need to initialize variables ('startGame') before stepping. You can use the `data-f-on-init` attribute to call an operation from the model when a particular element is added to the DOM.
+	 *
+	 * #### data-f-on-init
+	 *
+	 * Add the attribute `data-f-on-init`, and set the value to the name of the operation. To call multiple operations, use the `|` (pipe) character to chain operations. Operations are called serially, in the order listed. Typically you add this attribute to the `<body>` element.
+	 *
+	 * **Example**
+	 *
+	 *      <body data-f-on-init="startGame">
+	 *
+	 *      <body data-f-on-init="startGame | step(3)">
+	 *
+	 */
+	
+	'use strict';
+	
+	module.exports = {
+	
+	    target: '*',
+	
+	    test: function (attr, $node) {
+	        return (attr.indexOf('on-init') === 0);
+	    },
+	
+	    init: function (attr, value) {
+	        attr = attr.replace('on-init', '');
+	        var me = this;
+	        $(function () {
+	            var listOfOperations = _.invoke(value.split('|'), 'trim');
+	            listOfOperations = listOfOperations.map(function (value) {
+	                var fnName = value.split('(')[0];
+	                var params = value.substring(value.indexOf('(') + 1, value.indexOf(')'));
+	                var args = ($.trim(params) !== '') ? params.split(',') : [];
+	                return { name: fnName, params: args };
+	            });
+	
+	            //FIXME: this knows too much about the channel
+	            me.trigger('f.ui.operate', { operations: listOfOperations, serial: true, options: { readOnly: false } });
+	        });
+	        return false; //Don't bother binding on this attr. NOTE: Do readonly, true instead?;
+	    }
+	};
+
+
+/***/ },
+/* 19 */
+/***/ function(module, exports) {
+
+	/**
+	 * ## Call Operation in Response to User Action
+	 *
+	 * Many models call particular operations in response to end user actions, such as clicking a button or submitting a form.
+	 *
+	 * #### data-f-on-event
+	 *
+	 * For any HTML attribute using `on` -- typically on click or on submit -- you can add the attribute `data-f-on-XXX`, and set the value to the name of the operation. To call multiple operations, use the `|` (pipe) character to chain operations. Operations are called serially, in the order listed.
+	 *
+	 * **Example**
+	 *
+	 *      <button data-f-on-click="reset">Reset</button>
+	 *
+	 *      <button data-f-on-click="step(1)">Advance One Step</button>
+	 *
+	 */
+	
+	'use strict';
+	
+	module.exports = {
+	
+	    target: '*',
+	
+	    test: function (attr, $node) {
+	        return (attr.indexOf('on-') === 0);
+	    },
+	
+	    unbind: function (attr) {
+	        attr = attr.replace('on-', '');
+	        this.off(attr);
+	    },
+	
+	    init: function (attr, value) {
+	        attr = attr.replace('on-', '');
+	        var me = this;
+	        this.off(attr).on(attr, function () {
+	            var listOfOperations = _.invoke(value.split('|'), 'trim');
+	            listOfOperations = listOfOperations.map(function (value) {
+	                var fnName = value.split('(')[0];
+	                var params = value.substring(value.indexOf('(') + 1, value.indexOf(')'));
+	                var args = ($.trim(params) !== '') ? params.split(',') : [];
+	                return { name: fnName, params: args };
+	            });
+	
+	            me.trigger('f.ui.operate', { operations: listOfOperations, serial: true });
+	        });
+	        return false; //Don't bother binding on this attr. NOTE: Do readonly, true instead?;
+	    }
+	};
+
+
+/***/ },
+/* 20 */
+/***/ function(module, exports, __webpack_require__) {
+
+	/**
+	 * ## Display Array and Object Variables: data-f-foreach
+	 *
+	 * If your model variable is an array, you can reference specific elements of the array using `data-f-bind`: `data-f-bind="sales[3]"` or `data-f-bind="sales[<currentRegion>]"`, as described under [data-f-bind](../../binds/default-bind-attr/).
+	 *
+	 * However, sometimes you want to loop over *all* of the children of the referenced variable. The `data-f-foreach` attribute allows you to automatically loop over all the 'children' of a referenced variable &mdash; that is, all the elements of an array, or all the fields of an object.
+	 *
+	 * You can use the `data-f-foreach` attribute to name the variable, then use a combination of templates and aliases to access the index and value of each child for display. (Templates are available as part of Flow.js's lodash dependency. See more background on [working with templates](../../../../../#templates).)
+	 *
+	 * **To display a DOM element based on an array variable from your model:**
+	 *
+	 * 1. Add the `data-f-foreach` attribute to any HTML element that has repeated sub-elements. The two most common examples are lists and tables. The `data-f-foreach` goes on the enclosing element. For a list, this is the `<ul>`, and for a table, it's the `<tbody>`.
+	 * 2. Set the value of the `data-f-foreach` attribute in your top-level HTML element to reference the model array variable. You can do this either with or without introducing an alias to reference the array elements: `<ul data-f-foreach="Time"></ul>` or `<ul data-f-foreach="t in Time"></ul>`.
+	 * 3. Add the HTML in which the value of your model array variable should appear. Optionally, inside this inner HTML element, you can use templates (`<%= %>`) to reference the `index` (for arrays) or `key` (for objects) and `value` to display, or to reference the alias you introduced. The `index`, `key`, and `value` are special variables that Flow.js populates for you. 
+	 *
+	 *
+	 * **Examples:**
+	 *
+	 * **Basic use of data-f-foreach.** Start with an HTML element that has repeated sub-elements. Add the model variable to this HTML element. Then, add the HTML sub-element where your model variable should appear. 
+	 *
+	 * By default, the `value` of the array element or object field is automatically added to the generated HTML:
+	 *
+	 *      <!-- the model variable Time is an array of years
+	 *          create a list that shows which year -->
+	 *
+	 *      <ul data-f-foreach="Time">
+	 *          <li></li>
+	 *      </ul>
+	 *
+	 * In the third step of the model, this example generates the HTML:
+	 *
+	 *      <ul data-f-foreach="Time">
+	 *            <li>2015</li>
+	 *            <li>2016</li>
+	 *            <li>2017</li>
+	 *      </ul>
+	 *
+	 * which appears as:
+	 *
+	 *      * 2015
+	 *      * 2016
+	 *      * 2017
+	 *
+	 * **Add templates to reference the index and value.** Optionally, you can use templates (`<%= %>`) to reference the `index` and `value` of the array element to display.
+	 *
+	 *      <!-- the model variable Time is an array of years
+	 *          create a list that shows which year -->
+	 *
+	 *      <ul data-f-foreach="Time">
+	 *          <li> Year <%= index %>: <%= value %> </li>
+	 *      </ul>
+	 *
+	 * In the third step of the model, this example generates:
+	 *
+	 *      <ul data-f-foreach="Time">
+	 *          <li>Year 1: 2015</li>
+	 *          <li>Year 2: 2016</li>
+	 *          <li>Year 3: 2017</li>
+	 *      </ul>
+	 *
+	 * which appears as:
+	 *
+	 *      * Year 1: 2015
+	 *      * Year 2: 2016
+	 *      * Year 3: 2017
+	 *
+	 *
+	 * **Add an alias for the value.** Alternatively, you can add an alias when you initially introduce your model array variable, then reference that alias within templates (`<%= %>`). For example:
+	 *
+	 *      <ul data-f-foreach="f in Fruits">
+	 *          <li> <%= f %> </li>
+	 *      </ul>
+	 *
+	 * which generates:
+	 *
+	 *      <ul data-f-foreach="f in Fruits">
+	 *          <li> apples </li>
+	 *          <li> bananas </li>
+	 *          <li> cherries </li>
+	 *          <li> oranges </li>
+	 * 
+	 * **Nesting with aliases.** An advantage to introducing aliases is that you can nest HTML elements that have repeated sub-elements. For example:
+	 *
+	 *      <!-- given Sales, an array whose elements are themselves arrays of the sales for each Region -->
+	 *      <ul data-f-foreach="r in Regions">
+	 *          <li>Region <%= r %>: 
+	 *              <ul data-f-foreach="s in Sales[<%= r %>]">
+	 *                  <li>Sales <%= s %></li>
+	 *              </ul>
+	 *          </li>
+	 *      </ul>
+	 *
+	 * **Logic, data processing.** Finally, note that you can add logic to the display of your data by combining templating with either the `value` or an alias. For example, suppose you only want to display the sales total if it is greater than 250:
+	 *
+	 *      <table>
+	 *          <tbody data-f-foreach="r in regions">
+	 *              <tr data-f-foreach="s in sales">
+	 *                  <td><%= r + ": " %> <%= (s > 250) ? s : "sales below threshold" %></td>
+	 *              </tr>
+	 *          </tbody>
+	 *      </table>
+	 *
+	 * (However, if you want to completely hide the table cell for the region if the sales total is too low, you still need to [write your own converter](../../../../../converter-overview).)
+	 *
+	 * **Notes:**
+	 *
+	 * * You can use the `data-f-foreach` attribute with both arrays and objects. If the model variable is an object, reference the `key` instead of the `index` in your templates.
+	 * * You can use nested `data-f-foreach` attributes to created nested loops of your data. 
+	 * * The `data-f-foreach`, whether using aliases or not, goes on the enclosing element. For a list, this is the `<ul>`, and for a table, it's the `<tbody>`.
+	 * * The template syntax is to enclose each code fragment (including `index`, `key`, `variable`, or alias) in `<%=` and `%>`. Templates are available as part of Flow.js's lodash dependency. See more background on [working with templates](../../../../../#templates).
+	 * * The `key`, `index`, and `value` are special variables that Flow.js populates for you. However, they are *no longer available* if you use aliases.
+	 * * As with other `data-f-` attributes, you can specify [converters](../../../../../converter-overview) to convert data from one form to another:
+	 *
+	 *          <ul data-f-foreach="Sales | $x,xxx">
+	 *              <li> Year <%= index %>: Sales of <%= value %> </li>
+	 *          </ul>
+	 *
+	 * * The `data-f-foreach` attribute is [similar to the `data-f-repeat` attribute](../../repeat-attr/), so you may want to review the examples there as well.
+	 */
+	
+	'use strict';
+	var parseUtils = __webpack_require__(3);
+	var config = __webpack_require__(2);
+	
+	function refToMarkup(refKey) {
+	    return '<!--' + refKey + '-->';
+	}
+	
+	module.exports = {
+	
+	    test: 'foreach',
+	
+	    target: '*',
+	
+	    unbind: function (attr) {
+	        var template = this.data(config.attrs.foreachTemplate);
+	        if (template) {
+	            this.html(template);
+	            this.removeData(config.attrs.foreachTemplate);
+	            this.removeData(config.attrs.keyAs);
+	            this.removeData(config.attrs.valueAs);
+	        }
+	    },
+	
+	    parse: function (attrVal) {
+	        var inMatch = attrVal.match(/(.*) (?:in|of) (.*)/);
+	        if (inMatch) {
+	            var itMatch = inMatch[1].match(/\((.*),(.*)\)/);
+	            if (itMatch) {
+	                this.data(config.attrs.keyAs, itMatch[1].trim());
+	                this.data(config.attrs.valueAs, itMatch[2].trim());
+	            } else {
+	                this.data(config.attrs.valueAs, inMatch[1].trim());
+	            }
+	            attrVal = inMatch[2];
+	        }
+	        return attrVal;
+	    },
+	
+	    handle: function (value, prop) {
+	        value = ($.isPlainObject(value) ? value : [].concat(value));
+	        var loopTemplate = this.data(config.attrs.foreachTemplate);
+	        if (!loopTemplate) {
+	            loopTemplate = this.html();
+	            this.data(config.attrs.foreachTemplate, loopTemplate);
+	        }
+	        var $me = this.empty();
+	        var cloop = loopTemplate.replace(/&lt;/g, '<').replace(/&gt;/g, '>');
+	
+	        var defaultKey = $.isPlainObject(value) ? 'key' : 'index';
+	        var keyAttr = $me.data(config.attrs.keyAs) || defaultKey;
+	        var valueAttr = $me.data(config.attrs.valueAs) || 'value';
+	        
+	        var keyRegex = new RegExp('\\b' + keyAttr + '\\b');
+	        var valueRegex = new RegExp('\\b' + valueAttr + '\\b');
+	
+	
+	        var closestKnownDataEl = this.closest('[data-current-index]');
+	        var knownData = {};
+	        if (closestKnownDataEl.length) {
+	            knownData = closestKnownDataEl.data('current-index');
+	        }
+	        var closestParentWithMissing = this.closest('[data-missing-references]');
+	        if (closestParentWithMissing.length) { //(grand)parent already stubbed out missing references
+	            var missing = closestParentWithMissing.data('missing-references');
+	            _.each(missing, function (replacement, template) {
+	                if (keyRegex.test(template) || valueRegex.test(template)) {
+	                    cloop = cloop.replace(refToMarkup(replacement), template);
+	                }
+	            });
+	        } else {
+	            var missingReferences = {};
+	            var templateTagsUsed = cloop.match(/<%[=-]?([\s\S]+?)%>/g);
+	            if (templateTagsUsed) {
+	                templateTagsUsed.forEach(function (tag) {
+	                    if (tag.match(/\w+/) && !keyRegex.test(tag) && !valueRegex.test(tag)) {
+	                        var refKey = missingReferences[tag];
+	                        if (!refKey) {
+	                            refKey = _.uniqueId('no-ref');
+	                            missingReferences[tag] = refKey;
+	                        }
+	                        var r = new RegExp(tag, 'g');
+	                        cloop = cloop.replace(r, refToMarkup(refKey));
+	                    }
+	                });
+	            }
+	            if (_.size(missingReferences)) {
+	                //Attr, not data, to make jQ selector easy. No f- prefix to keep this from flow.
+	                this.attr('data-missing-references', JSON.stringify(missingReferences));
+	            }
+	        }
+	
+	        var templateFn = _.template(cloop);
+	        _.each(value, function (dataval, datakey) {
+	            if (!dataval) {
+	                dataval = dataval + '';
+	            }
+	            var templateData = {};
+	            templateData[keyAttr] = datakey;
+	            templateData[valueAttr] = dataval;
+	            
+	            $.extend(templateData, knownData);
+	
+	            var nodes;
+	            var isTemplated;
+	            try {
+	                var templatedLoop = templateFn(templateData);
+	                isTemplated = templatedLoop !== cloop;
+	                nodes = $(templatedLoop);
+	            } catch (e) { //you don't have all the references you need;
+	                nodes = $(cloop);
+	                isTemplated = true;
+	                $(nodes).attr('data-current-index', JSON.stringify(templateData));
+	            }
+	
+	            nodes.each(function (i, newNode) {
+	                newNode = $(newNode);
+	                _.each(newNode.data(), function (val, key) {
+	                    newNode.data(key, parseUtils.toImplicitType(val));
+	                });
+	                if (!isTemplated && !newNode.html().trim()) {
+	                    newNode.html(dataval);
+	                }
+	            });
+	            $me.append(nodes);
+	            
+	        });
+	    }
+	};
+
+
+/***/ },
+/* 21 */
+/***/ function(module, exports) {
+
+	/**
+	 * ## Checkboxes and Radio Buttons
+	 *
+	 * In the [default case](../default-bind-attr/), the `data-f-bind` attribute creates a bi-directional binding between the DOM element and the model variable. This binding is **bi-directional**, meaning that as the model changes, the interface is automatically updated; and when end users change values in the interface, the model is automatically updated.
+	 *
+	 * Flow.js provides special handling for DOM elements with `type="checkbox"` and `type="radio"`.
+	 *
+	 * In particular, if you add the `data-f-bind` attribute to an `input` with `type="checkbox"` and `type="radio"`, the checkbox or radio button is automatically selected if the `value` matches the value of the model variable referenced, or if the model variable is `true`.
+	 *
+	 * **Example**
+	 *
+	 *      <!-- radio button, selected if sampleInt is 8 -->
+	 *      <input type="radio" data-f-bind="sampleInt" value="8" />
+	 *
+	 *      <!-- checkbox, checked if sampleBool is true -->
+	 *      <input type="checkbox" data-f-bind="sampleBool" />
+	 *
+	 */
+	
+	'use strict';
+	
+	module.exports = {
+	
+	    target: ':checkbox,:radio',
+	
+	    test: 'bind',
+	
+	    handle: function (value) {
+	        if (_.isArray(value)) {
+	            value = value[value.length - 1];
+	        }
+	        var settableValue = this.attr('value'); //initial value
+	        var isChecked = (typeof settableValue !== 'undefined') ? (settableValue == value) : !!value; //eslint-disable-line eqeqeq
+	        this.prop('checked', isChecked);
+	    }
+	};
+
+
+/***/ },
+/* 22 */
+/***/ function(module, exports) {
+
+	/**
+	 * ## Inputs and Selects
+	 *
+	 * In the [default case](../default-bind-attr/), the `data-f-bind` attribute creates a bi-directional binding between the DOM element and the model variable. This binding is **bi-directional**, meaning that as the model changes, the interface is automatically updated; and when end users change values in the interface, the model is automatically updated.
+	 *
+	 * Flow.js provides special handling for DOM elements `input` and `select`.
+	 *
+	 * In particular, if you add the `data-f-bind` attribute to a `select` or `input` element, the option matching the value of the model variable is automatically selected.
+	 *
+	 * **Example**
+	 *
+	 * 		<!-- option selected if sample_int is 8, 10, or 12 -->
+	 * 		<select data-f-bind="sample_int">
+	 * 			<option value="8"> 8 </option>
+	 * 			<option value="10"> 10 </option>
+	 * 			<option value="12"> 12 </option>
+	 * 		</select>
+	 *
+	 */
+	
+	'use strict';
+	
+	module.exports = {
+	    target: 'input, select',
+	
+	    test: 'bind',
+	
+	    handle: function (value) {
+	        if (_.isArray(value)) {
+	            value = value[value.length - 1];
+	        }
+	        this.val(value);
+	    }
+	};
+
+
+/***/ },
+/* 23 */
+/***/ function(module, exports, __webpack_require__) {
+
+	/**
+	 * ## Class Attribute: data-f-class
+	 *
+	 * You can bind model variables to names of CSS classes, so that you can easily change the styling of HTML elements based on the values of model variables.
+	 *
+	 * **To bind model variables to CSS classes:**
+	 *
+	 * 1. Add the `data-f-class` attribute to an HTML element.
+	 * 2. Set the value to the name of the model variable.
+	 * 3. Optionally, add an additional `class` attribute to the HTML element.
+	 *      * If you only use the `data-f-class` attribute, the value of `data-f-class` is the class name.
+	 *      * If you *also* add a `class` attribute, the value of `data-f-class` is *appended* to the class name.
+	 * 4. Add classes to your CSS code whose names include possible values of that model variable.
+	 *
+	 * **Example**
+	 *
+	 *      <style type="text/css">
+	 *          .North { color: grey }
+	 *          .South { color: purple }
+	 *          .East { color: blue }
+	 *          .West { color: orange }
+	 *          .sales.good { color: green }
+	 *          .sales.bad { color: red }
+	 *          .sales.value-100 { color: yellow }
+	 *       </style>
+	 *
+	 *       <div data-f-class="salesMgr.region">
+	 *           Content colored by region
+	 *       </div>
+	 *
+	 *       <div data-f-class="salesMgr.performance" class="sales">
+	 *           Content green if salesMgr.performance is good, red if bad
+	 *       </div>
+	 *
+	 *       <div data-f-class="salesMgr.numRegions" class="sales">
+	 *           Content yellow if salesMgr.numRegions is 100
+	 *       </div>
+	 *
+	 */
+	
+	'use strict';
+	var config = __webpack_require__(2);
+	
+	module.exports = {
+	
+	    test: 'class',
+	
+	    target: '*',
+	
+	    handle: function (value, prop) {
+	        if (_.isArray(value)) {
+	            value = value[value.length - 1];
+	        }
+	
+	        var addedClasses = this.data(config.classesAdded);
+	        if (!addedClasses) {
+	            addedClasses = {};
+	        }
+	        if (addedClasses[prop]) {
+	            this.removeClass(addedClasses[prop]);
+	        }
+	
+	        if (_.isNumber(value)) {
+	            value = 'value-' + value;
+	        }
+	        addedClasses[prop] = value;
+	        //Fixme: prop is always "class"
+	        this.addClass(value);
+	        this.data(config.classesAdded, addedClasses);
+	    }
+	};
+
+
+/***/ },
+/* 24 */
+/***/ function(module, exports, __webpack_require__) {
+
+	/**
+	 * ## Display Array Variables: data-f-repeat
+	 *
+	 * The `data-f-repeat` attribute allows you to automatically loop over a referenced variable. The most common use case is in time-based models, like those written in [SimLang](../../../../../model_code/forio_simlang/) or [Vensim](../../../../../model_code/vensim/), when you want to report the value of the variable at every time step so far. The `data-f-repeat` attribute automatically repeats the DOM element it's attached to, filling in the value.
+	 *
+	 * **To display a DOM element repeatedly based on an array variable from the model:**
+	 *
+	 * 1. Add the `data-f-repeat` attribute to any HTML element that has repeated sub-elements. The two most common examples are lists and tables.
+	 * 2. Set the value of the `data-f-repeat` attribute in the HTML element you want to repeat to the name of the array variable.
+	 * 3. Optionally, you can use templates (`<%= %>`) to reference the `index` (for arrays) or `key` (for objects) and `value` to display. The `index`, `key`, and `value` are special variables that Flow.js populates for you.
+	 *
+	 *
+	 * **Examples:**
+	 *
+	 * For example, to create a table that displays the year and cost for every step of the model that has occurred so far:
+	 *
+	 *      <table>
+	 *          <tr>
+	 *              <td>Year</td>
+	 *              <td data-f-repeat="Cost[Products]"><%= index + 1 %></td>
+	 *          </tr>
+	 *          <tr>
+	 *              <td>Cost of Products</td>
+	 *              <td data-f-repeat="Cost[Products]"></td>
+	 *          </tr>
+	 *      </table>
+	 *
+	 * In the third step of the model, this example generates the HTML:
+	 *
+	 *      <table>
+	 *          <tr>
+	 *              <td>Year</td>
+	 *              <td data-f-repeat="Cost[Products]">1</td>
+	 *              <td>2</td>
+	 *              <td>3</td>
+	 *          </tr>
+	 *          <tr>
+	 *              <td>Cost of Products</td>
+	 *              <td data-f-repeat="Cost[Products]">100</td>
+	 *              <td>102</td>
+	 *              <td>105</td>
+	 *          </tr>
+	 *      </table>
+	 *
+	 * You can also use this with a `<div>` and have the `<div>` itself repeated. For example:
+	 *
+	 *      <div data-f-repeat="sample_array"></div>
+	 *
+	 * generates:
+	 *
+	 *      <div data-f-repeat="sample_array">2</div>
+	 *      <div>4</div>
+	 *      <div>6</div>
+	 *
+	 * **Notes:**
+	 *
+	 * * You can use the `data-f-repeat` attribute with both arrays and objects. If the model variable is an object, reference the `key` instead of the `index` in your templates.
+	 * * The `key`, `index`, and `value` are special variables that Flow.js populates for you.
+	 * * The template syntax is to enclose each keyword (`index`, `key`, `variable`) in `<%=` and `%>`. Templates are available as part of Flow.js's lodash dependency. See more background on [working with templates](../../../../#templates).
+	 * * In most cases the same effect can be achieved with the [`data-f-foreach` attribute](../../attributes/foreach/default-foreach-attr/), which is similar. In the common use case of a table of data displayed over time, the `data-f-repeat` can be more concise and easier to read. However, the `data-f-foreach` allows aliasing, and so can be more useful especially if you are nesting HTML elements or want to introduce logic about how to display the values.
+	 *
+	 */
+	
+	'use strict';
+	var parseUtils = __webpack_require__(3);
+	var gutils = __webpack_require__(25);
+	var config = __webpack_require__(2).attrs;
+	module.exports = {
+	
+	    test: 'repeat',
+	
+	    target: '*',
+	
+	    unbind: function (attr) {
+	        var id = this.data(config.repeat.templateId);
+	        if (id) {
+	            this.nextUntil(':not([data-' + id + '])').remove();
+	            // this.removeAttr('data-' + config.repeat.templateId);
+	        }
+	        var loopTemplate = this.data(config.repeat.template);
+	        if (loopTemplate) {
+	            this.removeData(config.repeat.template);
+	            this.replaceWith(loopTemplate);
+	        }
+	    },
+	
+	    handle: function (value, prop) {
+	        value = ($.isPlainObject(value) ? value : [].concat(value));
+	        var loopTemplate = this.data(config.repeat.template);
+	        var id = this.data(config.repeat.templateId);
+	
+	        if (id) {
+	            this.nextUntil(':not([data-' + id + '])').remove();
+	        } else {
+	            id = gutils.random('repeat-');
+	            this.data(config.repeat.templateId, id);
+	        }
+	        if (!loopTemplate) {
+	            loopTemplate = this.get(0).outerHTML;
+	            this.data(config.repeat.template, loopTemplate);
+	        }
+	
+	        var last;
+	        var me = this;
+	        _.each(value, function (dataval, datakey) {
+	            var cloop = loopTemplate.replace(/&lt;/g, '<').replace(/&gt;/g, '>');
+	            var templatedLoop = _.template(cloop, { value: dataval, key: datakey, index: datakey });
+	            var isTemplated = templatedLoop !== cloop;
+	            var nodes = $(templatedLoop);
+	            var hasData = (dataval !== null && dataval !== undefined);
+	
+	            nodes.each(function (i, newNode) {
+	                newNode = $(newNode).removeAttr('data-f-repeat');
+	                _.each(newNode.data(), function (val, key) {
+	                    if (!last) {
+	                        me.data(key, parseUtils.toImplicitType(val));
+	                    } else {
+	                        newNode.data(key, parseUtils.toImplicitType(val));
+	                    }
+	                });
+	                newNode.attr('data-' + id, true);
+	                if (!isTemplated && !newNode.children().length && hasData) {
+	                    newNode.html(dataval + '');
+	                }
+	            });
+	            if (!last) {
+	                last = me.html(nodes.html());
+	            } else {
+	                last = nodes.insertAfter(last);
+	            }
+	        });
+	    }
+	};
+
+
+/***/ },
+/* 25 */
 /***/ function(module, exports) {
 
 	'use strict';
 	
 	module.exports = {
+	    random: function (prefix, min, max) {
+	        if (!min) {
+	            min = parseInt(_.uniqueId(), 10);
+	        }
+	        if (!max) {
+	            max = 100000; //eslint-disable-line no-magic-numbers
+	        }
+	        var number = _.random(min, max, false) + '';
+	        if (prefix) {
+	            number = prefix + number;
+	        }
+	        return number;
+	    }
+	};
+
+
+/***/ },
+/* 26 */
+/***/ function(module, exports) {
+
+	/**
+	 * ## Binding for data-f-[boolean]
+	 *
+	 * Flow.js provides special handling for HTML attributes that take Boolean values.
+	 *
+	 * In particular, for most HTML attributes that expect Boolean values, the attribute is directly set to the value of the model variable. This is true for `checked`, `selected`, `async`, `autofocus`, `autoplay`, `controls`, `defer`, `ismap`, `loop`, `multiple`, `open`, `required`, and `scoped`.
+	 *
+	 * However, there are a few notable exceptions. For the HTML attributes `disabled`, `hidden`, and `readonly`, the attribute is set to the *opposite* of the value of the model variable. This makes the resulting HTML easier to read.
+	 *
+	 * **Example**
+	 *
+	 *      <!-- this checkbox is CHECKED when sampleBool is TRUE,
+	 *           and UNCHECKED when sampleBool is FALSE -->
+	 *      <input type="checkbox" data-f-checked="sampleBool" />
+	 *
+	 *      <!-- this button is ENABLED when sampleBool is TRUE,
+	 *           and DISABLED when sampleBool is FALSE -->
+	 *      <button data-f-disabled="sampleBool">Click Me</button>
+	 *
+	 */
 	
-	    match: function (matchExpr, matchValue, context) {
-	        if (_.isString(matchExpr)) {
-	            return (matchExpr === '*' || (matchExpr.toLowerCase() === matchValue.toLowerCase()));
-	        } else if (_.isFunction(matchExpr)) {
-	            return matchExpr(matchValue, context);
-	        } else if (_.isRegExp(matchExpr)) {
-	            return matchValue.match(matchExpr);
+	'use strict';
+	
+	module.exports = {
+	    target: '*',
+	
+	    test: /^(?:checked|selected|async|autofocus|autoplay|controls|defer|ismap|loop|multiple|open|required|scoped)$/i,
+	
+	    handle: function (value, prop) {
+	        if (_.isArray(value)) {
+	            value = value[value.length - 1];
+	        }
+	        var val = (this.attr('value')) ? (value == this.prop('value')) : !!value; //eslint-disable-line eqeqeq
+	        this.prop(prop, val);
+	    }
+	};
+
+
+/***/ },
+/* 27 */
+/***/ function(module, exports) {
+
+	/**
+	 * ## Binding for data-f-[boolean]
+	 *
+	 * Flow.js provides special handling for HTML attributes that take Boolean values.
+	 *
+	 * In particular, for most HTML attributes that expect Boolean values, the attribute is directly set to the value of the model variable. This is true for `checked`, `selected`, `async`, `autofocus`, `autoplay`, `controls`, `defer`, `ismap`, `loop`, `multiple`, `open`, `required`, and `scoped`.
+	 *
+	 * However, there are a few notable exceptions. For the HTML attributes `disabled`, `hidden`, and `readonly`, the attribute is set to the *opposite* of the value of the model variable. This makes the resulting HTML easier to read.
+	 *
+	 * **Example**
+	 *
+	 *      <!-- this checkbox is CHECKED when sampleBool is TRUE,
+	 *           and UNCHECKED when sampleBool is FALSE -->
+	 *      <input type="checkbox" data-f-checked="sampleBool" />
+	 *
+	 *      <!-- this button is ENABLED when sampleBool is TRUE,
+	 *           and DISABLED when sampleBool is FALSE -->
+	 *      <button data-f-disabled="sampleBool">Click Me</button>
+	 *
+	 */
+	
+	'use strict';
+	
+	module.exports = {
+	
+	    target: '*',
+	
+	    test: /^(?:disabled|hidden|readonly)$/i,
+	
+	    handle: function (value, prop) {
+	        if (_.isArray(value)) {
+	            value = value[value.length - 1];
+	        }
+	        this.prop(prop, !value);
+	    }
+	};
+
+
+/***/ },
+/* 28 */
+/***/ function(module, exports, __webpack_require__) {
+
+	/**
+	 * ## Default Bi-directional Binding: data-f-bind
+	 *
+	 * The most commonly used attribute provided by Flow.js is the `data-f-bind` attribute.
+	 *
+	 * #### data-f-bind with a single value
+	 *
+	 * You can bind variables from the model in your interface by setting the `data-f-bind` attribute. This attribute binding is bi-directional, meaning that as the model changes, the interface is automatically updated; and when users change values in the interface, the model is automatically updated. Specifically:
+	 *
+	 * * The binding from the model to the interface ensures that the current value of the variable is displayed in the HTML element. This includes automatic updates to the displayed value if something else changes in the model.
+	 *
+	 * * The binding from the interface to the model ensures that if the HTML element is editable, changes are sent to the model.
+	 *
+	 * Once you set `data-f-bind`, Flow.js figures out the appropriate action to take based on the element type and the data response from your model.
+	 *
+	 * **To display and automatically update a variable in the interface:**
+	 *
+	 * 1. Add the `data-f-bind` attribute to any HTML element that normally takes a value.
+	 * 2. Set the value of the `data-f-bind` attribute to the name of the variable.
+	 *
+	 * **Example**
+	 *
+	 *      <span data-f-bind="salesManager.name" />
+	 *
+	 *      <input type="text" data-f-bind="sampleString" />
+	 *
+	 * **Notes:**
+	 *
+	 * * Use square brackets, `[]`, to reference arrayed variables: `sales[West]`.
+	 * * Use angle brackets, `<>`, to reference other variables in your array index: `sales[<currentRegion>]`.
+	 * * Remember that if your model is in Vensim, the time step is the last array index.
+	 * * By default, all HTML elements update for any change for each variable. However, you can prevent the user interface from updating &mdash; either for all variables or for particular variables &mdash; by setting the `silent` property when you initialize Flow.js. See more on [additional options for the Flow.initialize() method](../../../../../#custom-initialize).
+	 *
+	 * #### data-f-bind with multiple values and templates
+	 *
+	 * If you have multiple variables, you can use the shortcut of listing multiple variables in an enclosing HTML element and then referencing each variable using templates. (Templates are available as part of Flow.js's lodash dependency. See more background on [working with templates](../../../../../#templates).)
+	 *
+	 * **To display and automatically update multiple variables in the interface:**
+	 *
+	 * 1. Add the `data-f-bind` attribute to any HTML element from which you want to reference model variables, such as a `div` or `table`.
+	 * 2. Set the value of the `data-f-bind` attribute in your top-level HTML element to a comma-separated list of the variables. (The variables may or may not be case-sensitive, depending on your modeling language.)
+	 *
+	 * 3. Inside the HTML element, use templates (`<%= %>`) to reference the specific variable names. These variable names are case-sensitive: they should match the case you used in the `data-f-bind` in step 2.
+	 *
+	 * **Example**
+	 *
+	 *      <!-- make these three model variables available throughout div -->
+	 *
+	 *      <div data-f-bind="CurrentYear, Revenue, Profit">
+	 *          In <%= CurrentYear %>,
+	 *          our company earned <%= Revenue %>,
+	 *          resulting in <%= Profit %> profit.
+	 *      </div>
+	 *
+	 * This example is shorthand for repeatedly using data-f-bind. For instance, this code also generates the same output:
+	 *
+	 *      <div>
+	 *          In <span data-f-bind="CurrentYear"></span>,
+	 *          our company earned <span data-f-bind="Revenue"></span>,
+	 *          resulting in <span data-f-bind="Profit"> profit</span>.
+	 *      </div>
+	 *
+	 * **Notes:**
+	 *
+	 * * Adding `data-f-bind` to the enclosing HTML element rather than repeatedly using it within the element is a code style preference. In many cases, adding `data-f-bind` at the top level, as in the first example, can make your code easier to read and maintain.
+	 * * However, you might choose to repeatedly use `data-f-bind` in some cases, for example if you want different [formatting](../../../../../converter-overview/) for different variables:
+	 *
+	 *          <div>
+	 *              In <span data-f-bind="CurrentYear | #"></span>,
+	 *              our company earned <span data-f-bind="Revenue | $#,###"></span>
+	 *          </div>
+	 *
+	 * * Because everything within your template (`<%= %>`) is evaluated as JavaScript, you can use templates to pass expressions to other Flow.js attributes. For example,
+	 *
+	 *          <div data-f-bind="myCurrentTimeStep">
+	 *              <div data-f-bind="Revenue[<%= value + 1%>]"></div>
+	 *          </div>
+	 *
+	 * will display the value of `Revenue[myCurrentTimeStep + 1]` (for example an estimate of future revenue in your model).
+	 *
+	 */
+	
+	'use strict';
+	var config = __webpack_require__(2);
+	
+	module.exports = {
+	
+	    target: '*',
+	
+	    test: 'bind',
+	
+	    unbind: function (attr) {
+	        var template = this.data(config.attrs.bindTemplate);
+	        if (template) {
+	            this.html(template);
 	        }
 	    },
 	
-	    getConvertersList: function ($el, property) {
-	        var attrConverters = $el.data('f-convert-' + property);
-	        //FIXME: figure out how not to hard-code names here
-	        if (!attrConverters && (property === 'bind' || property === 'foreach' || property === 'repeat')) {
-	            attrConverters = $el.attr('data-f-convert'); //.data shows value cached by jquery
-	            if (!attrConverters) {
-	                var $parentEl = $el.closest('[data-f-convert]');
-	                if ($parentEl) {
-	                    attrConverters = $parentEl.attr('data-f-convert');
+	    handle: function (value) {
+	        var templated;
+	        var valueToTemplate = $.extend({}, value);
+	        if (!$.isPlainObject(value)) {
+	            var variableName = this.data('f-bind');//Hack because i don't have access to variable name here otherwise
+	            valueToTemplate = { value: value };
+	            valueToTemplate[variableName] = value;
+	        } else {
+	            valueToTemplate.value = value; //If the key has 'weird' characters like '<>' hard to get at with a template otherwise
+	        }
+	        var bindTemplate = this.data(config.attrs.bindTemplate);
+	        if (bindTemplate) {
+	            templated = _.template(bindTemplate, valueToTemplate);
+	            this.html(templated);
+	        } else {
+	            var oldHTML = this.html();
+	            var cleanedHTML = oldHTML.replace(/&lt;/g, '<').replace(/&gt;/g, '>');
+	            templated = _.template(cleanedHTML, valueToTemplate);
+	            if (cleanedHTML === templated) { //templating did nothing
+	                if (_.isArray(value)) {
+	                    value = value[value.length - 1];
 	                }
-	            }
-	            if (attrConverters) {
-	                attrConverters = _.invoke(attrConverters.split('|'), 'trim');
+	                value = ($.isPlainObject(value)) ? JSON.stringify(value) : value + '';
+	                this.html(value);
+	            } else {
+	                this.data(config.attrs.bindTemplate, cleanedHTML);
+	                this.html(templated);
 	            }
 	        }
+	    }
+	};
+
+
+/***/ },
+/* 29 */
+/***/ function(module, exports) {
+
+	/**
+	 * ## Default Attribute Handling: Read-only Binding
+	 *
+	 * Flow.js uses the HTML5 convention of prepending data- to any custom HTML attribute. Flow.js also adds `f` for easy identification of Flow.js. For example, Flow.js provides several custom attributes and attribute handlers -- including [data-f-bind](../binds/default-bind-attr), [data-f-foreach](../foreach/default-foreach-attr/), [data-f-on-init](../events/init-event-attr/), etc. You can also [add your own attribute handlers](../attribute-manager/).
+	 *
+	 * The default behavior for handling a known attribute is to use the value of the model variable as the value of the attribute. (There are exceptions for some [boolean attributes](../boolean-attr/).)
+	 *
+	 * This means you can bind variables from the model in your interface by adding the `data-f-` prefix to any standard DOM attribute. This attribute binding is **read-only**, so as the model changes, the interface is automatically updated; but when users change values in the interface, no action occurs.
+	 *
+	 * **To display a DOM element based on a variable from the model:**
+	 *
+	 * 1. Add the prefix `data-f-` to any attribute in any HTML element that normally takes a value.
+	 * 2. Set the value of the attribute to the name of the model variable.
+	 *
+	 * **Example**
+	 *
+	 * 		<!-- input element displays value of sample_int, however,
+	 * 			no call to the model is made if user changes sample_int
+	 *
+	 *			if sample_int is 8, this is the equivalent of <input value="8"></input> -->
+	 *
+	 *		<input data-f-value="sample_int"></input>
+	 *
+	 */
 	
-	        return attrConverters;
+	'use strict';
+	
+	module.exports = {
+	
+	    test: '*',
+	
+	    target: '*',
+	
+	    handle: function (value, prop) {
+	        this.prop(prop, value);
 	    }
 	};
 
@@ -2893,7 +2976,7 @@ var Flow =
 	    };
 	    var config = $.extend(true, {}, defaults, options);
 	
-	    var rm = new F.manager.RunManager(config);
+	    var rm = new window.F.manager.RunManager(config);
 	    var rs = rm.run;
 	
 	    var $creationPromise = rm.getRun();
@@ -3054,8 +3137,8 @@ var Flow =
 	        },
 	
 	        /**
-	         * Allow using the channel for reading data, but dis-allow calls to `publish`. If a function is provided, function should return true/false to override
-	         * @type {Boolean}
+	         * Allow using the channel for reading data (subscribing), but disallow calls to `publish`. Defaults to `false`: allow both subscribing and publishing. If a function is provided, the function should return a Boolean value to override.
+	         * @type {Boolean | Function}
 	         */
 	        readOnly: false,
 	
@@ -3368,10 +3451,9 @@ var Flow =
 	                toSave[key] = val;
 	            });
 	            var me = this;
-	            return vs.save(toSave)
-	                .then(function () {
-	                    me.refresh(attrs, null, opts);
-	                });
+	            return vs.save(toSave).then(function () {
+	                return me.refresh(attrs, null, opts);
+	            });
 	        },
 	
 	        /**
@@ -3528,7 +3610,7 @@ var Flow =
 	        silent: false,
 	
 	        /**
-	         * Allow using the channel for reading data, but dis-allow calls to `publish`. If a function is provided, function should return true/false to override
+	         * Allow using the channel for reading data (subscribing), but disallow calls to `publish`. Defaults to `false`: allow both subscribing and publishing. If a function is provided, the function should return a Boolean value to override.
 	         * @type {Boolean | Function}
 	         */
 	        readOnly: false,

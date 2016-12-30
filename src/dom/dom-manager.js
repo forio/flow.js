@@ -99,8 +99,8 @@ module.exports = (function () {
                 if (attr.indexOf(wantedPrefix) === 0) {
                     attr = attr.replace(wantedPrefix, '');
                     var handler = attrManager.getHandler(attr, $el);
-                    if (handler.stopListening) {
-                        handler.stopListening.call($el, attr);
+                    if (handler.unbind) {
+                        handler.unbind.call($el, attr);
                     }
                 }
             });
@@ -151,7 +151,9 @@ module.exports = (function () {
                 if (!varsToBind || !varsToBind.length) {
                     return false;
                 }
-                var subsid = subsChannel.subscribe(varsToBind, $bindEl, options);
+                var subsid = subsChannel.subscribe(varsToBind, function (params) {
+                    $bindEl.trigger(config.events.channelDataReceived, params);
+                }, options);
                 var newsubs = ($el.data(config.attrs.subscriptionId) || []).concat(subsid);
                 $el.data(config.attrs.subscriptionId, newsubs);
             };
@@ -317,32 +319,38 @@ module.exports = (function () {
                         $el.trigger(config.events.convert, { bind: val });
                     });
 
-                    channel.publish(parsedData, {}, { type: 'variables' });
+                    channel.publish(parsedData);
                 });
             };
 
             var attachUIOperationsListener = function ($root) {
                 $root.off(config.events.operate).on(config.events.operate, function (evt, data) {
-                    data = $.extend(true, {}, data); //if not all subsequent listeners will get the modified data
-                    _.each(data.operations, function (opn) {
-                        opn.params = _.map(opn.params, function (val) {
+                    var filtered = ([].concat(data.operations || [])).reduce(function (accum, operation) {
+                        operation.params = operation.params.map(function (val) {
                             return parseUtils.toImplicitType($.trim(val));
                         });
-                    });
+                        var isConverter = converterManager.getConverter(operation.name);
+                        if (isConverter) {
+                            accum.converters.push(operation);
+                        } else {
+                            var opn = {};
+                            opn['operation:' + operation.name] = operation.params;
+                            accum.operations.push(opn);
+                        }
+                        return accum;
+                    }, { operations: [], converters: [] });
 
-                    //FIXME: once the channel manager is built out this hacky filtering goes away. There can just be a window channel which catches these
-                    var convertors = _.filter(data.operations, function (opn) {
-                        return !!converterManager.getConverter(opn.name);
-                    });
-                    data.operations = _.difference(data.operations, convertors);
-                    var promise = (data.operations.length) ?
-                        channel.publish(_.omit(data, 'options'), data.options, { type: 'operations' }) :
-                        $.Deferred().resolve().promise();
+                    var promise = (filtered.operations.length) ?
+                            channel.publish(filtered.operations) :
+                            $.Deferred().resolve().promise();
+                     
+                    //FIXME: Needed for the 'gotopage' in interfacebuilder. Remove this once we add a window channel
                     promise.then(function (args) {
-                        _.each(convertors, function (con) {
+                        _.each(filtered.converters, function (con) {
                             converterManager.convert(con.params, [con.name]);
                         });
                     });
+
                 });
             };
 
@@ -368,6 +376,11 @@ module.exports = (function () {
                 });
             };
             
+            channel.subscribe('operation:reset', function () {
+                me.unbindAll();
+                me.bindAll();
+                console.log('Reset called', channel);
+            });
             var promise = $.Deferred();
             $(function () {
                 me.bindAll();

@@ -1,7 +1,127 @@
+New Format:
+
+channel({
+    runManager: {
+        strategy: 'new-if-persisted',
+        run: {
+            model: 'supply-chain-game.py',
+            account: 'acme-simulations',
+            project: 'supply-chain-game',
+            server: { host: 'api.forio.com' },
+            transport: {
+                beforeSend: function() { $('body').addClass('loading'); },
+                complete: function() { $('body').removeClass('loading'); }
+            }
+        }
+    },
+    scenarioManager: {
+        run: {
+            model: 'supply-chain-game.py',
+            account: 'acme-simulations',
+            project: 'supply-chain-game',
+        }
+    },
+
+    options: {
+        scenarioManager: {
+            defaults: {
+                initialOperaton: '',
+            },
+            baseline: {
+
+            }
+        },
+        runManager: {
+            defaults: {
+                initialOperaton: '',
+            },
+            current: {
+                variables: { silent: ['price', 'sales'] },
+                operations: { silent: false },
+            }
+        }
+    }
+});
+
+<a name"0.11.0"></a>
+## 0.11.0 (2016-12-14)
+
+This update includes several new features:
+
+* Both the `data-f-foreach` and the `data-f-repeat` attributes now support "aliasing": You can add an alias when you initially introduce your model variable in one of these attributes, then reference the alias in templates. This can simplify your template code, and also allows you to nest HTML elements that have repeated sub-elements.
+
+	For example:
+	
+		<ul data-f-foreach="r in Regions">
+			<li>Region <%= r %>: 
+				<ul data-f-foreach="s in Sales">
+					<li>Sales <%= s %></li>
+				</ul>
+			</li>
+		</ul>
+	
+	See complete details and additional examples on the [data-f-foreach page](https://forio.com/epicenter/docs/public/data_binding_flow_js/generated/dom/attributes/foreach/default-foreach-attr/) and the [data-f-repeat page](https://forio.com/epicenter/docs/public/data_binding_flow_js/generated/dom/attributes/repeat-attr/). You can also learn more about [working with templates in Flow.js](https://forio.com/epicenter/docs/public/data_binding_flow_js/#templates).
+	
+* Both the [variables channel](https://forio.com/epicenter/docs/public/data_binding_flow_js/generated/channels/variables-channel/) and the [operations channel](https://forio.com/epicenter/docs/public/data_binding_flow_js/generated/channels/operations-channel/) now include a `readOnly` configuration option, so that you can allow using the channel for subscribing but disallow publishing. This is useful if you want to display information about the variables or operations without updating the run.
+
+* Internal improvements, including removing the `bower` dependency and upgrading the `jQuery` support to jQuery 3 (matching Epicenter.js 2.0 and later).
+
+* New `/src/config.js` lists all of the attributes used by Flow.js and the events triggered by Flow.js. 
+>>>>>>> master:dist/CHANGELOG.md
+
+
 <a name"0.10.0"></a>
 ## 0.10.0 (2015-12-29)
 
-- TBD
+#### New Features
+
+##### New attribute data-f-repeat
+
+The `data-f-repeat` attribute allows you to automatically loop over a referenced variable. The most common use case is in time-based models, like those written in SimLang or Vensim, when you want to report the value of the variable at every time step so far. The `data-f-repeat` attribute automatically repeats the DOM element it's attached to, filling in the value.
+
+For example, to create a table that displays the year and cost for every step of the model that has occurred so far:
+
+```
+<table>
+     <tr>
+         <td>Year</td>
+         <td data-f-repeat="Cost[Products]"><%= index + 1 %></td>
+     </tr>
+     <tr>
+         <td>Cost of Products</td>
+         <td data-f-repeat="Cost[Products]"></td>
+     </tr>
+ </table>
+```
+
+In the third step of the model, this example generates the HTML:
+
+```
+ <table>
+     <tr>
+         <td>Year</td>
+         <td data-f-repeat="Cost[Products]">1</td>
+         <td>2</td>
+         <td>3</td>
+     </tr>
+     <tr>
+         <td>Cost of Products</td>
+         <td data-f-repeat="Cost[Products]">100</td>
+         <td>102</td>
+         <td>105</td>
+     </tr>
+ </table>
+```
+
+More information available [in the documentation](http://forio.com/epicenter/docs/public/data_binding_flow_js/generated/dom/attributes/repeat-attr/).
+
+##### New add-on feature: Flow Inspector
+
+Flow Inspector is an add-on component of Flow.js that allows you to easily determine which model variables are being used where and in which Flow.js (`data-f-`) attributes in your user interface.
+
+It's a great way to help you understand the connection between your UI and your model. It can also help to debug problems in your UI, whether you're a front-end developer or a modeler.
+
+Once you've enabled Flow Inspector for a page in your project, you see two windows appear. The Legend window displays a legend of different kinds of Flow.js attributes (bind, loop, event, etc). The Context Window of Flow Inspector provides additional data on model variables and model operations. More information available [in the documentation](http://forio.com/epicenter/docs/public/data_binding_flow_js/inspector-overview/).
 
 <a name"0.9.0"></a>
 ## 0.9.0 (2015-07-15)

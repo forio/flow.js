@@ -4,7 +4,7 @@ layout: "flow"
 isPage: true
 ---
 
-##Flow.js: Channels
+## Flow.js: Channels
 
 
 Channels are ways for Flow.js to talk to external APIs -- primarily the [underlying Epicenter APIs](../../creating_your_interface/).
@@ -17,7 +17,7 @@ Each channel can:
 * `subscribe`: Receive notifications when data changes, for example when an operation is called or when a model variable is updated.
 
 
-####Learn More
+#### Learn More
 
 * [Operations Channel](../generated/channels/operations-channel/)
 * [Variables Channel](../generated/channels/variables-channel/)

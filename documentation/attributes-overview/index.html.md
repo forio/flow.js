@@ -4,9 +4,9 @@ layout: "flow"
 isPage: true
 ---
 
-##Flow.js: Variables and Attributes 
+## Flow.js: Variables and Attributes 
 
-###Displaying and Updating Model Variables
+### Displaying and Updating Model Variables
 
 
 You can bind variables from your project's model to your project's user interface by setting the `data-f-bind` attribute of any HTML element. (Flow.js uses the HTML5 convention of prepending `data-` to any custom HTML attribute. Flow.js also adds `f` for easy identification of Flow.js and Forio.)
@@ -19,7 +19,7 @@ The `data-f-bind` attribute binding is **bi-directional**, meaning that as the m
 
 Once you set `data-f-bind`, Flow.js figures out the appropriate action to take based on the element type and the data response from your model.
 
-####How do I ... ?
+#### How do I ... ?
 
 * Display and automatically update a variable in the interface? 
 	* Use `data-f-bind`. See [Default Bi-directional Binding](../generated/dom/attributes/binds/default-bind-attr/).

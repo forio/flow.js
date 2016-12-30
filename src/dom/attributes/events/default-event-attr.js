@@ -27,7 +27,7 @@ module.exports = {
         return (attr.indexOf('on-') === 0);
     },
 
-    stopListening: function (attr) {
+    unbind: function (attr) {
         attr = attr.replace('on-', '');
         this.off(attr);
     },
@@ -41,10 +41,11 @@ module.exports = {
                 var fnName = value.split('(')[0];
                 var params = value.substring(value.indexOf('(') + 1, value.indexOf(')'));
                 var args = ($.trim(params) !== '') ? params.split(',') : [];
+
                 return { name: fnName, params: args };
             });
 
-            me.trigger(config.events.operate, { operations: listOfOperations, serial: true });
+            me.trigger(config.events.operate, { operations: listOfOperations });
         });
         return false; //Don't bother binding on this attr. NOTE: Do readonly, true instead?;
     }

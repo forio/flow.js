@@ -27,6 +27,10 @@ module.exports = function () {
         fetch: function (runService, callback) {
             return fetchFn(runService)(knownTopics);
         },
+
+        unsubscribeHandler: function (remainingTopics) {
+            knownTopics = remainingTopics;
+        },
         subscribeHandler: function (runService, topics) {
             knownTopics = _.uniq(knownTopics.concat(topics));
             if (!knownTopics.length) {

@@ -31,8 +31,8 @@ module.exports = {
 
         //Used by repeat attr handler to keep track of template after first evaluation
         repeat: {
-            template: 'f-repeat-template',
-            templateId: 'f-repeat-template-id'
+            template: 'repeat-template',//don't prefix by f or dom-manager unbind will kill it
+            templateId: 'repeat-template-id'
         },
 
         //Used by foreach attr handler to keep track of template after first evaluation
