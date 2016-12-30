@@ -116,7 +116,21 @@ var SubscriptionManager = (function () {
     }
 
     createClass(SubscriptionManager, {
+        publishBatch: function (list, options) {
+            var prom = $.Deferred().resolve(list).promise();
+            var me = this;
+            list.forEach(function (operation) {
+                prom = prom.then(function () {
+                    return me.publish(operation, options);
+                });
+            });
+            return prom;
+        },
+
         publish: function (topic, value, options) {
+            if (_.isArray(topic)) {
+                return this.publishBatch(topic, value);
+            }
             // console.log('publish', arguments);
             var attrs;
             if ($.isPlainObject(topic)) {

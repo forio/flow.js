@@ -331,14 +331,16 @@ module.exports = (function () {
                         });
                         var isConverter = converterManager.getConverter(operation.name);
                         if (isConverter) {
-                            accum.operations['operation:' + operation.name] = operation.params;
-                        } else {
                             accum.converters.push(operation);
+                        } else {
+                            var opn = {};
+                            opn['operation:' + operation.name] = operation.params;
+                            accum.operations.push(opn);
                         }
                         return accum;
-                    }, { operations: {}, converters: [] });
+                    }, { operations: [], converters: [] });
 
-                    var promise = (Object.keys(filtered.operations).length) ?
+                    var promise = (filtered.operations.length) ?
                             channel.publish(filtered.operations) :
                             $.Deferred().resolve().promise();
                      
