@@ -64,6 +64,15 @@ module.exports = (function () {
                         project: 'test',
                         model: 'model.vmf'
                     }
+                },
+                options: {
+                    runManager: {
+                        defaults: {
+                            variables: {
+                                debounce: false
+                            }
+                        }
+                    }
                 }
             };
         });
@@ -83,7 +92,7 @@ module.exports = (function () {
             server.restore();
         });
 
-        it.only('should create a new run on initialize', function () {
+        it('should create a new run on initialize', function () {
             return Flow.initialize({
                 channel: channelOpts
             }).then(function () {
@@ -148,18 +157,24 @@ module.exports = (function () {
         });
 
         describe('Fetch variables on load', function () {
-            it('should fetch variables if there is no default init operation', function () {
+            it.only('should fetch variables if there is no default init operation', function () {
+                var $d = $.Deferred();
                 Flow.initialize({
                     channel: $.extend(true, {}, channelOpts),
                     dom: {
                         root: $elWithoutInit
                     }
                 }).then(function () {
-                    server.requests.length.should.equal(2); //POST, GET
+                    setTimeout(function () {
+                        server.requests.length.should.equal(2); //POST, GET
 
-                    server.requests[0].method.toUpperCase().should.equal('POST');
-                    server.requests[1].method.toUpperCase().should.equal('GET');
+                        server.requests[0].method.toUpperCase().should.equal('POST');
+                        server.requests[1].method.toUpperCase().should.equal('GfET');
+                        $d.resolve();
+                    }, 10);
                 });
+
+                return $d.promise();
             });
             it('should fetch variables if operations is set to silent', function () {
                 Flow.initialize({
