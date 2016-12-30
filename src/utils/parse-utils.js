@@ -3,7 +3,7 @@
 module.exports = {
 
     toImplicitType: function (data) {
-        var rbrace = /^(?:\{.*\}|\[.*\])$/;
+        var rbrace = /^(?:\{.*\}|\[.*])$/;
         var converted = data;
         if (typeof data === 'string') {
             data = data.trim();

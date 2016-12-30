@@ -11,8 +11,6 @@
 
 'use strict';
 
-//TODO: Make all underscore filters available
-
 var normalize = function (alias, converter, acceptList) {
     var ret = [];
     //nomalize('flip', fn)

@@ -104,6 +104,7 @@ var Flow = {
         var $root = $(options.dom.root);
 
         var initialFn = $root.data('f-on-init');
+        //TOOD: Should move this to DOM Manager and just prioritize on-inits
         if (initialFn) {
             var listOfOperations = _.invoke(initialFn.split('|'), 'trim');
             listOfOperations = listOfOperations.map(function (value) {
@@ -117,6 +118,8 @@ var Flow = {
                 toReturn[fnName] = args;
                 return toReturn;
             });
+
+            //TODO: Make a channel configuration factory which gets the initial info
             options.channel.options.runManager.defaults.initialOperation = listOfOperations;
         }
    

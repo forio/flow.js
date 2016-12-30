@@ -39,6 +39,8 @@ module.exports = function (config, notifier) {
     }
 
     if (opts.initialOperation.length) {
+        //FIXME: Move run initialization logic to run-manager, as a strategy option. Technically only it should know what to do with it.
+        //For e.g, if there was a reset operation performed on the run, the run service instance will be the same so we wouldn't know
         $initialProm = $initialProm.then(function (runService) {
             if (!runService.initialize) {
                 runService.initialize = runService.serial(opts.initialOperation);
@@ -50,7 +52,8 @@ module.exports = function (config, notifier) {
     }
 
     var variableschannel = new VariablesChannel();
-    //TODO: Need 2 different channel instances just because notify needs to be called twice (with different arguments). Different way?
+    //TODO: Need 2 different channel instances because the fetch is debounced, and hence will bundle variables up otherwise.
+    //also, notify needs to be called twice (with different arguments). Different way?
     var defaultVariablesChannel = new VariablesChannel();
     var metaChannel = new MetaChannel();
     var operationsChannel = new OperationsChannel();
@@ -116,7 +119,6 @@ module.exports = function (config, notifier) {
             }, remainingTopics);
         },
 
-        //TODO: Break this into multiple middlewares?
         publishHandler: function (inputObj) {
             return $initialProm.then(function (runService) {
                 //TODO: This means variables are always set before operations happen, make that more dynamic and by occurence order

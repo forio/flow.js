@@ -171,7 +171,6 @@ var SubscriptionManager = (function () {
                 return subs.id === token;
             });
 
-            //TODO: Make this call subscription middleware with _.partition(for matching subs) too?
             if (oldLength === this.subscriptions.length) {
                 throw new Error('No subscription found for token ' + token);
             } else {

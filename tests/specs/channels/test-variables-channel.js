@@ -239,7 +239,6 @@
                     });
                 });
 
-               //TODO: this will be called twice because the channel can't tell if things have changed or not
                 it.skip('should allow subscribing functions to multi variables', function () {
                     var cb = sinon.spy();
                     channel.subscribe(['price', 'sales'], cb);
