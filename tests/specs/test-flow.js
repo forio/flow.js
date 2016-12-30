@@ -10,7 +10,7 @@ module.exports = (function () {
 
         before(function () {
             server = sinon.fakeServer.create();
-            clock = sinon.useFakeTimers();
+            // clock = sinon.useFakeTimers();
 
             server.respondWith('PATCH', /(.*)\/run\/(.*)\/variables\/(.*)/, function (xhr, id) {
                 xhr.respond(201, {
@@ -83,18 +83,18 @@ module.exports = (function () {
             server.restore();
         });
 
-        it('should create a new run on initialize', function () {
-            Flow.initialize({
+        it.only('should create a new run on initialize', function () {
+            return Flow.initialize({
                 channel: channelOpts
+            }).then(function () {
+                var req = server.requests.pop();
+                req.method.toUpperCase().should.equal('POST');
+                req.url.should.equal('https://api.forio.com/v2/run/flow/test/');
+                req.requestBody.should.equal(JSON.stringify({
+                    scope: {},
+                    model: 'model.vmf'
+                }));
             });
-
-            var req = server.requests.pop();
-            req.method.toUpperCase().should.equal('POST');
-            req.url.should.equal('https://api.forio.com/v2/run/flow/test/');
-            req.requestBody.should.equal(JSON.stringify({
-                scope: {},
-                model: 'model.vmf'
-            }));
         });
 
         describe('Setting variables', function () {
