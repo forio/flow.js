@@ -157,8 +157,7 @@ module.exports = (function () {
         });
 
         describe('Fetch variables on load', function () {
-            it.only('should fetch variables if there is no default init operation', function () {
-                var $d = $.Deferred();
+            it.only('should fetch variables if there is no default init operation', function (done) {
                 Flow.initialize({
                     channel: $.extend(true, {}, channelOpts),
                     dom: {
@@ -169,12 +168,11 @@ module.exports = (function () {
                         server.requests.length.should.equal(2); //POST, GET
 
                         server.requests[0].method.toUpperCase().should.equal('POST');
-                        server.requests[1].method.toUpperCase().should.equal('GfET');
-                        $d.resolve();
-                    }, 10);
+                        server.requests[1].method.toUpperCase().should.equal('GET');
+                        done();
+                    }, 1);
                 });
 
-                return $d.promise();
             });
             it('should fetch variables if operations is set to silent', function () {
                 Flow.initialize({
