@@ -104,7 +104,7 @@ module.exports = {
         var me = this;
         _.each(value, function (dataval, datakey) {
             var cloop = loopTemplate.replace(/&lt;/g, '<').replace(/&gt;/g, '>');
-            var templatedLoop = _.template(cloop, { value: dataval, key: datakey, index: datakey });
+            var templatedLoop = _.template(cloop)({ value: dataval, key: datakey, index: datakey });
             var isTemplated = templatedLoop !== cloop;
             var nodes = $(templatedLoop);
             var hasData = (dataval !== null && dataval !== undefined);

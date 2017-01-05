@@ -119,7 +119,7 @@ module.exports = function (options) {
 
             _.each(toNotify, function (opn) {
                 this.notify(opn, response);
-            }, this);
+            }.bind(this));
         },
 
         /**
@@ -193,7 +193,7 @@ module.exports = function (options) {
                 var fn = (operation.serial) ? run.serial : run.parallel;
                 _.each(operation.operations, function (opn) {
                     opn.params = this.interpolate(opn.params);
-                }, this);
+                }.bind(this));
                 return fn.call(run, operation.operations)
                     .then(function (response) {
                         me.refresh(_.pluck(operation.operations, 'name'), response, null, opts);

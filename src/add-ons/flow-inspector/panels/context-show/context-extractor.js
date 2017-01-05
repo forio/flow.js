@@ -18,7 +18,7 @@ Extractor.prototype.showContext = function (reference, isFunction) {
     var pattern = (isFunction) ? this.extractor.fn : this.extractor.variable;
     reference = reference.split(/[\[\.\(]/)[0];
 
-    var startIndex = _.findIndex(this.contents, pattern.start(reference), this);
+    var startIndex = _.findIndex(this.contents, pattern.start(reference));
     var fromStart = this.contents.slice(startIndex + 1);
     var endIndex = pattern.end(fromStart, this.contents[startIndex]);
 

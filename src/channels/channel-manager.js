@@ -66,7 +66,7 @@ function checkAndNotify(publishObj, subscription) {
     var publishedTopics = Object.keys(publishObj);
     publishedTopics.forEach(function (topic) {
         var data = publishObj[topic];
-        if (_.contains(subscription.topics, topic) || _.contains(subscription.topics, '*')) {
+        if (_.includes(subscription.topics, topic) || _.includes(subscription.topics, '*')) {
             var toSend = {};
             toSend[topic] = data;
             callbackIfChanged(subscription, toSend);
@@ -193,7 +193,7 @@ var SubscriptionManager = (function () {
         getSubscribers: function (topic) {
             if (topic) {
                 return _.filter(this.subscriptions, function (subs) {
-                    return _.contains(subs.topics, topic);
+                    return _.includes(subs.topics, topic);
                 });
             }
             return this.subscriptions;
