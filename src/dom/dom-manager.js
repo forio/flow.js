@@ -184,7 +184,7 @@ module.exports = (function () {
                         }
 
                         var binding = { attr: attr };
-                        var commaRegex = /,(?![^\[]*\])/;
+                        var commaRegex = /,(?![^[]*])/;
 
                         //NOTE: do this within init?
                         if (handler && handler.parse) {

@@ -113,8 +113,10 @@ var Flow =
 	'use strict';
 	
 	var domManager = __webpack_require__(1);
-	var Channel = __webpack_require__(31);
 	var BaseView = __webpack_require__(15);
+	
+	var ChannelManager = __webpack_require__(30);
+	var parseUtils = __webpack_require__(3);
 	
 	var Flow = {
 	    dom: domManager,
@@ -126,17 +128,16 @@ var Flow =
 	
 	        var defaults = {
 	            channel: {
-	                run: {
-	                    account: '',
-	                    project: '',
-	                    model: model,
-	
-	                    operations: {
-	                    },
-	                    variables: {
-	                        autoFetch: {
-	                            start: false
-	                        }
+	                runManager: {
+	                    run: {
+	                        account: '',
+	                        project: '',
+	                        model: model,
+	                    }
+	                },
+	                options: {
+	                    runManager: {
+	                        defaults: {}
 	                    }
 	                }
 	            },
@@ -148,19 +149,31 @@ var Flow =
 	
 	        var options = $.extend(true, {}, defaults, config);
 	        var $root = $(options.dom.root);
-	        var initFn = $root.data('f-on-init');
-	        var opnSilent = options.channel.run.operations.silent;
-	        var isInitOperationSilent = initFn && (opnSilent === true || (_.isArray(opnSilent) && _.contains(opnSilent, initFn)));
-	        var preFetchVariables = !initFn || isInitOperationSilent;
 	
-	        if (preFetchVariables) {
-	            options.channel.run.variables.autoFetch.start = true;
+	        var initialFn = $root.data('f-on-init');
+	        //TOOD: Should move this to DOM Manager and just prioritize on-inits
+	        if (initialFn) {
+	            var listOfOperations = _.invoke(initialFn.split('|'), 'trim');
+	            listOfOperations = listOfOperations.map(function (value) {
+	                var fnName = value.split('(')[0];
+	                var params = value.substring(value.indexOf('(') + 1, value.indexOf(')'));
+	                var args = ($.trim(params) !== '') ? params.split(',') : [];
+	                args = args.map(function (a) {
+	                    return parseUtils.toImplicitType(a.trim());
+	                });
+	                var toReturn = {};
+	                toReturn[fnName] = args;
+	                return toReturn;
+	            });
+	
+	            //TODO: Make a channel configuration factory which gets the initial info
+	            options.channel.options.runManager.defaults.initialOperation = listOfOperations;
 	        }
-	
-	        if (config && config.channel && (config.channel instanceof Channel)) {
+	   
+	        if (config && config.channel && (config.channel instanceof ChannelManager)) {
 	            this.channel = config.channel;
 	        } else {
-	            this.channel = new Channel(options.channel);
+	            this.channel = new ChannelManager(options.channel);
 	        }
 	
 	        return domManager.initialize($.extend(true, {
@@ -168,6 +181,7 @@ var Flow =
 	        }, options.dom));
 	    }
 	};
+	Flow.ChannelManager = ChannelManager;
 	//set by grunt
 	if (true) Flow.version = ("0.11.0"); //eslint-disable-line no-undef
 	module.exports = Flow;
@@ -195,7 +209,7 @@ var Flow =
 	    var converterManager = __webpack_require__(5);
 	    var nodeManager = __webpack_require__(11);
 	    var attrManager = __webpack_require__(16);
-	    var autoUpdatePlugin = __webpack_require__(30);
+	    var autoUpdatePlugin = __webpack_require__(29);
 	
 	    //Jquery selector to return everything which has a f- property set
 	    $.expr.pseudos[config.prefix] = function (el) {
@@ -254,7 +268,7 @@ var Flow =
 	         */
 	        unbindElement: function (element, channel) {
 	            if (!channel) {
-	                channel = this.options.channel.variables;
+	                channel = this.options.channel;
 	            }
 	            element = getElementOrError(element);
 	            var $el = $(element);
@@ -304,19 +318,19 @@ var Flow =
 	         * Bind the element: subscribe from updates on the relevant channels.
 	         *
 	         * @param {DomElement} element The element to add to the data binding.
-	         * @param {ChannelInstance} channel (Optional) The channel to subscribe to. Defaults to the [variables channel](../channels/variables-channel/).
+	         * @param {ChannelInstance} channel (Optional) The channel to subscribe to. Defaults to the [run channel](../channels/run-channel/).
 	         * @returns {undefined}
 	         */
 	        bindElement: function (element, channel) {
 	            if (!channel) {
-	                channel = this.options.channel.variables;
+	                channel = this.options.channel;
 	            }
 	            element = getElementOrError(element);
 	            var $el = $(element);
 	            if (!$el.is(':' + config.prefix)) {
 	                return false;
 	            }
-	            if (!_.contains(this.private.matchedElements, element)) {
+	            if (!_.includes(this.private.matchedElements, element)) {
 	                this.private.matchedElements.push(element);
 	            }
 	
@@ -330,7 +344,9 @@ var Flow =
 	                if (!varsToBind || !varsToBind.length) {
 	                    return false;
 	                }
-	                var subsid = subsChannel.subscribe(varsToBind, $bindEl, options);
+	                var subsid = subsChannel.subscribe(varsToBind, function (params) {
+	                    $bindEl.trigger(config.events.channelDataReceived, params);
+	                }, options);
 	                var newsubs = ($el.data(config.attrs.subscriptionId) || []).concat(subsid);
 	                $el.data(config.attrs.subscriptionId, newsubs);
 	            };
@@ -354,14 +370,14 @@ var Flow =
 	
 	                    if (isBindableAttr) {
 	                        //Convert pipes to converter attrs
-	                        var withConv = _.invoke(attrVal.split('|'), 'trim');
+	                        var withConv = _.invokeMap(attrVal.split('|'), 'trim');
 	                        if (withConv.length > 1) {
 	                            attrVal = withConv.shift();
 	                            $el.data('f-convert-' + attr, withConv);
 	                        }
 	
 	                        var binding = { attr: attr };
-	                        var commaRegex = /,(?![^\[]*\])/;
+	                        var commaRegex = /,(?![^[]*])/;
 	
 	                        //NOTE: do this within init?
 	                        if (handler && handler.parse) {
@@ -373,7 +389,7 @@ var Flow =
 	                            //Assume it's templated for later use
 	
 	                        } else if (attrVal.split(commaRegex).length > 1) {
-	                            var varsToBind = _.invoke(attrVal.split(commaRegex), 'trim');
+	                            var varsToBind = _.invokeMap(attrVal.split(commaRegex), 'trim');
 	                            subscribe(channel, varsToBind, $el, { batch: true });
 	                            binding.topics = varsToBind;
 	                        } else {
@@ -406,7 +422,7 @@ var Flow =
 	            var me = this;
 	            //parse through dom and find everything with matching attributes
 	            $.each(elementsToBind, function (index, element) {
-	                me.bindElement(element, me.options.channel.variables);
+	                me.bindElement(element, me.options.channel);
 	            });
 	        },
 	        /**
@@ -423,7 +439,7 @@ var Flow =
 	                elementsToUnbind = getMatchingElements(elementsToUnbind);
 	            }
 	            $.each(elementsToUnbind, function (index, element) {
-	                me.unbindElement(element, me.options.channel.variables);
+	                me.unbindElement(element, me.options.channel);
 	            });
 	        },
 	
@@ -468,7 +484,7 @@ var Flow =
 	                    var toconvert = {};
 	                    $.each(data, function (variableName, value) {
 	                        _.each(bindings, function (binding) {
-	                            if (_.contains(binding.topics, variableName)) {
+	                            if (_.includes(binding.topics, variableName)) {
 	                                if (binding.topics.length > 1) {
 	                                    toconvert[binding.attr] = _.pick(data, binding.topics);
 	                                } else {
@@ -496,32 +512,38 @@ var Flow =
 	                        $el.trigger(config.events.convert, { bind: val });
 	                    });
 	
-	                    channel.variables.publish(parsedData);
+	                    channel.publish(parsedData);
 	                });
 	            };
 	
 	            var attachUIOperationsListener = function ($root) {
 	                $root.off(config.events.operate).on(config.events.operate, function (evt, data) {
-	                    data = $.extend(true, {}, data); //if not all subsequent listeners will get the modified data
-	                    _.each(data.operations, function (opn) {
-	                        opn.params = _.map(opn.params, function (val) {
+	                    var filtered = ([].concat(data.operations || [])).reduce(function (accum, operation) {
+	                        operation.params = operation.params.map(function (val) {
 	                            return parseUtils.toImplicitType($.trim(val));
 	                        });
-	                    });
+	                        var isConverter = converterManager.getConverter(operation.name);
+	                        if (isConverter) {
+	                            accum.converters.push(operation);
+	                        } else {
+	                            var opn = {};
+	                            opn['operation:' + operation.name] = operation.params;
+	                            accum.operations.push(opn);
+	                        }
+	                        return accum;
+	                    }, { operations: [], converters: [] });
 	
-	                    //FIXME: once the channel manager is built out this hacky filtering goes away. There can just be a window channel which catches these
-	                    var convertors = _.filter(data.operations, function (opn) {
-	                        return !!converterManager.getConverter(opn.name);
-	                    });
-	                    data.operations = _.difference(data.operations, convertors);
-	                    var promise = (data.operations.length) ?
-	                        channel.operations.publish(_.omit(data, 'options'), data.options) :
-	                        $.Deferred().resolve().promise();
+	                    var promise = (filtered.operations.length) ?
+	                            channel.publish(filtered.operations) :
+	                            $.Deferred().resolve().promise();
+	                     
+	                    //FIXME: Needed for the 'gotopage' in interfacebuilder. Remove this once we add a window channel
 	                    promise.then(function (args) {
-	                        _.each(convertors, function (con) {
+	                        _.each(filtered.converters, function (con) {
 	                            converterManager.convert(con.params, [con.name]);
 	                        });
 	                    });
+	
 	                });
 	            };
 	
@@ -547,6 +569,11 @@ var Flow =
 	                });
 	            };
 	            
+	            channel.subscribe('operation:reset', function () {
+	                me.unbindAll();
+	                me.bindAll();
+	                console.log('Reset called', channel);
+	            });
 	            var promise = $.Deferred();
 	            $(function () {
 	                me.bindAll();
@@ -609,7 +636,7 @@ var Flow =
 	
 	        //Used by repeat attr handler to keep track of template after first evaluation
 	        repeat: {
-	            template: 'repeat-template',
+	            template: 'repeat-template', //don't prefix by f or dom-manager unbind will kill it
 	            templateId: 'repeat-template-id'
 	        },
 	
@@ -633,7 +660,7 @@ var Flow =
 	module.exports = {
 	
 	    toImplicitType: function (data) {
-	        var rbrace = /^(?:\{.*\}|\[.*\])$/;
+	        var rbrace = /^(?:\{.*\}|\[.*])$/;
 	        var converted = data;
 	        if (typeof data === 'string') {
 	            data = data.trim();
@@ -690,7 +717,7 @@ var Flow =
 	                }
 	            }
 	            if (attrConverters) {
-	                attrConverters = _.invoke(attrConverters.split('|'), 'trim');
+	                attrConverters = _.invokeMap(attrConverters.split('|'), 'trim');
 	            }
 	        }
 	
@@ -715,8 +742,6 @@ var Flow =
 	 */
 	
 	'use strict';
-	
-	//TODO: Make all underscore filters available
 	
 	var normalize = function (alias, converter, acceptList) {
 	    var ret = [];
@@ -834,7 +859,7 @@ var Flow =
 	            return value;
 	        }
 	        list = [].concat(list);
-	        list = _.invoke(list, 'trim');
+	        list = _.invokeMap(list, 'trim');
 	
 	        var currentValue = value;
 	        var me = this;
@@ -876,7 +901,7 @@ var Flow =
 	     * Counter-part to `convert()`. Translates converted values back to their original form.
 	     *
 	     * @param  {String} value Value to parse.
-	     * @param  {String|Array} list  List of parsers to run the value through. Outermost is invoked first.
+	     * @param  {String|Array} list  List of parsers to run the value through. Outermost is invokeMapd first.
 	     * @return {Any} Original value.
 	     */
 	    parse: function (value, list) {
@@ -884,7 +909,7 @@ var Flow =
 	            return value;
 	        }
 	        list = [].concat(list).reverse();
-	        list = _.invoke(list, 'trim');
+	        list = _.invokeMap(list, 'trim');
 	
 	        var currentValue = value;
 	        var me = this;
@@ -1185,7 +1210,6 @@ var Flow =
 	
 	var supported = [
 	    'values', 'keys', 'compact', 'difference',
-	    'flatten', 'rest',
 	    'union',
 	    'uniq', 'without',
 	    'xor', 'zip'
@@ -1819,17 +1843,17 @@ var Flow =
 	
 	var defaultHandlers = [
 	    __webpack_require__(17),
+	    // require('./events/init-event-attr'),
 	    __webpack_require__(18),
 	    __webpack_require__(19),
 	    __webpack_require__(20),
 	    __webpack_require__(21),
 	    __webpack_require__(22),
 	    __webpack_require__(23),
-	    __webpack_require__(24),
+	    __webpack_require__(25),
 	    __webpack_require__(26),
 	    __webpack_require__(27),
-	    __webpack_require__(28),
-	    __webpack_require__(29)
+	    __webpack_require__(28)
 	];
 	
 	var handlersList = [];
@@ -1892,11 +1916,11 @@ var Flow =
 	     * @return {Array|Null} An array of matching attribute handlers, or null if no matches found.
 	     */
 	    filter: function (attrFilter, nodeFilter) {
-	        var filtered = _.select(handlersList, function (handler) {
+	        var filtered = _.filter(handlersList, function (handler) {
 	            return matchAttr(handler.test, attrFilter);
 	        });
 	        if (nodeFilter) {
-	            filtered = _.select(filtered, function (handler) {
+	            filtered = _.filter(filtered, function (handler) {
 	                return matchNode(handler.target, nodeFilter);
 	            });
 	        }
@@ -1969,58 +1993,7 @@ var Flow =
 
 /***/ },
 /* 18 */
-/***/ function(module, exports) {
-
-	/**
-	 * ## Call Operation when Element Added to DOM
-	 *
-	 * Many models call an initialization operation when the [run](../../../../../../glossary/#run) is first created. This is particularly common with [Vensim](../../../../../../model_code/vensim/) models, which need to initialize variables ('startGame') before stepping. You can use the `data-f-on-init` attribute to call an operation from the model when a particular element is added to the DOM.
-	 *
-	 * #### data-f-on-init
-	 *
-	 * Add the attribute `data-f-on-init`, and set the value to the name of the operation. To call multiple operations, use the `|` (pipe) character to chain operations. Operations are called serially, in the order listed. Typically you add this attribute to the `<body>` element.
-	 *
-	 * **Example**
-	 *
-	 *      <body data-f-on-init="startGame">
-	 *
-	 *      <body data-f-on-init="startGame | step(3)">
-	 *
-	 */
-	
-	'use strict';
-	
-	module.exports = {
-	
-	    target: '*',
-	
-	    test: function (attr, $node) {
-	        return (attr.indexOf('on-init') === 0);
-	    },
-	
-	    init: function (attr, value) {
-	        attr = attr.replace('on-init', '');
-	        var me = this;
-	        $(function () {
-	            var listOfOperations = _.invoke(value.split('|'), 'trim');
-	            listOfOperations = listOfOperations.map(function (value) {
-	                var fnName = value.split('(')[0];
-	                var params = value.substring(value.indexOf('(') + 1, value.indexOf(')'));
-	                var args = ($.trim(params) !== '') ? params.split(',') : [];
-	                return { name: fnName, params: args };
-	            });
-	
-	            //FIXME: this knows too much about the channel
-	            me.trigger('f.ui.operate', { operations: listOfOperations, serial: true, options: { readOnly: false } });
-	        });
-	        return false; //Don't bother binding on this attr. NOTE: Do readonly, true instead?;
-	    }
-	};
-
-
-/***/ },
-/* 19 */
-/***/ function(module, exports) {
+/***/ function(module, exports, __webpack_require__) {
 
 	/**
 	 * ## Call Operation in Response to User Action
@@ -2040,6 +2013,8 @@ var Flow =
 	 */
 	
 	'use strict';
+	var config = __webpack_require__(2);
+	
 	
 	module.exports = {
 	
@@ -2058,15 +2033,16 @@ var Flow =
 	        attr = attr.replace('on-', '');
 	        var me = this;
 	        this.off(attr).on(attr, function () {
-	            var listOfOperations = _.invoke(value.split('|'), 'trim');
+	            var listOfOperations = _.invokeMap(value.split('|'), 'trim');
 	            listOfOperations = listOfOperations.map(function (value) {
 	                var fnName = value.split('(')[0];
 	                var params = value.substring(value.indexOf('(') + 1, value.indexOf(')'));
 	                var args = ($.trim(params) !== '') ? params.split(',') : [];
+	
 	                return { name: fnName, params: args };
 	            });
 	
-	            me.trigger('f.ui.operate', { operations: listOfOperations, serial: true });
+	            me.trigger(config.events.operate, { operations: listOfOperations });
 	        });
 	        return false; //Don't bother binding on this attr. NOTE: Do readonly, true instead?;
 	    }
@@ -2074,7 +2050,7 @@ var Flow =
 
 
 /***/ },
-/* 20 */
+/* 19 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/**
@@ -2329,7 +2305,7 @@ var Flow =
 
 
 /***/ },
-/* 21 */
+/* 20 */
 /***/ function(module, exports) {
 
 	/**
@@ -2371,7 +2347,7 @@ var Flow =
 
 
 /***/ },
-/* 22 */
+/* 21 */
 /***/ function(module, exports) {
 
 	/**
@@ -2411,7 +2387,7 @@ var Flow =
 
 
 /***/ },
-/* 23 */
+/* 22 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/**
@@ -2488,7 +2464,7 @@ var Flow =
 
 
 /***/ },
-/* 24 */
+/* 23 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/**
@@ -2556,7 +2532,7 @@ var Flow =
 	
 	'use strict';
 	var parseUtils = __webpack_require__(3);
-	var gutils = __webpack_require__(25);
+	var gutils = __webpack_require__(24);
 	var config = __webpack_require__(2).attrs;
 	module.exports = {
 	
@@ -2597,7 +2573,7 @@ var Flow =
 	        var me = this;
 	        _.each(value, function (dataval, datakey) {
 	            var cloop = loopTemplate.replace(/&lt;/g, '<').replace(/&gt;/g, '>');
-	            var templatedLoop = _.template(cloop, { value: dataval, key: datakey, index: datakey });
+	            var templatedLoop = _.template(cloop)({ value: dataval, key: datakey, index: datakey });
 	            var isTemplated = templatedLoop !== cloop;
 	            var nodes = $(templatedLoop);
 	            var hasData = (dataval !== null && dataval !== undefined);
@@ -2627,7 +2603,7 @@ var Flow =
 
 
 /***/ },
-/* 25 */
+/* 24 */
 /***/ function(module, exports) {
 
 	'use strict';
@@ -2645,12 +2621,60 @@ var Flow =
 	            number = prefix + number;
 	        }
 	        return number;
+	    },
+	
+	    debounceAndMerge: function (fn, debounceInterval, argumentsReducers) {
+	        var timer = null;
+	
+	        var argsToPass = [];
+	        if (!argumentsReducers) {
+	            var arrayReducer = function (accum, newVal) {
+	                if (!accum) {
+	                    accum = [];
+	                }
+	                return accum.concat(newVal);
+	            };
+	            argumentsReducers = [
+	                arrayReducer
+	            ];
+	        }
+	        return function () {
+	            var $def = $.Deferred();
+	            var newArgs = _.toArray(arguments);
+	            argsToPass = newArgs.map(function (arg, index) {
+	                var reducer = argumentsReducers[index];
+	                if (reducer) {
+	                    return reducer(argsToPass[index], arg);
+	                } else {
+	                    return arg;
+	                }
+	            });
+	
+	            if (timer) {
+	                clearTimeout(timer);
+	            }
+	            timer = setTimeout(function () {
+	                timer = null;
+	                var res = fn.apply(fn, argsToPass);
+	                if (res && res.then) {
+	                    return res.then(function (arg) {
+	                        argsToPass = [];
+	                        $def.resolve(arg);
+	                    });
+	                } else {
+	                    argsToPass = [];
+	                    $def.resolve(res);
+	                }
+	            }, debounceInterval);
+	
+	            return $def.promise();
+	        };
 	    }
 	};
 
 
 /***/ },
-/* 26 */
+/* 25 */
 /***/ function(module, exports) {
 
 	/**
@@ -2692,7 +2716,7 @@ var Flow =
 
 
 /***/ },
-/* 27 */
+/* 26 */
 /***/ function(module, exports) {
 
 	/**
@@ -2734,7 +2758,7 @@ var Flow =
 
 
 /***/ },
-/* 28 */
+/* 27 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/**
@@ -2847,12 +2871,12 @@ var Flow =
 	        }
 	        var bindTemplate = this.data(config.attrs.bindTemplate);
 	        if (bindTemplate) {
-	            templated = _.template(bindTemplate, valueToTemplate);
+	            templated = _.template(bindTemplate)(valueToTemplate);
 	            this.html(templated);
 	        } else {
 	            var oldHTML = this.html();
 	            var cleanedHTML = oldHTML.replace(/&lt;/g, '<').replace(/&gt;/g, '>');
-	            templated = _.template(cleanedHTML, valueToTemplate);
+	            templated = _.template(cleanedHTML)(valueToTemplate);
 	            if (cleanedHTML === templated) { //templating did nothing
 	                if (_.isArray(value)) {
 	                    value = value[value.length - 1];
@@ -2869,7 +2893,7 @@ var Flow =
 
 
 /***/ },
-/* 29 */
+/* 28 */
 /***/ function(module, exports) {
 
 	/**
@@ -2912,7 +2936,7 @@ var Flow =
 
 
 /***/ },
-/* 30 */
+/* 29 */
 /***/ function(module, exports) {
 
 	'use strict';
@@ -2955,583 +2979,570 @@ var Flow =
 
 
 /***/ },
-/* 31 */
+/* 30 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 	
-	var VarsChannel = __webpack_require__(32);
-	var OperationsChannel = __webpack_require__(33);
+	var createClass = __webpack_require__(31);
 	
-	module.exports = function (options) {
+	var RunMiddleware = __webpack_require__(32);
+	var ScenarioMiddleware = __webpack_require__(39);
+	
+	var makeSubs = function makeSubs(topics, callback, options) {
+	    var id = _.uniqueId('subs-');
 	    var defaults = {
-	        run: {
-	            variables: {
+	        batch: false,
 	
-	            },
-	            operations: {
+	        /**
+	         * Determines if the last published data should be cached for future notifications. For e.g.,
+	         *
+	         * channel.subscribe(['price', 'cost'], callback1, { batch: true, cache: false });
+	         * channel.subscribe(['price', 'cost'], callback2, { batch: true, cache: true });
+	         *
+	         * channel.publish({ price: 1 });
+	         * channel.publish({ cost: 1 });
+	         *
+	         * callback1 will have been called once, and callback2 will not have been called. i.e., the channel caches the first publish value and notifies after all dependent topics have data
+	         * If we'd done channel.publish({ price: 1, cost: 1 }) would have called both callback1 and callback2
+	         *
+	         * `cache: true` is useful if you know if your topics will can published individually, but you still want to handle them together.
+	         * `cache: false` is useful if you know if your topics will *always* be published together and they'll be called at the same time.
+	         *
+	         * Note this has no discernible effect if batch is false
+	         * @type {Boolean}
+	         */
+	        cache: true,
+	    };
+	    var opts = $.extend({}, defaults, options);
+	    return $.extend(true, {
+	        id: id,
+	        topics: topics,
+	        callback: callback,
+	    }, opts);
+	};
 	
-	            }
+	function callbackIfChanged(subscription, data) {
+	    if (!_.isEqual(subscription.lastSent, data)) {
+	        subscription.lastSent = data;
+	        subscription.callback(data);
+	    }
+	}
+	function checkAndNotifyBatch(publishObj, subscription) {
+	    var merged = $.extend(true, {}, subscription.availableData, publishObj);
+	    var matchingTopics = _.intersection(Object.keys(merged), subscription.topics);
+	    if (matchingTopics.length > 0) {
+	        var toSend = subscription.topics.reduce(function (accum, topic) {
+	            accum[topic] = merged[topic];
+	            return accum;
+	        }, {});
+	
+	        if (subscription.cache) {
+	            subscription.availableData = toSend;
 	        }
-	    };
-	    var config = $.extend(true, {}, defaults, options);
+	        if (matchingTopics.length === subscription.topics.length) {
+	            callbackIfChanged(subscription, toSend);
+	        }
+	    }
+	}
 	
-	    var rm = new window.F.manager.RunManager(config);
-	    var rs = rm.run;
+	function checkAndNotify(publishObj, subscription) {
+	    var publishedTopics = Object.keys(publishObj);
+	    publishedTopics.forEach(function (topic) {
+	        var data = publishObj[topic];
+	        if (_.includes(subscription.topics, topic) || _.includes(subscription.topics, '*')) {
+	            var toSend = {};
+	            toSend[topic] = data;
+	            callbackIfChanged(subscription, toSend);
+	        }
+	    });
+	}
 	
-	    var $creationPromise = rm.getRun();
-	    rs.currentPromise = $creationPromise;
+	var availableMiddlewares = [
+	    { name: 'runManager', handler: RunMiddleware },
+	    { name: 'scenarioManager', handler: ScenarioMiddleware },
+	];
+	var SubscriptionManager = (function () {
+	    function SubscriptionManager(options) {
+	        var defaults = {
+	            subscriptions: [],
 	
-	    // $creationPromise
-	    //     .then(function () {
-	    //         console.log('done');
-	    //     })
-	    //     .fail(function () {
-	    //         console.log('failt');
-	    //     });
+	            subscribeMiddleWares: [],
+	            publishMiddlewares: [],
+	            unsubscribeMiddlewares: [],
 	
-	    var createAndThen = function (fn, context) {
-	        return _.wrap(fn, function (func) {
-	            var passedInParams = _.toArray(arguments).slice(1);
-	            return rs.currentPromise.then(function () {
-	                rs.currentPromise = func.apply(context, passedInParams);
-	                return rs.currentPromise;
-	            }).fail(function () {
-	                console.warn('This failed, but we\'re moving ahead with the next one anyway', arguments);
-	                rs.currentPromise = func.apply(context, passedInParams);
-	                return rs.currentPromise;
-	            });
+	            options: {},
+	        };
+	        var opts = $.extend(true, {}, defaults, options);
+	
+	        var boundNotify = this.notify.bind(this);
+	
+	        availableMiddlewares.forEach(function (middleware) {
+	            if (opts[middleware.name]) {
+	                var Handler = middleware.handler;
+	                var m = new Handler($.extend(true, {}, opts.options[middleware.name], {
+	                    serviceOptions: opts[middleware.name]
+	                }), boundNotify);
+	                if (m.unsubscribeHandler) {
+	                    opts.unsubscribeMiddlewares.push(m.unsubscribeHandler);
+	                }
+	                opts.publishMiddlewares.push(m.publishHandler);
+	                opts.subscribeMiddleWares.push(m.subscribeHandler);
+	            }
 	        });
-	    };
 	
-	    //Make sure nothing happens before the run is created
-	    var nonWrapped = ['variables', 'create', 'load', 'getCurrentConfig', 'updateConfig'];
-	    _.each(rs, function (value, name) {
-	        if (_.isFunction(value) && !_.contains(nonWrapped, name)) {
-	            rs[name] = createAndThen(value, rs);
+	        $.extend(this, { 
+	            subscriptions: opts.subscriptions, 
+	            publishMiddlewares: opts.publishMiddlewares,
+	            unsubscribeMiddlewares: opts.unsubscribeMiddlewares,
+	            subscribeMiddleWares: opts.subscribeMiddleWares,
+	        });
+	    }
+	
+	    createClass(SubscriptionManager, {
+	        publishBatch: function (list, options) {
+	            var prom = $.Deferred().resolve(list).promise();
+	            var me = this;
+	            list.forEach(function (operation) {
+	                prom = prom.then(function () {
+	                    return me.publish(operation, options);
+	                });
+	            });
+	            return prom;
+	        },
+	
+	        publish: function (topic, value, options) {
+	            if (_.isArray(topic)) {
+	                return this.publishBatch(topic, value);
+	            }
+	            // console.log('publish', arguments);
+	            var attrs;
+	            if ($.isPlainObject(topic)) {
+	                attrs = topic;
+	                options = value;
+	            } else {
+	                (attrs = {})[topic] = value;
+	            }
+	            
+	            var prom = $.Deferred().resolve(attrs).promise();
+	            this.publishMiddlewares.forEach(function (middleware) {
+	                prom = prom.then(middleware);
+	            });
+	            prom = prom.then(this.notify.bind(this));
+	            return prom;
+	        },
+	
+	        notify: function (value) {
+	            return this.subscriptions.forEach(function (subs) {
+	                var fn = subs.batch ? checkAndNotifyBatch : checkAndNotify;
+	                fn(value, subs);
+	            });
+	        },
+	
+	        //TODO: Allow subscribing to regex? Will solve problem of listening only to variables etc
+	        subscribe: function (topics, cb, options) {
+	            var subs = makeSubs(topics, cb, options);
+	            this.subscriptions = this.subscriptions.concat(subs);
+	
+	            this.subscribeMiddleWares.forEach(function (middleware) {
+	                return middleware(subs.topics);
+	            });
+	            return subs.id;
+	        },
+	        unsubscribe: function (token) {
+	            var oldLength = this.subscriptions.length;
+	            this.subscriptions = _.reject(this.subscriptions, function (subs) {
+	                return subs.id === token;
+	            });
+	
+	            if (oldLength === this.subscriptions.length) {
+	                throw new Error('No subscription found for token ' + token);
+	            } else {
+	                var remainingTopics = this.getSubscribedTopics();
+	                this.unsubscribeMiddlewares.forEach(function (middleware) {
+	                    return middleware(remainingTopics);
+	                });
+	            }
+	        },
+	        unsubscribeAll: function () {
+	            this.subscriptions = [];
+	            this.unsubscribeMiddlewares.forEach(function (middleware) {
+	                return middleware([]);
+	            });
+	        },
+	        getSubscribedTopics: function () {
+	            var list = _.uniq(_.flatten(_.map(this.subscriptions, 'topics')));
+	            return list;
+	        },
+	        getSubscribers: function (topic) {
+	            if (topic) {
+	                return _.filter(this.subscriptions, function (subs) {
+	                    return _.includes(subs.topics, topic);
+	                });
+	            }
+	            return this.subscriptions;
 	        }
 	    });
 	
-	    var originalVariablesFn = rs.variables;
-	    rs.variables = function () {
-	        var vs = originalVariablesFn.apply(rs, arguments);
-	        _.each(vs, function (value, name) {
-	            if (_.isFunction(value)) {
-	                vs[name] = createAndThen(value, vs);
-	            }
+	    return SubscriptionManager;
+	}());
+	
+	module.exports = SubscriptionManager;
+
+
+/***/ },
+/* 31 */
+/***/ function(module, exports) {
+
+	module.exports = (function () {
+	    function defineProperties(target, props) {
+	        Object.keys(props).forEach(function (key) {
+	            var descriptor = {};
+	            descriptor.key = key;
+	            descriptor.value = props[key];
+	            descriptor.enumerable = false;
+	            descriptor.writable = true;
+	            descriptor.configurable = true;
+	            Object.defineProperty(target, key, descriptor); 
 	        });
-	        return vs;
-	    };
-	
-	    this.run = rs;
-	    this.variables = new VarsChannel($.extend(true, {}, config.run.variables, { run: rs }));
-	    this.operations = new OperationsChannel($.extend(true, {}, config.run.operations, { run: rs }));
-	
-	    var me = this;
-	    var DEBOUNCE_INTERVAL = 200;
-	    var debouncedRefresh = _.debounce(function () {
-	        me.variables.refresh(null, true);
-	        if (me.variables.options.autoFetch.enable) {
-	            me.variables.startAutoFetch();
-	        }
-	    }, DEBOUNCE_INTERVAL, { leading: false });
-	
-	    this.operations.subscribe('*', debouncedRefresh);
-	};
+	    }
+	    return function (Constructor, protoProps, staticProps) {
+	        if (protoProps) defineProperties(Constructor.prototype, protoProps);
+	        if (staticProps) defineProperties(Constructor, staticProps);
+	        return Constructor; 
+	    }; 
+	}());
 
 
 /***/ },
 /* 32 */
 /***/ function(module, exports, __webpack_require__) {
 
-	/**
-	 * ## Variables Channel
-	 *
-	 * Channels are ways for Flow.js to talk to external APIs -- primarily the [underlying Epicenter APIs](../../../../creating_your_interface/).
-	 *
-	 * The primary use cases for the Variables Channel are:
-	 *
-	 * * `publish`: Update a model variable.
-	 * * `subscribe`: Receive notifications when a model variable is updated.
-	 *
-	 * For example, use `publish()` to update a model variable:
-	 *
-	 *      Flow.channel.operations.publish('myVariable', newValue);
-	 *
-	 * For reference, an equivalent call using Flow.js custom HTML attributes is:
-	 *
-	 *      <input type="text" data-f-bind="myVariable" value="newValue"></input>
-	 *
-	 * where the new value is input by the user.
-	 *
-	 * You can also use `subscribe()` and a callback function to listen and react when the model variable has been updated:
-	 *
-	 *      Flow.channel.operations.subscribe('myVariable',
-	 *          function() { console.log('called!'); } );
-	 *
-	 * To use the Variables Channel, simply [initialize Flow.js in your project](../../../#custom-initialize).
-	 *
-	*/
+	var RunChannel = __webpack_require__(33);
 	
-	'use strict';
-	var config = __webpack_require__(2);
+	var prefix = __webpack_require__(38).prefix;
+	var mapWithPrefix = __webpack_require__(38).mapWithPrefix;
 	
-	
-	module.exports = function (options) {
+	module.exports = function (config, notifier) {
 	    var defaults = {
-	        /**
-	         * Determine when to update state. Defaults to `false`: always trigger updates.
-	         *
-	         * Possible options are:
-	         *
-	         * * `true`: Never trigger any updates. Use this if you know your model state won't change based on other variables.
-	         * * `false`: Always trigger updates.
-	         * * `[array of variable names]`: Variables in this array *will not* trigger updates; everything else will.
-	         * * `{ except: [array of variable names] }`: Variables in this array *will* trigger updates; nothing else will.
-	         *
-	         * To set, pass this into the `Flow.initialize()` call in the `channel.run.variables` field:
-	         *
-	         *      Flow.initialize({
-	         *          channel: {
-	         *              run: {
-	         *                  model: 'myModel.py',
-	         *                  account: 'acme-simulations',
-	         *                  project: 'supply-chain-game',
-	         *                  variables: { silent: true }
-	         *              }
-	         *          }
-	         *      });
-	         *
-	         * To override for a specific call to the Variables Channel, pass this as the final `options` parameter:
-	         *
-	         *       Flow.channel.variables.publish('myVariable', newValue, { silent: true });
-	         *
-	         * @type {String|Array|Object}
-	         */
-	        silent: false,
+	        serviceOptions: {},
+	    };
+	    var opts = $.extend(true, {}, defaults, config);
 	
-	        /**
-	         * Allows you to automatically fetch variables from the API as they're being subscribed. If this is set to `enable: false` you'll need to explicitly call `refresh()` to get data and notify your listeners.
-	         *
-	         * The properties of this object include:
-	         *
-	         * * `autoFetch.enable` *Boolean* Enable auto-fetch behavior. If set to `false` during instantiation there's no way to enable this again. Defaults to `true`.
-	         * * `autoFetch.start` *Boolean* If auto-fetch is enabled, control when to start fetching. Typically you'd want to start right away, but if you want to wait till something else happens (like an operation or user action) set to `false` and control using the `startAutoFetch()` function. Defaults to `true`.
-	         * * `autoFetch.debounce` *Number* Milliseconds to wait between calls to `subscribe()` before calling `fetch()`. See [http://drupalmotion.com/article/debounce-and-throttle-visual-explanation](http://drupalmotion.com/article/debounce-and-throttle-visual-explanation) for an explanation of how debouncing works. Defaults to `200`.
-	         *
-	         * @type {Object}
-	         */
-	        autoFetch: {
+	    var rm = new window.F.manager.RunManager(opts.serviceOptions);
+	    var $creationPromise = rm.getRun().then(function () {
+	        return rm.run;
+	    });
+	    var notifyWithPrefix = function (prefix, data) {
+	        notifier(mapWithPrefix(data, prefix));
+	    };
+	    var currentRunChannel = new RunChannel($.extend(true, 
+	        { serviceOptions: $creationPromise }, opts.defaults, opts.current), notifyWithPrefix.bind(null, 'current:'));
+	    var defaultRunChannel = new RunChannel($.extend(true, 
+	        { serviceOptions: $creationPromise }, opts.defaults, opts.current), notifier);
 	
-	             // Enable auto-fetch behavior. If set to `false` during instantiation there's no way to enable this again
-	             // @type {Boolean}
-	            enable: true,
+	    var sampleRunid = '000001593dd81950d4ee4f3df14841769a0b';
+	   
+	    // create a new channel and push onto handlers to catch further
+	    var knownRunIDServiceChannels = {};
+	    var handlers = [
+	        $.extend(currentRunChannel, { name: 'current', match: prefix('current:') }),
+	        { 
+	            name: 'custom', 
+	            match: function (topic) { 
+	                var topicRoot = topic.split(':')[0];
+	                return (topicRoot.length === sampleRunid.length) ? topicRoot + ':' : false;
+	            },
+	            subscribeHandler: function (topics, prefix) {
+	                prefix = prefix.replace(':', '');
+	                if (!knownRunIDServiceChannels[prefix]) {
+	                    var newNotifier = notifyWithPrefix.bind(null, prefix + ':');
+	                    var runOptions = $.extend(true, {}, opts.serviceOptions.run, { id: prefix });
+	                    var runChannel = new RunChannel({ serviceOptions: runOptions }, newNotifier);
 	
-	             // If auto-fetch is enabled, control when to start fetching. Typically you'd want to start right away, but if you want to wait till something else happens (like an operation or user action) set to `false` and control using the `startAutoFetch()` function.
-	             // @type {Boolean}
-	            start: true,
+	                    knownRunIDServiceChannels[prefix] = runChannel;
+	                }
+	                return knownRunIDServiceChannels[prefix].subscribeHandler(topics);
+	            },
+	            publishHandler: function (topics, prefix) {
+	                prefix = prefix.replace(':', '');
+	                if (!knownRunIDServiceChannels[prefix]) {
+	                    var newNotifier = notifyWithPrefix.bind(null, prefix + ':');
+	                    var runOptions = $.extend(true, {}, opts.serviceOptions.run, { id: prefix });
+	                    var runChannel = new RunChannel({ serviceOptions: runOptions }, newNotifier);
+	                    knownRunIDServiceChannels[prefix] = runChannel;
+	                }
+	                return knownRunIDServiceChannels[prefix].publishHandler(topics);
+	            }
+	        },
+	        $.extend(defaultRunChannel, { name: 'current', match: prefix('') }),
+	    ];
 	
-	             // Control time to wait between calls to `subscribe()` before calling `fetch()`. See [http://drupalmotion.com/article/debounce-and-throttle-visual-explanation](http://drupalmotion.com/article/debounce-and-throttle-visual-explanation) for an explanation of how debouncing works.
-	             // @type {Number} Milliseconds to wait
-	            debounce: 200
+	    return {
+	        subscribeHandler: function (topics) {
+	            handlers.reduce(function (pendingTopics, ph) {
+	                var toFetch = ([].concat(pendingTopics)).reduce(function (accum, topic) {
+	                    var prefixMatch = ph.match(topic, ph.prefix);
+	                    if (prefixMatch !== false) {
+	                        var stripped = topic.replace(prefixMatch, '');
+	                        accum.myTopics.push(stripped);
+	                        accum.prefix = prefixMatch;
+	                    } else {
+	                        accum.otherTopics.push(topic);
+	                    }
+	                    return accum;
+	                }, { myTopics: [], otherTopics: [], prefix: '' });
+	
+	                // var handlerOptions = opts[ph.name];
+	                if (toFetch.myTopics.length && ph.subscribeHandler) {
+	                    var returned = ph.subscribeHandler(toFetch.myTopics, toFetch.prefix);
+	                    if (returned && returned.then) {
+	                        returned.then(notifyWithPrefix.bind(null, toFetch.prefix));
+	                    }
+	                }
+	                return toFetch.otherTopics;
+	            }, topics);
 	        },
 	
-	        /**
-	         * Allow using the channel for reading data (subscribing), but disallow calls to `publish`. Defaults to `false`: allow both subscribing and publishing. If a function is provided, the function should return a Boolean value to override.
-	         * @type {Boolean | Function}
-	         */
-	        readOnly: false,
-	
-	        interpolate: {}
-	    };
-	
-	    var channelOptions = $.extend(true, {}, defaults, options);
-	    this.options = channelOptions;
-	
-	    var vs = channelOptions.run.variables();
-	
-	    var currentData = {};
-	
-	    //TODO: actually compare objects and so on
-	    var isEqual = function () {
-	        return false;
-	    };
-	
-	    var getInnerVariables = function (str) {
-	        var inner = str.match(/<(.*?)>/g);
-	        inner = _.map(inner, function (val) {
-	            return val.substring(1, val.length - 1);
-	        });
-	        return inner;
-	    };
-	
-	    //TODO: Move this check into epijs
-	    var queryVars = function (vList) {
-	        vList = _.invoke(vList, 'trim');
-	        vList = _.filter(vList, function (val) {
-	            return val && val !== '';
-	        });
-	        return vs.query(vList);
-	    };
-	
-	    //Replaces stubbed out keynames in variablestointerpolate with their corresponding values
-	    var interpolate = function (variablesToInterpolate, values) {
-	        //{price[1]: price[<time>]}
-	        var interpolationMap = {};
-	        //{price[1]: 1}
-	        var interpolated = {};
-	
-	        _.each(variablesToInterpolate, function (outerVariable) {
-	            var inner = getInnerVariables(outerVariable);
-	            var originalOuter = outerVariable;
-	            if (inner && inner.length) {
-	                $.each(inner, function (index, innerVariable) {
-	                    var thisval = values[innerVariable];
-	                    if (thisval !== null && (typeof thisval !== 'undefined')) {
-	                        if (_.isArray(thisval)) {
-	                            //For arrayed things get the last one for interpolation purposes
-	                            thisval = thisval[thisval.length - 1];
-	                        }
-	                        //TODO: Regex to match spaces and so on
-	                        outerVariable = outerVariable.replace('<' + innerVariable + '>', thisval);
+	        unsubscribeHandler: function (remainingTopics) {
+	            handlers.reduce(function (pendingTopics, ph) {
+	                var unsubs = ([].concat(pendingTopics)).reduce(function (accum, topic) {
+	                    var prefixMatch = ph.match(topic, ph.prefix);
+	                    if (prefixMatch !== false) {
+	                        var stripped = topic.replace(prefixMatch, '');
+	                        accum.myTopics.push(stripped);
+	                        accum.prefix = prefixMatch;
+	                    } else {
+	                        accum.otherTopics.push(topic);
 	                    }
-	                });
-	                interpolationMap[outerVariable] = (interpolationMap[outerVariable]) ? [originalOuter].concat(interpolationMap[outerVariable]) : originalOuter;
-	            }
-	            interpolated[originalOuter] = outerVariable;
-	        });
+	                    return accum;
+	                }, { myTopics: [], otherTopics: [], prefix: '' });
 	
-	        var op = {
-	            interpolated: interpolated,
-	            interpolationMap: interpolationMap
-	        };
-	        return op;
+	                if (unsubs.myTopics.length && ph.unsubscribeHandler) {
+	                    ph.unsubscribeHandler(unsubs.myTopics);
+	                }
+	                return unsubs.otherTopics;
+	            }, remainingTopics);
+	        },
+	        
+	        publishHandler: function (inputObj) {
+	            var status = handlers.reduce(function (accum, ph) {
+	                var topicsToHandle = Object.keys(accum.unhandled).reduce(function (soFar, inputKey) {
+	                    var value = accum.unhandled[inputKey];
+	                    var prefixMatch = ph.match(inputKey, ph.prefix);
+	                    if (prefixMatch !== false) {
+	                        var cleanedKey = inputKey.replace(prefixMatch, '');
+	                        soFar.myTopics[cleanedKey] = value;
+	                        soFar.prefix = prefixMatch;
+	                    } else {
+	                        soFar.otherTopics[inputKey] = value;
+	                    }
+	                    return soFar;
+	                }, { myTopics: {}, otherTopics: {}, prefix: '' });
+	                var myTopics = topicsToHandle.myTopics;
+	                if (!Object.keys(myTopics).length) {
+	                    return accum;
+	                }
+	
+	                var thisProm = ph.publishHandler(myTopics, topicsToHandle.prefix).then(function (resultObj) {
+	                    var mapped = mapWithPrefix(resultObj, topicsToHandle.prefix);
+	                    return mapped;
+	                });
+	                accum.promises.push(thisProm);
+	                accum.unhandled = topicsToHandle.otherTopics;
+	                return accum;
+	            }, { promises: [], unhandled: inputObj });
+	
+	            return $.when.apply(null, status.promises).then(function () {
+	                var args = Array.apply(null, arguments);
+	                var merged = args.reduce(function (accum, arg) {
+	                    return $.extend(true, {}, accum, arg);
+	                }, {});
+	                return merged;
+	            });
+	        },
+	    };
+	};
+
+
+/***/ },
+/* 33 */
+/***/ function(module, exports, __webpack_require__) {
+
+	var MetaChannel = __webpack_require__(34);
+	var VariablesChannel = __webpack_require__(35);
+	var OperationsChannel = __webpack_require__(36);
+	var silencable = __webpack_require__(37);
+	
+	var prefix = __webpack_require__(38).prefix;
+	var mapWithPrefix = __webpack_require__(38).mapWithPrefix;
+	
+	module.exports = function (config, notifier) {
+	    var defaults = {
+	        serviceOptions: {},
+	        initialOperation: [],
+	        variables: {
+	            autoFetch: true,
+	            silent: false,
+	            readOnly: false,
+	        },
+	        operations: {
+	            readOnly: false,
+	            silent: false,
+	        },
+	        meta: {
+	            silent: false,
+	            autoFetch: true,
+	            readOnly: false
+	        },
+	    };
+	    var opts = $.extend(true, {}, defaults, config);
+	
+	    var serviceOptions = _.result(opts, 'serviceOptions');
+	    var $initialProm = null;
+	    if (serviceOptions instanceof window.F.service.Run) {
+	        $initialProm = $.Deferred().resolve(serviceOptions).promise();
+	    } else if (serviceOptions.then) {
+	        $initialProm = serviceOptions;
+	    } else {
+	        var rs = new window.F.service.Run(serviceOptions);
+	        $initialProm = $.Deferred().resolve(rs).promise();
+	    }
+	
+	    if (opts.initialOperation.length) {
+	        //FIXME: Move run initialization logic to run-manager, as a strategy option. Technically only it should know what to do with it.
+	        //For e.g, if there was a reset operation performed on the run, the run service instance will be the same so we wouldn't know
+	        $initialProm = $initialProm.then(function (runService) {
+	            if (!runService.initialize) {
+	                runService.initialize = runService.serial(opts.initialOperation);
+	            }
+	            return runService.initialize.then(function () {
+	                return runService;
+	            });
+	        });
+	    }
+	
+	    var variableschannel = new VariablesChannel();
+	    //TODO: Need 2 different channel instances because the fetch is debounced, and hence will bundle variables up otherwise.
+	    //also, notify needs to be called twice (with different arguments). Different way?
+	    var defaultVariablesChannel = new VariablesChannel();
+	    var metaChannel = new MetaChannel();
+	    var operationsChannel = new OperationsChannel();
+	
+	    var handlers = [
+	        $.extend({}, variableschannel, { name: 'variables', match: prefix('variable:') }),
+	        $.extend({}, metaChannel, { name: 'meta', match: prefix('meta:') }),
+	        $.extend({}, operationsChannel, { name: 'operations', match: prefix('operation:') }),
+	        $.extend({}, defaultVariablesChannel, { name: 'variables', match: prefix('') }),
+	    ];
+	
+	    var notifyWithPrefix = function (prefix, data) {
+	        notifier(mapWithPrefix(data, prefix));
 	    };
 	
 	    var publicAPI = {
-	        //for testing
-	        private: {
-	            getInnerVariables: getInnerVariables,
-	            interpolate: interpolate,
-	            currentData: currentData,
-	            options: channelOptions
-	        },
-	
-	        subscriptions: [],
-	
-	        unfetched: [],
-	
-	        getSubscribers: function (topic) {
-	            if (topic) {
-	                return _.filter(this.subscriptions, function (subs) {
-	                    return _.contains(subs.topics, topic);
-	                });
-	            }
-	            return this.subscriptions;
-	        },
-	        getAllTopics: function () {
-	            return _(this.subscriptions).pluck('topics').flatten().uniq().value();
-	        },
-	        getTopicDependencies: function (list) {
-	            if (!list) {
-	                list = this.getAllTopics();
-	            }
-	            var innerList = [];
-	            _.each(list, function (vname) {
-	                var inner = getInnerVariables(vname);
-	                if (inner.length) {
-	                    innerList = _.uniq(innerList.concat(inner));
-	                }
-	            });
-	            return innerList;
-	        },
-	
-	        updateAndCheckForRefresh: function (topics, options) {
-	            if (topics) {
-	                this.unfetched = _.uniq(this.unfetched.concat(topics));
-	            }
-	            if (!channelOptions.autoFetch.enable || !channelOptions.autoFetch.start || !this.unfetched.length) {
-	                return false;
-	            }
-	            if (!this.debouncedFetch) {
-	                var DELAY_FACTOR = 4;
-	                var debounceOptions = $.extend(true, {}, {
-	                    maxWait: channelOptions.autoFetch.debounce * DELAY_FACTOR,
-	                    leading: false
-	                }, options);
-	
-	                this.debouncedFetch = _.debounce(function () {
-	                    this.fetch(this.unfetched).then(function (changed) {
-	                        $.extend(currentData, changed);
-	                        this.unfetched = [];
-	                        this.notify(changed);
-	                    }.bind(this));
-	                }, channelOptions.autoFetch.debounce, debounceOptions);
-	            }
-	
-	            this.debouncedFetch(topics);
-	        },
-	
-	        populateInnerVariables: function (vars) {
-	            var unmappedVariables = [];
-	            var valueList = {};
-	            _.each(vars, function (v) {
-	                if (typeof this.options.interpolate[v] !== 'undefined') {
-	                    var val = _.isFunction(this.options.interpolate[v]) ? this.options.interpolate[v](v) : this.options.interpolate[v];
-	                    valueList[v] = val;
-	                } else {
-	                    unmappedVariables.push(v);
-	                }
-	            }, this);
-	            if (unmappedVariables.length) {
-	                return queryVars(unmappedVariables).then(function (variableValueList) {
-	                    return $.extend(valueList, variableValueList);
-	                });
-	            }
-	            return $.Deferred().resolve(valueList).promise();
-	        },
-	
-	        fetch: function (variablesList) {
-	            // console.log('fetch called', variablesList);
-	            variablesList = [].concat(variablesList);
-	            if (!variablesList.length) {
-	                return $.Deferred().resolve().promise({});
-	            }
-	            var innerVariables = this.getTopicDependencies(variablesList);
-	            var getVariables = function (vars, interpolationMap) {
-	                return queryVars(vars).then(function (variables) {
-	                    // console.log('Got variables', variables);
-	                    var changeSet = {};
-	                    _.each(variables, function (value, vname) {
-	                        var oldValue = currentData[vname];
-	                        if (!isEqual(value, oldValue)) {
-	                            changeSet[vname] = value;
-	                            if (interpolationMap && interpolationMap[vname]) {
-	                                var map = [].concat(interpolationMap[vname]);
-	                                _.each(map, function (interpolatedName) {
-	                                    changeSet[interpolatedName] = value;
-	                                });
-	                            }
+	        subscribeHandler: function (topics) {
+	            $initialProm.then(function (runService) {
+	                handlers.reduce(function (pendingTopics, ph) {
+	                    var toFetch = ([].concat(pendingTopics)).reduce(function (accum, topic) {
+	                        var prefixMatch = ph.match(topic, ph.prefix);
+	                        if (prefixMatch !== false) {
+	                            var stripped = topic.replace(prefixMatch, '');
+	                            accum.myTopics.push(stripped);
+	                            accum.prefix = prefixMatch;
+	                        } else {
+	                            accum.otherTopics.push(topic);
 	                        }
-	                    });
-	                    return changeSet;
-	                });
-	            };
-	            if (innerVariables.length) {
-	                return this.populateInnerVariables(innerVariables).then(function (innerVariables) {
-	                    //console.log('inner', innerVariables);
-	                    $.extend(currentData, innerVariables);
-	                    var ip = interpolate(variablesList, innerVariables);
-	                    return getVariables(_.values(ip.interpolated), ip.interpolationMap);
-	                });
-	            }
-	            return getVariables(variablesList);
-	        },
+	                        return accum;
+	                    }, { myTopics: [], otherTopics: [], prefix: '' });
 	
-	        startAutoFetch: function () {
-	            channelOptions.autoFetch.start = true;
-	            this.updateAndCheckForRefresh();
-	        },
-	
-	        stopAutoFetch: function () {
-	            channelOptions.autoFetch.start = false;
-	        },
-	
-	        /**
-	         * Force a check for updates on the channel, and notify all listeners.
-	         *
-	         * @param {Object|Array} changeList Key-value pairs of changed variables.
-	         * @param {Boolean} force  Ignore all `silent` options and force refresh.
-	         * @param {Object} options (Optional) Overrides for the default channel options.
-	         * @returns {promise} Promise on completion
-	         */
-	        refresh: function (changeList, force, options) {
-	            var opts = $.extend(true, {}, channelOptions, options);
-	            var me = this;
-	            var silent = opts.silent;
-	            var changedVariables = _.isArray(changeList) ? changeList : _.keys(changeList);
-	
-	            var shouldSilence = silent === true;
-	            if (_.isArray(silent) && changedVariables) {
-	                shouldSilence = _.intersection(silent, changedVariables).length >= 1;
-	            }
-	            if ($.isPlainObject(silent) && changedVariables) {
-	                shouldSilence = _.intersection(silent.except, changedVariables).length !== changedVariables.length;
-	            }
-	
-	            if (shouldSilence && force !== true) {
-	                return $.Deferred().resolve().promise();
-	            }
-	
-	            var variables = this.getAllTopics();
-	            me.unfetched = [];
-	
-	            return this.fetch(variables).then(function (changeSet) {
-	                $.extend(currentData, changeSet);
-	                me.notify(changeSet);
-	            });
-	        },
-	
-	        /**
-	         * Alert each subscriber about the variable and its new value.
-	         *
-	         * **Example**
-	         *
-	         *      Flow.channel.operations.notify('myVariable', newValue);
-	         *
-	         * @param {String|Array} topics Names of variables.
-	         * @param {String|Number|Array|Object} value New values for the variables.
-	         * @returns {undefined}
-	        */
-	        notify: function (topics, value) {
-	            var callTarget = function (target, params) {
-	                if (_.isFunction(target)) {
-	                    target(params);
-	                } else {
-	                    target.trigger(config.events.channelDataReceived, params);
-	                }
-	            };
-	
-	            if (!$.isPlainObject(topics)) {
-	                topics = _.object([topics], [value]);
-	            }
-	            _.each(this.subscriptions, function (subscription) {
-	                var target = subscription.target;
-	                if (subscription.batch) {
-	                    var matchingTopics = _.pick(topics, subscription.topics);
-	                    if (_.size(matchingTopics) === _.size(subscription.topics)) {
-	                        callTarget(target, matchingTopics);
+	                    var handlerOptions = opts[ph.name];
+	                    var shouldFetch = _.result(handlerOptions, 'autoFetch');
+	                    if (toFetch.myTopics.length && ph.subscribeHandler && shouldFetch) {
+	                        var returned = ph.subscribeHandler(runService, toFetch.myTopics);
+	                        if (returned && returned.then) {
+	                            returned.then(notifyWithPrefix.bind(null, toFetch.prefix));
+	                        }
 	                    }
-	                } else {
-	                    _.each(subscription.topics, function (topic) {
-	                        var matchingTopics = _.pick(topics, topic);
-	                        if (_.size(matchingTopics)) {
-	                            callTarget(target, matchingTopics);
-	                        }
-	                    });
+	                    return toFetch.otherTopics;
+	                }, topics);
+	            });
+	        },
+	
+	        unsubscribeHandler: function (remainingTopics) {
+	            handlers.reduce(function (pendingTopics, ph) {
+	                var unsubs = ([].concat(pendingTopics)).reduce(function (accum, topic) {
+	                    var prefixMatch = ph.match(topic, ph.prefix);
+	                    if (prefixMatch !== false) {
+	                        var stripped = topic.replace(prefixMatch, '');
+	                        accum.myTopics.push(stripped);
+	                        accum.prefix = prefixMatch;
+	                    } else {
+	                        accum.otherTopics.push(topic);
+	                    }
+	                    return accum;
+	                }, { myTopics: [], otherTopics: [], prefix: '' });
+	
+	                if (unsubs.myTopics.length && ph.unsubscribeHandler) {
+	                    ph.unsubscribeHandler(unsubs.myTopics);
 	                }
-	            });
+	                return unsubs.otherTopics;
+	            }, remainingTopics);
 	        },
 	
-	        /**
-	         * Update the variables with new values, and alert subscribers.
-	         *
-	         * **Example**
-	         *
-	         *      Flow.channel.variables.publish('myVariable', newValue);
-	         *      Flow.channel.variables.publish({ myVar1: newVal1, myVar2: newVal2 });
-	         *
-	         * @param  {String|Object} variable String with name of variable. Alternatively, object in form `{ variableName: value }`.
-	         * @param {String|Number|Array|Object} value (Optional)  Value of the variable, if previous argument was a string.
-	         * @param {Object} options (Optional) Overrides for the default channel options. Supported options: `{ silent: Boolean }` and `{ batch: Boolean }`.
-	         *
-	         * @return {$promise} Promise to complete the update.
-	         */
-	        publish: function (variable, value, options) {
-	            // console.log('publish', arguments);
-	            var attrs;
-	            if ($.isPlainObject(variable)) {
-	                attrs = variable;
-	                options = value;
-	            } else {
-	                (attrs = {})[variable] = value;
-	            }
+	        publishHandler: function (inputObj) {
+	            return $initialProm.then(function (runService) {
+	                //TODO: This means variables are always set before operations happen, make that more dynamic and by occurence order
+	                //TODO: Have publish on subsmanager return a series of [{ key: val} ..] instead of 1 big object?
+	                var status = handlers.reduce(function (accum, ph) {
+	                    var topicsToHandle = Object.keys(accum.unhandled).reduce(function (soFar, inputKey) {
+	                        var value = accum.unhandled[inputKey];
+	                        var prefixMatch = ph.match(inputKey, ph.prefix);
+	                        if (prefixMatch !== false) {
+	                            var cleanedKey = inputKey.replace(prefixMatch, '');
+	                            soFar.myTopics[cleanedKey] = value;
+	                            soFar.prefix = prefixMatch;
+	                        } else {
+	                            soFar.otherTopics[inputKey] = value;
+	                        }
+	                        return soFar;
+	                    }, { myTopics: {}, otherTopics: {}, prefix: '' });
 	
-	            var opts = $.extend(true, {}, channelOptions, options);
+	                    var myTopics = topicsToHandle.myTopics;
+	                    if (!Object.keys(myTopics).length) {
+	                        return accum;
+	                    }
 	
-	            if (_.result(opts, 'readOnly')) {
-	                console.warn('Tried to publish to a read-only channel', variable);
-	                return $.Deferred().reject().promise();
-	            }
-	            var it = interpolate(_.keys(attrs), currentData);
+	                    var handlerOptions = opts[ph.name];
+	                    if (_.result(handlerOptions, 'readOnly')) {
+	                        var msg = 'Tried to publish to a read-only operations channel';
+	                        console.warn(msg, myTopics);
+	                        return accum;
+	                    } 
 	
-	            var toSave = {};
-	            _.each(attrs, function (val, attr) {
-	                var key = (it.interpolated[attr]) ? it.interpolated[attr] : attr;
-	                toSave[key] = val;
+	                    var thisProm = ph.publishHandler(runService, myTopics, handlerOptions).then(function (resultObj) {
+	                        var unsilenced = silencable(resultObj, handlerOptions);
+	                        if (Object.keys(unsilenced).length && ph.name !== 'meta') {
+	                            //FIXME: Better way?
+	                            // variableschannel.fetch(runService).then(notifyWithPrefix.bind(null, 'variables:'));
+	                            // defaultVariablesChannel.fetch(runService).then(notifyWithPrefix.bind(null, ''));
+	                        }
+	                        var mapped = mapWithPrefix(unsilenced, topicsToHandle.prefix);
+	                        return mapped;
+	                    });
+	                    accum.promises.push(thisProm);
+	                    accum.unhandled = topicsToHandle.otherTopics;
+	                    return accum;
+	                }, { promises: [], unhandled: inputObj });
+	
+	                return $.when.apply(null, status.promises).then(function () {
+	                    var args = Array.apply(null, arguments);
+	                    var merged = args.reduce(function (accum, arg) {
+	                        return $.extend(true, {}, accum, arg);
+	                    }, {});
+	                    return merged;
+	                });
 	            });
-	            var me = this;
-	            return vs.save(toSave).then(function () {
-	                return me.refresh(attrs, null, opts);
-	            });
-	        },
-	
-	        /**
-	         * Subscribe to changes on a channel: Ask for notification when variables are updated.
-	         *
-	         * **Example**
-	         *
-	         *      Flow.channel.variables.subscribe('myVariable',
-	         *          function() { console.log('called!'); });
-	         *
-	         *      Flow.channel.variables.subscribe(['price', 'cost'],
-	         *          function() {
-	         *              // this function called only once, with { price: X, cost: Y }
-	         *          },
-	         *          { batch: true });
-	         *
-	         *      Flow.channel.variables.subscribe(['price', 'cost'],
-	         *          function() {
-	         *              // this function called twice, once with { price: X }
-	         *              // and again with { cost: Y }
-	         *          },
-	         *          { batch: false });
-	         *
-	         * @param {String|Array} topics The names of the variables.
-	         * @param {Object|Function} subscriber The object or function being notified. Often this is a callback function. If this is not a function, a `trigger` method is called if available; if not, event is triggered on $(object).
-	         * @param {Object} options (Optional) Overrides for the default channel options.
-	         * @param {Boolean} options.silent Determine when to update state.
-	         * @param {Boolean} options.batch If you are subscribing to multiple variables, by default the callback function is called once for each item to which you subscribe: `batch: false`. When `batch` is set to `true`, the callback function is only called once, no matter how many items you are subscribing to.
-	         *
-	         * @return {String} An identifying token for this subscription. Required as a parameter when unsubscribing.
-	        */
-	        subscribe: function (topics, subscriber, options) {
-	            // console.log('subscribing', topics, subscriber);
-	            var defaults = {
-	                batch: false
-	            };
-	
-	            topics = [].concat(topics);
-	            if (!topics.length) {
-	                console.warn(subscriber, 'tried to subscribe to an empty topic');
-	            }
-	            //use jquery to make event sink
-	            if (!subscriber.on && !_.isFunction(subscriber)) {
-	                subscriber = $(subscriber);
-	            }
-	
-	            var id = _.uniqueId('epichannel.variable');
-	            var data = $.extend({
-	                id: id,
-	                topics: topics,
-	                target: subscriber
-	            }, defaults, options);
-	
-	            this.subscriptions.push(data);
-	
-	            this.updateAndCheckForRefresh(topics);
-	            return id;
-	        },
-	
-	        /**
-	         * Stop receiving notifications for all subscriptions referenced by this token.
-	         *
-	         * @param {String} token The identifying token for this subscription. (Created and returned by the `subscribe()` call.)
-	         * @returns {undefined}
-	        */
-	        unsubscribe: function (token) {
-	            this.subscriptions = _.reject(this.subscriptions, function (subs) {
-	                return subs.id === token;
-	            });
-	        },
-	
-	        /**
-	         * Stop receiving notifications for all subscriptions. No parameters.
-	         *
-	         * @returns {undefined}
-	        */
-	        unsubscribeAll: function () {
-	            this.subscriptions = [];
 	        }
 	    };
 	
@@ -3540,284 +3551,301 @@ var Flow =
 
 
 /***/ },
-/* 33 */
-/***/ function(module, exports, __webpack_require__) {
+/* 34 */
+/***/ function(module, exports) {
 
-	/**
-	 * ## Operations Channel
-	 *
-	 * Channels are ways for Flow.js to talk to external APIs -- primarily the [underlying Epicenter APIs](../../../../creating_your_interface/).
-	 *
-	 * The primary use cases for the Operations Channel are:
-	 *
-	 * * `publish`: Call an operation.
-	 * * `subscribe`: Receive notifications when an operation is called.
-	 *
-	 * For example, use `publish()` to call an operation (method) from your model:
-	 *
-	 *      Flow.channel.operations.publish('myMethod', myMethodParam);
-	 *
-	 * For reference, an equivalent call using Flow.js custom HTML attributes is:
-	 *
-	 *      <button data-f-on-click="myMethod(myMethodParam)">Click me</button>
-	 *
-	 * You can also use `subscribe()` and a callback function to listen and react when the operation has been called:
-	 *
-	 *      Flow.channel.operations.subscribe('myMethod',
-	 *          function() { console.log('called!'); } );
-	 *
-	 * Use `subscribe(*)` to listen for notifications on all operations.
-	 *
-	 * To use the Operations Channel, simply [initialize Flow.js in your project](../../../#custom-initialize).
-	 *
-	*/
+	module.exports = function () {
 	
-	
-	'use strict';
-	var config = __webpack_require__(2);
-	
-	module.exports = function (options) {
-	    var defaults = {
-	        /**
-	         * Determine when to update state. Defaults to `false`: always trigger updates.
-	         *
-	         * Possible options are:
-	         *
-	         * * `true`: Never trigger any updates. Use this if you know your model state won't change based on operations.
-	         * * `false`: Always trigger updates.
-	         * * `[array of operation names]`: Operations in this array *will not* trigger updates; everything else will.
-	         * * `{ except: [array of operation names] }`: Operations in this array *will* trigger updates; nothing else will.
-	         *
-	         * To set, pass this into the `Flow.initialize()` call in the `channel.run.operations` field:
-	         *
-	         *      Flow.initialize({
-	         *          channel: {
-	         *              run: {
-	         *                  model: 'myModel.py',
-	         *                  account: 'acme-simulations',
-	         *                  project: 'supply-chain-game',
-	         *                  operations: { silent: true }
-	         *              }
-	         *          }
-	         *      });
-	         *
-	         * To override for a specific call to the Operations Channel, pass this as the final `options` parameter:
-	         *
-	         *       Flow.channel.operations.publish('myMethod', myMethodParam, { silent: true });
-	         *
-	         * @type {String|Array|Object}
-	         */
-	        silent: false,
-	
-	        /**
-	         * Allow using the channel for reading data (subscribing), but disallow calls to `publish`. Defaults to `false`: allow both subscribing and publishing. If a function is provided, the function should return a Boolean value to override.
-	         * @type {Boolean | Function}
-	         */
-	        readOnly: false,
-	
-	        interpolate: {}
-	    };
-	
-	    var channelOptions = $.extend(true, {}, defaults, options);
-	    this.options = channelOptions;
-	
-	    var run = channelOptions.run;
-	
-	    var publicAPI = {
-	        //for testing
-	        private: {
-	            options: channelOptions
-	        },
-	
-	        listenerMap: {},
-	
-	        getSubscribers: function (topic) {
-	            var topicSubscribers = this.listenerMap[topic] || [];
-	            var globalSubscribers = this.listenerMap['*'] || [];
-	            return topicSubscribers.concat(globalSubscribers);
-	        },
-	
-	        //Check for updates
-	        /**
-	         * Force a check for updates on the channel, and notify all listeners.
-	         *
-	         * @param {String|Array}  executedOpns Operations which just happened.
-	         * @param {Any} response  Response from the operation.
-	         * @param {Boolean} force  Ignore all `silent` options and force refresh.
-	         * @param {Object} options (Optional) Overrides for the default channel options.
-	         * @returns {undefined}
-	         */
-	        refresh: function (executedOpns, response, force, options) {
-	            // console.log('Operations refresh', executedOpns);
-	            var opts = $.extend(true, {}, channelOptions, options);
-	
-	            var silent = opts.silent;
-	            var toNotify = executedOpns;
-	            if (force === true) { // eslint-disable-line
-	            } else if (silent === true) {
-	                toNotify = [];
-	            } else if (_.isArray(silent) && executedOpns) {
-	                toNotify = _.difference(executedOpns, silent);
-	            } else if ($.isPlainObject(silent) && executedOpns) {
-	                toNotify = _.intersection(silent.except, executedOpns);
+	    function mergeAndSend(runMeta, requestedTopics) {
+	        var toSend = ([].concat(requestedTopics)).reduce(function (accum, meta) {
+	            if (runMeta[meta] !== undefined) {
+	                accum[meta] = runMeta[meta];
 	            }
-	
-	            _.each(toNotify, function (opn) {
-	                this.notify(opn, response);
-	            }, this);
-	        },
-	
-	        /**
-	         * Alert each subscriber about the operation and its parameters. This can be used to provide an update without a round trip to the server. However, it is rarely used: you almost always want to `subscribe()` instead so that the operation is actually called in the model.
-	         *
-	         * **Example**
-	         *
-	         *      Flow.channel.operations.notify('myMethod', myMethodResponse);
-	         *
-	         * @param {String} operation Name of operation.
-	         * @param {String|Number|Array|Object} value Parameter values for the callback function.
-	         * @returns {undefined}
-	        */
-	        notify: function (operation, value) {
-	            var listeners = this.getSubscribers(operation);
-	            var params = {};
-	            params[operation] = value;
-	
-	            _.each(listeners, function (listener) {
-	                var target = listener.target;
-	                if (_.isFunction(target)) {
-	                    target(params, value, operation);
-	                } else if (target.trigger) {
-	                    listener.target.trigger(config.events.channelDataReceived, params);
-	                } else {
-	                    throw new Error('Unknown listener format for ' + operation);
-	                }
+	            return accum;
+	        }, {});
+	        return toSend;
+	    }
+	    return {
+	        subscribeHandler: function (runService, topics) {
+	            if (!runService.loadMeta) {
+	                runService.loadMeta = runService.load();
+	            } 
+	            return runService.loadMeta.then(function (data) {
+	                return mergeAndSend(data, topics);
 	            });
 	        },
-	
-	        interpolate: function (params) {
-	            var ip = this.options.interpolate;
-	            var match = function (p) {
-	                var mapped = p;
-	                if (ip[p]) {
-	                    mapped = _.isFunction(ip[p]) ? ip[p](p) : ip[p];
-	                }
-	                return mapped;
-	            };
-	            return ($.isArray(params)) ? _.map(params, match) : match(params);
-	        },
-	
-	        /**
-	         * Call the operation with parameters, and alert subscribers.
-	         *
-	         * **Example**
-	         *
-	         *      Flow.channel.operations.publish('myMethod', myMethodParam);
-	         *      Flow.channel.operations.publish({
-	         *          operations: [{ name: 'myMethod', params: [myMethodParam] }]
-	         *      });
-	         *
-	         * @param  {String|Object} operation For one operation, pass the name of operation (string). For multiple operations, pass an object with field `operations` and value array of objects, each with `name` and `params`: `{operations: [{ name: opn, params:[] }] }`.
-	         * @param {String|Number|Array|Object} params (Optional)  Parameters to send to operation. Use for one operation; for multiple operations, parameters are already included in the object format.
-	         * @param {Object} options (Optional) Overrides for the default channel options.
-	         * @param {Boolean} options.silent Determine when to update state.
-	         *
-	         * @return {$promise} Promise to complete the call.
-	         */
-	        publish: function (operation, params, options) {
-	            var me = this;
-	            var opts = ($.isPlainObject(operation)) ? params : options;
-	            opts = $.extend(true, {}, channelOptions, opts);
-	
-	            if (_.result(opts, 'readOnly')) {
-	                console.warn('Tried to publish to a read-only channel', operation);
-	                return $.Deferred().reject().promise();
-	            }
-	
-	            if ($.isPlainObject(operation) && operation.operations) {
-	                var fn = (operation.serial) ? run.serial : run.parallel;
-	                _.each(operation.operations, function (opn) {
-	                    opn.params = this.interpolate(opn.params);
-	                }, this);
-	                return fn.call(run, operation.operations)
-	                    .then(function (response) {
-	                        me.refresh(_.pluck(operation.operations, 'name'), response, null, opts);
-	                    });
-	            } else {
-	                if (!$.isPlainObject(operation) && params) {
-	                    params = this.interpolate(params);
-	                }
-	                return run.do(operation, params)
-	                    .then(function (response) {
-	                        me.refresh([operation], response, null, opts);
-	                        return response.result;
-	                    });
-	            }
-	            // console.log('operations publish', operation, params);
-	        },
-	
-	        /**
-	         * Subscribe to changes on a channel: Ask for notification when operations are called.
-	         *
-	         * **Example**
-	         *
-	         *      Flow.channel.operations.subscribe('myMethod',
-	         *          function() { console.log('called!'); });
-	         *
-	         * @param {String|Array} operations The names of the operations. Use `*` to listen for notifications on all operations.
-	         * @param {Object|Function} subscriber The object or function being notified. Often this is a callback function.
-	         *
-	         * @return {String} An identifying token for this subscription. Required as a parameter when unsubscribing.
-	        */
-	        subscribe: function (operations, subscriber) {
-	            // console.log('operations subscribe', operations, subscriber);
-	            operations = [].concat(operations);
-	            //use jquery to make event sink
-	            if (!subscriber.on && !_.isFunction(subscriber)) {
-	                subscriber = $(subscriber);
-	            }
-	
-	            var id = _.uniqueId('epichannel.operation');
-	            var data = {
-	                id: id,
-	                target: subscriber
-	            };
-	
-	            var me = this;
-	
-	            $.each(operations, function (index, opn) {
-	                if (!me.listenerMap[opn]) {
-	                    me.listenerMap[opn] = [];
-	                }
-	                me.listenerMap[opn] = me.listenerMap[opn].concat(data);
+	        publishHandler: function (runService, toSave, options) {
+	            return runService.save(toSave).then(function (res) {
+	                runService.runMeta = $.extend({}, true, runService.runMeta, res);
+	                return res;
 	            });
-	
-	            return id;
-	        },
-	
-	        /**
-	         * Stop receiving notification when an operation is called.
-	         *
-	         * @param {String|Array} operation The names of the operations.
-	         * @param {String} token The identifying token for this subscription. (Created and returned by the `subscribe()` call.)
-	         * @returns {undefined}
-	        */
-	        unsubscribe: function (operation, token) {
-	            this.listenerMap[operation] = _.reject(this.listenerMap[operation], function (subs) {
-	                return subs.id === token;
-	            });
-	        },
-	
-	        /**
-	         * Stop receiving notifications for all operations. No parameters.
-	         *
-	         * @returns {undefined}
-	        */
-	        unsubscribeAll: function () {
-	            this.listenerMap = {};
 	        }
 	    };
-	    return $.extend(this, publicAPI);
+	};
+
+
+/***/ },
+/* 35 */
+/***/ function(module, exports, __webpack_require__) {
+
+	var debounceAndMerge = __webpack_require__(24).debounceAndMerge;
+	
+	module.exports = function () {
+	
+	    var id = _.uniqueId('variable-channel');
+	
+	    var fetchFn = function (runService) {
+	        if (!runService.debouncedFetchers) {
+	            runService.debouncedFetchers = {};
+	        }
+	        var debounceInterval = 200; //todo: make this over-ridable
+	        if (!runService.debouncedFetchers[id]) {
+	            runService.debouncedFetchers[id] = debounceAndMerge(function (variables) {
+	                return runService.variables().query(variables);
+	            }, debounceInterval, [function mergeVariables(accum, newval) {
+	                if (!accum) {
+	                    accum = [];
+	                }
+	                return _.uniq(accum.concat(newval));
+	            }]);
+	        }
+	        return runService.debouncedFetchers[id];
+	    };
+	     
+	
+	    var knownTopics = [];
+	    return { 
+	        fetch: function (runService, callback) {
+	            return fetchFn(runService)(knownTopics);
+	        },
+	
+	        unsubscribeHandler: function (remainingTopics) {
+	            knownTopics = remainingTopics;
+	        },
+	        subscribeHandler: function (runService, topics) {
+	            knownTopics = _.uniq(knownTopics.concat(topics));
+	            if (!knownTopics.length) {
+	                return $.Deferred().resolve({}).promise();
+	            }
+	            return fetchFn(runService)(topics);
+	        },
+	        publishHandler: function (runService, toSave, options) {
+	            return runService.variables().save(toSave);
+	        }
+	    };
+	};
+
+
+/***/ },
+/* 36 */
+/***/ function(module, exports) {
+
+	module.exports = function () {
+	    return {
+	        publishHandler: function (runService, toSave, options) {
+	            toSave = Object.keys(toSave).reduce(function (accum, key) {
+	                accum.push({ name: key, params: toSave[key] });
+	                return accum;
+	            }, []);
+	            return runService.serial(toSave).then(function (result) {
+	                var toReturn = toSave.reduce(function (accum, operation, index) {
+	                    accum[operation.name] = result[index];
+	                    return accum;
+	                }, {});
+	                return toReturn;
+	            });
+	        }
+	    };
+	};
+
+
+/***/ },
+/* 37 */
+/***/ function(module, exports) {
+
+	module.exports = function (published, options) {
+	    var silent = options.silent;
+	    if (silent === true || !published) {
+	        return {};
+	    }
+	    if (_.isArray(silent)) {
+	        silent.forEach(function (name) {
+	            delete published[name];
+	        });
+	        return published;
+	    } else if ($.isPlainObject(silent)) {
+	        return Object.keys(published).reduce(function (accum, name) {
+	            if (!_.includes(silent, name)) {
+	                accum[name] = published[name];
+	            }
+	            return accum;
+	        }, {});
+	    }
+	    return published;
+	};
+
+
+/***/ },
+/* 38 */
+/***/ function(module, exports) {
+
+	exports.prefix = function prefix(prefix) {
+	    return function match(topic) {
+	        return (topic.indexOf(prefix) === 0) ? prefix : false;
+	    };
+	};
+	
+	exports.mapWithPrefix = function mapWithPrefix(obj, prefix) {
+	    if (!obj) {
+	        return {};
+	    }
+	    return Object.keys(obj).reduce(function (accum, key) {
+	        accum[prefix + key] = obj[key];
+	        return accum;
+	    }, {});
+	};
+
+
+/***/ },
+/* 39 */
+/***/ function(module, exports, __webpack_require__) {
+
+	var RunChannel = __webpack_require__(33);
+	
+	var prefix = __webpack_require__(38).prefix;
+	var mapWithPrefix = __webpack_require__(38).mapWithPrefix;
+	
+	module.exports = function (config, notifier) {
+	    var defaults = {
+	        serviceOptions: {},
+	    };
+	    var opts = $.extend(true, {}, defaults, config);
+	
+	    var notifyWithPrefix = function (prefix, data) {
+	        notifier(mapWithPrefix(data, prefix));
+	    };
+	    var sm = new window.F.manager.ScenarioManager(opts.serviceOptions);
+	
+	    var baselinePromise = sm.baseline.getRun().then(function () {
+	        return sm.baseline.run;
+	    });
+	    var currentRunPromise = sm.current.getRun().then(function () {
+	        return sm.current.run;
+	    });
+	    var baselineRunChannel = new RunChannel( 
+	        $.extend(true, {}, {
+	            serviceOptions: baselinePromise,
+	            meta: {
+	                readOnly: true
+	            },
+	            variables: {
+	                readOnly: true
+	            }
+	        }, opts.defaults, opts.baseline)
+	    , notifyWithPrefix.bind(null, 'baseline:'));
+	    var currentRunChannel = new RunChannel($.extend(true, {}, {
+	        serviceOptions: currentRunPromise,
+	    }, opts.defaults, opts.current), notifyWithPrefix.bind(null, 'current:'));
+	    // var defaultRunChannel = new RunChannel({ serviceOptions: currentRunPromise }, notifier);
+	
+	    var sampleRunid = '000001593dd81950d4ee4f3df14841769a0b';
+	   
+	    var knownRunIDServiceChannels = {};
+	    var handlers = [
+	        $.extend(baselineRunChannel, { name: 'baseline', match: prefix('baseline:') }),
+	        { 
+	            name: 'custom', 
+	            match: function (topic) { 
+	                var topicRoot = topic.split(':')[0];
+	                return (topicRoot.length === sampleRunid.length) ? topicRoot + ':' : false;
+	            },
+	            subscribeHandler: function (topics, prefix) {
+	                prefix = prefix.replace(':', '');
+	                if (!knownRunIDServiceChannels[prefix]) {
+	                    var newNotifier = notifyWithPrefix.bind(null, prefix + ':');
+	                    var runOptions = $.extend(true, {}, opts.serviceOptions.run, { id: prefix });
+	                    var runChannel = new RunChannel({ serviceOptions: runOptions }, newNotifier);
+	
+	                    knownRunIDServiceChannels[prefix] = runChannel;
+	                }
+	                return knownRunIDServiceChannels[prefix].subscribeHandler(topics);
+	            },
+	            publishHandler: function (topics, prefix) {
+	                prefix = prefix.replace(':', '');
+	                if (!knownRunIDServiceChannels[prefix]) {
+	                    var newNotifier = notifyWithPrefix.bind(null, prefix + ':');
+	                    var runOptions = $.extend(true, {}, opts.serviceOptions.run, { id: prefix });
+	                    var runChannel = new RunChannel({ serviceOptions: runOptions }, newNotifier);
+	                    knownRunIDServiceChannels[prefix] = runChannel;
+	                }
+	                return knownRunIDServiceChannels[prefix].publishHandler(topics);
+	            }
+	        },
+	        $.extend(currentRunChannel, { name: 'current', match: prefix('current:') }),
+	    ];
+	
+	    return {
+	        subscribeHandler: function (topics) {
+	            handlers.reduce(function (pendingTopics, ph) {
+	                var toFetch = ([].concat(pendingTopics)).reduce(function (accum, topic) {
+	                    var prefixMatch = ph.match(topic, ph.prefix);
+	                    if (prefixMatch !== false) {
+	                        var stripped = topic.replace(prefixMatch, '');
+	                        accum.myTopics.push(stripped);
+	                        accum.prefix = prefixMatch;
+	                    } else {
+	                        accum.otherTopics.push(topic);
+	                    }
+	                    return accum;
+	                }, { myTopics: [], otherTopics: [], prefix: '' });
+	
+	                // var handlerOptions = opts[ph.name];
+	                if (toFetch.myTopics.length && ph.subscribeHandler) {
+	                    var returned = ph.subscribeHandler(toFetch.myTopics, toFetch.prefix);
+	                    if (returned && returned.then) {
+	                        returned.then(notifyWithPrefix.bind(null, toFetch.prefix));
+	                    }
+	                }
+	                return toFetch.otherTopics;
+	            }, topics);
+	        },
+	        publishHandler: function (inputObj) {
+	            var status = handlers.reduce(function (accum, ph) {
+	                var topicsToHandle = Object.keys(accum.unhandled).reduce(function (soFar, inputKey) {
+	                    var value = accum.unhandled[inputKey];
+	                    var prefixMatch = ph.match(inputKey, ph.prefix);
+	                    if (prefixMatch !== false) {
+	                        var cleanedKey = inputKey.replace(prefixMatch, '');
+	                        soFar.myTopics[cleanedKey] = value;
+	                        soFar.prefix = prefixMatch;
+	                    } else {
+	                        soFar.otherTopics[inputKey] = value;
+	                    }
+	                    return soFar;
+	                }, { myTopics: {}, otherTopics: {}, prefix: '' });
+	                var myTopics = topicsToHandle.myTopics;
+	                if (!Object.keys(myTopics).length) {
+	                    return accum;
+	                }
+	
+	                var thisProm = ph.publishHandler(myTopics, topicsToHandle.prefix).then(function (resultObj) {
+	                    var mapped = mapWithPrefix(resultObj, topicsToHandle.prefix);
+	                    return mapped;
+	                });
+	                accum.promises.push(thisProm);
+	                accum.unhandled = topicsToHandle.otherTopics;
+	                return accum;
+	            }, { promises: [], unhandled: inputObj });
+	
+	            return $.when.apply(null, status.promises).then(function () {
+	                var args = Array.apply(null, arguments);
+	                var merged = args.reduce(function (accum, arg) {
+	                    return $.extend(true, {}, accum, arg);
+	                }, {});
+	                return merged;
+	            });
+	        },
+	    };
 	};
 
 

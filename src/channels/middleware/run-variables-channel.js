@@ -8,10 +8,11 @@ module.exports = function () {
         if (!runService.debouncedFetchers) {
             runService.debouncedFetchers = {};
         }
+        var debounceInterval = 200; //todo: make this over-ridable
         if (!runService.debouncedFetchers[id]) {
             runService.debouncedFetchers[id] = debounceAndMerge(function (variables) {
                 return runService.variables().query(variables);
-            }, 200, [function mergeVariables(accum, newval) {
+            }, debounceInterval, [function mergeVariables(accum, newval) {
                 if (!accum) {
                     accum = [];
                 }

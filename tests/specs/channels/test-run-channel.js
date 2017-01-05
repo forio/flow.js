@@ -3,16 +3,6 @@
 
     var Channel = require('src/channels/run-channel');
 
-    var dummyChannel = function () {
-        return {
-            publish: sinon.spy(function () {
-                return $.Deferred().resolve().promise();
-            }),
-            subscribe: sinon.spy(),
-            unsubscribe: sinon.spy()
-        };
-    };
-
     describe('Run Channel', function () {
         var refreshOptions = {
             on: 'stuff',
