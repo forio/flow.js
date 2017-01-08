@@ -72,7 +72,8 @@ module.exports = function (config, notifier) {
         $.extend(currentRunChannel, { name: 'current', match: prefix('current:') }),
     ];
 
-    return {
+    var publicAPI = {
+        scenarioManager: sm,
         subscribeHandler: function (topics) {
             handlers.reduce(function (pendingTopics, ph) {
                 var toFetch = ([].concat(pendingTopics)).reduce(function (accum, topic) {
@@ -134,4 +135,6 @@ module.exports = function (config, notifier) {
             });
         },
     };
+
+    $.extend(this, publicAPI);
 };

@@ -78,8 +78,8 @@ var availableMiddlewares = [
     { name: 'runManager', handler: RunMiddleware },
     { name: 'scenarioManager', handler: ScenarioMiddleware },
 ];
-var SubscriptionManager = (function () {
-    function SubscriptionManager(options) {
+var ChannelManager = (function () {
+    function ChannelManager(options) {
         var defaults = {
             subscriptions: [],
 
@@ -93,6 +93,7 @@ var SubscriptionManager = (function () {
 
         var boundNotify = this.notify.bind(this);
 
+        var me = this;
         availableMiddlewares.forEach(function (middleware) {
             if (opts[middleware.name]) {
                 var Handler = middleware.handler;
@@ -101,6 +102,9 @@ var SubscriptionManager = (function () {
                 }), boundNotify);
                 if (m.unsubscribeHandler) {
                     opts.unsubscribeMiddlewares.push(m.unsubscribeHandler);
+                }
+                if (m[middleware.name]) {
+                    me[middleware.name] = m[middleware.name];
                 }
                 opts.publishMiddlewares.push(m.publishHandler);
                 opts.subscribeMiddleWares.push(m.subscribeHandler);
@@ -115,7 +119,7 @@ var SubscriptionManager = (function () {
         });
     }
 
-    createClass(SubscriptionManager, {
+    createClass(ChannelManager, {
         publishBatch: function (list, options) {
             var prom = $.Deferred().resolve(list).promise();
             var me = this;
@@ -200,7 +204,7 @@ var SubscriptionManager = (function () {
         }
     });
 
-    return SubscriptionManager;
+    return ChannelManager;
 }());
 
-module.exports = SubscriptionManager;
+module.exports = ChannelManager;

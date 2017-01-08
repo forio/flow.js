@@ -1,0 +1,87 @@
+<html>
+
+<head>
+    <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css">
+    <script src="/node_modules/jquery/dist/jquery.min.js"></script>
+    <script src="/node_modules/lodash/lodash.js"></script>
+    <script src="http://local.forio.com:8084/dist/epicenter-edge.js"></script>
+    <!-- <script src="/node_modules/epicenter-js/dist/epicenter.min.js"></script> -->
+    <script src="/dist/flow-edge.js"></script>
+</head>
+
+<body data-f-model="">
+    <section>
+        <button id="btnStep">Step</button>
+    </section>
+
+    <table class="table" style="width: 600px;">
+        <thead>
+            <tr>
+                <th>Type</th>
+                <th>Input</th>
+                <th>Output</th>
+            </tr>
+        </thead>
+        <tbody id="outputs">
+        </tbody>
+    </table>
+    <script>
+    var sm = new Flow.ChannelManager({
+        scenarioManager: {
+            run: {
+                account: 'jaimedp',
+                project: 'glasses',
+                model: 'gglasses.vmf',
+            }
+        },
+        options: {
+            // variables: {
+            //     readOnly: false,
+            //     silent: false,
+            // },
+            // operations: {
+            //     silent: true,
+            // }
+        }
+    });
+
+
+    var toTest = [
+        'baseline:meta:name',
+        'baseline:variable:Price',
+
+        'current:variable:Price',
+        'current:meta:name',
+    ];
+
+    toTest.forEach(function (key) {
+        $('#outputs').append(`
+            <tr>
+                <td>${key}</td>
+                <td><input class="input" type="text" bind=${key} /></td>
+                <td class="output" bind="${key}"></td>
+            </tr>
+        `);
+    });
+    $('body').on('change', '.input', function (evt) {
+        var val = ($(evt.target).val());
+        val = isNaN(Number(val)) ? val : Number(val);
+        sm.publish($(evt.target).attr('bind'), val);
+    });
+
+    sm.subscribe(toTest, function (val) {
+        Object.keys(val).forEach(function (key) {
+            var $target = $('.output[bind="' + key + '"]');
+            $target.html(val[key]);
+        });
+    });
+
+
+    $('#btnStep').on('click', function (evt) {
+        sm.publish('operation:step');
+    });
+    window.sm = sm;
+    </script>
+</body>
+
+</html>
