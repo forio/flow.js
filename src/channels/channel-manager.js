@@ -98,7 +98,7 @@ var ChannelManager = (function () {
             if (opts[middleware.name]) {
                 var Handler = middleware.handler;
                 var m = new Handler($.extend(true, {}, opts.options[middleware.name], {
-                    serviceOptions: opts[middleware.name]
+                    serviceOptions: $.extend(true, {}, opts.defaults, opts[middleware.name])
                 }), boundNotify);
                 if (m.unsubscribeHandler) {
                     opts.unsubscribeMiddlewares.push(m.unsubscribeHandler);

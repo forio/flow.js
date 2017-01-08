@@ -81,18 +81,12 @@ var Flow = {
 
         var defaults = {
             channel: {
-                runManager: {
+                //FIXME: Defaults can't be here..
+                defaults: {
                     run: {
-                        account: '',
-                        project: '',
                         model: model,
                     }
                 },
-                options: {
-                    runManager: {
-                        defaults: {}
-                    }
-                }
             },
             dom: {
                 root: 'body',
@@ -103,25 +97,25 @@ var Flow = {
         var options = $.extend(true, {}, defaults, config);
         var $root = $(options.dom.root);
 
-        var initialFn = $root.data('f-on-init');
-        //TOOD: Should move this to DOM Manager and just prioritize on-inits
-        if (initialFn) {
-            var listOfOperations = _.invoke(initialFn.split('|'), 'trim');
-            listOfOperations = listOfOperations.map(function (value) {
-                var fnName = value.split('(')[0];
-                var params = value.substring(value.indexOf('(') + 1, value.indexOf(')'));
-                var args = ($.trim(params) !== '') ? params.split(',') : [];
-                args = args.map(function (a) {
-                    return parseUtils.toImplicitType(a.trim());
-                });
-                var toReturn = {};
-                toReturn[fnName] = args;
-                return toReturn;
-            });
+        // var initialFn = $root.data('f-on-init');
+        // //TOOD: Should move this to DOM Manager and just prioritize on-inits
+        // if (initialFn) {
+        //     var listOfOperations = _.invoke(initialFn.split('|'), 'trim');
+        //     listOfOperations = listOfOperations.map(function (value) {
+        //         var fnName = value.split('(')[0];
+        //         var params = value.substring(value.indexOf('(') + 1, value.indexOf(')'));
+        //         var args = ($.trim(params) !== '') ? params.split(',') : [];
+        //         args = args.map(function (a) {
+        //             return parseUtils.toImplicitType(a.trim());
+        //         });
+        //         var toReturn = {};
+        //         toReturn[fnName] = args;
+        //         return toReturn;
+        //     });
 
-            //TODO: Make a channel configuration factory which gets the initial info
-            options.channel.options.runManager.defaults.initialOperation = listOfOperations;
-        }
+        //     //TODO: Make a channel configuration factory which gets the initial info
+        //     options.channel.options.runManager.defaults.initialOperation = listOfOperations;
+        // }
    
         if (config && config.channel && (config.channel instanceof ChannelManager)) {
             this.channel = config.channel;
