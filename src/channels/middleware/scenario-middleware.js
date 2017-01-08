@@ -34,7 +34,9 @@ module.exports = function (config, notifier) {
     var currentRunChannel = new RunChannel($.extend(true, {}, {
         serviceOptions: currentRunPromise,
     }, opts.defaults, opts.current), notifyWithPrefix.bind(null, 'current:'));
-    // var defaultRunChannel = new RunChannel({ serviceOptions: currentRunPromise }, notifier);
+    var defaultRunChannel = new RunChannel($.extend(true, {}, {
+        serviceOptions: currentRunPromise,
+    }, opts.defaults, opts.current), notifyWithPrefix.bind(null, ''));
 
     var sampleRunid = '000001593dd81950d4ee4f3df14841769a0b';
    
@@ -70,6 +72,7 @@ module.exports = function (config, notifier) {
             }
         },
         $.extend(currentRunChannel, { name: 'current', match: prefix('current:') }),
+        $.extend(defaultRunChannel, { name: 'default', match: prefix('') }),
     ];
 
     var publicAPI = {
