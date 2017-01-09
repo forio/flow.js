@@ -317,7 +317,7 @@ module.exports = (function () {
                                         value = matching;
                                     } else {
                                         value = Object.keys(matching).reduce(function (accum, key) {
-                                            var k = key.replace(channel + ':', '');
+                                            var k = key.replace(channelPrefix + ':', '');
                                             accum[k] = matching[key]; 
                                             return accum;
                                         }, {});

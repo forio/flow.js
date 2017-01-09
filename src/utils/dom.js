@@ -15,10 +15,9 @@ module.exports = {
     getChannel: function ($el, property) {
         property = property.replace('data-f-', '');
         var channel = $el.data('f-channel-' + property);
-        //FIXME: figure out how not to hard-code names here
-        if (!channel && (property === 'bind' || property === 'foreach' || property === 'repeat')) {
+        if (channel === undefined) {
             channel = $el.attr('data-f-channel'); //.data shows value cached by jquery
-            if (!channel) {
+            if (channel === undefined) {
                 var $parentEl = $el.closest('[data-f-channel]');
                 if ($parentEl) {
                     channel = $parentEl.attr('data-f-channel');
