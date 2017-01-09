@@ -12,6 +12,21 @@ module.exports = {
         }
     },
 
+    getChannel: function ($el, property) {
+        property = property.replace('data-f-', '');
+        var channel = $el.data('f-channel-' + property);
+        //FIXME: figure out how not to hard-code names here
+        if (!channel && (property === 'bind' || property === 'foreach' || property === 'repeat')) {
+            channel = $el.attr('data-f-channel'); //.data shows value cached by jquery
+            if (!channel) {
+                var $parentEl = $el.closest('[data-f-channel]');
+                if ($parentEl) {
+                    channel = $parentEl.attr('data-f-channel');
+                }
+            }
+        }
+        return channel;
+    },
     getConvertersList: function ($el, property) {
         var attrConverters = $el.data('f-convert-' + property);
         //FIXME: figure out how not to hard-code names here

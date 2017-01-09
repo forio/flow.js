@@ -151,6 +151,7 @@ module.exports = (function () {
                 if (!varsToBind || !varsToBind.length) {
                     return false;
                 }
+
                 var subsid = subsChannel.subscribe(varsToBind, function (params) {
                     $bindEl.trigger(config.events.channelDataReceived, params);
                 }, options);
@@ -164,6 +165,8 @@ module.exports = (function () {
             $(element.attributes).each(function (index, nodeMap) {
                 var attr = nodeMap.nodeName;
                 var attrVal = nodeMap.value;
+
+                var channelPrefix = domUtils.getChannel($el, attr);
 
                 var wantedPrefix = 'data-f-';
                 if (attr.indexOf(wantedPrefix) === 0) {
@@ -197,9 +200,17 @@ module.exports = (function () {
 
                         } else if (attrVal.split(commaRegex).length > 1) {
                             var varsToBind = _.invokeMap(attrVal.split(commaRegex), 'trim');
+                            if (channelPrefix) {
+                                varsToBind = varsToBind.map(function (v) {
+                                    return channelPrefix + ':' + v;
+                                });
+                            }
                             subscribe(channel, varsToBind, $el, { batch: true });
                             binding.topics = varsToBind;
                         } else {
+                            if (channelPrefix) {
+                                attrVal = channelPrefix + ':' + attrVal;
+                            }
                             binding.topics = [attrVal];
                             nonBatchableVariables.push(attrVal);
                         }
@@ -285,18 +296,34 @@ module.exports = (function () {
 
             var attachChannelListener = function ($root) {
                 $root.off(config.events.channelDataReceived).on(config.events.channelDataReceived, function (evt, data) {
+                    
+                    // var mappedData = Object.keys(data).reduce(function (accum) {
+
+                    //     return accum;
+                    // }, {});
+
                     // console.log(evt.target, data, "root on");
                     var $el = $(evt.target);
                     var bindings = $el.data(config.attrs.bindingsList);
                     var toconvert = {};
                     $.each(data, function (variableName, value) {
                         _.each(bindings, function (binding) {
-                            if (_.includes(binding.topics, variableName)) {
+                            var channelPrefix = domUtils.getChannel($el, binding.attr);
+                            var interestedTopics = binding.topics;
+                            if (_.includes(interestedTopics, variableName)) {
                                 if (binding.topics.length > 1) {
-                                    toconvert[binding.attr] = _.pick(data, binding.topics);
-                                } else {
-                                    toconvert[binding.attr] = value;
+                                    var matching = _.pick(data, interestedTopics);
+                                    if (!channelPrefix) {
+                                        value = matching;
+                                    } else {
+                                        value = Object.keys(matching).reduce(function (accum, key) {
+                                            var k = key.replace(channel + ':', '');
+                                            accum[k] = matching[key]; 
+                                            return accum;
+                                        }, {});
+                                    }
                                 }
+                                toconvert[binding.attr] = value;
                             }
                         });
                     });
@@ -379,7 +406,7 @@ module.exports = (function () {
             channel.subscribe('operation:reset', function () {
                 me.unbindAll();
                 me.bindAll();
-                console.log('Reset called', channel);
+                // console.log('Reset called', channel);
             });
             var promise = $.Deferred();
             $(function () {
