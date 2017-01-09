@@ -15,18 +15,22 @@ module.exports = function (target, domManager) {
             removed = removed.add($(mutation.removedNodes).filter(':f'));
 
             if (added && added.length) {
-                // console.log('mutation observer added', added.get(), mutation.addedNodes);
                 domManager.bindAll(added);
             }
             if (removed && removed.length) {
-                // console.log('mutation observer removed', removed);
                 domManager.unbindAll(removed);
+            }
+            if (mutation.attributeName === 'data-f-channel') {
+                domManager.unbindAll(mutation.target);
+                domManager.bindAll(mutation.target);
             }
         });
     });
 
+
     var mutconfig = {
-        attributes: false,
+        attributes: true,
+        attributeFilter: ['data-f-channel'],
         childList: true,
         subtree: true,
         characterData: false
