@@ -128,18 +128,12 @@ var Flow =
 	
 	        var defaults = {
 	            channel: {
-	                runManager: {
+	                //FIXME: Defaults can't be here..
+	                defaults: {
 	                    run: {
-	                        account: '',
-	                        project: '',
 	                        model: model,
 	                    }
 	                },
-	                options: {
-	                    runManager: {
-	                        defaults: {}
-	                    }
-	                }
 	            },
 	            dom: {
 	                root: 'body',
@@ -150,25 +144,25 @@ var Flow =
 	        var options = $.extend(true, {}, defaults, config);
 	        var $root = $(options.dom.root);
 	
-	        var initialFn = $root.data('f-on-init');
-	        //TOOD: Should move this to DOM Manager and just prioritize on-inits
-	        if (initialFn) {
-	            var listOfOperations = _.invoke(initialFn.split('|'), 'trim');
-	            listOfOperations = listOfOperations.map(function (value) {
-	                var fnName = value.split('(')[0];
-	                var params = value.substring(value.indexOf('(') + 1, value.indexOf(')'));
-	                var args = ($.trim(params) !== '') ? params.split(',') : [];
-	                args = args.map(function (a) {
-	                    return parseUtils.toImplicitType(a.trim());
-	                });
-	                var toReturn = {};
-	                toReturn[fnName] = args;
-	                return toReturn;
-	            });
+	        // var initialFn = $root.data('f-on-init');
+	        // //TOOD: Should move this to DOM Manager and just prioritize on-inits
+	        // if (initialFn) {
+	        //     var listOfOperations = _.invoke(initialFn.split('|'), 'trim');
+	        //     listOfOperations = listOfOperations.map(function (value) {
+	        //         var fnName = value.split('(')[0];
+	        //         var params = value.substring(value.indexOf('(') + 1, value.indexOf(')'));
+	        //         var args = ($.trim(params) !== '') ? params.split(',') : [];
+	        //         args = args.map(function (a) {
+	        //             return parseUtils.toImplicitType(a.trim());
+	        //         });
+	        //         var toReturn = {};
+	        //         toReturn[fnName] = args;
+	        //         return toReturn;
+	        //     });
 	
-	            //TODO: Make a channel configuration factory which gets the initial info
-	            options.channel.options.runManager.defaults.initialOperation = listOfOperations;
-	        }
+	        //     //TODO: Make a channel configuration factory which gets the initial info
+	        //     options.channel.options.runManager.defaults.initialOperation = listOfOperations;
+	        // }
 	   
 	        if (config && config.channel && (config.channel instanceof ChannelManager)) {
 	            this.channel = config.channel;
@@ -344,6 +338,7 @@ var Flow =
 	                if (!varsToBind || !varsToBind.length) {
 	                    return false;
 	                }
+	
 	                var subsid = subsChannel.subscribe(varsToBind, function (params) {
 	                    $bindEl.trigger(config.events.channelDataReceived, params);
 	                }, options);
@@ -357,6 +352,8 @@ var Flow =
 	            $(element.attributes).each(function (index, nodeMap) {
 	                var attr = nodeMap.nodeName;
 	                var attrVal = nodeMap.value;
+	
+	                var channelPrefix = domUtils.getChannel($el, attr);
 	
 	                var wantedPrefix = 'data-f-';
 	                if (attr.indexOf(wantedPrefix) === 0) {
@@ -390,9 +387,17 @@ var Flow =
 	
 	                        } else if (attrVal.split(commaRegex).length > 1) {
 	                            var varsToBind = _.invokeMap(attrVal.split(commaRegex), 'trim');
+	                            if (channelPrefix) {
+	                                varsToBind = varsToBind.map(function (v) {
+	                                    return channelPrefix + ':' + v;
+	                                });
+	                            }
 	                            subscribe(channel, varsToBind, $el, { batch: true });
 	                            binding.topics = varsToBind;
 	                        } else {
+	                            if (channelPrefix) {
+	                                attrVal = channelPrefix + ':' + attrVal;
+	                            }
 	                            binding.topics = [attrVal];
 	                            nonBatchableVariables.push(attrVal);
 	                        }
@@ -478,18 +483,27 @@ var Flow =
 	
 	            var attachChannelListener = function ($root) {
 	                $root.off(config.events.channelDataReceived).on(config.events.channelDataReceived, function (evt, data) {
-	                    // console.log(evt.target, data, "root on");
 	                    var $el = $(evt.target);
 	                    var bindings = $el.data(config.attrs.bindingsList);
 	                    var toconvert = {};
 	                    $.each(data, function (variableName, value) {
 	                        _.each(bindings, function (binding) {
-	                            if (_.includes(binding.topics, variableName)) {
+	                            var channelPrefix = domUtils.getChannel($el, binding.attr);
+	                            var interestedTopics = binding.topics;
+	                            if (_.includes(interestedTopics, variableName)) {
 	                                if (binding.topics.length > 1) {
-	                                    toconvert[binding.attr] = _.pick(data, binding.topics);
-	                                } else {
-	                                    toconvert[binding.attr] = value;
+	                                    var matching = _.pick(data, interestedTopics);
+	                                    if (!channelPrefix) {
+	                                        value = matching;
+	                                    } else {
+	                                        value = Object.keys(matching).reduce(function (accum, key) {
+	                                            var k = key.replace(channelPrefix + ':', '');
+	                                            accum[k] = matching[key]; 
+	                                            return accum;
+	                                        }, {});
+	                                    }
 	                                }
+	                                toconvert[binding.attr] = value;
 	                            }
 	                        });
 	                    });
@@ -572,7 +586,7 @@ var Flow =
 	            channel.subscribe('operation:reset', function () {
 	                me.unbindAll();
 	                me.bindAll();
-	                console.log('Reset called', channel);
+	                // console.log('Reset called', channel);
 	            });
 	            var promise = $.Deferred();
 	            $(function () {
@@ -705,6 +719,20 @@ var Flow =
 	        }
 	    },
 	
+	    getChannel: function ($el, property) {
+	        property = property.replace('data-f-', '');
+	        var channel = $el.data('f-channel-' + property);
+	        if (channel === undefined) {
+	            channel = $el.attr('data-f-channel'); //.data shows value cached by jquery
+	            if (channel === undefined) {
+	                var $parentEl = $el.closest('[data-f-channel]');
+	                if ($parentEl) {
+	                    channel = $parentEl.attr('data-f-channel');
+	                }
+	            }
+	        }
+	        return channel;
+	    },
 	    getConvertersList: function ($el, property) {
 	        var attrConverters = $el.data('f-convert-' + property);
 	        //FIXME: figure out how not to hard-code names here
@@ -1981,7 +2009,7 @@ var Flow =
 	
 	    target: '*',
 	
-	    test: /^(?:model|convert)$/i,
+	    test: /^(?:model|convert|channel)$/i,
 	
 	    handle: $.noop,
 	
@@ -2956,18 +2984,22 @@ var Flow =
 	            removed = removed.add($(mutation.removedNodes).filter(':f'));
 	
 	            if (added && added.length) {
-	                // console.log('mutation observer added', added.get(), mutation.addedNodes);
 	                domManager.bindAll(added);
 	            }
 	            if (removed && removed.length) {
-	                // console.log('mutation observer removed', removed);
 	                domManager.unbindAll(removed);
+	            }
+	            if (mutation.attributeName === 'data-f-channel') {
+	                domManager.unbindAll(mutation.target);
+	                domManager.bindAll(mutation.target);
 	            }
 	        });
 	    });
 	
+	
 	    var mutconfig = {
-	        attributes: false,
+	        attributes: true,
+	        attributeFilter: ['data-f-channel'],
 	        childList: true,
 	        subtree: true,
 	        characterData: false
@@ -3062,8 +3094,8 @@ var Flow =
 	    { name: 'runManager', handler: RunMiddleware },
 	    { name: 'scenarioManager', handler: ScenarioMiddleware },
 	];
-	var SubscriptionManager = (function () {
-	    function SubscriptionManager(options) {
+	var ChannelManager = (function () {
+	    function ChannelManager(options) {
 	        var defaults = {
 	            subscriptions: [],
 	
@@ -3077,14 +3109,18 @@ var Flow =
 	
 	        var boundNotify = this.notify.bind(this);
 	
+	        var me = this;
 	        availableMiddlewares.forEach(function (middleware) {
 	            if (opts[middleware.name]) {
 	                var Handler = middleware.handler;
 	                var m = new Handler($.extend(true, {}, opts.options[middleware.name], {
-	                    serviceOptions: opts[middleware.name]
+	                    serviceOptions: $.extend(true, {}, opts.defaults, opts[middleware.name])
 	                }), boundNotify);
 	                if (m.unsubscribeHandler) {
 	                    opts.unsubscribeMiddlewares.push(m.unsubscribeHandler);
+	                }
+	                if (m[middleware.name]) {
+	                    me[middleware.name] = m[middleware.name];
 	                }
 	                opts.publishMiddlewares.push(m.publishHandler);
 	                opts.subscribeMiddleWares.push(m.subscribeHandler);
@@ -3099,7 +3135,7 @@ var Flow =
 	        });
 	    }
 	
-	    createClass(SubscriptionManager, {
+	    createClass(ChannelManager, {
 	        publishBatch: function (list, options) {
 	            var prom = $.Deferred().resolve(list).promise();
 	            var me = this;
@@ -3184,10 +3220,10 @@ var Flow =
 	        }
 	    });
 	
-	    return SubscriptionManager;
+	    return ChannelManager;
 	}());
 	
-	module.exports = SubscriptionManager;
+	module.exports = ChannelManager;
 
 
 /***/ },
@@ -3746,7 +3782,9 @@ var Flow =
 	    var currentRunChannel = new RunChannel($.extend(true, {}, {
 	        serviceOptions: currentRunPromise,
 	    }, opts.defaults, opts.current), notifyWithPrefix.bind(null, 'current:'));
-	    // var defaultRunChannel = new RunChannel({ serviceOptions: currentRunPromise }, notifier);
+	    var defaultRunChannel = new RunChannel($.extend(true, {}, {
+	        serviceOptions: currentRunPromise,
+	    }, opts.defaults, opts.current), notifyWithPrefix.bind(null, ''));
 	
 	    var sampleRunid = '000001593dd81950d4ee4f3df14841769a0b';
 	   
@@ -3782,9 +3820,11 @@ var Flow =
 	            }
 	        },
 	        $.extend(currentRunChannel, { name: 'current', match: prefix('current:') }),
+	        $.extend(defaultRunChannel, { name: 'default', match: prefix('') }),
 	    ];
 	
-	    return {
+	    var publicAPI = {
+	        scenarioManager: sm,
 	        subscribeHandler: function (topics) {
 	            handlers.reduce(function (pendingTopics, ph) {
 	                var toFetch = ([].concat(pendingTopics)).reduce(function (accum, topic) {
@@ -3846,6 +3886,8 @@ var Flow =
 	            });
 	        },
 	    };
+	
+	    $.extend(this, publicAPI);
 	};
 
 

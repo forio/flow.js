@@ -296,13 +296,6 @@ module.exports = (function () {
 
             var attachChannelListener = function ($root) {
                 $root.off(config.events.channelDataReceived).on(config.events.channelDataReceived, function (evt, data) {
-                    
-                    // var mappedData = Object.keys(data).reduce(function (accum) {
-
-                    //     return accum;
-                    // }, {});
-
-                    // console.log(evt.target, data, "root on");
                     var $el = $(evt.target);
                     var bindings = $el.data(config.attrs.bindingsList);
                     var toconvert = {};
