@@ -119,58 +119,54 @@ module.exports = function (config, notifier) {
             }, remainingTopics);
         },
 
-        publishHandler: function (inputObj) {
-            return $initialProm.then(function (runService) {
-                //TODO: This means variables are always set before operations happen, make that more dynamic and by occurence order
-                //TODO: Have publish on subsmanager return a series of [{ key: val} ..] instead of 1 big object?
-                var status = handlers.reduce(function (accum, ph) {
-                    var topicsToHandle = Object.keys(accum.unhandled).reduce(function (soFar, inputKey) {
-                        var value = accum.unhandled[inputKey];
-                        var prefixMatch = ph.match(inputKey, ph.prefix);
-                        if (prefixMatch !== false) {
-                            var cleanedKey = inputKey.replace(prefixMatch, '');
-                            soFar.myTopics[cleanedKey] = value;
-                            soFar.prefix = prefixMatch;
-                        } else {
-                            soFar.otherTopics[inputKey] = value;
-                        }
-                        return soFar;
-                    }, { myTopics: {}, otherTopics: {}, prefix: '' });
-
-                    var myTopics = topicsToHandle.myTopics;
-                    if (!Object.keys(myTopics).length) {
-                        return accum;
+        publishHandler: function (publishData, options) {
+            function findBestHandler(handlers, topic) {
+                for (var i = 0; i < handlers.length; i++) {
+                    var thishandler = handlers[i];
+                    var match = thishandler.match(topic);
+                    if (match) {
+                        return $.extend(true, {}, thishandler, { prefix: match });
                     }
+                }
+            }
 
-                    var handlerOptions = opts[ph.name];
+            return $initialProm.then(function (runService) {
+                var grouped = publishData.reduce(function (accum, dataPt) {
+                    var lastHandler = accum.handled[accum.handled.length - 1];
+                    var bestHandler = findBestHandler(handlers, dataPt.name);
+                    if (lastHandler && bestHandler.prefix === lastHandler.prefix) {
+                        dataPt.name = dataPt.name.replace(lastHandler.prefix, '');
+                        lastHandler.data.push(dataPt);
+                    } else {
+                        accum.handled.push({ data: [dataPt], handler: bestHandler });
+                    }
+                    return accum;
+                }, []);
+
+                var $prom = $.Deferred().resolve().promise;
+                grouped.forEach(function (grouping) {
+                    var handler = grouping.handler;
+                    var handlerOptions = opts[handler.name];
                     if (_.result(handlerOptions, 'readOnly')) {
                         var msg = 'Tried to publish to a read-only operations channel';
-                        console.warn(msg, myTopics);
-                        return accum;
-                    } 
-
-                    var thisProm = ph.publishHandler(runService, myTopics, handlerOptions).then(function (resultObj) {
-                        var unsilenced = silencable(resultObj, handlerOptions);
-                        if (Object.keys(unsilenced).length && ph.name !== 'meta') {
-                            //FIXME: Better way?
-                            // variableschannel.fetch(runService).then(notifyWithPrefix.bind(null, 'variables:'));
-                            // defaultVariablesChannel.fetch(runService).then(notifyWithPrefix.bind(null, ''));
-                        }
-                        var mapped = mapWithPrefix(unsilenced, topicsToHandle.prefix);
-                        return mapped;
-                    });
-                    accum.promises.push(thisProm);
-                    accum.unhandled = topicsToHandle.otherTopics;
-                    return accum;
-                }, { promises: [], unhandled: inputObj });
-
-                return $.when.apply(null, status.promises).then(function () {
-                    var args = Array.apply(null, arguments);
-                    var merged = args.reduce(function (accum, arg) {
-                        return $.extend(true, {}, accum, arg);
-                    }, {});
-                    return merged;
+                        console.warn(msg, grouping.toPublish);
+                    } else {
+                        $prom = $prom.then(function () {
+                            return handler.publishHandler(runService, grouping.toPublish, handlerOptions).then(function (resultObj) {
+                                var unsilenced = silencable(resultObj, handlerOptions);
+                                if (Object.keys(unsilenced).length && handler.name !== 'meta') {
+                                    //FIXME: Better way?
+                                    // variableschannel.fetch(runService).then(notifyWithPrefix.bind(null, 'variables:'));
+                                    // defaultVariablesChannel.fetch(runService).then(notifyWithPrefix.bind(null, ''));
+                                }
+                                var mapped = mapWithPrefix(unsilenced, handler.prefix);
+                                return mapped;
+                            });
+                        });
+                    }
                 });
+                return $prom;
+
             });
         }
     };

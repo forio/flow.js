@@ -5,6 +5,8 @@ var createClass = require('utils/create-class');
 var RunMiddleware = require('./middleware/run-manager-middleware');
 var ScenarioMiddleware = require('./middleware/scenario-middleware');
 
+var normalizePublishInputs = require('./channel-utils').normalizePublishInputs;
+
 var makeSubs = function makeSubs(topics, callback, options) {
     var id = _.uniqueId('subs-');
     var defaults = {
@@ -120,33 +122,13 @@ var ChannelManager = (function () {
     }
 
     createClass(ChannelManager, {
-        publishBatch: function (list, options) {
-            var prom = $.Deferred().resolve(list).promise();
-            var me = this;
-            list.forEach(function (operation) {
-                prom = prom.then(function () {
-                    return me.publish(operation, options);
-                });
-            });
-            return prom;
-        },
-
         publish: function (topic, value, options) {
-            if (_.isArray(topic)) {
-                return this.publishBatch(topic, value);
-            }
-            // console.log('publish', arguments);
-            var attrs;
-            if ($.isPlainObject(topic)) {
-                attrs = topic;
-                options = value;
-            } else {
-                (attrs = {})[topic] = value;
-            }
-            
-            var prom = $.Deferred().resolve(attrs).promise();
+            var normalized = normalizePublishInputs(topic, value, options);
+            var prom = $.Deferred().resolve(normalized.toPublish).promise();
             this.publishMiddlewares.forEach(function (middleware) {
-                prom = prom.then(middleware);
+                prom = prom.then(function (publishResponse) {
+                    return middleware(publishResponse, normalized.options);
+                });
             });
             prom = prom.then(this.notify.bind(this));
             return prom;
