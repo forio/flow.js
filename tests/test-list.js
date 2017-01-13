@@ -18,5 +18,7 @@ require('./specs/dom/attributes/test-default-bind-attr');
 
 require('./specs/dom/plugins/test-auto-update-bindings');
 
+require('./specs/channels/test-channel-util');
+
 require('./specs/add-ons/test-add-ons');
 require('./specs/test-flow');
