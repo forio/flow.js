@@ -55,8 +55,38 @@ describe.only('Channel Utils', ()=> {
             expect(best.match).to.eql('foo');
         });
     });
-    describe('#groupDataByHandlers', ()=> {
-        var groupDataByHandlers = utils.groupDataByHandlers;
+    describe('#groupByHandlers', ()=> {
+        var groupByHandlers = utils.groupByHandlers;
+        it('should group arrays', ()=> {
+            var handlers = [
+               { name: 'a', handle: ()=>{}, match: (v)=> v.indexOf('a') === 0 ? 'foo' : false },
+               { name: 'b', handle: ()=>{}, match: (v)=> v.indexOf('b') === 0 ? 'bar' : false },
+               { name: 'c', handle: ()=>{}, match: (v)=> v.indexOf('c') === 0 ? 'cat' : false },
+            ];
+            var data = ['apple', 'apples', 'banana', 'amazon'];
+            var op = groupByHandlers(data, handlers);
+            expect(op.length).to.eql(2);
+            expect(op[0].name).to.eql(handlers[0].name);
+            expect(op[0].topics).to.eql(['apple', 'apples', 'amazon']);
+
+            expect(op[1].name).to.eql(handlers[1].name);
+            expect(op[1].topics).to.eql(['banana']);
+        });
+        it('should strip out prefixes', ()=> {
+            var handlers = [
+               { name: 'a', handle: ()=>{}, match: (v)=> v.indexOf('a') === 0 ? 'a' : false },
+               { name: 'b', handle: ()=>{}, match: (v)=> v.indexOf('b') === 0 ? 'b' : false },
+               { name: 'c', handle: ()=>{}, match: (v)=> v.indexOf('c') === 0 ? 'c' : false },
+            ];
+            var data = ['apple', 'apples', 'bar', 'amazon'];
+            var op = groupByHandlers(data, handlers);
+            expect(op[0].name).to.eql(handlers[0].name);
+            expect(op[0].topics).to.eql(['pple', 'pples', 'mazon']);
+            expect(op[1].topics).to.eql(['ar']);
+        });
+    });
+    describe('#groupSequentiallyByHandlers', ()=> {
+        var groupSequentiallyByHandlers = utils.groupSequentiallyByHandlers;
         it('should group arrays', ()=> {
             var data = [
                { name: 'apple', value: 1 },
@@ -68,11 +98,33 @@ describe.only('Channel Utils', ()=> {
                { name: 'a', handle: ()=>{}, match: (v)=> v.indexOf('a') === 0 ? 'foo' : false },
                { name: 'b', handle: ()=>{}, match: (v)=> v.indexOf('b') === 0 ? 'bar' : false },
             ];
-            var op = groupDataByHandlers(data, handlers);
+            var op = groupSequentiallyByHandlers(data, handlers);
             expect(op.length).to.eql(3);
             expect(op[0].name).to.eql(handlers[0].name);
             expect(op[1].name).to.eql(handlers[1].name);
             expect(op[2].name).to.eql(handlers[0].name);
+        });
+        it('should strip prefixes', ()=> {
+            var data = [
+               { name: 'apple', value: 1 },
+               { name: 'apples', value: 2 },
+               { name: 'bar', value: 3 },
+               { name: 'amazon', value: 4 },
+            ];
+            var handlers = [
+               { name: 'a', handle: ()=>{}, match: (v)=> v.indexOf('a') === 0 ? 'a' : false },
+               { name: 'b', handle: ()=>{}, match: (v)=> v.indexOf('b') === 0 ? 'b' : false },
+            ];
+            var op = groupSequentiallyByHandlers(data, handlers);
+            expect(op.length).to.eql(3);
+            expect(op[0].data).to.eql([{ name: 'pple', value: 1 }, { name: 'pples', value: 2 }]);
+
+            expect(op[1].name).to.eql(handlers[1].name);
+            expect(op[1].data).to.eql([{ name: 'ar', value: 3 }]);
+
+            expect(op[2].name).to.eql(handlers[0].name);
+            expect(op[2].data).to.eql([{ name: 'mazon', value: 4 }]);
+
         });
     });
 });
