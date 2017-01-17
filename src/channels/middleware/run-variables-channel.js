@@ -39,7 +39,11 @@ module.exports = function () {
             }
             return fetchFn(runService)(topics);
         },
-        publishHandler: function (runService, toSave, options) {
+        publishHandler: function (runService, topics, options) {
+            var toSave = topics.reduce(function (accum, topic) {
+                accum[topic.name] = topic.value;
+                return accum;
+            }, {});
             return runService.variables().save(toSave);
         }
     };

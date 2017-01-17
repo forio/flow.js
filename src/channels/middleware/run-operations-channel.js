@@ -1,10 +1,9 @@
 module.exports = function () {
     return {
-        publishHandler: function (runService, toSave, options) {
-            toSave = Object.keys(toSave).reduce(function (accum, key) {
-                accum.push({ name: key, params: toSave[key] });
-                return accum;
-            }, []);
+        publishHandler: function (runService, topics, options) {
+            var toSave = topics.map(function (topic) {
+                return { name: topic.name, params: topic.value };
+            });
             return runService.serial(toSave).then(function (result) {
                 var toReturn = toSave.reduce(function (accum, operation, index) {
                     accum[operation.name] = result[index];

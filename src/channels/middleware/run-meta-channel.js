@@ -11,14 +11,25 @@ module.exports = function () {
     }
     return {
         subscribeHandler: function (runService, topics) {
-            if (!runService.loadMeta) {
-                runService.loadMeta = runService.load();
+            if (runService.runMeta) {
+                return $.Deferred().resolve(mergeAndSend(runService.runMeta, topics)).promise();
+            }
+
+            if (!runService.loadPromise) {
+                runService.loadPromise = runService.load().then(function (data) {
+                    runService.runMeta = data;
+                    return data;
+                });
             } 
-            return runService.loadMeta.then(function (data) {
+            return runService.loadPromise.then(function (data) {
                 return mergeAndSend(data, topics);
             });
         },
-        publishHandler: function (runService, toSave, options) {
+        publishHandler: function (runService, topics, options) {
+            var toSave = topics.reduce(function (accum, topic) {
+                accum[topic.name] = topic.value;
+                return accum;
+            }, {});
             return runService.save(toSave).then(function (res) {
                 runService.runMeta = $.extend({}, true, runService.runMeta, res);
                 return res;

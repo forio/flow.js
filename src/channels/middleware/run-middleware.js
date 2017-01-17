@@ -5,6 +5,7 @@ var silencable = require('./silencable');
 
 var prefix = require('./middleware-utils').prefix;
 var mapWithPrefix = require('./middleware-utils').mapWithPrefix;
+var channelUtils = require('../channel-utils');
 
 module.exports = function (config, notifier) {
     var defaults = {
@@ -72,78 +73,34 @@ module.exports = function (config, notifier) {
     var publicAPI = {
         subscribeHandler: function (topics) {
             $initialProm.then(function (runService) {
-                handlers.reduce(function (pendingTopics, ph) {
-                    var toFetch = ([].concat(pendingTopics)).reduce(function (accum, topic) {
-                        var prefixMatch = ph.match(topic, ph.prefix);
-                        if (prefixMatch !== false) {
-                            var stripped = topic.replace(prefixMatch, '');
-                            accum.myTopics.push(stripped);
-                            accum.prefix = prefixMatch;
-                        } else {
-                            accum.otherTopics.push(topic);
-                        }
-                        return accum;
-                    }, { myTopics: [], otherTopics: [], prefix: '' });
-
-                    var handlerOptions = opts[ph.name];
+                var grouped = channelUtils.groupByHandlers(topics, handlers);
+                grouped.forEach(function (handler) {
+                    var handlerOptions = opts[handler.name];
                     var shouldFetch = _.result(handlerOptions, 'autoFetch');
-                    if (toFetch.myTopics.length && ph.subscribeHandler && shouldFetch) {
-                        var returned = ph.subscribeHandler(runService, toFetch.myTopics);
+                    if (handler.subscribeHandler && shouldFetch) {
+                        var returned = handler.subscribeHandler(runService, handler.topics);
                         if (returned && returned.then) {
-                            returned.then(notifyWithPrefix.bind(null, toFetch.prefix));
+                            returned.then(notifyWithPrefix.bind(null, handler.match));
                         }
                     }
-                    return toFetch.otherTopics;
-                }, topics);
+                });
             });
         },
 
         unsubscribeHandler: function (remainingTopics) {
-            handlers.reduce(function (pendingTopics, ph) {
-                var unsubs = ([].concat(pendingTopics)).reduce(function (accum, topic) {
-                    var prefixMatch = ph.match(topic, ph.prefix);
-                    if (prefixMatch !== false) {
-                        var stripped = topic.replace(prefixMatch, '');
-                        accum.myTopics.push(stripped);
-                        accum.prefix = prefixMatch;
-                    } else {
-                        accum.otherTopics.push(topic);
-                    }
-                    return accum;
-                }, { myTopics: [], otherTopics: [], prefix: '' });
-
-                if (unsubs.myTopics.length && ph.unsubscribeHandler) {
-                    ph.unsubscribeHandler(unsubs.myTopics);
+            var grouped = channelUtils.groupByHandlers(remainingTopics, handlers);
+            grouped.forEach(function (handler) {
+                if (handler && handler.unsubscribeHandler) {
+                    handler.unsubscribeHandler(handler.topics);
                 }
-                return unsubs.otherTopics;
-            }, remainingTopics);
+            });
         },
 
         publishHandler: function (publishData, options) {
-            function findBestHandler(handlers, topic) {
-                for (var i = 0; i < handlers.length; i++) {
-                    var thishandler = handlers[i];
-                    var match = thishandler.match(topic);
-                    if (match) {
-                        return $.extend(true, {}, thishandler, { prefix: match });
-                    }
-                }
-            }
+            var grouped = channelUtils.groupSequentiallyByHandlers(publishData, handlers);
 
             return $initialProm.then(function (runService) {
-                var grouped = publishData.reduce(function (accum, dataPt) {
-                    var lastHandler = accum.handled[accum.handled.length - 1];
-                    var bestHandler = findBestHandler(handlers, dataPt.name);
-                    if (lastHandler && bestHandler.prefix === lastHandler.prefix) {
-                        dataPt.name = dataPt.name.replace(lastHandler.prefix, '');
-                        lastHandler.data.push(dataPt);
-                    } else {
-                        accum.handled.push({ data: [dataPt], handler: bestHandler });
-                    }
-                    return accum;
-                }, []);
-
-                var $prom = $.Deferred().resolve().promise;
+                var toReturn = [];
                 grouped.forEach(function (grouping) {
                     var handler = grouping.handler;
                     var handlerOptions = opts[handler.name];
@@ -151,22 +108,25 @@ module.exports = function (config, notifier) {
                         var msg = 'Tried to publish to a read-only operations channel';
                         console.warn(msg, grouping.toPublish);
                     } else {
-                        $prom = $prom.then(function () {
-                            return handler.publishHandler(runService, grouping.toPublish, handlerOptions).then(function (resultObj) {
+                        $initialProm = $initialProm.then(function () {
+                            return handler.publishHandler(runService, grouping.data, handlerOptions).then(function (resultObj) {
                                 var unsilenced = silencable(resultObj, handlerOptions);
-                                if (Object.keys(unsilenced).length && handler.name !== 'meta') {
-                                    //FIXME: Better way?
-                                    // variableschannel.fetch(runService).then(notifyWithPrefix.bind(null, 'variables:'));
-                                    // defaultVariablesChannel.fetch(runService).then(notifyWithPrefix.bind(null, ''));
-                                }
                                 var mapped = mapWithPrefix(unsilenced, handler.prefix);
                                 return mapped;
                             });
+                        }).then(function (unsilenced) {
+                            if (Object.keys(unsilenced).length && handler.name !== 'meta') {
+                                //FIXME: Better way?
+                                // variableschannel.fetch(runService).then(notifyWithPrefix.bind(null, 'variables:'));
+                                // defaultVariablesChannel.fetch(runService).then(notifyWithPrefix.bind(null, ''));
+                            }
+                            return unsilenced;
+                        })
+                        .then(function (handled) {
+                            toReturn = toReturn.push(handled);
                         });
                     }
                 });
-                return $prom;
-
             });
         }
     };

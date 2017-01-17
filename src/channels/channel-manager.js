@@ -7,7 +7,7 @@ var ScenarioMiddleware = require('./middleware/scenario-middleware');
 
 var normalizePublishInputs = require('./channel-utils').normalizePublishInputs;
 
-var makeSubs = function makeSubs(topics, callback, options) {
+function makeSubs(topics, callback, options) {
     var id = _.uniqueId('subs-');
     var defaults = {
         batch: false,
@@ -38,7 +38,7 @@ var makeSubs = function makeSubs(topics, callback, options) {
         topics: topics,
         callback: callback,
     }, opts);
-};
+}
 
 function callbackIfChanged(subscription, data) {
     if (!_.isEqual(subscription.lastSent, data)) {
