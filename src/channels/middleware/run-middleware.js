@@ -101,15 +101,14 @@ module.exports = function (config, notifier) {
 
             return $initialProm.then(function (runService) {
                 var toReturn = [];
-                grouped.forEach(function (grouping) {
-                    var handler = grouping.handler;
+                grouped.forEach(function (handler) {
                     var handlerOptions = opts[handler.name];
                     if (_.result(handlerOptions, 'readOnly')) {
                         var msg = 'Tried to publish to a read-only operations channel';
-                        console.warn(msg, grouping.toPublish);
+                        console.warn(msg, handler.data);
                     } else {
                         $initialProm = $initialProm.then(function () {
-                            return handler.publishHandler(runService, grouping.data, handlerOptions).then(function (resultObj) {
+                            return handler.publishHandler(runService, handler.data, handlerOptions).then(function (resultObj) {
                                 var unsilenced = silencable(resultObj, handlerOptions);
                                 var mapped = mapWithPrefix(unsilenced, handler.prefix);
                                 return mapped;
