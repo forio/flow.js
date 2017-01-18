@@ -100,32 +100,32 @@ module.exports = function (config, notifier) {
             var grouped = channelUtils.groupSequentiallyByHandlers(publishData, handlers);
 
             return $initialProm.then(function (runService) {
-                var toReturn = [];
+                var $prom = $.Deferred().resolve({}).promise();
                 grouped.forEach(function (handler) {
                     var handlerOptions = opts[handler.name];
                     if (_.result(handlerOptions, 'readOnly')) {
                         var msg = 'Tried to publish to a read-only operations channel';
                         console.warn(msg, handler.data);
                     } else {
-                        $initialProm = $initialProm.then(function () {
+                        $prom = $prom.then(function (dataSoFar) {
                             return handler.publishHandler(runService, handler.data, handlerOptions).then(function (resultObj) {
                                 var unsilenced = silencable(resultObj, handlerOptions);
-                                var mapped = mapWithPrefix(unsilenced, handler.prefix);
+                                var mapped = mapWithPrefix(unsilenced, handler.match);
                                 return mapped;
+                            }).then(function (unsilenced) {
+                                if (Object.keys(unsilenced).length && handler.name !== 'meta') {
+                                    //FIXME: Better way?
+                                    // variableschannel.fetch(runService).then(notifyWithPrefix.bind(null, 'variables:'));
+                                    // defaultVariablesChannel.fetch(runService).then(notifyWithPrefix.bind(null, ''));
+                                }
+                                return unsilenced;
+                            }).then(function (unsilenced) {
+                                return $.extend(dataSoFar, unsilenced);
                             });
-                        }).then(function (unsilenced) {
-                            if (Object.keys(unsilenced).length && handler.name !== 'meta') {
-                                //FIXME: Better way?
-                                // variableschannel.fetch(runService).then(notifyWithPrefix.bind(null, 'variables:'));
-                                // defaultVariablesChannel.fetch(runService).then(notifyWithPrefix.bind(null, ''));
-                            }
-                            return unsilenced;
-                        })
-                        .then(function (handled) {
-                            toReturn = toReturn.push(handled);
                         });
                     }
                 });
+                return $prom;
             });
         }
     };

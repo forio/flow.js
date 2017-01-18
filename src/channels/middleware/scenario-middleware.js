@@ -3,6 +3,8 @@ var RunChannel = require('./run-middleware');
 var prefix = require('./middleware-utils').prefix;
 var mapWithPrefix = require('./middleware-utils').mapWithPrefix;
 
+var Middleware = require('./general-middleware');
+
 module.exports = function (config, notifier) {
     var defaults = {
         serviceOptions: {},
@@ -74,70 +76,8 @@ module.exports = function (config, notifier) {
         $.extend(currentRunChannel, { name: 'current', match: prefix('current:') }),
         $.extend(defaultRunChannel, { name: 'default', match: prefix('') }),
     ];
-
-    var publicAPI = {
-        scenarioManager: sm,
-        subscribeHandler: function (topics) {
-            handlers.reduce(function (pendingTopics, ph) {
-                var toFetch = ([].concat(pendingTopics)).reduce(function (accum, topic) {
-                    var prefixMatch = ph.match(topic, ph.prefix);
-                    if (prefixMatch !== false) {
-                        var stripped = topic.replace(prefixMatch, '');
-                        accum.myTopics.push(stripped);
-                        accum.prefix = prefixMatch;
-                    } else {
-                        accum.otherTopics.push(topic);
-                    }
-                    return accum;
-                }, { myTopics: [], otherTopics: [], prefix: '' });
-
-                // var handlerOptions = opts[ph.name];
-                if (toFetch.myTopics.length && ph.subscribeHandler) {
-                    var returned = ph.subscribeHandler(toFetch.myTopics, toFetch.prefix);
-                    if (returned && returned.then) {
-                        returned.then(notifyWithPrefix.bind(null, toFetch.prefix));
-                    }
-                }
-                return toFetch.otherTopics;
-            }, topics);
-        },
-        publishHandler: function (inputObj) {
-            var status = handlers.reduce(function (accum, ph) {
-                var topicsToHandle = Object.keys(accum.unhandled).reduce(function (soFar, inputKey) {
-                    var value = accum.unhandled[inputKey];
-                    var prefixMatch = ph.match(inputKey, ph.prefix);
-                    if (prefixMatch !== false) {
-                        var cleanedKey = inputKey.replace(prefixMatch, '');
-                        soFar.myTopics[cleanedKey] = value;
-                        soFar.prefix = prefixMatch;
-                    } else {
-                        soFar.otherTopics[inputKey] = value;
-                    }
-                    return soFar;
-                }, { myTopics: {}, otherTopics: {}, prefix: '' });
-                var myTopics = topicsToHandle.myTopics;
-                if (!Object.keys(myTopics).length) {
-                    return accum;
-                }
-
-                var thisProm = ph.publishHandler(myTopics, topicsToHandle.prefix).then(function (resultObj) {
-                    var mapped = mapWithPrefix(resultObj, topicsToHandle.prefix);
-                    return mapped;
-                });
-                accum.promises.push(thisProm);
-                accum.unhandled = topicsToHandle.otherTopics;
-                return accum;
-            }, { promises: [], unhandled: inputObj });
-
-            return $.when.apply(null, status.promises).then(function () {
-                var args = Array.apply(null, arguments);
-                var merged = args.reduce(function (accum, arg) {
-                    return $.extend(true, {}, accum, arg);
-                }, {});
-                return merged;
-            });
-        },
-    };
-
-    $.extend(this, publicAPI);
+    
+    var middleware = new Middleware(handlers, config, notifier);
+    middleware.scenarioManager = sm;
+    return middleware;
 };

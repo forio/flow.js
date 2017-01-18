@@ -60,6 +60,6 @@ module.exports = function (config, notifier) {
         $.extend(defaultRunChannel, { name: 'current', match: prefix('') }),
     ];
 
-    this.middleware = new Middleware(handlers, config, notifier);
-    return this.middleware;
+    var middleware = new Middleware(handlers, config, notifier);
+    return middleware;
 };

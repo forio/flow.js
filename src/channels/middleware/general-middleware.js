@@ -39,8 +39,7 @@ var Middleware = (function () {
 
         publishHandler: function (publishData, options) {
             var grouped = channelUtils.groupSequentiallyByHandlers(publishData, this.handlers);
-            var toReturn = [];
-            var $initialProm = $.Deferred().resolve().promise();
+            var $initialProm = $.Deferred().resolve({}).promise();
             var me = this;
             grouped.forEach(function (handler) {
                 var handlerOptions = me.options[handler.name];
@@ -48,17 +47,18 @@ var Middleware = (function () {
                     var msg = 'Tried to publish to a read-only operations channel';
                     console.warn(msg, handler.data);
                 } else {
-                    $initialProm = $initialProm.then(function () {
+                    $initialProm = $initialProm.then(function (dataSoFar) {
                         return handler.publishHandler(handler.data, handlerOptions).then(function (unsilenced) {
-                            var mapped = mapWithPrefix(unsilenced, handler.prefix);
+                            var mapped = mapWithPrefix(unsilenced, handler.match);
                             return mapped;
+                        }).then(function (mapped) {
+                            return $.extend(dataSoFar, mapped);
                         });
-                    })
-                    .then(function (handled) {
-                        toReturn = toReturn.push(handled);
                     });
                 }
             });
+
+            return $initialProm;
         }
     });
 
