@@ -1,7 +1,6 @@
 var RunChannel = require('./run-middleware');
 
 var prefix = require('./middleware-utils').prefix;
-var regexpMatch = require('./middleware-utils').regex;
 
 var mapWithPrefix = require('./middleware-utils').mapWithPrefix;
 var CustomRunChannel = require('./custom-run-middleware');
@@ -43,11 +42,9 @@ module.exports = function (config, notifier) {
     }, opts.defaults, opts.current), notifyWithPrefix.bind(null, ''));
     var customRunChannel = new CustomRunChannel(opts.serviceOptions.run, notifyWithPrefix);
 
-    var sampleRunidLength = '000001593dd81950d4ee4f3df14841769a0b'.length;
-    var runidRegex = new RegExp('^(?:.{' + sampleRunidLength + '}):');
     var handlers = [
         $.extend(baselineRunChannel, { name: 'baseline', match: prefix('baseline:') }),
-        $.extend(customRunChannel, { name: 'custom', match: regexpMatch(runidRegex) }),
+        $.extend(customRunChannel, { name: 'custom' }),
         $.extend(currentRunChannel, { name: 'current', match: prefix('current:') }),
         $.extend(defaultRunChannel, { name: 'default', match: prefix('') }),
     ];
