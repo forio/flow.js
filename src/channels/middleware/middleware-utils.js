@@ -1,8 +1,18 @@
 exports.prefix = function prefix(prefix) {
-    return function match(topic) {
+    return function matchPrefix(topic) {
         return (topic.indexOf(prefix) === 0) ? prefix : false;
     };
 };
+exports.regex = function regex(regex) {
+    return function matchRegex(topic) {
+        var match = topic.match(regex);
+        if (match) {
+            return match[0];
+        }
+        return false;
+    };
+};
+
 
 exports.mapWithPrefix = function mapWithPrefix(obj, prefix) {
     if (!obj) {
@@ -13,3 +23,4 @@ exports.mapWithPrefix = function mapWithPrefix(obj, prefix) {
         return accum;
     }, {});
 };
+
