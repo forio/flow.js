@@ -48,7 +48,7 @@ var Middleware = (function () {
                     console.warn(msg, handler.data);
                 } else {
                     $initialProm = $initialProm.then(function (dataSoFar) {
-                        return handler.publishHandler(handler.data, handlerOptions).then(function (unsilenced) {
+                        return handler.publishHandler(handler.data, handler.match, handlerOptions).then(function (unsilenced) {
                             var mapped = mapWithPrefix(unsilenced, handler.match);
                             return mapped;
                         }).then(function (mapped) {

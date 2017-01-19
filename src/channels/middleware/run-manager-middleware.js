@@ -3,6 +3,7 @@ var RunChannel = require('./run-middleware');
 var prefix = require('./middleware-utils').prefix;
 var regexpMatch = require('./middleware-utils').regex;
 var mapWithPrefix = require('./middleware-utils').mapWithPrefix;
+var runChannelFactory = require('./run-channel-factory');
 
 var Middleware = require('./general-middleware');
 
@@ -28,33 +29,20 @@ module.exports = function (config, notifier) {
     var sampleRunidLength = '000001593dd81950d4ee4f3df14841769a0b'.length;
     var runidRegex = new RegExp('^(?:.{' + sampleRunidLength + '}):');
 
-    // create a new channel and push onto handlers to catch further
-    var knownRunIDServiceChannels = {};
     var handlers = [
         $.extend(currentRunChannel, { name: 'current', match: prefix('current:') }),
         { 
             name: 'custom', 
             match: regexpMatch(runidRegex),
             subscribeHandler: function (topics, prefix) {
-                prefix = prefix.replace(':', '');
-                if (!knownRunIDServiceChannels[prefix]) {
-                    var newNotifier = notifyWithPrefix.bind(null, prefix + ':');
-                    var runOptions = $.extend(true, {}, opts.serviceOptions.run, { id: prefix });
-                    var runChannel = new RunChannel({ serviceOptions: runOptions }, newNotifier);
-
-                    knownRunIDServiceChannels[prefix] = runChannel;
-                }
-                return knownRunIDServiceChannels[prefix].subscribeHandler(topics);
+                var runid = prefix.replace(':', '');
+                var channel = runChannelFactory(runid, opts.serviceOptions.run, notifyWithPrefix);
+                return channel.subscribeHandler(topics);
             },
             publishHandler: function (topics, prefix) {
-                prefix = prefix.replace(':', '');
-                if (!knownRunIDServiceChannels[prefix]) {
-                    var newNotifier = notifyWithPrefix.bind(null, prefix + ':');
-                    var runOptions = $.extend(true, {}, opts.serviceOptions.run, { id: prefix });
-                    var runChannel = new RunChannel({ serviceOptions: runOptions }, newNotifier);
-                    knownRunIDServiceChannels[prefix] = runChannel;
-                }
-                return knownRunIDServiceChannels[prefix].publishHandler(topics);
+                var runid = prefix.replace(':', '');
+                var channel = runChannelFactory(runid, opts.serviceOptions.run, notifyWithPrefix);
+                return channel.publishHandler(topics);
             }
         },
         $.extend(defaultRunChannel, { name: 'current', match: prefix('') }),
