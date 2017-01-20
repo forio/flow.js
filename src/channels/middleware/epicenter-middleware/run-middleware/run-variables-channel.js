@@ -1,6 +1,6 @@
 var debounceAndMerge = require('utils/general').debounceAndMerge;
 
-module.exports = function () {
+module.exports = function ($runServicePromise) {
 
     var id = _.uniqueId('variable-channel');
 
@@ -32,19 +32,23 @@ module.exports = function () {
         unsubscribeHandler: function (remainingTopics) {
             knownTopics = remainingTopics;
         },
-        subscribeHandler: function (runService, topics) {
-            knownTopics = _.uniq(knownTopics.concat(topics));
-            if (!knownTopics.length) {
-                return $.Deferred().resolve({}).promise();
-            }
-            return fetchFn(runService)(topics);
+        subscribeHandler: function (topics) {
+            return $runServicePromise.then(function (runService) {
+                knownTopics = _.uniq(knownTopics.concat(topics));
+                if (!knownTopics.length) {
+                    return $.Deferred().resolve({}).promise();
+                }
+                return fetchFn(runService)(topics);
+            });
         },
-        publishHandler: function (runService, topics, options) {
-            var toSave = topics.reduce(function (accum, topic) {
-                accum[topic.name] = topic.value;
-                return accum;
-            }, {});
-            return runService.variables().save(toSave);
+        publishHandler: function (topics, options) {
+            return $runServicePromise.then(function (runService) {
+                var toSave = topics.reduce(function (accum, topic) {
+                    accum[topic.name] = topic.value;
+                    return accum;
+                }, {});
+                return runService.variables().save(toSave);
+            });
         }
     };
 };
