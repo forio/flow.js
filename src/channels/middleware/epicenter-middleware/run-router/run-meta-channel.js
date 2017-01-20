@@ -1,4 +1,4 @@
-module.exports = function ($runServicePromise) {
+module.exports = function ($runServicePromise, notifier) {
 
     function mergeAndSend(runMeta, requestedTopics) {
         var toSend = ([].concat(requestedTopics)).reduce(function (accum, meta) {
@@ -23,7 +23,7 @@ module.exports = function ($runServicePromise) {
                     });
                 } 
                 return runService.loadPromise.then(function (data) {
-                    return mergeAndSend(data, topics);
+                    notifier(mergeAndSend(data, topics));
                 });
             });
         },

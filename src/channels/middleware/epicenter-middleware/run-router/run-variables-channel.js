@@ -1,6 +1,6 @@
 var debounceAndMerge = require('utils/general').debounceAndMerge;
 
-module.exports = function ($runServicePromise) {
+module.exports = function ($runServicePromise, notifier) {
 
     var id = _.uniqueId('variable-channel');
 
@@ -38,7 +38,7 @@ module.exports = function ($runServicePromise) {
                 if (!knownTopics.length) {
                     return $.Deferred().resolve({}).promise();
                 }
-                return fetchFn(runService)(topics);
+                return fetchFn(runService)(topics).then(notifier);
             });
         },
         publishHandler: function (topics, options) {

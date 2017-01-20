@@ -1,4 +1,4 @@
-var RunChannel = require('./run-middleware');
+var RunChannel = require('./run-router');
 
 var prefix = require('channels/middleware/utils').prefix;
 var mapWithPrefix = require('channels/middleware/utils').mapWithPrefix;

@@ -3,11 +3,8 @@ var channelUtils = require('channels/channel-utils');
 var mapWithPrefix = require('channels/middleware/utils').mapWithPrefix;
 
 var Middleware = (function () {
-    function Middleware(handlers, notifier) {
+    function Middleware(handlers) {
         this.handlers = handlers;
-        this.notifyWithPrefix = function (prefix, data) {
-            notifier(mapWithPrefix(data, prefix));
-        };
 
         this.subscribeHandler = this.subscribeHandler.bind(this);
         this.unsubscribeHandler = this.unsubscribeHandler.bind(this);
@@ -16,13 +13,9 @@ var Middleware = (function () {
     createClass(Middleware, {
         subscribeHandler: function (topics) {
             var grouped = channelUtils.groupByHandlers(topics, this.handlers);
-            var me = this;
             grouped.forEach(function (handler) {
                 if (handler.subscribeHandler) {
-                    var returned = handler.subscribeHandler(handler.topics, handler.match);
-                    if (returned && returned.then) {
-                        returned.then(me.notifyWithPrefix.bind(null, handler.match));
-                    }
+                    handler.subscribeHandler(handler.topics, handler.match);
                 }
             });
         },
