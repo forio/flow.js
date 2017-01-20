@@ -27,7 +27,7 @@
     </table>
     <script>
     var sm = new Flow.ChannelManager({
-        scenarioManager: {
+        runid: {
             run: {
                 account: 'jaimedp',
                 project: 'glasses',
@@ -47,14 +47,10 @@
 
 
     var toTest = [
-        'baseline:meta:name',
-        'baseline:variable:Price',
-
-        'current:variable:Price',
-        'current:meta:name',
-
-        'Price',
-        'meta:name',
+        '000001592427458bc60275dfdbad64f4d25a:variable:Price',
+        '000001592427458bc60275dfdbad64f4d25a:Price',
+        '000001592427458bc60275dfdbad64f4d25a:meta:name',
+        '000001592427458bc60275dfdbad64f4d25a:meta:id',
     ];
 
     toTest.forEach(function (key) {

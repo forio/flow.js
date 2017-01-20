@@ -2,6 +2,7 @@ var RunMiddleware = require('./run-manager-middleware');
 var ScenarioMiddleware = require('./scenario-middleware');
 var mapWithPrefix = require('./middleware-utils').mapWithPrefix;
 var prefixMatch = require('./middleware-utils').prefix;
+var CustomRunChannel = require('./custom-run-middleware');
 
 var Middleware = require('./general-middleware');
 
@@ -19,7 +20,12 @@ module.exports = function (config, notifier) {
 
     var opts = $.extend(true, {}, config);
 
-    var handlers = [];
+    var customRunChannelOpts = getOptions(opts, 'runid');
+    var customRunChannel = new CustomRunChannel(customRunChannelOpts, notifyWithPrefix);
+
+    var handlers = [
+        $.extend({}, customRunChannel, { name: 'runid' })
+    ];
     var prefix = '';
     if (opts.runManager) {
         prefix = config.scenarioManager ? 'run:' : '';

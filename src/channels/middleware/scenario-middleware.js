@@ -1,5 +1,4 @@
 var RunChannel = require('./run-middleware');
-var CustomRunChannel = require('./custom-run-middleware');
 
 var prefix = require('./middleware-utils').prefix;
 var mapWithPrefix = require('./middleware-utils').mapWithPrefix;
@@ -43,11 +42,9 @@ module.exports = function (config, notifier) {
 
     var currentRunChannel = new RunChannel(runOptions, notifyWithPrefix.bind(null, 'current:'));
     var defaultRunChannel = new RunChannel(runOptions, notifyWithPrefix.bind(null, ''));
-    var customRunChannel = new CustomRunChannel(opts.serviceOptions.run, notifyWithPrefix);
 
     var handlers = [
         $.extend(baselineRunChannel, { name: 'baseline', match: prefix('baseline:') }),
-        $.extend(customRunChannel, { name: 'custom' }),
         $.extend(currentRunChannel, { name: 'current', match: prefix('current:') }),
         $.extend(defaultRunChannel, { name: 'default', match: prefix('') }),
     ];
