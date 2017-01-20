@@ -2,9 +2,7 @@
 
 var createClass = require('utils/create-class');
 
-var RunMiddleware = require('./middleware/run-manager-middleware');
-var ScenarioMiddleware = require('./middleware/scenario-middleware');
-
+var EpicenterMiddleware = require('./middleware/epicenter-middleware');
 var normalizePublishInputs = require('./channel-utils').normalizePublishInputs;
 
 function makeSubs(topics, callback, options) {
@@ -76,10 +74,7 @@ function checkAndNotify(publishObj, subscription) {
     });
 }
 
-var availableMiddlewares = [
-    { name: 'runManager', handler: RunMiddleware },
-    { name: 'scenarioManager', handler: ScenarioMiddleware },
-];
+var availableMiddlewares = [EpicenterMiddleware];
 var ChannelManager = (function () {
     function ChannelManager(options) {
         var defaults = {
@@ -88,29 +83,19 @@ var ChannelManager = (function () {
             subscribeMiddleWares: [],
             publishMiddlewares: [],
             unsubscribeMiddlewares: [],
-
-            options: {},
         };
         var opts = $.extend(true, {}, defaults, options);
 
         var boundNotify = this.notify.bind(this);
 
-        var me = this;
-        availableMiddlewares.forEach(function (middleware) {
-            if (opts[middleware.name]) {
-                var Handler = middleware.handler;
-                var m = new Handler($.extend(true, {}, opts.options[middleware.name], {
-                    serviceOptions: $.extend(true, {}, opts.defaults, opts[middleware.name])
-                }), boundNotify);
-                if (m.unsubscribeHandler) {
-                    opts.unsubscribeMiddlewares.push(m.unsubscribeHandler);
-                }
-                if (m[middleware.name]) {
-                    me[middleware.name] = m[middleware.name];
-                }
-                opts.publishMiddlewares.push(m.publishHandler);
-                opts.subscribeMiddleWares.push(m.subscribeHandler);
+        var channelOptions = _.omit(opts, Object.keys(defaults));
+        availableMiddlewares.forEach(function (Middleware) {
+            var m = new Middleware(channelOptions, boundNotify);
+            if (m.unsubscribeHandler) {
+                opts.unsubscribeMiddlewares.push(m.unsubscribeHandler);
             }
+            opts.publishMiddlewares.push(m.publishHandler);
+            opts.subscribeMiddleWares.push(m.subscribeHandler);
         });
 
         $.extend(this, { 

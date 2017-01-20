@@ -10,25 +10,29 @@ var channelUtils = require('../channel-utils');
 module.exports = function (config, notifier) {
     var defaults = {
         serviceOptions: {},
-        initialOperation: [],
-        variables: {
-            autoFetch: true,
-            silent: false,
-            readOnly: false,
-        },
-        operations: {
-            readOnly: false,
-            silent: false,
-        },
-        meta: {
-            silent: false,
-            autoFetch: true,
-            readOnly: false
-        },
+        channelOptions: {
+            initialOperation: [],
+            variables: {
+                autoFetch: true,
+                silent: false,
+                readOnly: false,
+            },
+            operations: {
+                readOnly: false,
+                silent: false,
+            },
+            meta: {
+                silent: false,
+                autoFetch: true,
+                readOnly: false
+            },
+        }
     };
     var opts = $.extend(true, {}, defaults, config);
 
     var serviceOptions = _.result(opts, 'serviceOptions');
+    var channelOptions = opts.channelOptions;
+
     var $initialProm = null;
     if (serviceOptions instanceof window.F.service.Run) {
         $initialProm = $.Deferred().resolve(serviceOptions).promise();
@@ -39,12 +43,12 @@ module.exports = function (config, notifier) {
         $initialProm = $.Deferred().resolve(rs).promise();
     }
 
-    if (opts.initialOperation.length) {
+    if (channelOptions.initialOperation.length) {
         //FIXME: Move run initialization logic to run-manager, as a strategy option. Technically only it should know what to do with it.
         //For e.g, if there was a reset operation performed on the run, the run service instance will be the same so we wouldn't know
         $initialProm = $initialProm.then(function (runService) {
             if (!runService.initialize) {
-                runService.initialize = runService.serial(opts.initialOperation);
+                runService.initialize = runService.serial(channelOptions.initialOperation);
             }
             return runService.initialize.then(function () {
                 return runService;
@@ -75,7 +79,7 @@ module.exports = function (config, notifier) {
             $initialProm.then(function (runService) {
                 var grouped = channelUtils.groupByHandlers(topics, handlers);
                 grouped.forEach(function (handler) {
-                    var handlerOptions = opts[handler.name];
+                    var handlerOptions = channelOptions[handler.name];
                     var shouldFetch = _.result(handlerOptions, 'autoFetch');
                     if (handler.subscribeHandler && shouldFetch) {
                         var returned = handler.subscribeHandler(runService, handler.topics);
@@ -96,13 +100,13 @@ module.exports = function (config, notifier) {
             });
         },
 
-        publishHandler: function (publishData, options) {
+        publishHandler: function (publishData) {
             var grouped = channelUtils.groupSequentiallyByHandlers(publishData, handlers);
 
             return $initialProm.then(function (runService) {
                 var $prom = $.Deferred().resolve({}).promise();
                 grouped.forEach(function (handler) {
-                    var handlerOptions = opts[handler.name];
+                    var handlerOptions = channelOptions[handler.name];
                     if (_.result(handlerOptions, 'readOnly')) {
                         var msg = 'Tried to publish to a read-only operations channel';
                         console.warn(msg, handler.data);

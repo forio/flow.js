@@ -4,9 +4,8 @@ var mapWithPrefix = require('./middleware-utils').mapWithPrefix;
 
 var Middleware = (function () {
     
-    function Middleware(handlers, config, notifier) {
+    function Middleware(handlers, notifier) {
         this.handlers = handlers;
-        this.options = config;
         this.notifyWithPrefix = function (prefix, data) {
             notifier(mapWithPrefix(data, prefix));
         };
@@ -37,27 +36,19 @@ var Middleware = (function () {
             });
         },
 
-        publishHandler: function (publishData, options) {
+        publishHandler: function (publishData) {
             var grouped = channelUtils.groupSequentiallyByHandlers(publishData, this.handlers);
             var $initialProm = $.Deferred().resolve({}).promise();
-            var me = this;
             grouped.forEach(function (handler) {
-                var handlerOptions = me.options[handler.name];
-                if (_.result(handlerOptions, 'readOnly')) {
-                    var msg = 'Tried to publish to a read-only operations channel';
-                    console.warn(msg, handler.data);
-                } else {
-                    $initialProm = $initialProm.then(function (dataSoFar) {
-                        return handler.publishHandler(handler.data, handler.match, handlerOptions).then(function (unsilenced) {
-                            var mapped = mapWithPrefix(unsilenced, handler.match);
-                            return mapped;
-                        }).then(function (mapped) {
-                            return $.extend(dataSoFar, mapped);
-                        });
+                $initialProm = $initialProm.then(function (dataSoFar) {
+                    return handler.publishHandler(handler.data, handler.match).then(function (unsilenced) {
+                        var mapped = mapWithPrefix(unsilenced, handler.match);
+                        return mapped;
+                    }).then(function (mapped) {
+                        return $.extend(dataSoFar, mapped);
                     });
-                }
+                });
             });
-
             return $initialProm;
         }
     });

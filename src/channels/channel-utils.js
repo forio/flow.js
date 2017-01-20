@@ -8,6 +8,11 @@ function findBestHandler(topic, handlers) {
     }
 }
 module.exports = {
+    extractOptions: function (options, key) {
+        var opts = $.extend(true, { defaults: {} }, options);
+        return $.extend(true, {}, opts.defaults, opts[key]);
+    },
+
     normalizePublishInputs: function (topic, publishValue, options) {
         if ($.isPlainObject(topic)) {
             var mapped = Object.keys(topic).map(function (t) {

@@ -1,6 +1,26 @@
 New Format:
 
 channel({
+    middlewares: [],
+    
+    defaults: {
+        run: {
+
+        },
+        channelOptions: {
+            variables: { silent: ['price', 'sales'] },
+            operations: { silent: false },
+        }
+    },
+    runid: {
+        run: {
+            account: ''
+        },
+        channelOptions: {
+
+        }
+    },
+
     runManager: {
         strategy: 'new-if-persisted',
         run: {
@@ -12,7 +32,17 @@ channel({
                 beforeSend: function() { $('body').addClass('loading'); },
                 complete: function() { $('body').removeClass('loading'); }
             }
-        }
+        },
+        channelOptions: {
+            defaults: {
+                variables: { silent: ['price', 'sales'] },
+                operations: { silent: false },
+            },
+            current: {
+                variables: { silent: ['price', 'sales'] },
+                operations: { silent: false },
+            }
+        },
     },
     scenarioManager: {
         run: {

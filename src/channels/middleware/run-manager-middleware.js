@@ -9,6 +9,7 @@ var Middleware = require('./general-middleware');
 module.exports = function (config, notifier) {
     var defaults = {
         serviceOptions: {},
+        channelOptions: {}
     };
     var opts = $.extend(true, {}, defaults, config);
 
@@ -20,10 +21,10 @@ module.exports = function (config, notifier) {
         notifier(mapWithPrefix(data, prefix));
     };
 
-    var channelOpts = $.extend(true, 
+    var currentChannelOpts = $.extend(true, 
         { serviceOptions: $creationPromise }, opts.defaults, opts.current);
-    var currentRunChannel = new RunChannel(channelOpts, notifyWithPrefix.bind(null, 'current:'));
-    var defaultRunChannel = new RunChannel(channelOpts, notifier);
+    var currentRunChannel = new RunChannel(currentChannelOpts, notifyWithPrefix.bind(null, 'current:'));
+    var defaultRunChannel = new RunChannel(currentChannelOpts, notifier);
     var customRunChannel = new CustomRunChannel(opts.serviceOptions.run, notifyWithPrefix);
 
     var handlers = [
@@ -32,6 +33,8 @@ module.exports = function (config, notifier) {
         $.extend(defaultRunChannel, { name: 'current', match: prefix('') }),
     ];
 
-    var middleware = new Middleware(handlers, config, notifier);
+    var middleware = new Middleware(handlers, notifier);
+    middleware.runManager = rm;
+    
     return middleware;
 };
