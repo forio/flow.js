@@ -1,11 +1,11 @@
-var RunMiddleware = require('./run-manager-middleware');
-var ScenarioMiddleware = require('./scenario-manager-middleware');
-var CustomRunMiddleware = require('./custom-run-middleware');
+var RunMiddleware = require('./run-manager-router');
+var ScenarioMiddleware = require('./scenario-manager-router');
+var CustomRunMiddleware = require('./custom-run-router');
 
 var mapWithPrefix = require('channels/middleware/utils').mapWithPrefix;
 var prefixMatch = require('channels/middleware/utils').prefix;
 
-var Middleware = require('channels/middleware/general-middleware');
+var Middleware = require('channels/middleware/channel-router');
 
 function getOptions(opts, key) {
     var serviceOptions = $.extend(true, {}, opts.defaults, opts[key]);

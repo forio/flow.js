@@ -3,7 +3,6 @@ var channelUtils = require('channels/channel-utils');
 var mapWithPrefix = require('channels/middleware/utils').mapWithPrefix;
 
 var Middleware = (function () {
-    
     function Middleware(handlers, notifier) {
         this.handlers = handlers;
         this.notifyWithPrefix = function (prefix, data) {

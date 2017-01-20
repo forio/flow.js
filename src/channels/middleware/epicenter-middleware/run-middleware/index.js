@@ -1,13 +1,10 @@
 var MetaChannel = require('./run-meta-channel');
 var VariablesChannel = require('./run-variables-channel');
 var OperationsChannel = require('./run-operations-channel');
-var silencable = require('channels/middleware/utils/silencable');
 
-var Middleware = require('channels/middleware/general-middleware');
+var Middleware = require('channels/middleware/channel-router');
 
 var prefix = require('channels/middleware/utils').prefix;
-var mapWithPrefix = require('channels/middleware/utils').mapWithPrefix;
-var channelUtils = require('channels/channel-utils');
 
 module.exports = function (config, notifier) {
     var defaults = {
@@ -33,7 +30,6 @@ module.exports = function (config, notifier) {
     var opts = $.extend(true, {}, defaults, config);
 
     var serviceOptions = _.result(opts, 'serviceOptions');
-    var channelOptions = opts.channelOptions;
 
     var $initialProm = null;
     if (serviceOptions instanceof window.F.service.Run) {
