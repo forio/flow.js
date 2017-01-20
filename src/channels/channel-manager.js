@@ -78,7 +78,6 @@ var availableMiddlewares = [EpicenterMiddleware];
 var ChannelManager = (function () {
     function ChannelManager(options) {
         var defaults = {
-            subscriptions: [],
 
             subscribeMiddleWares: [],
             publishMiddlewares: [],
@@ -99,7 +98,6 @@ var ChannelManager = (function () {
         });
 
         $.extend(this, { 
-            subscriptions: opts.subscriptions, 
             publishMiddlewares: opts.publishMiddlewares,
             unsubscribeMiddlewares: opts.unsubscribeMiddlewares,
             subscribeMiddleWares: opts.subscribeMiddleWares,
@@ -107,6 +105,8 @@ var ChannelManager = (function () {
     }
 
     createClass(ChannelManager, {
+        subscriptions: [],
+
         publish: function (topic, value, options) {
             var normalized = normalizePublishInputs(topic, value, options);
             var prom = $.Deferred().resolve(normalized.toPublish).promise();
