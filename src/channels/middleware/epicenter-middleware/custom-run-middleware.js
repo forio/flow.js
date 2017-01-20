@@ -1,5 +1,5 @@
 var runChannelFactory = require('./run-channel-factory');
-var regexpMatch = require('./middleware-utils').regex;
+var regexpMatch = require('channels/middleware/utils').regex;
 
 var sampleRunidLength = '000001593dd81950d4ee4f3df14841769a0b'.length;
 var runidRegex = new RegExp('^(?:.{' + sampleRunidLength + '}):');

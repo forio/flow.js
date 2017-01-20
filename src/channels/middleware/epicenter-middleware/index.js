@@ -1,10 +1,11 @@
 var RunMiddleware = require('./run-manager-middleware');
-var ScenarioMiddleware = require('./scenario-middleware');
-var mapWithPrefix = require('./middleware-utils').mapWithPrefix;
-var prefixMatch = require('./middleware-utils').prefix;
-var CustomRunChannel = require('./custom-run-middleware');
+var ScenarioMiddleware = require('./scenario-manager-middleware');
+var CustomRunMiddleware = require('./custom-run-middleware');
 
-var Middleware = require('./general-middleware');
+var mapWithPrefix = require('channels/middleware/utils').mapWithPrefix;
+var prefixMatch = require('channels/middleware/utils').prefix;
+
+var Middleware = require('channels/middleware/general-middleware');
 
 function getOptions(opts, key) {
     var serviceOptions = $.extend(true, {}, opts.defaults, opts[key]);
@@ -21,7 +22,7 @@ module.exports = function (config, notifier) {
     var opts = $.extend(true, {}, config);
 
     var customRunChannelOpts = getOptions(opts, 'runid');
-    var customRunChannel = new CustomRunChannel(customRunChannelOpts, notifyWithPrefix);
+    var customRunChannel = new CustomRunMiddleware(customRunChannelOpts, notifyWithPrefix);
 
     var handlers = [
         $.extend({}, customRunChannel, { name: 'runid' })

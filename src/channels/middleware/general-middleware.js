@@ -1,6 +1,6 @@
 var createClass = require('utils/create-class');
-var channelUtils = require('../channel-utils');
-var mapWithPrefix = require('./middleware-utils').mapWithPrefix;
+var channelUtils = require('channels/channel-utils');
+var mapWithPrefix = require('channels/middleware/utils').mapWithPrefix;
 
 var Middleware = (function () {
     

@@ -1,11 +1,11 @@
 var MetaChannel = require('./run-meta-channel');
 var VariablesChannel = require('./run-variables-channel');
 var OperationsChannel = require('./run-operations-channel');
-var silencable = require('./silencable');
+var silencable = require('channels/middleware/utils/silencable');
 
-var prefix = require('./middleware-utils').prefix;
-var mapWithPrefix = require('./middleware-utils').mapWithPrefix;
-var channelUtils = require('../channel-utils');
+var prefix = require('channels/middleware/utils').prefix;
+var mapWithPrefix = require('channels/middleware/utils').mapWithPrefix;
+var channelUtils = require('channels/channel-utils');
 
 module.exports = function (config, notifier) {
     var defaults = {

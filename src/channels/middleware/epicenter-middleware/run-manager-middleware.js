@@ -1,9 +1,9 @@
 var RunChannel = require('./run-middleware');
 
-var prefix = require('./middleware-utils').prefix;
-var mapWithPrefix = require('./middleware-utils').mapWithPrefix;
+var prefix = require('channels/middleware/utils').prefix;
+var mapWithPrefix = require('channels/middleware/utils').mapWithPrefix;
 
-var Middleware = require('./general-middleware');
+var Middleware = require('channels/middleware/general-middleware');
 
 module.exports = function (config, notifier) {
     var defaults = {
