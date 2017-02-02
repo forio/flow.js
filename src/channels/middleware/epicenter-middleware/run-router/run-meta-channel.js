@@ -7,7 +7,7 @@ module.exports = function ($runServicePromise, notifier) {
             }
             return accum;
         }, {});
-        return toSend;
+        return notifier(toSend);
     }
     return {
         subscribeHandler: function (topics) {
@@ -23,7 +23,7 @@ module.exports = function ($runServicePromise, notifier) {
                     });
                 } 
                 return runService.loadPromise.then(function (data) {
-                    notifier(mergeAndSend(data, topics));
+                    mergeAndSend(data, topics);
                 });
             });
         },
