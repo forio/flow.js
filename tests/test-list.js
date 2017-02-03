@@ -25,6 +25,6 @@ require('./specs/dom/plugins/test-auto-update-bindings');
 require('./specs/add-ons/test-add-ons');
 require('./specs/test-flow');
 
-var srcContext = require.context('../src/', true, /\.js$/);
-srcContext.keys().forEach(srcContext);
-// require('../src/flow'); //directly require if you need to skip flow inspector
+// var srcContext = require.context('../src/', true, /\.js$/);
+// srcContext.keys().forEach(srcContext);
+require('../src/flow'); //directly require if you need to skip flow inspector

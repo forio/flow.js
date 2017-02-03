@@ -7,10 +7,8 @@ module.exports = function (grunt) {
             growlOnSuccess: false,
             reporter: 'Min',
             // log: true,
-            options: {
-                coverage: {
-                    jsonReport: 'coverage'
-                }
+            coverage: {
+                jsonReport: 'coverage'
             }
         },
         test: {
