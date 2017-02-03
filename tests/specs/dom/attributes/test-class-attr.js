@@ -3,7 +3,7 @@ module.exports = (function () {
     var domManager = require('src/dom/dom-manager');
     var utils = require('../../../testing-utils');
 
-    describe('Classes', function () {
+    describe.skip('Classes', function () {
 
         it('should able to add classes if there are none', function () {
             return utils.initWithNode('<input type="text" data-f-class="apple" data-f-bind="stuff"/>', domManager).then(function ($node) {

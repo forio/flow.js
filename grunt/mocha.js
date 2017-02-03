@@ -1,16 +1,20 @@
 'use strict';
-
 module.exports = function (grunt) {
-    // grunt.loadNpmTasks('grunt-mocha-phantom-istanbul');
+    grunt.loadNpmTasks('grunt-mocha-phantom-istanbul');
     grunt.config.set('mocha', {
-        test: {
-            src: ['tests/index.html'],
+        options: {
+            run: true,
+            growlOnSuccess: false,
+            reporter: 'Min',
+            // log: true,
             options: {
-                growlOnSuccess: false,
-                reporter: 'Min',
-                run: true,
-                // log: true,
+                coverage: {
+                    jsonReport: 'coverage'
+                }
             }
+        },
+        test: {
+            src: ['tests/index.html']
         }
     });
 };

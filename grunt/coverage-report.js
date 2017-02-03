@@ -14,5 +14,4 @@ module.exports = function (grunt) {
                 //empty callback so it doesnt error out
             });
     });
-
 };

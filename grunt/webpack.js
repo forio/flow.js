@@ -1,5 +1,7 @@
 'use strict';
 var webpack = require('webpack');
+var path = require('path');
+
 var uglifyOptions = {
     mangle: false,
     warnings: true,
@@ -47,7 +49,7 @@ module.exports = function (grunt) {
             ],
             devtool: 'eval'
         },
-        tests: {
+        instrumented: {
             entry: './tests/test-list.js',
             output: {
                 path: './tests/dist/',
@@ -66,6 +68,62 @@ module.exports = function (grunt) {
                             ]
                         }
                     },
+                    { test: /\.py$/, loader: 'raw' },
+                    { test: /\.jl$/, loader: 'raw' },
+                ]
+            },
+            devtool: 'eval',
+            resolve: {
+                alias: {
+                    src: __dirname + '/../src'
+                }
+            }
+        },
+        tests: {
+            entry: './tests/test-list.js',
+            output: {
+                path: './tests/dist/',
+                filename: 'tests-bundle.js'
+            },
+            module: {
+               //  isparta: {
+               //     embedSource: true,
+               //     noAutoWrap: true,
+               // },
+                preLoaders: [
+                    { 
+                        test: /\.js$/, 
+                        exclude: [
+                            /node_modules/,
+                            path.resolve('./tests'),
+                        ],
+                        loader: 'babel-loader',
+                        query: {
+                            plugins: [
+                                'babel-plugin-transform-es2015-arrow-functions',
+                                'babel-plugin-transform-es2015-template-literals'
+                            ]
+                        }
+                    },
+                    { 
+                        test: /\.js$/, 
+                        include: path.resolve('./tests'),
+                        loader: 'isparta',
+                    }
+                ],
+                loaders: [
+                    { 
+                        test: /\.js$/, 
+                        exclude: /node_modules/,
+                        loader: 'babel-loader',
+                        query: {
+                            plugins: [
+                                'babel-plugin-transform-es2015-arrow-functions',
+                                'babel-plugin-transform-es2015-template-literals'
+                            ]
+                        }
+                    },
+                    { test: /\.html$/, loader: 'raw' },
                     { test: /\.py$/, loader: 'raw' },
                     { test: /\.jl$/, loader: 'raw' },
                 ]
