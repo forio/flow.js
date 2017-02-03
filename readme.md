@@ -15,8 +15,6 @@ Questions?  Contact us at support@forio.com or file an issue on github!
 To run locally
 ```
     npm install
-    cd tests
-    npm install
 
     grunt
 ```

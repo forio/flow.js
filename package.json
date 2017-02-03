@@ -40,7 +40,12 @@
     "time-grunt": "^1.4.0",
     "uglify-js": "^2.7.0",
     "webpack": "^1.13.1",
-    "webpack-dev-server": "^1.14.1"
+    "webpack-dev-server": "^1.14.1",
+    "chai": "^3.5.0",
+    "lolex": "^1.5.2",
+    "mocha": "^3.2.0",
+    "sinon": "^1.17.6",
+    "sinon-chai": "^2.8.0"
   },
   "author": "Naren Ranjit",
   "bugs": {
