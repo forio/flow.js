@@ -3,7 +3,7 @@ var VariablesChannel = require('./run-variables-channel');
 var OperationsChannel = require('./run-operations-channel');
 
 var Middleware = require('channels/middleware/channel-router');
-var mapWithPrefix = require('channels/middleware/utils').mapWithPrefix;
+var withPrefix = require('channels/middleware/utils').withPrefix;
 
 var prefix = require('channels/middleware/utils').prefix;
 
@@ -55,16 +55,13 @@ module.exports = function (config, notifier) {
     //     });
     // }
     // 
-    var notifyWithPrefix = function (prefix, data) {
-        notifier(mapWithPrefix(data, prefix));
-    };
 
     //TODO: Need 2 different channel instances because the fetch is debounced, and hence will bundle variables up otherwise.
     //also, notify needs to be called twice (with different arguments). Different way?
-    var variableschannel = new VariablesChannel($initialProm, notifyWithPrefix.bind(null, 'variable:'));
+    var variableschannel = new VariablesChannel($initialProm, withPrefix(notifier, 'variable:'));
     var defaultVariablesChannel = new VariablesChannel($initialProm, notifier);
-    var metaChannel = new MetaChannel($initialProm, notifyWithPrefix.bind(null, 'meta:'));
-    var operationsChannel = new OperationsChannel($initialProm, notifyWithPrefix.bind(null, 'operation:'));
+    var metaChannel = new MetaChannel($initialProm, withPrefix(notifier, 'meta:'));
+    var operationsChannel = new OperationsChannel($initialProm, withPrefix(notifier, 'operation:'));
 
     var handlers = [
         $.extend({}, variableschannel, { name: 'variables', match: prefix('variable:') }),

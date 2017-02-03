@@ -1,7 +1,7 @@
 var RunChannel = require('./run-router');
 
 var prefix = require('channels/middleware/utils').prefix;
-var mapWithPrefix = require('channels/middleware/utils').mapWithPrefix;
+var withPrefix = require('channels/middleware/utils').withPrefix;
 
 var Middleware = require('channels/middleware/channel-router');
 
@@ -16,13 +16,9 @@ module.exports = function (config, notifier) {
     var $creationPromise = rm.getRun().then(function () {
         return rm.run;
     });
-    var notifyWithPrefix = function (prefix, data) {
-        notifier(mapWithPrefix(data, prefix));
-    };
-
     var currentChannelOpts = $.extend(true, 
         { serviceOptions: $creationPromise }, opts.defaults, opts.current);
-    var currentRunChannel = new RunChannel(currentChannelOpts, notifyWithPrefix.bind(null, 'current:'));
+    var currentRunChannel = new RunChannel(currentChannelOpts, withPrefix(notifier, 'current:'));
     var defaultRunChannel = new RunChannel(currentChannelOpts, notifier);
 
     var handlers = [

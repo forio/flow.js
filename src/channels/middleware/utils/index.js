@@ -14,7 +14,7 @@ exports.regex = function regex(regex) {
 };
 
 
-exports.mapWithPrefix = function mapWithPrefix(obj, prefix) {
+function mapWithPrefix(obj, prefix) {
     if (!obj) {
         return {};
     }
@@ -22,5 +22,13 @@ exports.mapWithPrefix = function mapWithPrefix(obj, prefix) {
         accum[prefix + key] = obj[key];
         return accum;
     }, {});
+}
+
+exports.withPrefix = function withPrefix(callback, prefix) {
+    return function (data) {
+        return callback(mapWithPrefix(data, prefix));
+    };
 };
+
+exports.mapWithPrefix = mapWithPrefix;
 

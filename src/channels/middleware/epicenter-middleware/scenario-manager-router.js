@@ -1,7 +1,7 @@
 var RunChannel = require('./run-router');
 
 var prefix = require('channels/middleware/utils').prefix;
-var mapWithPrefix = require('channels/middleware/utils').mapWithPrefix;
+var withPrefix = require('channels/middleware/utils').withPrefix;
 
 var Middleware = require('channels/middleware/channel-router');
 module.exports = function (config, notifier) {
@@ -11,9 +11,6 @@ module.exports = function (config, notifier) {
     };
     var opts = $.extend(true, {}, defaults, config);
 
-    var notifyWithPrefix = function (prefix, data) {
-        notifier(mapWithPrefix(data, prefix));
-    };
     var sm = new window.F.manager.ScenarioManager(opts.serviceOptions);
 
     var baselinePromise = sm.baseline.getRun().then(function () {
@@ -34,14 +31,14 @@ module.exports = function (config, notifier) {
                 }
             }
         }, opts.defaults, opts.baseline)
-    , notifyWithPrefix.bind(null, 'baseline:'));
+    , withPrefix(notifier, 'baseline:'));
 
     var runOptions = $.extend(true, {}, {
         serviceOptions: currentRunPromise,
     }, opts.defaults, opts.current);
 
-    var currentRunChannel = new RunChannel(runOptions, notifyWithPrefix.bind(null, 'current:'));
-    var defaultRunChannel = new RunChannel(runOptions, notifyWithPrefix.bind(null, ''));
+    var currentRunChannel = new RunChannel(runOptions, withPrefix(notifier, 'current:'));
+    var defaultRunChannel = new RunChannel(runOptions, withPrefix(notifier, ''));
 
     var handlers = [
         $.extend(baselineRunChannel, { name: 'baseline', match: prefix('baseline:') }),
