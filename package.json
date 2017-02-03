@@ -34,7 +34,7 @@
     "grunt-mocha": "^1.0.4",
     "grunt-mocha-phantom-istanbul": "^0.2.1",
     "grunt-sass": "^2.0.0",
-    "grunt-webpack": "^1.0.14",
+    "grunt-webpack": "^2.0.1",
     "husky": "^0.13.1",
     "istanbul": "^0.4.5",
     "istanbul-instrumenter-loader": "^1.2.0",
@@ -47,8 +47,8 @@
     "stringify": "^5.1.0",
     "time-grunt": "^1.4.0",
     "uglify-js": "^2.7.0",
-    "webpack": "^1.13.1",
-    "webpack-dev-server": "^1.14.1"
+    "webpack": "^2.2.1",
+    "webpack-dev-server": "^2.3.0"
   },
   "author": "Naren Ranjit",
   "bugs": {
