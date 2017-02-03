@@ -13,10 +13,17 @@ exports.regex = function regex(regex) {
     };
 };
 
+var CHANNEL_DELIMITER = ':';
 
 function mapWithPrefix(obj, prefix) {
     if (!obj) {
         return {};
+    }
+    if (!prefix) {
+        return obj;
+    } 
+    if (prefix.indexOf(CHANNEL_DELIMITER) !== (prefix.length - 1)) {
+        prefix = prefix + CHANNEL_DELIMITER;
     }
     return Object.keys(obj).reduce(function (accum, key) {
         accum[prefix + key] = obj[key];

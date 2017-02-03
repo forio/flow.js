@@ -18,7 +18,7 @@ module.exports = function (config, notifier) {
     });
     var currentChannelOpts = $.extend(true, 
         { serviceOptions: $creationPromise }, opts.defaults, opts.current);
-    var currentRunChannel = new RunChannel(currentChannelOpts, withPrefix(notifier, 'current:'));
+    var currentRunChannel = new RunChannel(currentChannelOpts, withPrefix(notifier, 'current'));
     var defaultRunChannel = new RunChannel(currentChannelOpts, notifier);
 
     var handlers = [

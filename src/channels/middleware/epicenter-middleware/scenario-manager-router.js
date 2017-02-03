@@ -31,13 +31,13 @@ module.exports = function (config, notifier) {
                 }
             }
         }, opts.defaults, opts.baseline)
-    , withPrefix(notifier, 'baseline:'));
+    , withPrefix(notifier, 'baseline'));
 
     var runOptions = $.extend(true, {}, {
         serviceOptions: currentRunPromise,
     }, opts.defaults, opts.current);
 
-    var currentRunChannel = new RunChannel(runOptions, withPrefix(notifier, 'current:'));
+    var currentRunChannel = new RunChannel(runOptions, withPrefix(notifier, 'current'));
     var defaultRunChannel = new RunChannel(runOptions, withPrefix(notifier, ''));
 
     var handlers = [

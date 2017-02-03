@@ -26,7 +26,7 @@ module.exports = function (config, notifier) {
     ];
     var prefix = '';
     if (opts.runManager) {
-        prefix = config.scenarioManager ? 'run:' : '';
+        prefix = config.scenarioManager ? 'run' : '';
 
         var runManagerOpts = getOptions(opts, 'runManager');
         var rm = new RunManagerRouter(runManagerOpts, withPrefix(notifier, prefix));
@@ -34,7 +34,7 @@ module.exports = function (config, notifier) {
     }
 
     if (opts.scenarioManager) {
-        prefix = config.runManager ? 'scenario:' : '';
+        prefix = config.runManager ? 'scenario' : '';
 
         var scenarioManagerOpts = getOptions(opts, 'scenarioManager');
         var sm = new ScenarioRouter(scenarioManagerOpts, withPrefix(notifier, prefix));

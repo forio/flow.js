@@ -58,10 +58,10 @@ module.exports = function (config, notifier) {
 
     //TODO: Need 2 different channel instances because the fetch is debounced, and hence will bundle variables up otherwise.
     //also, notify needs to be called twice (with different arguments). Different way?
-    var variableschannel = new VariablesChannel($initialProm, withPrefix(notifier, 'variable:'));
+    var variableschannel = new VariablesChannel($initialProm, withPrefix(notifier, 'variable'));
     var defaultVariablesChannel = new VariablesChannel($initialProm, notifier);
-    var metaChannel = new MetaChannel($initialProm, withPrefix(notifier, 'meta:'));
-    var operationsChannel = new OperationsChannel($initialProm, withPrefix(notifier, 'operation:'));
+    var metaChannel = new MetaChannel($initialProm, withPrefix(notifier, 'meta'));
+    var operationsChannel = new OperationsChannel($initialProm, withPrefix(notifier, 'operation'));
 
     var handlers = [
         $.extend({}, variableschannel, { name: 'variables', match: prefix('variable:') }),
