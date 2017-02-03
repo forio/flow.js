@@ -93,36 +93,25 @@ module.exports = function (grunt) {
                 preLoaders: [
                     { 
                         test: /\.js$/, 
+                        include: path.resolve('./tests'),
+                        loader: 'babel-loader',
+                        query: {
+                            plugins: [
+                                'babel-plugin-transform-es2015-arrow-functions',
+                                'babel-plugin-transform-es2015-template-literals'
+                            ]
+                        }
+                    },
+                    { 
+                        test: /\.js$/, 
                         exclude: [
                             /node_modules/,
                             path.resolve('./tests'),
                         ],
-                        loader: 'babel-loader',
-                        query: {
-                            plugins: [
-                                'babel-plugin-transform-es2015-arrow-functions',
-                                'babel-plugin-transform-es2015-template-literals'
-                            ]
-                        }
-                    },
-                    { 
-                        test: /\.js$/, 
-                        include: path.resolve('./tests'),
                         loader: 'isparta',
                     }
                 ],
                 loaders: [
-                    { 
-                        test: /\.js$/, 
-                        exclude: /node_modules/,
-                        loader: 'babel-loader',
-                        query: {
-                            plugins: [
-                                'babel-plugin-transform-es2015-arrow-functions',
-                                'babel-plugin-transform-es2015-template-literals'
-                            ]
-                        }
-                    },
                     { test: /\.html$/, loader: 'raw' },
                     { test: /\.py$/, loader: 'raw' },
                     { test: /\.jl$/, loader: 'raw' },

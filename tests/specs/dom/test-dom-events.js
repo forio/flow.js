@@ -51,7 +51,7 @@ module.exports = (function () {
             });
         });
     });
-    describe.skip('f.convert', function () {
+    describe('f.convert', function () {
         it('should work if triggered with objects', function () {
             var channel = utils.createDummyChannel();
             return utils.initWithNode('<input type="text" data-f-bind="price" data-f-stuff="43 | $0.00" />', domManager, channel).then(function ($node) {
@@ -66,7 +66,7 @@ module.exports = (function () {
                 $node.val().should.equal('$43.00');
             });
         });
-        it.skip('should work if triggered with value objects', function () {
+        it('should work if triggered with value objects', function () {
             var channel = utils.createDummyChannel();
             return utils.initWithNode('<input type="text" data-f-bind="price" data-f-stuff="a,b" />', domManager, channel).then(function ($node) {
                 var data = { a: 1, b: 2 };

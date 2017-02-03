@@ -5,14 +5,14 @@
     var domManager = require('src/dom/dom-manager');
     var config = require('src/config');
 
-    describe.skip('DOM Manager', function () {
+    describe('DOM Manager', function () {
         afterEach(function () {
             domManager.private.matchedElements = [];
         });
         describe('#initialize', function () {
             describe('Selectors', function () {
 
-                it.skip('should select nothing by default', function () {
+                it('should select nothing by default', function () {
                     return utils.initWithNode('<div></div>', domManager).then(function () {
                         domManager.private.matchedElements.length.should.equal(0);
                     });
