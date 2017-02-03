@@ -1,14 +1,14 @@
 const utils = require('src/channels/channel-utils');
 
-describe.only('Channel Utils', ()=> {
-    describe('#normalizePublishInputs', ()=> {
-        var convert = utils.normalizePublishInputs;
+describe('Channel Utils', ()=> {
+    describe('#normalizeParamOptions', ()=> {
+        var convert = utils.normalizeParamOptions;
 
         it('should convert arrays', ()=> {
             var input = [{ name: 'foo', value: 'bar' }];
             var options = { foo: 'bah' };
             var output = convert(input, options);
-            var expectedOutput = { toPublish: input, options: options };
+            var expectedOutput = { params: input, options: options };
 
             expect(output).to.eql(expectedOutput);
         });
@@ -17,7 +17,7 @@ describe.only('Channel Utils', ()=> {
             var options = { foo: 'bah' };
             var output = convert(input, options);
             var expectedOutput = { 
-                toPublish: [{ name: 'a', value: 1 }, { name: 'b', value: 'good' }], 
+                params: [{ name: 'a', value: 1 }, { name: 'b', value: 'good' }], 
                 options: options 
             };
 
@@ -27,7 +27,7 @@ describe.only('Channel Utils', ()=> {
             var options = { foo: 'bah' };
             var output = convert('a', 1, options);
             var expectedOutput = { 
-                toPublish: [{ name: 'a', value: 1 }], 
+                params: [{ name: 'a', value: 1 }], 
                 options: options 
             };
 

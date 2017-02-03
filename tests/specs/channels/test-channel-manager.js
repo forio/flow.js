@@ -14,7 +14,6 @@ describe('Subscription Manager', ()=> {
         });
     });
 
-
     describe('#getSubscribers', ()=> {
         afterEach(function () {
             channel.unsubscribeAll();

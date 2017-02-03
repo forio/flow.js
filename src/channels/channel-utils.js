@@ -13,17 +13,20 @@ module.exports = {
         return $.extend(true, {}, opts.defaults, opts[key]);
     },
 
-    normalizePublishInputs: function (topic, publishValue, options) {
+    normalizeParamOptions: function (topic, publishValue, options) {
+        if (!topic) {
+            return { params: [], options: {} };
+        }
         if ($.isPlainObject(topic)) {
             var mapped = Object.keys(topic).map(function (t) {
                 return { name: t, value: topic[t] };
             });
-            return { toPublish: mapped, options: publishValue };
+            return { params: mapped, options: publishValue };
         }
         if ($.isArray(topic)) {
-            return { toPublish: topic, options: publishValue };
+            return { params: topic, options: publishValue };
         }
-        return { toPublish: [{ name: topic, value: publishValue }], options: options };
+        return { params: [{ name: topic, value: publishValue }], options: options };
     },
 
     findBestHandler: findBestHandler,

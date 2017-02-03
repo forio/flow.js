@@ -3,7 +3,7 @@
 var createClass = require('utils/create-class');
 
 var EpicenterMiddleware = require('./middleware/epicenter-middleware');
-var normalizePublishInputs = require('./channel-utils').normalizePublishInputs;
+var normalizeParamOptions = require('./channel-utils').normalizeParamOptions;
 
 function makeSubs(topics, callback, options) {
     var id = _.uniqueId('subs-');
@@ -62,19 +62,17 @@ function checkAndNotifyBatch(publishObj, subscription) {
     }
 }
 
-function checkAndNotify(publishObj, subscription) {
-    var publishedTopics = Object.keys(publishObj);
-    publishedTopics.forEach(function (topic) {
-        var data = publishObj[topic];
-        if (_.includes(subscription.topics, topic) || _.includes(subscription.topics, '*')) {
+function checkAndNotify(topics, subscription) {
+    topics.forEach(function (topic) {
+        if (_.includes(subscription.topics, topic.name) || _.includes(subscription.topics, '*')) {
             var toSend = {};
-            toSend[topic] = data;
+            toSend[topic] = topic.value;
             callbackIfChanged(subscription, toSend);
         }
     });
 }
 
-var availableMiddlewares = [EpicenterMiddleware];
+var availableMiddlewares = [];
 var ChannelManager = (function () {
     function ChannelManager(options) {
         var defaults = {
@@ -108,8 +106,8 @@ var ChannelManager = (function () {
         subscriptions: [],
 
         publish: function (topic, value, options) {
-            var normalized = normalizePublishInputs(topic, value, options);
-            var prom = $.Deferred().resolve(normalized.toPublish).promise();
+            var normalized = normalizeParamOptions(topic, value, options);
+            var prom = $.Deferred().resolve(normalized.params).promise();
             this.publishMiddlewares.forEach(function (middleware) {
                 prom = prom.then(function (publishResponse) {
                     return middleware(publishResponse, normalized.options);
@@ -119,10 +117,11 @@ var ChannelManager = (function () {
             return prom;
         },
 
-        notify: function (value) {
+        notify: function (topic, value, options) {
+            var normalized = normalizeParamOptions(topic, value, options);
             return this.subscriptions.forEach(function (subs) {
                 var fn = subs.batch ? checkAndNotifyBatch : checkAndNotify;
-                fn(value, subs);
+                fn(normalized.params, subs);
             });
         },
 
