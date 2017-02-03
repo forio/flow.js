@@ -3,6 +3,9 @@
  */
 
 'use strict';
+//FIXME: Doing the tests out of order doesn't work, which means something is leaking somewhere
+// const componentsContext = require.context('./specs/', true, /\.js$/);
+// componentsContext.keys().forEach(componentsContext);
 
 require('./specs/utils/test-general-utils');
 require('./specs/channels/test-channel-manager');
@@ -17,8 +20,12 @@ require('./specs/dom/attributes/test-repeat-attr');
 require('./specs/dom/attributes/test-default-bind-attr');
 
 require('./specs/dom/plugins/test-auto-update-bindings');
+require('./specs/add-ons/test-add-ons');
 
 require('./specs/channels/test-channel-util');
 
-require('./specs/add-ons/test-add-ons');
 require('./specs/test-flow');
+
+// var srcContext = require.context('../src/', true, /\.js$/);
+// srcContext.keys().forEach(srcContext);
+require('../src/flow'); //directly require if you need to skip flow inspector

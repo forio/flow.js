@@ -7,13 +7,8 @@ pids
 *.pid
 *.seed
 
-.*
-!.eslintrc.*
-!.gitignore
-!.gitattributes
-
-
 todos.todo
+
 # sass
 .sass-cache/
 

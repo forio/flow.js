@@ -85,6 +85,21 @@ module.exports = (function () {
                 });
             });
 
+            it('should pick the last item if array', ()=> {
+                var channel = utils.createDummyChannel();
+
+                var nodes = [
+                    '<input type="radio" name="a" id="x" data-f-bind="stuff" value="8"/>',
+                    '<input type="radio" name="a" id="y" data-f-bind="stuff" value="2"/>'
+                ].join('');
+
+                return utils.initWithNode(nodes, domManager, channel).then(function ($nodes) {
+                    $nodes.trigger('update.f.model', { stuff: [1, 2, 3, '8'] });
+
+                    $nodes.filter('#x').prop('checked').should.equal(true);
+                    $nodes.filter('#y').prop('checked').should.equal(false);
+                });
+            });
             it('should not select anything if it doesnt match', function () {
                 var channel = utils.createDummyChannel();
 

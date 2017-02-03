@@ -1,8 +1,11 @@
 'use strict';
 var webpack = require('webpack');
+var path = require('path');
+
 var uglifyOptions = {
     mangle: false,
     warnings: true,
+    sourceMap: true,
     compress: {
         screw_ie8: true,
         join_vars: false
@@ -22,7 +25,7 @@ module.exports = function (grunt) {
                 })
             ],
             resolve: {
-                modulesDirectories: [__dirname + '/../src', 'node_modules']
+                modules: [__dirname + '/../src', 'node_modules']
             }
         },
         edge: {
@@ -54,23 +57,35 @@ module.exports = function (grunt) {
                 filename: 'tests-bundle.js'
             },
             module: {
-                loaders: [
+                rules: [
                     { 
                         test: /\.js$/, 
-                        exclude: /node_modules/,
+                        include: path.resolve('./tests'),
                         loader: 'babel-loader',
-                        query: {
+                        options: {
                             plugins: [
                                 'babel-plugin-transform-es2015-arrow-functions',
                                 'babel-plugin-transform-es2015-template-literals'
                             ]
                         }
                     },
-                    { test: /\.py$/, loader: 'raw' },
-                    { test: /\.jl$/, loader: 'raw' },
+                    { 
+                        test: /\.js$/, 
+                        exclude: [
+                            /node_modules/,
+                            path.resolve('./tests'),
+                        ],
+                        loader: 'babel-loader',
+                        options: {
+                            plugins: ['istanbul']
+                        }
+                    },
+                    { test: /\.html$/, loader: 'raw-loader' },
+                    { test: /\.py$/, loader: 'raw-loader' },
+                    { test: /\.jl$/, loader: 'raw-loader' },
                 ]
             },
-            devtool: 'eval',
+            devtool: 'eval-source-map',
             resolve: {
                 alias: {
                     src: __dirname + '/../src'
@@ -100,7 +115,8 @@ module.exports = function (grunt) {
                 new webpack.DefinePlugin({
                     RELEASE_VERSION: JSON.stringify(version)
                 }),
-                new webpack.BannerPlugin(banner, {
+                new webpack.BannerPlugin({
+                    banner: banner,
                     entryOnly: true
                 }),
                 new webpack.optimize.UglifyJsPlugin(uglifyOptions),
@@ -118,8 +134,8 @@ module.exports = function (grunt) {
                 new webpack.optimize.UglifyJsPlugin(uglifyOptions)
             ],
             module: {
-                loaders: [
-                    { test: /\.html$/, loader: 'raw' },
+                rules: [
+                    { test: /\.html$/, loader: 'raw-loader' },
                 ]
             }
         }

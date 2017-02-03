@@ -69,7 +69,7 @@ var domManager = require('./dom/dom-manager');
 var BaseView = require('./utils/base-view');
 
 var ChannelManager = require('channels/channel-manager');
-var parseUtils = require('utils/parse-utils');
+// var parseUtils = require('utils/parse-utils');
 
 var Flow = {
     dom: domManager,
@@ -95,7 +95,7 @@ var Flow = {
         };
 
         var options = $.extend(true, {}, defaults, config);
-        var $root = $(options.dom.root);
+        // var $root = $(options.dom.root);
 
         // var initialFn = $root.data('f-on-init');
         // //TOOD: Should move this to DOM Manager and just prioritize on-inits

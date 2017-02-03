@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <title>Mocha Spec Runner</title>
-    <link rel="stylesheet" href="./node_modules/mocha/mocha.css">
+    <link rel="stylesheet" href="../node_modules/mocha/mocha.css">
     <script>
         if (!Function.prototype.bind) {
           Function.prototype.bind = function (oThis) {
@@ -33,11 +33,11 @@
 </head>
 <body>
     <div id="mocha"></div>
-    <script src="./node_modules/mocha/mocha.js"></script>
+    <script src="../node_modules/mocha/mocha.js"></script>
     <script>mocha.setup('bdd')</script>
-    <script src="./node_modules/chai/chai.js"></script>
-    <script src="./node_modules/sinon/pkg/sinon.js"></script>
-    <script src="./node_modules/sinon-chai/lib/sinon-chai.js"></script>
+    <script src="../node_modules/chai/chai.js"></script>
+    <script src="../node_modules/sinon/pkg/sinon.js"></script>
+    <script src="../node_modules/sinon-chai/lib/sinon-chai.js"></script>
     <script>
         var assert = chai.assert;
         var expect = chai.expect;
@@ -48,17 +48,7 @@
     <script src="../node_modules/jquery/dist/jquery.js"></script>
     <script src="../node_modules/lodash/lodash.js"></script>
     <script src="../node_modules/epicenter-js/dist/epicenter.min.js"></script>
-    <script>
-        //Instrumented doesn't do sourcemaps, so put it in the console. Open up the nicer version in the browser
-         if (navigator.userAgent.indexOf('PhantomJS') ===  -1) {
-            document.write('\x3Cscript type="text/javascript" src="dist/tests-bundle.js">\x3C/script>');
-         }
-         else {
-            document.write('\x3Cscript type="text/javascript" src="dist/tests-bundle.js">\x3C/script>');
-            // document.write('\x3Cscript type="text/javascript" src="dist/tests-bundle-instrumented.js">\x3C/script>');
-         }
-     </script>
-
+    <script src="dist/tests-bundle.js"></script>
     <script>
     // If tests run in a real browser
          // Can alternatively do a check on window.PHANTOMJS
