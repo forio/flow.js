@@ -1,4 +1,4 @@
-var RunChannel = require('./run-middleware');
+var RunChannel = require('./run-router');
 var knownRunIDServiceChannels = {};
 
 module.exports = function (runid, options, notifier) {

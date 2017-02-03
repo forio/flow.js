@@ -1,9 +1,9 @@
-var RunChannel = require('./run-middleware');
+var RunChannel = require('./run-router');
 
 var prefix = require('channels/middleware/utils').prefix;
 var mapWithPrefix = require('channels/middleware/utils').mapWithPrefix;
 
-var Middleware = require('channels/middleware/general-middleware');
+var Middleware = require('channels/middleware/channel-router');
 
 module.exports = function (config, notifier) {
     var defaults = {
@@ -27,7 +27,7 @@ module.exports = function (config, notifier) {
 
     var handlers = [
         $.extend(currentRunChannel, { name: 'current', match: prefix('current:') }),
-        $.extend(defaultRunChannel, { name: 'current', match: prefix('') }),
+        $.extend(defaultRunChannel, { name: 'default', match: prefix('') }),
     ];
 
     var middleware = new Middleware(handlers, notifier);
