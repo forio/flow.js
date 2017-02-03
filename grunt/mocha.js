@@ -8,7 +8,8 @@ module.exports = function (grunt) {
             reporter: 'Min',
             // log: true,
             coverage: {
-                jsonReport: 'coverage'
+                jsonReport: 'coverage',
+                lcovReport: 'coverage',
             }
         },
         test: {
