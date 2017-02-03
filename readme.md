@@ -1,3 +1,5 @@
+[![GitHub version](https://badge.fury.io/gh/forio%2Fflow.js.svg)](https://badge.fury.io/gh/forio%2Fflow.js) [![Build Status](https://travis-ci.org/forio/flow.js.svg?branch=master)](https://travis-ci.org/forio/flow.js) [![Coverage Status](https://coveralls.io/repos/github/forio/flow.js/badge.svg?branch=master)](https://coveralls.io/github/forio/flow.js?branch=master)
+
 # Flow.js - Forio's Data-Binding Library
 
 Flow.js provides a data binding between HTML elements in your user interface and variables and methods in your project's model.
@@ -14,8 +16,6 @@ Questions?  Contact us at support@forio.com or file an issue on github!
 
 To run locally
 ```
-    npm install
-    cd tests
     npm install
 
     grunt

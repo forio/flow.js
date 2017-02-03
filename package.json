@@ -7,7 +7,7 @@
     "test": "tests"
   },
   "scripts": {
-    "test": "grunt validate"
+    "test": "./node_modules/grunt-cli/bin/grunt test"
   },
   "repository": {
     "type": "git",
@@ -18,11 +18,14 @@
     "babel-loader": "^6.2.9",
     "babel-plugin-transform-es2015-arrow-functions": "^6.8.0",
     "babel-plugin-transform-es2015-template-literals": "^6.8.0",
+    "chai": "^3.5.0",
+    "coveralls": "^2.11.15",
     "eslint": "^3.5.0",
     "fs-walk": "0.0.1",
     "growl": "^1.9.2",
     "grunt": "^1.0.1",
     "grunt-bump": "^0.8.0",
+    "grunt-cli": "^1.2.0",
     "grunt-contrib-watch": "^1.0.0",
     "grunt-conventional-changelog": "^6.1.0",
     "grunt-eslint": "^19.0.0",
@@ -32,9 +35,15 @@
     "grunt-sass": "^2.0.0",
     "grunt-webpack": "^1.0.14",
     "husky": "^0.12.0",
+    "isparta-loader": "^2.0.0",
     "istanbul": "^0.4.5",
+    "istanbul-instrumenter-loader": "^1.2.0",
     "jit-grunt": "^0.10.0",
+    "lolex": "^1.5.2",
+    "mocha": "^3.2.0",
     "raw-loader": "^0.5.1",
+    "sinon": "^1.17.6",
+    "sinon-chai": "^2.8.0",
     "stringify": "^5.1.0",
     "time-grunt": "^1.4.0",
     "uglify-js": "^2.7.0",
