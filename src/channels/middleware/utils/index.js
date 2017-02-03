@@ -1,4 +1,12 @@
 var CHANNEL_DELIMITER = ':';
+
+exports.stripSuffixDelimiter = function stripSuffixDelimiter(text) {
+    if (text && text.indexOf(CHANNEL_DELIMITER) === (text.length - 1)) {
+        text = text.replace(CHANNEL_DELIMITER, '');
+    }
+    return text;
+};
+
 function addSuffixDelimiter(text) {
     if (text && text.indexOf(CHANNEL_DELIMITER) !== (text.length - 1)) {
         text = text + CHANNEL_DELIMITER;
@@ -13,10 +21,11 @@ exports.prefix = function prefix(prefix) {
     };
 };
 exports.regex = function regex(regex) {
+    var toMatch = new RegExp('^' + regex + CHANNEL_DELIMITER);
     return function matchRegex(topic) {
-        var match = topic.match(regex);
+        var match = topic.match(toMatch);
         if (match) {
-            return match[0].replace(CHANNEL_DELIMITER, '');
+            return match[0];
         }
         return false;
     };
@@ -36,7 +45,8 @@ function mapWithPrefix(obj, prefix) {
 
 exports.withPrefix = function withPrefix(callback, prefix) {
     return function (data) {
-        return callback(mapWithPrefix(data, prefix));
+        var mapped = mapWithPrefix(data, prefix);
+        return callback(mapped);
     };
 };
 
