@@ -41,8 +41,8 @@ module.exports = function (config, notifier) {
     var defaultRunChannel = new RunChannel(runOptions, withPrefix(notifier, ''));
 
     var handlers = [
-        $.extend(baselineRunChannel, { name: 'baseline', match: prefix('baseline:') }),
-        $.extend(currentRunChannel, { name: 'current', match: prefix('current:') }),
+        $.extend(baselineRunChannel, { name: 'baseline', match: prefix('baseline') }),
+        $.extend(currentRunChannel, { name: 'current', match: prefix('current') }),
         $.extend(defaultRunChannel, { name: 'default', match: prefix('') }),
     ];
     

@@ -64,9 +64,9 @@ module.exports = function (config, notifier) {
     var operationsChannel = new OperationsChannel($initialProm, withPrefix(notifier, 'operation'));
 
     var handlers = [
-        $.extend({}, variableschannel, { name: 'variables', match: prefix('variable:') }),
-        $.extend({}, metaChannel, { name: 'meta', match: prefix('meta:') }),
-        $.extend({}, operationsChannel, { name: 'operations', match: prefix('operation:') }),
+        $.extend({}, variableschannel, { name: 'variables', match: prefix('variable') }),
+        $.extend({}, metaChannel, { name: 'meta', match: prefix('meta') }),
+        $.extend({}, operationsChannel, { name: 'operations', match: prefix('operation') }),
         $.extend({}, defaultVariablesChannel, { name: 'variables', match: prefix('') }),
     ];
 

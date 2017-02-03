@@ -22,7 +22,7 @@ module.exports = function (config, notifier) {
     var defaultRunChannel = new RunChannel(currentChannelOpts, notifier);
 
     var handlers = [
-        $.extend(currentRunChannel, { name: 'current', match: prefix('current:') }),
+        $.extend(currentRunChannel, { name: 'current', match: prefix('current') }),
         $.extend(defaultRunChannel, { name: 'default', match: prefix('') }),
     ];
 
