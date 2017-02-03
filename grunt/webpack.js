@@ -49,36 +49,6 @@ module.exports = function (grunt) {
             ],
             devtool: 'eval'
         },
-        instrumented: {
-            entry: './tests/test-list.js',
-            output: {
-                path: './tests/dist/',
-                filename: 'tests-bundle.js'
-            },
-            module: {
-                loaders: [
-                    { 
-                        test: /\.js$/, 
-                        exclude: /node_modules/,
-                        loader: 'babel-loader',
-                        query: {
-                            plugins: [
-                                'babel-plugin-transform-es2015-arrow-functions',
-                                'babel-plugin-transform-es2015-template-literals'
-                            ]
-                        }
-                    },
-                    { test: /\.py$/, loader: 'raw' },
-                    { test: /\.jl$/, loader: 'raw' },
-                ]
-            },
-            devtool: 'eval',
-            resolve: {
-                alias: {
-                    src: __dirname + '/../src'
-                }
-            }
-        },
         tests: {
             entry: './tests/test-list.js',
             output: {
@@ -86,10 +56,10 @@ module.exports = function (grunt) {
                 filename: 'tests-bundle.js'
             },
             module: {
-               //  isparta: {
-               //     embedSource: true,
-               //     noAutoWrap: true,
-               // },
+                isparta: {
+                    // embedSource: true,
+                    // noAutoWrap: true,
+                },
                 preLoaders: [
                     { 
                         test: /\.js$/, 
@@ -108,7 +78,10 @@ module.exports = function (grunt) {
                             /node_modules/,
                             path.resolve('./tests'),
                         ],
-                        loader: 'isparta',
+                        loader: 'babel-loader',
+                        query: {
+                            plugins: ['istanbul']
+                        }
                     }
                 ],
                 loaders: [
@@ -117,7 +90,7 @@ module.exports = function (grunt) {
                     { test: /\.jl$/, loader: 'raw' },
                 ]
             },
-            devtool: 'eval',
+            devtool: 'eval-source-map',
             resolve: {
                 alias: {
                     src: __dirname + '/../src'
