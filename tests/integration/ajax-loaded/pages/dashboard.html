@@ -1,0 +1,33 @@
+<h4>Table with repeat</h4>
+
+
+<table class="table">
+    <thead>
+        <tr>
+           <th> Time </th> 
+           <th data-f-repeat="Time"></th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <th>Price</th>
+            <td data-f-repeat="Price"></td>
+        </tr>
+    </tbody>
+</table>
+
+
+<h4>Table with foreach</h4>
+
+<table class="table">
+    <thead>
+        <tr data-f-foreach="Time">
+           <th>Time <%= value %></th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr data-f-foreach="p in Price">
+           <th><%= p %></th>
+        </tr>
+    </tbody>
+</table>

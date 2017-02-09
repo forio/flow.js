@@ -30,7 +30,7 @@ module.exports = function (target, domManager) {
 
     var mutconfig = {
         attributes: true,
-        attributeFilter: ['data-f-channel'],
+        attributeFilter: ['data-f-channel'], //FIXME: Make this a config param
         childList: true,
         subtree: true,
         characterData: false
