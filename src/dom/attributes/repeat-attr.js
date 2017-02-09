@@ -75,7 +75,7 @@ module.exports = {
         var id = this.data(config.repeat.templateId);
         if (id) {
             this.nextUntil(':not([data-' + id + '])').remove();
-            // this.removeAttr('data-' + config.repeat.templateId);
+            this.removeAttr('data-' + config.repeat.templateId);
         }
         var loopTemplate = this.data(config.repeat.template);
         if (loopTemplate) {
@@ -93,7 +93,7 @@ module.exports = {
             this.nextUntil(':not([data-' + id + '])').remove();
         } else {
             id = gutils.random('repeat-');
-            this.data(config.repeat.templateId, id);
+            this.attr('data-' + config.repeat.templateId, id);
         }
         if (!loopTemplate) {
             loopTemplate = this.get(0).outerHTML;
@@ -110,7 +110,7 @@ module.exports = {
             var hasData = (dataval !== null && dataval !== undefined);
 
             nodes.each(function (i, newNode) {
-                newNode = $(newNode).removeAttr('data-f-repeat');
+                newNode = $(newNode).removeAttr('data-f-repeat').removeAttr('data-' + config.repeat.templateId);
                 _.each(newNode.data(), function (val, key) {
                     if (!last) {
                         me.data(key, parseUtils.toImplicitType(val));
