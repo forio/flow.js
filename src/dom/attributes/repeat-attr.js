@@ -89,17 +89,18 @@ module.exports = {
         var loopTemplate = this.data(config.repeat.template);
         var id = this.data(config.repeat.templateId);
 
+        if (!loopTemplate) {
+            loopTemplate = this.get(0).outerHTML;
+            this.data(config.repeat.template, loopTemplate);
+        }
+
         if (id) {
             this.nextUntil(':not([data-' + id + '])').remove();
         } else {
             id = gutils.random('repeat-');
             this.attr('data-' + config.repeat.templateId, id);
         }
-        if (!loopTemplate) {
-            loopTemplate = this.get(0).outerHTML;
-            this.data(config.repeat.template, loopTemplate);
-        }
-
+  
         var last;
         var me = this;
         _.each(value, function (dataval, datakey) {
