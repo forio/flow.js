@@ -66,30 +66,31 @@ describe('Subscription Manager', ()=> {
     });
 
     describe('Publish Middleware', ()=> {
-        var m1, m2, rejecterMiddleware, channel;
+        var m1, echoMiddleware, rejecterMiddleware, emptyMiddleware, channel;
         beforeEach(()=> {
             m1 = sinon.spy(function (params) {
                 return params.map((p)=> {
                     return { name: p.name + '-oh', value: p.value + '-yeah' };
                 });
             });
-            m2 = sinon.spy((a)=> a);
+            echoMiddleware = sinon.spy((a)=> a);
+            emptyMiddleware = sinon.spy();
             rejecterMiddleware = sinon.spy(function () {
                 return $.Deferred().reject().promise();
             });
             channel = new ChannelManager({
-                publishMiddlewares: [m1, m2]
+                publishMiddlewares: [m1, echoMiddleware]
             });
         });
         it('should be settable in the constructor', ()=> {
-            expect(channel.publishMiddlewares).to.eql([m1, m2]);
+            expect(channel.publishMiddlewares).to.eql([m1, echoMiddleware]);
         });
         it('should be called in the right order each time there\'s a publish call', ()=> {
             return channel.publish({ foo: 'bar' }).then(()=> {
                 expect(m1).to.have.been.calledOnce;
-                expect(m2).to.have.been.calledOnce;
+                expect(echoMiddleware).to.have.been.calledOnce;
 
-                expect(m1).to.have.been.calledBefore(m2);
+                expect(m1).to.have.been.calledBefore(echoMiddleware);
             });
         });
         it('should allow middleware to modify parameters', ()=> {
@@ -97,24 +98,26 @@ describe('Subscription Manager', ()=> {
                 var m1args = m1.getCall(0).args;
                 expect(m1args[0]).to.eql([{ name: 'foo', value: 'bar' }]);
 
-                var m2args = m2.getCall(0).args;
-                expect(m2args[0]).to.eql([{ name: 'foo-oh', value: 'bar-yeah' }]);
+                var echoMiddlewareargs = echoMiddleware.getCall(0).args;
+                expect(echoMiddlewareargs[0]).to.eql([{ name: 'foo-oh', value: 'bar-yeah' }]);
             });
         });
-        it('should allow middleware to stop propagation by returning false', ()=> {
-            var badMiddleware = sinon.spy();
+        it('should allow pass in last known data if middleware doesn\'t return anything', ()=> {
             var channel = new ChannelManager({
-                publishMiddlewares: [m1, badMiddleware, m2]
+                publishMiddlewares: [m1, emptyMiddleware, echoMiddleware]
             });
             return channel.publish({ foo: 'bar' }).then(()=> {
                 expect(m1).to.have.been.calledOnce;
-                expect(badMiddleware).to.have.been.calledOnce;
-                expect(m2).to.not.have.been.calledOnce;
+                expect(emptyMiddleware).to.have.been.calledOnce;
+                expect(echoMiddleware).to.have.been.calledOnce;
+
+                var echoArgs = echoMiddleware.getCall(0).args;
+                expect(echoArgs[0]).to.eql([{ name: 'foo-oh', value: 'bar-yeah' }]);
             });
         });
         it('should reject the publish call each time one of the intermediate middleware fails', ()=> {
             var channel = new ChannelManager({
-                publishMiddlewares: [m1, rejecterMiddleware, m2]
+                publishMiddlewares: [m1, rejecterMiddleware, echoMiddleware]
             });
             var successSpy = sinon.spy();
             var failSpy = sinon.spy();
@@ -123,13 +126,13 @@ describe('Subscription Manager', ()=> {
                 expect(failSpy).to.have.been.called;
 
                 expect(m1).to.have.been.called;
-                expect(m2).to.not.have.been.called;
+                expect(echoMiddleware).to.not.have.been.called;
             });
         });
         describe('notification', ()=> {
             it('should call notify with the final result of all the middleware if everything works', ()=> {
                 var channel = new ChannelManager({
-                    publishMiddlewares: [m1, m2]
+                    publishMiddlewares: [m1, echoMiddleware]
                 });
                 var notifyStub = sinon.stub(channel, 'notify');
                 return channel.publish({ foo: 'bar' }).then(()=> {
@@ -138,9 +141,9 @@ describe('Subscription Manager', ()=> {
                     expect(args[0]).to.eql([{ name: 'foo-oh', value: 'bar-yeah' }]);
                 });
             });
-            it('should not call notify if any of the intermediate middlewares return nothing', ()=> {
+            it('should not call notify if any of the intermediate middlewares fails', ()=> {
                 var channel = new ChannelManager({
-                    publishMiddlewares: [m1, m2, rejecterMiddleware]
+                    publishMiddlewares: [m1, rejecterMiddleware, echoMiddleware]
                 });
                 var notifyStub = sinon.stub(channel, 'notify');
                 var successSpy = sinon.spy();

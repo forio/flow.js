@@ -114,13 +114,13 @@ var ChannelManager = (function () {
         publish: function (topic, value, options) {
             var normalized = normalizeParamOptions(topic, value, options);
             var prom = $.Deferred().resolve(normalized.params).promise();
+            var lastAvailableData = normalized.params;
             this.publishMiddlewares.forEach(function (middleware) {
                 prom = prom.then(function (publishResponse) {
-                    if (publishResponse && publishResponse.length) {
-                        //TODO: Not sure if we should still call notify in this case, to handle the publishes which did happen
-                        //Need to think of a good usecase before exploring
-                        return middleware(publishResponse, normalized.options);
-                    }
+                    return middleware(publishResponse, normalized.options);
+                }).then(function (response) {
+                    lastAvailableData = response || lastAvailableData;
+                    return lastAvailableData;
                 });
             });
             prom = prom.then(this.notify.bind(this));

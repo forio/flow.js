@@ -1,4 +1,4 @@
-const utils = require('src/channels/channel-utils');
+var utils = require('src/channels/channel-utils');
 
 describe('Channel Utils', ()=> {
     describe('#normalizeParamOptions', ()=> {
