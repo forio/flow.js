@@ -44,8 +44,13 @@ function callbackIfChanged(subscription, data) {
         subscription.callback(data);
     }
 }
-function checkAndNotifyBatch(publishObj, subscription) {
-    var merged = $.extend(true, {}, subscription.availableData, publishObj);
+
+//[{ name, value}]
+function checkAndNotifyBatch(topics, subscription) {
+    var merged = topics.reduce(function (accum, topic) {
+        accum[topic.name] = $.extend(true, {}, accum[topic.name], topic.value);
+        return accum;
+    }, subscription.availableData);
     var matchingTopics = _.intersection(Object.keys(merged), subscription.topics);
     if (matchingTopics.length > 0) {
         var toSend = subscription.topics.reduce(function (accum, topic) {
@@ -62,11 +67,12 @@ function checkAndNotifyBatch(publishObj, subscription) {
     }
 }
 
+//[{ name, value}]
 function checkAndNotify(topics, subscription) {
     topics.forEach(function (topic) {
         if (_.includes(subscription.topics, topic.name) || _.includes(subscription.topics, '*')) {
             var toSend = {};
-            toSend[topic] = topic.value;
+            toSend[topic.name] = topic.value;
             callbackIfChanged(subscription, toSend);
         }
     });
@@ -110,7 +116,9 @@ var ChannelManager = (function () {
             var prom = $.Deferred().resolve(normalized.params).promise();
             this.publishMiddlewares.forEach(function (middleware) {
                 prom = prom.then(function (publishResponse) {
-                    return middleware(publishResponse, normalized.options);
+                    if (publishResponse && publishResponse.length) {
+                        return middleware(publishResponse, normalized.options);
+                    }
                 });
             });
             prom = prom.then(this.notify.bind(this));

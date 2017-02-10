@@ -68,8 +68,10 @@ describe('Subscription Manager', ()=> {
     describe('Publish Middleware', ()=> {
         var m1, m2, channel;
         beforeEach(()=> {
-            m1 = sinon.spy(function () {
-                return 'lol';
+            m1 = sinon.spy(function (params) {
+                return params.map((p)=> {
+                    return { name: p.name + '-oh', value: p.value + '-yeah' };
+                });
             });
             m2 = sinon.spy();
             channel = new ChannelManager({
@@ -87,22 +89,32 @@ describe('Subscription Manager', ()=> {
                 expect(m1).to.have.been.calledBefore(m2);
             });
         });
-        it('should be called with the right arguments', ()=> {
+        it('should allow middleware to modify parameters', ()=> {
             return channel.publish({ foo: 'bar' }).then(()=> {
-                expect(m1).to.have.been.calledWith({ foo: 'bar' });
-                expect(m2).to.have.been.calledWith('lol');
+                var m1args = m1.getCall(0).args;
+                expect(m1args[0]).to.eql([{ name: 'foo', value: 'bar' }]);
+
+                var m2args = m2.getCall(0).args;
+                expect(m2args[0]).to.eql([{ name: 'foo-oh', value: 'bar-yeah' }]);
+            });
+        });
+        it('should allow middleware to stop propagation by returning false', ()=> {
+            var badMiddleware = sinon.spy();
+            var channel = new ChannelManager({
+                publishMiddlewares: [m1, badMiddleware, m2]
+            });
+            return channel.publish({ foo: 'bar' }).then(()=> {
+                expect(m1).to.have.been.calledOnce;
+                expect(badMiddleware).to.have.been.calledOnce;
+                expect(m2).to.not.have.been.calledOnce;
             });
         });
         it('should reject the publish call each time one of the intermediate middleware fails', ()=> {
-            var m1 = sinon.spy(function () {
-                return 'lol';
-            });
-            var m2 = sinon.spy(function () {
+            var rejecter = sinon.spy(function () {
                 return $.Deferred().reject().promise();
             });
-            var m3 = sinon.spy();
             var channel = new ChannelManager({
-                publishMiddlewares: [m1, m2, m3]
+                publishMiddlewares: [m1, rejecter, m2]
             });
             var successSpy = sinon.spy();
             var failSpy = sinon.spy();
@@ -110,8 +122,8 @@ describe('Subscription Manager', ()=> {
                 expect(successSpy).to.not.have.been.called;
                 expect(failSpy).to.have.been.called;
 
-                expect(m2).to.have.been.called;
-                expect(m3).to.not.have.been.called;
+                expect(m1).to.have.been.called;
+                expect(m2).to.not.have.been.called;
             });
         });
     });
