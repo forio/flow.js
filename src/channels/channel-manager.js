@@ -48,9 +48,9 @@ function callbackIfChanged(subscription, data) {
 //[{ name, value}]
 function checkAndNotifyBatch(topics, subscription) {
     var merged = topics.reduce(function (accum, topic) {
-        accum[topic.name] = $.extend(true, {}, accum[topic.name], topic.value);
+        accum[topic.name] = topic.value;
         return accum;
-    }, subscription.availableData);
+    }, subscription.availableData || {});
     var matchingTopics = _.intersection(Object.keys(merged), subscription.topics);
     if (matchingTopics.length > 0) {
         var toSend = subscription.topics.reduce(function (accum, topic) {
