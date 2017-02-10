@@ -66,14 +66,17 @@ describe('Subscription Manager', ()=> {
     });
 
     describe('Publish Middleware', ()=> {
-        var m1, m2, channel;
+        var m1, m2, rejecterMiddleware, channel;
         beforeEach(()=> {
             m1 = sinon.spy(function (params) {
                 return params.map((p)=> {
                     return { name: p.name + '-oh', value: p.value + '-yeah' };
                 });
             });
-            m2 = sinon.spy();
+            m2 = sinon.spy((a)=> a);
+            rejecterMiddleware = sinon.spy(function () {
+                return $.Deferred().reject().promise();
+            });
             channel = new ChannelManager({
                 publishMiddlewares: [m1, m2]
             });
@@ -110,11 +113,8 @@ describe('Subscription Manager', ()=> {
             });
         });
         it('should reject the publish call each time one of the intermediate middleware fails', ()=> {
-            var rejecter = sinon.spy(function () {
-                return $.Deferred().reject().promise();
-            });
             var channel = new ChannelManager({
-                publishMiddlewares: [m1, rejecter, m2]
+                publishMiddlewares: [m1, rejecterMiddleware, m2]
             });
             var successSpy = sinon.spy();
             var failSpy = sinon.spy();
@@ -124,6 +124,30 @@ describe('Subscription Manager', ()=> {
 
                 expect(m1).to.have.been.called;
                 expect(m2).to.not.have.been.called;
+            });
+        });
+        describe('notification', ()=> {
+            it('should call notify with the final result of all the middleware if everything works', ()=> {
+                var channel = new ChannelManager({
+                    publishMiddlewares: [m1, m2]
+                });
+                var notifyStub = sinon.stub(channel, 'notify');
+                return channel.publish({ foo: 'bar' }).then(()=> {
+                    expect(notifyStub).to.have.been.calledOnce;
+                    var args = notifyStub.getCall(0).args;
+                    expect(args[0]).to.eql([{ name: 'foo-oh', value: 'bar-yeah' }]);
+                });
+            });
+            it('should not call notify if any of the intermediate middlewares return nothing', ()=> {
+                var channel = new ChannelManager({
+                    publishMiddlewares: [m1, m2, rejecterMiddleware]
+                });
+                var notifyStub = sinon.stub(channel, 'notify');
+                var successSpy = sinon.spy();
+                var failSpy = sinon.spy();
+                return channel.publish({ foo: 'bar' }).then(successSpy).catch(failSpy).then(function () {
+                    expect(notifyStub).to.have.not.been.called;
+                });
             });
         });
     });

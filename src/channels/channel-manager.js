@@ -117,6 +117,8 @@ var ChannelManager = (function () {
             this.publishMiddlewares.forEach(function (middleware) {
                 prom = prom.then(function (publishResponse) {
                     if (publishResponse && publishResponse.length) {
+                        //TODO: Not sure if we should still call notify in this case, to handle the publishes which did happen
+                        //Need to think of a good usecase before exploring
                         return middleware(publishResponse, normalized.options);
                     }
                 });
