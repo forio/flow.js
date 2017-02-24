@@ -84,15 +84,26 @@ describe('Channel Utils', ()=> {
             expect(op[0].topics).to.eql(['pple', 'pples', 'mazon']);
             expect(op[1].topics).to.eql(['ar']);
         });
+
+        it('should pass through additional handler props', ()=> {
+            var handlers = [
+               { foo: 'bar', match: (v)=> v.indexOf('a') === 0 ? 'foo' : false },
+               { bat: 'man', match: (v)=> v.indexOf('b') === 0 ? 'bar' : false },
+            ];
+            var data = ['apple', 'banana'];
+            var op = groupByHandlers(data, handlers);
+            expect(op[0].foo).to.eql(handlers[0].foo);
+            expect(op[1].bat).to.eql(handlers[1].bat);
+        });
     });
     describe('#groupSequentiallyByHandlers', ()=> {
         var groupSequentiallyByHandlers = utils.groupSequentiallyByHandlers;
         it('should group arrays', ()=> {
             var data = [
-               { name: 'apple', value: 1 },
-               { name: 'apples', value: 2 },
-               { name: 'bar', value: 3 },
-               { name: 'amazon', value: 4 },
+               { name: 'apple' },
+               { name: 'apples' },
+               { name: 'bar' },
+               { name: 'amazon' },
             ];
             var handlers = [
                { match: (v)=> v.indexOf('a') === 0 ? 'foo' : false },
@@ -104,12 +115,25 @@ describe('Channel Utils', ()=> {
             expect(op[1].name).to.eql(handlers[1].name);
             expect(op[2].name).to.eql(handlers[0].name);
         });
+        it('should pass through additional data pts', ()=> {
+            var data = [
+               { name: 'apple', clark: 'kent' },
+               { name: 'bar', tony: 'stark' },
+            ];
+            var handlers = [
+               { match: (v)=> v.indexOf('a') === 0 ? 'foo' : false },
+               { match: (v)=> v.indexOf('b') === 0 ? 'bar' : false },
+            ];
+            var op = groupSequentiallyByHandlers(data, handlers);
+            expect(op[0].clark).to.eql(handlers[1].clark);
+            expect(op[1].tony).to.eql(handlers[0].tony);
+        });
         it('should strip prefixes', ()=> {
             var data = [
-               { name: 'apple', value: 1 },
-               { name: 'apples', value: 2 },
-               { name: 'bar', value: 3 },
-               { name: 'amazon', value: 4 },
+               { name: 'apple' },
+               { name: 'apples' },
+               { name: 'bar' },
+               { name: 'amazon' },
             ];
             var handlers = [
                { match: (v)=> v.indexOf('a') === 0 ? 'a' : false },
@@ -117,13 +141,13 @@ describe('Channel Utils', ()=> {
             ];
             var op = groupSequentiallyByHandlers(data, handlers);
             expect(op.length).to.eql(3);
-            expect(op[0].data).to.eql([{ name: 'pple', value: 1 }, { name: 'pples', value: 2 }]);
+            expect(op[0].data).to.eql([{ name: 'pple' }, { name: 'pples' }]);
 
             expect(op[1].name).to.eql(handlers[1].name);
-            expect(op[1].data).to.eql([{ name: 'ar', value: 3 }]);
+            expect(op[1].data).to.eql([{ name: 'ar' }]);
 
             expect(op[2].name).to.eql(handlers[0].name);
-            expect(op[2].data).to.eql([{ name: 'mazon', value: 4 }]);
+            expect(op[2].data).to.eql([{ name: 'mazon' }]);
 
         });
     });

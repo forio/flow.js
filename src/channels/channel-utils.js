@@ -53,7 +53,7 @@ module.exports = {
      * Takes a `publish` dataset and groups it by handler maintaining the data sequence
      * @param  {Array} data     Of the form [{ name: 'X', }]
      * @param  {Array} handlers Handlers of type [{ match: func }]
-     * @return {Array} The handler array with each time now having an additional 'data' attr added to it
+     * @return {Array} The handler array with each item now having an additional 'data' attr added to it
      */
     groupSequentiallyByHandlers: function (data, handlers) {
         handlers = handlers.map(function (h, index) {
