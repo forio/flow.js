@@ -2,9 +2,7 @@
 
 var createClass = require('utils/create-class');
 
-var EpicenterMiddleware = require('./middleware/epicenter-middleware');
 var normalizeParamOptions = require('./channel-utils').normalizeParamOptions;
-
 var MiddlewareManager = require('./middleware/middleware-manager');
 
 function makeSubs(topics, callback, options) {
@@ -121,7 +119,7 @@ var ChannelManager = (function () {
         subscribe: function (topics, cb, options) {
             var subs = makeSubs(topics, cb, options);
             this.subscriptions = this.subscriptions.concat(subs);
-            var middlewares = this.middlewares.get('subsribe');
+            var middlewares = this.middlewares.get('subscribe');
             middlewares.forEach(function (middleware) {
                 return middleware(subs.topics);
             });
@@ -137,7 +135,7 @@ var ChannelManager = (function () {
                 throw new Error('No subscription found for token ' + token);
             } else {
                 var remainingTopics = this.getSubscribedTopics();
-                var middlewares = this.middlewares.get('unsubsribe');
+                var middlewares = this.middlewares.get('unsubscribe');
                 middlewares.forEach(function (middleware) {
                     return middleware(remainingTopics);
                 });
@@ -145,7 +143,7 @@ var ChannelManager = (function () {
         },
         unsubscribeAll: function () {
             this.subscriptions = [];
-            var middlewares = this.middlewares.get('unsubsribe');
+            var middlewares = this.middlewares.get('unsubscribe');
             middlewares.forEach(function (middleware) {
                 return middleware([]);
             });

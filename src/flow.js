@@ -68,7 +68,7 @@
 var domManager = require('./dom/dom-manager');
 var BaseView = require('./utils/base-view');
 
-var ChannelManager = require('channels/channel-manager');
+var ChannelManager = require('channels/configured-channel-manager');
 // var parseUtils = require('utils/parse-utils');
 
 var Flow = {

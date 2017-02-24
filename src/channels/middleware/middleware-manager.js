@@ -1,9 +1,8 @@
-
 module.exports = function MiddlewareManager(options, notifier) {
     var defaults = {
         middlewares: []
     };
-    var opts = $.extend(true, defaults, options);
+    var opts = $.extend(true, {}, defaults, options);
     var optsToPassOn = _.omit(opts, Object.keys(defaults));
 
     var list = [];
@@ -18,6 +17,7 @@ module.exports = function MiddlewareManager(options, notifier) {
         },
 
         get: function (type) {
+            type = type + 'Handler';
             return list.reduce(function (accum, m) {
                 if (m[type]) {
                     accum.push(m[type]);
