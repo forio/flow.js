@@ -5,6 +5,8 @@ var createClass = require('utils/create-class');
 var EpicenterMiddleware = require('./middleware/epicenter-middleware');
 var normalizeParamOptions = require('./channel-utils').normalizeParamOptions;
 
+var MiddlewareManager = require('./middleware/middleware-manager');
+
 function makeSubs(topics, callback, options) {
     var id = _.uniqueId('subs-');
     var defaults = {
@@ -78,31 +80,13 @@ function checkAndNotify(topics, subscription) {
     });
 }
 
-var availableMiddlewares = [];
 var ChannelManager = (function () {
     function ChannelManager(options) {
         var defaults = {
-            middlewares: {
-                publish: [],
-                subscribe: [],
-                unsubscribe: [],
-            }
+            middlewares: []
         };
         var opts = $.extend(true, {}, defaults, options);
-        var channelOptions = _.omit(opts, Object.keys(defaults));
-
-        var boundNotify = this.notify.bind(this);
-
-        // opts.middlewares.forEach(function (Middleware) {
-        //     var m = new Middleware(channelOptions, boundNotify);
-        //     if (m.unsubscribeHandler) {
-        //         middlewares.unsubscribe.push(m.unsubscribeHandler);
-        //     }
-        //     middlewares.unsubscribe.push(m.publishHandler);
-        //     middlewares.subscribe.push(m.subscribeHandler);
-        // });
-
-        this.middlewares = opts.middlewares;
+        this.middlewares = new MiddlewareManager(opts, this.notify.bind(this));
     }
 
     createClass(ChannelManager, {
@@ -112,7 +96,8 @@ var ChannelManager = (function () {
             var normalized = normalizeParamOptions(topic, value, options);
             var prom = $.Deferred().resolve(normalized.params).promise();
             var lastAvailableData = normalized.params;
-            this.middlewares.publish.forEach(function (middleware) {
+            var middlewares = this.middlewares.get('publish');
+            middlewares.forEach(function (middleware) {
                 prom = prom.then(function (publishResponse) {
                     return middleware(publishResponse, normalized.options);
                 }).then(function (response) {
@@ -136,8 +121,8 @@ var ChannelManager = (function () {
         subscribe: function (topics, cb, options) {
             var subs = makeSubs(topics, cb, options);
             this.subscriptions = this.subscriptions.concat(subs);
-
-            this.middlewares.subscribe.forEach(function (middleware) {
+            var middlewares = this.middlewares.get('subsribe');
+            middlewares.forEach(function (middleware) {
                 return middleware(subs.topics);
             });
             return subs.id;
@@ -152,14 +137,16 @@ var ChannelManager = (function () {
                 throw new Error('No subscription found for token ' + token);
             } else {
                 var remainingTopics = this.getSubscribedTopics();
-                this.middlewares.unsubscribe.forEach(function (middleware) {
+                var middlewares = this.middlewares.get('unsubsribe');
+                middlewares.forEach(function (middleware) {
                     return middleware(remainingTopics);
                 });
             }
         },
         unsubscribeAll: function () {
             this.subscriptions = [];
-            this.middlewares.unsubscribe.forEach(function (middleware) {
+            var middlewares = this.middlewares.get('unsubsribe');
+            middlewares.forEach(function (middleware) {
                 return middleware([]);
             });
         },

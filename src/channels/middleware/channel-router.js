@@ -1,7 +1,7 @@
 var channelUtils = require('channels/channel-utils');
 var mapWithPrefix = require('channels/middleware/utils').mapWithPrefix;
 
-var Middleware = function (handlers) {
+module.exports = function Router(handlers) {
     var publicAPI = {
         subscribeHandler: function (topics) {
             var grouped = channelUtils.groupByHandlers(topics, handlers);
@@ -41,5 +41,3 @@ var Middleware = function (handlers) {
 
     return $.extend(this, publicAPI);
 }; 
-
-module.exports = Middleware;

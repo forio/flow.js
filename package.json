@@ -41,6 +41,7 @@
     "jit-grunt": "^0.10.0",
     "lolex": "^1.5.2",
     "mocha": "^3.2.0",
+    "proxyquire": "^1.7.11",
     "raw-loader": "^0.5.1",
     "sinon": "^1.17.6",
     "sinon-chai": "^2.8.0",
