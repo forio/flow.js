@@ -39,7 +39,7 @@ describe('Channel Utils', ()=> {
         it('should return first handler which matches', ()=> {
             var handlers = [
                 { name: 'a', match: (v)=> v.indexOf('a') === 0 ? 'a' : false },
-                { name: 'b', match: (v)=> v.indexOf('b') === 0 ? 'b' : false },
+                { name: 'a2', match: (v)=> v.indexOf('a') === 0 ? 'a' : false },
             ];
             
             var best = findBestHandler('a', handlers);
@@ -47,8 +47,8 @@ describe('Channel Utils', ()=> {
         });
         it('should return the right prefix', ()=> {
             var handlers = [
-                { name: 'a', match: (v)=> v.indexOf('a') === 0 ? 'foo' : false },
-                { name: 'b', match: (v)=> v.indexOf('b') === 0 ? 'bar' : false },
+                { match: (v)=> v.indexOf('a') === 0 ? 'foo' : false },
+                { match: (v)=> v.indexOf('b') === 0 ? 'bar' : false },
             ];
             
             var best = findBestHandler('a', handlers);
@@ -59,9 +59,9 @@ describe('Channel Utils', ()=> {
         var groupByHandlers = utils.groupByHandlers;
         it('should group arrays', ()=> {
             var handlers = [
-               { name: 'a', handle: ()=>{}, match: (v)=> v.indexOf('a') === 0 ? 'foo' : false },
-               { name: 'b', handle: ()=>{}, match: (v)=> v.indexOf('b') === 0 ? 'bar' : false },
-               { name: 'c', handle: ()=>{}, match: (v)=> v.indexOf('c') === 0 ? 'cat' : false },
+               { match: (v)=> v.indexOf('a') === 0 ? 'foo' : false },
+               { match: (v)=> v.indexOf('b') === 0 ? 'bar' : false },
+               { match: (v)=> v.indexOf('c') === 0 ? 'cat' : false },
             ];
             var data = ['apple', 'apples', 'banana', 'amazon'];
             var op = groupByHandlers(data, handlers);
@@ -74,9 +74,9 @@ describe('Channel Utils', ()=> {
         });
         it('should strip out prefixes', ()=> {
             var handlers = [
-               { name: 'a', handle: ()=>{}, match: (v)=> v.indexOf('a') === 0 ? 'a' : false },
-               { name: 'b', handle: ()=>{}, match: (v)=> v.indexOf('b') === 0 ? 'b' : false },
-               { name: 'c', handle: ()=>{}, match: (v)=> v.indexOf('c') === 0 ? 'c' : false },
+               { match: (v)=> v.indexOf('a') === 0 ? 'a' : false },
+               { match: (v)=> v.indexOf('b') === 0 ? 'b' : false },
+               { match: (v)=> v.indexOf('c') === 0 ? 'c' : false },
             ];
             var data = ['apple', 'apples', 'bar', 'amazon'];
             var op = groupByHandlers(data, handlers);
@@ -95,8 +95,8 @@ describe('Channel Utils', ()=> {
                { name: 'amazon', value: 4 },
             ];
             var handlers = [
-               { name: 'a', handle: ()=>{}, match: (v)=> v.indexOf('a') === 0 ? 'foo' : false },
-               { name: 'b', handle: ()=>{}, match: (v)=> v.indexOf('b') === 0 ? 'bar' : false },
+               { match: (v)=> v.indexOf('a') === 0 ? 'foo' : false },
+               { match: (v)=> v.indexOf('b') === 0 ? 'bar' : false },
             ];
             var op = groupSequentiallyByHandlers(data, handlers);
             expect(op.length).to.eql(3);
@@ -112,8 +112,8 @@ describe('Channel Utils', ()=> {
                { name: 'amazon', value: 4 },
             ];
             var handlers = [
-               { name: 'a', handle: ()=>{}, match: (v)=> v.indexOf('a') === 0 ? 'a' : false },
-               { name: 'b', handle: ()=>{}, match: (v)=> v.indexOf('b') === 0 ? 'b' : false },
+               { match: (v)=> v.indexOf('a') === 0 ? 'a' : false },
+               { match: (v)=> v.indexOf('b') === 0 ? 'b' : false },
             ];
             var op = groupSequentiallyByHandlers(data, handlers);
             expect(op.length).to.eql(3);
