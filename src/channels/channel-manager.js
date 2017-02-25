@@ -94,7 +94,7 @@ var ChannelManager = (function () {
             var normalized = normalizeParamOptions(topic, value, options);
             var prom = $.Deferred().resolve(normalized.params).promise();
             var lastAvailableData = normalized.params;
-            var middlewares = this.middlewares.get('publish');
+            var middlewares = this.middlewares.filter('publish');
             middlewares.forEach(function (middleware) {
                 prom = prom.then(function (publishResponse) {
                     return middleware(publishResponse, normalized.options);
@@ -119,7 +119,7 @@ var ChannelManager = (function () {
         subscribe: function (topics, cb, options) {
             var subs = makeSubs(topics, cb, options);
             this.subscriptions = this.subscriptions.concat(subs);
-            var middlewares = this.middlewares.get('subscribe');
+            var middlewares = this.middlewares.filter('subscribe');
             middlewares.forEach(function (middleware) {
                 return middleware(subs.topics);
             });
@@ -133,17 +133,17 @@ var ChannelManager = (function () {
 
             if (oldLength === this.subscriptions.length) {
                 throw new Error('No subscription found for token ' + token);
-            } else {
-                var remainingTopics = this.getSubscribedTopics();
-                var middlewares = this.middlewares.get('unsubscribe');
-                middlewares.forEach(function (middleware) {
-                    return middleware(remainingTopics);
-                });
             }
+
+            var remainingTopics = this.getSubscribedTopics();
+            var middlewares = this.middlewares.filter('unsubscribe');
+            middlewares.forEach(function (middleware) {
+                return middleware(remainingTopics);
+            });
         },
         unsubscribeAll: function () {
             this.subscriptions = [];
-            var middlewares = this.middlewares.get('unsubscribe');
+            var middlewares = this.middlewares.filter('unsubscribe');
             middlewares.forEach(function (middleware) {
                 return middleware([]);
             });

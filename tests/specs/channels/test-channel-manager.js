@@ -83,7 +83,7 @@ describe('Subscription Manager', ()=> {
             });
         });
         it('should be settable in the constructor', ()=> {
-            expect(channel.middlewares.get('publish')).to.eql([m1, echoMiddleware]);
+            expect(channel.middlewares.filter('publish')).to.eql([m1, echoMiddleware]);
         });
         it('should be called in the right order each time there\'s a publish call', ()=> {
             return channel.publish({ foo: 'bar' }).then(()=> {

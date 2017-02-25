@@ -16,7 +16,7 @@ module.exports = function MiddlewareManager(options, notifier) {
             list.push(middleware);
         },
 
-        get: function (type) {
+        filter: function (type) {
             type = type + 'Handler';
             return list.reduce(function (accum, m) {
                 if (m[type]) {
@@ -25,7 +25,6 @@ module.exports = function MiddlewareManager(options, notifier) {
                 return accum;
             }, []);
         }
-
     };
 
     $.extend(this, publicAPI);
