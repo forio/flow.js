@@ -42,7 +42,6 @@ module.exports = {
                 bestHandler.topics = [];
                 accum[bestHandler.key] = bestHandler;
             }
-            topic = topic.replace(bestHandler.match, '');
             accum[bestHandler.key].topics.push(topic);
             return accum;
         }, {});
@@ -63,7 +62,6 @@ module.exports = {
         var grouped = data.reduce(function (accum, dataPt) {
             var lastHandler = accum[accum.length - 1];
             var bestHandler = findBestHandler(dataPt.name, handlers);
-            dataPt.name = dataPt.name.replace(bestHandler.match, '');
             if (lastHandler && bestHandler.key === lastHandler.key) {
                 lastHandler.data.push(dataPt);
             } else {

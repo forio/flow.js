@@ -50,10 +50,10 @@ exports.withPrefix = function withPrefix(callback, prefix) {
     };
 };
 
-exports.unprefix = function (list, prefix, attr) {
+exports.unprefix = function (list, prefix) {
     return list.map(function (item) {
-        if (attr && item[attr]) {
-            item[attr] = item[attr].replace(prefix, '');
+        if (item.name) {
+            item.name = item.name.replace(prefix, '');
         } else {
             item = item.replace(prefix, '');
         }
