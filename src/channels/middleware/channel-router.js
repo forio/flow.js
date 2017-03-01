@@ -8,10 +8,8 @@ module.exports = function Router(handlers) {
             var grouped = channelUtils.groupByHandlers(topics, handlers);
             grouped.forEach(function (handler) {
                 if (handler.subscribeHandler) {
-                    //TODO: Handle unprefix here? That'll take off some responsibility from channel-utils
-                    //since we're mapping it on publish, may make sense to un-map on subscribe?
                     var unprefixed = unprefix(handler.topics, handler.match);
-                    handler.subscribeHandler(unprefixed);
+                    handler.subscribeHandler(unprefixed, handler.match);
                 }
             });
         },
