@@ -86,21 +86,29 @@ var Flow =
 /******/ 	__webpack_require__.p = "";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 45);
+/******/ 	return __webpack_require__(__webpack_require__.s = 46);
 /******/ })
 /************************************************************************/
 /******/ ([
 /* 0 */
-/***/ (function(module, exports) {
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
 
+"use strict";
+Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
+/* harmony export (immutable) */ __webpack_exports__["stripSuffixDelimiter"] = stripSuffixDelimiter;
+/* harmony export (immutable) */ __webpack_exports__["prefix"] = prefix;
+/* harmony export (immutable) */ __webpack_exports__["regex"] = regex;
+/* harmony export (immutable) */ __webpack_exports__["mapWithPrefix"] = mapWithPrefix;
+/* harmony export (immutable) */ __webpack_exports__["withPrefix"] = withPrefix;
+/* harmony export (immutable) */ __webpack_exports__["unprefix"] = unprefix;
 var CHANNEL_DELIMITER = ':';
 
-exports.stripSuffixDelimiter = function stripSuffixDelimiter(text) {
+function stripSuffixDelimiter(text) {
     if (text && text.indexOf(CHANNEL_DELIMITER) === text.length - 1) {
         text = text.replace(CHANNEL_DELIMITER, '');
     }
     return text;
-};
+}
 
 function addSuffixDelimiter(text) {
     if (text && text.indexOf(CHANNEL_DELIMITER) !== text.length - 1) {
@@ -109,13 +117,13 @@ function addSuffixDelimiter(text) {
     return text || '';
 }
 
-exports.prefix = function prefix(prefix) {
+function prefix(prefix) {
     prefix = addSuffixDelimiter(prefix);
     return function matchPrefix(topic) {
         return topic.indexOf(prefix) === 0 ? prefix : false;
     };
-};
-exports.regex = function regex(regex) {
+}
+function regex(regex) {
     var toMatch = new RegExp('^' + regex + CHANNEL_DELIMITER);
     return function matchRegex(topic) {
         var match = topic.match(toMatch);
@@ -124,7 +132,7 @@ exports.regex = function regex(regex) {
         }
         return false;
     };
-};
+}
 
 function mapWithPrefix(obj, prefix) {
     if (!obj) {
@@ -137,14 +145,14 @@ function mapWithPrefix(obj, prefix) {
     }, {});
 }
 
-exports.withPrefix = function withPrefix(callback, prefix) {
+function withPrefix(callback, prefix) {
     return function (data) {
         var mapped = mapWithPrefix(data, prefix);
         return callback(mapped);
     };
-};
+}
 
-exports.unprefix = function (list, prefix) {
+function unprefix(list, prefix) {
     return list.map(function (item) {
         if (item.name) {
             item.name = item.name.replace(prefix, '');
@@ -153,9 +161,7 @@ exports.unprefix = function (list, prefix) {
         }
         return item;
     });
-};
-
-exports.mapWithPrefix = mapWithPrefix;
+}
 
 /***/ }),
 /* 1 */
@@ -212,28 +218,32 @@ module.exports = {
 
 /***/ }),
 /* 2 */
-/***/ (function(module, exports, __webpack_require__) {
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
 
-var channelUtils = __webpack_require__(6);
-var mapWithPrefix = __webpack_require__(0).mapWithPrefix;
-var unprefix = __webpack_require__(0).unprefix;
+"use strict";
+Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_channels_channel_utils__ = __webpack_require__(6);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_channels_middleware_utils__ = __webpack_require__(0);
+/* harmony export (immutable) */ __webpack_exports__["default"] = Router;
+
+
 
 /**
  * Router
  * @param  {Array} handlers Array of the form [{ subscribeHandler, unsubscribeHandler, publishHandler }]
  * @return {Router}
  */
-module.exports = function Router(handlers) {
+function Router(handlers) {
     var publicAPI = {
         /**
          * [subscribeHandler description]
          * @param  {Array} topics [<String>] of subscribed topics
          */
         subscribeHandler: function (topics) {
-            var grouped = channelUtils.groupByHandlers(topics, handlers);
+            var grouped = __WEBPACK_IMPORTED_MODULE_0_channels_channel_utils__["default"].groupByHandlers(topics, handlers);
             grouped.forEach(function (handler) {
                 if (handler.subscribeHandler) {
-                    var unprefixed = unprefix(handler.data, handler.match);
+                    var unprefixed = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1_channels_middleware_utils__["unprefix"])(handler.data, handler.match);
                     handler.subscribeHandler(unprefixed, handler.match);
                 }
             });
@@ -244,12 +254,12 @@ module.exports = function Router(handlers) {
                 return h;
             });
 
-            var unsubsGrouped = channelUtils.groupByHandlers(recentlyUnsubscribedTopics, handlers);
-            var remainingGrouped = channelUtils.groupByHandlers(remainingTopics, handlers);
+            var unsubsGrouped = __WEBPACK_IMPORTED_MODULE_0_channels_channel_utils__["default"].groupByHandlers(recentlyUnsubscribedTopics, handlers);
+            var remainingGrouped = __WEBPACK_IMPORTED_MODULE_0_channels_channel_utils__["default"].groupByHandlers(remainingTopics, handlers);
 
             unsubsGrouped.forEach(function (handler) {
                 if (handler && handler.unsubscribeHandler) {
-                    var unprefixedUnsubs = unprefix(handler.data, handler.match);
+                    var unprefixedUnsubs = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1_channels_middleware_utils__["unprefix"])(handler.data, handler.match);
                     var matchingRemainingHandler = _.find(remainingGrouped, function (remainingHandler) {
                         remainingHandler.unsubsKey = handler.unsubsKey;
                     });
@@ -259,13 +269,13 @@ module.exports = function Router(handlers) {
         },
 
         publishHandler: function (publishData) {
-            var grouped = channelUtils.groupSequentiallyByHandlers(publishData, handlers);
+            var grouped = __WEBPACK_IMPORTED_MODULE_0_channels_channel_utils__["default"].groupSequentiallyByHandlers(publishData, handlers);
             var $initialProm = $.Deferred().resolve({}).promise();
             grouped.forEach(function (handler) {
                 $initialProm = $initialProm.then(function (dataSoFar) {
-                    var unprefixed = unprefix(handler.data, handler.match);
+                    var unprefixed = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1_channels_middleware_utils__["unprefix"])(handler.data, handler.match);
                     return handler.publishHandler(unprefixed, handler.match).then(function (published) {
-                        var mapped = mapWithPrefix(published, handler.match);
+                        var mapped = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1_channels_middleware_utils__["mapWithPrefix"])(published, handler.match);
                         return mapped;
                     }).then(function (mapped) {
                         return $.extend(dataSoFar, mapped);
@@ -277,22 +287,28 @@ module.exports = function Router(handlers) {
     };
 
     return $.extend(this, publicAPI);
-};
+}
 
 /***/ }),
 /* 3 */
-/***/ (function(module, exports, __webpack_require__) {
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
 
-var MetaChannel = __webpack_require__(17);
-var VariablesChannel = __webpack_require__(19);
-var OperationsChannel = __webpack_require__(18);
+"use strict";
+Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__run_meta_channel__ = __webpack_require__(17);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__run_variables_channel__ = __webpack_require__(19);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__run_operations_channel__ = __webpack_require__(18);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3_channels_middleware_channel_router__ = __webpack_require__(2);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4_channels_middleware_utils__ = __webpack_require__(0);
+/* harmony export (immutable) */ __webpack_exports__["default"] = RunRouter;
 
-var Middleware = __webpack_require__(2);
-var withPrefix = __webpack_require__(0).withPrefix;
 
-var prefix = __webpack_require__(0).prefix;
 
-module.exports = function (config, notifier) {
+
+
+
+
+function RunRouter(config, notifier) {
     var defaults = {
         serviceOptions: {},
         channelOptions: {
@@ -343,16 +359,16 @@ module.exports = function (config, notifier) {
 
     //TODO: Need 2 different channel instances because the fetch is debounced, and hence will bundle variables up otherwise.
     //also, notify needs to be called twice (with different arguments). Different way?
-    var variableschannel = new VariablesChannel($initialProm, withPrefix(notifier, 'variable'));
-    var defaultVariablesChannel = new VariablesChannel($initialProm, notifier);
-    var metaChannel = new MetaChannel($initialProm, withPrefix(notifier, 'meta'));
-    var operationsChannel = new OperationsChannel($initialProm, withPrefix(notifier, 'operation'));
+    var variableschannel = new __WEBPACK_IMPORTED_MODULE_1__run_variables_channel__["a" /* default */]($initialProm, __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_4_channels_middleware_utils__["withPrefix"])(notifier, 'variable'));
+    var defaultVariablesChannel = new __WEBPACK_IMPORTED_MODULE_1__run_variables_channel__["a" /* default */]($initialProm, notifier);
+    var metaChannel = new __WEBPACK_IMPORTED_MODULE_0__run_meta_channel__["a" /* default */]($initialProm, __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_4_channels_middleware_utils__["withPrefix"])(notifier, 'meta'));
+    var operationsChannel = new __WEBPACK_IMPORTED_MODULE_2__run_operations_channel__["a" /* default */]($initialProm, __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_4_channels_middleware_utils__["withPrefix"])(notifier, 'operation'));
 
-    var handlers = [$.extend({}, variableschannel, { name: 'variables', match: prefix('variable') }), $.extend({}, metaChannel, { name: 'meta', match: prefix('meta') }), $.extend({}, operationsChannel, { name: 'operations', match: prefix('operation') }), $.extend({}, defaultVariablesChannel, { name: 'variables', match: prefix('') })];
+    var handlers = [$.extend({}, variableschannel, { name: 'variables', match: __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_4_channels_middleware_utils__["prefix"])('variable') }), $.extend({}, metaChannel, { name: 'meta', match: __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_4_channels_middleware_utils__["prefix"])('meta') }), $.extend({}, operationsChannel, { name: 'operations', match: __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_4_channels_middleware_utils__["prefix"])('operation') }), $.extend({}, defaultVariablesChannel, { name: 'variables', match: __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_4_channels_middleware_utils__["prefix"])('') })];
 
-    var middleware = new Middleware(handlers, notifier);
+    var middleware = new __WEBPACK_IMPORTED_MODULE_3_channels_middleware_channel_router__["default"](handlers, notifier);
     return middleware;
-};
+}
 
 /***/ }),
 /* 4 */
@@ -452,8 +468,14 @@ module.exports = View;
 
 /***/ }),
 /* 6 */
-/***/ (function(module, exports) {
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
 
+"use strict";
+/* unused harmony export findBestHandler */
+/* unused harmony export extractOptions */
+/* harmony export (immutable) */ __webpack_exports__["a"] = normalizeParamOptions;
+/* unused harmony export groupByHandlers */
+/* unused harmony export groupSequentiallyByHandlers */
 function findBestHandler(topic, handlers) {
     for (var i = 0; i < handlers.length; i++) {
         var thishandler = handlers[i];
@@ -463,77 +485,73 @@ function findBestHandler(topic, handlers) {
         }
     }
 }
-module.exports = {
-    extractOptions: function (options, key) {
-        var opts = $.extend(true, { defaults: {} }, options);
-        return $.extend(true, {}, opts.defaults, opts[key]);
-    },
+function extractOptions(options, key) {
+    var opts = $.extend(true, { defaults: {} }, options);
+    return $.extend(true, {}, opts.defaults, opts[key]);
+}
 
-    normalizeParamOptions: function (topic, publishValue, options) {
-        if (!topic) {
-            return { params: [], options: {} };
-        }
-        if ($.isPlainObject(topic)) {
-            var mapped = Object.keys(topic).map(function (t) {
-                return { name: t, value: topic[t] };
-            });
-            return { params: mapped, options: publishValue };
-        }
-        if ($.isArray(topic)) {
-            return { params: topic, options: publishValue };
-        }
-        return { params: [{ name: topic, value: publishValue }], options: options };
-    },
-
-    findBestHandler: findBestHandler,
-
-    /**
-     * [groupByHandlers description]
-     * @param  {Array} topics   List of topics to match. Format can be anything your handler.match function handles
-     * @param  {Array} handlers Handlers of type [{ match: func }]
-     * @return {Array} The handler array with each item now having an additional 'data' attr added to it
-     */
-    groupByHandlers: function (topics, handlers) {
-        handlers = handlers.map(function (h, index) {
-            h.key = index;
-            return h;
-        });
-        var topicMapping = [].concat(topics).reduce(function (accum, topic) {
-            var bestHandler = findBestHandler(topic, handlers);
-            if (!accum[bestHandler.key]) {
-                bestHandler.data = [];
-                accum[bestHandler.key] = bestHandler;
-            }
-            accum[bestHandler.key].data.push(topic);
-            return accum;
-        }, {});
-        return _.values(topicMapping);
-    },
-
-    /**
-     * Takes a `publish` dataset and groups it by handler maintaining the data sequence
-     * @param  {Array} data     Of the form [{ name: 'X', }]
-     * @param  {Array} handlers Handlers of type [{ match: func }]
-     * @return {Array} The handler array with each item now having an additional 'data' attr added to it
-     */
-    groupSequentiallyByHandlers: function (data, handlers) {
-        handlers = handlers.map(function (h, index) {
-            h.key = index;
-            return h;
-        });
-        var grouped = data.reduce(function (accum, dataPt) {
-            var lastHandler = accum[accum.length - 1];
-            var bestHandler = findBestHandler(dataPt.name, handlers);
-            if (lastHandler && bestHandler.key === lastHandler.key) {
-                lastHandler.data.push(dataPt);
-            } else {
-                accum.push($.extend({}, bestHandler, { data: [dataPt] }));
-            }
-            return accum;
-        }, []);
-        return grouped;
+function normalizeParamOptions(topic, publishValue, options) {
+    if (!topic) {
+        return { params: [], options: {} };
     }
-};
+    if ($.isPlainObject(topic)) {
+        var mapped = Object.keys(topic).map(function (t) {
+            return { name: t, value: topic[t] };
+        });
+        return { params: mapped, options: publishValue };
+    }
+    if ($.isArray(topic)) {
+        return { params: topic, options: publishValue };
+    }
+    return { params: [{ name: topic, value: publishValue }], options: options };
+}
+
+/**
+ * [groupByHandlers description]
+ * @param  {Array} topics   List of topics to match. Format can be anything your handler.match function handles
+ * @param  {Array} handlers Handlers of type [{ match: func }]
+ * @return {Array} The handler array with each item now having an additional 'data' attr added to it
+ */
+function groupByHandlers(topics, handlers) {
+    handlers = handlers.map(function (h, index) {
+        h.key = index;
+        return h;
+    });
+    var topicMapping = [].concat(topics).reduce(function (accum, topic) {
+        var bestHandler = findBestHandler(topic, handlers);
+        if (!accum[bestHandler.key]) {
+            bestHandler.data = [];
+            accum[bestHandler.key] = bestHandler;
+        }
+        accum[bestHandler.key].data.push(topic);
+        return accum;
+    }, {});
+    return _.values(topicMapping);
+}
+
+/**
+ * Takes a `publish` dataset and groups it by handler maintaining the data sequence
+ * @param  {Array} data     Of the form [{ name: 'X', }]
+ * @param  {Array} handlers Handlers of type [{ match: func }]
+ * @return {Array} The handler array with each item now having an additional 'data' attr added to it
+ */
+function groupSequentiallyByHandlers(data, handlers) {
+    handlers = handlers.map(function (h, index) {
+        h.key = index;
+        return h;
+    });
+    var grouped = data.reduce(function (accum, dataPt) {
+        var lastHandler = accum[accum.length - 1];
+        var bestHandler = findBestHandler(dataPt.name, handlers);
+        if (lastHandler && bestHandler.key === lastHandler.key) {
+            lastHandler.data.push(dataPt);
+        } else {
+            accum.push($.extend({}, bestHandler, { data: [dataPt] }));
+        }
+        return accum;
+    }, []);
+    return grouped;
+}
 
 /***/ }),
 /* 7 */
@@ -1104,15 +1122,19 @@ module.exports = function () {
 
 /***/ }),
 /* 12 */
-/***/ (function(module, exports, __webpack_require__) {
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
+Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_utils_create_class__ = __webpack_require__(43);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_utils_create_class___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_utils_create_class__);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__channel_utils__ = __webpack_require__(6);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__middleware_middleware_manager__ = __webpack_require__(21);
 
 
-var createClass = __webpack_require__(43);
 
-var normalizeParamOptions = __webpack_require__(6).normalizeParamOptions;
-var MiddlewareManager = __webpack_require__(21);
+
+
 
 function makeSubs(topics, callback, options) {
     var id = _.uniqueId('subs-');
@@ -1199,14 +1221,22 @@ var ChannelManager = function () {
             middlewares: []
         };
         var opts = $.extend(true, {}, defaults, options);
-        this.middlewares = new MiddlewareManager(opts, this.notify.bind(this));
+
+        var _a$b$c = { a: 1, b: 2, c: 3 },
+            a = _a$b$c.a,
+            b = _a$b$c.b,
+            c = _a$b$c.c;
+
+        console.log(a, b, c);
+
+        this.middlewares = new __WEBPACK_IMPORTED_MODULE_2__middleware_middleware_manager__["a" /* default */](opts, this.notify.bind(this));
     }
 
-    createClass(ChannelManager, {
+    __WEBPACK_IMPORTED_MODULE_0_utils_create_class___default()(ChannelManager, {
         subscriptions: [],
 
         publish: function (topic, value, options) {
-            var normalized = normalizeParamOptions(topic, value, options);
+            var normalized = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1__channel_utils__["a" /* normalizeParamOptions */])(topic, value, options);
             var prom = $.Deferred().resolve(normalized.params).promise();
             var lastAvailableData = normalized.params;
             var middlewares = this.middlewares.filter('publish');
@@ -1223,7 +1253,7 @@ var ChannelManager = function () {
         },
 
         notify: function (topic, value, options) {
-            var normalized = normalizeParamOptions(topic, value, options);
+            var normalized = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1__channel_utils__["a" /* normalizeParamOptions */])(topic, value, options);
             return this.subscriptions.forEach(function (subs) {
                 var fn = subs.batch ? checkAndNotifyBatch : checkAndNotify;
                 fn(normalized.params, subs);
@@ -1288,16 +1318,19 @@ var ChannelManager = function () {
     return ChannelManager;
 }();
 
-module.exports = ChannelManager;
+/* harmony default export */ __webpack_exports__["default"] = ChannelManager;
 
 /***/ }),
 /* 13 */
-/***/ (function(module, exports, __webpack_require__) {
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
 
-var runChannelFactory = __webpack_require__(16);
-var regexpMatch = __webpack_require__(0).regex;
-var withPrefix = __webpack_require__(0).withPrefix;
-var stripSuffixDelimiter = __webpack_require__(0).stripSuffixDelimiter;
+"use strict";
+/* WEBPACK VAR INJECTION */(function(module) {Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__run_router_factory__ = __webpack_require__(16);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__run_router_factory___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0__run_router_factory__);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_channels_middleware_utils__ = __webpack_require__(0);
+
+
 
 var sampleRunidLength = '000001593dd81950d4ee4f3df14841769a0b'.length;
 var runidRegex = '(?:.{' + sampleRunidLength + '})';
@@ -1310,19 +1343,20 @@ module.exports = function (options, notifier) {
     opts.channelOptions = options.channelOptions;
 
     return {
-        match: regexpMatch(runidRegex),
+        match: __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1_channels_middleware_utils__["regex"])(runidRegex),
         subscribeHandler: function (topics, prefix) {
-            var runid = stripSuffixDelimiter(prefix);
-            var channel = runChannelFactory(runid, opts, withPrefix(notifier, prefix));
+            var runid = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1_channels_middleware_utils__["stripSuffixDelimiter"])(prefix);
+            var channel = __WEBPACK_IMPORTED_MODULE_0__run_router_factory___default()(runid, opts, __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1_channels_middleware_utils__["withPrefix"])(notifier, prefix));
             return channel.subscribeHandler(topics);
         },
         publishHandler: function (topics, prefix) {
-            var runid = stripSuffixDelimiter(prefix);
-            var channel = runChannelFactory(runid, opts, withPrefix(notifier, prefix));
+            var runid = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1_channels_middleware_utils__["stripSuffixDelimiter"])(prefix);
+            var channel = __WEBPACK_IMPORTED_MODULE_0__run_router_factory___default()(runid, opts, __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1_channels_middleware_utils__["withPrefix"])(notifier, prefix));
             return channel.publishHandler(topics);
         }
     };
 };
+/* WEBPACK VAR INJECTION */}.call(__webpack_exports__, __webpack_require__(45)(module)))
 
 /***/ }),
 /* 14 */
@@ -1425,9 +1459,11 @@ module.exports = function (runid, options, notifier) {
 
 /***/ }),
 /* 17 */
-/***/ (function(module, exports) {
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
 
-module.exports = function ($runServicePromise, notifier) {
+"use strict";
+/* harmony export (immutable) */ __webpack_exports__["a"] = RunMetaChannel;
+function RunMetaChannel($runServicePromise, notifier) {
 
     function mergeAndSend(runMeta, requestedTopics) {
         var toSend = [].concat(requestedTopics).reduce(function (accum, meta) {
@@ -1469,13 +1505,15 @@ module.exports = function ($runServicePromise, notifier) {
             });
         }
     };
-};
+}
 
 /***/ }),
 /* 18 */
-/***/ (function(module, exports) {
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
 
-module.exports = function ($runServicePromise) {
+"use strict";
+/* harmony export (immutable) */ __webpack_exports__["a"] = RunOperationsChannel;
+function RunOperationsChannel($runServicePromise) {
     return {
         publishHandler: function (topics, options) {
             $runServicePromise.then(function (runService) {
@@ -1492,15 +1530,19 @@ module.exports = function ($runServicePromise) {
             });
         }
     };
-};
+}
 
 /***/ }),
 /* 19 */
-/***/ (function(module, exports, __webpack_require__) {
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
 
-var debounceAndMerge = __webpack_require__(9).debounceAndMerge;
+"use strict";
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_utils_general__ = __webpack_require__(9);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_utils_general___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_utils_general__);
+/* harmony export (immutable) */ __webpack_exports__["a"] = RunVariablesChannel;
 
-module.exports = function ($runServicePromise, notifier) {
+
+function RunVariablesChannel($runServicePromise, notifier) {
 
     var id = _.uniqueId('variable-channel');
 
@@ -1510,7 +1552,7 @@ module.exports = function ($runServicePromise, notifier) {
         }
         var debounceInterval = 200; //todo: make this over-ridable
         if (!runService.debouncedFetchers[id]) {
-            runService.debouncedFetchers[id] = debounceAndMerge(function (variables) {
+            runService.debouncedFetchers[id] = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0_utils_general__["debounceAndMerge"])(function (variables) {
                 return runService.variables().query(variables);
             }, debounceInterval, [function mergeVariables(accum, newval) {
                 if (!accum) {
@@ -1550,7 +1592,7 @@ module.exports = function ($runServicePromise, notifier) {
             });
         }
     };
-};
+}
 
 /***/ }),
 /* 20 */
@@ -1605,9 +1647,11 @@ module.exports = function (config, notifier) {
 
 /***/ }),
 /* 21 */
-/***/ (function(module, exports) {
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
 
-module.exports = function MiddlewareManager(options, notifier) {
+"use strict";
+/* harmony export (immutable) */ __webpack_exports__["a"] = MiddlewareManager;
+function MiddlewareManager(options, notifier) {
     var defaults = {
         middlewares: []
     };
@@ -1638,7 +1682,7 @@ module.exports = function MiddlewareManager(options, notifier) {
 
     $.extend(this, publicAPI);
     opts.middlewares.forEach(this.add);
-};
+}
 
 /***/ }),
 /* 22 */
@@ -3750,6 +3794,36 @@ module.exports = {
 
 /***/ }),
 /* 45 */
+/***/ (function(module, exports) {
+
+module.exports = function(originalModule) {
+	if(!originalModule.webpackPolyfill) {
+		var module = Object.create(originalModule);
+		// module.parent = undefined by default
+		if(!module.children) module.children = [];
+		Object.defineProperty(module, "loaded", {
+			enumerable: true,
+			get: function() {
+				return module.l;
+			}
+		});
+		Object.defineProperty(module, "id", {
+			enumerable: true,
+			get: function() {
+				return module.i;
+			}
+		});
+		Object.defineProperty(module, "exports", {
+			enumerable: true,
+		});
+		module.webpackPolyfill = 1;
+	}
+	return module;
+};
+
+
+/***/ }),
+/* 46 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";

@@ -1,4 +1,4 @@
-var ChannelManager = require('src/channels/channel-manager');
+import ChannelManager from 'src/channels/channel-manager';
 
 describe('Subscription Manager', ()=> {
     var channel;

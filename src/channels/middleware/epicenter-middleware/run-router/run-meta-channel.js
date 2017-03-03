@@ -1,4 +1,4 @@
-module.exports = function ($runServicePromise, notifier) {
+export default function RunMetaChannel($runServicePromise, notifier) {
 
     function mergeAndSend(runMeta, requestedTopics) {
         var toSend = ([].concat(requestedTopics)).reduce(function (accum, meta) {
@@ -40,4 +40,4 @@ module.exports = function ($runServicePromise, notifier) {
             });
         }
     };
-};
+}

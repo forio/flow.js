@@ -1,4 +1,4 @@
-module.exports = function MiddlewareManager(options, notifier) {
+export default function MiddlewareManager(options, notifier) {
     var defaults = {
         middlewares: []
     };
@@ -29,4 +29,4 @@ module.exports = function MiddlewareManager(options, notifier) {
 
     $.extend(this, publicAPI);
     opts.middlewares.forEach(this.add);
-};
+}
