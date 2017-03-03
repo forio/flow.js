@@ -158,9 +158,7 @@ var ChannelManager = (function () {
             var currentlySubscribed = this.getSubscribedTopics();
             this.subscriptions = [];
             var middlewares = this.middlewares.filter('unsubscribe');
-            middlewares.forEach(function (middleware) {
-                return middleware(currentlySubscribed, []);
-            });
+            middlewares.forEach((middleware)=> middleware(currentlySubscribed, []));
         },
         getSubscribedTopics: function () {
             var list = _.uniq(getTopicsFromSubsList(this.subscriptions));
