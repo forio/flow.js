@@ -32,15 +32,10 @@ export function regex(regex) {
 }
 
 
-export function mapWithPrefix(obj, prefix) {
-    if (!obj) {
-        return {};
-    }
-    prefix = addSuffixDelimiter(prefix);
-    return Object.keys(obj).reduce(function (accum, key) {
-        accum[prefix + key] = obj[key];
-        return accum;
-    }, {});
+export function mapWithPrefix(dataArray, prefix) {
+    return (dataArray || []).map(function (datapt) {
+        return $.extend(true, {}, datapt, { name: prefix + datapt.name });
+    });
 }
 
 export function withPrefix(callback, prefix) {
@@ -51,12 +46,11 @@ export function withPrefix(callback, prefix) {
 }
 
 export function unprefix(list, prefix) {
-    return list.map(function (item) {
+    var unprefixed = list.map(function (item) {
         if (item.name) {
-            item.name = item.name.replace(prefix, '');
-        } else {
-            item = item.replace(prefix, '');
+            return $.extend(true, {}, item, { name: item.name.replace(prefix, '') });
         }
-        return item;
+        return item.replace(prefix, '');
     });
+    return unprefixed;
 }
