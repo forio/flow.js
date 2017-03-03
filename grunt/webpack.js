@@ -24,6 +24,7 @@ module.exports = function (grunt) {
         options: {
             plugins: [
                 'babel-plugin-transform-es2015-arrow-functions',
+                'transform-es2015-destructuring',
                 'babel-plugin-transform-es2015-template-literals'
             ]
         }
