@@ -1,3 +1,25 @@
+/*!
+ * 
+ * ++++++++   ++++++++   ++++++++         Flow.js
+ * ++++++++   ,+++++++~   ++++++++        v0.11.0
+ *  ++++++++   ++++++++   ++++++++
+ *  ~+++++++~   ++++++++   ++++++++       Github: https://github.com/forio/flow.js
+ *   ++++++++   ++++++++   ++++++++:
+ *    :++++++++   ++++++++   ++++++++
+ *      ++++++++   =+++++++   ,+++++++=
+ *       ++++++++   ++++++++   ++++++++
+ *       =+++++++    +++++++=   ++++++++
+ *        ++++++++   ++++++++   ++++++++
+ *        ,+++++++:   +++++++~   ++++++++
+ *         +++++++=   +++++++=   ++++++++
+ *        ++++++++   ++++++++   ++++++++
+ *        ++++++++   ++++++++   ++++++++
+ *        ++++++++   =+++++++   :+++++++,
+ *         ++++++++   ++++++++   ++++++++
+ *         ++++++++   ~+++++++    +++++++=
+ *          ++++++++   ++++++++   ++++++++
+ * 
+ */
 var Flow =
 /******/ (function(modules) { // webpackBootstrap
 /******/ 	// The module cache
@@ -64,21 +86,39 @@ var Flow =
 /******/ 	__webpack_require__.p = "";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 43);
+/******/ 	return __webpack_require__(__webpack_require__.s = 45);
 /******/ })
 /************************************************************************/
 /******/ ([
 /* 0 */
 /***/ (function(module, exports) {
 
+var CHANNEL_DELIMITER = ':';
+
+exports.stripSuffixDelimiter = function stripSuffixDelimiter(text) {
+    if (text && text.indexOf(CHANNEL_DELIMITER) === text.length - 1) {
+        text = text.replace(CHANNEL_DELIMITER, '');
+    }
+    return text;
+};
+
+function addSuffixDelimiter(text) {
+    if (text && text.indexOf(CHANNEL_DELIMITER) !== text.length - 1) {
+        text = text + CHANNEL_DELIMITER;
+    }
+    return text || '';
+}
+
 exports.prefix = function prefix(prefix) {
+    prefix = addSuffixDelimiter(prefix);
     return function matchPrefix(topic) {
-        return (topic.indexOf(prefix) === 0) ? prefix : false;
+        return topic.indexOf(prefix) === 0 ? prefix : false;
     };
 };
 exports.regex = function regex(regex) {
+    var toMatch = new RegExp('^' + regex + CHANNEL_DELIMITER);
     return function matchRegex(topic) {
-        var match = topic.match(regex);
+        var match = topic.match(toMatch);
         if (match) {
             return match[0];
         }
@@ -86,24 +126,43 @@ exports.regex = function regex(regex) {
     };
 };
 
-
-exports.mapWithPrefix = function mapWithPrefix(obj, prefix) {
+function mapWithPrefix(obj, prefix) {
     if (!obj) {
         return {};
     }
+    prefix = addSuffixDelimiter(prefix);
     return Object.keys(obj).reduce(function (accum, key) {
         accum[prefix + key] = obj[key];
         return accum;
     }, {});
+}
+
+exports.withPrefix = function withPrefix(callback, prefix) {
+    return function (data) {
+        var mapped = mapWithPrefix(data, prefix);
+        return callback(mapped);
+    };
 };
 
+exports.unprefix = function (list, prefix) {
+    return list.map(function (item) {
+        if (item.name) {
+            item.name = item.name.replace(prefix, '');
+        } else {
+            item = item.replace(prefix, '');
+        }
+        return item;
+    });
+};
 
+exports.mapWithPrefix = mapWithPrefix;
 
 /***/ }),
 /* 1 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
+
 
 module.exports = {
     prefix: 'f',
@@ -151,48 +210,62 @@ module.exports = {
     }
 };
 
-
 /***/ }),
 /* 2 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var createClass = __webpack_require__(9);
 var channelUtils = __webpack_require__(6);
 var mapWithPrefix = __webpack_require__(0).mapWithPrefix;
+var unprefix = __webpack_require__(0).unprefix;
 
-var Middleware = (function () {
-    function Middleware(handlers) {
-        this.handlers = handlers;
-
-        this.subscribeHandler = this.subscribeHandler.bind(this);
-        this.unsubscribeHandler = this.unsubscribeHandler.bind(this);
-        this.publishHandler = this.publishHandler.bind(this);
-    }
-    createClass(Middleware, {
+/**
+ * Router
+ * @param  {Array} handlers Array of the form [{ subscribeHandler, unsubscribeHandler, publishHandler }]
+ * @return {Router}
+ */
+module.exports = function Router(handlers) {
+    var publicAPI = {
+        /**
+         * [subscribeHandler description]
+         * @param  {Array} topics [<String>] of subscribed topics
+         */
         subscribeHandler: function (topics) {
-            var grouped = channelUtils.groupByHandlers(topics, this.handlers);
+            var grouped = channelUtils.groupByHandlers(topics, handlers);
             grouped.forEach(function (handler) {
                 if (handler.subscribeHandler) {
-                    handler.subscribeHandler(handler.topics, handler.match);
+                    var unprefixed = unprefix(handler.data, handler.match);
+                    handler.subscribeHandler(unprefixed, handler.match);
                 }
             });
         },
-        unsubscribeHandler: function (remainingTopics) {
-            var grouped = channelUtils.groupByHandlers(remainingTopics, this.handlers);
-            grouped.forEach(function (handler) {
+        unsubscribeHandler: function (recentlyUnsubscribedTopics, remainingTopics) {
+            handlers = handlers.map(function (h, index) {
+                h.unsubsKey = index;
+                return h;
+            });
+
+            var unsubsGrouped = channelUtils.groupByHandlers(recentlyUnsubscribedTopics, handlers);
+            var remainingGrouped = channelUtils.groupByHandlers(remainingTopics, handlers);
+
+            unsubsGrouped.forEach(function (handler) {
                 if (handler && handler.unsubscribeHandler) {
-                    handler.unsubscribeHandler(handler.topics);
+                    var unprefixedUnsubs = unprefix(handler.data, handler.match);
+                    var matchingRemainingHandler = _.find(remainingGrouped, function (remainingHandler) {
+                        remainingHandler.unsubsKey = handler.unsubsKey;
+                    });
+                    handler.unsubscribeHandler(unprefixedUnsubs, matchingRemainingHandler.data || []);
                 }
             });
         },
 
         publishHandler: function (publishData) {
-            var grouped = channelUtils.groupSequentiallyByHandlers(publishData, this.handlers);
+            var grouped = channelUtils.groupSequentiallyByHandlers(publishData, handlers);
             var $initialProm = $.Deferred().resolve({}).promise();
             grouped.forEach(function (handler) {
                 $initialProm = $initialProm.then(function (dataSoFar) {
-                    return handler.publishHandler(handler.data, handler.match).then(function (unsilenced) {
-                        var mapped = mapWithPrefix(unsilenced, handler.match);
+                    var unprefixed = unprefix(handler.data, handler.match);
+                    return handler.publishHandler(unprefixed, handler.match).then(function (published) {
+                        var mapped = mapWithPrefix(published, handler.match);
                         return mapped;
                     }).then(function (mapped) {
                         return $.extend(dataSoFar, mapped);
@@ -201,13 +274,10 @@ var Middleware = (function () {
             });
             return $initialProm;
         }
-    });
+    };
 
-    return Middleware;
-}()); 
-
-module.exports = Middleware;
-
+    return $.extend(this, publicAPI);
+};
 
 /***/ }),
 /* 3 */
@@ -218,7 +288,7 @@ var VariablesChannel = __webpack_require__(19);
 var OperationsChannel = __webpack_require__(18);
 
 var Middleware = __webpack_require__(2);
-var mapWithPrefix = __webpack_require__(0).mapWithPrefix;
+var withPrefix = __webpack_require__(0).withPrefix;
 
 var prefix = __webpack_require__(0).prefix;
 
@@ -230,17 +300,17 @@ module.exports = function (config, notifier) {
             variables: {
                 autoFetch: true,
                 silent: false,
-                readOnly: false,
+                readOnly: false
             },
             operations: {
                 readOnly: false,
-                silent: false,
+                silent: false
             },
             meta: {
                 silent: false,
                 autoFetch: true,
                 readOnly: false
-            },
+            }
         }
     };
     var opts = $.extend(true, {}, defaults, config);
@@ -270,28 +340,19 @@ module.exports = function (config, notifier) {
     //     });
     // }
     // 
-    var notifyWithPrefix = function (prefix, data) {
-        notifier(mapWithPrefix(data, prefix));
-    };
 
     //TODO: Need 2 different channel instances because the fetch is debounced, and hence will bundle variables up otherwise.
     //also, notify needs to be called twice (with different arguments). Different way?
-    var variableschannel = new VariablesChannel($initialProm, notifyWithPrefix.bind(null, 'variable:'));
+    var variableschannel = new VariablesChannel($initialProm, withPrefix(notifier, 'variable'));
     var defaultVariablesChannel = new VariablesChannel($initialProm, notifier);
-    var metaChannel = new MetaChannel($initialProm, notifyWithPrefix.bind(null, 'meta:'));
-    var operationsChannel = new OperationsChannel($initialProm, notifyWithPrefix.bind(null, 'operation:'));
+    var metaChannel = new MetaChannel($initialProm, withPrefix(notifier, 'meta'));
+    var operationsChannel = new OperationsChannel($initialProm, withPrefix(notifier, 'operation'));
 
-    var handlers = [
-        $.extend({}, variableschannel, { name: 'variables', match: prefix('variable:') }),
-        $.extend({}, metaChannel, { name: 'meta', match: prefix('meta:') }),
-        $.extend({}, operationsChannel, { name: 'operations', match: prefix('operation:') }),
-        $.extend({}, defaultVariablesChannel, { name: 'variables', match: prefix('') }),
-    ];
+    var handlers = [$.extend({}, variableschannel, { name: 'variables', match: prefix('variable') }), $.extend({}, metaChannel, { name: 'meta', match: prefix('meta') }), $.extend({}, operationsChannel, { name: 'operations', match: prefix('operation') }), $.extend({}, defaultVariablesChannel, { name: 'variables', match: prefix('') })];
 
     var middleware = new Middleware(handlers, notifier);
     return middleware;
 };
-
 
 /***/ }),
 /* 4 */
@@ -329,7 +390,6 @@ module.exports = {
     }
 };
 
-
 /***/ }),
 /* 5 */
 /***/ (function(module, exports, __webpack_require__) {
@@ -347,7 +407,9 @@ var extend = function (protoProps, staticProps) {
     if (protoProps && _.has(protoProps, 'constructor')) {
         child = protoProps.constructor;
     } else {
-        child = function () { return me.apply(this, arguments); };
+        child = function () {
+            return me.apply(this, arguments);
+        };
     }
 
     // Add static properties to the constructor function, if supplied.
@@ -355,7 +417,9 @@ var extend = function (protoProps, staticProps) {
 
     // Set the prototype chain to inherit from `parent`, without calling
     // `parent`'s constructor function.
-    var Surrogate = function () { this.constructor = child; };
+    var Surrogate = function () {
+        this.constructor = child;
+    };
     Surrogate.prototype = me.prototype;
     child.prototype = new Surrogate();
 
@@ -373,20 +437,18 @@ var extend = function (protoProps, staticProps) {
 };
 
 var View = function (options) {
-    this.$el = (options.$el) || $(options.el);
+    this.$el = options.$el || $(options.el);
     this.el = options.el;
     this.initialize.apply(this, arguments);
-
 };
 
 _.extend(View.prototype, {
-    initialize: function () {},
+    initialize: function () {}
 });
 
 View.extend = extend;
 
 module.exports = View;
-
 
 /***/ }),
 /* 6 */
@@ -407,39 +469,53 @@ module.exports = {
         return $.extend(true, {}, opts.defaults, opts[key]);
     },
 
-    normalizePublishInputs: function (topic, publishValue, options) {
+    normalizeParamOptions: function (topic, publishValue, options) {
+        if (!topic) {
+            return { params: [], options: {} };
+        }
         if ($.isPlainObject(topic)) {
             var mapped = Object.keys(topic).map(function (t) {
                 return { name: t, value: topic[t] };
             });
-            return { toPublish: mapped, options: publishValue };
+            return { params: mapped, options: publishValue };
         }
         if ($.isArray(topic)) {
-            return { toPublish: topic, options: publishValue };
+            return { params: topic, options: publishValue };
         }
-        return { toPublish: [{ name: topic, value: publishValue }], options: options };
+        return { params: [{ name: topic, value: publishValue }], options: options };
     },
 
     findBestHandler: findBestHandler,
 
+    /**
+     * [groupByHandlers description]
+     * @param  {Array} topics   List of topics to match. Format can be anything your handler.match function handles
+     * @param  {Array} handlers Handlers of type [{ match: func }]
+     * @return {Array} The handler array with each item now having an additional 'data' attr added to it
+     */
     groupByHandlers: function (topics, handlers) {
         handlers = handlers.map(function (h, index) {
             h.key = index;
             return h;
         });
-        var topicMapping = ([].concat(topics)).reduce(function (accum, topic) {
+        var topicMapping = [].concat(topics).reduce(function (accum, topic) {
             var bestHandler = findBestHandler(topic, handlers);
             if (!accum[bestHandler.key]) {
-                bestHandler.topics = [];
+                bestHandler.data = [];
                 accum[bestHandler.key] = bestHandler;
             }
-            topic = topic.replace(bestHandler.match, '');
-            accum[bestHandler.key].topics.push(topic);
+            accum[bestHandler.key].data.push(topic);
             return accum;
         }, {});
         return _.values(topicMapping);
     },
 
+    /**
+     * Takes a `publish` dataset and groups it by handler maintaining the data sequence
+     * @param  {Array} data     Of the form [{ name: 'X', }]
+     * @param  {Array} handlers Handlers of type [{ match: func }]
+     * @return {Array} The handler array with each item now having an additional 'data' attr added to it
+     */
     groupSequentiallyByHandlers: function (data, handlers) {
         handlers = handlers.map(function (h, index) {
             h.key = index;
@@ -448,7 +524,6 @@ module.exports = {
         var grouped = data.reduce(function (accum, dataPt) {
             var lastHandler = accum[accum.length - 1];
             var bestHandler = findBestHandler(dataPt.name, handlers);
-            dataPt.name = dataPt.name.replace(bestHandler.match, '');
             if (lastHandler && bestHandler.key === lastHandler.key) {
                 lastHandler.data.push(dataPt);
             } else {
@@ -460,12 +535,12 @@ module.exports = {
     }
 };
 
-
 /***/ }),
 /* 7 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
+
 
 var config = __webpack_require__(1);
 var BaseView = __webpack_require__(8);
@@ -500,7 +575,6 @@ module.exports = BaseView.extend({
     }
 }, { selector: 'input, select' });
 
-
 /***/ }),
 /* 8 */
 /***/ (function(module, exports, __webpack_require__) {
@@ -511,41 +585,13 @@ module.exports = BaseView.extend({
 var BaseView = __webpack_require__(5);
 
 module.exports = BaseView.extend({
-    propertyHandlers: [
+    propertyHandlers: [],
 
-    ],
-
-    initialize: function () {
-    }
+    initialize: function () {}
 }, { selector: '*' });
-
 
 /***/ }),
 /* 9 */
-/***/ (function(module, exports) {
-
-module.exports = (function () {
-    function defineProperties(target, props) {
-        Object.keys(props).forEach(function (key) {
-            var descriptor = {};
-            descriptor.key = key;
-            descriptor.value = props[key];
-            descriptor.enumerable = false;
-            descriptor.writable = true;
-            descriptor.configurable = true;
-            Object.defineProperty(target, key, descriptor); 
-        });
-    }
-    return function (Constructor, protoProps, staticProps) {
-        if (protoProps) defineProperties(Constructor.prototype, protoProps);
-        if (staticProps) defineProperties(Constructor, staticProps);
-        return Constructor; 
-    }; 
-}());
-
-
-/***/ }),
-/* 10 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -577,9 +623,7 @@ module.exports = {
                 }
                 return accum.concat(newVal);
             };
-            argumentsReducers = [
-                arrayReducer
-            ];
+            argumentsReducers = [arrayReducer];
         }
         return function () {
             var $def = $.Deferred();
@@ -615,193 +659,22 @@ module.exports = {
     }
 };
 
+/***/ }),
+/* 10 */
+/***/ (function(module, exports, __webpack_require__) {
+
+var EpicenterMiddleware = __webpack_require__(14);
+var ChannelManager = __webpack_require__(12);
+
+//Moving  epicenter-centric glue here so channel-manager can be tested in isolation
+module.exports = function (opts) {
+    return new ChannelManager($.extend(true, {}, {
+        middlewares: [EpicenterMiddleware]
+    }, opts));
+};
 
 /***/ }),
 /* 11 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-var createClass = __webpack_require__(9);
-
-var EpicenterMiddleware = __webpack_require__(14);
-var normalizePublishInputs = __webpack_require__(6).normalizePublishInputs;
-
-function makeSubs(topics, callback, options) {
-    var id = _.uniqueId('subs-');
-    var defaults = {
-        batch: false,
-
-        /**
-         * Determines if the last published data should be cached for future notifications. For e.g.,
-         *
-         * channel.subscribe(['price', 'cost'], callback1, { batch: true, cache: false });
-         * channel.subscribe(['price', 'cost'], callback2, { batch: true, cache: true });
-         *
-         * channel.publish({ price: 1 });
-         * channel.publish({ cost: 1 });
-         *
-         * callback1 will have been called once, and callback2 will not have been called. i.e., the channel caches the first publish value and notifies after all dependent topics have data
-         * If we'd done channel.publish({ price: 1, cost: 1 }) would have called both callback1 and callback2
-         *
-         * `cache: true` is useful if you know if your topics will can published individually, but you still want to handle them together.
-         * `cache: false` is useful if you know if your topics will *always* be published together and they'll be called at the same time.
-         *
-         * Note this has no discernible effect if batch is false
-         * @type {Boolean}
-         */
-        cache: true,
-    };
-    var opts = $.extend({}, defaults, options);
-    return $.extend(true, {
-        id: id,
-        topics: topics,
-        callback: callback,
-    }, opts);
-}
-
-function callbackIfChanged(subscription, data) {
-    if (!_.isEqual(subscription.lastSent, data)) {
-        subscription.lastSent = data;
-        subscription.callback(data);
-    }
-}
-function checkAndNotifyBatch(publishObj, subscription) {
-    var merged = $.extend(true, {}, subscription.availableData, publishObj);
-    var matchingTopics = _.intersection(Object.keys(merged), subscription.topics);
-    if (matchingTopics.length > 0) {
-        var toSend = subscription.topics.reduce(function (accum, topic) {
-            accum[topic] = merged[topic];
-            return accum;
-        }, {});
-
-        if (subscription.cache) {
-            subscription.availableData = toSend;
-        }
-        if (matchingTopics.length === subscription.topics.length) {
-            callbackIfChanged(subscription, toSend);
-        }
-    }
-}
-
-function checkAndNotify(publishObj, subscription) {
-    var publishedTopics = Object.keys(publishObj);
-    publishedTopics.forEach(function (topic) {
-        var data = publishObj[topic];
-        if (_.includes(subscription.topics, topic) || _.includes(subscription.topics, '*')) {
-            var toSend = {};
-            toSend[topic] = data;
-            callbackIfChanged(subscription, toSend);
-        }
-    });
-}
-
-var availableMiddlewares = [EpicenterMiddleware];
-var ChannelManager = (function () {
-    function ChannelManager(options) {
-        var defaults = {
-
-            subscribeMiddleWares: [],
-            publishMiddlewares: [],
-            unsubscribeMiddlewares: [],
-        };
-        var opts = $.extend(true, {}, defaults, options);
-
-        var boundNotify = this.notify.bind(this);
-
-        var channelOptions = _.omit(opts, Object.keys(defaults));
-        availableMiddlewares.forEach(function (Middleware) {
-            var m = new Middleware(channelOptions, boundNotify);
-            if (m.unsubscribeHandler) {
-                opts.unsubscribeMiddlewares.push(m.unsubscribeHandler);
-            }
-            opts.publishMiddlewares.push(m.publishHandler);
-            opts.subscribeMiddleWares.push(m.subscribeHandler);
-        });
-
-        $.extend(this, { 
-            publishMiddlewares: opts.publishMiddlewares,
-            unsubscribeMiddlewares: opts.unsubscribeMiddlewares,
-            subscribeMiddleWares: opts.subscribeMiddleWares,
-        });
-    }
-
-    createClass(ChannelManager, {
-        subscriptions: [],
-
-        publish: function (topic, value, options) {
-            var normalized = normalizePublishInputs(topic, value, options);
-            var prom = $.Deferred().resolve(normalized.toPublish).promise();
-            this.publishMiddlewares.forEach(function (middleware) {
-                prom = prom.then(function (publishResponse) {
-                    return middleware(publishResponse, normalized.options);
-                });
-            });
-            prom = prom.then(this.notify.bind(this));
-            return prom;
-        },
-
-        notify: function (value) {
-            return this.subscriptions.forEach(function (subs) {
-                var fn = subs.batch ? checkAndNotifyBatch : checkAndNotify;
-                fn(value, subs);
-            });
-        },
-
-        //TODO: Allow subscribing to regex? Will solve problem of listening only to variables etc
-        subscribe: function (topics, cb, options) {
-            var subs = makeSubs(topics, cb, options);
-            this.subscriptions = this.subscriptions.concat(subs);
-
-            this.subscribeMiddleWares.forEach(function (middleware) {
-                return middleware(subs.topics);
-            });
-            return subs.id;
-        },
-        unsubscribe: function (token) {
-            var oldLength = this.subscriptions.length;
-            this.subscriptions = _.reject(this.subscriptions, function (subs) {
-                return subs.id === token;
-            });
-
-            if (oldLength === this.subscriptions.length) {
-                throw new Error('No subscription found for token ' + token);
-            } else {
-                var remainingTopics = this.getSubscribedTopics();
-                this.unsubscribeMiddlewares.forEach(function (middleware) {
-                    return middleware(remainingTopics);
-                });
-            }
-        },
-        unsubscribeAll: function () {
-            this.subscriptions = [];
-            this.unsubscribeMiddlewares.forEach(function (middleware) {
-                return middleware([]);
-            });
-        },
-        getSubscribedTopics: function () {
-            var list = _.uniq(_.flatten(_.map(this.subscriptions, 'topics')));
-            return list;
-        },
-        getSubscribers: function (topic) {
-            if (topic) {
-                return _.filter(this.subscriptions, function (subs) {
-                    return _.includes(subs.topics, topic);
-                });
-            }
-            return this.subscriptions;
-        }
-    });
-
-    return ChannelManager;
-}());
-
-module.exports = ChannelManager;
-
-
-/***/ }),
-/* 12 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -815,15 +688,15 @@ module.exports = ChannelManager;
  */
 
 
-module.exports = (function () {
+module.exports = function () {
     var config = __webpack_require__(1);
     var parseUtils = __webpack_require__(4);
-    var domUtils = __webpack_require__(42);
+    var domUtils = __webpack_require__(44);
 
-    var converterManager = __webpack_require__(22);
-    var nodeManager = __webpack_require__(40);
-    var attrManager = __webpack_require__(27);
-    var autoUpdatePlugin = __webpack_require__(41);
+    var converterManager = __webpack_require__(23);
+    var nodeManager = __webpack_require__(41);
+    var attrManager = __webpack_require__(28);
+    var autoUpdatePlugin = __webpack_require__(42);
 
     //Jquery selector to return everything which has a f- property set
     $.expr.pseudos[config.prefix] = function (el) {
@@ -858,7 +731,7 @@ module.exports = (function () {
         }
         if (!element || !element.nodeName) {
             console.error(context, 'Expected to get DOM Element, got ', element);
-            throw new Error(context + ': Expected to get DOM Element, got' + (typeof element));
+            throw new Error(context + ': Expected to get DOM Element, got' + typeof element);
         }
         return element;
     };
@@ -1118,7 +991,7 @@ module.exports = (function () {
                                     } else {
                                         value = Object.keys(matching).reduce(function (accum, key) {
                                             var k = key.replace(channelPrefix + ':', '');
-                                            accum[k] = matching[key]; 
+                                            accum[k] = matching[key];
                                             return accum;
                                         }, {});
                                     }
@@ -1152,7 +1025,7 @@ module.exports = (function () {
 
             var attachUIOperationsListener = function ($root) {
                 $root.off(config.events.operate).on(config.events.operate, function (evt, data) {
-                    var filtered = ([].concat(data.operations || [])).reduce(function (accum, operation) {
+                    var filtered = [].concat(data.operations || []).reduce(function (accum, operation) {
                         operation.params = operation.params.map(function (val) {
                             return parseUtils.toImplicitType($.trim(val));
                         });
@@ -1167,17 +1040,14 @@ module.exports = (function () {
                         return accum;
                     }, { operations: [], converters: [] });
 
-                    var promise = (filtered.operations.length) ?
-                            channel.publish(filtered.operations) :
-                            $.Deferred().resolve().promise();
-                     
+                    var promise = filtered.operations.length ? channel.publish(filtered.operations) : $.Deferred().resolve().promise();
+
                     //FIXME: Needed for the 'gotopage' in interfacebuilder. Remove this once we add a window channel
                     promise.then(function (args) {
                         _.each(filtered.converters, function (con) {
                             converterManager.convert(con.params, [con.name]);
                         });
                     });
-
                 });
             };
 
@@ -1202,7 +1072,7 @@ module.exports = (function () {
                     }
                 });
             };
-            
+
             channel.subscribe('operation:reset', function () {
                 me.unbindAll();
                 me.bindAll();
@@ -1220,7 +1090,7 @@ module.exports = (function () {
                 if (me.options.autoBind) {
                     autoUpdatePlugin($root.get(0), me);
                 }
-                
+
                 promise.resolve($root);
                 $root.trigger('f.domready');
             });
@@ -1230,8 +1100,195 @@ module.exports = (function () {
     };
 
     return $.extend(this, publicAPI);
-}());
+}();
 
+/***/ }),
+/* 12 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+var createClass = __webpack_require__(43);
+
+var normalizeParamOptions = __webpack_require__(6).normalizeParamOptions;
+var MiddlewareManager = __webpack_require__(21);
+
+function makeSubs(topics, callback, options) {
+    var id = _.uniqueId('subs-');
+    var defaults = {
+        batch: false,
+
+        /**
+         * Determines if the last published data should be cached for future notifications. For e.g.,
+         *
+         * channel.subscribe(['price', 'cost'], callback1, { batch: true, cache: false });
+         * channel.subscribe(['price', 'cost'], callback2, { batch: true, cache: true });
+         *
+         * channel.publish({ price: 1 });
+         * channel.publish({ cost: 1 });
+         *
+         * callback1 will have been called once, and callback2 will not have been called. i.e., the channel caches the first publish value and notifies after all dependent topics have data
+         * If we'd done channel.publish({ price: 1, cost: 1 }) would have called both callback1 and callback2
+         *
+         * `cache: true` is useful if you know if your topics will can published individually, but you still want to handle them together.
+         * `cache: false` is useful if you know if your topics will *always* be published together and they'll be called at the same time.
+         *
+         * Note this has no discernible effect if batch is false
+         * @type {Boolean}
+         */
+        cache: true
+    };
+    var opts = $.extend({}, defaults, options);
+    return $.extend(true, {
+        id: id,
+        topics: topics,
+        callback: callback
+    }, opts);
+}
+
+function callbackIfChanged(subscription, data) {
+    if (!_.isEqual(subscription.lastSent, data)) {
+        subscription.lastSent = data;
+        subscription.callback(data);
+    }
+}
+
+//[{ name, value}]
+function checkAndNotifyBatch(topics, subscription) {
+    var merged = topics.reduce(function (accum, topic) {
+        accum[topic.name] = topic.value;
+        return accum;
+    }, subscription.availableData || {});
+    var matchingTopics = _.intersection(Object.keys(merged), subscription.topics);
+    if (matchingTopics.length > 0) {
+        var toSend = subscription.topics.reduce(function (accum, topic) {
+            accum[topic] = merged[topic];
+            return accum;
+        }, {});
+
+        if (subscription.cache) {
+            subscription.availableData = toSend;
+        }
+        if (matchingTopics.length === subscription.topics.length) {
+            callbackIfChanged(subscription, toSend);
+        }
+    }
+}
+
+//[{ name, value}]
+function checkAndNotify(topics, subscription) {
+    topics.forEach(function (topic) {
+        if (_.includes(subscription.topics, topic.name) || _.includes(subscription.topics, '*')) {
+            var toSend = {};
+            toSend[topic.name] = topic.value;
+            callbackIfChanged(subscription, toSend);
+        }
+    });
+}
+
+function getTopicsFromSubsList(subcriptionList) {
+    return subcriptionList.reduce(function (accum, subs) {
+        accum = accum.concat(subs.topics);
+        return accum;
+    }, []);
+}
+var ChannelManager = function () {
+    function ChannelManager(options) {
+        var defaults = {
+            middlewares: []
+        };
+        var opts = $.extend(true, {}, defaults, options);
+        this.middlewares = new MiddlewareManager(opts, this.notify.bind(this));
+    }
+
+    createClass(ChannelManager, {
+        subscriptions: [],
+
+        publish: function (topic, value, options) {
+            var normalized = normalizeParamOptions(topic, value, options);
+            var prom = $.Deferred().resolve(normalized.params).promise();
+            var lastAvailableData = normalized.params;
+            var middlewares = this.middlewares.filter('publish');
+            middlewares.forEach(function (middleware) {
+                prom = prom.then(function (publishResponse) {
+                    return middleware(publishResponse, normalized.options);
+                }).then(function (response) {
+                    lastAvailableData = response || lastAvailableData;
+                    return lastAvailableData;
+                });
+            });
+            prom = prom.then(this.notify.bind(this));
+            return prom;
+        },
+
+        notify: function (topic, value, options) {
+            var normalized = normalizeParamOptions(topic, value, options);
+            return this.subscriptions.forEach(function (subs) {
+                var fn = subs.batch ? checkAndNotifyBatch : checkAndNotify;
+                fn(normalized.params, subs);
+            });
+        },
+
+        //TODO: Allow subscribing to regex? Will solve problem of listening only to variables etc
+        subscribe: function (topics, cb, options) {
+            var subs = makeSubs(topics, cb, options);
+            this.subscriptions = this.subscriptions.concat(subs);
+            var middlewares = this.middlewares.filter('subscribe');
+            middlewares.forEach(function (middleware) {
+                return middleware(subs.topics);
+            });
+            return subs.id;
+        },
+        unsubscribe: function (token) {
+            var data = this.subscriptions.reduce(function (accum, subs) {
+                if (subs.id === token) {
+                    accum.unsubscribed.push(subs);
+                } else {
+                    accum.remaining.push(subs);
+                }
+                return accum;
+            }, { remaining: [], unsubscribed: [] });
+
+            if (!data.unsubscribed.length) {
+                throw new Error('No subscription found for token ' + token);
+            }
+            this.subscriptions = data.remaining;
+
+            var remainingTopics = getTopicsFromSubsList(data.remaining);
+            var unsubscribedTopics = getTopicsFromSubsList(data.unsubscribed);
+
+            var middlewares = this.middlewares.filter('unsubscribe');
+            middlewares.forEach(function (middleware) {
+                return middleware(unsubscribedTopics, remainingTopics);
+            });
+        },
+        unsubscribeAll: function () {
+            var currentlySubscribed = this.getSubscribedTopics();
+            this.subscriptions = [];
+            var middlewares = this.middlewares.filter('unsubscribe');
+            middlewares.forEach(function (middleware) {
+                return middleware(currentlySubscribed, []);
+            });
+        },
+        getSubscribedTopics: function () {
+            var list = _.uniq(getTopicsFromSubsList(this.subscriptions));
+            return list;
+        },
+        getSubscribers: function (topic) {
+            if (topic) {
+                return this.subscriptions.filter(function (subs) {
+                    return _.includes(subs.topics, topic);
+                });
+            }
+            return this.subscriptions;
+        }
+    });
+
+    return ChannelManager;
+}();
+
+module.exports = ChannelManager;
 
 /***/ }),
 /* 13 */
@@ -1239,9 +1296,11 @@ module.exports = (function () {
 
 var runChannelFactory = __webpack_require__(16);
 var regexpMatch = __webpack_require__(0).regex;
+var withPrefix = __webpack_require__(0).withPrefix;
+var stripSuffixDelimiter = __webpack_require__(0).stripSuffixDelimiter;
 
 var sampleRunidLength = '000001593dd81950d4ee4f3df14841769a0b'.length;
-var runidRegex = new RegExp('^(?:.{' + sampleRunidLength + '}):');
+var runidRegex = '(?:.{' + sampleRunidLength + '})';
 
 module.exports = function (options, notifier) {
     if (!options) options = {};
@@ -1253,18 +1312,17 @@ module.exports = function (options, notifier) {
     return {
         match: regexpMatch(runidRegex),
         subscribeHandler: function (topics, prefix) {
-            var runid = prefix.replace(':', '');
-            var channel = runChannelFactory(runid, opts, notifier);
+            var runid = stripSuffixDelimiter(prefix);
+            var channel = runChannelFactory(runid, opts, withPrefix(notifier, prefix));
             return channel.subscribeHandler(topics);
         },
         publishHandler: function (topics, prefix) {
-            var runid = prefix.replace(':', '');
-            var channel = runChannelFactory(runid, opts, notifier);
+            var runid = stripSuffixDelimiter(prefix);
+            var channel = runChannelFactory(runid, opts, withPrefix(notifier, prefix));
             return channel.publishHandler(topics);
         }
     };
 };
-
 
 /***/ }),
 /* 14 */
@@ -1274,7 +1332,7 @@ var RunManagerRouter = __webpack_require__(15);
 var ScenarioRouter = __webpack_require__(20);
 var CustomRunRouter = __webpack_require__(13);
 
-var mapWithPrefix = __webpack_require__(0).mapWithPrefix;
+var withPrefix = __webpack_require__(0).withPrefix;
 var prefixMatch = __webpack_require__(0).prefix;
 
 var Middleware = __webpack_require__(2);
@@ -1286,39 +1344,33 @@ function getOptions(opts, key) {
 
     return { serviceOptions: serviceOptions, channelOptions: channelOptions };
 }
-module.exports = function (config, notifier) {
-    var notifyWithPrefix = function (prefix, data) {
-        notifier(mapWithPrefix(data, prefix));
-    };
 
+module.exports = function (config, notifier) {
     var opts = $.extend(true, {}, config);
 
     var customRunChannelOpts = getOptions(opts, 'runid');
-    var customRunChannel = new CustomRunRouter(customRunChannelOpts, notifyWithPrefix);
+    var customRunChannel = new CustomRunRouter(customRunChannelOpts, notifier);
 
-    var handlers = [
-        $.extend({}, customRunChannel, { name: 'runid' })
-    ];
+    var handlers = [$.extend({}, customRunChannel, { name: 'runid' })];
     var prefix = '';
     if (opts.runManager) {
-        prefix = config.scenarioManager ? 'run:' : '';
+        prefix = config.scenarioManager ? 'run' : '';
 
         var runManagerOpts = getOptions(opts, 'runManager');
-        var rm = new RunManagerRouter(runManagerOpts, notifyWithPrefix.bind(null, prefix));
+        var rm = new RunManagerRouter(runManagerOpts, withPrefix(notifier, prefix));
         handlers.push($.extend({}, rm, { name: 'runManager', match: prefixMatch(prefix) }));
     }
 
     if (opts.scenarioManager) {
-        prefix = config.runManager ? 'scenario:' : '';
+        prefix = config.runManager ? 'scenario' : '';
 
         var scenarioManagerOpts = getOptions(opts, 'scenarioManager');
-        var sm = new ScenarioRouter(scenarioManagerOpts, notifyWithPrefix.bind(null, prefix));
+        var sm = new ScenarioRouter(scenarioManagerOpts, withPrefix(notifier, prefix));
         handlers.push($.extend({}, sm, { name: 'scenarioManager', match: prefixMatch(prefix) }));
     }
     var middleware = new Middleware(handlers, notifier);
     return middleware;
 };
-
 
 /***/ }),
 /* 15 */
@@ -1327,7 +1379,7 @@ module.exports = function (config, notifier) {
 var RunChannel = __webpack_require__(3);
 
 var prefix = __webpack_require__(0).prefix;
-var mapWithPrefix = __webpack_require__(0).mapWithPrefix;
+var withPrefix = __webpack_require__(0).withPrefix;
 
 var Middleware = __webpack_require__(2);
 
@@ -1342,26 +1394,17 @@ module.exports = function (config, notifier) {
     var $creationPromise = rm.getRun().then(function () {
         return rm.run;
     });
-    var notifyWithPrefix = function (prefix, data) {
-        notifier(mapWithPrefix(data, prefix));
-    };
-
-    var currentChannelOpts = $.extend(true, 
-        { serviceOptions: $creationPromise }, opts.defaults, opts.current);
-    var currentRunChannel = new RunChannel(currentChannelOpts, notifyWithPrefix.bind(null, 'current:'));
+    var currentChannelOpts = $.extend(true, { serviceOptions: $creationPromise }, opts.defaults, opts.current);
+    var currentRunChannel = new RunChannel(currentChannelOpts, withPrefix(notifier, 'current'));
     var defaultRunChannel = new RunChannel(currentChannelOpts, notifier);
 
-    var handlers = [
-        $.extend(currentRunChannel, { name: 'current', match: prefix('current:') }),
-        $.extend(defaultRunChannel, { name: 'default', match: prefix('') }),
-    ];
+    var handlers = [$.extend(currentRunChannel, { name: 'current', match: prefix('current') }), $.extend(defaultRunChannel, { name: 'default', match: prefix('') })];
 
     var middleware = new Middleware(handlers, notifier);
     middleware.runManager = rm;
-    
+
     return middleware;
 };
-
 
 /***/ }),
 /* 16 */
@@ -1373,14 +1416,12 @@ var knownRunIDServiceChannels = {};
 module.exports = function (runid, options, notifier) {
     var runChannel = knownRunIDServiceChannels[runid];
     if (!runChannel) {
-        var newNotifier = notifier.bind(null, runid + ':');
         var runOptions = $.extend(true, {}, options, { serviceOptions: { id: runid } });
-        runChannel = new RunChannel(runOptions, newNotifier);
+        runChannel = new RunChannel(runOptions, notifier);
         knownRunIDServiceChannels[runid] = runChannel;
     }
     return runChannel;
 };
-
 
 /***/ }),
 /* 17 */
@@ -1389,7 +1430,7 @@ module.exports = function (runid, options, notifier) {
 module.exports = function ($runServicePromise, notifier) {
 
     function mergeAndSend(runMeta, requestedTopics) {
-        var toSend = ([].concat(requestedTopics)).reduce(function (accum, meta) {
+        var toSend = [].concat(requestedTopics).reduce(function (accum, meta) {
             if (runMeta[meta] !== undefined) {
                 accum[meta] = runMeta[meta];
             }
@@ -1409,7 +1450,7 @@ module.exports = function ($runServicePromise, notifier) {
                         runService.runMeta = data;
                         return data;
                     });
-                } 
+                }
                 return runService.loadPromise.then(function (data) {
                     mergeAndSend(data, topics);
                 });
@@ -1429,7 +1470,6 @@ module.exports = function ($runServicePromise, notifier) {
         }
     };
 };
-
 
 /***/ }),
 /* 18 */
@@ -1454,12 +1494,11 @@ module.exports = function ($runServicePromise) {
     };
 };
 
-
 /***/ }),
 /* 19 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var debounceAndMerge = __webpack_require__(10).debounceAndMerge;
+var debounceAndMerge = __webpack_require__(9).debounceAndMerge;
 
 module.exports = function ($runServicePromise, notifier) {
 
@@ -1482,15 +1521,14 @@ module.exports = function ($runServicePromise, notifier) {
         }
         return runService.debouncedFetchers[id];
     };
-     
 
     var knownTopics = [];
-    return { 
+    return {
         fetch: function (runService, callback) {
             return fetchFn(runService)(knownTopics);
         },
 
-        unsubscribeHandler: function (remainingTopics) {
+        unsubscribeHandler: function (unsubscribedTopics, remainingTopics) {
             knownTopics = remainingTopics;
         },
         subscribeHandler: function (topics) {
@@ -1514,7 +1552,6 @@ module.exports = function ($runServicePromise, notifier) {
     };
 };
 
-
 /***/ }),
 /* 20 */
 /***/ (function(module, exports, __webpack_require__) {
@@ -1522,19 +1559,16 @@ module.exports = function ($runServicePromise, notifier) {
 var RunChannel = __webpack_require__(3);
 
 var prefix = __webpack_require__(0).prefix;
-var mapWithPrefix = __webpack_require__(0).mapWithPrefix;
+var withPrefix = __webpack_require__(0).withPrefix;
 
 var Middleware = __webpack_require__(2);
 module.exports = function (config, notifier) {
     var defaults = {
         serviceOptions: {},
-        channelOptions: {},
+        channelOptions: {}
     };
     var opts = $.extend(true, {}, defaults, config);
 
-    var notifyWithPrefix = function (prefix, data) {
-        notifier(mapWithPrefix(data, prefix));
-    };
     var sm = new window.F.manager.ScenarioManager(opts.serviceOptions);
 
     var baselinePromise = sm.baseline.getRun().then(function () {
@@ -1543,41 +1577,71 @@ module.exports = function (config, notifier) {
     var currentRunPromise = sm.current.getRun().then(function () {
         return sm.current.run;
     });
-    var baselineRunChannel = new RunChannel( 
-        $.extend(true, {}, {
-            serviceOptions: baselinePromise,
-            channelOptions: {
-                meta: {
-                    readOnly: true
-                },
-                variables: {
-                    readOnly: true
-                }
+    var baselineRunChannel = new RunChannel($.extend(true, {}, {
+        serviceOptions: baselinePromise,
+        channelOptions: {
+            meta: {
+                readOnly: true
+            },
+            variables: {
+                readOnly: true
             }
-        }, opts.defaults, opts.baseline)
-    , notifyWithPrefix.bind(null, 'baseline:'));
+        }
+    }, opts.defaults, opts.baseline), withPrefix(notifier, 'baseline'));
 
     var runOptions = $.extend(true, {}, {
-        serviceOptions: currentRunPromise,
+        serviceOptions: currentRunPromise
     }, opts.defaults, opts.current);
 
-    var currentRunChannel = new RunChannel(runOptions, notifyWithPrefix.bind(null, 'current:'));
-    var defaultRunChannel = new RunChannel(runOptions, notifyWithPrefix.bind(null, ''));
+    var currentRunChannel = new RunChannel(runOptions, withPrefix(notifier, 'current'));
+    var defaultRunChannel = new RunChannel(runOptions, withPrefix(notifier, ''));
 
-    var handlers = [
-        $.extend(baselineRunChannel, { name: 'baseline', match: prefix('baseline:') }),
-        $.extend(currentRunChannel, { name: 'current', match: prefix('current:') }),
-        $.extend(defaultRunChannel, { name: 'default', match: prefix('') }),
-    ];
-    
+    var handlers = [$.extend(baselineRunChannel, { name: 'baseline', match: prefix('baseline') }), $.extend(currentRunChannel, { name: 'current', match: prefix('current') }), $.extend(defaultRunChannel, { name: 'default', match: prefix('') })];
+
     var middleware = new Middleware(handlers, notifier);
     middleware.scenarioManager = sm;
     return middleware;
 };
 
-
 /***/ }),
 /* 21 */
+/***/ (function(module, exports) {
+
+module.exports = function MiddlewareManager(options, notifier) {
+    var defaults = {
+        middlewares: []
+    };
+    var opts = $.extend(true, {}, defaults, options);
+    var optsToPassOn = _.omit(opts, Object.keys(defaults));
+
+    var list = [];
+    var publicAPI = {
+        list: list,
+
+        add: function (middleware, index) {
+            if (_.isFunction(middleware)) {
+                middleware = new middleware(optsToPassOn, notifier);
+            }
+            list.push(middleware);
+        },
+
+        filter: function (type) {
+            type = type + 'Handler';
+            return list.reduce(function (accum, m) {
+                if (m[type]) {
+                    accum.push(m[type]);
+                }
+                return accum;
+            }, []);
+        }
+    };
+
+    $.extend(this, publicAPI);
+    opts.middlewares.forEach(this.add);
+};
+
+/***/ }),
+/* 22 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -1597,97 +1661,91 @@ module.exports = function (config, notifier) {
 
 
 
-var list = [
-    {
-        /**
-         * Convert the input into an array. Concatenates all elements of the input.
-         *
-         * @param {Array} val The array model variable.
-         */
-        alias: 'list',
-        acceptList: true,
-        convert: function (val) {
-            return [].concat(val);
-        }
-    },
-    {
-        /**
-         * Select only the last element of the array.
-         *
-         * **Example**
-         *
-         *      <div>
-         *          In the current year, we have <span data-f-bind="Sales | last"></span> in sales.
-         *      </div>
-         *
-         * @param {Array} val The array model variable.
-         */
-        alias: 'last',
-        acceptList: true,
-        convert: function (val) {
-            val = [].concat(val);
-            return val[val.length - 1];
-        }
-    },
-    {
-        /**
-         * Reverse the array.
-         *
-         * **Example**
-         *
-         *      <p>Show the history of our sales, starting with the last (most recent):</p>
-         *      <ul data-f-foreach="Sales | reverse">
-         *          <li></li>
-         *      </ul>
-         *
-         * @param {Array} val The array model variable.
-         */
-        alias: 'reverse',
-        acceptList: true,
-        convert: function (val) {
-            val = [].concat(val);
-            return val.reverse();
-        }
-    },
-    {
-        /**
-         * Select only the first element of the array.
-         *
-         * **Example**
-         *
-         *      <div>
-         *          Our initial investment was <span data-f-bind="Capital | first"></span>.
-         *      </div>
-         *
-         * @param {Array} val The array model variable.
-         */
-        alias: 'first',
-        acceptList: true,
-        convert: function (val) {
-            val = [].concat(val);
-            return val[0];
-        }
-    },
-    {
-        /**
-         * Select only the previous (second to last) element of the array.
-         *
-         * **Example**
-         *
-         *      <div>
-         *          Last year we had <span data-f-bind="Sales | previous"></span> in sales.
-         *      </div>
-         *
-         * @param {Array} val The array model variable.
-         */
-        alias: 'previous',
-        acceptList: true,
-        convert: function (val) {
-            val = [].concat(val);
-            return (val.length <= 1) ? val[0] : val[val.length - 2];
-        }
+var list = [{
+    /**
+     * Convert the input into an array. Concatenates all elements of the input.
+     *
+     * @param {Array} val The array model variable.
+     */
+    alias: 'list',
+    acceptList: true,
+    convert: function (val) {
+        return [].concat(val);
     }
-];
+}, {
+    /**
+     * Select only the last element of the array.
+     *
+     * **Example**
+     *
+     *      <div>
+     *          In the current year, we have <span data-f-bind="Sales | last"></span> in sales.
+     *      </div>
+     *
+     * @param {Array} val The array model variable.
+     */
+    alias: 'last',
+    acceptList: true,
+    convert: function (val) {
+        val = [].concat(val);
+        return val[val.length - 1];
+    }
+}, {
+    /**
+     * Reverse the array.
+     *
+     * **Example**
+     *
+     *      <p>Show the history of our sales, starting with the last (most recent):</p>
+     *      <ul data-f-foreach="Sales | reverse">
+     *          <li></li>
+     *      </ul>
+     *
+     * @param {Array} val The array model variable.
+     */
+    alias: 'reverse',
+    acceptList: true,
+    convert: function (val) {
+        val = [].concat(val);
+        return val.reverse();
+    }
+}, {
+    /**
+     * Select only the first element of the array.
+     *
+     * **Example**
+     *
+     *      <div>
+     *          Our initial investment was <span data-f-bind="Capital | first"></span>.
+     *      </div>
+     *
+     * @param {Array} val The array model variable.
+     */
+    alias: 'first',
+    acceptList: true,
+    convert: function (val) {
+        val = [].concat(val);
+        return val[0];
+    }
+}, {
+    /**
+     * Select only the previous (second to last) element of the array.
+     *
+     * **Example**
+     *
+     *      <div>
+     *          Last year we had <span data-f-bind="Sales | previous"></span> in sales.
+     *      </div>
+     *
+     * @param {Array} val The array model variable.
+     */
+    alias: 'previous',
+    acceptList: true,
+    convert: function (val) {
+        val = [].concat(val);
+        return val.length <= 1 ? val[0] : val[val.length - 2];
+    }
+}];
 
 _.each(list, function (item) {
     var oldfn = item.convert;
@@ -1701,9 +1759,8 @@ _.each(list, function (item) {
 });
 module.exports = list;
 
-
 /***/ }),
-/* 22 */
+/* 23 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -1900,15 +1957,8 @@ var converterManager = {
     }
 };
 
-
 //Bootstrap
-var defaultconverters = [
-    __webpack_require__(23),
-    __webpack_require__(25),
-    __webpack_require__(21),
-    __webpack_require__(26),
-    __webpack_require__(24),
-];
+var defaultconverters = [__webpack_require__(24), __webpack_require__(26), __webpack_require__(22), __webpack_require__(27), __webpack_require__(25)];
 
 $.each(defaultconverters.reverse(), function (index, converter) {
     if (_.isArray(converter)) {
@@ -1922,9 +1972,8 @@ $.each(defaultconverters.reverse(), function (index, converter) {
 
 module.exports = converterManager;
 
-
 /***/ }),
-/* 23 */
+/* 24 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -1941,28 +1990,28 @@ module.exports = converterManager;
  */
 
 
+
 module.exports = {
-    /**
-     * Convert the model variable to an integer. Often used for chaining to another converter.
-     *
-     * **Example**
-     *
-     *      <div>
-     *          Your car has driven
-     *          <span data-f-bind="Odometer | i | s0.0"></span> miles.
-     *      </div>
-     *
-     * @param {Array} value The model variable.
-     */
-    alias: 'i',
-    convert: function (value) {
-        return parseFloat(value, 10);
-    }
+  /**
+   * Convert the model variable to an integer. Often used for chaining to another converter.
+   *
+   * **Example**
+   *
+   *      <div>
+   *          Your car has driven
+   *          <span data-f-bind="Odometer | i | s0.0"></span> miles.
+   *      </div>
+   *
+   * @param {Array} value The model variable.
+   */
+  alias: 'i',
+  convert: function (value) {
+    return parseFloat(value, 10);
+  }
 };
 
-
 /***/ }),
-/* 24 */
+/* 25 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -2031,10 +2080,11 @@ module.exports = {
  */
 
 
+
 module.exports = {
     alias: function (name) {
         //TODO: Fancy regex to match number formats here
-        return (name.indexOf('#') !== -1 || name.indexOf('0') !== -1);
+        return name.indexOf('#') !== -1 || name.indexOf('0') !== -1;
     },
 
     parse: function (val) {
@@ -2076,7 +2126,7 @@ module.exports = {
         return number;
     },
 
-    convert: (function (value) {
+    convert: function (value) {
         var scales = ['', 'K', 'M', 'B', 'T'];
         function roundTo(value, digits) {
             return Math.round(value * Math.pow(10, digits)) / Math.pow(10, digits);
@@ -2115,13 +2165,13 @@ module.exports = {
         function addDecimals(value, decimals, minDecimals, hasCommas) {
             hasCommas = !!hasCommas;
             var numberTXT = value.toString();
-            var hasDecimals = (numberTXT.split('.').length > 1);
+            var hasDecimals = numberTXT.split('.').length > 1;
             var iDec = 0;
 
             if (hasCommas) {
                 for (var iChar = numberTXT.length - 1; iChar > 0; iChar--) {
                     if (hasDecimals) {
-                        hasDecimals = (numberTXT.charAt(iChar) !== '.');
+                        hasDecimals = numberTXT.charAt(iChar) !== '.';
                     } else {
                         iDec = (iDec + 1) % 3;
                         if (iDec === 0) {
@@ -2129,7 +2179,6 @@ module.exports = {
                         }
                     }
                 }
-
             }
             if (decimals > 0) {
                 var toADD;
@@ -2153,25 +2202,14 @@ module.exports = {
         function getSuffix(formatTXT) {
             formatTXT = formatTXT.replace('.', '');
             var fixesTXT = formatTXT.split(new RegExp('[0|,|#]+', 'g'));
-            return (fixesTXT.length > 1) ? fixesTXT[1].toString() : '';
+            return fixesTXT.length > 1 ? fixesTXT[1].toString() : '';
         }
 
-        function isCurrency(string) { // eslint-disable-line
+        function isCurrency(string) {
+            // eslint-disable-line
             var s = $.trim(string);
 
-            if (s === '$' ||
-                s === 'â‚¬' ||
-                s === 'Â¥' ||
-                s === 'Â£' ||
-                s === 'â‚¡' ||
-                s === 'â‚±' ||
-                s === 'KÄ?' ||
-                s === 'kr' ||
-                s === 'Â¢' ||
-                s === 'â‚ª' ||
-                s === 'Æ’' ||
-                s === 'â‚©' ||
-                s === 'â‚«') {
+            if (s === '$' || s === 'â‚¬' || s === 'Â¥' || s === 'Â£' || s === 'â‚¡' || s === 'â‚±' || s === 'KÄ?' || s === 'kr' || s === 'Â¢' || s === 'â‚ª' || s === 'Æ’' || s === 'â‚©' || s === 'â‚«') {
 
                 return true;
             }
@@ -2179,7 +2217,8 @@ module.exports = {
             return false;
         }
 
-        function format (number, formatTXT) { // eslint-disable-line
+        function format(number, formatTXT) {
+            // eslint-disable-line
             if (_.isArray(number)) {
                 number = number[number.length - 1];
             }
@@ -2201,13 +2240,12 @@ module.exports = {
             // Divide +/- Number Format
             var formats = formatTXT.split(';');
             if (formats.length > 1) {
-                return format(Math.abs(number), formats[((number >= 0) ? 0 : 1)]);
+                return format(Math.abs(number), formats[number >= 0 ? 0 : 1]);
             }
 
             // Save Sign
-            var sign = (number >= 0) ? '' : '-';
+            var sign = number >= 0 ? '' : '-';
             number = Math.abs(number);
-
 
             var leftOfDecimal = formatTXT;
             var d = leftOfDecimal.indexOf('.');
@@ -2243,7 +2281,7 @@ module.exports = {
             //if (formatTXT.charAt(0) == 's')
             if (isShortFormat) {
                 var valScale = number === 0 ? 0 : Math.floor(Math.log(Math.abs(number)) / (3 * Math.LN10));
-                valScale = ((number / Math.pow(10, 3 * valScale)) < 1000) ? valScale : (valScale + 1);
+                valScale = number / Math.pow(10, 3 * valScale) < 1000 ? valScale : valScale + 1;
                 valScale = Math.max(valScale, 0);
                 valScale = Math.min(valScale, 4);
                 number = number / Math.pow(10, 3 * valScale);
@@ -2268,7 +2306,7 @@ module.exports = {
                     var SUFFIX = getSuffix(formatTXT);
                     formatTXT = formatTXT.substr(0, formatTXT.length - SUFFIX.length);
 
-                    var valWithoutLeading = format(((sign === '') ? 1 : -1) * number, formatTXT) + scales[valScale] + SUFFIX;
+                    var valWithoutLeading = format((sign === '' ? 1 : -1) * number, formatTXT) + scales[valScale] + SUFFIX;
                     if (isCurrency(leadingText) && sign !== '') {
                         valWithoutLeading = valWithoutLeading.substr(sign.length);
                         return sign + leadingText + valWithoutLeading;
@@ -2291,15 +2329,15 @@ module.exports = {
 
             var fixesTXT = formatTXT.split(new RegExp('[0|,|#]+', 'g'));
             var preffix = fixesTXT[0].toString();
-            var suffix = (fixesTXT.length > 1) ? fixesTXT[1].toString() : '';
+            var suffix = fixesTXT.length > 1 ? fixesTXT[1].toString() : '';
 
-            number = number * ((formatTXT.split('%').length > 1) ? 100 : 1);
+            number = number * (formatTXT.split('%').length > 1 ? 100 : 1);
             //            if (formatTXT.indexOf('%') !== -1) number = number * 100;
             number = roundTo(number, decimals);
 
-            sign = (number === 0) ? '' : sign;
+            sign = number === 0 ? '' : sign;
 
-            var hasCommas = (formatTXT.substr(formatTXT.length - 4 - suffix.length, 1) === ',');
+            var hasCommas = formatTXT.substr(formatTXT.length - 4 - suffix.length, 1) === ',';
             var formatted = sign + preffix + addDecimals(number, decimals, minDecimals, hasCommas) + suffix;
 
             //  console.log(originalNumber, originalFormat, formatted)
@@ -2307,12 +2345,11 @@ module.exports = {
         }
 
         return format;
-    }())
+    }()
 };
 
-
 /***/ }),
-/* 25 */
+/* 26 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -2328,6 +2365,7 @@ module.exports = {
  *
  * For model variables that are strings (or that have been converted to strings), there are several special string formats you can apply.
  */
+
 
 
 module.exports = {
@@ -2404,21 +2442,16 @@ module.exports = {
     }
 };
 
-
 /***/ }),
-/* 26 */
+/* 27 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
+
 var list = [];
 
-var supported = [
-    'values', 'keys', 'compact', 'difference',
-    'union',
-    'uniq', 'without',
-    'xor', 'zip'
-];
+var supported = ['values', 'keys', 'compact', 'difference', 'union', 'uniq', 'without', 'xor', 'zip'];
 _.each(supported, function (fn) {
     var item = {
         alias: fn,
@@ -2434,9 +2467,8 @@ _.each(supported, function (fn) {
 });
 module.exports = list;
 
-
 /***/ }),
-/* 27 */
+/* 28 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -2484,20 +2516,9 @@ module.exports = list;
 
 
 
-var defaultHandlers = [
-    __webpack_require__(36),
-    // require('./events/init-event-attr'),
-    __webpack_require__(33),
-    __webpack_require__(34),
-    __webpack_require__(28),
-    __webpack_require__(30),
-    __webpack_require__(31),
-    __webpack_require__(38),
-    __webpack_require__(37),
-    __webpack_require__(35),
-    __webpack_require__(29),
-    __webpack_require__(32)
-];
+var defaultHandlers = [__webpack_require__(37),
+// require('./events/init-event-attr'),
+__webpack_require__(34), __webpack_require__(35), __webpack_require__(29), __webpack_require__(31), __webpack_require__(32), __webpack_require__(39), __webpack_require__(38), __webpack_require__(36), __webpack_require__(30), __webpack_require__(33)];
 
 var handlersList = [];
 
@@ -2517,12 +2538,11 @@ $.each(defaultHandlers, function (index, handler) {
     handlersList.push(normalize(handler.test, handler.target, handler));
 });
 
-
 var matchAttr = function (matchExpr, attr, $el) {
     var attrMatch;
 
     if (_.isString(matchExpr)) {
-        attrMatch = (matchExpr === '*' || (matchExpr.toLowerCase() === attr.toLowerCase()));
+        attrMatch = matchExpr === '*' || matchExpr.toLowerCase() === attr.toLowerCase();
     } else if (_.isFunction(matchExpr)) {
         //TODO: remove element selectors from attributes
         attrMatch = matchExpr(attr, $el);
@@ -2533,7 +2553,7 @@ var matchAttr = function (matchExpr, attr, $el) {
 };
 
 var matchNode = function (target, nodeFilter) {
-    return (_.isString(nodeFilter)) ? (nodeFilter === target) : nodeFilter.is(target);
+    return _.isString(nodeFilter) ? nodeFilter === target : nodeFilter.is(target);
 };
 
 module.exports = {
@@ -2604,10 +2624,8 @@ module.exports = {
     }
 };
 
-
-
 /***/ }),
-/* 28 */
+/* 29 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -2643,14 +2661,13 @@ module.exports = {
             value = value[value.length - 1];
         }
         var settableValue = this.attr('value'); //initial value
-        var isChecked = (typeof settableValue !== 'undefined') ? (settableValue == value) : !!value; //eslint-disable-line eqeqeq
+        var isChecked = typeof settableValue !== 'undefined' ? settableValue == value : !!value; //eslint-disable-line eqeqeq
         this.prop('checked', isChecked);
     }
 };
 
-
 /***/ }),
-/* 29 */
+/* 30 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -2737,6 +2754,7 @@ module.exports = {
  */
 
 
+
 var config = __webpack_require__(1);
 
 module.exports = {
@@ -2756,7 +2774,7 @@ module.exports = {
         var templated;
         var valueToTemplate = $.extend({}, value);
         if (!$.isPlainObject(value)) {
-            var variableName = this.data('f-bind');//Hack because i don't have access to variable name here otherwise
+            var variableName = this.data('f-bind'); //Hack because i don't have access to variable name here otherwise
             valueToTemplate = { value: value };
             valueToTemplate[variableName] = value;
         } else {
@@ -2770,11 +2788,12 @@ module.exports = {
             var oldHTML = this.html();
             var cleanedHTML = oldHTML.replace(/&lt;/g, '<').replace(/&gt;/g, '>');
             templated = _.template(cleanedHTML)(valueToTemplate);
-            if (cleanedHTML === templated) { //templating did nothing
+            if (cleanedHTML === templated) {
+                //templating did nothing
                 if (_.isArray(value)) {
                     value = value[value.length - 1];
                 }
-                value = ($.isPlainObject(value)) ? JSON.stringify(value) : value + '';
+                value = $.isPlainObject(value) ? JSON.stringify(value) : value + '';
                 this.html(value);
             } else {
                 this.data(config.attrs.bindTemplate, cleanedHTML);
@@ -2784,9 +2803,8 @@ module.exports = {
     }
 };
 
-
 /***/ }),
-/* 30 */
+/* 31 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -2825,9 +2843,8 @@ module.exports = {
     }
 };
 
-
 /***/ }),
-/* 31 */
+/* 32 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -2872,6 +2889,7 @@ module.exports = {
  */
 
 
+
 var config = __webpack_require__(1);
 
 module.exports = {
@@ -2903,9 +2921,8 @@ module.exports = {
     }
 };
 
-
 /***/ }),
-/* 32 */
+/* 33 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -2947,9 +2964,8 @@ module.exports = {
     }
 };
 
-
 /***/ }),
-/* 33 */
+/* 34 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -2971,15 +2987,15 @@ module.exports = {
  */
 
 
-var config = __webpack_require__(1);
 
+var config = __webpack_require__(1);
 
 module.exports = {
 
     target: '*',
 
     test: function (attr, $node) {
-        return (attr.indexOf('on-') === 0);
+        return attr.indexOf('on-') === 0;
     },
 
     unbind: function (attr) {
@@ -2995,7 +3011,7 @@ module.exports = {
             listOfOperations = listOfOperations.map(function (value) {
                 var fnName = value.split('(')[0];
                 var params = value.substring(value.indexOf('(') + 1, value.indexOf(')'));
-                var args = ($.trim(params) !== '') ? params.split(',') : [];
+                var args = $.trim(params) !== '' ? params.split(',') : [];
 
                 return { name: fnName, params: args };
             });
@@ -3006,9 +3022,8 @@ module.exports = {
     }
 };
 
-
 /***/ }),
-/* 34 */
+/* 35 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -3133,6 +3148,7 @@ module.exports = {
  */
 
 
+
 var parseUtils = __webpack_require__(4);
 var config = __webpack_require__(1);
 
@@ -3172,7 +3188,7 @@ module.exports = {
     },
 
     handle: function (value, prop) {
-        value = ($.isPlainObject(value) ? value : [].concat(value));
+        value = $.isPlainObject(value) ? value : [].concat(value);
         var loopTemplate = this.data(config.attrs.foreachTemplate);
         if (!loopTemplate) {
             loopTemplate = this.html();
@@ -3184,10 +3200,9 @@ module.exports = {
         var defaultKey = $.isPlainObject(value) ? 'key' : 'index';
         var keyAttr = $me.data(config.attrs.keyAs) || defaultKey;
         var valueAttr = $me.data(config.attrs.valueAs) || 'value';
-        
+
         var keyRegex = new RegExp('\\b' + keyAttr + '\\b');
         var valueRegex = new RegExp('\\b' + valueAttr + '\\b');
-
 
         var closestKnownDataEl = this.closest('[data-current-index]');
         var knownData = {};
@@ -3195,7 +3210,8 @@ module.exports = {
             knownData = closestKnownDataEl.data('current-index');
         }
         var closestParentWithMissing = this.closest('[data-missing-references]');
-        if (closestParentWithMissing.length) { //(grand)parent already stubbed out missing references
+        if (closestParentWithMissing.length) {
+            //(grand)parent already stubbed out missing references
             var missing = closestParentWithMissing.data('missing-references');
             _.each(missing, function (replacement, template) {
                 if (keyRegex.test(template) || valueRegex.test(template)) {
@@ -3232,7 +3248,7 @@ module.exports = {
             var templateData = {};
             templateData[keyAttr] = datakey;
             templateData[valueAttr] = dataval;
-            
+
             $.extend(templateData, knownData);
 
             var nodes;
@@ -3241,7 +3257,8 @@ module.exports = {
                 var templatedLoop = templateFn(templateData);
                 isTemplated = templatedLoop !== cloop;
                 nodes = $(templatedLoop);
-            } catch (e) { //you don't have all the references you need;
+            } catch (e) {
+                //you don't have all the references you need;
                 nodes = $(cloop);
                 isTemplated = true;
                 $(nodes).attr('data-current-index', JSON.stringify(templateData));
@@ -3257,14 +3274,12 @@ module.exports = {
                 }
             });
             $me.append(nodes);
-            
         });
     }
 };
 
-
 /***/ }),
-/* 35 */
+/* 36 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -3305,9 +3320,8 @@ module.exports = {
     }
 };
 
-
 /***/ }),
-/* 36 */
+/* 37 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -3321,6 +3335,7 @@ module.exports = {
 
 
 // Attributes which are just parameters to others and can just be ignored
+
 module.exports = {
 
     target: '*',
@@ -3334,9 +3349,8 @@ module.exports = {
     }
 };
 
-
 /***/ }),
-/* 37 */
+/* 38 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -3372,14 +3386,13 @@ module.exports = {
         if (_.isArray(value)) {
             value = value[value.length - 1];
         }
-        var val = (this.attr('value')) ? (value == this.prop('value')) : !!value; //eslint-disable-line eqeqeq
+        var val = this.attr('value') ? value == this.prop('value') : !!value; //eslint-disable-line eqeqeq
         this.prop(prop, val);
     }
 };
 
-
 /***/ }),
-/* 38 */
+/* 39 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -3447,8 +3460,9 @@ module.exports = {
  */
 
 
+
 var parseUtils = __webpack_require__(4);
-var gutils = __webpack_require__(10);
+var gutils = __webpack_require__(9);
 var config = __webpack_require__(1).attrs;
 module.exports = {
 
@@ -3470,7 +3484,7 @@ module.exports = {
     },
 
     handle: function (value, prop) {
-        value = ($.isPlainObject(value) ? value : [].concat(value));
+        value = $.isPlainObject(value) ? value : [].concat(value);
         var loopTemplate = this.data(config.repeat.template);
         var id = this.data(config.repeat.templateId);
 
@@ -3492,7 +3506,7 @@ module.exports = {
             var templatedLoop = _.template(cloop)({ value: dataval, key: datakey, index: datakey });
             var isTemplated = templatedLoop !== cloop;
             var nodes = $(templatedLoop);
-            var hasData = (dataval !== null && dataval !== undefined);
+            var hasData = dataval !== null && dataval !== undefined;
 
             nodes.each(function (i, newNode) {
                 newNode = $(newNode).removeAttr('data-f-repeat');
@@ -3517,30 +3531,28 @@ module.exports = {
     }
 };
 
-
 /***/ }),
-/* 39 */
+/* 40 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
+
 
 var BaseView = __webpack_require__(7);
 
 module.exports = BaseView.extend({
 
-    propertyHandlers: [
-
-    ],
+    propertyHandlers: [],
 
     getUIValue: function () {
         var $el = this.$el;
         //TODO: file a issue for the vensim manager to convert trues to 1s and set this to true and false
 
-        var offVal = (typeof $el.data('f-off') !== 'undefined') ? $el.data('f-off') : 0;
+        var offVal = typeof $el.data('f-off') !== 'undefined' ? $el.data('f-off') : 0;
         //attr = initial value, prop = current value
-        var onVal = (typeof $el.attr('value') !== 'undefined') ? $el.prop('value') : 1;
+        var onVal = typeof $el.attr('value') !== 'undefined' ? $el.prop('value') : 1;
 
-        var val = ($el.is(':checked')) ? onVal : offVal;
+        var val = $el.is(':checked') ? onVal : offVal;
         return val;
     },
     initialize: function () {
@@ -3548,9 +3560,8 @@ module.exports = BaseView.extend({
     }
 }, { selector: ':checkbox,:radio' });
 
-
 /***/ }),
-/* 40 */
+/* 41 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -3608,20 +3619,15 @@ var nodeManager = {
 };
 
 //bootstraps
-var defaultHandlers = [
-    __webpack_require__(39),
-    __webpack_require__(7),
-    __webpack_require__(8)
-];
+var defaultHandlers = [__webpack_require__(40), __webpack_require__(7), __webpack_require__(8)];
 _.each(defaultHandlers.reverse(), function (handler) {
     nodeManager.register(handler.selector, handler);
 });
 
 module.exports = nodeManager;
 
-
 /***/ }),
-/* 41 */
+/* 42 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -3654,7 +3660,6 @@ module.exports = function (target, domManager) {
         });
     });
 
-
     var mutconfig = {
         attributes: true,
         attributeFilter: ['data-f-channel'],
@@ -3667,9 +3672,31 @@ module.exports = function (target, domManager) {
     // observer.disconnect();
 };
 
+/***/ }),
+/* 43 */
+/***/ (function(module, exports) {
+
+module.exports = function () {
+    function defineProperties(target, props) {
+        Object.keys(props).forEach(function (key) {
+            var descriptor = {};
+            descriptor.key = key;
+            descriptor.value = props[key];
+            descriptor.enumerable = false;
+            descriptor.writable = true;
+            descriptor.configurable = true;
+            Object.defineProperty(target, key, descriptor);
+        });
+    }
+    return function (Constructor, protoProps, staticProps) {
+        if (protoProps) defineProperties(Constructor.prototype, protoProps);
+        if (staticProps) defineProperties(Constructor, staticProps);
+        return Constructor;
+    };
+}();
 
 /***/ }),
-/* 42 */
+/* 44 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -3679,7 +3706,7 @@ module.exports = {
 
     match: function (matchExpr, matchValue, context) {
         if (_.isString(matchExpr)) {
-            return (matchExpr === '*' || (matchExpr.toLowerCase() === matchValue.toLowerCase()));
+            return matchExpr === '*' || matchExpr.toLowerCase() === matchValue.toLowerCase();
         } else if (_.isFunction(matchExpr)) {
             return matchExpr(matchValue, context);
         } else if (_.isRegExp(matchExpr)) {
@@ -3721,9 +3748,8 @@ module.exports = {
     }
 };
 
-
 /***/ }),
-/* 43 */
+/* 45 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -3794,10 +3820,10 @@ module.exports = {
 
 
 
-var domManager = __webpack_require__(12);
+var domManager = __webpack_require__(11);
 var BaseView = __webpack_require__(5);
 
-var ChannelManager = __webpack_require__(11);
+var ChannelManager = __webpack_require__(10);
 // var parseUtils = require('utils/parse-utils');
 
 var Flow = {
@@ -3813,9 +3839,9 @@ var Flow = {
                 //FIXME: Defaults can't be here..
                 defaults: {
                     run: {
-                        model: model,
+                        model: model
                     }
-                },
+                }
             },
             dom: {
                 root: 'body',
@@ -3845,8 +3871,8 @@ var Flow = {
         //     //TODO: Make a channel configuration factory which gets the initial info
         //     options.channel.options.runManager.defaults.initialOperation = listOfOperations;
         // }
-   
-        if (config && config.channel && (config.channel instanceof ChannelManager)) {
+
+        if (config && config.channel && config.channel instanceof ChannelManager) {
             this.channel = config.channel;
         } else {
             this.channel = new ChannelManager(options.channel);
@@ -3861,7 +3887,6 @@ Flow.ChannelManager = ChannelManager;
 //set by grunt
 if (true) Flow.version = "0.11.0"; //eslint-disable-line no-undef
 module.exports = Flow;
-
 
 /***/ })
 /******/ ]);

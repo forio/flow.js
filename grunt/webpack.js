@@ -17,6 +17,17 @@ module.exports = function (grunt) {
     var banner = grunt.file.read('banner.txt');
     banner = banner.replace('RELEASE_VERSION', version);
 
+    var babelloader = { 
+        test: /\.js$/, 
+        exclude: /node_modules\/(?!(autotrack|dom-utils))/,
+        loader: 'babel-loader',
+        options: {
+            plugins: [
+                'babel-plugin-transform-es2015-arrow-functions',
+                'babel-plugin-transform-es2015-template-literals'
+            ]
+        }
+    };
     grunt.config.set('webpack', {
         options: {
             plugins: [
@@ -24,6 +35,9 @@ module.exports = function (grunt) {
                     RELEASE_VERSION: JSON.stringify(version)
                 })
             ],
+            module: {
+                rules: [babelloader]
+            },
             resolve: {
                 modules: [__dirname + '/../src', 'node_modules']
             }
@@ -58,17 +72,9 @@ module.exports = function (grunt) {
             },
             module: {
                 rules: [
-                    { 
-                        test: /\.js$/, 
+                    Object.assign({}, babelloader, {
                         include: path.resolve('./tests'),
-                        loader: 'babel-loader',
-                        options: {
-                            plugins: [
-                                'babel-plugin-transform-es2015-arrow-functions',
-                                'babel-plugin-transform-es2015-template-literals'
-                            ]
-                        }
-                    },
+                    }),
                     { 
                         test: /\.js$/, 
                         exclude: [
@@ -101,6 +107,15 @@ module.exports = function (grunt) {
                 library: 'Flow',
                 libraryTarget: 'var'
             },
+            plugins: [
+                new webpack.DefinePlugin({
+                    RELEASE_VERSION: JSON.stringify(version)
+                }),
+                new webpack.BannerPlugin({
+                    banner: banner,
+                    entryOnly: true
+                }),
+            ],
             devtool: 'source-map',
         },
         min: {
