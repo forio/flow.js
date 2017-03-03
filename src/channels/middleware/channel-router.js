@@ -22,13 +22,22 @@ module.exports = function Router(handlers) {
                 }
             });
         },
-        unsubscribeHandler: function (remainingTopics) {
-            var grouped = channelUtils.groupByHandlers(remainingTopics, handlers);
+        unsubscribeHandler: function (recentlyUnsubscribedTopics, remainingTopics) {
+            handlers = handlers.map(function (h, index) {
+                h.unsubsKey = index;
+                return h;
+            });
 
-            grouped.forEach(function (handler) {
+            var unsubsGrouped = channelUtils.groupByHandlers(recentlyUnsubscribedTopics, handlers);
+            var remainingGrouped = channelUtils.groupByHandlers(remainingTopics, handlers);
+
+            unsubsGrouped.forEach(function (handler) {
                 if (handler && handler.unsubscribeHandler) {
-                    var unprefixed = unprefix(handler.data, handler.match);
-                    handler.unsubscribeHandler(unprefixed);
+                    var unprefixedUnsubs = unprefix(handler.data, handler.match);
+                    var matchingRemainingHandler = _.find(remainingGrouped, function (remainingHandler) {
+                        remainingHandler.unsubsKey = handler.unsubsKey;
+                    });
+                    handler.unsubscribeHandler(unprefixedUnsubs, matchingRemainingHandler.data || []);
                 }
             });
         },

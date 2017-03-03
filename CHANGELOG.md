@@ -12,14 +12,6 @@ channel({
             operations: { silent: false },
         }
     },
-    runid: {
-        run: {
-            account: ''
-        },
-        channelOptions: {
-
-        }
-    },
 
     runManager: {
         strategy: 'new-if-persisted',
@@ -34,43 +26,21 @@ channel({
             }
         },
         channelOptions: {
-            defaults: {
-                variables: { silent: ['price', 'sales'] },
-                operations: { silent: false },
-            },
-            current: {
-                variables: { silent: ['price', 'sales'] },
-                operations: { silent: false },
-            }
-        },
+            variables: { silent: ['price', 'sales'] },
+            operations: { silent: false },
+        }
     },
     scenarioManager: {
         run: {
             model: 'supply-chain-game.py',
             account: 'acme-simulations',
             project: 'supply-chain-game',
+        },
+        channelOptions: {
+            variables: { silent: ['price', 'sales'] },
+            operations: { silent: false },
         }
     },
-
-    options: {
-        scenarioManager: {
-            defaults: {
-                initialOperaton: '',
-            },
-            baseline: {
-
-            }
-        },
-        runManager: {
-            defaults: {
-                initialOperaton: '',
-            },
-            current: {
-                variables: { silent: ['price', 'sales'] },
-                operations: { silent: false },
-            }
-        }
-    }
 });
 
 <a name"0.11.0"></a>

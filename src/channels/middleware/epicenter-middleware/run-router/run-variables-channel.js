@@ -29,7 +29,7 @@ module.exports = function ($runServicePromise, notifier) {
             return fetchFn(runService)(knownTopics);
         },
 
-        unsubscribeHandler: function (remainingTopics) {
+        unsubscribeHandler: function (unsubscribedTopics, remainingTopics) {
             knownTopics = remainingTopics;
         },
         subscribeHandler: function (topics) {
