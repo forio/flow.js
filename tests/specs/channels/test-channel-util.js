@@ -54,6 +54,15 @@ describe('Channel Utils', ()=> {
             var best = findBestHandler('a', handlers);
             expect(best.matched).to.eql('foo');
         });
+        it('should return undefined if no matches found', ()=> {
+            var handlers = [
+                { match: (v)=> v.indexOf('a') === 0 ? 'foo' : false },
+                { match: (v)=> v.indexOf('b') === 0 ? 'bar' : false },
+            ];
+            
+            var best = findBestHandler('x', handlers);
+            expect(best).to.eql(undefined);
+        });
     });
     describe('#groupByHandlers', ()=> {
         var groupByHandlers = utils.groupByHandlers;
@@ -66,25 +75,28 @@ describe('Channel Utils', ()=> {
             var data = ['apple', 'apples', 'banana', 'amazon'];
             var op = groupByHandlers(data, handlers);
             expect(op.length).to.eql(2);
-            expect(op[0].name).to.eql(handlers[0].name);
             expect(op[0].data).to.eql(['apple', 'apples', 'amazon']);
-
-            expect(op[1].name).to.eql(handlers[1].name);
             expect(op[1].data).to.eql(['banana']);
         });
-        // it('should strip out prefixes', ()=> {
-        //     var handlers = [
-        //        { match: (v)=> v.indexOf('a') === 0 ? 'a' : false },
-        //        { match: (v)=> v.indexOf('b') === 0 ? 'b' : false },
-        //        { match: (v)=> v.indexOf('c') === 0 ? 'c' : false },
-        //     ];
-        //     var data = ['apple', 'apples', 'bar', 'amazon'];
-        //     var op = groupByHandlers(data, handlers);
-        //     expect(op[0].name).to.eql(handlers[0].name);
-        //     expect(op[0].topics).to.eql(['pple', 'pples', 'mazon']);
-        //     expect(op[1].topics).to.eql(['ar']);
-        // });
-
+        it('should skip handlers with no matches ', ()=> {
+            var handlers = [
+               { match: (v)=> v.indexOf('a') === 0 ? 'foo' : false },
+               { match: (v)=> v.indexOf('b') === 0 ? 'bar' : false },
+            ];
+            var data = ['cat', 'ball'];
+            var op = groupByHandlers(data, handlers);
+            expect(op.length).to.eql(1);
+            expect(op[0].data).to.eql(['ball']);
+        });
+        it.only('should return empty if not matches found', ()=> {
+            var handlers = [
+               { match: (v)=> v.indexOf('a') === 0 ? 'foo' : false },
+               { match: (v)=> v.indexOf('b') === 0 ? 'bar' : false },
+            ];
+            var data = ['cat', 'trex'];
+            var op = groupByHandlers(data, handlers);
+            expect(op).to.eql([]);
+        });
         it('should pass through additional handler props', ()=> {
             var handlers = [
                { foo: 'bar', match: (v)=> v.indexOf('a') === 0 ? 'foo' : false },

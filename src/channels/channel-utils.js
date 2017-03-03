@@ -6,6 +6,7 @@ export function findBestHandler(topic, handlers) {
             return $.extend(true, {}, thishandler, { matched: match });
         }
     }
+    return undefined;
 }
 export function extractOptions(options, key) {
     var opts = $.extend(true, { defaults: {} }, options);
@@ -41,11 +42,13 @@ export function groupByHandlers(topics, handlers) {
     });
     var topicMapping = ([].concat(topics)).reduce(function (accum, topic) {
         var bestHandler = findBestHandler(topic, handlers);
-        if (!accum[bestHandler.key]) {
-            bestHandler.data = [];
-            accum[bestHandler.key] = bestHandler;
+        if (bestHandler) {
+            if (!accum[bestHandler.key]) {
+                bestHandler.data = [];
+                accum[bestHandler.key] = bestHandler;
+            }
+            accum[bestHandler.key].data.push(topic);
         }
-        accum[bestHandler.key].data.push(topic);
         return accum;
     }, {});
     return _.values(topicMapping);
