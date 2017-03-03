@@ -60,4 +60,4 @@ export default function Router(handlers) {
     };
 
     return $.extend(this, publicAPI);
-}; 
+}
