@@ -24,6 +24,7 @@
 
 require('./specs/channels/test-channel-manager');
 require('./specs/channels/test-channel-util');
+require('./specs/channels/test-channel-router');
 
 // require('./specs/test-flow');
 

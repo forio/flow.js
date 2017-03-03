@@ -4,10 +4,9 @@ import { unprefix, mapWithPrefix } from 'channels/middleware/utils';
 /**
  * Handle subscriptions
  * @param  {Array} handlers Array of the form [{ match: function (){}, }]
- * @param  {[type]} topics   [description]
- * @return {[type]}          [description]
+ * @param  {Array} topics   Array of strings
  */
-export function subscribeHandler(handlers, topics) {
+export function notifySubscribeHandlers(handlers, topics) {
     var grouped = groupByHandlers(topics, handlers);
     grouped.forEach(function (handler) {
         if (handler.subscribeHandler) {
@@ -61,7 +60,7 @@ export function publishHandler(handlers, publishData) {
  */
 export default function Router(handlers) {
     return {
-        subscribeHandler: subscribeHandler.bind(handlers),
+        subscribeHandler: notifySubscribeHandlers.bind(handlers),
         unsubscribeHandler: unsubscribeHandler.bind(handlers),
         publishHandler: publishHandler.bind(handlers),
     };
