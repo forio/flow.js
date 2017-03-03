@@ -67,10 +67,10 @@ describe('Channel Utils', ()=> {
             var op = groupByHandlers(data, handlers);
             expect(op.length).to.eql(2);
             expect(op[0].name).to.eql(handlers[0].name);
-            expect(op[0].topics).to.eql(['apple', 'apples', 'amazon']);
+            expect(op[0].data).to.eql(['apple', 'apples', 'amazon']);
 
             expect(op[1].name).to.eql(handlers[1].name);
-            expect(op[1].topics).to.eql(['banana']);
+            expect(op[1].data).to.eql(['banana']);
         });
         // it('should strip out prefixes', ()=> {
         //     var handlers = [

@@ -2,13 +2,22 @@ var channelUtils = require('channels/channel-utils');
 var mapWithPrefix = require('channels/middleware/utils').mapWithPrefix;
 var unprefix = require('channels/middleware/utils').unprefix;
 
+/**
+ * Router
+ * @param  {Array} handlers Array of the form [{ subscribeHandler, unsubscribeHandler, publishHandler }]
+ * @return {Router}
+ */
 module.exports = function Router(handlers) {
     var publicAPI = {
+        /**
+         * [subscribeHandler description]
+         * @param  {Array} topics [<String>] of subscribed topics
+         */
         subscribeHandler: function (topics) {
             var grouped = channelUtils.groupByHandlers(topics, handlers);
             grouped.forEach(function (handler) {
                 if (handler.subscribeHandler) {
-                    var unprefixed = unprefix(handler.topics, handler.match);
+                    var unprefixed = unprefix(handler.data, handler.match);
                     handler.subscribeHandler(unprefixed, handler.match);
                 }
             });
@@ -18,7 +27,7 @@ module.exports = function Router(handlers) {
 
             grouped.forEach(function (handler) {
                 if (handler && handler.unsubscribeHandler) {
-                    var unprefixed = unprefix(handler.topics, handler.match);
+                    var unprefixed = unprefix(handler.data, handler.match);
                     handler.unsubscribeHandler(unprefixed);
                 }
             });

@@ -31,6 +31,12 @@ module.exports = {
 
     findBestHandler: findBestHandler,
 
+    /**
+     * [groupByHandlers description]
+     * @param  {Array} topics   List of topics to match. Format can be anything your handler.match function handles
+     * @param  {Array} handlers Handlers of type [{ match: func }]
+     * @return {Array} The handler array with each item now having an additional 'data' attr added to it
+     */
     groupByHandlers: function (topics, handlers) {
         handlers = handlers.map(function (h, index) {
             h.key = index;
@@ -39,10 +45,10 @@ module.exports = {
         var topicMapping = ([].concat(topics)).reduce(function (accum, topic) {
             var bestHandler = findBestHandler(topic, handlers);
             if (!accum[bestHandler.key]) {
-                bestHandler.topics = [];
+                bestHandler.data = [];
                 accum[bestHandler.key] = bestHandler;
             }
-            accum[bestHandler.key].topics.push(topic);
+            accum[bestHandler.key].data.push(topic);
             return accum;
         }, {});
         return _.values(topicMapping);
