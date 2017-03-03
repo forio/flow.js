@@ -52,7 +52,7 @@ describe('Channel Utils', ()=> {
             ];
             
             var best = findBestHandler('a', handlers);
-            expect(best.match).to.eql('foo');
+            expect(best.matched).to.eql('foo');
         });
     });
     describe('#groupByHandlers', ()=> {

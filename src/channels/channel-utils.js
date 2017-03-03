@@ -3,7 +3,7 @@ export function findBestHandler(topic, handlers) {
         var thishandler = handlers[i];
         var match = thishandler.match(topic);
         if (match !== false) {
-            return $.extend(true, {}, thishandler, { match: match });
+            return $.extend(true, {}, thishandler, { matched: match });
         }
     }
 }
