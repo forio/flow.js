@@ -276,7 +276,42 @@ describe('Subscription Manager', ()=> {
         });
     });
 
-
+    describe('#getSubscribedTopics', ()=> {
+        afterEach(function () {
+            channel.unsubscribeAll();
+        });
+        it('shoud update list on subscribe', ()=> {
+            var dummyObject = { a: 1 };
+            channel.subscribe(['apples', 'sales'], dummyObject);
+            expect(channel.getSubscribedTopics()).to.eql(['apples', 'sales']);
+        });
+        it('shoud update list across multiple subscribes', ()=> {
+            var dummyObject = { a: 1 };
+            channel.subscribe(['apples', 'sales'], dummyObject);
+            channel.subscribe(['bat', 'man'], ()=>{ });
+            expect(channel.getSubscribedTopics()).to.eql(['apples', 'sales', 'bat', 'man']);
+        });
+        it('shoud dedupe', ()=> {
+            var dummyObject = { a: 1 };
+            channel.subscribe(['apples', 'sales'], dummyObject);
+            channel.subscribe(['apples', 'bat', 'man'], ()=>{ });
+            expect(channel.getSubscribedTopics()).to.eql(['apples', 'sales', 'bat', 'man']);
+        });
+        it('shoud remove on subscribed', ()=> {
+            var dummyObject = { a: 1 };
+            channel.subscribe(['apples', 'sales'], dummyObject);
+            var token = channel.subscribe(['bat', 'man'], ()=>{ });
+            channel.unsubscribe(token);
+            expect(channel.getSubscribedTopics()).to.eql(['apples', 'sales']);
+        });
+        it('shoud only remove deduped subscriptions', ()=> {
+            var dummyObject = { a: 1 };
+            channel.subscribe(['apples', 'sales'], dummyObject);
+            var token = channel.subscribe(['apples', 'bat', 'man'], ()=>{ });
+            channel.unsubscribe(token);
+            expect(channel.getSubscribedTopics()).to.eql(['apples', 'sales']);
+        });
+    });
     describe('#unsubscribe', function () {
         afterEach(function () {
             channel.unsubscribeAll();
