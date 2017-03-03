@@ -148,17 +148,18 @@ describe('Channel Utils', ()=> {
             ];
             var data = [{ name: 'cat' }, { name: 'ball' }];
             var op = groupSequentiallyByHandlers(data, handlers);
-            expect(op.length).to.eql(1);
-            expect(op[0].data).to.eql([{ name: 'ball' }]);
+            expect(op.length).to.eql(2);
+            expect(op[0].data).to.eql([{ name: 'cat' }]);
+            expect(op[1].data).to.eql([{ name: 'ball' }]);
         });
-        it('should return empty if not matches found', ()=> {
+        it('should echo back if no matches found', ()=> {
             var handlers = [
                { match: (v)=> v.indexOf('a') === 0 ? 'foo' : false },
                { match: (v)=> v.indexOf('b') === 0 ? 'bar' : false },
             ];
             var data = [{ name: 'cat' }, { name: 'trex' }];
             var op = groupSequentiallyByHandlers(data, handlers);
-            expect(op).to.eql([]);
+            expect(op).to.eql([{ data: [{ name: 'cat' }], matched: false }, { data: [{ name: 'trex' }], matched: false }]);
         });
     });
 });

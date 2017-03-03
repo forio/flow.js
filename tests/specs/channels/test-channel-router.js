@@ -59,7 +59,7 @@ describe('Channel Router', ()=> {
         });
     });
 
-    describe.only('passthroughPublishInterceptors', ()=> {
+    describe('passthroughPublishInterceptors', ()=> {
         var ohyeahMiddleware, echoMiddleware, handlers, rejecterMiddleware, emptyMiddleware, channel;
         beforeEach(()=> {
             ohyeahMiddleware = sinon.spy(function (params) {
@@ -76,6 +76,7 @@ describe('Channel Router', ()=> {
             handlers = [
                 { match: (v)=> v.indexOf('a') === 0 ? 'a' : false, publishHandler: echoMiddleware },
                 { match: (v)=> v.indexOf('b') === 0 ? 'b' : false, publishHandler: ohyeahMiddleware },
+                { match: (v)=> v.indexOf('x') === 0 ? 'x' : false, publishHandler: emptyMiddleware },
             ]; 
         });
 
@@ -92,6 +93,7 @@ describe('Channel Router', ()=> {
                 return passthroughPublishInterceptors(handlers, toPublish).then((data)=> {
                     expect(echoMiddleware).to.have.been.calledOnce;
                     expect(ohyeahMiddleware).to.not.have.been.called;
+                    expect(emptyMiddleware).to.not.have.been.called;
                 });
             });
             it('should return the return from middleware', ()=> {
@@ -107,6 +109,7 @@ describe('Channel Router', ()=> {
                 return passthroughPublishInterceptors(handlers, toPublish).then((data)=> {
                     expect(echoMiddleware).to.have.been.calledOnce;
                     expect(ohyeahMiddleware).to.have.been.calledOnce;
+                    expect(emptyMiddleware).to.not.have.been.called;
                     expect(ohyeahMiddleware).to.have.been.calledAfter(echoMiddleware);
                 });
             });
@@ -146,6 +149,39 @@ describe('Channel Router', ()=> {
                 });
             });
         });
+        describe('grouping inputs', ()=> {
+            var toPublish = [
+                { name: 'ball', value: 1 }, 
+                { name: 'boop', value: 2 }, 
+                { name: 'foo', value: 2 },
+                { name: 'apple', value: 3 }, 
+                { name: 'amazon', value: 4 }, 
+            ];
+            it('should not duplicate interceptor calls', ()=> {
+                return passthroughPublishInterceptors(handlers, toPublish).then((data)=> {
+                    expect(ohyeahMiddleware).to.have.been.calledOnce;
+                    expect(echoMiddleware).to.have.been.calledOnce;
+                    expect(emptyMiddleware).to.not.have.been.called;
+                });
 
+            });
+            it('should call interceptors with grouped inputs', ()=> {
+                return passthroughPublishInterceptors(handlers, toPublish).then((data)=> {
+                    expect(ohyeahMiddleware).to.have.been.calledWith([{ name: 'all', value: 1 }, { name: 'oop', value: 2 }]);
+                    expect(echoMiddleware).to.have.been.calledWith([{ name: 'pple', value: 3 }, { name: 'mazon', value: 4 }]);
+                });
+            });
+            it('should have outputs in the right order', ()=> {
+                return passthroughPublishInterceptors(handlers, toPublish).then((data)=> {
+                    expect(data).to.eql([
+                        { name: 'ball-oh', value: '1-yeah' }, 
+                        { name: 'boop-oh', value: '2-yeah' }, 
+                        { name: 'foo', value: 2 },
+                        { name: 'apple', value: 3 }, 
+                        { name: 'amazon', value: 4 }, 
+                    ]);
+                });
+            });
+        });
     });
 });
