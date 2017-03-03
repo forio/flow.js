@@ -88,7 +88,7 @@ describe('Channel Utils', ()=> {
             expect(op.length).to.eql(1);
             expect(op[0].data).to.eql(['ball']);
         });
-        it.only('should return empty if not matches found', ()=> {
+        it('should return empty if not matches found', ()=> {
             var handlers = [
                { match: (v)=> v.indexOf('a') === 0 ? 'foo' : false },
                { match: (v)=> v.indexOf('b') === 0 ? 'bar' : false },
@@ -140,27 +140,25 @@ describe('Channel Utils', ()=> {
             expect(op[0].clark).to.eql(handlers[1].clark);
             expect(op[1].tony).to.eql(handlers[0].tony);
         });
-        // it('should strip prefixes', ()=> {
-        //     var data = [
-        //        { name: 'apple' },
-        //        { name: 'apples' },
-        //        { name: 'bar' },
-        //        { name: 'amazon' },
-        //     ];
-        //     var handlers = [
-        //        { match: (v)=> v.indexOf('a') === 0 ? 'a' : false },
-        //        { match: (v)=> v.indexOf('b') === 0 ? 'b' : false },
-        //     ];
-        //     var op = groupSequentiallyByHandlers(data, handlers);
-        //     expect(op.length).to.eql(3);
-        //     expect(op[0].data).to.eql([{ name: 'pple' }, { name: 'pples' }]);
 
-        //     expect(op[1].name).to.eql(handlers[1].name);
-        //     expect(op[1].data).to.eql([{ name: 'ar' }]);
-
-        //     expect(op[2].name).to.eql(handlers[0].name);
-        //     expect(op[2].data).to.eql([{ name: 'mazon' }]);
-
-        // });
+        it('should skip handlers with no matches ', ()=> {
+            var handlers = [
+               { match: (v)=> v.indexOf('a') === 0 ? 'foo' : false },
+               { match: (v)=> v.indexOf('b') === 0 ? 'bar' : false },
+            ];
+            var data = [{ name: 'cat' }, { name: 'ball' }];
+            var op = groupSequentiallyByHandlers(data, handlers);
+            expect(op.length).to.eql(1);
+            expect(op[0].data).to.eql([{ name: 'ball' }]);
+        });
+        it('should return empty if not matches found', ()=> {
+            var handlers = [
+               { match: (v)=> v.indexOf('a') === 0 ? 'foo' : false },
+               { match: (v)=> v.indexOf('b') === 0 ? 'bar' : false },
+            ];
+            var data = [{ name: 'cat' }, { name: 'trex' }];
+            var op = groupSequentiallyByHandlers(data, handlers);
+            expect(op).to.eql([]);
+        });
     });
 });

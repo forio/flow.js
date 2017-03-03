@@ -68,10 +68,12 @@ export function groupSequentiallyByHandlers(data, handlers) {
     var grouped = data.reduce(function (accum, dataPt) {
         var lastHandler = accum[accum.length - 1];
         var bestHandler = findBestHandler(dataPt.name, handlers);
-        if (lastHandler && bestHandler.key === lastHandler.key) {
-            lastHandler.data.push(dataPt);
-        } else {
-            accum.push($.extend({}, bestHandler, { data: [dataPt] }));
+        if (bestHandler) {
+            if (lastHandler && bestHandler.key === lastHandler.key) {
+                lastHandler.data.push(dataPt);
+            } else {
+                accum.push($.extend({}, bestHandler, { data: [dataPt] }));
+            }
         }
         return accum;
     }, []);
