@@ -78,6 +78,12 @@ function checkAndNotify(topics, subscription) {
     });
 }
 
+function getTopicsFromSubsList(subcriptionList) {
+    return subcriptionList.reduce(function (accum, subs) {
+        accum = accum.concat(subs.topics);
+        return accum;
+    }, []);
+}
 var ChannelManager = (function () {
     function ChannelManager(options) {
         var defaults = {
@@ -126,35 +132,43 @@ var ChannelManager = (function () {
             return subs.id;
         },
         unsubscribe: function (token) {
-            var oldLength = this.subscriptions.length;
-            this.subscriptions = _.reject(this.subscriptions, function (subs) {
-                return subs.id === token;
-            });
+            var data = this.subscriptions.reduce(function (accum, subs) {
+                if (subs.id === token) {
+                    accum.unsubscribed.push(subs);
+                } else {
+                    accum.remaining.push(subs);
+                }
+                return accum;
+            }, { remaining: [], unsubscribed: [] });
 
-            if (oldLength === this.subscriptions.length) {
+            if (!data.unsubscribed.length) {
                 throw new Error('No subscription found for token ' + token);
             }
+            this.subscriptions = data.remaining;
 
-            var remainingTopics = this.getSubscribedTopics();
+            var remainingTopics = getTopicsFromSubsList(data.remaining);
+            var unsubscribedTopics = getTopicsFromSubsList(data.unsubscribed);
+
             var middlewares = this.middlewares.filter('unsubscribe');
             middlewares.forEach(function (middleware) {
-                return middleware(remainingTopics);
+                return middleware(unsubscribedTopics, remainingTopics);
             });
         },
         unsubscribeAll: function () {
+            var currentlySubscribed = this.getSubscribedTopics();
             this.subscriptions = [];
             var middlewares = this.middlewares.filter('unsubscribe');
             middlewares.forEach(function (middleware) {
-                return middleware([]);
+                return middleware(currentlySubscribed, []);
             });
         },
         getSubscribedTopics: function () {
-            var list = _.uniq(_.flatten(_.map(this.subscriptions, 'topics')));
+            var list = _.uniq(getTopicsFromSubsList(this.subscriptions));
             return list;
         },
         getSubscribers: function (topic) {
             if (topic) {
-                return _.filter(this.subscriptions, function (subs) {
+                return this.subscriptions.filter(function (subs) {
                     return _.includes(subs.topics, topic);
                 });
             }
