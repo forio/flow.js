@@ -4,7 +4,7 @@ import { regex, withPrefix, stripSuffixDelimiter } from 'channels/middleware/uti
 var sampleRunidLength = '000001593dd81950d4ee4f3df14841769a0b'.length;
 var runidRegex = '(?:.{' + sampleRunidLength + '})';
 
-module.exports = function (options, notifier) {
+export default function (options, notifier) {
     if (!options) options = {};
 
     var opts = {};
@@ -24,4 +24,4 @@ module.exports = function (options, notifier) {
             return channel.publishHandler(topics);
         }
     };
-};
+}

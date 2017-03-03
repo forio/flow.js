@@ -16,7 +16,7 @@ export function notifySubscribeHandlers(handlers, topics) {
     });
 }
 
-export function unsubscribeHandler(handlers, recentlyUnsubscribedTopics, remainingTopics) {
+export function notifyUnsubscribeHandlers(handlers, recentlyUnsubscribedTopics, remainingTopics) {
     handlers = handlers.map(function (h, index) {
         h.unsubsKey = index;
         return h;
@@ -26,12 +26,14 @@ export function unsubscribeHandler(handlers, recentlyUnsubscribedTopics, remaini
     var remainingGrouped = groupByHandlers(remainingTopics, handlers);
 
     unsubsGrouped.forEach(function (handler) {
-        if (handler && handler.unsubscribeHandler) {
+        if (handler.unsubscribeHandler) {
             var unprefixedUnsubs = unprefix(handler.data, handler.matched);
             var matchingRemainingHandler = _.find(remainingGrouped, function (remainingHandler) {
-                remainingHandler.unsubsKey = handler.unsubsKey;
+                return remainingHandler.unsubsKey === handler.unsubsKey;
             });
-            handler.unsubscribeHandler(unprefixedUnsubs, matchingRemainingHandler.data || []);
+            var matchingTopicsRemaining = matchingRemainingHandler ? matchingRemainingHandler.data : [];
+            var unprefixedRemaining = unprefix(matchingTopicsRemaining || [], handler.matched);
+            handler.unsubscribeHandler(unprefixedUnsubs, unprefixedRemaining);
         }
     });
 }
@@ -61,7 +63,7 @@ export function publishHandler(handlers, publishData) {
 export default function Router(handlers) {
     return {
         subscribeHandler: notifySubscribeHandlers.bind(handlers),
-        unsubscribeHandler: unsubscribeHandler.bind(handlers),
+        unsubscribeHandler: notifyUnsubscribeHandlers.bind(handlers),
         publishHandler: publishHandler.bind(handlers),
     };
 }
