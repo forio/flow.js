@@ -1,4 +1,4 @@
-var Router = require('src/middleware/channel-router');
+import Router from 'src/middleware/channel-router';
 
 describe('Channel Router', ()=> {
     describe('', ()=> {

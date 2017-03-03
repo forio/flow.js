@@ -1,7 +1,5 @@
-var runChannelFactory = require('./run-router-factory');
-var regexpMatch = require('channels/middleware/utils').regex;
-var withPrefix = require('channels/middleware/utils').withPrefix;
-var stripSuffixDelimiter = require('channels/middleware/utils').stripSuffixDelimiter;
+import runChannelFactory from './run-router-factory';
+import { regex, withPrefix, stripSuffixDelimiter } from 'channels/middleware/utils';
 
 var sampleRunidLength = '000001593dd81950d4ee4f3df14841769a0b'.length;
 var runidRegex = '(?:.{' + sampleRunidLength + '})';
@@ -14,7 +12,7 @@ module.exports = function (options, notifier) {
     opts.channelOptions = options.channelOptions;
 
     return {
-        match: regexpMatch(runidRegex),
+        match: regex(runidRegex),
         subscribeHandler: function (topics, prefix) {
             var runid = stripSuffixDelimiter(prefix);
             var channel = runChannelFactory(runid, opts, withPrefix(notifier, prefix));

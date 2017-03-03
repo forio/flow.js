@@ -1,11 +1,11 @@
 var CHANNEL_DELIMITER = ':';
 
-exports.stripSuffixDelimiter = function stripSuffixDelimiter(text) {
+export function stripSuffixDelimiter(text) {
     if (text && text.indexOf(CHANNEL_DELIMITER) === (text.length - 1)) {
         text = text.replace(CHANNEL_DELIMITER, '');
     }
     return text;
-};
+}
 
 function addSuffixDelimiter(text) {
     if (text && text.indexOf(CHANNEL_DELIMITER) !== (text.length - 1)) {
@@ -14,13 +14,13 @@ function addSuffixDelimiter(text) {
     return text || '';
 }
 
-exports.prefix = function prefix(prefix) {
+export function prefix(prefix) {
     prefix = addSuffixDelimiter(prefix);
     return function matchPrefix(topic) {
         return (topic.indexOf(prefix) === 0) ? prefix : false;
     };
-};
-exports.regex = function regex(regex) {
+}
+export function regex(regex) {
     var toMatch = new RegExp('^' + regex + CHANNEL_DELIMITER);
     return function matchRegex(topic) {
         var match = topic.match(toMatch);
@@ -29,10 +29,10 @@ exports.regex = function regex(regex) {
         }
         return false;
     };
-};
+}
 
 
-function mapWithPrefix(obj, prefix) {
+export function mapWithPrefix(obj, prefix) {
     if (!obj) {
         return {};
     }
@@ -43,14 +43,14 @@ function mapWithPrefix(obj, prefix) {
     }, {});
 }
 
-exports.withPrefix = function withPrefix(callback, prefix) {
+export function withPrefix(callback, prefix) {
     return function (data) {
         var mapped = mapWithPrefix(data, prefix);
         return callback(mapped);
     };
-};
+}
 
-exports.unprefix = function (list, prefix) {
+export function unprefix(list, prefix) {
     return list.map(function (item) {
         if (item.name) {
             item.name = item.name.replace(prefix, '');
@@ -59,7 +59,4 @@ exports.unprefix = function (list, prefix) {
         }
         return item;
     });
-};
-
-exports.mapWithPrefix = mapWithPrefix;
-
+}

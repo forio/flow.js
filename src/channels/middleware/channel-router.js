@@ -1,13 +1,12 @@
-var channelUtils = require('channels/channel-utils');
-var mapWithPrefix = require('channels/middleware/utils').mapWithPrefix;
-var unprefix = require('channels/middleware/utils').unprefix;
+import channelUtils from 'channels/channel-utils';
+import { unprefix, mapWithPrefix } from 'channels/middleware/utils';
 
 /**
  * Router
  * @param  {Array} handlers Array of the form [{ subscribeHandler, unsubscribeHandler, publishHandler }]
  * @return {Router}
  */
-module.exports = function Router(handlers) {
+export default function Router(handlers) {
     var publicAPI = {
         /**
          * [subscribeHandler description]

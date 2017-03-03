@@ -1,6 +1,6 @@
-var debounceAndMerge = require('utils/general').debounceAndMerge;
+import { debounceAndMerge } from 'utils/general';
 
-module.exports = function ($runServicePromise, notifier) {
+export default function RunVariablesChannel($runServicePromise, notifier) {
 
     var id = _.uniqueId('variable-channel');
 

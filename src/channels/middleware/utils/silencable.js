@@ -1,4 +1,4 @@
-module.exports = function (published, options) {
+export default function silencable(published, options) {
     var silent = options.silent;
     if (silent === true || !published) {
         return {};
@@ -17,4 +17,4 @@ module.exports = function (published, options) {
         }, {});
     }
     return published;
-};
+}

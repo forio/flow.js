@@ -1,13 +1,11 @@
-var MetaChannel = require('./run-meta-channel');
-var VariablesChannel = require('./run-variables-channel');
-var OperationsChannel = require('./run-operations-channel');
+import MetaChannel from './run-meta-channel';
+import VariablesChannel from './run-variables-channel';
+import OperationsChannel from './run-operations-channel';
 
-var Middleware = require('channels/middleware/channel-router');
-var withPrefix = require('channels/middleware/utils').withPrefix;
+import Middleware from 'channels/middleware/channel-router';
+import { withPrefix, prefix } from 'channels/middleware/utils';
 
-var prefix = require('channels/middleware/utils').prefix;
-
-module.exports = function (config, notifier) {
+export default function RunRouter(config, notifier) {
     var defaults = {
         serviceOptions: {},
         channelOptions: {
@@ -72,4 +70,4 @@ module.exports = function (config, notifier) {
 
     var middleware = new Middleware(handlers, notifier);
     return middleware;
-};
+}

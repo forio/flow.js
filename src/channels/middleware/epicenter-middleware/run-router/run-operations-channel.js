@@ -1,4 +1,4 @@
-module.exports = function ($runServicePromise) {
+export default function RunOperationsChannel($runServicePromise) {
     return {
         publishHandler: function (topics, options) {
             $runServicePromise.then(function (runService) {

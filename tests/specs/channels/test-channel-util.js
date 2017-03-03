@@ -1,4 +1,4 @@
-var utils = require('src/channels/channel-utils');
+import * as utils from 'src/channels/channel-utils';
 
 describe('Channel Utils', ()=> {
     describe('#normalizeParamOptions', ()=> {
