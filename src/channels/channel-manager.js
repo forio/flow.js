@@ -89,10 +89,6 @@ var ChannelManager = (function () {
             middlewares: []
         };
         var opts = $.extend(true, {}, defaults, options);
-
-        var { a, b, c } = { a: 1, b: 2, c: 3 };
-        console.log(a, b, c);
-
         this.middlewares = new MiddlewareManager(opts, this.notify.bind(this));
     }
 
