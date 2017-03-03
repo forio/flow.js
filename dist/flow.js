@@ -1199,6 +1199,14 @@ var ChannelManager = function () {
             middlewares: []
         };
         var opts = $.extend(true, {}, defaults, options);
+
+        var _a$b$c = { a: 1, b: 2, c: 3 },
+            a = _a$b$c.a,
+            b = _a$b$c.b,
+            c = _a$b$c.c;
+
+        console.log(a, b, c);
+
         this.middlewares = new MiddlewareManager(opts, this.notify.bind(this));
     }
 

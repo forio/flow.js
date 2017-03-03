@@ -1,9 +1,8 @@
 'use strict';
 
-var createClass = require('utils/create-class');
-
-var normalizeParamOptions = require('./channel-utils').normalizeParamOptions;
-var MiddlewareManager = require('./middleware/middleware-manager');
+import createClass from 'utils/create-class';
+import { normalizeParamOptions } from './channel-utils';
+import MiddlewareManager from './middleware/middleware-manager';
 
 function makeSubs(topics, callback, options) {
     var id = _.uniqueId('subs-');
@@ -90,6 +89,10 @@ var ChannelManager = (function () {
             middlewares: []
         };
         var opts = $.extend(true, {}, defaults, options);
+
+        var { a, b, c } = { a: 1, b: 2, c: 3 };
+        console.log(a, b, c);
+
         this.middlewares = new MiddlewareManager(opts, this.notify.bind(this));
     }
 
@@ -177,4 +180,4 @@ var ChannelManager = (function () {
     return ChannelManager;
 }());
 
-module.exports = ChannelManager;
+export default ChannelManager;
