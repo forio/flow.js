@@ -74,6 +74,8 @@ export function groupSequentiallyByHandlers(data, handlers) {
             } else {
                 accum.push($.extend({}, bestHandler, { data: [dataPt] }));
             }
+        } else {
+            accum.push({ data: [dataPt], matched: false });
         }
         return accum;
     }, []);

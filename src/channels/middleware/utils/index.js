@@ -33,6 +33,7 @@ export function regex(regex) {
 
 
 export function mapWithPrefix(dataArray, prefix) {
+    if (!prefix) return dataArray;
     return (dataArray || []).map(function (datapt) {
         return $.extend(true, {}, datapt, { name: prefix + datapt.name });
     });
@@ -46,6 +47,7 @@ export function withPrefix(callback, prefix) {
 }
 
 export function unprefix(list, prefix) {
+    if (!prefix) return list;
     var unprefixed = list.map(function (item) {
         if (item.name) {
             return $.extend(true, {}, item, { name: item.name.replace(prefix, '') });

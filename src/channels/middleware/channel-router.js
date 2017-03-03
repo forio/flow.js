@@ -38,17 +38,19 @@ export function notifyUnsubscribeHandlers(handlers, recentlyUnsubscribedTopics, 
     });
 }
 
-export function publishHandler(handlers, publishData) {
+export function passthroughPublishInterceptors(handlers, publishData) {
     var grouped = groupSequentiallyByHandlers(publishData, handlers);
-    var $initialProm = $.Deferred().resolve({}).promise();
+    var $initialProm = $.Deferred().resolve([]).promise();
     grouped.forEach(function (handler) {
         $initialProm = $initialProm.then(function (dataSoFar) {
             var unprefixed = unprefix(handler.data, handler.matched);
-            return handler.publishHandler(unprefixed, handler.matched).then(function (published) {
+            var result = handler.publishHandler ? handler.publishHandler(unprefixed, handler.matched) : unprefixed;
+            var publishProm = $.Deferred().resolve(result).promise();
+            return publishProm.then(function (published) {
                 var mapped = mapWithPrefix(published, handler.matched);
                 return mapped;
             }).then(function (mapped) {
-                return $.extend(dataSoFar, mapped);
+                return [].concat(dataSoFar, mapped);
             });
         });
     });
@@ -64,6 +66,6 @@ export default function Router(handlers) {
     return {
         subscribeHandler: notifySubscribeHandlers.bind(handlers),
         unsubscribeHandler: notifyUnsubscribeHandlers.bind(handlers),
-        publishHandler: publishHandler.bind(handlers),
+        publishHandler: passthroughPublishInterceptors.bind(handlers),
     };
 }
