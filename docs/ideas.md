@@ -1,8 +1,9 @@
 Test: 
-readonly mode - @done
 batch subscriptions - @done
-prefetch variables - @done
-silent - @done
+prefetch variables
+
+readonly mode
+silent
 interpolation
 
 - Run channel with init operation @done
