@@ -197,11 +197,29 @@ describe('Channel Router', ()=> {
                         { name: 'amazon', value: 4 }, 
                     ];
                 }); 
-                it('should not publish readonly channels', ()=> {
+                it('should not publish if called with readonly', ()=> {
                     return passthroughPublishInterceptors(handlers, toPublish, { readOnly: true }).then((data)=> {
                         expect(data).to.eql([]);
                         expect(ohyeahMiddleware).to.not.have.been.called;
                         expect(echoMiddleware).to.not.have.been.called;
+                    });
+                });
+                it('should not publish if readonly is specified in handler options', ()=> {
+                    var handlers = [
+                        { 
+                            match: (v)=> v.indexOf('a') === 0 ? 'a' : false, 
+                            publishHandler: ohyeahMiddleware,
+                            options: { readOnly: true },
+                        },
+                        { match: (v)=> v.indexOf('b') === 0 ? 'b' : false, publishHandler: echoMiddleware },
+                    ]; 
+                    return passthroughPublishInterceptors(handlers, toPublish).then((data)=> {
+                        expect(data).to.eql([
+                            { name: 'ball', value: 1 }, 
+                            { name: 'foo', value: 2 },
+                        ]);
+                        expect(ohyeahMiddleware).to.not.have.been.called;
+                        expect(echoMiddleware).to.have.been.calledOnce;
                     });
                 });
             });

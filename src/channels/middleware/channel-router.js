@@ -43,7 +43,7 @@ export function passthroughPublishInterceptors(handlers, publishData, options) {
     var $initialProm = $.Deferred().resolve([]).promise();
     grouped.forEach(function (handler) {
         $initialProm = $initialProm.then(function (dataSoFar) {
-            var mergedOptions = $.extend(true, {}, handler.data, options);
+            var mergedOptions = $.extend(true, {}, handler.options, options);
             if (mergedOptions.readOnly) {
                 console.warn('Tried to publish to a readonly channel', handler);
                 return dataSoFar;
