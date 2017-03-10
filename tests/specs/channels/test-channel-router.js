@@ -188,15 +188,15 @@ describe('Channel Router', ()=> {
         });
 
         describe('Options', ()=> {
+            var toPublish;
+            beforeEach(()=> {
+                toPublish = [
+                    { name: 'ball', value: 1 }, 
+                    { name: 'foo', value: 2 },
+                    { name: 'amazon', value: 4 }, 
+                ];
+            }); 
             describe('Readonly', ()=> {
-                var toPublish;
-                beforeEach(()=> {
-                    toPublish = [
-                        { name: 'ball', value: 1 }, 
-                        { name: 'foo', value: 2 },
-                        { name: 'amazon', value: 4 }, 
-                    ];
-                }); 
                 it('should not publish if called with readonly', ()=> {
                     return passthroughPublishInterceptors(handlers, toPublish, { readOnly: true }).then((data)=> {
                         expect(data).to.eql([]);
@@ -220,6 +220,31 @@ describe('Channel Router', ()=> {
                         ]);
                         expect(ohyeahMiddleware).to.not.have.been.called;
                         expect(echoMiddleware).to.have.been.calledOnce;
+                    });
+                });
+            });
+            describe('Silent', ()=> {
+                it('should not return response if called with silent', ()=> {
+                    return passthroughPublishInterceptors(handlers, toPublish, { silent: true }).then((data)=> {
+                        expect(data).to.eql([]);
+                        expect(ohyeahMiddleware).to.have.been.calledOnce;
+                        expect(echoMiddleware).to.have.been.calledOnce;
+                    });
+                });
+                it('should not return silenced data if called with silent array', ()=> {
+                    return passthroughPublishInterceptors(handlers, toPublish, { silent: ['foo'] }).then((data)=> {
+                        expect(data).to.eql([
+                            { name: 'ball-oh', value: '1-yeah' }, 
+                            { name: 'amazon', value: 4 }, 
+                        ]);
+                    });
+                });
+                it('should not return silenced data if called with silent object', ()=> {
+                    //technically the inputs to this should be 'all' instead of 'all-oh', but changing the name is an edge-case i'm choosing to ignore
+                    return passthroughPublishInterceptors(handlers, toPublish, { silent: { except: ['all-oh'] } }).then((data)=> {
+                        expect(data).to.eql([
+                            { name: 'ball-oh', value: '1-yeah' }, 
+                        ]);
                     });
                 });
             });

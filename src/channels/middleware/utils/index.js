@@ -1,5 +1,7 @@
 var CHANNEL_DELIMITER = ':';
 
+export { default as silencable } from './silencable';
+
 export function stripSuffixDelimiter(text) {
     if (text && text.indexOf(CHANNEL_DELIMITER) === (text.length - 1)) {
         text = text.replace(CHANNEL_DELIMITER, '');

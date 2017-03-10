@@ -1,5 +1,5 @@
 import { groupByHandlers, groupSequentiallyByHandlers } from 'channels/channel-utils';
-import { unprefix, mapWithPrefix } from 'channels/middleware/utils';
+import { unprefix, mapWithPrefix, silencable } from 'channels/middleware/utils';
 
 /**
  * Handle subscriptions
@@ -52,6 +52,8 @@ export function passthroughPublishInterceptors(handlers, publishData, options) {
             var result = handler.publishHandler ? handler.publishHandler(unprefixed, handler.matched) : unprefixed;
             var publishProm = $.Deferred().resolve(result).promise();
             return publishProm.then(function (published) {
+                return silencable(published, mergedOptions.silent);
+            }).then(function (published) {
                 var mapped = mapWithPrefix(published, handler.matched);
                 return mapped;
             }).then(function (mapped) {
