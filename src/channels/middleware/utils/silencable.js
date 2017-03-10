@@ -1,20 +1,22 @@
-export default function silencable(published, options) {
-    var silent = options.silent;
-    if (silent === true || !published) {
-        return {};
-    }
-    if (_.isArray(silent)) {
-        silent.forEach(function (name) {
-            delete published[name];
-        });
-        return published;
-    } else if ($.isPlainObject(silent)) {
-        return Object.keys(published).reduce(function (accum, name) {
-            if (!_.includes(silent, name)) {
-                accum[name] = published[name];
+var { isArray, includes } = _;
+
+export default function silencable(published, silentOptions) {
+    if (silentOptions === true || !published) {
+        return [];
+    } else if (isArray(silentOptions)) {
+        return published.reduce((accum, data)=> {
+            if (!includes(silentOptions, data.name)) {
+                accum.push(data);
             }
             return accum;
-        }, {});
+        }, []);
+    } else if (silentOptions && silentOptions.except) {
+        return published.reduce((accum, data)=> {
+            if (includes(silentOptions.except || [], data.name)) {
+                accum.push(data);
+            }
+            return accum;
+        }, []);
     }
     return published;
 }
