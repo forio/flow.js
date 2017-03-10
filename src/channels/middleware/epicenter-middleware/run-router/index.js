@@ -56,15 +56,15 @@ export default function RunRouter(config, notifier) {
 
     //TODO: Need 2 different channel instances because the fetch is debounced, and hence will bundle variables up otherwise.
     //also, notify needs to be called twice (with different arguments). Different way?
-    var variableschannel = new VariablesChannel($initialProm, withPrefix(notifier, 'variable'));
+    var variableschannel = new VariablesChannel($initialProm, withPrefix(notifier, 'variable:'));
     var defaultVariablesChannel = new VariablesChannel($initialProm, notifier);
-    var metaChannel = new MetaChannel($initialProm, withPrefix(notifier, 'meta'));
-    var operationsChannel = new OperationsChannel($initialProm, withPrefix(notifier, 'operation'));
+    var metaChannel = new MetaChannel($initialProm, withPrefix(notifier, 'meta:'));
+    var operationsChannel = new OperationsChannel($initialProm, withPrefix(notifier, 'operation:'));
 
     var handlers = [
-        $.extend({}, variableschannel, { name: 'variables', match: prefix('variable') }),
-        $.extend({}, metaChannel, { name: 'meta', match: prefix('meta') }),
-        $.extend({}, operationsChannel, { name: 'operations', match: prefix('operation') }),
+        $.extend({}, variableschannel, { name: 'variables', match: prefix('variable:') }),
+        $.extend({}, metaChannel, { name: 'meta', match: prefix('meta:') }),
+        $.extend({}, operationsChannel, { name: 'operations', match: prefix('operation:') }),
         $.extend({}, defaultVariablesChannel, { name: 'variables', match: prefix('') }),
     ];
 

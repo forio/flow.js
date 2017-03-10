@@ -11,7 +11,11 @@ export default function RunVariablesChannel($runServicePromise, notifier) {
         var debounceInterval = 200; //todo: make this over-ridable
         if (!runService.debouncedFetchers[id]) {
             runService.debouncedFetchers[id] = debounceAndMerge(function (variables) {
-                return runService.variables().query(variables);
+                return runService.variables().query(variables).then(function (data) {
+                    return Object.keys(data).map(function (vname) {
+                        return { name: vname, value: data[vname] };
+                    });
+                });
             }, debounceInterval, [function mergeVariables(accum, newval) {
                 if (!accum) {
                     accum = [];
@@ -36,7 +40,7 @@ export default function RunVariablesChannel($runServicePromise, notifier) {
             return $runServicePromise.then(function (runService) {
                 knownTopics = _.uniq(knownTopics.concat(topics));
                 if (!knownTopics.length) {
-                    return $.Deferred().resolve({}).promise();
+                    return $.Deferred().resolve([]).promise();
                 }
                 return fetchFn(runService)(topics).then(notifier);
             });

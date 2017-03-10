@@ -17,7 +17,7 @@ function addSuffixDelimiter(text) {
 }
 
 export function prefix(prefix) {
-    prefix = addSuffixDelimiter(prefix);
+    // prefix = addSuffixDelimiter(prefix);
     return function matchPrefix(topic) {
         return (topic.indexOf(prefix) === 0) ? prefix : false;
     };
