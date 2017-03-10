@@ -1,11 +1,9 @@
-var RunChannel = require('./run-router');
+import RunChannel from './run-router';
 
-var prefix = require('channels/middleware/utils').prefix;
-var withPrefix = require('channels/middleware/utils').withPrefix;
+import { withPrefix, prefix } from 'channels/middleware/utils';
+import Middleware from 'channels/middleware/channel-router';
 
-var Middleware = require('channels/middleware/channel-router');
-
-module.exports = function (config, notifier) {
+export default function (config, notifier) {
     var defaults = {
         serviceOptions: {},
         channelOptions: {}
@@ -22,12 +20,20 @@ module.exports = function (config, notifier) {
     var defaultRunChannel = new RunChannel(currentChannelOpts, notifier);
 
     var handlers = [
-        $.extend(currentRunChannel, { name: 'current', match: prefix('current') }),
-        $.extend(defaultRunChannel, { name: 'default', match: prefix('') }),
+        $.extend(currentRunChannel, { 
+            name: 'current', 
+            match: prefix('current:'),
+            options: currentChannelOpts.channelOptions,
+        }),
+        $.extend(defaultRunChannel, { 
+            name: 'default', 
+            match: prefix(''),
+            options: currentChannelOpts.channelOptions,
+        }),
     ];
 
     var middleware = new Middleware(handlers, notifier);
     middleware.runManager = rm;
     
     return middleware;
-};
+}

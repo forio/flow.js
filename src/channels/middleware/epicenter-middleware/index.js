@@ -1,11 +1,10 @@
-var RunManagerRouter = require('./run-manager-router');
-var ScenarioRouter = require('./scenario-manager-router');
-var CustomRunRouter = require('./custom-run-router');
+import RunManagerRouter from './run-manager-router';
+import ScenarioRouter from './scenario-manager-router';
+import CustomRunRouter from './custom-run-router';
 
-var withPrefix = require('channels/middleware/utils').withPrefix;
-var prefixMatch = require('channels/middleware/utils').prefix;
+import { withPrefix, prefix as prefixMatch } from 'channels/middleware/utils';
 
-var Middleware = require('channels/middleware/channel-router');
+import Router from 'channels/middleware/channel-router';
 
 function getOptions(opts, key) {
     var serviceOptions = $.extend(true, {}, opts.defaults, opts[key]);
@@ -15,7 +14,7 @@ function getOptions(opts, key) {
     return { serviceOptions: serviceOptions, channelOptions: channelOptions };
 }
 
-module.exports = function (config, notifier) {
+export default function (config, notifier) {
     var opts = $.extend(true, {}, config);
 
     var customRunChannelOpts = getOptions(opts, 'runid');
@@ -26,20 +25,28 @@ module.exports = function (config, notifier) {
     ];
     var prefix = '';
     if (opts.runManager) {
-        prefix = config.scenarioManager ? 'run' : '';
+        prefix = config.scenarioManager ? 'run:' : '';
 
         var runManagerOpts = getOptions(opts, 'runManager');
         var rm = new RunManagerRouter(runManagerOpts, withPrefix(notifier, prefix));
-        handlers.push($.extend({}, rm, { name: 'runManager', match: prefixMatch(prefix) }));
+        handlers.push($.extend({}, rm, { 
+            name: 'runManager',
+            match: prefixMatch(prefix),
+            options: runManagerOpts.channelOptions,
+        }));
     }
 
     if (opts.scenarioManager) {
-        prefix = config.runManager ? 'scenario' : '';
+        prefix = config.runManager ? 'scenario:' : '';
 
         var scenarioManagerOpts = getOptions(opts, 'scenarioManager');
         var sm = new ScenarioRouter(scenarioManagerOpts, withPrefix(notifier, prefix));
-        handlers.push($.extend({}, sm, { name: 'scenarioManager', match: prefixMatch(prefix) }));
+        handlers.push($.extend({}, sm, { 
+            name: 'scenarioManager', 
+            match: prefixMatch(prefix),
+            options: scenarioManagerOpts.channelOptions,
+        }));
     }
-    var middleware = new Middleware(handlers, notifier);
-    return middleware;
-};
+    var router = new Router(handlers, notifier);
+    return router;
+}

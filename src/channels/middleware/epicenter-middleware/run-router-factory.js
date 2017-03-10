@@ -1,7 +1,7 @@
-var RunChannel = require('./run-router');
+import RunChannel from './run-router';
 var knownRunIDServiceChannels = {};
 
-module.exports = function (runid, options, notifier) {
+export default function (runid, options, notifier) {
     var runChannel = knownRunIDServiceChannels[runid];
     if (!runChannel) {
         var runOptions = $.extend(true, {}, options, { serviceOptions: { id: runid } });
@@ -9,4 +9,4 @@ module.exports = function (runid, options, notifier) {
         knownRunIDServiceChannels[runid] = runChannel;
     }
     return runChannel;
-};
+}

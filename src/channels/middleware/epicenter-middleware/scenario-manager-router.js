@@ -1,10 +1,9 @@
-var RunChannel = require('./run-router');
+import RunChannel from './run-router';
 
-var prefix = require('channels/middleware/utils').prefix;
-var withPrefix = require('channels/middleware/utils').withPrefix;
+import { prefix, withPrefix } from 'channels/middleware/utils';
+import Middleware from 'channels/middleware/channel-router';
 
-var Middleware = require('channels/middleware/channel-router');
-module.exports = function (config, notifier) {
+export default function (config, notifier) {
     var defaults = {
         serviceOptions: {},
         channelOptions: {},
@@ -49,4 +48,4 @@ module.exports = function (config, notifier) {
     var middleware = new Middleware(handlers, notifier);
     middleware.scenarioManager = sm;
     return middleware;
-};
+}

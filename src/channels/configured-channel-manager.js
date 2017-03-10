@@ -1,9 +1,9 @@
-var EpicenterMiddleware = require('./middleware/epicenter-middleware');
-var ChannelManager = require('./channel-manager');
+import EpicenterMiddleware from './middleware/epicenter-middleware';
+import DefaultChannelManager from './channel-manager';
 
 //Moving  epicenter-centric glue here so channel-manager can be tested in isolation
-module.exports = function (opts) {
-    return new ChannelManager($.extend(true, {}, {
+export default function ChannelManager(opts) {
+    return new DefaultChannelManager($.extend(true, {}, {
         middlewares: [EpicenterMiddleware]
     }, opts));
-};
+}
