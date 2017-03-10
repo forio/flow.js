@@ -38,11 +38,16 @@ export function notifyUnsubscribeHandlers(handlers, recentlyUnsubscribedTopics, 
     });
 }
 
-export function passthroughPublishInterceptors(handlers, publishData) {
+export function passthroughPublishInterceptors(handlers, publishData, options) {
     var grouped = groupSequentiallyByHandlers(publishData, handlers);
     var $initialProm = $.Deferred().resolve([]).promise();
     grouped.forEach(function (handler) {
         $initialProm = $initialProm.then(function (dataSoFar) {
+            var mergedOptions = $.extend(true, {}, handler.data, options);
+            if (mergedOptions.readOnly) {
+                console.warn('Tried to publish to a readonly channel', handler);
+                return dataSoFar;
+            }
             var unprefixed = unprefix(handler.data, handler.matched);
             var result = handler.publishHandler ? handler.publishHandler(unprefixed, handler.matched) : unprefixed;
             var publishProm = $.Deferred().resolve(result).promise();
@@ -64,8 +69,8 @@ export function passthroughPublishInterceptors(handlers, publishData) {
  */
 export default function Router(handlers) {
     return {
-        subscribeHandler: notifySubscribeHandlers.bind(handlers),
-        unsubscribeHandler: notifyUnsubscribeHandlers.bind(handlers),
-        publishHandler: passthroughPublishInterceptors.bind(handlers),
+        subscribeHandler: notifySubscribeHandlers.bind(null, handlers),
+        unsubscribeHandler: notifyUnsubscribeHandlers.bind(null, handlers),
+        publishHandler: passthroughPublishInterceptors.bind(null, handlers),
     };
 }

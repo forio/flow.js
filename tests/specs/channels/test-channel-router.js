@@ -150,13 +150,16 @@ describe('Channel Router', ()=> {
             });
         });
         describe('grouping inputs', ()=> {
-            var toPublish = [
-                { name: 'ball', value: 1 }, 
-                { name: 'boop', value: 2 }, 
-                { name: 'foo', value: 2 },
-                { name: 'apple', value: 3 }, 
-                { name: 'amazon', value: 4 }, 
-            ];
+            var toPublish;
+            beforeEach(()=> {
+                toPublish = [
+                    { name: 'ball', value: 1 }, 
+                    { name: 'boop', value: 2 }, 
+                    { name: 'foo', value: 2 },
+                    { name: 'apple', value: 3 }, 
+                    { name: 'amazon', value: 4 }, 
+                ];
+            }); 
             it('should not duplicate interceptor calls', ()=> {
                 return passthroughPublishInterceptors(handlers, toPublish).then((data)=> {
                     expect(ohyeahMiddleware).to.have.been.calledOnce;
@@ -180,6 +183,26 @@ describe('Channel Router', ()=> {
                         { name: 'apple', value: 3 }, 
                         { name: 'amazon', value: 4 }, 
                     ]);
+                });
+            });
+        });
+
+        describe('Options', ()=> {
+            describe('Readonly', ()=> {
+                var toPublish;
+                beforeEach(()=> {
+                    toPublish = [
+                        { name: 'ball', value: 1 }, 
+                        { name: 'foo', value: 2 },
+                        { name: 'amazon', value: 4 }, 
+                    ];
+                }); 
+                it('should not publish readonly channels', ()=> {
+                    return passthroughPublishInterceptors(handlers, toPublish, { readOnly: true }).then((data)=> {
+                        expect(data).to.eql([]);
+                        expect(ohyeahMiddleware).to.not.have.been.called;
+                        expect(echoMiddleware).to.not.have.been.called;
+                    });
                 });
             });
         });
