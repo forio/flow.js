@@ -1,4 +1,5 @@
 import { debounceAndMerge } from 'utils/general';
+import { objectToArray, arrayToObject } from 'channels/channel-utils';
 
 export default function RunVariablesChannel($runServicePromise, notifier) {
 
@@ -11,11 +12,7 @@ export default function RunVariablesChannel($runServicePromise, notifier) {
         var debounceInterval = 200; //todo: make this over-ridable
         if (!runService.debouncedFetchers[id]) {
             runService.debouncedFetchers[id] = debounceAndMerge(function (variables) {
-                return runService.variables().query(variables).then(function (data) {
-                    return Object.keys(data).map(function (vname) {
-                        return { name: vname, value: data[vname] };
-                    });
-                });
+                return runService.variables().query(variables).then(objectToArray);
             }, debounceInterval, [function mergeVariables(accum, newval) {
                 if (!accum) {
                     accum = [];
@@ -47,11 +44,10 @@ export default function RunVariablesChannel($runServicePromise, notifier) {
         },
         publishHandler: function (topics, options) {
             return $runServicePromise.then(function (runService) {
-                var toSave = topics.reduce(function (accum, topic) {
-                    accum[topic.name] = topic.value;
-                    return accum;
-                }, {});
-                return runService.variables().save(toSave);
+                var toSave = arrayToObject(topics);
+                return runService.variables().save(toSave).then(function (response) {
+                    return objectToArray(response);
+                });
             });
         }
     };

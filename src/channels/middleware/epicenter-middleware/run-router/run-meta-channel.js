@@ -1,3 +1,5 @@
+import { objectToArray, arrayToObject } from 'channels/channel-utils';
+
 export default function RunMetaChannel($runServicePromise, notifier) {
 
     function mergeAndSend(runMeta, requestedTopics) {
@@ -29,13 +31,10 @@ export default function RunMetaChannel($runServicePromise, notifier) {
         },
         publishHandler: function (topics, options) {
             return $runServicePromise.then(function (runService) {
-                var toSave = topics.reduce(function (accum, topic) {
-                    accum[topic.name] = topic.value;
-                    return accum;
-                }, {});
+                var toSave = arrayToObject(topics);
                 return runService.save(toSave).then(function (res) {
                     runService.runMeta = $.extend({}, true, runService.runMeta, res);
-                    return res;
+                    return objectToArray(res);
                 });
             });
         }

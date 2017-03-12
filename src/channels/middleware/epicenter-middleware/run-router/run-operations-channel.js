@@ -6,10 +6,9 @@ export default function RunOperationsChannel($runServicePromise) {
                     return { name: topic.name, params: topic.value };
                 });
                 return runService.serial(toSave).then(function (result) {
-                    var toReturn = toSave.reduce(function (accum, operation, index) {
-                        accum[operation.name] = result[index];
-                        return accum;
-                    }, {});
+                    var toReturn = result.map(function (response, index) {
+                        return { name: topics[index].name, value: response };
+                    });
                     return toReturn;
                 });
             });

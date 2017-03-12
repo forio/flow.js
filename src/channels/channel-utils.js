@@ -13,21 +13,33 @@ export function extractOptions(options, key) {
     return $.extend(true, {}, opts.defaults, opts[key]);
 }
 
+export function objectToArray(obj) {
+    var mapped = Object.keys(obj).map(function (t) {
+        return { name: t, value: obj[t] };
+    });
+    return mapped;
+}
+export function arrayToObject(arr) {
+    var result = arr.reduce(function (accum, topic) {
+        accum[topic.name] = topic.value;
+        return accum;
+    }, {});
+    return result;
+}
+
 export function normalizeParamOptions(topic, publishValue, options) {
     if (!topic) {
         return { params: [], options: {} };
     }
     if ($.isPlainObject(topic)) {
-        var mapped = Object.keys(topic).map(function (t) {
-            return { name: t, value: topic[t] };
-        });
-        return { params: mapped, options: publishValue };
+        return { params: objectToArray(topic), options: publishValue };
     }
     if ($.isArray(topic)) {
         return { params: topic, options: publishValue };
     }
     return { params: [{ name: topic, value: publishValue }], options: options };
 }
+
 
 /**
  * [groupByHandlers description]
