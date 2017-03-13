@@ -24,18 +24,6 @@ export default function (config, notifier) {
         $.extend({}, customRunChannel, { name: 'runid' })
     ];
     var prefix = '';
-    if (opts.runManager) {
-        prefix = config.scenarioManager ? 'run:' : '';
-
-        var runManagerOpts = getOptions(opts, 'runManager');
-        var rm = new RunManagerRouter(runManagerOpts, withPrefix(notifier, prefix));
-        handlers.push($.extend({}, rm, { 
-            name: 'runManager',
-            match: prefixMatch(prefix),
-            options: runManagerOpts.channelOptions,
-        }));
-    }
-
     if (opts.scenarioManager) {
         prefix = config.runManager ? 'scenario:' : '';
 
@@ -47,6 +35,19 @@ export default function (config, notifier) {
             options: scenarioManagerOpts.channelOptions,
         }));
     }
+
+    if (opts.runManager || !opts.scenarioManager) {
+        prefix = config.scenarioManager ? 'run:' : '';
+
+        var runManagerOpts = getOptions(opts, 'runManager');
+        var rm = new RunManagerRouter(runManagerOpts, withPrefix(notifier, prefix));
+        handlers.push($.extend({}, rm, { 
+            name: 'runManager',
+            match: prefixMatch(prefix),
+            options: runManagerOpts.channelOptions,
+        }));
+    }
+
     var router = new Router(handlers, notifier);
     return router;
 }

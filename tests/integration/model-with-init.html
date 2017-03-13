@@ -28,11 +28,13 @@
     <script>
     Flow.initialize({
         channel: {
-           run: {
-                model: 'model.vmf',
-                account: 'nranjit',
-                project: 'flow-test'
-           }
+            defaults: {
+                run: {
+                    model: 'model.vmf',
+                    account: 'nranjit',
+                    project: 'flow-test'
+                }
+            }
         }
     });
 
