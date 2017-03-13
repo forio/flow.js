@@ -12,10 +12,8 @@ export default function (config, notifier) {
 
     var sm = new window.F.manager.ScenarioManager(opts.serviceOptions);
 
-    var baselinePromise = sm.baseline.getRun().then(function () {
-        return sm.baseline.run;
-    });
-    var baselineOptions = $.extend(true, {}, {
+    var baselinePromise = sm.baseline.getRun().then(()=> sm.baseline.run);
+    var baselineOptions = $.extend(true, {
         serviceOptions: baselinePromise,
         channelOptions: {
             meta: {
@@ -26,11 +24,9 @@ export default function (config, notifier) {
             }
         }
     }, opts.defaults, opts.baseline);
-    var currentRunPromise = sm.current.getRun().then(function () {
-        return sm.current.run;
-    });
+    var currentRunPromise = sm.current.getRun().then(()=> sm.current.run);
 
-    var runOptions = $.extend(true, {}, {
+    var runOptions = $.extend(true, {
         serviceOptions: currentRunPromise,
     }, opts.defaults, opts.current);
 

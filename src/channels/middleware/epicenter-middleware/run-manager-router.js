@@ -11,9 +11,7 @@ export default function (config, notifier) {
     var opts = $.extend(true, {}, defaults, config);
 
     var rm = new window.F.manager.RunManager(opts.serviceOptions);
-    var $creationPromise = rm.getRun().then(function () {
-        return rm.run;
-    });
+    var $creationPromise = rm.getRun().then(()=> rm.run);
     var currentChannelOpts = $.extend(true, 
         { serviceOptions: $creationPromise }, opts.defaults, opts.current);
     var currentRunChannel = new RunChannel(currentChannelOpts, withPrefix(notifier, 'current:'));

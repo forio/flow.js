@@ -8,11 +8,6 @@ export function findBestHandler(topic, handlers) {
     }
     return undefined;
 }
-export function extractOptions(options, key) {
-    var opts = $.extend(true, { defaults: {} }, options);
-    return $.extend(true, {}, opts.defaults, opts[key]);
-}
-
 export function objectToArray(obj) {
     var mapped = Object.keys(obj || {}).map(function (t) {
         return { name: t, value: obj[t] };

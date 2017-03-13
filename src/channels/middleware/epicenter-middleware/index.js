@@ -33,10 +33,10 @@ export default function (config, notifier) {
         }));
     }
 
-    if (opts.runManager || !opts.scenarioManager) {
+    var runManagerOpts = getOptions(opts, 'runManager');
+    if (opts.runManager || (!opts.scenarioManager && runManagerOpts.run)) {
         prefix = config.scenarioManager ? 'run:' : '';
 
-        var runManagerOpts = getOptions(opts, 'runManager');
         var rm = new RunManagerRouter(runManagerOpts, withPrefix(notifier, prefix));
         handlers.push($.extend({}, rm, { 
             match: prefixMatch(prefix),
