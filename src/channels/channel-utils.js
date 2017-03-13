@@ -14,13 +14,13 @@ export function extractOptions(options, key) {
 }
 
 export function objectToArray(obj) {
-    var mapped = Object.keys(obj).map(function (t) {
+    var mapped = Object.keys(obj || {}).map(function (t) {
         return { name: t, value: obj[t] };
     });
     return mapped;
 }
 export function arrayToObject(arr) {
-    var result = arr.reduce(function (accum, topic) {
+    var result = (arr || []).reduce(function (accum, topic) {
         accum[topic.name] = topic.value;
         return accum;
     }, {});

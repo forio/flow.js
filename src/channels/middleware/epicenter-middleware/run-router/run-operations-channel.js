@@ -1,7 +1,7 @@
 export default function RunOperationsChannel($runServicePromise) {
     return {
         publishHandler: function (topics, options) {
-            $runServicePromise.then(function (runService) {
+            return $runServicePromise.then(function (runService) {
                 var toSave = topics.map(function (topic) {
                     return { name: topic.name, params: topic.value };
                 });

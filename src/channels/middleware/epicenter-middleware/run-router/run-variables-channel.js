@@ -26,8 +26,10 @@ export default function RunVariablesChannel($runServicePromise, notifier) {
 
     var knownTopics = [];
     return { 
-        fetch: function (runService, callback) {
-            return fetchFn(runService)(knownTopics);
+        fetch: function () {
+            return $runServicePromise.then(function (runService) {
+                return fetchFn(runService)(knownTopics).then(notifier);
+            });
         },
 
         unsubscribeHandler: function (unsubscribedTopics, remainingTopics) {

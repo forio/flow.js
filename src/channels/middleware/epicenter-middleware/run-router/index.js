@@ -2,7 +2,7 @@ import MetaChannel from './run-meta-channel';
 import VariablesChannel from './run-variables-channel';
 import OperationsChannel from './run-operations-channel';
 
-import Middleware from 'channels/middleware/channel-router';
+import Router from 'channels/middleware/channel-router';
 import { withPrefix, prefix } from 'channels/middleware/utils';
 
 export default function RunRouter(config, notifier) {
@@ -53,6 +53,17 @@ export default function RunRouter(config, notifier) {
         $.extend({}, defaultVariablesChannel, { name: 'variables', match: prefix('') }),
     ];
 
-    var middleware = new Middleware(handlers, notifier);
-    return middleware;
+    var router = new Router(handlers, notifier);
+    var oldhandler = router.publishHandler;
+    router.publishHandler = function () {
+        var prom = oldhandler.apply(oldhandler, arguments);
+        return prom.then(function (result) {
+            if (result && result.length) {
+                variableschannel.fetch();
+                defaultVariablesChannel.fetch();
+            }
+            return result;
+        });
+    };
+    return router;
 }

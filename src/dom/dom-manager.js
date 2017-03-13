@@ -368,7 +368,6 @@ module.exports = (function () {
                             converterManager.convert(con.params, [con.name]);
                         });
                     });
-
                 });
             };
 
