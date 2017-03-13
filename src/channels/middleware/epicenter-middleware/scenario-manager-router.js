@@ -39,9 +39,9 @@ export default function (config, notifier) {
     var defaultRunChannel = new RunChannel(runOptions, withPrefix(notifier, ''));
 
     var handlers = [
-        $.extend(baselineRunChannel, { name: 'baseline', match: prefix('baseline:') }),
-        $.extend(currentRunChannel, { name: 'current', match: prefix('current:') }),
-        $.extend(defaultRunChannel, { name: 'default', match: prefix('') }),
+        $.extend(baselineRunChannel, { match: prefix('baseline:') }),
+        $.extend(currentRunChannel, { match: prefix('current:') }),
+        $.extend(defaultRunChannel, { match: prefix('') }),
     ];
     
     var middleware = new Middleware(handlers, notifier);

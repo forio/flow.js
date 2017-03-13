@@ -20,9 +20,7 @@ export default function (config, notifier) {
     var customRunChannelOpts = getOptions(opts, 'runid');
     var customRunChannel = new CustomRunRouter(customRunChannelOpts, notifier);
 
-    var handlers = [
-        $.extend({}, customRunChannel, { name: 'runid' })
-    ];
+    var handlers = [customRunChannel];
     var prefix = '';
     if (opts.scenarioManager) {
         prefix = config.runManager ? 'scenario:' : '';
@@ -30,7 +28,6 @@ export default function (config, notifier) {
         var scenarioManagerOpts = getOptions(opts, 'scenarioManager');
         var sm = new ScenarioRouter(scenarioManagerOpts, withPrefix(notifier, prefix));
         handlers.push($.extend({}, sm, { 
-            name: 'scenarioManager', 
             match: prefixMatch(prefix),
             options: scenarioManagerOpts.channelOptions,
         }));
@@ -42,7 +39,6 @@ export default function (config, notifier) {
         var runManagerOpts = getOptions(opts, 'runManager');
         var rm = new RunManagerRouter(runManagerOpts, withPrefix(notifier, prefix));
         handlers.push($.extend({}, rm, { 
-            name: 'runManager',
             match: prefixMatch(prefix),
             options: runManagerOpts.channelOptions,
         }));

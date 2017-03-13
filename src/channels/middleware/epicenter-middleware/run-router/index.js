@@ -47,10 +47,10 @@ export default function RunRouter(config, notifier) {
     var operationsChannel = new OperationsChannel($initialProm, withPrefix(notifier, 'operation:'));
 
     var handlers = [
-        $.extend({}, variableschannel, { name: 'variables', match: prefix('variable:') }),
-        $.extend({}, metaChannel, { name: 'meta', match: prefix('meta:') }),
-        $.extend({}, operationsChannel, { name: 'operations', match: prefix('operation:') }),
-        $.extend({}, defaultVariablesChannel, { name: 'variables', match: prefix('') }),
+        $.extend({}, variableschannel, { match: prefix('variable:') }),
+        $.extend({}, metaChannel, { match: prefix('meta:') }),
+        $.extend({}, operationsChannel, { match: prefix('operation:') }),
+        $.extend({}, defaultVariablesChannel, { match: prefix('') }),
     ];
 
     var router = new Router(handlers, notifier);

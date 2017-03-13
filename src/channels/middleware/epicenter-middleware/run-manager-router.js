@@ -21,12 +21,10 @@ export default function (config, notifier) {
 
     var handlers = [
         $.extend(currentRunChannel, { 
-            name: 'current', 
             match: prefix('current:'),
             options: currentChannelOpts.channelOptions,
         }),
         $.extend(defaultRunChannel, { 
-            name: 'default', 
             match: prefix(''),
             options: currentChannelOpts.channelOptions,
         }),
