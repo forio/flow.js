@@ -353,9 +353,7 @@ module.exports = (function () {
                         if (isConverter) {
                             accum.converters.push(operation);
                         } else {
-                            var opn = {};
-                            opn['operation:' + operation.name] = operation.params;
-                            accum.operations.push(opn);
+                            accum.operations.push({ name: 'operation:' + operation.name, value: operation.params });
                         }
                         return accum;
                     }, { operations: [], converters: [] });

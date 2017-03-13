@@ -9,7 +9,6 @@ export default function RunRouter(config, notifier) {
     var defaults = {
         serviceOptions: {},
         channelOptions: {
-            initialOperation: [],
             variables: {
                 autoFetch: true,
                 silent: false,
@@ -39,20 +38,6 @@ export default function RunRouter(config, notifier) {
         var rs = new window.F.service.Run(serviceOptions);
         $initialProm = $.Deferred().resolve(rs).promise();
     }
-
-    // if (channelOptions.initialOperation.length) {
-    //     //FIXME: Move run initialization logic to run-manager, as a strategy option. Technically only it should know what to do with it.
-    //     //For e.g, if there was a reset operation performed on the run, the run service instance will be the same so we wouldn't know
-    //     $initialProm = $initialProm.then(function (runService) {
-    //         if (!runService.initialize) {
-    //             runService.initialize = runService.serial(channelOptions.initialOperation);
-    //         }
-    //         return runService.initialize.then(function () {
-    //             return runService;
-    //         });
-    //     });
-    // }
-    // 
 
     //TODO: Need 2 different channel instances because the fetch is debounced, and hence will bundle variables up otherwise.
     //also, notify needs to be called twice (with different arguments). Different way?

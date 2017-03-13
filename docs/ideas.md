@@ -7,9 +7,7 @@ silent - done
 
 interpolation
 
-- Run channel with init operation @done
-- Run channel with silent init operation (pre-fetching shouldn't happen) ---- is there a reason?
-    
+- Run channel with init operation
 
 
 publish  -> save -> refresh -> notify
