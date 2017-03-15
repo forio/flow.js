@@ -9,15 +9,7 @@ export function stripSuffixDelimiter(text) {
     return text;
 }
 
-function addSuffixDelimiter(text) {
-    if (text && text.indexOf(CHANNEL_DELIMITER) !== (text.length - 1)) {
-        text = text + CHANNEL_DELIMITER;
-    }
-    return text || '';
-}
-
 export function prefix(prefix) {
-    // prefix = addSuffixDelimiter(prefix);
     return function matchPrefix(topic) {
         return (topic.indexOf(prefix) === 0) ? prefix : false;
     };
@@ -26,7 +18,7 @@ export function regex(regex) {
     var toMatch = new RegExp('^' + regex + CHANNEL_DELIMITER);
     return function matchRegex(topic) {
         var match = topic.match(toMatch);
-        if (match) {
+        if (match && match.length) {
             return match[0];
         }
         return false;
