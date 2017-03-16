@@ -353,7 +353,7 @@ module.exports = (function () {
                         if (isConverter) {
                             accum.converters.push(operation);
                         } else {
-                            accum.operations.push({ name: 'operation:' + operation.name, value: operation.params });
+                            accum.operations.push({ name: 'operations:' + operation.name, value: operation.params });
                         }
                         return accum;
                     }, { operations: [], converters: [] });
@@ -393,7 +393,7 @@ module.exports = (function () {
                 });
             };
             
-            channel.subscribe('operation:reset', function () {
+            channel.subscribe('operations:reset', function () {
                 me.unbindAll();
                 me.bindAll();
                 // console.log('Reset called', channel);
