@@ -5,6 +5,8 @@ import OperationsChannel from './run-operations-channel';
 import Router from 'channels/middleware/channel-router';
 import { withPrefix, prefix } from 'channels/middleware/utils';
 
+import { oneOf, allOf } from 'utils/functional';
+
 export default function RunRouter(config, notifier) {
     var defaults = {
         serviceOptions: {},
@@ -39,26 +41,20 @@ export default function RunRouter(config, notifier) {
         $initialProm = $.Deferred().resolve(rs).promise();
     }
 
-    var dualPrefixNotifier = function (prefix) {
-        return function (data) {
-            withPrefix(notifier, prefix)(data);
-            notifier(data);
-        };
-    };
 
-    var dualMatcher = function (prefixString) {
-        return function (input) {
-            return prefix(prefixString)(input) || prefix('')(input);
-        };
-    };
-    var variableschannel = new VariablesChannel($initialProm, dualPrefixNotifier('variables:'));
     var metaChannel = new MetaChannel($initialProm, withPrefix(notifier, 'meta:'));
     var operationsChannel = new OperationsChannel($initialProm, withPrefix(notifier, 'operations:'));
+    var variableschannel = new VariablesChannel($initialProm, withPrefix(notifier, ['variables:', '']));
 
     var handlers = [
         $.extend({}, metaChannel, { match: prefix('meta:') }),
         $.extend({}, operationsChannel, { match: prefix('operations:') }),
-        $.extend({}, variableschannel, { match: dualMatcher('variables:') }),
+        $.extend({}, variableschannel, { 
+            match: oneOf(
+                prefix('variables:'),
+                prefix('')
+            )
+        }),
     ];
 
     var router = new Router(handlers, notifier);

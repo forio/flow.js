@@ -33,10 +33,13 @@ export function mapWithPrefix(dataArray, prefix) {
     });
 }
 
-export function withPrefix(callback, prefix) {
+export function withPrefix(callback, prefixList) {
+    prefixList = [].concat(prefixList);
     return function (data) {
-        var mapped = mapWithPrefix(data, prefix);
-        return callback(mapped);
+        prefixList.forEach(function (prefix) {
+            var mapped = mapWithPrefix(data, prefix);
+            callback(mapped);
+        });
     };
 }
 
