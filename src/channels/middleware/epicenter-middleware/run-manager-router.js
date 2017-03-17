@@ -2,7 +2,7 @@ import RunChannel from './run-router';
 
 import { oneOf } from 'utils/functional';
 import { withPrefix, prefix } from 'channels/middleware/utils';
-import Middleware from 'channels/middleware/channel-router';
+import Router from 'channels/middleware/channel-router';
 
 export default function (config, notifier) {
     var defaults = {
@@ -20,12 +20,13 @@ export default function (config, notifier) {
     var handlers = [
         $.extend(currentRunChannel, { 
             match: oneOf(prefix('current:'), prefix('')),
+            isDefault: true,
             options: currentChannelOpts.channelOptions,
         })
     ];
 
-    var middleware = new Middleware(handlers, notifier);
-    middleware.runManager = rm;
+    var router = new Router(handlers, notifier);
+    router.runManager = rm;
     
-    return middleware;
+    return router;
 }

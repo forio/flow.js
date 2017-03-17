@@ -50,6 +50,7 @@ export default function RunRouter(config, notifier) {
         $.extend({}, metaChannel, { match: prefix('meta:') }),
         $.extend({}, operationsChannel, { match: prefix('operations:') }),
         $.extend({}, variableschannel, { 
+            isDefault: true,
             match: oneOf(
                 prefix('variables:'),
                 prefix('')
@@ -60,7 +61,7 @@ export default function RunRouter(config, notifier) {
     var router = new Router(handlers, notifier);
     var oldhandler = router.publishHandler;
     router.publishHandler = function () {
-        var prom = oldhandler.apply(oldhandler, arguments);
+        var prom = oldhandler.apply(router, arguments);
         return prom.then(function (result) {
             if (result && result.length) {
                 // variableschannel.fetch();
