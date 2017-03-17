@@ -21,21 +21,18 @@ export default function (config, notifier) {
     var customRunChannel = new CustomRunRouter(customRunChannelOpts, notifier);
 
     var handlers = [customRunChannel];
-    var prefix = '';
     if (opts.scenarioManager) {
-        prefix = config.runManager ? 'scenario:' : '';
-
         var scenarioManagerOpts = getOptions(opts, 'scenarioManager');
-        var sm = new ScenarioRouter(scenarioManagerOpts, withPrefix(notifier, prefix));
+        var sm = new ScenarioRouter(scenarioManagerOpts, withPrefix(notifier, ''));
         handlers.push($.extend({}, sm, { 
-            match: prefixMatch(prefix),
+            match: prefixMatch(''),
             options: scenarioManagerOpts.channelOptions,
         }));
     }
 
     var runManagerOpts = getOptions(opts, 'runManager');
     if (opts.runManager || (!opts.scenarioManager && runManagerOpts.run)) {
-        prefix = config.scenarioManager ? 'run:' : '';
+        var prefix = config.scenarioManager ? 'runManager:' : ''; //only need to disambiguate if you specify both
 
         var rm = new RunManagerRouter(runManagerOpts, withPrefix(notifier, prefix));
         handlers.push($.extend({}, rm, { 
