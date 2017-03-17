@@ -45,11 +45,18 @@ export default function RunRouter(config, notifier) {
     var variableschannel = new VariablesChannel($initialProm, withPrefix(notifier, ['variables:', '']));
 
     var handlers = [
-        $.extend({}, metaChannel, { match: prefix('meta:') }),
-        $.extend({}, operationsChannel, { match: prefix('operations:') }),
+        $.extend({}, metaChannel, { 
+            match: prefix('meta:'),
+            options: opts.channelOptions.meta,
+        }),
+        $.extend({}, operationsChannel, { 
+            match: prefix('operations:'),
+            options: opts.channelOptions.operations,
+        }),
         $.extend({}, variableschannel, { 
             isDefault: true,
             match: defaultPrefix('variables:'),
+            options: opts.channelOptions.variables,
         }),
     ];
 

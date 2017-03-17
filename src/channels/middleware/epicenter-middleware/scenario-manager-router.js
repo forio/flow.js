@@ -34,8 +34,15 @@ export default function (config, notifier) {
     var currentRunChannel = new RunChannel(runOptions, withPrefix(notifier, ['current:', '']));
 
     var handlers = [
-        $.extend(baselineRunChannel, { match: prefix('baseline:') }),
-        $.extend(currentRunChannel, { isDefault: true, match: defaultPrefix('current:') }),
+        $.extend(baselineRunChannel, {
+            match: prefix('baseline:'),
+            options: baselineOptions.channelOptions,
+        }),
+        $.extend(currentRunChannel, { 
+            isDefault: true, 
+            match: defaultPrefix('current:'),
+            options: runOptions.channelOptions,
+        }),
     ];
     
     var router = new Router(handlers, notifier);
