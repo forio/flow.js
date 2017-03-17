@@ -5,7 +5,7 @@ import OperationsChannel from './run-operations-channel';
 import Router from 'channels/middleware/channel-router';
 import { withPrefix, prefix } from 'channels/middleware/utils';
 
-import { oneOf, allOf } from 'utils/functional';
+import { oneOf } from 'utils/functional';
 
 export default function RunRouter(config, notifier) {
     var defaults = {
