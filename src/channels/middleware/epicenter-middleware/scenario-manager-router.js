@@ -36,7 +36,7 @@ export default function (config, notifier) {
 
     var handlers = [
         $.extend(baselineRunChannel, { match: prefix('baseline:') }),
-        $.extend(currentRunChannel, { match: oneOf(prefix('current:'), prefix('')) }),
+        $.extend(currentRunChannel, { isDefault: true, match: oneOf(prefix('current:'), prefix('')) }),
     ];
     
     var router = new Router(handlers, notifier);

@@ -55,6 +55,9 @@ export function passthroughPublishInterceptors(handlers, publishData, options) {
                 return silencable(published, mergedOptions.silent);
             }).then(function (published) {
                 var mapped = mapWithPrefix(published, handler.matched);
+                if (handler.isDefault) {
+                    mapped = mapped.concat(published);
+                }
                 return mapped;
             }).then(function (mapped) {
                 return [].concat(dataSoFar, mapped);
