@@ -2,6 +2,7 @@ import RunManagerRouter from './run-manager-router';
 import ScenarioRouter from './scenario-manager-router';
 import CustomRunRouter from './custom-run-router';
 
+import { oneOf } from 'utils/functional';
 import { withPrefix, prefix as prefixMatch } from 'channels/middleware/utils';
 
 import Router from 'channels/middleware/channel-router';
@@ -14,6 +15,9 @@ function getOptions(opts, key) {
     return { serviceOptions: serviceOptions, channelOptions: channelOptions };
 }
 
+var SCENARIO_PREFIX = 'sm:';
+var RUN_PREFIX = 'rm:';
+
 export default function (config, notifier) {
     var opts = $.extend(true, {}, config);
 
@@ -23,22 +27,31 @@ export default function (config, notifier) {
     var handlers = [customRunChannel];
     if (opts.scenarioManager) {
         var scenarioManagerOpts = getOptions(opts, 'scenarioManager');
-        var sm = new ScenarioRouter(scenarioManagerOpts, withPrefix(notifier, ''));
+        var sm = new ScenarioRouter(scenarioManagerOpts, withPrefix(notifier, [SCENARIO_PREFIX, '']));
         handlers.push($.extend({}, sm, { 
-            match: prefixMatch(''),
+            match: oneOf(prefixMatch(SCENARIO_PREFIX), prefixMatch('')),
             options: scenarioManagerOpts.channelOptions,
+            isDefault: true,
         }));
     }
 
     var runManagerOpts = getOptions(opts, 'runManager');
     if (opts.runManager || (!opts.scenarioManager && runManagerOpts.run)) {
-        var prefix = config.scenarioManager ? 'runManager:' : ''; //only need to disambiguate if you specify both
-
-        var rm = new RunManagerRouter(runManagerOpts, withPrefix(notifier, prefix));
-        handlers.push($.extend({}, rm, { 
-            match: prefixMatch(prefix),
-            options: runManagerOpts.channelOptions,
-        }));
+        var rm;
+        if (opts.scenarioManager) {
+            rm = new RunManagerRouter(runManagerOpts, withPrefix(notifier, RUN_PREFIX));
+            handlers.push($.extend({}, rm, { 
+                match: prefixMatch(RUN_PREFIX),
+                options: runManagerOpts.channelOptions,
+            }));
+        } else {
+            rm = new RunManagerRouter(runManagerOpts, withPrefix(notifier, [RUN_PREFIX, '']));
+            handlers.push($.extend({}, rm, { 
+                match: oneOf(prefixMatch(RUN_PREFIX), prefixMatch('')),
+                isDefault: true,
+                options: runManagerOpts.channelOptions,
+            }));
+        }
     }
 
     var router = new Router(handlers, notifier);

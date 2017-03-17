@@ -1,7 +1,7 @@
 import RunChannel from './run-router';
 
 import { oneOf } from 'utils/functional';
-import { prefix, withPrefix } from 'channels/middleware/utils';
+import { prefix, withPrefix, defaultPrefix } from 'channels/middleware/utils';
 import Router from 'channels/middleware/channel-router';
 
 export default function (config, notifier) {
@@ -36,7 +36,7 @@ export default function (config, notifier) {
 
     var handlers = [
         $.extend(baselineRunChannel, { match: prefix('baseline:') }),
-        $.extend(currentRunChannel, { isDefault: true, match: oneOf(prefix('current:'), prefix('')) }),
+        $.extend(currentRunChannel, { isDefault: true, match: oneOf(prefix('current:'), defaultPrefix('current:')) }),
     ];
     
     var router = new Router(handlers, notifier);

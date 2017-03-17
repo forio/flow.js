@@ -3,7 +3,7 @@ import VariablesChannel from './run-variables-channel';
 import OperationsChannel from './run-operations-channel';
 
 import Router from 'channels/middleware/channel-router';
-import { withPrefix, prefix } from 'channels/middleware/utils';
+import { withPrefix, prefix, defaultPrefix} from 'channels/middleware/utils';
 
 import { oneOf } from 'utils/functional';
 
@@ -53,7 +53,7 @@ export default function RunRouter(config, notifier) {
             isDefault: true,
             match: oneOf(
                 prefix('variables:'),
-                prefix('')
+                defaultPrefix('variables:')
             )
         }),
     ];

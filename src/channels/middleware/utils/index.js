@@ -14,6 +14,12 @@ export function prefix(prefix) {
         return (topic.indexOf(prefix) === 0) ? prefix : false;
     };
 }
+export function defaultPrefix(prefix) {
+    return function matchPrefix(topic) {
+        return prefix;
+    };
+}
+
 export function regex(regex) {
     var toMatch = new RegExp('^' + regex + CHANNEL_DELIMITER);
     return function matchRegex(topic) {
