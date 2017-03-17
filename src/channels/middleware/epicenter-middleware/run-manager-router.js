@@ -1,7 +1,6 @@
 import RunChannel from './run-router';
 
-import { oneOf } from 'utils/functional';
-import { withPrefix, prefix, defaultPrefix } from 'channels/middleware/utils';
+import { withPrefix, defaultPrefix } from 'channels/middleware/utils';
 import Router from 'channels/middleware/channel-router';
 
 export default function (config, notifier) {
@@ -19,7 +18,7 @@ export default function (config, notifier) {
 
     var handlers = [
         $.extend(currentRunChannel, { 
-            match: oneOf(prefix('current:'), defaultPrefix('prefix:')),
+            match: defaultPrefix('current:'),
             isDefault: true,
             options: currentChannelOpts.channelOptions,
         })

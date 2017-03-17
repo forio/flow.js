@@ -3,9 +3,7 @@ import VariablesChannel from './run-variables-channel';
 import OperationsChannel from './run-operations-channel';
 
 import Router from 'channels/middleware/channel-router';
-import { withPrefix, prefix, defaultPrefix} from 'channels/middleware/utils';
-
-import { oneOf } from 'utils/functional';
+import { withPrefix, prefix, defaultPrefix } from 'channels/middleware/utils';
 
 export default function RunRouter(config, notifier) {
     var defaults = {
@@ -51,10 +49,7 @@ export default function RunRouter(config, notifier) {
         $.extend({}, operationsChannel, { match: prefix('operations:') }),
         $.extend({}, variableschannel, { 
             isDefault: true,
-            match: oneOf(
-                prefix('variables:'),
-                defaultPrefix('variables:')
-            )
+            match: defaultPrefix('variables:'),
         }),
     ];
 

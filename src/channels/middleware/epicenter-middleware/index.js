@@ -3,7 +3,7 @@ import ScenarioRouter from './scenario-manager-router';
 import CustomRunRouter from './custom-run-router';
 
 import { oneOf } from 'utils/functional';
-import { withPrefix, prefix as prefixMatch } from 'channels/middleware/utils';
+import { withPrefix, prefix as prefixMatch, defaultPrefix } from 'channels/middleware/utils';
 
 import Router from 'channels/middleware/channel-router';
 
@@ -29,7 +29,7 @@ export default function (config, notifier) {
         var scenarioManagerOpts = getOptions(opts, 'scenarioManager');
         var sm = new ScenarioRouter(scenarioManagerOpts, withPrefix(notifier, [SCENARIO_PREFIX, '']));
         handlers.push($.extend({}, sm, { 
-            match: oneOf(prefixMatch(SCENARIO_PREFIX), prefixMatch('')),
+            match: defaultPrefix(SCENARIO_PREFIX),
             options: scenarioManagerOpts.channelOptions,
             isDefault: true,
         }));
@@ -47,7 +47,7 @@ export default function (config, notifier) {
         } else {
             rm = new RunManagerRouter(runManagerOpts, withPrefix(notifier, [RUN_PREFIX, '']));
             handlers.push($.extend({}, rm, { 
-                match: oneOf(prefixMatch(RUN_PREFIX), prefixMatch('')),
+                match: defaultPrefix(RUN_PREFIX),
                 isDefault: true,
                 options: runManagerOpts.channelOptions,
             }));
