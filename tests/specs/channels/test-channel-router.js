@@ -1,4 +1,4 @@
-import { notifySubscribeHandlers, notifyUnsubscribeHandlers, passthroughPublishInterceptors } from 'src/channels/middleware/channel-router';
+import { notifySubscribeHandlers, notifyUnsubscribeHandlers, passthroughPublishInterceptors } from 'src/channels/channel-router';
 
 describe('Channel Router', ()=> {
     describe('notifySubscribeHandlers', ()=> {

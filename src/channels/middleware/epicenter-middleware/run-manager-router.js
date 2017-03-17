@@ -1,7 +1,7 @@
 import RunChannel from './run-router';
 
-import { withPrefix, prefix } from 'channels/middleware/utils';
-import Middleware from 'channels/middleware/channel-router';
+import { withPrefix, defaultPrefix } from 'channels/middleware/utils';
+import Router from 'channels/channel-router';
 
 export default function (config, notifier) {
     var defaults = {
@@ -14,22 +14,18 @@ export default function (config, notifier) {
     var $creationPromise = rm.getRun().then(()=> rm.run);
     var currentChannelOpts = $.extend(true, 
         { serviceOptions: $creationPromise }, opts.defaults, opts.current);
-    var currentRunChannel = new RunChannel(currentChannelOpts, withPrefix(notifier, 'current:'));
-    var defaultRunChannel = new RunChannel(currentChannelOpts, notifier);
+    var currentRunChannel = new RunChannel(currentChannelOpts, withPrefix(notifier, ['current:', '']));
 
     var handlers = [
         $.extend(currentRunChannel, { 
-            match: prefix('current:'),
+            match: defaultPrefix('current:'),
+            isDefault: true,
             options: currentChannelOpts.channelOptions,
-        }),
-        $.extend(defaultRunChannel, { 
-            match: prefix(''),
-            options: currentChannelOpts.channelOptions,
-        }),
+        })
     ];
 
-    var middleware = new Middleware(handlers, notifier);
-    middleware.runManager = rm;
+    var router = new Router(handlers, notifier);
+    router.runManager = rm;
     
-    return middleware;
+    return router;
 }

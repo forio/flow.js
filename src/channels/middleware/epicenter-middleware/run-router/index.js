@@ -2,8 +2,8 @@ import MetaChannel from './run-meta-channel';
 import VariablesChannel from './run-variables-channel';
 import OperationsChannel from './run-operations-channel';
 
-import Router from 'channels/middleware/channel-router';
-import { withPrefix, prefix } from 'channels/middleware/utils';
+import Router from 'channels/channel-router';
+import { withPrefix, prefix, defaultPrefix } from 'channels/middleware/utils';
 
 export default function RunRouter(config, notifier) {
     var defaults = {
@@ -39,28 +39,34 @@ export default function RunRouter(config, notifier) {
         $initialProm = $.Deferred().resolve(rs).promise();
     }
 
-    //TODO: Need 2 different channel instances because the fetch is debounced, and hence will bundle variables up otherwise.
-    //also, notify needs to be called twice (with different arguments). Different way?
-    var variableschannel = new VariablesChannel($initialProm, withPrefix(notifier, 'variables:'));
-    var defaultVariablesChannel = new VariablesChannel($initialProm, notifier);
+
     var metaChannel = new MetaChannel($initialProm, withPrefix(notifier, 'meta:'));
     var operationsChannel = new OperationsChannel($initialProm, withPrefix(notifier, 'operations:'));
+    var variableschannel = new VariablesChannel($initialProm, withPrefix(notifier, ['variables:', '']));
 
     var handlers = [
-        $.extend({}, variableschannel, { match: prefix('variables:') }),
-        $.extend({}, metaChannel, { match: prefix('meta:') }),
-        $.extend({}, operationsChannel, { match: prefix('operations:') }),
-        $.extend({}, defaultVariablesChannel, { match: prefix('') }),
+        $.extend({}, metaChannel, { 
+            match: prefix('meta:'),
+            options: opts.channelOptions.meta,
+        }),
+        $.extend({}, operationsChannel, { 
+            match: prefix('operations:'),
+            options: opts.channelOptions.operations,
+        }),
+        $.extend({}, variableschannel, { 
+            isDefault: true,
+            match: defaultPrefix('variables:'),
+            options: opts.channelOptions.variables,
+        }),
     ];
 
     var router = new Router(handlers, notifier);
     var oldhandler = router.publishHandler;
     router.publishHandler = function () {
-        var prom = oldhandler.apply(oldhandler, arguments);
+        var prom = oldhandler.apply(router, arguments);
         return prom.then(function (result) {
             if (result && result.length) {
-                variableschannel.fetch();
-                defaultVariablesChannel.fetch();
+                // variableschannel.fetch();
             }
             return result;
         });

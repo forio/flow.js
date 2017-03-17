@@ -107,6 +107,17 @@ describe('Channel Utils', ()=> {
             expect(op[0].foo).to.eql(handlers[0].foo);
             expect(op[1].bat).to.eql(handlers[1].bat);
         });
+        it('should treat handlers with different returned matches as different handlers', ()=> {
+            var handlers = [
+               { match: (v)=> v },
+            ];
+            var data = ['apple', 'banana'];
+            var op = groupByHandlers(data, handlers);
+            expect(op.length).to.eql(2);
+
+            expect(op[0].matched).to.eql(data[0]);
+            expect(op[1].matched).to.eql(data[1]);
+        });
     });
     describe('#groupSequentiallyByHandlers', ()=> {
         var groupSequentiallyByHandlers = utils.groupSequentiallyByHandlers;

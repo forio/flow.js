@@ -50,11 +50,13 @@ export function groupByHandlers(topics, handlers) {
     var topicMapping = ([].concat(topics)).reduce(function (accum, topic) {
         var bestHandler = findBestHandler(topic, handlers);
         if (bestHandler) {
-            if (!accum[bestHandler.key]) {
+            //if handler matches different strings treat both as different handlers
+            var key = bestHandler.key + bestHandler.matched;
+            if (!accum[key]) {
                 bestHandler.data = [];
-                accum[bestHandler.key] = bestHandler;
+                accum[key] = bestHandler;
             }
-            accum[bestHandler.key].data.push(topic);
+            accum[key].data.push(topic);
         }
         return accum;
     }, {});

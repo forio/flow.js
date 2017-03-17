@@ -14,6 +14,12 @@ export function prefix(prefix) {
         return (topic.indexOf(prefix) === 0) ? prefix : false;
     };
 }
+export function defaultPrefix(prefix) {
+    return function matchPrefix(topic) {
+        return prefix;
+    };
+}
+
 export function regex(regex) {
     var toMatch = new RegExp('^' + regex + CHANNEL_DELIMITER);
     return function matchRegex(topic) {
@@ -33,10 +39,13 @@ export function mapWithPrefix(dataArray, prefix) {
     });
 }
 
-export function withPrefix(callback, prefix) {
+export function withPrefix(callback, prefixList) {
+    prefixList = [].concat(prefixList);
     return function (data) {
-        var mapped = mapWithPrefix(data, prefix);
-        return callback(mapped);
+        prefixList.forEach(function (prefix) {
+            var mapped = mapWithPrefix(data, prefix);
+            callback(mapped);
+        });
     };
 }
 

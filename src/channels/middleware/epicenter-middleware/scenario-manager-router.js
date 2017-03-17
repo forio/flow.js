@@ -1,7 +1,7 @@
 import RunChannel from './run-router';
 
-import { prefix, withPrefix } from 'channels/middleware/utils';
-import Middleware from 'channels/middleware/channel-router';
+import { prefix, withPrefix, defaultPrefix } from 'channels/middleware/utils';
+import Router from 'channels/channel-router';
 
 export default function (config, notifier) {
     var defaults = {
@@ -31,16 +31,21 @@ export default function (config, notifier) {
     }, opts.defaults, opts.current);
 
     var baselineRunChannel = new RunChannel(baselineOptions, withPrefix(notifier, 'baseline:'));
-    var currentRunChannel = new RunChannel(runOptions, withPrefix(notifier, 'current:'));
-    var defaultRunChannel = new RunChannel(runOptions, withPrefix(notifier, ''));
+    var currentRunChannel = new RunChannel(runOptions, withPrefix(notifier, ['current:', '']));
 
     var handlers = [
-        $.extend(baselineRunChannel, { match: prefix('baseline:') }),
-        $.extend(currentRunChannel, { match: prefix('current:') }),
-        $.extend(defaultRunChannel, { match: prefix('') }),
+        $.extend(baselineRunChannel, {
+            match: prefix('baseline:'),
+            options: baselineOptions.channelOptions,
+        }),
+        $.extend(currentRunChannel, { 
+            isDefault: true, 
+            match: defaultPrefix('current:'),
+            options: runOptions.channelOptions,
+        }),
     ];
     
-    var middleware = new Middleware(handlers, notifier);
-    middleware.scenarioManager = sm;
-    return middleware;
+    var router = new Router(handlers, notifier);
+    router.scenarioManager = sm;
+    return router;
 }
