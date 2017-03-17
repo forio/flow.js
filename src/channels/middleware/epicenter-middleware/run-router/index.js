@@ -2,7 +2,7 @@ import MetaChannel from './run-meta-channel';
 import VariablesChannel from './run-variables-channel';
 import OperationsChannel from './run-operations-channel';
 
-import Router from 'channels/middleware/channel-router';
+import Router from 'channels/channel-router';
 import { withPrefix, prefix, defaultPrefix } from 'channels/middleware/utils';
 
 export default function RunRouter(config, notifier) {

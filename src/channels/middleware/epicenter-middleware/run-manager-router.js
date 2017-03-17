@@ -1,7 +1,7 @@
 import RunChannel from './run-router';
 
 import { withPrefix, defaultPrefix } from 'channels/middleware/utils';
-import Router from 'channels/middleware/channel-router';
+import Router from 'channels/channel-router';
 
 export default function (config, notifier) {
     var defaults = {

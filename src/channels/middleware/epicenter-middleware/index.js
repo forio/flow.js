@@ -2,10 +2,9 @@ import RunManagerRouter from './run-manager-router';
 import ScenarioRouter from './scenario-manager-router';
 import CustomRunRouter from './custom-run-router';
 
-import { oneOf } from 'utils/functional';
 import { withPrefix, prefix as prefixMatch, defaultPrefix } from 'channels/middleware/utils';
 
-import Router from 'channels/middleware/channel-router';
+import Router from 'channels/channel-router';
 
 function getOptions(opts, key) {
     var serviceOptions = $.extend(true, {}, opts.defaults, opts[key]);
