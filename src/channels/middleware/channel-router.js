@@ -1,6 +1,8 @@
 import { groupByHandlers, groupSequentiallyByHandlers } from 'channels/channel-utils';
 import { unprefix, mapWithPrefix, silencable } from 'channels/middleware/utils';
 
+var { uniqueId } = _;
+
 /**
  * Handle subscriptions
  * @param  {Array} handlers Array of the form [{ match: function (){}, }]
@@ -55,7 +57,7 @@ export function passthroughPublishInterceptors(handlers, publishData, options) {
                 return silencable(published, mergedOptions.silent);
             }).then(function (published) {
                 var mapped = mapWithPrefix(published, handler.matched);
-                if (handler.isDefault) {
+                if (handler.isDefault && handler.matched) {
                     mapped = mapped.concat(published);
                 }
                 return mapped;
@@ -74,8 +76,32 @@ export function passthroughPublishInterceptors(handlers, publishData, options) {
  */
 export default function Router(handlers) {
     return {
-        subscribeHandler: notifySubscribeHandlers.bind(null, handlers),
-        unsubscribeHandler: notifyUnsubscribeHandlers.bind(null, handlers),
-        publishHandler: passthroughPublishInterceptors.bind(null, handlers),
+        subscribeHandler: function (topics) {
+            return notifySubscribeHandlers(handlers, topics);
+        },
+        unsubscribeHandler: function (recentlyUnsubscribedTopics, remainingTopics) {
+            return notifyUnsubscribeHandlers(handlers, recentlyUnsubscribedTopics, remainingTopics);
+        },
+        publishHandler: function (data, options) {
+            return passthroughPublishInterceptors(handlers, data, options);
+        },
+
+        // Ignoring till ready to implement
+        // addRoute: function (handler) {
+        //     if (!handler || !handler.match) {
+        //         throw Error('Handler does not have a valid `match` property');
+        //     }
+        //     handler.id = uniqueId('routehandler-');
+        //     handlers.push(handler);
+        //     return handler.id;
+        // },
+        // removeRoute: function (routeid) {
+        //     handlers = handlers.reduce(function (accum, handler) {
+        //         if (handler.id !== routeid) {
+        //             accum.push(handler);
+        //         }
+        //         return accum;
+        //     }, []);
+        // }
     };
 }
