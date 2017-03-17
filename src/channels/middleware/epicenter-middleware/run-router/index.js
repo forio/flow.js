@@ -39,18 +39,26 @@ export default function RunRouter(config, notifier) {
         $initialProm = $.Deferred().resolve(rs).promise();
     }
 
-    //TODO: Need 2 different channel instances because the fetch is debounced, and hence will bundle variables up otherwise.
-    //also, notify needs to be called twice (with different arguments). Different way?
-    var variableschannel = new VariablesChannel($initialProm, withPrefix(notifier, 'variables:'));
-    var defaultVariablesChannel = new VariablesChannel($initialProm, notifier);
+    var dualPrefixNotifier = function (prefix) {
+        return function (data) {
+            withPrefix(notifier, prefix)(data);
+            notifier(data);
+        };
+    };
+
+    var dualMatcher = function (prefixString) {
+        return function (input) {
+            return prefix(prefixString)(input) || prefix('')(input);
+        };
+    };
+    var variableschannel = new VariablesChannel($initialProm, dualPrefixNotifier('variables:'));
     var metaChannel = new MetaChannel($initialProm, withPrefix(notifier, 'meta:'));
     var operationsChannel = new OperationsChannel($initialProm, withPrefix(notifier, 'operations:'));
 
     var handlers = [
-        $.extend({}, variableschannel, { match: prefix('variables:') }),
         $.extend({}, metaChannel, { match: prefix('meta:') }),
         $.extend({}, operationsChannel, { match: prefix('operations:') }),
-        $.extend({}, defaultVariablesChannel, { match: prefix('') }),
+        $.extend({}, variableschannel, { match: dualMatcher('variables:') }),
     ];
 
     var router = new Router(handlers, notifier);
@@ -60,7 +68,6 @@ export default function RunRouter(config, notifier) {
         return prom.then(function (result) {
             if (result && result.length) {
                 variableschannel.fetch();
-                defaultVariablesChannel.fetch();
             }
             return result;
         });
