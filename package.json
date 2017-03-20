@@ -33,6 +33,7 @@
     "grunt-markdox": "^1.2.1",
     "grunt-mocha": "^1.0.4",
     "grunt-mocha-phantom-istanbul": "^0.2.1",
+    "grunt-mocha-phantom-istanbul-senluchen2015": "^0.2.1",
     "grunt-sass": "^2.0.0",
     "grunt-webpack": "^2.0.1",
     "husky": "^0.13.1",
