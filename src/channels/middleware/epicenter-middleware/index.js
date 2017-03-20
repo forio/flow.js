@@ -24,6 +24,7 @@ export default function (config, notifier) {
     var customRunChannel = new CustomRunRouter(customRunChannelOpts, notifier);
 
     var handlers = [customRunChannel];
+    var namesList = {};
     if (opts.scenarioManager) {
         var scenarioManagerOpts = getOptions(opts, 'scenarioManager');
         var sm = new ScenarioRouter(scenarioManagerOpts, withPrefix(notifier, [SCENARIO_PREFIX, '']));
@@ -32,6 +33,8 @@ export default function (config, notifier) {
             options: scenarioManagerOpts.channelOptions,
             isDefault: true,
         }));
+
+        namesList.scenario = sm;
     }
 
     var runManagerOpts = getOptions(opts, 'runManager');
@@ -40,19 +43,25 @@ export default function (config, notifier) {
         if (opts.scenarioManager) {
             rm = new RunManagerRouter(runManagerOpts, withPrefix(notifier, RUN_PREFIX));
             handlers.push($.extend({}, rm, { 
+                name: 'scenario',
                 match: prefixMatch(RUN_PREFIX),
                 options: runManagerOpts.channelOptions,
             }));
         } else {
             rm = new RunManagerRouter(runManagerOpts, withPrefix(notifier, [RUN_PREFIX, '']));
             handlers.push($.extend({}, rm, { 
+                name: 'run',
                 match: defaultPrefix(RUN_PREFIX),
                 isDefault: true,
                 options: runManagerOpts.channelOptions,
             }));
         }
+
+        namesList.run = rm;
     }
 
     var router = new Router(handlers, notifier);
-    return router;
+    router.name = 'epi';
+    
+    return $.extend(router, namesList);
 }

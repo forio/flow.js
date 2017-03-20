@@ -62,7 +62,7 @@ module.exports = function (grunt) {
                 reasons: false
             },
             plugins: [
-                new webpack.HotModuleReplacementPlugin()
+                // new webpack.HotModuleReplacementPlugin()
             ],
             devtool: 'eval'
         },
@@ -93,7 +93,7 @@ module.exports = function (grunt) {
                     { test: /\.jl$/, loader: 'raw-loader' },
                 ]
             },
-            devtool: 'source-map',
+            devtool: 'eval',
             resolve: {
                 alias: {
                     src: __dirname + '/../src'

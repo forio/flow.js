@@ -66,7 +66,7 @@ export default function RunRouter(config, notifier) {
         var prom = oldhandler.apply(router, arguments);
         return prom.then(function (result) {
             if (result && result.length) {
-                // variableschannel.fetch();
+                variableschannel.fetch();
             }
             return result;
         });

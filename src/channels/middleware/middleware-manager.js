@@ -1,4 +1,4 @@
-export default function MiddlewareManager(options, notifier) {
+export default function MiddlewareManager(options, notifier, channelManagerContext) {
     var defaults = {
         middlewares: []
     };
@@ -12,6 +12,9 @@ export default function MiddlewareManager(options, notifier) {
         add: function (middleware, index) {
             if (_.isFunction(middleware)) {
                 middleware = new middleware(optsToPassOn, notifier);
+            }
+            if (middleware.name) {
+                channelManagerContext[middleware.name] = middleware;
             }
             list.push(middleware);
         },

@@ -162,7 +162,7 @@ Once we have context
 
 
 <table>
-    <tbody data-f-foreach="savedruns">
+    <tbody data-f-foreach="run in savedruns:Price">
         <tr> <!-- Auto populate context? -->
             <td data-f-bind=""><%= run.name %></td>
         </tr>

@@ -46,6 +46,6 @@ export default function (config, notifier) {
     ];
     
     var router = new Router(handlers, notifier);
-    router.scenarioManager = sm;
+    router.manager = sm;
     return router;
 }

@@ -1,3 +1,9 @@
+You can access the current run and scenario manager instances through
+Flow.channel.epi.run.manager
+Flow.channel.epi.scenario.manager
+
+
+
 New Format:
 
 channel({
