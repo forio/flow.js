@@ -1,9 +1,8 @@
-import MetaChannel from './run-meta-channel';
-import VariablesChannel from './run-variables-channel';
-import OperationsChannel from './run-operations-channel';
+import VariablesChannel from './saved-runs-variables';
+import OperationsChannel from './saved-runs-operations';
 
 import Router from 'channels/channel-router';
-import { withPrefix, prefix, defaultPrefix } from 'channels/middleware/utils';
+import { withPrefix, prefix } from 'channels/middleware/utils';
 
 export default function RunRouter(config, notifier) {
     var defaults = {
@@ -18,47 +17,33 @@ export default function RunRouter(config, notifier) {
                 readOnly: false,
                 silent: false,
             },
-            meta: {
-                silent: false,
-                autoFetch: true,
-                readOnly: false
-            },
         }
     };
     var opts = $.extend(true, {}, defaults, config);
 
     var serviceOptions = _.result(opts, 'serviceOptions');
 
-    var $initialProm = null;
-    if (serviceOptions instanceof window.F.service.Run) {
-        $initialProm = $.Deferred().resolve(serviceOptions).promise();
-    } else if (serviceOptions.then) {
-        $initialProm = serviceOptions;
+    var savedRunsManager;
+    if (serviceOptions instanceof window.F.manager.SavedRunsManager) {
+        savedRunsManager = serviceOptions;
     } else {
-        var rs = new window.F.service.Run(serviceOptions);
-        $initialProm = $.Deferred().resolve(rs).promise();
+        savedRunsManager = new window.F.manager.SavedRunsManager(serviceOptions);
     }
 
 
-    var metaChannel = new MetaChannel($initialProm, withPrefix(notifier, 'meta:'));
-    var operationsChannel = new OperationsChannel($initialProm, withPrefix(notifier, 'operations:'));
-    var variableschannel = new VariablesChannel($initialProm, withPrefix(notifier, ['variables:', '']));
+    var operationsChannel = new OperationsChannel(savedRunsManager, withPrefix(notifier, 'operations:'));
+    var variableschannel = new VariablesChannel(savedRunsManager, notifier);
 
     var handlers = [
-        $.extend({}, metaChannel, { 
-            name: 'meta',
-            match: prefix('meta:'),
-            options: opts.channelOptions.meta,
-        }),
         $.extend({}, operationsChannel, { 
             name: 'operations',
             match: prefix('operations:'),
             options: opts.channelOptions.operations,
         }),
         $.extend({}, variableschannel, { 
+            name: 'savedDefault',
             isDefault: true,
-            name: 'variables',
-            match: defaultPrefix('variables:'),
+            match: prefix(''),
             options: opts.channelOptions.variables,
         }),
     ];
