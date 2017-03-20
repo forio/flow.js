@@ -1,3 +1,4 @@
+import JSONParseMiddleware from './middleware/json-parse-middleware';
 import EpicenterMiddleware from './middleware/epicenter-middleware';
 import DefaultChannelManager from './channel-manager';
 

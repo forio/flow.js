@@ -13,70 +13,54 @@
     <section>
         <button id="btnStep">Step</button>
     </section>
-
     <table class="table" style="width: 600px;">
         <thead>
             <tr>
                 <th>Type</th>
-                <th>Input</th>
                 <th>Output</th>
             </tr>
         </thead>
         <tbody id="outputs">
+            <tr>
+                <th>savedRuns:Price</th>
+                <td>
+                    <ul data-f-foreach="savedRuns:Price">
+                        <li>Name <%= value.name %></li>
+                        <li>Id <%= value.id %></li>
+                        <li>Price <%= value.variables.Price %></li>
+                        <li>
+                            Bound price
+                            <ol data-f-foreach="p in <%= JSON.stringify(value.variables.Price) %>">
+                                <li><%= p %></li>
+                            </ol>
+                        </li>
+                    </ul>
+                </td>
+            </tr>
         </tbody>
     </table>
     <script>
-    var sm = new Flow.ChannelManager({
-        scenarioManager: {
-            run: {
-                account: 'jaimedp',
-                project: 'glasses',
-                model: 'gglasses.vmf',
+    Flow.initialize({
+        channel: {
+            scenarioManager: {
+                run: {
+                    account: 'jaimedp',
+                    project: 'glasses',
+                    model: 'gglasses.vmf',
+                }
+            },
+            channelOptions: {
+                // variables: {
+                //     readOnly: false,
+                //     silent: false,
+                // },
+                // operations: {
+                //     silent: true,
+                // }
             }
-        },
-        channelOptions: {
-            // variables: {
-            //     readOnly: false,
-            //     silent: false,
-            // },
-            // operations: {
-            //     silent: true,
-            // }
         }
     });
 
-
-    var toTest = [
-        'savedRuns:Price',
-    ];
-
-    toTest.forEach(function (key) {
-        $('#outputs').append(`
-            <tr>
-                <td>${key}</td>
-                <td><input class="input" type="text" bind=${key} /></td>
-                <td class="output" bind="${key}"></td>
-            </tr>
-        `);
-    });
-    $('body').on('change', '.input', function (evt) {
-        var val = ($(evt.target).val());
-        val = isNaN(Number(val)) ? val : Number(val);
-        sm.publish($(evt.target).attr('bind'), val);
-    });
-
-    sm.subscribe(toTest, function (val) {
-        Object.keys(val).forEach(function (key) {
-            var $target = $('.output[bind="' + key + '"]');
-            $target.html(JSON.stringify(val[key]));
-        });
-    });
-
-
-    $('#btnStep').on('click', function (evt) {
-        sm.publish('operation:step');
-    });
-    window.sm = sm;
     </script>
 </body>
 
