@@ -85,7 +85,7 @@ module.exports = function (grunt) {
                     { test: /\.jl$/, loader: 'raw-loader' },
                 ]
             },
-            devtool: 'eval-source-map',
+            devtool: 'source-map',
             resolve: {
                 alias: {
                     src: __dirname + '/../src'
