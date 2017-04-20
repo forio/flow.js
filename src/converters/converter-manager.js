@@ -208,6 +208,7 @@ var defaultconverters = [
     require('./underscore-utils-converter'),
     require('./numberformat-converter'),
     require('./number-compare-converters'),
+    require('./bool-conditional-converters'),
 ];
 
 $.each(defaultconverters.reverse(), function (index, converter) {

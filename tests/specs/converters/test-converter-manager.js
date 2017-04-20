@@ -119,6 +119,7 @@
             require('./test-numberformat-converters');
             require('./test-underscore-converters');
             require('./test-number-compare-converters');
+            require('./test-bool-conditional-converters');
         });
     });
 }());

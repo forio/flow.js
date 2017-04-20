@@ -3,9 +3,9 @@
 function parseArgs(limit, trueVal, falseVal, valueToCompare) {
     var toReturn = { trueVal: true, falseVal: false };
     switch (arguments.length) {
-        case 4:
+        case 4: //eslint-disable-line
             return $.extend(toReturn, { trueVal: trueVal, falseVal: falseVal, input: valueToCompare });
-        case 3:
+        case 3: //eslint-disable-line
             return $.extend(toReturn, { trueVal: trueVal, input: falseVal }); 
         case 2:
             return $.extend(toReturn, { input: trueVal }); 
@@ -22,7 +22,7 @@ module.exports = {
         var args = parseArgs.apply(null, arguments);
         return Number(args.input) >= Number(limit) ? args.trueVal : args.falseVal;
     },
-    equals: function (limit, trueVal, falseVal, valueToCompare) {
+    equalsNumber: function (limit, trueVal, falseVal, valueToCompare) {
         var args = parseArgs.apply(null, arguments);
         return Number(args.input) === Number(limit) ? args.trueVal : args.falseVal;
     },
