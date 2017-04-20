@@ -11,7 +11,7 @@
 
 'use strict';
 
-//TODO: Make all underscore filters available
+var splitNameArgs = require('../utils/parse-utils').splitNameArgs;
 
 var normalize = function (alias, converter, acceptList) {
     var ret = [];
@@ -111,9 +111,15 @@ var converterManager = {
     },
 
     getConverter: function (alias) {
-        return _.find(this.list, function (converter) {
-            return matchConverter(alias, converter);
+        var norm = splitNameArgs(alias);
+        var conv = _.find(this.list, function (converter) {
+            return matchConverter(norm.name, converter);
         });
+        if (conv && norm.args) {
+            console.log(conv, conv.convert);
+            return $.extend({}, conv, { convert: Function.bind.apply(conv.convert, [null].concat(norm.args)) });
+        }
+        return conv;
     },
 
     /**
