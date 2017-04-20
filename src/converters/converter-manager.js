@@ -207,6 +207,7 @@ var defaultconverters = [
     require('./array-converter'),
     require('./underscore-utils-converter'),
     require('./numberformat-converter'),
+    require('./number-compare-converters'),
 ];
 
 $.each(defaultconverters.reverse(), function (index, converter) {
