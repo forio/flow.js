@@ -28,11 +28,15 @@
   </head>
   <body data-f-model="gglasses.vmf" data-f-on-init="start_game">
 
+    <input type="text" data-f-bind="Price" />
     <h2>Control</h2>
       <div>
           <div data-f-bind="Price, Revenue | custom"><%= Price %> || <%= Revenue %> </div>
           <div data-f-bind="Time">Time: <%= value %></div>
           <div data-f-bind="Time | greaterThan(2000)"></div>
+
+          <div data-f-showif="Price | greaterThan(500)">Only show if price > 500</div>
+
           <button data-f-on-click="step(1)">Advance One Step</button>
           <button data-f-on-click="reset">Reset</button>
 
