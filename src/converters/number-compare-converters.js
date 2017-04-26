@@ -1,36 +1,36 @@
 'use strict';
 
-function parseArgs(limit, trueVal, falseVal, valueToCompare) {
+function parseArgs(limit, trueVal, falseVal, valueToCompare, matchString) {
     var toReturn = { trueVal: true, falseVal: false };
     switch (arguments.length) {
-        case 4: //eslint-disable-line
+        case 5: //eslint-disable-line
             return $.extend(toReturn, { trueVal: trueVal, falseVal: falseVal, input: valueToCompare });
-        case 3: //eslint-disable-line
+        case 4: //eslint-disable-line
             return $.extend(toReturn, { trueVal: trueVal, input: falseVal }); 
-        case 2:
+        case 3: //eslint-disable-line
             return $.extend(toReturn, { input: trueVal }); 
         default:
             return toReturn;
     }
 }
 module.exports = {
-    greaterThan: function (limit, trueVal, falseVal, valueToCompare) {
+    greaterThan: function (limit) {
         var args = parseArgs.apply(null, arguments);
         return Number(args.input) > Number(limit) ? args.trueVal : args.falseVal;
     },
-    greaterThanEqual: function (limit, trueVal, falseVal, valueToCompare) {
+    greaterThanEqual: function (limit) {
         var args = parseArgs.apply(null, arguments);
         return Number(args.input) >= Number(limit) ? args.trueVal : args.falseVal;
     },
-    equalsNumber: function (limit, trueVal, falseVal, valueToCompare) {
+    equalsNumber: function (limit) {
         var args = parseArgs.apply(null, arguments);
         return Number(args.input) === Number(limit) ? args.trueVal : args.falseVal;
     },
-    lesserThan: function (limit, trueVal, falseVal, valueToCompare) {
+    lesserThan: function (limit) {
         var args = parseArgs.apply(null, arguments);
         return Number(args.input) < Number(limit) ? args.trueVal : args.falseVal;
     },
-    lesserThanEqual: function (limit, trueVal, falseVal, valueToCompare) {
+    lesserThanEqual: function (limit) {
         var args = parseArgs.apply(null, arguments);
         return Number(args.input) <= Number(limit) ? args.trueVal : args.falseVal;
     }
