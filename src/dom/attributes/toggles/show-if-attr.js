@@ -1,5 +1,5 @@
 module.exports = {
-    test: 'hideif',
+    test: 'showif',
 
     target: '*',
 
