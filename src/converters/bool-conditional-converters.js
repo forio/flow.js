@@ -1,11 +1,11 @@
 'use strict';
 
-function parseArgs(trueVal, falseVal, input) {
+function parseArgs(trueVal, falseVal, input, matchString) {
     var toReturn = { trueVal: true, falseVal: false };
     switch (arguments.length) {
-        case 3: //eslint-disable-line
+        case 4: //eslint-disable-line
             return $.extend(toReturn, { trueVal: trueVal, falseVal: falseVal, input: input });
-        case 2:
+        case 3: //eslint-disable-line
             return $.extend(toReturn, { trueVal: trueVal, input: falseVal }); 
         default:
             return toReturn;
@@ -13,11 +13,11 @@ function parseArgs(trueVal, falseVal, input) {
 }
 
 module.exports = {
-    ifTrue: function (trueVal, falseVal, input) {
+    ifTrue: function () {
         var args = parseArgs.apply(null, arguments);
         return args.input ? args.trueVal : args.falseVal;
     },
-    ifFalse: function (trueVal, falseVal, input) {
+    ifFalse: function () {
         var args = parseArgs.apply(null, arguments);
         return args.input ? args.falseVal : args.trueVal;
     }
