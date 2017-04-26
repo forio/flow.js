@@ -1,5 +1,7 @@
 'use strict';
 var nc = require('src/converters/number-compare-converters');
+var cm = require('src/converters/converter-manager.js');
+
 module.exports = (function () {
     describe('Number compare converters', function () {
         describe('greaterThan', function () {
@@ -28,6 +30,20 @@ module.exports = (function () {
             it('return false value if provided', function () {
                 nc.lesserThan(50, 'boo', 'baa', 100).should.equal('baa');
                 nc.lesserThan(50, 'boo', 'baa', 10).should.equal('boo');
+            });
+        });
+        describe('Integration', function () {
+            it('greaterThan: return true if gt by default', function () {
+                cm.convert('3000', 'greaterThan(2000)').should.equal(true);
+                cm.convert('3000', 'greaterThan(4000)').should.equal(false);
+            });
+            it('greaterThan: return true value if provided', function () {
+                cm.convert('3000', 'greaterThan(2000, apples)').should.equal('apples');
+                cm.convert('3000', 'greaterThan(4000, apples)').should.equal(false);
+            });
+            it('greaterThan: return false value if provided', function () {
+                cm.convert('3000', 'greaterThan(2000, apples, oranges)').should.equal('apples');
+                cm.convert('3000', 'greaterThan(4000, apples, oranges)').should.equal('oranges');
             });
         });
     });
