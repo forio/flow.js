@@ -4,7 +4,7 @@ function toImplicitType(data) {
     var rbrace = /^(?:\{.*\}|\[.*\])$/;
     var converted = data;
     if (typeof data === 'string') {
-        data = data.trim();
+        converted = data = data.trim();
 
         if (data === 'true') {
             converted = true;
