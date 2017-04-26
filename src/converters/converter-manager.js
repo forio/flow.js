@@ -116,7 +116,6 @@ var converterManager = {
             return matchConverter(norm.name, converter);
         });
         if (conv && norm.args) {
-            console.log(conv, conv.convert);
             return $.extend({}, conv, { convert: Function.bind.apply(conv.convert, [null].concat(norm.args)) });
         }
         return conv;

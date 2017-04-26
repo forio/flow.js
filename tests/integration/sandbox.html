@@ -32,6 +32,7 @@
       <div>
           <div data-f-bind="Price, Revenue | custom"><%= Price %> || <%= Revenue %> </div>
           <div data-f-bind="Time">Time: <%= value %></div>
+          <div data-f-bind="Time | greaterThan(2000)"></div>
           <button data-f-on-click="step(1)">Advance One Step</button>
           <button data-f-on-click="reset">Reset</button>
 
