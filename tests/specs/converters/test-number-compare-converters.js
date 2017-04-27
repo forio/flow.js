@@ -7,11 +7,11 @@ module.exports = (function () {
         describe('greaterThan', function () {
             it('return true if gt by default', function () {
                 nc.greaterThan(50, 100, 'match').should.equal(true);
-                nc.greaterThan(50, 10, 'match').should.equal(false);
+                nc.greaterThan(50, 10, 'match').should.equal(10);
             });
             it('return true value if provided', function () {
                 nc.greaterThan(50, 'boo', 100, 'match').should.equal('boo');
-                nc.greaterThan(50, 'boo', 10, 'match').should.equal(false);
+                nc.greaterThan(50, 'boo', 10, 'match').should.equal(10);
             });
             it('return false value if provided', function () {
                 nc.greaterThan(50, 'boo', 'baa', 100, 'match').should.equal('boo');
@@ -20,11 +20,11 @@ module.exports = (function () {
         });
         describe('lesserThan', function () {
             it('return true if gt by default', function () {
-                nc.lesserThan(50, 100, 'match').should.equal(false);
+                nc.lesserThan(50, 100, 'match').should.equal(100);
                 nc.lesserThan(50, 10, 'match').should.equal(true);
             });
             it('return true value if provided', function () {
-                nc.lesserThan(50, 'boo', 100, 'match').should.equal(false);
+                nc.lesserThan(50, 'boo', 100, 'match').should.equal(100);
                 nc.lesserThan(50, 'boo', 10, 'match').should.equal('boo');
             });
             it('return false value if provided', function () {
@@ -35,11 +35,11 @@ module.exports = (function () {
         describe('Integration', function () {
             it('greaterThan: return true if gt by default', function () {
                 cm.convert('3000', 'greaterThan(2000)').should.equal(true);
-                cm.convert('3000', 'greaterThan(4000)').should.equal(false);
+                cm.convert('3000', 'greaterThan(4000)').should.equal('3000');
             });
             it('greaterThan: return true value if provided', function () {
                 cm.convert('3000', 'greaterThan(2000, apples)').should.equal('apples');
-                cm.convert('3000', 'greaterThan(4000, apples)').should.equal(false);
+                cm.convert('3000', 'greaterThan(4000, apples)').should.equal('3000');
             });
             it('greaterThan: return false value if provided', function () {
                 cm.convert('3000', 'greaterThan(2000, apples, oranges)').should.equal('apples');
