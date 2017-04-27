@@ -45,6 +45,12 @@ module.exports = (function () {
                 cm.convert('3000', 'greaterThan(2000, apples, oranges)').should.equal('apples');
                 cm.convert('3000', 'greaterThan(4000, apples, oranges)').should.equal('oranges');
             });
+            it('should be able to chain greaterThans', ()=> {
+                cm.convert('3', ['greaterThan(2, v.angry)', 'greaterThan(1, angry)', 'greaterThan(0, ok)']).should.equal('v.angry');
+                cm.convert('2', ['greaterThan(2, v.angry)', 'greaterThan(1, angry)', 'greaterThan(0, ok)']).should.equal('angry');
+                cm.convert('1', ['greaterThan(2, v.angry)', 'greaterThan(1, angry)', 'greaterThan(0, ok)']).should.equal('ok');
+                cm.convert('-1', ['greaterThan(2, v.angry)', 'greaterThan(1, angry)', 'greaterThan(0, ok)']).should.equal('-1');
+            });
         });
     });
 }());
