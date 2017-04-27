@@ -13,6 +13,14 @@ function parseArgs(trueVal, falseVal, input, matchString) {
 }
 
 module.exports = {
+    /**
+     * Converts a 'truthy' values to true and 'falsy' values to false
+     * @param {Any} value
+     * @return {Boolean}
+     */
+    toBool: function (value) {
+        return !!value;
+    },
     ifTrue: function () {
         var args = parseArgs.apply(null, arguments);
         return args.input ? args.trueVal : args.falseVal;

@@ -4,6 +4,17 @@ var cm = require('src/converters/converter-manager.js');
 
 module.exports = (function () {
     describe('Boolean Conditional', function () {
+        describe('toBool', ()=> {
+            it('should return true for truthy values', ()=> {
+                nc.toBool(1).should.equal(true);
+                nc.toBool('apples').should.equal(true);
+                nc.toBool([]).should.equal(true);
+            });
+            it('should return false for flasy values', ()=> {
+                nc.toBool(0).should.equal(false);
+                nc.toBool('').should.equal(false);
+            });
+        });
         describe('ifTrue', function () {
             it('return true value if provided', function () {
                 nc.ifTrue('boo', true, 'match').should.equal('boo');
