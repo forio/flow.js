@@ -7,9 +7,9 @@ var Flow =
 /******/ 	function __webpack_require__(moduleId) {
 /******/
 /******/ 		// Check if module is in cache
-/******/ 		if(installedModules[moduleId])
+/******/ 		if(installedModules[moduleId]) {
 /******/ 			return installedModules[moduleId].exports;
-/******/
+/******/ 		}
 /******/ 		// Create a new module (and put it into the cache)
 /******/ 		var module = installedModules[moduleId] = {
 /******/ 			i: moduleId,
@@ -64,7 +64,7 @@ var Flow =
 /******/ 	__webpack_require__.p = "";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 33);
+/******/ 	return __webpack_require__(__webpack_require__.s = 35);
 /******/ })
 /************************************************************************/
 /******/ ([
@@ -127,33 +127,42 @@ module.exports = {
 "use strict";
 
 
-module.exports = {
+function toImplicitType(data) {
+    var rbrace = /^(?:\{.*\}|\[.*\])$/;
+    var converted = data;
+    if (typeof data === 'string') {
+        converted = data = data.trim();
 
-    toImplicitType: function (data) {
-        var rbrace = /^(?:\{.*\}|\[.*\])$/;
-        var converted = data;
-        if (typeof data === 'string') {
-            data = data.trim();
-
-            if (data === 'true') {
-                converted = true;
-            } else if (data === 'false') {
-                converted = false;
-            } else if (data === 'null') {
-                converted = null;
-            } else if (data === 'undefined') {
-                converted = '';
-            } else if (converted.charAt(0) === '\'' || converted.charAt(0) === '"') {
-                converted = data.substring(1, data.length - 1);
-            } else if ($.isNumeric(data)) {
-                converted = +data;
-            } else if (rbrace.test(data)) {
-                //TODO: This only works with double quotes, i.e., [1,"2"] works but not [1,'2']
-                converted = JSON.parse(data);
-            }
+        if (data === 'true') {
+            converted = true;
+        } else if (data === 'false') {
+            converted = false;
+        } else if (data === 'null') {
+            converted = null;
+        } else if (data === 'undefined') {
+            converted = '';
+        } else if (converted.charAt(0) === '\'' || converted.charAt(0) === '"') {
+            converted = data.substring(1, data.length - 1);
+        } else if ($.isNumeric(data)) {
+            converted = +data;
+        } else if (rbrace.test(data)) {
+            //TODO: This only works with double quotes, i.e., [1,"2"] works but not [1,'2']
+            converted = JSON.parse(data);
         }
-        return converted;
     }
+    return converted;
+}
+
+module.exports = {
+    splitNameArgs: function (value) {
+        var fnName = value.split('(')[0];
+        var params = value.substring(value.indexOf('(') + 1, value.indexOf(')'));
+        var args = ($.trim(params) !== '') ? params.split(',') : [];
+        args = args.map(toImplicitType);
+        return { name: fnName, args: args };
+    },
+
+    toImplicitType: toImplicitType
 };
 
 
@@ -379,12 +388,12 @@ module.exports = function (options) {
 module.exports = (function () {
     var config = __webpack_require__(0);
     var parseUtils = __webpack_require__(1);
-    var domUtils = __webpack_require__(31);
+    var domUtils = __webpack_require__(36);
 
-    var converterManager = __webpack_require__(10);
-    var nodeManager = __webpack_require__(29);
-    var attrManager = __webpack_require__(15);
-    var autoUpdatePlugin = __webpack_require__(30);
+    var converterManager = __webpack_require__(11);
+    var nodeManager = __webpack_require__(33);
+    var attrManager = __webpack_require__(17);
+    var autoUpdatePlugin = __webpack_require__(34);
 
     //Jquery selector to return everything which has a f- property set
     $.expr.pseudos[config.prefix] = function (el) {
@@ -1675,6 +1684,37 @@ module.exports = list;
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
+
+
+function parseArgs(trueVal, falseVal, input, matchString) {
+    var toReturn = { trueVal: true, falseVal: false };
+    switch (arguments.length) {
+        case 4: //eslint-disable-line
+            return $.extend(toReturn, { trueVal: trueVal, falseVal: falseVal, input: input });
+        case 3: //eslint-disable-line
+            return $.extend(toReturn, { trueVal: trueVal, input: falseVal }); 
+        default:
+            return toReturn;
+    }
+}
+
+module.exports = {
+    ifTrue: function () {
+        var args = parseArgs.apply(null, arguments);
+        return args.input ? args.trueVal : args.falseVal;
+    },
+    ifFalse: function () {
+        var args = parseArgs.apply(null, arguments);
+        return args.input ? args.falseVal : args.trueVal;
+    }
+};
+
+
+/***/ }),
+/* 11 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
 /**
  * ## Converter Manager: Make your own Converters
  *
@@ -1688,7 +1728,7 @@ module.exports = list;
 
 
 
-//TODO: Make all underscore filters available
+var splitNameArgs = __webpack_require__(1).splitNameArgs;
 
 var normalize = function (alias, converter, acceptList) {
     var ret = [];
@@ -1788,9 +1828,14 @@ var converterManager = {
     },
 
     getConverter: function (alias) {
-        return _.find(this.list, function (converter) {
-            return matchConverter(alias, converter);
+        var norm = splitNameArgs(alias);
+        var conv = _.find(this.list, function (converter) {
+            return matchConverter(norm.name, converter);
         });
+        if (conv && norm.args) {
+            return $.extend({}, conv, { convert: Function.bind.apply(conv.convert, [null].concat(norm.args)) });
+        }
+        return conv;
     },
 
     /**
@@ -1873,11 +1918,13 @@ var converterManager = {
 
 //Bootstrap
 var defaultconverters = [
-    __webpack_require__(11),
     __webpack_require__(13),
+    __webpack_require__(15),
     __webpack_require__(9),
+    __webpack_require__(16),
     __webpack_require__(14),
     __webpack_require__(12),
+    __webpack_require__(10),
 ];
 
 $.each(defaultconverters.reverse(), function (index, converter) {
@@ -1894,7 +1941,51 @@ module.exports = converterManager;
 
 
 /***/ }),
-/* 11 */
+/* 12 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+function parseArgs(limit, trueVal, falseVal, valueToCompare, matchString) {
+    var toReturn = { trueVal: true, falseVal: false };
+    switch (arguments.length) {
+        case 5: //eslint-disable-line
+            return $.extend(toReturn, { trueVal: trueVal, falseVal: falseVal, input: valueToCompare });
+        case 4: //eslint-disable-line
+            return $.extend(toReturn, { trueVal: trueVal, input: falseVal }); 
+        case 3: //eslint-disable-line
+            return $.extend(toReturn, { input: trueVal }); 
+        default:
+            return toReturn;
+    }
+}
+module.exports = {
+    greaterThan: function (limit) {
+        var args = parseArgs.apply(null, arguments);
+        return Number(args.input) > Number(limit) ? args.trueVal : args.falseVal;
+    },
+    greaterThanEqual: function (limit) {
+        var args = parseArgs.apply(null, arguments);
+        return Number(args.input) >= Number(limit) ? args.trueVal : args.falseVal;
+    },
+    equalsNumber: function (limit) {
+        var args = parseArgs.apply(null, arguments);
+        return Number(args.input) === Number(limit) ? args.trueVal : args.falseVal;
+    },
+    lesserThan: function (limit) {
+        var args = parseArgs.apply(null, arguments);
+        return Number(args.input) < Number(limit) ? args.trueVal : args.falseVal;
+    },
+    lesserThanEqual: function (limit) {
+        var args = parseArgs.apply(null, arguments);
+        return Number(args.input) <= Number(limit) ? args.trueVal : args.falseVal;
+    }
+};
+
+
+/***/ }),
+/* 13 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -1932,7 +2023,7 @@ module.exports = {
 
 
 /***/ }),
-/* 12 */
+/* 14 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -2282,7 +2373,7 @@ module.exports = {
 
 
 /***/ }),
-/* 13 */
+/* 15 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -2376,7 +2467,7 @@ module.exports = {
 
 
 /***/ }),
-/* 14 */
+/* 16 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -2407,7 +2498,7 @@ module.exports = list;
 
 
 /***/ }),
-/* 15 */
+/* 17 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -2456,18 +2547,20 @@ module.exports = list;
 
 
 var defaultHandlers = [
-    __webpack_require__(25),
-    __webpack_require__(22),
-    __webpack_require__(21),
-    __webpack_require__(23),
-    __webpack_require__(16),
-    __webpack_require__(18),
-    __webpack_require__(19),
     __webpack_require__(27),
-    __webpack_require__(26),
     __webpack_require__(24),
-    __webpack_require__(17),
-    __webpack_require__(20)
+    __webpack_require__(23),
+    __webpack_require__(25),
+    __webpack_require__(18),
+    __webpack_require__(20),
+    __webpack_require__(21),
+    __webpack_require__(29),
+    __webpack_require__(28),
+    __webpack_require__(26),
+    __webpack_require__(31),
+    __webpack_require__(30),
+    __webpack_require__(19),
+    __webpack_require__(22)
 ];
 
 var handlersList = [];
@@ -2578,7 +2671,7 @@ module.exports = {
 
 
 /***/ }),
-/* 16 */
+/* 18 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -2621,7 +2714,7 @@ module.exports = {
 
 
 /***/ }),
-/* 17 */
+/* 19 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -2757,7 +2850,7 @@ module.exports = {
 
 
 /***/ }),
-/* 18 */
+/* 20 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -2798,7 +2891,7 @@ module.exports = {
 
 
 /***/ }),
-/* 19 */
+/* 21 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -2876,7 +2969,7 @@ module.exports = {
 
 
 /***/ }),
-/* 20 */
+/* 22 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -2920,7 +3013,7 @@ module.exports = {
 
 
 /***/ }),
-/* 21 */
+/* 23 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -2976,7 +3069,7 @@ module.exports = {
 
 
 /***/ }),
-/* 22 */
+/* 24 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -3028,7 +3121,7 @@ module.exports = {
 
 
 /***/ }),
-/* 23 */
+/* 25 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -3284,7 +3377,7 @@ module.exports = {
 
 
 /***/ }),
-/* 24 */
+/* 26 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -3327,7 +3420,7 @@ module.exports = {
 
 
 /***/ }),
-/* 25 */
+/* 27 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -3356,7 +3449,7 @@ module.exports = {
 
 
 /***/ }),
-/* 26 */
+/* 28 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -3399,7 +3492,7 @@ module.exports = {
 
 
 /***/ }),
-/* 27 */
+/* 29 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -3468,7 +3561,7 @@ module.exports = {
 
 
 var parseUtils = __webpack_require__(1);
-var gutils = __webpack_require__(32);
+var gutils = __webpack_require__(37);
 var config = __webpack_require__(0).attrs;
 module.exports = {
 
@@ -3539,7 +3632,55 @@ module.exports = {
 
 
 /***/ }),
-/* 28 */
+/* 30 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+module.exports = {
+    test: 'hideif',
+
+    target: '*',
+
+    init: function () {
+        this.hide(); //hide by default; if not this shows text until data is fetched
+        return true;
+    },
+    handle: function (value, prop) {
+        if (_.isArray(value)) {
+            value = value[value.length - 1];
+        }
+        return value ? this.hide() : this.show();
+    }
+};
+
+
+/***/ }),
+/* 31 */
+/***/ (function(module, exports) {
+
+module.exports = {
+    test: 'showif',
+
+    target: '*',
+
+    init: function () {
+        this.hide(); //hide by default; if not this shows text until data is fetched
+        return true;
+    },
+
+    handle: function (value, prop) {
+        if (_.isArray(value)) {
+            value = value[value.length - 1];
+        }
+        return value ? this.show() : this.hide();
+    }
+};
+
+
+/***/ }),
+/* 32 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -3570,7 +3711,7 @@ module.exports = BaseView.extend({
 
 
 /***/ }),
-/* 29 */
+/* 33 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -3629,7 +3770,7 @@ var nodeManager = {
 
 //bootstraps
 var defaultHandlers = [
-    __webpack_require__(28),
+    __webpack_require__(32),
     __webpack_require__(3),
     __webpack_require__(4)
 ];
@@ -3641,7 +3782,7 @@ module.exports = nodeManager;
 
 
 /***/ }),
-/* 30 */
+/* 34 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -3685,71 +3826,7 @@ module.exports = function (target, domManager) {
 
 
 /***/ }),
-/* 31 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-module.exports = {
-
-    match: function (matchExpr, matchValue, context) {
-        if (_.isString(matchExpr)) {
-            return (matchExpr === '*' || (matchExpr.toLowerCase() === matchValue.toLowerCase()));
-        } else if (_.isFunction(matchExpr)) {
-            return matchExpr(matchValue, context);
-        } else if (_.isRegExp(matchExpr)) {
-            return matchValue.match(matchExpr);
-        }
-    },
-
-    getConvertersList: function ($el, property) {
-        var attrConverters = $el.data('f-convert-' + property);
-        //FIXME: figure out how not to hard-code names here
-        if (!attrConverters && (property === 'bind' || property === 'foreach' || property === 'repeat')) {
-            attrConverters = $el.attr('data-f-convert'); //.data shows value cached by jquery
-            if (!attrConverters) {
-                var $parentEl = $el.closest('[data-f-convert]');
-                if ($parentEl) {
-                    attrConverters = $parentEl.attr('data-f-convert');
-                }
-            }
-            if (attrConverters) {
-                attrConverters = _.invoke(attrConverters.split('|'), 'trim');
-            }
-        }
-
-        return attrConverters;
-    }
-};
-
-
-/***/ }),
-/* 32 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-module.exports = {
-    random: function (prefix, min, max) {
-        if (!min) {
-            min = parseInt(_.uniqueId(), 10);
-        }
-        if (!max) {
-            max = 100000; //eslint-disable-line no-magic-numbers
-        }
-        var number = _.random(min, max, false) + '';
-        if (prefix) {
-            number = prefix + number;
-        }
-        return number;
-    }
-};
-
-
-/***/ }),
-/* 33 */
+/* 35 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -3879,6 +3956,70 @@ var Flow = {
 //set by grunt
 if (true) Flow.version = "0.11.0"; //eslint-disable-line no-undef
 module.exports = Flow;
+
+
+/***/ }),
+/* 36 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+module.exports = {
+
+    match: function (matchExpr, matchValue, context) {
+        if (_.isString(matchExpr)) {
+            return (matchExpr === '*' || (matchExpr.toLowerCase() === matchValue.toLowerCase()));
+        } else if (_.isFunction(matchExpr)) {
+            return matchExpr(matchValue, context);
+        } else if (_.isRegExp(matchExpr)) {
+            return matchValue.match(matchExpr);
+        }
+    },
+
+    getConvertersList: function ($el, property) {
+        var attrConverters = $el.data('f-convert-' + property);
+        //FIXME: figure out how not to hard-code names here
+        if (!attrConverters && (property === 'bind' || property === 'foreach' || property === 'repeat')) {
+            attrConverters = $el.attr('data-f-convert'); //.data shows value cached by jquery
+            if (!attrConverters) {
+                var $parentEl = $el.closest('[data-f-convert]');
+                if ($parentEl) {
+                    attrConverters = $parentEl.attr('data-f-convert');
+                }
+            }
+            if (attrConverters) {
+                attrConverters = _.invoke(attrConverters.split('|'), 'trim');
+            }
+        }
+
+        return attrConverters;
+    }
+};
+
+
+/***/ }),
+/* 37 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+module.exports = {
+    random: function (prefix, min, max) {
+        if (!min) {
+            min = parseInt(_.uniqueId(), 10);
+        }
+        if (!max) {
+            max = 100000; //eslint-disable-line no-magic-numbers
+        }
+        var number = _.random(min, max, false) + '';
+        if (prefix) {
+            number = prefix + number;
+        }
+        return number;
+    }
+};
 
 
 /***/ })

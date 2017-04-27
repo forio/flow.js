@@ -5,10 +5,15 @@ module.exports = (function () {
 
     describe('Toggleable Attributes', function () {
         describe('show if', function () {
+            it('should hide node by default', ()=> {
+                return utils.initWithNode('<div data-f-showif="stuff | greaterThan(10)"/></div>', domManager).then(function ($node) {
+                    $node.is(':visible').should.equal(false);
+                });
+            });
             it('should show node if condition is true', ()=> {
                 return utils.initWithNode('<div data-f-showif="stuff | greaterThan(10)"/></div>', domManager).then(function ($node) {
                     $node.trigger('update.f.model', { stuff: 100 });
-                    should.not.exist($node.attr('style'));
+                    $node.attr('style').should.equal('');
                 });
             });
             it('should hide node if condition is false', ()=> {
@@ -19,10 +24,15 @@ module.exports = (function () {
             });
         });
         describe('hide if', function () {
+            it('should hide node by default', ()=> {
+                return utils.initWithNode('<div data-f-hideif="stuff | greaterThan(10)"/></div>', domManager).then(function ($node) {
+                    $node.is(':visible').should.equal(false);
+                });
+            });
             it('should show node if condition is true', ()=> {
                 return utils.initWithNode('<div data-f-hideif="stuff | greaterThan(10)"/></div>', domManager).then(function ($node) {
                     $node.trigger('update.f.model', { stuff: 1 });
-                    should.not.exist($node.attr('style'));
+                    $node.attr('style').should.equal('');
                 });
             });
             it('should hide node if condition is false', ()=> {
