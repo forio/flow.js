@@ -6,7 +6,7 @@ function parseArgs(trueVal, falseVal, input, matchString) {
         case 4: //eslint-disable-line
             return $.extend(toReturn, { trueVal: trueVal, falseVal: falseVal, input: input });
         case 3: //eslint-disable-line
-            return $.extend(toReturn, { trueVal: trueVal, input: falseVal }); 
+            return $.extend(toReturn, { trueVal: trueVal, falseVal: falseVal, input: falseVal }); 
         default:
             return toReturn;
     }
@@ -27,6 +27,6 @@ module.exports = {
     },
     ifFalse: function () {
         var args = parseArgs.apply(null, arguments);
-        return args.input ? args.falseVal : args.trueVal;
+        return !args.input ? args.trueVal : args.falseVal;
     }
 };

@@ -16,34 +16,46 @@ module.exports = (function () {
             });
         });
         describe('ifTrue', function () {
-            it('return true value if provided', function () {
+            it('should return true value if provided', function () {
                 nc.ifTrue('boo', true, 'match').should.equal('boo');
                 nc.ifTrue('boo', false, 'match').should.equal(false);
             });
-            it('return false value if provided', function () {
+            it('should return false value if provided', function () {
                 nc.ifTrue('boo', 'baa', true, 'match').should.equal('boo');
                 nc.ifTrue('boo', 'baa', false, 'match').should.equal('baa');
             });
         });
         describe('ifFalse', function () {
-            it('return true value if provided', function () {
-                nc.ifFalse('boo', true, 'match').should.equal(false);
+            it('should return true value if provided', function () {
+                nc.ifFalse('boo', true, 'match').should.equal(true);
                 nc.ifFalse('boo', false, 'match').should.equal('boo');
             });
-            it('return false value if provided', function () {
+            it('should return false value if provided', function () {
                 nc.ifFalse('boo', 'baa', true, 'match').should.equal('baa');
                 nc.ifFalse('boo', 'baa', false, 'match').should.equal('boo');
             });
         });
 
         describe('Integration', ()=> {
-            it('ifTrue: return true value if provided', function () {
-                cm.convert(true, 'ifTrue(boo)').should.equal('boo');
-                cm.convert(false, 'ifTrue(boo)').should.equal(false);
+            describe('ifTrue', ()=> {
+                it('should return first argument if true', function () {
+                    cm.convert(true, 'ifTrue(boo)').should.equal('boo');
+                    cm.convert(false, 'ifTrue(boo)').should.equal(false);
+                });
+                it('should return false value if provided', function () {
+                    cm.convert(true, 'ifTrue(boo, baa)').should.equal('boo');
+                    cm.convert(false, 'ifTrue(boo, baa)').should.equal('baa');
+                });
             });
-            it('ifTrue: return false value if provided', function () {
-                cm.convert(true, 'ifTrue(boo, baa)').should.equal('boo');
-                cm.convert(false, 'ifTrue(boo, baa)').should.equal('baa');
+            describe('ifFalse', ()=> {
+                it('should return first argument if provided', function () {
+                    cm.convert(true, 'ifFalse(boo)').should.equal(true);
+                    cm.convert(false, 'ifFalse(boo)').should.equal('boo');
+                });
+                it('should return second argument if provided', function () {
+                    cm.convert(false, 'ifFalse(boo, baa)').should.equal('boo');
+                    cm.convert(true, 'ifFalse(boo, baa)').should.equal('baa');
+                });
             });
         });
     });
