@@ -46,7 +46,7 @@ export default function (config, notifier) {
     }
 
     var runManagerOpts = getOptions(opts, 'runManager');
-    if (opts.runManager || (!opts.scenarioManager && runManagerOpts.run)) {
+    if (opts.runManager || (!opts.scenarioManager && runManagerOpts.serviceOptions.run)) {
         var rm;
         if (opts.scenarioManager) {
             rm = new RunManagerRouter(runManagerOpts, withPrefix(notifier, RUN_PREFIX));

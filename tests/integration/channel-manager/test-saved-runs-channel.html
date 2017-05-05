@@ -24,7 +24,7 @@
             <tr>
                 <th>savedRuns:Price</th>
                 <td>
-                    <ul data-f-foreach="run in savedRuns:Price">
+                    <ul data-f-foreach="run in savedRuns:(Price,Time)">
                         <li>Name <%= run.name %></li>
                         <li>Id <%= run.id %></li>
                         <li>Price <%= run.variables.Price %></li>
