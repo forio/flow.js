@@ -21,23 +21,18 @@ Once you set `data-f-bind`, Flow.js figures out the appropriate action to take b
 
 #### How do I ... ?
 
-* Display and automatically update a variable in the interface? 
-	* Use `data-f-bind`. See [Default Bi-directional Binding](../generated/dom/attributes/binds/default-bind-attr/).
-* Display and automatically update array and object variables? 
-	* Use `data-f-foreach`, and optionally, [templates](../#templates). See [Display Array and Object Variables](../generated/dom/attributes/foreach/default-foreach-attr/).
-* Display a variable only (read-only binding)? 
-	* See [read only binding](../generated/dom/attributes/default-attr/).
-* Select an option from an HTML element based on a model variable?
-	* This happens automatically when you use `data-f-bind` with `input` and `select` elements. See more on [binding to select elements](../generated/dom/attributes/binds/input-bind-attr/) and [binding with checkboxes and radio buttons](../generated/dom/attributes/binds/checkbox-radio-bind-attr/).  
-* Work with an HTML attribute that accepts Boolean values?
-	* Flow.js provides special handling for a few common attributes, including `data-f-checked`, `data-f-selected`, `data-f-disabled`, and `data-f-hidden`. See [Binding to Boolean attributes](../generated/dom/attributes/boolean-attr/).
-* Change the styling of HTML elements based on the value of a model variable? 
-	* Use `data-f-class`. See [Binding with Style](../generated/dom/attributes/class-attr/).
-* Set other HTML attributes to the value of a model variable?
-	* See [default attribute handling](../generated/dom/attributes/default-attr/). 
-* Create my own custom attribute? 
-	* Use the [Attribute Manager](../generated/dom/attributes/attribute-manager/) to add your own attributes.
-* Call a model operation each time a variable changes?
-	* Bind the variable, use the [Variables Channel](../generated/channels/variables-channel/) to subscribe to the variable, and then call the operation in the callback function for the subscription. See details in the [How To example](../../how_to/variable_operation/).
-
+| Action  | Attribute  | More Information |
+|-------------|--------------------|-----------|
+| Display and automatically update a variable in the interface?                    | `data-f-bind`                          | See [Default Bi-directional Binding](../generated/dom/attributes/binds/default-bind-attr/). |
+| Display and automatically update array and object variables?                     | `data-f-foreach`, and optionally, [templates](../#templates)  | See [Display Array and Object Variables](../generated/dom/attributes/foreach/default-foreach-attr/).   |
+| Display a DOM element based on whether a variable is true or false?              | `data-f-showif`, `data-f-hideif`       | See [Display Elements Conditionally (showif)](../generated/dom/attributes/toggles/show-if/) and [Display Elements Conditionally (hideif)](../generated/dom/attributes/toggles/hide-if/). |
+| Display the value of the variable at every time step (not just the current one)? | `data-f-repeat`   | See [Display Array Variables](../generated/dom/attributes/repeat-attr/).               |
+| Display a variable only (read-only binding)?                                     | `data-f-value`, for example            | See [read only binding](../generated/dom/attributes/default-attr/).  |
+| Display different information based on the value of a variable?                  | any comparison attribute               | See [Boolean Conditional Converters](../generated/converters/bool-conditional-converter/) and [Number Comparison Converters](../generated/converters/number-compare-converter/).                 |
+| Call a model operation each time a variable changes?                             |                                        | Bind the variable, use the [Variables Channel](../generated/channels/variables-channel/) to subscribe to the variable, and then call the operation in the callback function for the subscription. See details in the [How To example](../../how_to/variable_operation/).  |
+| Select an option from an HTML element based on a model variable?                 | `data-f-bind` with `input` or `select` | This happens automatically when you use `data-f-bind` with `input` and `select` elements. See more on [binding to select elements](../generated/dom/attributes/binds/input-bind-attr/) and [binding with checkboxes and radio buttons](../generated/dom/attributes/binds/checkbox-radio-bind-attr/).  |
+| Work with an HTML attribute that accepts Boolean values?                         | Special handling is provided for a few common attributes, including `data-f-checked`, `data-f-selected`, `data-f-disabled`, and `data-f-hidden`.   | See [Binding to Boolean attributes](../generated/dom/attributes/boolean-attr/).   |
+| Change the styling of HTML elements based on the value of a model variable?      | `data-f-class`   | See [Binding with Style](../generated/dom/attributes/class-attr/).  |
+| Set other HTML attributes to the value of a model variable?                      |                                        | See [default attribute handling](../generated/dom/attributes/default-attr/).                  |
+| Create my own custom attribute?                                                  |                                        | Use the [Attribute Manager](../generated/dom/attributes/attribute-manager/) to add your own attributes.   |
 
