@@ -11,8 +11,8 @@ Converters allow you to convert data -- for example, values of variables in your
 
 There are two ways to specify conversion or formatting for the display output of a particular model variable:
 
-* Add the attribute `data-f-convert` to any element that also has the `data-f-bind` or `data-f-foreach`.
 * Use the `|` (pipe) character within the value of any `data-f-` attribute (not just `data-f-bind` or `data-f-foreach`).
+* Add the attribute `data-f-convert` to any element that also has the `data-f-bind` or `data-f-foreach`.
 
 Additionally, converters are chainable, so you can apply several in a row to a particular variable. Basic converting and formatting options are built in to Flow.js. You can also create your own.
 
@@ -21,7 +21,9 @@ Additionally, converters are chainable, so you can apply several in a row to a p
 
 * [Array Converters](../generated/converters/array-converter/)
 * [Number Converters](../generated/converters/number-converter/)
+* [Number Comparison Converters](../generated/converters/number-compare-converter/)
 * [Number Format Converters](../generated/converters/numberformat-converter/)
+* [Boolean Conditional Converters](../generated/converters/bool-conditional-converter/)
 * [String Converters](../generated/converters/string-converter/)
-* [Make your own](../generated/converters/converter-manager/)
+* [Make your Own](../generated/converters/converter-manager/)
 
