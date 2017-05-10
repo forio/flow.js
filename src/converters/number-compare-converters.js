@@ -26,11 +26,11 @@ module.exports = {
         var args = parseArgs.apply(null, arguments);
         return Number(args.input) === Number(limit) ? args.trueVal : args.falseVal;
     },
-    lesserThan: function (limit) {
+    lessThan: function (limit) {
         var args = parseArgs.apply(null, arguments);
         return Number(args.input) < Number(limit) ? args.trueVal : args.falseVal;
     },
-    lesserThanEqual: function (limit) {
+    lessThanEqual: function (limit) {
         var args = parseArgs.apply(null, arguments);
         return Number(args.input) <= Number(limit) ? args.trueVal : args.falseVal;
     }

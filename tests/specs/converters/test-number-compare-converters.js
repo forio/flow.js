@@ -18,18 +18,18 @@ module.exports = (function () {
                 nc.greaterThan(50, 'boo', 'baa', 10, 'match').should.equal('baa');
             });
         });
-        describe('lesserThan', function () {
+        describe('lessThan', function () {
             it('return true if gt by default', function () {
-                nc.lesserThan(50, 100, 'match').should.equal(100);
-                nc.lesserThan(50, 10, 'match').should.equal(true);
+                nc.lessThan(50, 100, 'match').should.equal(100);
+                nc.lessThan(50, 10, 'match').should.equal(true);
             });
             it('return true value if provided', function () {
-                nc.lesserThan(50, 'boo', 100, 'match').should.equal(100);
-                nc.lesserThan(50, 'boo', 10, 'match').should.equal('boo');
+                nc.lessThan(50, 'boo', 100, 'match').should.equal(100);
+                nc.lessThan(50, 'boo', 10, 'match').should.equal('boo');
             });
             it('return false value if provided', function () {
-                nc.lesserThan(50, 'boo', 'baa', 100, 'match').should.equal('baa');
-                nc.lesserThan(50, 'boo', 'baa', 10, 'match').should.equal('boo');
+                nc.lessThan(50, 'boo', 'baa', 100, 'match').should.equal('baa');
+                nc.lessThan(50, 'boo', 'baa', 10, 'match').should.equal('boo');
             });
         });
         describe('Integration', function () {
