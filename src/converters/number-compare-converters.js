@@ -54,6 +54,7 @@ module.exports = {
      * @param {Number} limit The reference value to compare the model variable against.
      * @param {Number} trueVal (Optional) The format (value) to display if the model variable is greater than `limit`. If not included, the display is `true`.
      * @param {Number} falseVal (Optional) The format (value) to display if the model variable is less than or equal to `limit`. If not included, the display is the value of the model variable.
+     * @return {Any} If the model variable is greater than `limit`, returns trueVal or `true`, otherwise returns falseVal or `false`.
      */
     greaterThan: function (limit) {
         var args = parseArgs.apply(null, arguments);
@@ -76,6 +77,7 @@ module.exports = {
      * @param {Number} limit The reference value to compare the model variable against.
      * @param {Number} trueVal (Optional) The format (value) to display if the model variable is greater than or equal to `limit`. If not included, the display is `true`.
      * @param {Number} falseVal (Optional) The format (value) to display if the model variable is less than `limit`. If not included, the display is the value of the model variable.
+     * @return {Any} If the model variable is greater than or equal to `limit`, returns trueVal or `true`, otherwise returns falseVal or the value of the model variable.
      */    
     greaterThanEqual: function (limit) {
         var args = parseArgs.apply(null, arguments);
@@ -99,6 +101,7 @@ module.exports = {
      * @param {Number} limit The reference value to compare the model variable against.
      * @param {Number} trueVal (Optional) The format (value) to display if the model variable is greater than `limit`. If not included, the display is `true`.
      * @param {Number} falseVal (Optional) The format (value) to display if the model variable is less than or equal to `limit`. If not included, the display is the value of the model variable.
+     * @return {Any} If the model variable equals `limit`, returns trueVal or `true`, otherwise returns falseVal or the value of the model variable.
      */
     equalsNumber: function (limit) {
         var args = parseArgs.apply(null, arguments);
@@ -121,6 +124,7 @@ module.exports = {
      * @param {Number} limit The reference value to compare the model variable against.
      * @param {Number} trueVal (Optional) The format (value) to display if the model variable is less than `limit`. If not included, the display is `true`.
      * @param {Number} falseVal (Optional) The format (value) to display if the model variable is less than `limit`. If not included, the display is the value of the model variable.
+     * @return {Any} If the model variable is less than `limit`, returns trueVal or `true`, otherwise returns falseVal or the value of the model variable.
      */ 
     lessThan: function (limit) {
         var args = parseArgs.apply(null, arguments);
@@ -143,6 +147,7 @@ module.exports = {
      * @param {Number} limit The reference value to compare the model variable against.
      * @param {Number} trueVal (Optional) The format (value) to display if the model variable is less than or equal to `limit`. If not included, the display is `true`.
      * @param {Number} falseVal (Optional) The format (value) to display if the model variable is less than or equal to `limit`. If not included, the display is the value of the model variable.
+     * @return {Any} If the model variable is less than or equal to `limit`, returns trueVal or `true`, otherwise returns falseVal or the value of the model variable.
      */
     lessThanEqual: function (limit) {
         var args = parseArgs.apply(null, arguments);
