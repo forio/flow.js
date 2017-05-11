@@ -3,11 +3,11 @@
  *
  * Converters allow you to convert data -- in particular, model variables that you display in your project's user interface -- from one form to another.
  *
- * In particular, for a boolean conditional converter, the original format is your model variable, and the resulting "format" is a boolean value, or another value of your choosing.
+ * For a boolean conditional converter, the original format is your model variable, and the resulting "format" is a boolean value, or another value of your choosing.
  *
  * There are two ways to specify conversion or formatting for the display output of a particular model variable:
  *
- * * Use the `|` (pipe) character within the value of any `data-f-` attribute (not just `data-f-bind` or `data-f-foreach`).
+ * * Use the `|` (pipe) character within the value of any `data-f-` attribute.
  * * Add the attribute `data-f-convert` to any element that also has the `data-f-bind` or `data-f-foreach`.
  *
  * For example:
@@ -34,12 +34,12 @@ function parseArgs(trueVal, falseVal, input, matchString) {
 
 module.exports = {
     /**
-     * Convert a 'truthy' value to true and 'falsy' values to false.
+     * Convert 'truthy' values to true and 'falsy' values to false.
      *
      * **Example**
      *
      *      <!-- displays "true" or "false" -->
-     *      <span data-f-bind="sampleDecisionVar | toBool"></span>
+     *      <span data-f-bind="sampleVar | toBool"></span>
      * 
      * @param {Any} value
      * @return {Boolean}
@@ -54,10 +54,8 @@ module.exports = {
      * **Example**
      *
      *      <div>
-     *
-     *          <span data-f-bind="sampleDecisionVar | ifTrue('yes! please move forward', 'not ready to proceed')"></span> 
-     *
-     *          <span data-f-bind="sampleDecisionVar | ifTrue('yes! please move forward')"></span>
+     *          <span data-f-bind="sampleVar | ifTrue('yes! please move forward', 'not ready to proceed')"></span> 
+     *          <span data-f-bind="sampleVar | ifTrue('yes! please move forward')"></span>
      *      </div>
      *
      * @param {Number} trueVal The value to display if the input is true.
@@ -75,10 +73,8 @@ module.exports = {
      * **Example**
      *
      *      <div>
-     *
-     *          <span data-f-bind="sampleDecisionVar | ifFalse('not ready to proceed', 'actually this is still true')"></span> 
-     *
-     *          <span data-f-bind="sampleDecisionVar | ifFalse('not ready to proceed')"></span>
+     *          <span data-f-bind="sampleVar | ifFalse('not ready to proceed', 'actually this is still true')"></span> 
+     *          <span data-f-bind="sampleVar | ifFalse('not ready to proceed')"></span>
      *      </div>
      *
      * @param {Number} trueVal The value to display if the input is false.

@@ -3,11 +3,11 @@
  *
  * Converters allow you to convert data -- in particular, model variables that you display in your project's user interface -- from one form to another.
  *
- * In particular, for a number comparison converter, the original format is your model variable, and the resulting "format" is a (possibly unrelated) value of your choosing. This resulting value is selected based on how the value of the model variable compares to a reference value that you pass to the converter.
+ * For a number comparison converter, the original format is your model variable, and the resulting "format" is a (possibly unrelated) value of your choosing. This resulting value is selected based on how the value of the model variable compares to a reference value that you pass to the converter.
  *
  * There are two ways to specify conversion or formatting for the display output of a particular model variable:
  *
- * * Use the `|` (pipe) character within the value of any `data-f-` attribute (not just `data-f-bind` or `data-f-foreach`).
+ * * Use the `|` (pipe) character within the value of any `data-f-` attribute.
  * * Add the attribute `data-f-convert` to any element that also has the `data-f-bind` or `data-f-foreach`.
  *
  * For example:
@@ -17,8 +17,8 @@
  *      <span data-f-value="widgets" data-f-convert="greaterThan(50)"></span>
  *
  *      <!-- displays the first string if true, the second if false -->
- *      <span data-f-value="widgets | greaterThan(50, 'nice job!', 'hmm, not enough widgets')"></span>
- *      <span data-f-value="widgets" data-f-convert="greaterThan(50, 'nice job!', 'hmm, not enough widgets')"></span>
+ *      <span data-f-value="widgets | greaterThan(50, 'nice job!', 'not enough widgets')"></span>
+ *      <span data-f-value="widgets" data-f-convert="greaterThan(50, 'nice job!', 'not enough widgets')"></span>
  *
  */
 
@@ -47,7 +47,7 @@ module.exports = {
      *          <!-- displays true or the number of widgets -->
      *          <span data-f-bind="widgets | greaterThan(50)"></span> 
      *
-     *          <!-- display custom text -->
+     *          <!-- displays custom text -->
      *          <span data-f-bind="widgets | greaterThan(50, 'Congratulations!', 'Better luck next year')"></span>
      *      </div>
      *
@@ -70,7 +70,7 @@ module.exports = {
      *          <!-- displays true or the number of widgets -->
      *          <span data-f-bind="widgets | greaterThan(50)"></span> 
      *
-     *          <!-- display custom text -->
+     *          <!-- displays custom text -->
      *          <span data-f-bind="widgets | greaterThan(50, 'Congratulations!', 'Better luck next year')"></span>
      *      </div>
      *
