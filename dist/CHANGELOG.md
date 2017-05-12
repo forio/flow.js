@@ -1,21 +1,21 @@
 <a name="0.12.0"></a>
-## 0.12.0 (2017-05-11)
+## 0.12.0 (2017-05-12)
 
 This update includes several new features:
-
-* New [Boolean conditional converters](https://forio.com/epicenter/docs/public/data_binding_flow_js/generated/converters/bool-conditional-converter/), which allow you to convert from a model variable to a boolean value, or another value of your choosing.
-
-		<span data-f-bind="sampleVar | ifTrue('yes! please move forward', 'not ready to proceed')"></span>
-
-* New [number comparison converters](https://forio.com/epicenter/docs/public/data_binding_flow_js/generated/converters/number-compare-converter/), which allow you to convert from a (numeric) model to another value of your choosing.
-
-		<span data-f-value="widgets | greaterThan(50, 'nice job!', 'not enough widgets')"></span> 
 
 * New 'toggle' attributes for [showing](https://forio.com/epicenter/docs/public/data_binding_flow_js/generated/dom/attributes/toggles/show-if/) and [hiding](https://forio.com/epicenter/docs/public/data_binding_flow_js/generated/dom/attributes/toggles/hide-if/) elements conditionally.
 
 		<div data-f-showif="widgets | greaterThan(50)"/>Nice job, we've sold plenty of widgets!</div>
 
-* It is now recommended to move to jquery 3. The upcoming 1.0 release of Flow.js will required jquery 3.
+* New [number comparison converters](https://forio.com/epicenter/docs/public/data_binding_flow_js/generated/converters/number-compare-converter/), which allow you to convert from a (numeric) model to another value of your choosing.
+
+		<span data-f-bind="widgets | greaterThan(50, 'nice job!', 'not enough widgets')"></span> 
+
+* New [Boolean conditional converters](https://forio.com/epicenter/docs/public/data_binding_flow_js/generated/converters/bool-conditional-converter/), which allow you to convert from a model variable to a boolean value, or another value of your choosing.
+
+		<span data-f-bind="sampleVar | ifTrue('yes! please move forward', 'not ready to proceed')"></span>
+
+* It is now recommended to move to jquery 3. The upcoming 1.0 release of Flow.js drop support for jquery2.
 
 There are also a few minor improvements, including a [how to on updating elements when a model operation is called](https://forio.com/epicenter/docs/public/how_to/operation_update/), and, under the hood, more complete cleanup of the "unbind" operation.
 

@@ -36,7 +36,7 @@ Learn more about advanced topics:
 
 1. Add the Flow.js required libraries to your project. Flow.js requires the following files:
 	* [`jquery.js`](http://jquery.com): document manipulation, DOM element selection, and event handling used by Flow.js
-		* NOTE: Flow.js requires version 3.1 of `jquery.js`.
+		* NOTE: Flow.js requires version 3.x of `jquery.js`.
 	* [`lodash.js`](http://lodash.com): utilities and performance enhancements used by Flow.js; also used in [templating](#templates)
 		* NOTE: Flow.js requires version 2.x of `lodash.js`.
 	* [`epicenter.js`](../api_adapters/): [Epicenter API Adapters](../api_adapters/) with services and utilities for connecting to project models using the underlying Epicenter RESTful APIs.

@@ -1,16 +1,16 @@
 /**
  * ## Number Format Converters
  *
- * Converters allow you to convert data -- in particular, model variables that you display in your project's user interface -- from one form to another.
+ * Converters allow you to change how data is displayed. They let you display the value of any model variable in a different format than it is stored in the model -- converting the output value from one format to another.
  *
  * There are two ways to specify conversion or formatting for the display output of a particular model variable:
  *
- * * Use the `|` (pipe) character within the value of any `data-f-` attribute.
- * * Add the attribute `data-f-convert` to any element that also has the `data-f-bind` or `data-f-foreach`.
+ * * Use the `|` (pipe) character within the value of any `data-f-` attribute. Converters are chainable, so you can apply several in a row to a particular variable.
+ * * Add the attribute `data-f-convert` to any element to convert all of the model variables referenced within that element's scope.
  *
  * For model variables that are numbers (or that have been [converted to numbers](../number-converter/)), there are several special number formats you can apply.
  *
- * ####Currency Number Format
+ * #### Currency Number Format
  *
  * After the `|` (pipe) character, use `$` (dollar sign), `0`, and `.` (decimal point) in your converter to describe how currency should appear. The specifications follow the Excel currency formatting conventions.
  *
@@ -25,7 +25,7 @@
  *      <input type="text" data-f-bind="price[car] | $0." />
  *
  *
- * ####Specific Digits Number Format
+ * #### Specific Digits Number Format
  *
  * After the `|` (pipe) character, use `#` (pound) and `,` (comma) in your converter to describe how the number should appear. The specifications follow the Excel number formatting conventions.
  *
@@ -36,7 +36,7 @@
  *      <input type="text" data-f-bind="sales[car] | #,###" />
  *
  *
- * ####Percentage Number Format
+ * #### Percentage Number Format
  *
  * After the `|` (pipe) character, use `%` (percent) and `0` in your converter to display the number as a percent.
  *
@@ -47,7 +47,7 @@
  *      <input type="text" data-f-bind="profitMargin[car] | 0%" />
  *
  *
- * ####Short Number Format
+ * #### Short Number Format
  *
  * After the `|` (pipe) character, use `s` and `0` in your converter to describe how the number should appear.
  *

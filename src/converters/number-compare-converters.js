@@ -1,24 +1,22 @@
 /**
  * ## Number Comparison Converters
  *
- * Converters allow you to convert data -- in particular, model variables that you display in your project's user interface -- from one form to another.
+ * Converters allow you to change how data is displayed. They let you display the value of any model variable in a different format than it is stored in the model -- converting the output value from one format to another.
  *
  * For a number comparison converter, the original format is your model variable, and the resulting "format" is a (possibly unrelated) value of your choosing. This resulting value is selected based on how the value of the model variable compares to a reference value that you pass to the converter.
  *
  * There are two ways to specify conversion or formatting for the display output of a particular model variable:
  *
- * * Use the `|` (pipe) character within the value of any `data-f-` attribute.
- * * Add the attribute `data-f-convert` to any element that also has the `data-f-bind` or `data-f-foreach`.
+ * * Use the `|` (pipe) character within the value of any `data-f-` attribute. Converters are chainable, so you can apply several in a row to a particular variable.
+ * * Add the attribute `data-f-convert` to any element to convert all of the model variables referenced within that element's scope.
  *
  * For example:
  *
  *      <!-- displays "true" or the number of widgets -->
- *      <span data-f-value="widgets | greaterThan(50)"></span>
- *      <span data-f-value="widgets" data-f-convert="greaterThan(50)"></span>
+ *      <span data-f-bind="widgets | greaterThan(50)"></span>
  *
  *      <!-- displays the first string if true, the second if false -->
- *      <span data-f-value="widgets | greaterThan(50, 'nice job!', 'not enough widgets')"></span>
- *      <span data-f-value="widgets" data-f-convert="greaterThan(50, 'nice job!', 'not enough widgets')"></span>
+ *      <span data-f-bind="widgets | greaterThan(50, 'nice job!', 'not enough widgets')"></span>
  *
  */
 
@@ -99,8 +97,8 @@ module.exports = {
      *      </div>
      *
      * @param {Number} limit The reference value to compare the model variable against.
-     * @param {Number} trueVal (Optional) The format (value) to display if the model variable is greater than `limit`. If not included, the display is `true`.
-     * @param {Number} falseVal (Optional) The format (value) to display if the model variable is less than or equal to `limit`. If not included, the display is the value of the model variable.
+     * @param {Number} trueVal (Optional) The format (value) to display if the model variable is equal to `limit`. If not included, the display is `true`.
+     * @param {Number} falseVal (Optional) The format (value) to display if the model variable is not equal to `limit`. If not included, the display is the value of the model variable.
      * @return {Any} If the model variable equals `limit`, returns trueVal or `true`, otherwise returns falseVal or the value of the model variable.
      */
     equalsNumber: function (limit) {
