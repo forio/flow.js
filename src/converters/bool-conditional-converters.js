@@ -40,8 +40,8 @@ module.exports = {
      * **Example**
      *
      *      <!-- displays "true" or "false" -->
-     *      <!-- in particular, true if 'sampleVar' is truthy (1,'some string', [] etc), 
-     *            false if 'sampleVar' is falsy (0, false, '') -->
+     *      <!-- in particular, true if sampleVar is truthy (1, true, 'some string', [] etc.), 
+     *            false if sampleVar is falsy (0, false, '') -->
      *      <span data-f-bind="sampleVar | toBool"></span>
      * 
      * @param {Any} value
