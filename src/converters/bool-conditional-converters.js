@@ -62,9 +62,9 @@ module.exports = {
      *      </div>
      *
      * @param {Number} trueVal The value to display if the input is true.
-     * @param {Number} falseVal (Optional) The value to display if the input is false. If not included, returns `false`.
+     * @param {Number} falseVal (Optional) The value to display if the input is false. If not included, returns the input.
      * @param {Any} input (Optional) The input to test. If not included, the output of the previous argument is used.
-     * @return {Any} If input is true, returns trueVal. If input is false, returns falseVal if provided, or `false`.
+     * @return {Any} If input is true, returns trueVal. If input is false, returns falseVal if provided, or echoes the input.
      */
     ifTrue: function () {
         var args = parseArgs.apply(null, arguments);
@@ -81,9 +81,9 @@ module.exports = {
      *      </div>
      *
      * @param {Number} trueVal The value to display if the input is false.
-     * @param {Number} falseVal (Optional) The value to display if the input is true. If not included, returns `false`.
+     * @param {Number} falseVal (Optional) The value to display if the input is true. If not included, returns the input.
      * @param {Any} input (Optional) The input to test. If not included, the output of the previous argument is used.
-     * @return {Any} If input is false, returns trueVal. If input is true, returns falseVal if provided, or `false`.
+     * @return {Any} If input is false, returns trueVal. If input is true, returns falseVal if provided, or echoes the input.
      */
     ifFalse: function () {
         var args = parseArgs.apply(null, arguments);
