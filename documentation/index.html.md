@@ -8,7 +8,7 @@ isPage: true
 
 Flow.js provides two-way data bindings between variables and operations in your project's model and HTML elements in your project's user interface. In this way, Flow.js decouples the model from its interface. This is beneficial as a general design principle, and can be especially helpful for larger development teams where the UI developers and the modelers are different people. If you are comfortable writing HTML and basic JavaScript, using Flow.js can save you significant development time.
 
-In particular, Flow.js provides a channel between the variables and operations in your model and the HTML elements in your interface. You simply reference model variables directly within HTML elements, and these values automatically update as the model changes; Flow.js takes care of all of the details.
+In particular, Flow.js provides several channels between the variables and operations in your model and the HTML elements in your interface. The default channel allows you to simply reference model variables from the current run directly within HTML elements, and these values automatically update as the model changes; Flow.js takes care of all of the details.
 
 
 Learn more about the basics:
