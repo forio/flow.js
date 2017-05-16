@@ -1,53 +1,148 @@
-You can access the current run and scenario manager instances through
-Flow.channel.epi.run.manager
-Flow.channel.epi.scenario.manager
+<a name="1.0.0"></a>
+## 1.0.0 (2017-05-2x)
+
+This update includes several major, breaking changes. 
+
+### New Feature: Channel Expansion
+
+Channels are ways for Flow.js to talk to external APIs -- primarily the underlying Epicenter APIs. New in this release, the available Epicenter channels for connecting to Epicenter are: default, run manager, scenario manager, and run id. The previous variables and operations channels have been restructured. Together, these changes allow you to use Flow.js more easily in multipage projects and in scenario comparison projects.
+
+
+##### Changes to Flow.initialize()
+
+This is a **breaking change**. The options for a `Flow.initialize()` call have been restructured.
+
+Previous versions of Flow.js had one `channel` option, which included `strategy` and `run` information:
+
+	Flow.initialize({
+		channel: {
+			strategy: 'aStrategy',
+			run: {
+				account: 'teamId',
+				project: 'projectId',
+				model: 'model.py',
+				variables: { silent: ['sampleVar'] },
+				operations: { silent: false },
+				server: { host: 'api.forio.com' }
+			}
+		}
+	});
+
+
+New in Flow.js version 1.0, there are options for `defaults`, `runManager`, and `scenarioManager`. Each of these can take `run`  and `channelOptions` information, and takes `strategy` information when relevant:
+
+	Flow.initialize({
+		// default options apply to all channels
+		defaults: {
+			run: { 
+				account: 'teamId',
+				project: 'projectId',
+				model: 'model.py',
+				server: { host: 'api.forio.com' }
+			},
+			channelOptions: {
+				variables: { },
+				operations: { }
+			}
+		},
+		
+		// runManager options apply only to the run manager channel
+		runManager: {
+			strategy: 'aStrategy',
+			run: {
+			
+			},
+			channelOptions: {
+				variables: { silent: ['sampleVar'] },
+				operations: { silent: false }			
+			}
+		},
+		
+		// scenarioManager options apply only to the scenario manager channel
+		scenarioManager: {
+			run: {
+			
+			},
+			channelOptions: {
+				variables: { silent: ['sampleVar'] },
+				operations: { silent: false }
+			}	
+		}
+	});
+
+
+##### New Run Manager Channel
+
+The Run Manager Channel connects Flow.js to the Epicenter.js [Run Manager](https://forio.com/epicenter/docs/public/api_adapters/generated/run-manager/), which allows you to interact with a single run. The current run that you are working with is determined by the run strategy used to create an initial run for your project.
+
+Working with the Run Manager Channel was previously the default behavior in Flow.js. In version 1.0, it remains the default behavior, however, the way in which you specify options for it when initializing Flow has changed (see above).
+
+Use the Run Manager Channel for common "turn by turn" projects. These are usually time-based and simulated one step at a time. For example, many projects that allow users to input data or change variables after each time step use this type.
+
+	TODO - example
+
+
+##### New Scenario Manager Channel
+
+The Scenario Manager Channel connects Flow.js to the Epicenter.js [Scenario Manager](https://forio.com/epicenter/docs/public/api_adapters/generated/scenario-manager/), which allows you to interact with several different runs. 
+
+Use the Scenario Manager Channel for "run comparison" or "scenario comparison" projects. In these projects, end users set some initial decisions, then simulate the model to its end. Typically end users will do this several times, creating several runs, and compare the results. To facilitate this, the Scenario Manager Channel provides access to a current run in which to make decisions; a list of saved runs (that is, all runs that you want to use for comparisons); and a baseline run to compare against (that is, a run advanced to the end of your model using just the model defaults).
+
+	TODO-example
+
+
+##### New Run ID Channel
+
+The Run ID Channel connects Flow.js to the Epicenter.js [Run Manager](https://forio.com/epicenter/docs/public/api_adapters/generated/run-manager/), which allows you to interact with a single run. Unlike the Run Manager Channel, which works only with the "current" run defined by a particular strategy, the Run ID Channel works with a particular, existing run, specified by the run id.
+
+	TODO-example
+
+##### Changes to Addressing Attributes, Converters
+
+TODO
+
+TODO -- confirm "default" behavior wrt what options you've passed in (e.g. if you pass in only scenario mgr channel, is that the default??)
+
+To use the default behavior -- which, as in previous releases, is a channel connecting Flow.js to the Epicenter.js [Run Manager](https://forio.com/epicenter/docs/public/api_adapters/generated/run-manager/) and a single, current run -- there is no change in how you reference model variables and operations from within attributes:
+
+	TODO - example, with comments
+
+Optionally, you can now preface these calls with TODO for clarity:
+
+	TODO - example, with comments
+
+To use the Scenario Manager Channel, you can TODO
+
+	TODO - example, with comments
+
+To use the Run ID Channel, you can TODO
+
+	TODO - example, with comments
+
+##### TODO - What to say about migrating existing use of variables, operations channels
+
+TODO
+
+
+### Improvements
+
+There are also several improvements in this release, including:
+
+* A `cache` argument for `channel.subscribe()`, which can improve performance. 
+
+		// subscriber function "callback_withcache" is called 
+		// only when if both price and cost are published together
+		channel.subscribe(['price', 'cost'], callback_withcache, { batch: true, cache: true });
+		
+		// subscriber function "callback_withoutcache" is called
+		// when either price or cost is published
+ 
+	When `cache: true` is passed in, if the `subscribe()` call also takes a `batch: true` argument, then the `subscriber` argument is called only if all topics (variables) being subscribed to are published (updated) at once.
+
+* TODO: other? bug fixes worth mentioning? (feature/travis, feature/unbind-generated)
 
 
 
-New Format:
-
-channel({
-    middlewares: [],
-    
-    defaults: {
-        run: {
-
-        },
-        channelOptions: {
-            variables: { silent: ['price', 'sales'] },
-            operations: { silent: false },
-        }
-    },
-
-    runManager: {
-        strategy: 'new-if-persisted',
-        run: {
-            model: 'supply-chain-game.py',
-            account: 'acme-simulations',
-            project: 'supply-chain-game',
-            server: { host: 'api.forio.com' },
-            transport: {
-                beforeSend: function() { $('body').addClass('loading'); },
-                complete: function() { $('body').removeClass('loading'); }
-            }
-        },
-        channelOptions: {
-            variables: { silent: ['price', 'sales'] },
-            operations: { silent: false },
-        }
-    },
-    scenarioManager: {
-        run: {
-            model: 'supply-chain-game.py',
-            account: 'acme-simulations',
-            project: 'supply-chain-game',
-        },
-        channelOptions: {
-            variables: { silent: ['price', 'sales'] },
-            operations: { silent: false },
-        }
-    },
-});
 
 <a name"0.11.0"></a>
 ## 0.11.0 (2016-12-14)
@@ -73,7 +168,6 @@ This update includes several new features:
 * Internal improvements, including removing the `bower` dependency and upgrading the `jQuery` support to jQuery 3 (matching Epicenter.js 2.0 and later).
 
 * New `/src/config.js` lists all of the attributes used by Flow.js and the events triggered by Flow.js. 
->>>>>>> master:dist/CHANGELOG.md
 
 
 <a name"0.10.0"></a>
