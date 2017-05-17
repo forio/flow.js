@@ -18,18 +18,18 @@ module.exports = (function () {
                 nc.greaterThan(50, 'boo', 'baa', 10, 'match').should.equal('baa');
             });
         });
-        describe('lesserThan', function () {
+        describe('lessThan', function () {
             it('return true if gt by default', function () {
-                nc.lesserThan(50, 100, 'match').should.equal(100);
-                nc.lesserThan(50, 10, 'match').should.equal(true);
+                nc.lessThan(50, 100, 'match').should.equal(100);
+                nc.lessThan(50, 10, 'match').should.equal(true);
             });
             it('return true value if provided', function () {
-                nc.lesserThan(50, 'boo', 100, 'match').should.equal(100);
-                nc.lesserThan(50, 'boo', 10, 'match').should.equal('boo');
+                nc.lessThan(50, 'boo', 100, 'match').should.equal(100);
+                nc.lessThan(50, 'boo', 10, 'match').should.equal('boo');
             });
             it('return false value if provided', function () {
-                nc.lesserThan(50, 'boo', 'baa', 100, 'match').should.equal('baa');
-                nc.lesserThan(50, 'boo', 'baa', 10, 'match').should.equal('boo');
+                nc.lessThan(50, 'boo', 'baa', 100, 'match').should.equal('baa');
+                nc.lessThan(50, 'boo', 'baa', 10, 'match').should.equal('boo');
             });
         });
         describe('Integration', function () {
@@ -50,7 +50,7 @@ module.exports = (function () {
                 cm.convert('2', ['greaterThan(2, v.angry)', 'greaterThan(1, angry)', 'greaterThan(0, ok)']).should.equal('angry');
                 cm.convert('1', ['greaterThan(2, v.angry)', 'greaterThan(1, angry)', 'greaterThan(0, ok)']).should.equal('ok');
                 cm.convert('-1', ['greaterThan(2, v.angry)', 'greaterThan(1, angry)', 'greaterThan(0, ok)']).should.equal('-1');
-                cm.convert('-1', ['greaterThan(2, v.angry)', 'greaterThan(1, angry)', 'greaterThan(0, ok)', 'lesserThanEqual(0, shrug)']).should.equal('shrug');
+                cm.convert('-1', ['greaterThan(2, v.angry)', 'greaterThan(1, angry)', 'greaterThan(0, ok)', 'lessThanEqual(0, shrug)']).should.equal('shrug');
             });
         });
     });

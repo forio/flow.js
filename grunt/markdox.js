@@ -77,6 +77,22 @@ module.exports = function (grunt) {
                     src: 'src/dom/attributes/repeat-attr.js',
                     dest: 'documentation/generated/dom/attributes/repeat-attr/index.html.md'
                 },
+                {
+                    src: 'src/dom/attributes/toggles/show-if-attr.js',
+                    dest: 'documentation/generated/dom/attributes/toggles/show-if/index.html.md'
+                },
+                {
+                    src: 'src/dom/attributes/toggles/hide-if-attr.js',
+                    dest: 'documentation/generated/dom/attributes/toggles/hide-if/index.html.md'
+                },
+                {
+                    src: 'src/converters/number-compare-converters.js',
+                    dest: 'documentation/generated/converters/number-compare-converter/index.html.md'
+                },
+                {
+                    src: 'src/converters/bool-conditional-converters.js',
+                    dest: 'documentation/generated/converters/bool-conditional-converter/index.html.md'
+                },
                 // flow.js initialize
                 {
                     src: 'src/flow.js',

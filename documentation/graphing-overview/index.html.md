@@ -163,8 +163,8 @@ Here's the complete sample code:
 		<script src="//forio.com/tools/contour/contour.js"></script>
 
 		<!-- for Flow.js -->
-		<script src="//ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
-		<script src="//forio.com/tools/js-libs/2.1.0/epicenter.min.js"></script>
+		<script src="//ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script>
+		<script src="//forio.com/tools/js-libs/2.2.0/epicenter.min.js"></script>
 		<script src="//forio.com/tools/js-libs/flow/latest/flow.js"></script>
 
 	</head>

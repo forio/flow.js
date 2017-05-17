@@ -10,7 +10,7 @@ module.exports = (function () {
                 nc.toBool('apples').should.equal(true);
                 nc.toBool([]).should.equal(true);
             });
-            it('should return false for flasy values', ()=> {
+            it('should return false for falsy values', ()=> {
                 nc.toBool(0).should.equal(false);
                 nc.toBool('').should.equal(false);
             });
