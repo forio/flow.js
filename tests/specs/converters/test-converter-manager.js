@@ -44,6 +44,28 @@
                     });
                     cm.convert('2', ['i', 'multiply']).should.equal(6);
                 });
+                it('should be able to pass single parameter to converter', function () {
+                    var spy = sinon.spy(function multiply(ip, val) {
+                        return ip * val;
+                    });
+                    cm.register('multiplyOperand', spy);
+
+                    var result = cm.convert(3, ['multiplyOperand(2)']);
+                    result.should.equal(6);
+
+                    spy.should.have.been.calledWith(2, 3);
+                });
+                it('should be able to pass multiple parameters to converter', function () {
+                    var spy = sinon.spy(function multiply(ip, ip2, val) {
+                        return ip * ip2 * val;
+                    });
+                    cm.register('multiplyOperand', spy);
+
+                    var result = cm.convert(4, ['multiplyOperand(2, 3)']);
+                    result.should.equal(24);
+
+                    spy.should.have.been.calledWith(2, 3, 4);
+                });
             });
             describe('Arrays', function () {
                 it('should apply converter to each item in an array if provided an array + non-list converter', function () {
@@ -96,6 +118,8 @@
             require('./test-array-converters');
             require('./test-numberformat-converters');
             require('./test-underscore-converters');
+            require('./test-number-compare-converters');
+            require('./test-bool-conditional-converters');
         });
     });
 }());

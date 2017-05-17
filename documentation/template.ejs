@@ -16,7 +16,7 @@
 
     <? var configStart = 0 ?>
     <? doc.javadoc.forEach(function (block) { ?>
-        <? if (!block.paramStr && (block.returnTags.length == 0)) { ?>
+        <? if (!block.paramStr && (block.returnTags.length == 0) && block.description.indexOf('eslint') !== 0) { ?>
             <? if (configStart === 0) { ?>
                 ## Configuration Options
 

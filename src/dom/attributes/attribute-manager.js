@@ -53,6 +53,8 @@ var defaultHandlers = [
     require('./repeat-attr'),
     require('./positive-boolean-attr'),
     require('./negative-boolean-attr'),
+    require('./toggles/show-if-attr'),
+    require('./toggles/hide-if-attr'),
     require('./binds/default-bind-attr'),
     require('./default-attr')
 ];

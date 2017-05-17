@@ -5,6 +5,7 @@ var path = require('path');
 var uglifyOptions = {
     mangle: false,
     warnings: true,
+    sourceMap: true,
     compress: {
         screw_ie8: true,
         join_vars: false
@@ -24,13 +25,13 @@ module.exports = function (grunt) {
                 })
             ],
             resolve: {
-                modulesDirectories: [__dirname + '/../src', 'node_modules']
+                modules: [__dirname + '/../src', 'node_modules']
             }
         },
         edge: {
-            entry: './src/flow.js',
+            entry: path.resolve('./src/flow.js'),
             output: {
-                path: './dist/',
+                path: path.resolve('./dist/'),
                 pathinfo: true,
                 filename: 'flow-edge.js',
                 library: 'Flow',
@@ -49,53 +50,19 @@ module.exports = function (grunt) {
             ],
             devtool: 'eval'
         },
-        instrumented: {
-            entry: './tests/test-list.js',
-            output: {
-                path: './tests/dist/',
-                filename: 'tests-bundle.js'
-            },
-            module: {
-                loaders: [
-                    { 
-                        test: /\.js$/, 
-                        exclude: /node_modules/,
-                        loader: 'babel-loader',
-                        query: {
-                            plugins: [
-                                'babel-plugin-transform-es2015-arrow-functions',
-                                'babel-plugin-transform-es2015-template-literals'
-                            ]
-                        }
-                    },
-                    { test: /\.py$/, loader: 'raw' },
-                    { test: /\.jl$/, loader: 'raw' },
-                ]
-            },
-            devtool: 'eval',
-            resolve: {
-                alias: {
-                    src: __dirname + '/../src'
-                }
-            }
-        },
         tests: {
-            entry: './tests/test-list.js',
+            entry: path.resolve('./tests/test-list.js'),
             output: {
-                path: './tests/dist/',
+                path: path.resolve('./tests/dist/'),
                 filename: 'tests-bundle.js'
             },
             module: {
-               //  isparta: {
-               //     embedSource: true,
-               //     noAutoWrap: true,
-               // },
-                preLoaders: [
+                rules: [
                     { 
                         test: /\.js$/, 
                         include: path.resolve('./tests'),
                         loader: 'babel-loader',
-                        query: {
+                        options: {
                             plugins: [
                                 'babel-plugin-transform-es2015-arrow-functions',
                                 'babel-plugin-transform-es2015-template-literals'
@@ -108,16 +75,17 @@ module.exports = function (grunt) {
                             /node_modules/,
                             path.resolve('./tests'),
                         ],
-                        loader: 'isparta',
-                    }
-                ],
-                loaders: [
-                    { test: /\.html$/, loader: 'raw' },
-                    { test: /\.py$/, loader: 'raw' },
-                    { test: /\.jl$/, loader: 'raw' },
+                        loader: 'babel-loader',
+                        options: {
+                            plugins: ['istanbul']
+                        }
+                    },
+                    { test: /\.html$/, loader: 'raw-loader' },
+                    { test: /\.py$/, loader: 'raw-loader' },
+                    { test: /\.jl$/, loader: 'raw-loader' },
                 ]
             },
-            devtool: 'eval',
+            devtool: 'source-map',
             resolve: {
                 alias: {
                     src: __dirname + '/../src'
@@ -126,9 +94,9 @@ module.exports = function (grunt) {
         },
 
         mapped: {
-            entry: './src/flow.js',
+            entry: path.resolve('./src/flow.js'),
             output: {
-                path: './dist/',
+                path: path.resolve('./dist/'),
                 filename: 'flow.js',
                 library: 'Flow',
                 libraryTarget: 'var'
@@ -136,9 +104,9 @@ module.exports = function (grunt) {
             devtool: 'source-map',
         },
         min: {
-            entry: './src/flow.js',
+            entry: path.resolve('./src/flow.js'),
             output: {
-                path: './dist/',
+                path: path.resolve('./dist/'),
                 filename: 'flow.min.js',
                 library: 'Flow',
                 libraryTarget: 'var'
@@ -147,7 +115,8 @@ module.exports = function (grunt) {
                 new webpack.DefinePlugin({
                     RELEASE_VERSION: JSON.stringify(version)
                 }),
-                new webpack.BannerPlugin(banner, {
+                new webpack.BannerPlugin({
+                    banner: banner,
                     entryOnly: true
                 }),
                 new webpack.optimize.UglifyJsPlugin(uglifyOptions),
@@ -155,18 +124,18 @@ module.exports = function (grunt) {
             devtool: 'source-map'
         },
         addons: {
-            entry: './src/add-ons/flow-inspector/flow-inspector.js',
+            entry: path.resolve('./src/add-ons/flow-inspector/flow-inspector.js'),
             devtool: 'source-map',
             output: {
-                path: './dist/add-ons/',
+                path: path.resolve('./dist/add-ons/'),
                 filename: 'flow-inspector.min.js'
             },
             plugins: [
                 new webpack.optimize.UglifyJsPlugin(uglifyOptions)
             ],
             module: {
-                loaders: [
-                    { test: /\.html$/, loader: 'raw' },
+                rules: [
+                    { test: /\.html$/, loader: 'raw-loader' },
                 ]
             }
         }
