@@ -13,7 +13,7 @@ There are two ways to specify conversion or formatting for the display output of
 
 * Use the `|` (pipe) character within the value of any `data-f-` attribute. Converters are chainable, so you can apply several in a row to a particular variable:
 		
-		<span data-f-bind="widgets | last | #,###"
+		<span data-f-bind="widgets | last | #,###"></span>
 	
 * Add the attribute `data-f-convert` to any element to convert all of the model variables referenced within that element's scope:
 
