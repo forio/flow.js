@@ -1,5 +1,5 @@
 <a name="0.12.0"></a>
-## 0.12.0 (2017-05-17)
+## 0.12.0 (2017-05-18)
 
 This update includes several new features:
 

@@ -153,11 +153,29 @@ function toImplicitType(data) {
     return converted;
 }
 
+function splitUnescapedCommas(str) {
+    var regex = /(\\.|[^,])+/g;
+    var m;
+
+    var op = [];
+    while ((m = regex.exec(str)) !== null) { //eslint-disable-line
+        // This is necessary to avoid infinite loops with zero-width matches
+        if (m.index === regex.lastIndex) {
+            regex.lastIndex++;
+        }
+        m.forEach(function (match, groupIndex) {
+            if (groupIndex === 0) {
+                op.push(match.replace('\\', ''));
+            }
+        });
+    }
+    return op;
+}
 module.exports = {
     splitNameArgs: function (value) {
         var fnName = value.split('(')[0];
         var params = value.substring(value.indexOf('(') + 1, value.indexOf(')'));
-        var args = ($.trim(params) !== '') ? params.split(',') : [];
+        var args = splitUnescapedCommas(params);
         args = args.map(toImplicitType);
         return { name: fnName, args: args };
     },
@@ -1747,8 +1765,8 @@ module.exports = {
      *          <span data-f-bind="sampleVar | ifTrue('yes! please move forward')"></span>
      *      </div>
      *
-     * @param {Number} trueVal The value to display if the input is true.
-     * @param {Number} falseVal (Optional) The value to display if the input is false. If not included, returns the input.
+     * @param {String} trueVal The value to display if the input is true. If there are commas in this argument, they must be escaped with `\`.
+     * @param {String} falseVal (Optional) The value to display if the input is false. If not included, returns the input. If there are commas in this argument, they must be escaped with `\`.
      * @param {Any} input (Optional) The input to test. If not included, the output of the previous argument is used.
      * @return {Any} If input is true, returns trueVal. If input is false, returns falseVal if provided, or echoes the input.
      */
@@ -1766,8 +1784,8 @@ module.exports = {
      *          <span data-f-bind="sampleVar | ifFalse('not ready to proceed')"></span>
      *      </div>
      *
-     * @param {Number} trueVal The value to display if the input is false.
-     * @param {Number} falseVal (Optional) The value to display if the input is true. If not included, returns the input.
+     * @param {String} trueVal The value to display if the input is false. If there are commas in this argument, they must be escaped with `\`.
+     * @param {String} falseVal (Optional) The value to display if the input is true. If not included, returns the input. If there are commas in this argument, they must be escaped with `\`.
      * @param {Any} input (Optional) The input to test. If not included, the output of the previous argument is used.
      * @return {Any} If input is false, returns trueVal. If input is true, returns falseVal if provided, or echoes the input.
      */
@@ -2065,8 +2083,8 @@ module.exports = {
      *      </div>
      *
      * @param {Number} limit The reference value to compare the model variable against.
-     * @param {Number} trueVal (Optional) The format (value) to display if the model variable is greater than `limit`. If not included, the display is `true`.
-     * @param {Number} falseVal (Optional) The format (value) to display if the model variable is less than or equal to `limit`. If not included, the display is the value of the model variable.
+     * @param {String} trueVal (Optional) The format (value) to display if the model variable is greater than `limit`. If not included, the display is `true`. If there are commas in this argument, they must be escaped with `\`.
+     * @param {String} falseVal (Optional) The format (value) to display if the model variable is less than or equal to `limit`. If not included, the display is the value of the model variable. If there are commas in this argument, they must be escaped with `\`.
      * @return {Any} If the model variable is greater than `limit`, returns trueVal or `true`. Otherwise returns falseVal if provided, or echoes the input.
      */
     greaterThan: function (limit) {
@@ -2088,8 +2106,8 @@ module.exports = {
      *      </div>
      *
      * @param {Number} limit The reference value to compare the model variable against.
-     * @param {Number} trueVal (Optional) The format (value) to display if the model variable is greater than or equal to `limit`. If not included, the display is `true`.
-     * @param {Number} falseVal (Optional) The format (value) to display if the model variable is less than `limit`. If not included, the display is the value of the model variable.
+     * @param {String} trueVal (Optional) The format (value) to display if the model variable is greater than or equal to `limit`. If not included, the display is `true`. If there are commas in this argument, they must be escaped with `\`.
+     * @param {String} falseVal (Optional) The format (value) to display if the model variable is less than `limit`. If not included, the display is the value of the model variable. If there are commas in this argument, they must be escaped with `\`.
      * @return {Any} If the model variable is greater than or equal to `limit`, returns trueVal or `true`. Otherwise returns falseVal if provided, or echoes the input.
      */    
     greaterThanEqual: function (limit) {
@@ -2112,8 +2130,8 @@ module.exports = {
      *      </div>
      *
      * @param {Number} limit The reference value to compare the model variable against.
-     * @param {Number} trueVal (Optional) The format (value) to display if the model variable is equal to `limit`. If not included, the display is `true`.
-     * @param {Number} falseVal (Optional) The format (value) to display if the model variable is not equal to `limit`. If not included, the display is the value of the model variable.
+     * @param {String} trueVal (Optional) The format (value) to display if the model variable is equal to `limit`. If not included, the display is `true`. If there are commas in this argument, they must be escaped with `\`.
+     * @param {String} falseVal (Optional) The format (value) to display if the model variable is not equal to `limit`. If not included, the display is the value of the model variable. If there are commas in this argument, they must be escaped with `\`.
      * @return {Any} If the model variable equals `limit`, returns trueVal or `true`. Otherwise returns falseVal if provided, or echoes the input.
      */
     equalsNumber: function (limit) {
@@ -2135,8 +2153,8 @@ module.exports = {
      *      </div>
      *
      * @param {Number} limit The reference value to compare the model variable against.
-     * @param {Number} trueVal (Optional) The format (value) to display if the model variable is less than `limit`. If not included, the display is `true`.
-     * @param {Number} falseVal (Optional) The format (value) to display if the model variable is less than `limit`. If not included, the display is the value of the model variable.
+     * @param {String} trueVal (Optional) The format (value) to display if the model variable is less than `limit`. If not included, the display is `true`. If there are commas in this argument, they must be escaped with `\`.
+     * @param {String} falseVal (Optional) The format (value) to display if the model variable is less than `limit`. If not included, the display is the value of the model variable. If there are commas in this argument, they must be escaped with `\`.
      * @return {Any} If the model variable is less than `limit`, returns trueVal or `true`. Otherwise returns falseVal if provided, or echoes the input.
      */ 
     lessThan: function (limit) {
@@ -2158,8 +2176,8 @@ module.exports = {
      *      </div>
      *
      * @param {Number} limit The reference value to compare the model variable against.
-     * @param {Number} trueVal (Optional) The format (value) to display if the model variable is less than or equal to `limit`. If not included, the display is `true`.
-     * @param {Number} falseVal (Optional) The format (value) to display if the model variable is less than or equal to `limit`. If not included, the display is the value of the model variable.
+     * @param {String} trueVal (Optional) The format (value) to display if the model variable is less than or equal to `limit`. If not included, the display is `true`. If there are commas in this argument, they must be escaped with `\`.
+     * @param {String} falseVal (Optional) The format (value) to display if the model variable is less than or equal to `limit`. If not included, the display is the value of the model variable. If there are commas in this argument, they must be escaped with `\`.
      * @return {Any} If the model variable is less than or equal to `limit`, returns trueVal or `true`. Otherwise returns falseVal if provided, or echoes the input.
      */
     lessThanEqual: function (limit) {
@@ -4243,7 +4261,7 @@ var Flow = {
     }
 };
 //set by grunt
-if (true) Flow.version = "0.11.0"; //eslint-disable-line no-undef
+if (true) Flow.version = "0.12.0"; //eslint-disable-line no-undef
 module.exports = Flow;
 
 
