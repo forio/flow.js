@@ -27,7 +27,7 @@ module.exports = function (grunt) {
 
     grunt.registerTask('release', function (type) {
         type = type ? type : 'patch';
-        ['bump-only:' + type, 'production', 'incrementVersion', 'changelog', 'bump-commit'].forEach(function (task) {
+        ['bump-only:' + type, 'production', 'changelog', 'bump-commit'].forEach(function (task) {
             grunt.task.run(task);
         });
     });
