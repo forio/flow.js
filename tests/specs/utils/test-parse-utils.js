@@ -45,7 +45,7 @@ describe('parse utils', function () {
         });
     });
 
-    describe.only('#splitNameArgs', ()=> {
+    describe('#splitNameArgs', ()=> {
         it('splits fn calls with single params', ()=> {
             u.splitNameArgs('abc(1)').should.eql({ name: 'abc', args: [1] });
             u.splitNameArgs('abc(def)').should.eql({ name: 'abc', args: ['def'] });
