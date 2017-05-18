@@ -31,7 +31,7 @@ function splitUnescapedCommas(str) {
     var m;
 
     var op = [];
-    while ((m = regex.exec(str)) !== null) {
+    while ((m = regex.exec(str)) !== null) { //eslint-disable-line
         // This is necessary to avoid infinite loops with zero-width matches
         if (m.index === regex.lastIndex) {
             regex.lastIndex++;
