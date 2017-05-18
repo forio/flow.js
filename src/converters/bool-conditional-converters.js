@@ -61,8 +61,8 @@ module.exports = {
      *          <span data-f-bind="sampleVar | ifTrue('yes! please move forward')"></span>
      *      </div>
      *
-     * @param {Number} trueVal The value to display if the input is true.
-     * @param {Number} falseVal (Optional) The value to display if the input is false. If not included, returns the input.
+     * @param {String} trueVal The value to display if the input is true. If there are commas in this argument, they must be escaped with `\`.
+     * @param {String} falseVal (Optional) The value to display if the input is false. If not included, returns the input. If there are commas in this argument, they must be escaped with `\`.
      * @param {Any} input (Optional) The input to test. If not included, the output of the previous argument is used.
      * @return {Any} If input is true, returns trueVal. If input is false, returns falseVal if provided, or echoes the input.
      */
@@ -80,8 +80,8 @@ module.exports = {
      *          <span data-f-bind="sampleVar | ifFalse('not ready to proceed')"></span>
      *      </div>
      *
-     * @param {Number} trueVal The value to display if the input is false.
-     * @param {Number} falseVal (Optional) The value to display if the input is true. If not included, returns the input.
+     * @param {String} trueVal The value to display if the input is false. If there are commas in this argument, they must be escaped with `\`.
+     * @param {String} falseVal (Optional) The value to display if the input is true. If not included, returns the input. If there are commas in this argument, they must be escaped with `\`.
      * @param {Any} input (Optional) The input to test. If not included, the output of the previous argument is used.
      * @return {Any} If input is false, returns trueVal. If input is true, returns falseVal if provided, or echoes the input.
      */

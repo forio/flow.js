@@ -44,4 +44,23 @@ describe('parse utils', function () {
             u.toImplicitType('{"a": "abc", "b": 2,  "c": "2"}').should.eql({ a: 'abc', b: 2, c: '2' });
         });
     });
+
+    describe('#splitNameArgs', ()=> {
+        it('splits fn calls with single params', ()=> {
+            u.splitNameArgs('abc(1)').should.eql({ name: 'abc', args: [1] });
+            u.splitNameArgs('abc(def)').should.eql({ name: 'abc', args: ['def'] });
+        });
+        it('splits fn calls with multiple params', ()=> {
+            u.splitNameArgs('abc(1, def)').should.eql({ name: 'abc', args: [1, 'def'] });
+            u.splitNameArgs('abc(1,     def)').should.eql({ name: 'abc', args: [1, 'def'] });
+        });
+        it('parses fncalls with no params', ()=> {
+            u.splitNameArgs('abc()').should.eql({ name: 'abc', args: [] });
+            u.splitNameArgs('abc').should.eql({ name: 'abc', args: [] });
+        });
+        it('should allow escaped strings as args', ()=> {
+            u.splitNameArgs('abc(1, d\\,ef)').should.eql({ name: 'abc', args: [1, 'd,ef'] });
+
+        });
+    });
 });
