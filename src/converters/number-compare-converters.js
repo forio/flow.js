@@ -18,6 +18,20 @@
  *      <!-- displays the first string if true, the second if false -->
  *      <span data-f-bind="widgets | greaterThan(50, 'nice job!', 'not enough widgets')"></span>
  *
+ * You can also chain multiple converters to simulate evaluating multiple if\else conditions; for e.g. the following logic
+ *
+ *      if (temperature > 80) {
+ *          return 'hot';
+ *      } else if (temperature > 60) {
+ *          return 'pleasant';
+ *      } else if (temperature >= 30) {
+ *          return 'cold';
+ *      } else {
+ *          return 'freezing!';
+ *      }
+ *
+ * can be represented as
+ *      <h4 data-f-bind="temperature | greaterThan(80, hot) | greaterThan(60, pleasant) | greaterThanEqual(30, cold, freezing!)"></h4>
  */
 
 'use strict';
