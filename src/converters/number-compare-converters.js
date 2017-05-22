@@ -31,6 +31,7 @@
  *      }
  *
  * can be represented as
+ *
  *      <h4 data-f-bind="temperature | greaterThan(80, hot) | greaterThan(60, pleasant) | greaterThanEqual(30, cold, freezing!)"></h4>
  */
 
