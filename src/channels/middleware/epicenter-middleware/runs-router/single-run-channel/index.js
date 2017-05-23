@@ -1,4 +1,4 @@
-import runChannelFactory from './run-router-factory';
+import runChannelFactory from '../run-router-factory';
 import { withPrefix, stripSuffixDelimiter } from 'channels/middleware/utils';
 
 export default function (options, notifier) {
