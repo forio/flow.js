@@ -9,35 +9,34 @@
     <script src="/dist/flow-edge.js"></script>
 </head>
 
-<body data-f-model="">
-    <section>
-        <button id="btnStep">Step</button>
-    </section>
-    <table class="table" style="width: 600px;">
-        <thead>
-            <tr>
-                <th>Type</th>
-                <th>Output</th>
-            </tr>
-        </thead>
-        <tbody id="outputs">
-            <tr>
-                <th>runs:Price</th>
-                <td>
-                    <ul data-f-foreach="run in runs(saved=true)(Price)">
-                    <!-- <ul data-f-foreach="run in runs:saved=true;trashed=false:"> -->
-                        <li>Name <%= run.name %></li>
-                        <li>Id <%= run.id %></li>
-                        <li>Price <%= run.variables.Price %></li>
-                        <li>
-                        
-                        </li>
-                        
-                    </ul>
-                </td>
-            </tr>
-        </tbody>
-    </table>
+<body class="container-fluid">
+   <div class="row">
+       <div class="col-xs-6">
+           <h4>All runs</h4>
+           <table class="table">
+               <tbody data-f-foreach="run in runs(saved=true)(Price)">
+                   <tr>
+                       <td><%= run.id %></td>
+                       <td><%= run.name %></td>
+                       <td>
+                           <!-- <input type="checkbox" data-f-bind="<%= run.id %>:meta:isSelected"> -->
+                       </td>
+                   </tr>
+               </tbody>
+           </table>
+       </div>
+       <div class="col-xs-6">
+           <h4>Selected Runs</h4>
+           <table class="table">
+               <tbody data-f-foreach="run in runs(saved=true;isSelected=true)(Price)">
+                   <tr>
+                       <td><%= run.id %></td>
+                       <td><%= run.name %></td>
+                   </tr>
+               </tbody>
+           </table>
+       </div>
+   </div>
     <script>
     Flow.initialize({
         channel: {

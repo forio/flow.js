@@ -29,12 +29,14 @@ export default function RunVariablesChannel(options, notifier) {
 
     function extractFromTopic(topicString) {
         var commaRegex = /,(?![^[]*])/;
-        var [filter, variables] = topicString.split(')(');
+        var [filters, variables] = topicString.split(')(');
 
-        var filterParam = {};
-        filter = filter.replace('(', '').replace(')', '');
-        var [key, val] = filter.split('=');
-        filterParam[key] = val;
+        filters = filters.replace('(', '').replace(')', '');
+        var filterParam = filters.split(';').reduce((accum, filter)=> {
+            var [key, val] = filter.split('=');
+            accum[key] = val;
+            return accum;
+        }, {});
 
         variables = variables.replace('(', '').replace(')', '');
         variables = variables.split(commaRegex);
@@ -42,14 +44,6 @@ export default function RunVariablesChannel(options, notifier) {
         return { filter: filterParam, variables: variables };
     }
 
-    function updateTopic(topic, filter, variables) {
-        var existing = topicParamMap[topic];
-
-        var newFilter = $.extend({}, existing.filter, filter);
-        var newVariables = _.uniq((existing.variables || []).concat(variables));
-
-        topicParamMap[topic] = { filter: newFilter, variables: newVariables };
-    }
     return { 
         fetch: function () {
             return Promise.resolve([]);
