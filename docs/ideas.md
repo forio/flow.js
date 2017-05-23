@@ -160,6 +160,17 @@ Once we have context
     </tbody>
 </table>   
 
+##Saved runs
+
+- Should be able to enumerate through them in a loop
+    - Should be able to print run name and description
+    - should be able to edit run name and description
+    - should be able to list run variables
+- should be able to add to saved runs
+- should be able to remove from changed runs
+- should be able to set and listen for custom run properties (like, say, a 'isSelected' property for charts)
+
+This needs to know about the custom-run channel so it can intelligently refetch?
 
 <table>
     <tbody data-f-foreach="run in savedruns:Price">
@@ -169,5 +180,31 @@ Once we have context
     </tbody>
 </table>
 ```
+runs:variables:Price
+```
 
+runs(saved=true;trashed=false):variables:(Price, Sales) ? (one returns variables within run obj, other by itself?) - but if that was true, this wouldn't be :variables either
+
+
+runs(saved=true;trashed=false):variables(Price, Sales) has different semantics than
+
+runs(saved=true;.price=>10;variables=Price,Sales)
+runs(saved=true)(Price,Sales)
+
+runs(Price,Sales) --- defaults to saved:true
+
+runs(saved=true)[Price,Sales] -- no because variable itself can have []
+
+-- always returns back an array
+-- intelligently refetches based on operation? (i.e. re-published saved=true only if that prop changes)
+
+How to do operations?
+<button data-f-on-click="runs:(<%= run.id %>):operations:remove">
+<div data-f-bind="<%= run.id %>:meta:name"></div>
+savedruns(Price,Sales)
+
+
+<ul data-f-foreach="run in runs:saved=true;trashed=false:Price,Sales">
+<div data-f-bind="runs:<runid>"> <!-- replacement for custom run channel -->
+```
 

@@ -24,13 +24,17 @@
             <tr>
                 <th>savedRuns:Price</th>
                 <td>
-                    <ul data-f-foreach="run in savedRuns:(Price,Time)">
+                    <ul data-f-foreach="run in savedRuns(Price,Time)">
+                    <!-- <ul data-f-foreach="run in runs:saved=true;trashed=false:"> -->
                         <li>Name <%= run.name %></li>
                         <li>Id <%= run.id %></li>
                         <li>Price <%= run.variables.Price %></li>
                         <li>
                             Bound price
                             <ol data-f-foreach="p in <%= JSON.stringify(run.variables.Price) %>">
+                                <li><%= p %></li>
+                            </ol>
+                            <ol data-f-foreach="p in <%= run.id %>:Price">
                                 <li><%= p %></li>
                             </ol>
                         </li>

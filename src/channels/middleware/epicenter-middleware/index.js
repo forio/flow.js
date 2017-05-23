@@ -2,6 +2,8 @@ import RunManagerRouter from './run-manager-router';
 import ScenarioRouter from './scenario-manager-router';
 import CustomRunRouter from './custom-run-router';
 
+import RunsRouter from './runs-router';
+
 import { regex, withPrefix, prefix as prefixMatch, defaultPrefix } from 'channels/middleware/utils';
 
 import Router from 'channels/channel-router';
@@ -25,10 +27,15 @@ export default function (config, notifier) {
 
     var customRunChannelOpts = getOptions(opts, 'runid');
     var customRunChannel = new CustomRunRouter(customRunChannelOpts, notifier);
+    var runsChannel = new RunsRouter(customRunChannelOpts, notifier);
 
     var handlers = [$.extend({}, customRunChannel, { 
         name: 'customRun',
         match: regex(runidRegex),
+        options: customRunChannelOpts.channelOptions,
+    }), $.extend({}, runsChannel, {
+        name: 'archiveRuns',
+        match: prefixMatch('runs'),
         options: customRunChannelOpts.channelOptions,
     })];
     var namesList = {};
