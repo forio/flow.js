@@ -25,7 +25,31 @@ export default function RunVariablesChannel(options, notifier) {
     // };
      
 
-    var knownTopics = [];
+    var topicParamMap = {};
+
+    function extractFromTopic(topicString) {
+        var commaRegex = /,(?![^[]*])/;
+        var [filter, variables] = topicString.split(')(');
+
+        var filterParam = {};
+        filter = filter.replace('(', '').replace(')', '');
+        var [key, val] = filter.split('=');
+        filterParam[key] = val;
+
+        variables = variables.replace('(', '').replace(')', '');
+        variables = variables.split(commaRegex);
+
+        return { filter: filterParam, variables: variables };
+    }
+
+    function updateTopic(topic, filter, variables) {
+        var existing = topicParamMap[topic];
+
+        var newFilter = $.extend({}, existing.filter, filter);
+        var newVariables = _.uniq((existing.variables || []).concat(variables));
+
+        topicParamMap[topic] = { filter: newFilter, variables: newVariables };
+    }
     return { 
         fetch: function () {
             return Promise.resolve([]);
@@ -40,21 +64,12 @@ export default function RunVariablesChannel(options, notifier) {
             // knownTopics = remainingTopics;
         },
         subscribeHandler: function (topics) {
-            var commaRegex = /,(?![^[]*])/;
-            var params = ([].concat(topics)).reduce((accum, t)=> {
-                var [filter, variables] = t.split(')(');
+            var topic = ([].concat(topics))[0];
+            var params = extractFromTopic(topic);
+            topicParamMap[topic] = true;
 
-                filter = filter.replace('(', '').replace(')', '');
-                var [key, val] = filter.split('=');
-                accum.filter[key] = val;
-
-            
-                variables = variables.replace('(', '').replace(')', '');
-                accum.variables = variables.split(commaRegex);
-                return accum;
-            }, { filter: {}, variables: [] });
             return runService.query(params.filter, { include: params.variables }).then((runs)=> {
-                return notifier([{ name: topics[0], value: runs }]);
+                return notifier([{ name: topic, value: runs }]);
             });
         },
         publishHandler: function (topics, options) {
