@@ -1,9 +1,10 @@
 import { debounceAndMerge } from 'utils/general';
 import { objectToArray, arrayToObject } from 'channels/channel-utils';
+import { withPrefix } from 'channels/middleware/utils';
 
-export default function RunVariablesChannel($runServicePromise, notifier) {
-
-    var id = _.uniqueId('variable-channel');
+export default function RunVariablesChannel(options, notifier) {
+    var runService = new F.service.Run(options.serviceOptions.run);
+    // var id = _.uniqueId('variable-channel');
 
     // var fetchFn = function (runService) {
     //     if (!runService.debouncedFetchers) {
@@ -39,8 +40,13 @@ export default function RunVariablesChannel($runServicePromise, notifier) {
             // knownTopics = remainingTopics;
         },
         subscribeHandler: function (topics) {
-            console.log('subscribing', topics);
-            return Promise.resolve(topics);
+            var parsedTopics = ([].concat(topics)).map((t)=> {
+                return t.replace('(', '').replace(')', '');
+            });
+            return runService.query(';' + parsedTopics[0]).then((runs)=> {
+                return notifier([{ name: topics[0], value: runs }]);
+                // return withPrefix(notifier, topics[0])(runs);
+            });
             // return $runServicePromise.then(function (runService) {
             //     knownTopics = _.uniq(knownTopics.concat(topics));
             //     if (!knownTopics.length) {

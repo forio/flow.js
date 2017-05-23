@@ -27,7 +27,7 @@ export default function (config, notifier) {
 
     var customRunChannelOpts = getOptions(opts, 'runid');
     var customRunChannel = new CustomRunRouter(customRunChannelOpts, notifier);
-    var runsChannel = new RunsRouter(customRunChannelOpts, notifier);
+    var runsChannel = new RunsRouter(customRunChannelOpts, withPrefix(notifier, 'runs'));
 
     var handlers = [$.extend({}, customRunChannel, { 
         name: 'customRun',

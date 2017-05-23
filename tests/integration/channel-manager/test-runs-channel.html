@@ -47,24 +47,17 @@
 
 
     var toTest = [
-        'runs(saved=true)(Price)',
+        'runs(saved=true)',
     ];
 
     toTest.forEach(function (key) {
         $('#outputs').append(`
             <tr>
                 <td>${key}</td>
-                <td><input class="input" type="text" bind=${key} /></td>
                 <td class="output" bind="${key}"></td>
             </tr>
         `);
     });
-    $('body').on('change', '.input', function (evt) {
-        var val = ($(evt.target).val());
-        val = isNaN(Number(val)) ? val : Number(val);
-        sm.publish($(evt.target).attr('bind'), val);
-    });
-
     sm.subscribe(toTest, function (val) {
         Object.keys(val).forEach(function (key) {
             var $target = $('.output[bind="' + key + '"]');
