@@ -13,63 +13,53 @@
     <section>
         <button id="btnStep">Step</button>
     </section>
-
     <table class="table" style="width: 600px;">
         <thead>
             <tr>
                 <th>Type</th>
-                <th>Input</th>
                 <th>Output</th>
             </tr>
         </thead>
         <tbody id="outputs">
+            <tr>
+                <th>runs:Price</th>
+                <td>
+                    <ul data-f-foreach="run in runs(saved=true)(Price)">
+                    <!-- <ul data-f-foreach="run in runs:saved=true;trashed=false:"> -->
+                        <li>Name <%= run.name %></li>
+                        <li>Id <%= run.id %></li>
+                        <li>Price <%= run.variables.Price %></li>
+                        <li>
+                        
+                        </li>
+                        
+                    </ul>
+                </td>
+            </tr>
         </tbody>
     </table>
     <script>
-    var sm = new Flow.ChannelManager({
-        runid: {
-            run: {
-                account: 'jaimedp',
-                project: 'glasses',
-                model: 'gglasses.vmf',
+    Flow.initialize({
+        channel: {
+            defaults: {
+                run: {
+                    account: 'jaimedp',
+                    project: 'glasses',
+                    model: 'gglasses.vmf',
+                }
+            },
+            channelOptions: {
+                // variables: {
+                //     readOnly: false,
+                //     silent: false,
+                // },
+                // operations: {
+                //     silent: true,
+                // }
             }
-        },
-        channelOptions: {
-            // variables: {
-            //     readOnly: false,
-            //     silent: false,
-            // },
-            // operations: {
-            //     silent: true,
-            // }
         }
     });
 
-
-    var toTest = [
-        'runs(saved=true)(Price)',
-    ];
-
-    toTest.forEach(function (key) {
-        $('#outputs').append(`
-            <tr>
-                <td>${key}</td>
-                <td class="output" bind="${key}"></td>
-            </tr>
-        `);
-    });
-    sm.subscribe(toTest, function (val) {
-        Object.keys(val).forEach(function (key) {
-            var $target = $('.output[bind="' + key + '"]');
-            $target.html(val[key]);
-        });
-    });
-
-
-    $('#btnStep').on('click', function (evt) {
-        sm.publish('operation:step');
-    });
-    window.sm = sm;
     </script>
 </body>
 

@@ -55,15 +55,7 @@ export default function RunVariablesChannel(options, notifier) {
             }, { filter: {}, variables: [] });
             return runService.query(params.filter, { include: params.variables }).then((runs)=> {
                 return notifier([{ name: topics[0], value: runs }]);
-                // return withPrefix(notifier, topics[0])(runs);
             });
-            // return $runServicePromise.then(function (runService) {
-            //     knownTopics = _.uniq(knownTopics.concat(topics));
-            //     if (!knownTopics.length) {
-            //         return $.Deferred().resolve([]).promise();
-            //     }
-            //     return fetchFn(runService)(topics).then(notifier);
-            // });
         },
         publishHandler: function (topics, options) {
             console.log('publishHandler', topics);
