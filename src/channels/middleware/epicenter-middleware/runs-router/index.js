@@ -1,30 +1,72 @@
-import { oneOf } from 'utils/functional';
-import { regex, withPrefix, prefix as prefixMatch, defaultPrefix } from 'channels/middleware/utils';
-import SingleRunChannel from './single-run-channel';
+import { debounceAndMerge } from 'utils/general';
+import { objectToArray, arrayToObject } from 'channels/channel-utils';
+import { withPrefix } from 'channels/middleware/utils';
 
-var sampleRunidLength = '000001593dd81950d4ee4f3df14841769a0b'.length;
-var runidRegex = '(?:.{' + sampleRunidLength + '})';
+export default function RunVariablesChannel(options, notifier) {
+    var runService = new F.service.Run(options.serviceOptions.run);
+    // var id = _.uniqueId('variable-channel');
 
-export default function RunsRouter(opts, notifier) {
+    // var fetchFn = function (runService) {
+    //     if (!runService.debouncedFetchers) {
+    //         runService.debouncedFetchers = {};
+    //     }
+    //     var debounceInterval = 200; //todo: make this over-ridable
+    //     if (!runService.debouncedFetchers[id]) {
+    //         runService.debouncedFetchers[id] = debounceAndMerge(function (variables) {
+    //             return runService.variables().query(variables).then(objectToArray);
+    //         }, debounceInterval, [function mergeVariables(accum, newval) {
+    //             if (!accum) {
+    //                 accum = [];
+    //             }
+    //             return _.uniq(accum.concat(newval));
+    //         }]);
+    //     }
+    //     return runService.debouncedFetchers[id];
+    // };
+     
 
-    var customRunChannel = new SingleRunChannel(opts, notifier);
+    var knownTopics = [];
+    return { 
+        fetch: function () {
+            return Promise.resolve([]);
 
-    return {
-        match: oneOf(regex(runidRegex), prefixMatch('runs')),
-
-        subscribeHandler: function (topics, prefix) {
-            if (prefix.indexOf('runs') === 0) {
-
-            } else {
-                return customRunChannel.subscribeHandler(topics, prefix);
-            }
+            // return $runServicePromise.then(function (runService) {
+            //     return fetchFn(runService)(knownTopics).then(notifier);
+            // });
         },
-        publishHandler: function (topics, prefix) {
-            if (prefix.indexOf('runs') === 0) {
 
-            } else {
-                return customRunChannel.publishHandler(topics, prefix);
-            }
+        unsubscribeHandler: function (unsubscribedTopics, remainingTopics) {
+            console.log('unsubs');
+            // knownTopics = remainingTopics;
+        },
+        subscribeHandler: function (topics) {
+            var commaRegex = /,(?![^[]*])/;
+            var params = ([].concat(topics)).reduce((accum, t)=> {
+                var [filter, variables] = t.split(')(');
+
+                filter = filter.replace('(', '').replace(')', '');
+                var [key, val] = filter.split('=');
+                accum.filter[key] = val;
+
+            
+                variables = variables.replace('(', '').replace(')', '');
+                accum.variables = variables.split(commaRegex);
+                return accum;
+            }, { filter: {}, variables: [] });
+            return runService.query(params.filter, { include: params.variables }).then((runs)=> {
+                return notifier([{ name: topics[0], value: runs }]);
+            });
+        },
+        publishHandler: function (topics, options) {
+            console.log('publishHandler', topics);
+
+            return Promise.resolve(topics);
+            // return $runServicePromise.then(function (runService) {
+            //     var toSave = arrayToObject(topics);
+            //     return runService.variables().save(toSave).then(function (response) {
+            //         return objectToArray(response);
+            //     });
+            // });
         }
     };
 }

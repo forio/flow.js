@@ -1,6 +1,6 @@
 import RunManagerRouter from './run-manager-router';
 import ScenarioRouter from './scenario-manager-router';
-// import CustomRunRouter from './custom-run-router';
+import CustomRunRouter from './custom-run-router';
 
 import RunsRouter from './runs-router';
 
@@ -19,16 +19,23 @@ function getOptions(opts, key) {
 var SCENARIO_PREFIX = 'sm:';
 var RUN_PREFIX = 'rm:';
 
+var sampleRunidLength = '000001593dd81950d4ee4f3df14841769a0b'.length;
+var runidRegex = '(?:.{' + sampleRunidLength + '})';
 
 export default function (config, notifier) {
     var opts = $.extend(true, {}, config);
 
     var customRunChannelOpts = getOptions(opts, 'runid');
-    // var customRunChannel = new CustomRunRouter(customRunChannelOpts, notifier);
-    var runsChannel = new RunsRouter(customRunChannelOpts, notifier);
+    var customRunChannel = new CustomRunRouter(customRunChannelOpts, notifier);
+    var runsChannel = new RunsRouter(customRunChannelOpts, withPrefix(notifier, 'runs'));
 
-    var handlers = [$.extend({}, runsChannel, {
+    var handlers = [$.extend({}, customRunChannel, { 
+        name: 'customRun',
+        match: regex(runidRegex),
+        options: customRunChannelOpts.channelOptions,
+    }), $.extend({}, runsChannel, {
         name: 'archiveRuns',
+        match: prefixMatch('runs'),
         options: customRunChannelOpts.channelOptions,
     })];
     var namesList = {};

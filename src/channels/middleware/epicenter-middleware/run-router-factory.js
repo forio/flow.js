@@ -1,4 +1,4 @@
-import RunChannel from '../run-router';
+import RunChannel from './run-router';
 var knownRunIDServiceChannels = {};
 
 export default function (runid, options, notifier) {
