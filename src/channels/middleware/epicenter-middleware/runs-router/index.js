@@ -40,10 +40,20 @@ export default function RunVariablesChannel(options, notifier) {
             // knownTopics = remainingTopics;
         },
         subscribeHandler: function (topics) {
-            var parsedTopics = ([].concat(topics)).map((t)=> {
-                return t.replace('(', '').replace(')', '');
-            });
-            return runService.query(';' + parsedTopics[0]).then((runs)=> {
+            var commaRegex = /,(?![^[]*])/;
+            var params = ([].concat(topics)).reduce((accum, t)=> {
+                var [filter, variables] = t.split(')(');
+
+                filter = filter.replace('(', '').replace(')', '');
+                var [key, val] = filter.split('=');
+                accum.filter[key] = val;
+
+            
+                variables = variables.replace('(', '').replace(')', '');
+                accum.variables = variables.split(commaRegex);
+                return accum;
+            }, { filter: {}, variables: [] });
+            return runService.query(params.filter, { include: params.variables }).then((runs)=> {
                 return notifier([{ name: topics[0], value: runs }]);
                 // return withPrefix(notifier, topics[0])(runs);
             });
