@@ -58,17 +58,6 @@ export default function RunsRouter(options, notifier, channelManagerContext) {
                 });
                 return runs;
             });
-        },
-        publishHandler: function (topics, options) {
-            console.log('publishHandler', topics);
-
-            return Promise.resolve(topics);
-            // return $runServicePromise.then(function (runService) {
-            //     var toSave = arrayToObject(topics);
-            //     return runService.variables().save(toSave).then(function (response) {
-            //         return objectToArray(response);
-            //     });
-            // });
         }
     };
 }
