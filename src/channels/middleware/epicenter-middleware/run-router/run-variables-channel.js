@@ -1,3 +1,26 @@
+/**
+ * ## Variables Channel
+ *
+ * Channels allow Flow.js to make requests of underlying APIs. The Variables Channel lets you track when model variables are updated. Specifically, the most common use cases for the Variables Channel are:
+ *
+ * * `publish`: Update a model variable: 
+ *
+ *       // using channel explicitly
+ *       Flow.channel.variables.publish('myVariable', newValue);
+ *
+ *       // equivalent call using Flow.js custom HTML attributes
+ *       <input type="text" data-f-bind="myVariable" value="newValue"></input>
+ *
+ * * `subscribe`: Receive notifications when a model variable is updated:
+ *
+ *       // use subscribe and a callback function 
+ *       // to listen and react when a model variable has been updated
+ *       Flow.channel.variables.subscribe('myVariable',
+ *          function() { console.log('updated!'); } );
+ *
+ * See additional information on the [Channel Configuration Options and Methods](../../channel-manager/) page.
+ */
+
 import { debounceAndMerge } from 'utils/general';
 import { objectToArray, arrayToObject } from 'channels/channel-utils';
 
