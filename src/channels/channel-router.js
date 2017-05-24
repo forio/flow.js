@@ -16,6 +16,7 @@ export function notifySubscribeHandlers(handlers, topics) {
             handler.subscribeHandler(unprefixed, handler.matched);
         }
     });
+    return topics;
 }
 
 export function notifyUnsubscribeHandlers(handlers, recentlyUnsubscribedTopics, remainingTopics) {
