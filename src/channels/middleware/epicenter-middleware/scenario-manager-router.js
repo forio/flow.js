@@ -69,7 +69,7 @@
  * Note that this example uses several features in addition to a Scenario Manager Router: see more information on [using foreach](../../dom/attributes/foreach/default-foreach-attr/) and on the [run meta channel](../meta-channel/).
  */
 
-import RunChannel from './run-router';
+import RunRouter from './run-router';
 
 import { prefix, withPrefix, defaultPrefix } from 'channels/middleware/utils';
 import Router from 'channels/channel-router';
@@ -101,19 +101,21 @@ export default function (config, notifier) {
         serviceOptions: currentRunPromise,
     }, opts.defaults, opts.current);
 
-    var baselineRunChannel = new RunChannel(baselineOptions, withPrefix(notifier, 'baseline:'));
-    var currentRunChannel = new RunChannel(runOptions, withPrefix(notifier, ['current:', '']));
-
+    var baselineChannel = new RunRouter(baselineOptions, withPrefix(notifier, 'baseline:'));
+    var currentRunChannel = new RunRouter(runOptions, withPrefix(notifier, ['current:', '']));
     var handlers = [
-        $.extend(baselineRunChannel, {
+        $.extend(baselineChannel, {
+            name: 'baseline',
             match: prefix('baseline:'),
             options: baselineOptions.channelOptions,
         }),
         $.extend(currentRunChannel, { 
             isDefault: true, 
+            name: 'current',
             match: defaultPrefix('current:'),
             options: runOptions.channelOptions,
         }),
+
     ];
     
     var router = new Router(handlers, notifier);

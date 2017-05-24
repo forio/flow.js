@@ -223,8 +223,10 @@ var ChannelManager = (function () {
             var subs = makeSubs(topics, cb, options);
             this.subscriptions = this.subscriptions.concat(subs);
             var middlewares = this.middlewares.filter('subscribe');
+
+            var toSend = subs.topics;
             middlewares.forEach(function (middleware) {
-                return middleware(subs.topics);
+                toSend = middleware(toSend) || toSend;
             });
             return subs.id;
         },

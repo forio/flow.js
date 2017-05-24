@@ -45,9 +45,9 @@ module.exports = function (grunt) {
             }
         },
         edge: {
-            entry: './src/flow.js',
+            entry: path.resolve('./src/flow.js'),
             output: {
-                path: './dist/',
+                path: path.resolve('./dist/'),
                 pathinfo: true,
                 filename: 'flow-edge.js',
                 library: 'Flow',
@@ -67,9 +67,9 @@ module.exports = function (grunt) {
             devtool: 'eval'
         },
         tests: {
-            entry: './tests/test-list.js',
+            entry: path.resolve('./tests/test-list.js'),
             output: {
-                path: './tests/dist/',
+                path: path.resolve('./tests/dist/'),
                 filename: 'tests-bundle.js'
             },
             module: {
@@ -102,9 +102,9 @@ module.exports = function (grunt) {
         },
 
         mapped: {
-            entry: './src/flow.js',
+            entry: path.resolve('./src/flow.js'),
             output: {
-                path: './dist/',
+                path: path.resolve('./dist/'),
                 filename: 'flow.js',
                 library: 'Flow',
                 libraryTarget: 'var'
@@ -121,9 +121,9 @@ module.exports = function (grunt) {
             devtool: 'source-map',
         },
         min: {
-            entry: './src/flow.js',
+            entry: path.resolve('./src/flow.js'),
             output: {
-                path: './dist/',
+                path: path.resolve('./dist/'),
                 filename: 'flow.min.js',
                 library: 'Flow',
                 libraryTarget: 'var'
@@ -141,10 +141,10 @@ module.exports = function (grunt) {
             devtool: 'source-map'
         },
         addons: {
-            entry: './src/add-ons/flow-inspector/flow-inspector.js',
+            entry: path.resolve('./src/add-ons/flow-inspector/flow-inspector.js'),
             devtool: 'source-map',
             output: {
-                path: './dist/add-ons/',
+                path: path.resolve('./dist/add-ons/'),
                 filename: 'flow-inspector.min.js'
             },
             plugins: [

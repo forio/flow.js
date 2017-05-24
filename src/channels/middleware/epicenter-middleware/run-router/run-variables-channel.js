@@ -35,6 +35,9 @@ export default function RunVariablesChannel($runServicePromise, notifier) {
         var debounceInterval = 200; //todo: make this over-ridable
         if (!runService.debouncedFetchers[id]) {
             runService.debouncedFetchers[id] = debounceAndMerge(function (variables) {
+                if (!variables || !variables.length) {
+                    return $.Deferred().resolve([]).promise();
+                }
                 return runService.variables().query(variables).then(objectToArray);
             }, debounceInterval, [function mergeVariables(accum, newval) {
                 if (!accum) {

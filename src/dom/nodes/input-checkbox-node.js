@@ -9,11 +9,9 @@ module.exports = BaseView.extend({
 
     getUIValue: function () {
         var $el = this.$el;
-        //TODO: file a issue for the vensim manager to convert trues to 1s and set this to true and false
-
-        var offVal = (typeof $el.data('f-off') !== 'undefined') ? $el.data('f-off') : 0;
+        var offVal = (typeof $el.data('f-off') !== 'undefined') ? $el.data('f-off') : false;
         //attr = initial value, prop = current value
-        var onVal = (typeof $el.attr('value') !== 'undefined') ? $el.prop('value') : 1;
+        var onVal = (typeof $el.attr('value') !== 'undefined') ? $el.prop('value') : true;
 
         var val = ($el.is(':checked')) ? onVal : offVal;
         return val;

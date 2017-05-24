@@ -46,15 +46,18 @@ export default function RunRouter(config, notifier) {
 
     var handlers = [
         $.extend({}, metaChannel, { 
+            name: 'meta',
             match: prefix('meta:'),
             options: opts.channelOptions.meta,
         }),
         $.extend({}, operationsChannel, { 
+            name: 'operations',
             match: prefix('operations:'),
             options: opts.channelOptions.operations,
         }),
         $.extend({}, variableschannel, { 
             isDefault: true,
+            name: 'variables',
             match: defaultPrefix('variables:'),
             options: opts.channelOptions.variables,
         }),
@@ -64,7 +67,7 @@ export default function RunRouter(config, notifier) {
     var oldhandler = router.publishHandler;
     router.publishHandler = function () {
         var prom = oldhandler.apply(router, arguments);
-        return prom.then(function (result) {
+        return prom.then(function (result) { //all the silencing will be taken care of by the router
             if (result && result.length) {
                 variableschannel.fetch();
             }

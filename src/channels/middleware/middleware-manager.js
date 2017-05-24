@@ -11,7 +11,7 @@ export default function MiddlewareManager(options, notifier, channelManagerConte
 
         add: function (middleware, index) {
             if (_.isFunction(middleware)) {
-                middleware = new middleware(optsToPassOn, notifier);
+                middleware = new middleware(optsToPassOn, notifier, channelManagerContext);
             }
             if (middleware.name) {
                 channelManagerContext[middleware.name] = middleware;
