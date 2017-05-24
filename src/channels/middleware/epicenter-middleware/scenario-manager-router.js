@@ -1,6 +1,4 @@
 import RunRouter from './run-router';
-import SavedRunsRouter from './saved-runs-router';
-
 import { prefix, withPrefix, defaultPrefix } from 'channels/middleware/utils';
 import Router from 'channels/channel-router';
 
@@ -31,23 +29,13 @@ export default function (config, notifier) {
         serviceOptions: currentRunPromise,
     }, opts.defaults, opts.current);
 
-
-    var savedRunsOptions = $.extend(true, {
-        serviceOptions: sm.savedRuns,
-    });
     var baselineChannel = new RunRouter(baselineOptions, withPrefix(notifier, 'baseline:'));
     var currentRunChannel = new RunRouter(runOptions, withPrefix(notifier, ['current:', '']));
-    var savedRunsChannel = new SavedRunsRouter(savedRunsOptions, withPrefix(notifier, 'savedRuns:'));
     var handlers = [
         $.extend(baselineChannel, {
             name: 'baseline',
             match: prefix('baseline:'),
             options: baselineOptions.channelOptions,
-        }),
-        $.extend(savedRunsChannel, {
-            name: 'savedRuns',
-            match: prefix('savedRuns:'),
-            options: runOptions.channelOptions,
         }),
         $.extend(currentRunChannel, { 
             isDefault: true, 

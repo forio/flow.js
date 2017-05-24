@@ -14,12 +14,22 @@
        <div class="col-xs-6">
            <h4>All runs</h4>
            <table class="table">
+                <thead>
+                    <tr>
+                        <td>ID</td>
+                        <td>Name</td>
+                        <td>Is Selected</td>
+                    </tr>
+                </thead>
                <tbody data-f-foreach="run in runs(saved=true)(Price)">
                    <tr>
                        <td><%= run.id %></td>
                        <td><%= run.name %></td>
                        <td>
                            <input type="checkbox" data-f-bind="<%= run.id %>:meta:isSelected">
+                       </td>
+                       <td>
+                           <%= run.variables.Price %>
                        </td>
                    </tr>
                </tbody>
