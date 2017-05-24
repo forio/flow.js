@@ -41,15 +41,20 @@ export default function RunsRouter(options, notifier, channelManagerContext) {
         },
         subscribeHandler: function (topics) {
             var topic = ([].concat(topics))[0];
-            topicParamMap[topic] = true;
 
             var params = extractFromTopic(topic);
+
+            if (topicParamMap[topic]) {
+                channelManagerContext.unsubscribe(topicParamMap[topic]);
+            }
             return fetch(topic).then(function (runs) {
                 runs.forEach((run)=> {
                     var subscriptions = Object.keys(params.filter).map((filter)=> run.id + ':meta:' + filter);
-                    channelManagerContext.subscribe(subscriptions, function () {
+                    var subsid = channelManagerContext.subscribe(subscriptions, function () {
                         fetch(topic);
                     }, { batch: false, autoLoad: false, cache: false });
+                    topicParamMap[topic] = subsid;
+
                 });
                 return runs;
             });
