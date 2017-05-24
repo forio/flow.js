@@ -22,12 +22,12 @@ var RUN_PREFIX = 'rm:';
 var sampleRunidLength = '000001593dd81950d4ee4f3df14841769a0b'.length;
 var runidRegex = '(?:.{' + sampleRunidLength + '})';
 
-export default function (config, notifier) {
+export default function (config, notifier, channelManagerContext) {
     var opts = $.extend(true, {}, config);
 
     var customRunChannelOpts = getOptions(opts, 'runid');
     var customRunChannel = new CustomRunRouter(customRunChannelOpts, notifier);
-    var runsChannel = new RunsRouter(customRunChannelOpts, withPrefix(notifier, 'runs'));
+    var runsChannel = new RunsRouter(customRunChannelOpts, withPrefix(notifier, 'runs'), channelManagerContext);
 
     var handlers = [$.extend({}, customRunChannel, { 
         name: 'customRun',

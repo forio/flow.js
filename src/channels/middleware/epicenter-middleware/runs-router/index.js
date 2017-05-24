@@ -2,28 +2,8 @@ import { debounceAndMerge } from 'utils/general';
 import { objectToArray, arrayToObject } from 'channels/channel-utils';
 import { withPrefix } from 'channels/middleware/utils';
 
-export default function RunVariablesChannel(options, notifier) {
+export default function RunsRouter(options, notifier, channelManagerContext) {
     var runService = new F.service.Run(options.serviceOptions.run);
-    // var id = _.uniqueId('variable-channel');
-
-    // var fetchFn = function (runService) {
-    //     if (!runService.debouncedFetchers) {
-    //         runService.debouncedFetchers = {};
-    //     }
-    //     var debounceInterval = 200; //todo: make this over-ridable
-    //     if (!runService.debouncedFetchers[id]) {
-    //         runService.debouncedFetchers[id] = debounceAndMerge(function (variables) {
-    //             return runService.variables().query(variables).then(objectToArray);
-    //         }, debounceInterval, [function mergeVariables(accum, newval) {
-    //             if (!accum) {
-    //                 accum = [];
-    //             }
-    //             return _.uniq(accum.concat(newval));
-    //         }]);
-    //     }
-    //     return runService.debouncedFetchers[id];
-    // };
-     
 
     var topicParamMap = {};
 
@@ -44,14 +24,16 @@ export default function RunVariablesChannel(options, notifier) {
         return { filter: filterParam, variables: variables };
     }
 
-    return { 
-        fetch: function () {
-            return Promise.resolve([]);
+    function fetch(topic) {
+        var params = extractFromTopic(topic);
+        return runService.query(params.filter, { include: params.variables }).then((runs)=> {
+            notifier([{ name: topic, value: runs }]);
+            return runs;
+        });
+    }
 
-            // return $runServicePromise.then(function (runService) {
-            //     return fetchFn(runService)(knownTopics).then(notifier);
-            // });
-        },
+    return { 
+        fetch: fetch,
 
         unsubscribeHandler: function (unsubscribedTopics, remainingTopics) {
             console.log('unsubs');
@@ -59,11 +41,17 @@ export default function RunVariablesChannel(options, notifier) {
         },
         subscribeHandler: function (topics) {
             var topic = ([].concat(topics))[0];
-            var params = extractFromTopic(topic);
             topicParamMap[topic] = true;
 
-            return runService.query(params.filter, { include: params.variables }).then((runs)=> {
-                return notifier([{ name: topic, value: runs }]);
+            var params = extractFromTopic(topic);
+            return fetch(topic).then(function (runs) {
+                runs.forEach((run)=> {
+                    var subscriptions = Object.keys(params.filter).map((filter)=> run.id + ':meta:' + filter);
+                    channelManagerContext.subscribe(subscriptions, function () {
+                        fetch(topic);
+                    }, { batch: false, autoLoad: false, cache: false });
+                });
+                return runs;
             });
         },
         publishHandler: function (topics, options) {
