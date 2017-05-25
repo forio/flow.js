@@ -10,26 +10,29 @@ module.exports = function (grunt) {
         target: {
             files: [
                 {
-                    src: 'src/channels/middleware/epicenter-middleware/run-router/run-operations-channel.js', 
-                    dest: 'documentation/generated/channels/operations-channel/index.html.md'
-                }, {
-                    src: 'src/channels/middleware/epicenter-middleware/run-router/run-variables-channel.js', 
-                    dest: 'documentation/generated/channels/variables-channel/index.html.md'
-                }, {
-                    src: 'src/channels/middleware/epicenter-middleware/run-router/run-meta-channel.js',
-                    dest: 'documentation/generated/channels/meta-channel/index.html.md'
-                }, {
-                    src: 'src/channels/channel-manager.js',
-                    dest: 'documentation/generated/channels/channel-manager/index.html.md'
-                }, {
                     src: 'src/channels/middleware/epicenter-middleware/run-manager-router.js',
                     dest: 'documentation/generated/channels/run-manager-router/index.html.md'
                 }, {
                     src: 'src/channels/middleware/epicenter-middleware/scenario-manager-router.js',
                     dest: 'documentation/generated/channels/scenario-manager-router/index.html.md'
                 }, {
+                    src: 'src/channels/middleware/epicenter-middleware/runs-router/index.js',
+                    dest: 'documentation/generated/channels/run-filter-router/index.html.md'
+                }, {
                     src: 'src/channels/middleware/epicenter-middleware/custom-run-router.js',
-                    dest: 'documentation/generated/channels/filter-router/index.html.md'
+                    dest: 'documentation/generated/channels/run-id-router/index.html.md'
+                }, {
+                    src: 'src/channels/middleware/epicenter-middleware/run-router/run-variables-channel.js', 
+                    dest: 'documentation/generated/channels/variables-channel/index.html.md'
+                }, {
+                    src: 'src/channels/middleware/epicenter-middleware/run-router/run-operations-channel.js', 
+                    dest: 'documentation/generated/channels/operations-channel/index.html.md'
+                }, {
+                    src: 'src/channels/middleware/epicenter-middleware/run-router/run-meta-channel.js',
+                    dest: 'documentation/generated/channels/meta-channel/index.html.md'
+                }, {
+                    src: 'src/channels/channel-manager.js',
+                    dest: 'documentation/generated/channels/channel-manager/index.html.md'
                 }, {
                     src: 'src/converters/array-converter.js',
                     dest: 'documentation/generated/converters/array-converter/index.html.md'
