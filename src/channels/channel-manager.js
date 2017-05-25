@@ -12,8 +12,8 @@
  * * `publish`: Update a model variable or call a model operation. For example: 
  *
  *       // using channel explicitly
- *       Flow.channel.variables.publish('myVariable', newValue);
- *       Flow.channel.operations.publish('myOperation', myOperParam);
+ *       Flow.channel.publish('variables:myVariable', newValue);
+ *       Flow.channel.publish('operations:myOperation', myOperParam);
  *
  *       // equivalent call using Flow.js custom HTML attributes
  *       <input type="text" data-f-bind="myVariable" value="newValue"></input>
@@ -23,12 +23,12 @@
  *
  *       // use subscribe and a callback function 
  *       // to listen and react when a model variable has been updated
- *       Flow.channel.variables.subscribe('myVariable',
+ *       Flow.channel.subscribe('variables:myVariable',
  *          function() { console.log('updated!'); } );
  *
  *       // use subscribe and a callback function
  *       // to to listen and react when a model operation has been called
- *       Flow.channel.operations.subscribe('myOperation',
+ *       Flow.channel.subscribe('operations:myOperation',
  *          function() { console.log('called!'); } );
  *
  */
@@ -146,13 +146,13 @@ var ChannelManager = (function () {
          *
          * **Examples**
          *
-         *      Flow.channel.operations.publish('myOperation', myOperParam);
-         *      Flow.channel.operations.publish({
+         *      Flow.channel.publish('operations:myOperation', myOperParam);
+         *      Flow.channel.publish({
          *          operations: [{ name: 'myOperation', params: [myOperParam] }]
          *      });
          *
-         *      Flow.channel.variables.publish('myVariable', newValue);
-         *      Flow.channel.variables.publish({ myVar1: newVal1, myVar2: newVal2 });
+         *      Flow.channel.publish('variables:myVariable', newValue);
+         *      Flow.channel.publish('variables': { myVar1: newVal1, myVar2: newVal2 });
          *
          * @param {String} topic Name of variable or operation. Alternatively, object of the form `{ variableName: value }` or `{ operations: [ { name: operName, params: [operParams] } ] }`.
          * @param {Object} value Value for the updated variable or the argument to the operation.
@@ -181,8 +181,8 @@ var ChannelManager = (function () {
          *
          * **Example**
          *
-         *      Flow.channel.variables.notify('myVariable', newValue);
-         *      Flow.channel.operations.notify('myOperation', myOperParam);
+         *      Flow.channel.notify('variables:myVariable', newValue);
+         *      Flow.channel.notify('operations:myOperation', myOperParam);
          *
          * @param {String} topic The name of the variable or operation.
          * @param {Object} value Value for the updated variable or the argument to the operation.
@@ -203,19 +203,19 @@ var ChannelManager = (function () {
          *
          * **Examples**
          *
-         *       Flow.channel.variables.subscribe('myVariable',
+         *       Flow.channel.subscribe('variables:myVariable',
          *          function() { console.log('updated!'); } );
          *
-         *       Flow.channel.operations.subscribe('myOperation',
+         *       Flow.channel.subscribe('operations:myOperation',
          *          function() { console.log('called!'); } );
          *
-         * @param {String|Array} topics The names of the variables or operations. Use * to listen for notifications on all topics.
+         * @param {String|Array} topics The names of the variables or operations. Use `[channel]:*` to listen for notifications on all topics.
          * @param {Object|Function} cb The object or function being notified. Often this is a callback function.
          * @param {Object} options (Optional) Overrides for the default options.
          * @return {String} An identifying token for this subscription. Required as a parameter when unsubscribing.
          */
-        //TODO: Allow subscribing to regex? Will solve problem of listening only to variables etc
         subscribe: function (topics, cb, options) {
+        //TODO: Allow subscribing to regex? Will solve problem of listening only to variables etc
             var subs = makeSubs(topics, cb, options);
             this.subscriptions = this.subscriptions.concat(subs);
             var middlewares = this.middlewares.filter('subscribe');
@@ -256,6 +256,8 @@ var ChannelManager = (function () {
         },
         /**
          * Stop receiving notifications for all operations. No parameters.
+         *
+         * @return {} No return value.
          */ 
         unsubscribeAll: function () {
             var currentlySubscribed = this.getSubscribedTopics();

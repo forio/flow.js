@@ -17,10 +17,10 @@ module.exports = function (grunt) {
                     dest: 'documentation/generated/channels/scenario-manager-router/index.html.md'
                 }, {
                     src: 'src/channels/middleware/epicenter-middleware/runs-router/index.js',
-                    dest: 'documentation/generated/channels/run-filter-router/index.html.md'
+                    dest: 'documentation/generated/channels/multiple-runs-router/index.html.md'
                 }, {
                     src: 'src/channels/middleware/epicenter-middleware/custom-run-router.js',
-                    dest: 'documentation/generated/channels/run-id-router/index.html.md'
+                    dest: 'documentation/generated/channels/single-run-router/index.html.md'
                 }, {
                     src: 'src/channels/middleware/epicenter-middleware/run-router/run-variables-channel.js', 
                     dest: 'documentation/generated/channels/variables-channel/index.html.md'

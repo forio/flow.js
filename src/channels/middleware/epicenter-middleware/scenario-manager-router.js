@@ -8,8 +8,8 @@
  * The Scenario Manager Router makes it easy to create these "run comparison" projects using Flow.js, by routing incoming requests to the correct underlying API. In particular, specifying a scenario manager router for your Flow.js calls means that requests are routed to a set of runs, including `baseline`, `current`, and `saved`, which together comprise the three typical components in building a run comparison project:
  *
  * * A `current` run in which to make decisions; this is defined as a run that hasn't been advanced yet, and so can be used to set initial decisions. The current run maintains state across different sessions.
- * * A list of `saved` runs, that is, all runs that you want to use for comparisons.
  * * A `baseline` run to compare against; this is defined as a run "advanced to the end" of your model using just the model defaults.
+ * * A set of `saved` runs, that is, all runs that you want to use for comparisons. Note: The set of saved runs is an alias for a [multiple runs router](../multiple-runs-router/). This means that if you want to access particular variables, you'll need to add a second attribute, `data-f-channel-include`, and set the value to a comma-separated list of variables you want to access from the set of runs. (See examples, below and on the [multiple runs router](../multiple-runs-router/) page.)
  *
  * **Initializing a Scenario Manager Router**
  *
@@ -59,16 +59,33 @@
  *
  *          <table border="1">
  *              <th>Saved Runs</th>
- *              <tbody data-f-foreach="s in sm:saved">
- *                  <tr><td>Run Id: <span data-f-bind="s:meta:id"></span></td></tr>
- *                  <tr><td>Run Name: <span data-f-bind="s:meta:runName"></span></td></tr>
- *                  <tr><td>Total Sales: <span data-f-bind="s:variables:sales"></span></td></tr>
+ *              <tbody data-f-foreach="s in sm:saved" data-f-channel-include="sales">
+ *
+ *                  <!-- list the id -->
+ *                  <tr><td>Run Id: <%= s.id =></td></tr>
+ *
+ *                  <!-- bind directly to the runName, using a single run router -->
+ *                  <tr><td>Run Name: <input data-f-bind="<%= s.id =>:meta:runName"></input></td></tr>
+ *
+ *                  <!-- list the sales; notes that if you want to list model variables, --> 
+ *                  <!-- you need data-f-channel-include in the enclosing scope -->
+ *                  <tr><td>Total Sales: <%= s.variables.sales =></td></tr>
+ *
  *              </tbody>
  *          </table>
  *
- * Note that this example uses several features in addition to a Scenario Manager Router: see more information on [using foreach](../../dom/attributes/foreach/default-foreach-attr/) and on the [run meta channel](../meta-channel/).
+ * Note that this example uses several features in addition to a Scenario Manager Router: see more information on using [foreach](../../dom/attributes/foreach/default-foreach-attr/), the [meta channel](../meta-channel/), a [single run router](../single-run-router/), and [templates](../../../#templates).
  *
- * Also, note that `data-f-foreach="s in sm:saved"` could also be expressed using a [Run Filter Router](../run-filter-router/): `data-f-foreach="s in runs(;saved=true)`.
+ * Also, note that `data-f-foreach="s in sm:saved"` could also be expressed using a [Multiple Runs Router](../multiple-runs-router/): `data-f-foreach="s in runs(;saved=true)`.
+ *
+ * **Accessing the Underlying Structure**
+ *
+ * The Scenario Manager Router connects Flow.js to the Epicenter.js [Scenario Manager](../../../../api_adapters/generated/scenario-manager/). Optionally, you can access this underlying Scenario Manager directly:
+ *
+ *      Flow.channel.scenarioManager.current.getRun();
+ *      Flow.channel.scenarioManager.savedRuns.save(a-run-id);
+ *      Flow.channel.scenarioManager.baseline.reset();
+ *
  */
 
 import RunRouter from './run-router';

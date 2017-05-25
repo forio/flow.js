@@ -6,7 +6,7 @@
  * * `publish`: Call a model operation: 
  *
  *       // using channel explicitly
- *       Flow.channel.operations.publish('myOperation', myOperParam);
+ *       Flow.channel.publish('operations:myOperation', myOperParam);
  *
  *       // equivalent call using Flow.js custom HTML attributes
  *       <button data-f-on-click="myOperation(myOperParam)">Click me</button>
@@ -15,7 +15,7 @@
  *
  *       // use subscribe and a callback function 
  *       // to listen and react when a model variable has been updated
- *       Flow.channel.operations.subscribe('myOperation',
+ *       Flow.channel.subscribe('operations:myOperation',
  *          function() { console.log('called!'); } );
  *
  * See additional information on the [Channel Configuration Options and Methods](../../channel-manager/) page.

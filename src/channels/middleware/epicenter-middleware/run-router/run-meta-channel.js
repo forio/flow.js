@@ -1,12 +1,12 @@
 /**
- * ## Run Meta Channel
+ * ## Meta Channel
  *
- * Channels allow Flow.js to make requests of underlying APIs. The Run Meta Channel lets you track when run metadata (fields in the run record) are updated -- both default run metadata and any additional metadata you choose to add to a run. Specifically, the most common use cases for the Run Meta Channel are:
+ * Channels allow Flow.js to make requests of underlying APIs. The Meta Channel lets you track when run metadata (fields in the run record) are updated -- both default run metadata and any additional metadata you choose to add to a run. Specifically, the most common use cases for the Meta Channel are:
  *
  * * `publish`: Update a run metadata field: 
  *
  *       // using channel explicitly
- *       Flow.channel.meta.publish('meta:myRunField', newValue);
+ *       Flow.channel.publish('meta:myRunField', newValue);
  *
  *       // equivalent call using Flow.js custom HTML attributes
  *       <input type="text" data-f-bind="meta:myRunField" value="newValue"></input>
@@ -15,7 +15,7 @@
  *
  *       // use subscribe and a callback function 
  *       // to listen and react when the metadata has been updated
- *       Flow.channel.meta.subscribe('meta:myRunField',
+ *       Flow.channel.subscribe('meta:myRunField',
  *          function() { console.log('updated!'); } );
  *
  *       // similar call using Flow.js custom HTML attributes

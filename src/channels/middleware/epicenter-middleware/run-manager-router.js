@@ -52,6 +52,16 @@
  *      Step the run: <button data-f-on-click="step()">Step</button>
  *      View the sales for the year: <span data-f-bind="sales"></span>
  *
+ *
+ * **Accessing the Underlying Structure**
+ *
+ * The Run Manager Router connects Flow.js to the Epicenter.js [Run Manager](../../../../api_adapters/generated/run-manager/). Optionally, you can access this underlying Run Manager directly:
+ *
+ *      Flow.channel.runManager.getRun().then(function (run) {
+ *            run.do('someModelOperation');
+ *      });
+ *      console.log(Flow.channel.runManager.run.strategy);
+ *
  */
 
 import RunChannel from './run-router';

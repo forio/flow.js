@@ -15,8 +15,8 @@ New in this release, there are now several routers for connecting to Epicenter:
 
 * **Run Manager Router**: routes to the current run (for "current" defined by the run `strategy`)
 * **Scenario Manager Router**: routes to an underlying scenario manager, which can address aset of runs, including `baseline`, `current`, and `saved`.
-* **Run Filter Router**: routes to a set of runs matching a particular query
-* **Run Id Router**: routes to a single existing run, based on the run id
+* **Multiple Runs Router**: routes to a set of runs matching a particular query
+* **Single Run Router**: routes to a single existing run, based on the run id
 
 The existing channels, for model variables and model operations, are unchanged. There is now also a "meta" channel, which provides access to metadata from the run record.
 
@@ -102,21 +102,21 @@ Use the Scenario Manager Router for "run comparison" or "scenario comparison" pr
 
 See more information: [Scenario Manager Router](https://forio.com/epicenter/docs/public/data_binding_flow_js/generated/channels/scenario-manager-router/). 
 
-##### New Run Filter Router
+##### New Multiple Runs Router
 
-The Run Filter Router connects Flow.js to the Epicenter.js [Run Service](https://forio.com/epicenter/docs/public/api_adapters/generated/run-api-service/), querying it for multiple runs matching the filter.
+The Multiple Runs Router connects Flow.js to the Epicenter.js [Run Service](https://forio.com/epicenter/docs/public/api_adapters/generated/run-api-service/), querying it for multiple runs matching the filter.
 
-Using a Run Filter Router can help build "scenario comparison" projects, in which end users set some initial decisions, then simulate the model to its end. Typically end users will do this several times, creating several runs, and a results page will compare model variables from across many runs. A Run Filter Router is also common for facilitator pages, where a facilitator may want to view information from many runs.
+Using a Multiple Runs Router can help build "scenario comparison" projects, in which end users set some initial decisions, then simulate the model to its end. Typically end users will do this several times, creating several runs, and a results page will compare model variables from across many runs. A Run Filter Router is also common for facilitator pages, where a facilitator may want to view information from many runs.
 
-See more information: [Run Filter Router](https://forio.com/epicenter/docs/public/data_binding_flow_js/generated/channels/run-filter-router/).
+See more information: [Multiple Runs Router](https://forio.com/epicenter/docs/public/data_binding_flow_js/generated/channels/multiple-runs-router/).
 
-##### New Run ID Router
+##### New Single Run Router
 
-The Run ID Router connects Flow.js to the Epicenter.js [Run Manager](https://forio.com/epicenter/docs/public/api_adapters/generated/run-manager/), which allows you to interact with a single run. Unlike the Run Manager Channel, which works only with the "current" run defined by a particular strategy, the Run ID Channel works with a particular, existing run, specified by the run id.
+The Single Run Router connects Flow.js to the Epicenter.js [Run Manager](https://forio.com/epicenter/docs/public/api_adapters/generated/run-manager/), which allows you to interact with a single run. Unlike the Run Manager Router, which works only with the "current" run defined by a particular strategy, the Run ID Channel works with a particular, existing run, specified by the run id.
 
-See more information: [Run Id Router](https://forio.com/epicenter/docs/public/data_binding_flow_js/generated/channels/run-id-router/).
+See more information: [Single Run Router](https://forio.com/epicenter/docs/public/data_binding_flow_js/generated/channels/single-run-router/).
 
-##### New Run Meta Channel
+##### New Meta Channel
 
 Channels allow Flow.js to make requests of underlying APIs. 
 
@@ -124,9 +124,21 @@ The [Variables Channel](https://forio.com/epicenter/docs/public/data_binding_flo
 
 The [Operations Channel](https://forio.com/epicenter/docs/public/data_binding_flow_js/generated/channels/operations-channel/) lets you track when model operations are called. It is unchanged in this release. 
 
-The new [Run Meta Channel](https://forio.com/epicenter/docs/public/data_binding_flow_js/generated/channels/meta-channel/) lets you track when run metadata (fields in the run record) are updated -- both default run metadata and any additional metadata you choose to add to a run.
+The new [Meta Channel](https://forio.com/epicenter/docs/public/data_binding_flow_js/generated/channels/meta-channel/) lets you track when run metadata (fields in the run record) are updated -- both default run metadata and any additional metadata you choose to add to a run.
 
 In addition to `publish`, `subscribe`, and [other common methods](https://forio.com/epicenter/docs/public/data_binding_flow_js/generated/channels/channel-manager/), you can also reference specific channels within the Flow.js custom HTML attributes: `data-f-bind="meta:runName"`, `data-f-bind="variables:price"`.
+
+##### Changes to Channel Access
+
+This is a **breaking change**. In previous releases, each channel had its own methods:
+
+	Flow.channel.variables.publish('myVariable', newValue);
+	Flow.channel.operations.publish('myOperation', myOperParam);
+
+New in Flow.js 1.0, all channels share methods, and the particular channel is now part of the first argument to the method: 
+
+	Flow.channel.publish('variables:myVariable', newValue);
+	Flow.channel.publish('operations:myOperation', myOperParam);
 
 
 ### Improvements

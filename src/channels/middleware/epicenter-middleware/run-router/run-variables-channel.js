@@ -6,7 +6,7 @@
  * * `publish`: Update a model variable: 
  *
  *       // using channel explicitly
- *       Flow.channel.variables.publish('myVariable', newValue);
+ *       Flow.channel.publish('variables:myVariable', newValue);
  *
  *       // equivalent call using Flow.js custom HTML attributes
  *       <input type="text" data-f-bind="myVariable" value="newValue"></input>
@@ -15,7 +15,7 @@
  *
  *       // use subscribe and a callback function 
  *       // to listen and react when a model variable has been updated
- *       Flow.channel.variables.subscribe('myVariable',
+ *       Flow.channel.subscribe('variables:myVariable',
  *          function() { console.log('updated!'); } );
  *
  *       // similar call using Flow.js custom HTML attributes
