@@ -70,7 +70,7 @@
  * There are two reserved operations for a single run router:
  *
  * * `reset`: Creates a new run.
- * * `remove`: Marks a run as deleted.
+ * * `remove`: Marks the run as removed (the inverse of marking it as saved).
  *
  * For example:
  *

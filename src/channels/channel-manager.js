@@ -5,7 +5,7 @@
  *
  * * [Variables Channel](../../variables-channel/): For retrieving and updating model variables. Many of the Flow.js custom HTML attributes (e.g. `data-f-bind`) use this channel.
  * * [Operations Channel](../../operations-channel/): For calling model operations. Many of the Flow.js custom HTML attributes (e.g. `data-f-on-click`) use this channel.
- * * [Run Meta Channel](../../meta-channel/): For metadata about the run (including both default run record fields and additional any metadata you may add).
+ * * [Meta Channel](../../meta-channel/): For metadata about the run (including both default run record fields and additional any metadata you may add).
  *
  * The primary use cases for a channel are:
  *
@@ -30,6 +30,19 @@
  *       // to to listen and react when a model operation has been called
  *       Flow.channel.subscribe('operations:myOperation',
  *          function() { console.log('called!'); } );
+ *
+ * The [Variables Channel](../../variables-channel/) is the default. So these two calls are equivalent:
+ *
+ *      Flow.channel.publish({ 'variables:price': 1 });
+ *      Flow.channel.publish({ 'price': 1 });
+ *
+ * By specifying the channel, you can subscribe to, or publish, on the [Variables Channel](../../variables-channel/), [Operations Channel](../../operations-channel/), and [Meta Channel](../../meta-channel/) at the same time:
+ *
+ *       Flow.channel.publish([
+ *          { name: 'operations:myOperation', value: [myOperParam] },
+ *          { name: 'variables:a1', value: 23 },
+ *          { name: 'meta:runName', value: 'conservative interest rates run' }
+ *       ]);
  *
  */
 
@@ -56,8 +69,8 @@ function makeSubs(topics, callback, options) {
          *      channel.subscribe(['price', 'cost'], callback1, { batch: true, cache: false });
          *      channel.subscribe(['price', 'cost'], callback2, { batch: true, cache: true });
          *
-         *      channel.publish({ price: 1 });
-         *      channel.publish({ cost: 1 });
+         *      channel.publish({ 'price': 1 });
+         *      channel.publish({ 'cost': 1 });
          *
          * Here, `callback2` is called once, and `callback1` is not called: The channel caches the first publish value and notifies after all dependent topics have data.
          *
@@ -147,14 +160,12 @@ var ChannelManager = (function () {
          * **Examples**
          *
          *      Flow.channel.publish('operations:myOperation', myOperParam);
-         *      Flow.channel.publish({
-         *          operations: [{ name: 'myOperation', params: [myOperParam] }]
-         *      });
+         *      Flow.channel.publish({ name: operName, value: [operParam1, operParam2] });
          *
          *      Flow.channel.publish('variables:myVariable', newValue);
-         *      Flow.channel.publish('variables': { myVar1: newVal1, myVar2: newVal2 });
+         *      Flow.channel.publish({ myVar1: newVal1, myVar2: newVal2 });
          *
-         * @param {String} topic Name of variable or operation. Alternatively, object of the form `{ variableName: value }` or `{ operations: [ { name: operName, params: [operParams] } ] }`.
+         * @param {String} topic Name of variable or operation. Alternatively, object of the form `{ variableName: value }` or `{ name: operName, value: [operParam1, operParam2] }`.
          * @param {Object} value Value for the updated variable or the argument to the operation.
          * @param {Object} options (Optional) Overrides for the default options.
          * @returns {promise}
