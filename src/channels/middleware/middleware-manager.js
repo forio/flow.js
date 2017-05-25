@@ -13,9 +13,7 @@ export default function MiddlewareManager(options, notifier, channelManagerConte
             if (_.isFunction(middleware)) {
                 middleware = new middleware(optsToPassOn, notifier, channelManagerContext);
             }
-            if (middleware.name) {
-                channelManagerContext[middleware.name] = middleware;
-            }
+            $.extend(channelManagerContext, middleware.expose); //add any public props middleware wants to expose
             list.push(middleware);
         },
 

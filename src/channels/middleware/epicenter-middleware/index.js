@@ -38,7 +38,7 @@ export default function (config, notifier, channelManagerContext) {
         match: prefixMatch('runs'),
         options: customRunChannelOpts.channelOptions,
     })];
-    var namesList = {};
+    var exposable = {};
     if (opts.scenarioManager) {
         var scenarioManagerOpts = getOptions(opts, 'scenarioManager');
         var sm = new ScenarioRouter(scenarioManagerOpts, withPrefix(notifier, [SCENARIO_PREFIX, '']));
@@ -49,7 +49,7 @@ export default function (config, notifier, channelManagerContext) {
             isDefault: true,
         }));
 
-        namesList.scenario = sm;
+        $.extend(exposable, sm.expose);
     }
 
     var runManagerOpts = getOptions(opts, 'runManager');
@@ -72,11 +72,11 @@ export default function (config, notifier, channelManagerContext) {
             }));
         }
 
-        namesList.run = rm;
+        $.extend(exposable, rm.expose);
     }
 
     var router = new Router(handlers, notifier);
-    router.name = 'epi';
+    router.expose = exposable;
     
-    return $.extend(router, namesList);
+    return router;
 }

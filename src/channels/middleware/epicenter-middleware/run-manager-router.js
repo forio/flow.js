@@ -25,7 +25,6 @@ export default function (config, notifier) {
     ];
 
     var router = new Router(handlers, notifier);
-    router.manager = rm;
-    rm.currentRun = rm.run; //because run.manager.run sounds weird
+    router.expose = { runManager: rm };
     return router;
 }
