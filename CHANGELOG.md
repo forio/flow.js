@@ -145,6 +145,9 @@ There are also several improvements in this release, including:
 	When `cache: true` is passed in, if the `subscribe()` call also takes a `batch: true` argument, then the `subscriber` argument is called only if all topics (variables) being subscribed to are published (updated) at once.
 
 
+### Dependencies
+
+New in the Flow.js 1.0 release, jquery 3.x is now required.
 
 
 <a name"0.11.0"></a>

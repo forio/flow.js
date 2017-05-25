@@ -154,8 +154,6 @@ var ChannelManager = (function () {
          *      Flow.channel.variables.publish('myVariable', newValue);
          *      Flow.channel.variables.publish({ myVar1: newVal1, myVar2: newVal2 });
          *
-         * **Parameters**
-         *
          * @param {String} topic Name of variable or operation. Alternatively, object of the form `{ variableName: value }` or `{ operations: [ { name: operName, params: [operParams] } ] }`.
          * @param {Object} value Value for the updated variable or the argument to the operation.
          * @param {Object} options (Optional) Overrides for the default options.
@@ -186,8 +184,6 @@ var ChannelManager = (function () {
          *      Flow.channel.variables.notify('myVariable', newValue);
          *      Flow.channel.operations.notify('myOperation', myOperParam);
          *
-         * **Parameters**
-         *
          * @param {String} topic The name of the variable or operation.
          * @param {Object} value Value for the updated variable or the argument to the operation.
          * @param {Object} options (Optional) Overrides for the default options. 
@@ -213,8 +209,6 @@ var ChannelManager = (function () {
          *       Flow.channel.operations.subscribe('myOperation',
          *          function() { console.log('called!'); } );
          *
-         * **Parameters**
-         *
          * @param {String|Array} topics The names of the variables or operations. Use * to listen for notifications on all topics.
          * @param {Object|Function} cb The object or function being notified. Often this is a callback function.
          * @param {Object} options (Optional) Overrides for the default options.
@@ -235,7 +229,6 @@ var ChannelManager = (function () {
         /**
          * Stop receiving notification when a variable is updated or an operation is called.
          *
-         * **Parameters**
          * @param {String} token The identifying token for this subscription. (Created and returned by the `subscribe()` call.)
          */
         unsubscribe: function (token) {
