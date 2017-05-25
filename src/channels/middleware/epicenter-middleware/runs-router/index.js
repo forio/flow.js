@@ -1,6 +1,4 @@
-import { debounceAndMerge } from 'utils/general';
-import { objectToArray, arrayToObject } from 'channels/channel-utils';
-import { withPrefix } from 'channels/middleware/utils';
+const { F } = window;
 
 export default function RunsRouter(options, notifier, channelManagerContext) {
     var runService = new F.service.Run(options.serviceOptions.run);
