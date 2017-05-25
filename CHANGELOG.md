@@ -1,18 +1,33 @@
 <a name="1.0.0"></a>
-## 1.0.0 (2017-05-2x)
+## 1.0.0 (2017-05-26)
 
 This update includes several major, breaking changes. 
 
-### New Feature: Channel Expansion
+### New Features: Explicit Routers, Meta Channel
 
-Channels are ways for Flow.js to talk to external APIs -- primarily the underlying Epicenter APIs. New in this release, the available Epicenter channels for connecting to Epicenter are: default, run manager, scenario manager, and run id. The previous variables and operations channels have been restructured. Together, these changes allow you to use Flow.js more easily in multipage projects and in scenario comparison projects.
+Routers allow Flow.js to route incoming requests to the correct underlying API. 
+
+Channels allow Flow.js to actually make requests of these underlying APIs.
+
+In previous releases, there was only one (default) router available: a "run manager" router which routed requests to the current run.
+
+New in this release, there are now several routers for connecting to Epicenter:
+
+* **Run Manager Router**: routes to the current run (for "current" defined by the run `strategy`)
+* **Scenario Manager Router**: routes to an underlying scenario manager, which can address aset of runs, including `baseline`, `current`, and `saved`.
+* **Run Filter Router**: routes to a set of runs matching a particular query
+* **Run Id Router**: routes to a single existing run, based on the run id
+
+The existing channels, for model variables and model operations, are unchanged. There is now also a "meta" channel, which provides access to metadata from the run record.
+
+Together, these changes allow you to use Flow.js more easily in multipage projects and in run comparison projects.
 
 
 ##### Changes to Flow.initialize()
 
-This is a **breaking change**. The options for a `Flow.initialize()` call have been restructured.
+This is a **breaking change**. The options for a `Flow.initialize()` call have been restructured, to accommodate the new routers.
 
-Previous versions of Flow.js had one `channel` option, which included `strategy` and `run` information:
+Previous versions of Flow.js had one `channel` option, which included `strategy` and `run` information for all channels on the only available router:
 
 	Flow.initialize({
 		channel: {
@@ -29,7 +44,7 @@ Previous versions of Flow.js had one `channel` option, which included `strategy`
 	});
 
 
-New in Flow.js version 1.0, there are options for `defaults`, `runManager`, and `scenarioManager`. Each of these can take `run`  and `channelOptions` information, and takes `strategy` information when relevant:
+New in Flow.js version 1.0, there are separate options for each router: `defaults`, `runManager`, `scenarioManager`, and `runid` (the run filter router can only inherit options from the default). Each of these can take `run`  and `channelOptions` information, and takes `strategy` information when relevant:
 
 	Flow.initialize({
 		// default options apply to all channels
@@ -71,57 +86,47 @@ New in Flow.js version 1.0, there are options for `defaults`, `runManager`, and 
 	});
 
 
-##### New Run Manager Channel
+##### New Run Manager Router
 
-The Run Manager Channel connects Flow.js to the Epicenter.js [Run Manager](https://forio.com/epicenter/docs/public/api_adapters/generated/run-manager/), which allows you to interact with a single run. The current run that you are working with is determined by the run strategy used to create an initial run for your project.
+The Run Manager Router connects Flow.js to the Epicenter.js [Run Manager](https://forio.com/epicenter/docs/public/api_adapters/generated/run-manager/), which allows you to interact the current run. The current run is determined by the run strategy for your project.
 
-Working with the Run Manager Channel was previously the default behavior in Flow.js. In version 1.0, it remains the default behavior, however, the way in which you specify options for it when initializing Flow has changed (see above).
+Working with the Run Manager Router was previously the default behavior in Flow.js. In version 1.0, it remains the default behavior, however, the way in which you specify options for it when initializing Flow has changed (see above).
 
-Use the Run Manager Channel for common "turn by turn" projects. These are usually time-based and simulated one step at a time. For example, many projects that allow users to input data or change variables after each time step use this type.
+See more information: [Run Manager Router](https://forio.com/epicenter/docs/public/data_binding_flow_js/generated/channels/run-manager-router/). 
 
-	TODO - example
+##### New Scenario Manager Router
 
+The Scenario Manager Router connects Flow.js to the Epicenter.js [Scenario Manager](https://forio.com/epicenter/docs/public/api_adapters/generated/scenario-manager/), which allows you to interact with several different runs, including a `baseline`, `current`, and set of `saved` runs. 
 
-##### New Scenario Manager Channel
+Use the Scenario Manager Router for "run comparison" or "scenario comparison" projects. In these projects, end users set some initial decisions, then simulate the model to its end. Typically end users will do this several times, creating several runs, and compare the results. To facilitate this, the Scenario Manager Channel provides access to a current run in which to make decisions; a list of saved runs (that is, all runs that you want to use for comparisons); and a baseline run to compare against (that is, a run advanced to the end of your model using just the model defaults).
 
-The Scenario Manager Channel connects Flow.js to the Epicenter.js [Scenario Manager](https://forio.com/epicenter/docs/public/api_adapters/generated/scenario-manager/), which allows you to interact with several different runs. 
+See more information: [Scenario Manager Router](https://forio.com/epicenter/docs/public/data_binding_flow_js/generated/channels/scenario-manager-router/). 
 
-Use the Scenario Manager Channel for "run comparison" or "scenario comparison" projects. In these projects, end users set some initial decisions, then simulate the model to its end. Typically end users will do this several times, creating several runs, and compare the results. To facilitate this, the Scenario Manager Channel provides access to a current run in which to make decisions; a list of saved runs (that is, all runs that you want to use for comparisons); and a baseline run to compare against (that is, a run advanced to the end of your model using just the model defaults).
+##### New Run Filter Router
 
-	TODO-example
+The Run Filter Router connects Flow.js to the Epicenter.js [Run Service](https://forio.com/epicenter/docs/public/api_adapters/generated/run-api-service/), querying it for multiple runs matching the filter.
 
+Using a Run Filter Router can help build "scenario comparison" projects, in which end users set some initial decisions, then simulate the model to its end. Typically end users will do this several times, creating several runs, and a results page will compare model variables from across many runs. A Run Filter Router is also common for facilitator pages, where a facilitator may want to view information from many runs.
 
-##### New Run ID Channel
+See more information: [Run Filter Router](https://forio.com/epicenter/docs/public/data_binding_flow_js/generated/channels/run-filter-router/).
 
-The Run ID Channel connects Flow.js to the Epicenter.js [Run Manager](https://forio.com/epicenter/docs/public/api_adapters/generated/run-manager/), which allows you to interact with a single run. Unlike the Run Manager Channel, which works only with the "current" run defined by a particular strategy, the Run ID Channel works with a particular, existing run, specified by the run id.
+##### New Run ID Router
 
-	TODO-example
+The Run ID Router connects Flow.js to the Epicenter.js [Run Manager](https://forio.com/epicenter/docs/public/api_adapters/generated/run-manager/), which allows you to interact with a single run. Unlike the Run Manager Channel, which works only with the "current" run defined by a particular strategy, the Run ID Channel works with a particular, existing run, specified by the run id.
 
-##### Changes to Addressing Attributes, Converters
+See more information: [Run Id Router](https://forio.com/epicenter/docs/public/data_binding_flow_js/generated/channels/run-id-router/).
 
-TODO
+##### New Run Meta Channel
 
-TODO -- confirm "default" behavior wrt what options you've passed in (e.g. if you pass in only scenario mgr channel, is that the default??)
+Channels allow Flow.js to make requests of underlying APIs. 
 
-To use the default behavior -- which, as in previous releases, is a channel connecting Flow.js to the Epicenter.js [Run Manager](https://forio.com/epicenter/docs/public/api_adapters/generated/run-manager/) and a single, current run -- there is no change in how you reference model variables and operations from within attributes:
+The [Variables Channel](https://forio.com/epicenter/docs/public/data_binding_flow_js/generated/channels/variables-channel/) lets you track when model variables are updated. It is unchanged in this release. 
 
-	TODO - example, with comments
+The [Operations Channel](https://forio.com/epicenter/docs/public/data_binding_flow_js/generated/channels/operations-channel/) lets you track when model operations are called. It is unchanged in this release. 
 
-Optionally, you can now preface these calls with TODO for clarity:
+The new [Run Meta Channel](https://forio.com/epicenter/docs/public/data_binding_flow_js/generated/channels/meta-channel/) lets you track when run metadata (fields in the run record) are updated -- both default run metadata and any additional metadata you choose to add to a run.
 
-	TODO - example, with comments
-
-To use the Scenario Manager Channel, you can TODO
-
-	TODO - example, with comments
-
-To use the Run ID Channel, you can TODO
-
-	TODO - example, with comments
-
-##### TODO - What to say about migrating existing use of variables, operations channels
-
-TODO
+In addition to `publish`, `subscribe`, and [other common methods](https://forio.com/epicenter/docs/public/data_binding_flow_js/generated/channels/channel-manager/), you can also reference specific channels within the Flow.js custom HTML attributes: `data-f-bind="meta:runName"`, `data-f-bind="variables:price"`.
 
 
 ### Improvements
@@ -138,8 +143,6 @@ There are also several improvements in this release, including:
 		// when either price or cost is published
  
 	When `cache: true` is passed in, if the `subscribe()` call also takes a `batch: true` argument, then the `subscriber` argument is called only if all topics (variables) being subscribed to are published (updated) at once.
-
-* TODO: other? bug fixes worth mentioning? (feature/travis, feature/unbind-generated)
 
 
 

@@ -7,6 +7,7 @@ var { uniqueId } = _;
  * Handle subscriptions
  * @param  {Array} handlers Array of the form [{ match: function (){}, }]
  * @param  {Array} topics   Array of strings
+ * @returns {Array} topics
  */
 export function notifySubscribeHandlers(handlers, topics) {
     var grouped = groupByHandlers(topics, handlers);

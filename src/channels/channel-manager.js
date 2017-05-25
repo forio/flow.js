@@ -3,9 +3,9 @@
  *
  * Channels allow Flow.js to make requests of underlying APIs. In particular, every run accessed through a router includes three channels:
  *
- * * [Variables Channel](../../variables-channel/): For model variables.
- * * [Operations Channel](../../operations-channel/): For model operations.
- * * [Run Meta Channel](../../meta-channel/): For metadata about the run (including both default run record fields and additional any metadata you may add)
+ * * [Variables Channel](../../variables-channel/): For retrieving and updating model variables. Many of the Flow.js custom HTML attributes (e.g. `data-f-bind`) use this channel.
+ * * [Operations Channel](../../operations-channel/): For calling model operations. Many of the Flow.js custom HTML attributes (e.g. `data-f-on-click`) use this channel.
+ * * [Run Meta Channel](../../meta-channel/): For metadata about the run (including both default run record fields and additional any metadata you may add).
  *
  * The primary use cases for a channel are:
  *
@@ -67,7 +67,7 @@ function makeSubs(topics, callback, options) {
          *
          * Then both `callback1` and `callback2` are called.
          *
-         * Setting `cache: true` is useful if you know if your topics will be published individually, but you still want to handle them together. As a concrete example, consider a slider with a chart: the input values, determined by the slider, should not cause the chart to redraw until all 
+         * Setting `cache: true` is useful if you know if your topics will be published individually, but you still want to handle them together. As a concrete example, consider a slider with a chart: the input values, determined by the slider, should not cause the chart to redraw immediately. The chart could wait until all sliders have been updated a checkbox is checked, for example.
          * Setting `cache: false` is useful if you know if your topics will *always* be published together and they'll be called at the same time.
          *
          * Note this has no discernible effect if `batch` is `false`. Additionally, this has no discernible effect if `variables` are "noisy" (`silent: true`).
@@ -159,6 +159,7 @@ var ChannelManager = (function () {
          * @param {String} topic Name of variable or operation. Alternatively, object of the form `{ variableName: value }` or `{ operations: [ { name: operName, params: [operParams] } ] }`.
          * @param {Object} value Value for the updated variable or the argument to the operation.
          * @param {Object} options (Optional) Overrides for the default options.
+         * @returns {promise}
          */
         publish: function (topic, value, options) {
             var normalized = normalizeParamOptions(topic, value, options);
@@ -190,6 +191,7 @@ var ChannelManager = (function () {
          * @param {String} topic The name of the variable or operation.
          * @param {Object} value Value for the updated variable or the argument to the operation.
          * @param {Object} options (Optional) Overrides for the default options. 
+         * @returns {List} List of subscriptions
          */
         notify: function (topic, value, options) {
             var normalized = normalizeParamOptions(topic, value, options);
@@ -280,6 +282,7 @@ var ChannelManager = (function () {
         /**
          * View everything currently subscribed to this topic.
          *
+         * @param {String} topic The topic of interest.
          * @return {Array} List of subscriptions.
          */
         getSubscribers: function (topic) {

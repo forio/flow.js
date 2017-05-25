@@ -29,7 +29,7 @@
  *                  operations: { }
  *              }
  *          },
- *          // scenarioManager options apply only to the scenario manager router
+ *          // scenarioManager options override the defaults and apply only to the scenario manager router
  *          scenarioManager: {
  *              run: {
  *
@@ -41,12 +41,12 @@
  *          }
  *      });
  *
- * ** Using a Scenario Manager Router**
+ * **Using a Scenario Manager Router**
  *
  * There are two ways to route specific Flow.js custom HTML attributes to runs in a scenario:
  *
- * * Preface the values of the attributes with `sm` and the name of the run(s) to address, e.g. `data-f-bind="sm:baseline:price"`.
- * * If your `Flow.initialize()` call ONLY includes `scenarioManager` options (and no `runManager` options), then `scenarioManager` is assumed to be the default for this page. Preface the values of the attributes with the name of the run(s) to address only, e.g. `data-f-bind="baseline:price"`.
+ * * Preface the values of the attributes with `sm` and the name of the run(s) to address: `data-f-bind="sm:baseline:price"`.
+ * * If your `Flow.initialize()` call ONLY includes `scenarioManager` options (and no `runManager` options), then `scenarioManager` is assumed to be the default for this page. Preface the values of the attributes with the name of the run(s) to address only: `data-f-bind="baseline:price"`.
  *
  * For example:
  *
@@ -59,7 +59,7 @@
  *
  *          <table border="1">
  *              <th>Saved Runs</th>
- *              <tbody data-f-foreach="s in sm:saved"> TODO: this is an alias for "s in runs(;saved=true)"
+ *              <tbody data-f-foreach="s in sm:saved">
  *                  <tr><td>Run Id: <span data-f-bind="s:meta:id"></span></td></tr>
  *                  <tr><td>Run Name: <span data-f-bind="s:meta:runName"></span></td></tr>
  *                  <tr><td>Total Sales: <span data-f-bind="s:variables:sales"></span></td></tr>
@@ -67,6 +67,8 @@
  *          </table>
  *
  * Note that this example uses several features in addition to a Scenario Manager Router: see more information on [using foreach](../../dom/attributes/foreach/default-foreach-attr/) and on the [run meta channel](../meta-channel/).
+ *
+ * Also, note that `data-f-foreach="s in sm:saved"` could also be expressed using a [Run Filter Router](../run-filter-router/): `data-f-foreach="s in runs(;saved=true)`.
  */
 
 import RunRouter from './run-router';

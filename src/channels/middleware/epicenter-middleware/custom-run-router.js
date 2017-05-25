@@ -1,9 +1,7 @@
 /**
  * ## Run Id Router
  *
- * TODO: move some of this to data-f-repeat / data-f-foreach: Routers allow Flow.js to route incoming requests to the correct underlying API. The Run Id Router routes requests to runs matching a particular filter. This is common for "scenario comparison" projects, in which end users set some initial decisions, then simulate the model to its end. Typically end users will do this several times, creating several runs, and compare the results. It's also common for facilitator pages, where a facilitator may want to view information from many runs.
- *
- * Routers allow Flow.js to route incoming requests to the correct underlying API. The Run Id Router routes requests to particular runs, based on the run id. TODO: use case example?
+ * Routers allow Flow.js to route incoming requests to the correct underlying API. The Run Id Router routes requests to a single existing run, based on the run id.
  *
  * **Initializing a Run Id Router**
  *
@@ -23,7 +21,7 @@
  *                  operations: { }
  *              }
  *          },
- *          // runid options apply only to the run filter router
+ *          // runid options override the defaults and apply only to the run filter router
  *          runid: {
  *              run: {
  *
@@ -35,7 +33,7 @@
  *          }
  *      });
  *
- * ** Using a Run Filter Router**
+ * ** Using a Run Id Router**
  *
  * There are two ways to route specific Flow.js custom HTML attributes to the run id:
  *

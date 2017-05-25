@@ -1,7 +1,7 @@
 /**
  * ## Run Manager Router
  *
- * Routers allow Flow.js to route incoming requests to the correct underlying API. The Run Manager Router routes requests to the current run. This is common for "turn-by-turn" projects, where end users advance through the project's model step-by-step, working either individually or together to make decisions at each step. This is also the default behavior in Flow.js; most of the examples (for instance, [displaying and updating model variables](../../attributes-overview/)) use the run manager router.
+ * Routers allow Flow.js to route incoming requests to the correct underlying API. The Run Manager Router routes requests to the current run. This is common for "turn-by-turn" projects, where end users advance through the project's model step-by-step, working either individually or together to make decisions at each step. This is also the default behavior in Flow.js; most of the examples (for instance, [displaying and updating model variables](../../attributes-overview/)) use the run manager router without explicitly calling it.
  *
  * **Initializing a Run Manager Router**
  *
@@ -21,7 +21,7 @@
  *                  operations: { }
  *              }
  *          },
- *          // runManager options apply only to the run manager router
+ *          // runManager options override the defaults and apply only to the run manager router
  *          runManager: {
  *              run: {
  *
@@ -33,12 +33,12 @@
  *          }
  *      });
  *
- * ** Using a Run Manager Router**
+ * **Using a Run Manager Router**
  *
  * There are two ways to route specific Flow.js custom HTML attributes to the run manager:
  *
- * * Preface the values of the attributes with `run`, e.g. `data-f-bind="run:price"`.
- * * If your `Flow.initialize()` call ONLY includes `runManager` options (and no `scenarioManager` options), then `runManager` is assumed to be the default for this page, and no preface is needed, e.g. `data-f-bind="price"`.
+ * * Preface the values of the attributes with `run`: `data-f-bind="run:price"`.
+ * * If your `Flow.initialize()` call ONLY includes `runManager` options (and no `scenarioManager` options), then `runManager` is assumed to be the default for this page, and no preface is needed: `data-f-bind="price"`.
  *
  * For example:
  *

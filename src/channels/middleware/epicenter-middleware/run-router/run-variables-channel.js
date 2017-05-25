@@ -18,6 +18,11 @@
  *       Flow.channel.variables.subscribe('myVariable',
  *          function() { console.log('updated!'); } );
  *
+ *       // similar call using Flow.js custom HTML attributes
+ *       // the span automatically updates when the variable is updated
+ *       // however, there is no opportunity for a callback function
+ *       <span data-f-bind="myVariable"></span>
+ *
  * See additional information on the [Channel Configuration Options and Methods](../../channel-manager/) page.
  */
 
