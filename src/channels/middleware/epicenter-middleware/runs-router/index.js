@@ -59,9 +59,7 @@
  */
 
 
-import { debounceAndMerge } from 'utils/general';
-import { objectToArray, arrayToObject } from 'channels/channel-utils';
-import { withPrefix } from 'channels/middleware/utils';
+const { F } = window;
 
 export default function RunsRouter(options, notifier, channelManagerContext) {
     var runService = new F.service.Run(options.serviceOptions.run);
@@ -119,17 +117,6 @@ export default function RunsRouter(options, notifier, channelManagerContext) {
                 });
                 return runs;
             });
-        },
-        publishHandler: function (topics, options) {
-            console.log('publishHandler', topics);
-
-            return Promise.resolve(topics);
-            // return $runServicePromise.then(function (runService) {
-            //     var toSave = arrayToObject(topics);
-            //     return runService.variables().save(toSave).then(function (response) {
-            //         return objectToArray(response);
-            //     });
-            // });
         }
     };
 }

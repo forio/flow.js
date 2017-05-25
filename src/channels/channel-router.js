@@ -1,13 +1,11 @@
 import { groupByHandlers, groupSequentiallyByHandlers } from 'channels/channel-utils';
 import { unprefix, mapWithPrefix, silencable } from 'channels/middleware/utils';
 
-var { uniqueId } = _;
-
 /**
  * Handle subscriptions
  * @param  {Array} handlers Array of the form [{ match: function (){}, }]
  * @param  {Array} topics   Array of strings
- * @returns {Array} topics
+ * @return {Array} Returns the original topics array
  */
 export function notifySubscribeHandlers(handlers, topics) {
     var grouped = groupByHandlers(topics, handlers);

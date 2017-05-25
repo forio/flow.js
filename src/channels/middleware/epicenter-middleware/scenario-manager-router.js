@@ -121,6 +121,6 @@ export default function (config, notifier) {
     ];
     
     var router = new Router(handlers, notifier);
-    router.manager = sm;
+    router.expose = { scenarioManager: sm };
     return router;
 }
