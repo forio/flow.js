@@ -71,14 +71,14 @@ See more about <a href="http://forio.com/contour/documentation.html#key_concepts
 
 In Flow.js, you can use the [Variables Channel](../generated/channels/variables-channel/) to receive notifications when a model variable is updated. Because we want to update our visualization as a model variable changes, we subscribe to the variable. 
 
-	Flow.channel.variables.subscribe('myVariable', function() { });
+	Flow.channel.subscribe('variables:myVariable', function() { });
 
 
 **Step 4: In the callback function for your subscription, update and render the Contour chart.**
 
 The Flow.js [Variables Channel `subscribe()`](../generated/channels/variables-channel/) method's second argument is a callback function, called whenever the model variable is updated. We want to update and re-render our visualization each time the model variable changes:
 
-	Flow.channel.variables.subscribe('myVariable',
+	Flow.channel.subscribe('variables:myVariable',
 		function(data) {
 			myChart.setData([data.myVariable]);
 			myChart.render();
@@ -94,7 +94,7 @@ Using the Flow.js [Variables Channel](../generated/channels/variables-channel/),
 
 	<button data-f-on-click='advanceModel'>Advance Model</button>
 
-	Flow.channel.variables.subscribe(['cost', 'price'], 
+	Flow.channel.subscribe(['cost', 'price'], 
 		function (data) {
 			var composedData = [
 				{
@@ -127,14 +127,14 @@ First, have the user enter the values and click a button when finished:
 Then once the button is clicked, call an operation from the model, using the values entered by the user:
 
 	$("#submitButton").click(function(){
-		Flow.channel.operations.publish('updateXY', [$("#x").val(), $("#y").val()]);
+		Flow.channel.publish('operations:updateXY', [$("#x").val(), $("#y").val()]);
 	});
 
 We use the `operations.publish()` to guarantee that any subscribers are notified of the call.
 
 Finally, use the Flow.js [Operations Channel](../generated/channels/operations-channel/) to subscribe to the operation you've just called. The second argument is a callback function, called whenever the model operation is called. We want to update and re-render our visualization each time this operation happens:
 
-	Flow.channel.operations.subscribe('updateXY',
+	Flow.channel.subscribe('operations:updateXY',
 		function(data) {
 			var composedData = {
 				x: data.updateXY.result[0],
@@ -163,8 +163,8 @@ Here's the complete sample code:
 		<script src="//forio.com/tools/contour/contour.js"></script>
 
 		<!-- for Flow.js -->
-		<script src="//ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
-		<script src="//forio.com/tools/js-libs/2.1.0/epicenter.min.js"></script>
+		<script src="//ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script>
+		<script src="//forio.com/tools/js-libs/2.2.0/epicenter.min.js"></script>
 		<script src="//forio.com/tools/js-libs/flow/latest/flow.js"></script>
 
 	</head>
@@ -196,7 +196,7 @@ Here's the complete sample code:
 
 			// used in Step #6
 			$("#submitButton").click(function(){
-				Flow.channel.operations.publish('updateXY', [$("#x").val(), $("#y").val()]);
+				Flow.channel.publish('operations:updateXY', [$("#x").val(), $("#y").val()]);
 			});	
 
 			
@@ -209,7 +209,7 @@ Here's the complete sample code:
 			    .column()
 			    .tooltip();
 
-			Flow.channel.variables.subscribe('myVariable',
+			Flow.channel.subscribe('variables:myVariable',
 				function(data) {
 					myChart.setData([data.myVariable]);
 					myChart.render();
@@ -225,7 +225,7 @@ Here's the complete sample code:
 				.line()
 				.tooltip();
 			
-			Flow.channel.variables.subscribe(['cost', 'price'],
+			Flow.channel.subscribe(['cost', 'price'],
 				function(data) {
 					var composedData = [
 						{
@@ -252,7 +252,7 @@ Here's the complete sample code:
 				.line()
 				.tooltip();
 
-			Flow.channel.operations.subscribe('updateXY',
+			Flow.channel.subscribe('operations:updateXY',
 					function(data) {
 						var composedData = {
 							x: data.updateXY.result[0],

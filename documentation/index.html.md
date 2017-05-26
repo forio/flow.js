@@ -65,19 +65,19 @@ Learn more about advanced topics:
 
 **Notes:**
 
-The `Flow.initialize()` call optionally takes two arguments: `channel`, which includes a `run`, and `dom`.
+The `Flow.initialize()` call takes a `defaults` argument, which can include `run` and `channelOptions` fields. 
 
-The `run` is an object that includes:
+The `defaults.run` is an object that includes:
 	
 * `account`: Optional, **User ID** or **Team ID**
 * `project`: Optional, **Project ID**
 * `model`: Optional, name of primary model file (repeated from `data-f-model` in your HTML `<body>` tag)
-* `files`: Optional, object with name : value pairs for files with additional data to pass into your model, e.g. `"files": {"file1": "myFirstFile.xlsx", "file2": "mySecondFile.xlsx"}`. Only applicable to [Vensim](../model_code/vensim/) models, and optional then. See a complete example in [How To: Use External Data in Vensim](../model_code/vensim/vensim_example_xls/).
+* `strategy`: Optional, the [run strategy](../api_adapters/generated/strategies/) 
 
-These parameters are optional because the `run` information defaults correctly based on the location of your user interface file within your Epicenter project and the `data-f-model` element in your `<body>` tag. But you can add it if desired: 
+These parameters are optional because the `defaults.run` information defaults correctly based on the location of your user interface file within your Epicenter project and the `data-f-model` element in your `<body>` tag. But you can add it if desired: 
 
 		Flow.initialize({
-			channel: {
+			defaults: {
 				strategy: 'new-if-initialized',
 				run: {
 					model: 'supply-chain-game.py',
@@ -87,9 +87,13 @@ These parameters are optional because the `run` information defaults correctly b
 			}
 		});
 	
-In fact, you can add any of the [Model Run API parameters](../rest_apis/other_apis/model_apis/run/) to the `run` object here. See also more details on [customizing the Flow.initialize() method](./generated/flow-js/).
+In fact, you can add any of the [Run API parameters](../rest_apis/aggregate_run_api/) to the `run` object here. 
 
-Additionally, the `Flow.initialize()` call returns a promise, which is resolved when initialization is complete:
+The `defaults` object sets the default parameters for all the routers used on the page. If you are using other [routers](./channel-overview/), then the `Flow.initialize()` can take additional parameters for each one. See the [Routers &amp; Channels](./channel-overview/) page for more information. 
+
+See also more details on [customizing the Flow.initialize() method](./generated/flow-js/).
+
+The `Flow.initialize()` call returns a promise, which is resolved when initialization is complete:
 
 		Flow.initialize(...).then(function() {
 			// code that depends on initialization goes here
