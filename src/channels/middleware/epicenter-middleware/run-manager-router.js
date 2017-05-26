@@ -1,7 +1,7 @@
 /**
  * ## Run Manager Router
  *
- * Routers allow Flow.js to route incoming requests to the correct underlying API. The Run Manager Router routes requests to the current run. This is common for "turn-by-turn" projects, where end users advance through the project's model step-by-step, working either individually or together to make decisions at each step. This is also the default behavior in Flow.js; most of the examples (for instance, [displaying and updating model variables](../../attributes-overview/)) use the run manager router without explicitly calling it.
+ * Routers allow Flow.js to route incoming requests to the correct underlying API. The Run Manager Router routes requests to the current run. This is common for "turn-by-turn" projects, where end users advance through the project's model step-by-step, working either individually or together to make decisions at each step. This is also the default behavior in Flow.js; most of the examples (for instance, [displaying and updating model variables](../../attributes-overview/)) use the run manager router, calling it implicitly.
  *
  * **Initializing a Run Manager Router**
  *

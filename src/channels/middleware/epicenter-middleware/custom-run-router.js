@@ -47,9 +47,12 @@
  * For example:
  *
  *      <!-- using the single run preface -->
- *      Set the price: <input data-f-bind="000001593dd81950d4ee4f3df14841769a0b:variables:price"></input>
- *      Step the run: <button data-f-on-click="000001593dd81950d4ee4f3df14841769a0b:operations:step()">Step</button>
- *      View the sales for the year: <span data-f-bind="000001593dd81950d4ee4f3df14841769a0b:variables:sales"></span>
+ *      Set the price: 
+ *      <input data-f-bind="000001593dd81950d4ee4f3df14841769a0b:variables:price"></input>
+ *      Step the run:
+ *      <button data-f-on-click="000001593dd81950d4ee4f3df14841769a0b:operations:step()">Step</button>
+ *      View the sales for the year:
+ *      <span data-f-bind="000001593dd81950d4ee4f3df14841769a0b:variables:sales"></span>
  *
  *      <!-- if you are ONLY working with the single run filter, no preface needed (this is not common) -->
  *      Set the price: <input data-f-bind="price"></input>
@@ -59,9 +62,11 @@
  *      <!-- using the single run preface, where the id is pulled from a multiple runs router -->
  *          <table border="1">
  *              <th>Step Runs for Each World</th>
- *              <tbody data-f-foreach="s in runs(;saved=true;scope.group=group1)" data-f-channel-include="finalScore">
+ *              <tbody data-f-foreach="s in runs(scope.group=group1)" data-f-channel-include="finalScore">
  *                  <tr><td>World: <%= s.scope.worldId =></td></tr>
- *                  <tr><td>Step this run: <button data-f-on-click="<%= s.id =>:operations:step()">Step</button></td></tr>
+ *                  <tr><td>Step this run: 
+ *                        <button data-f-on-click="<%= s.id =>:operations:step()">Step</button>
+ *                  </td></tr>
  *              </tbody>
  *          </table>
  *

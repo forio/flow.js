@@ -44,10 +44,10 @@ Previous versions of Flow.js had one `channel` option, which included `strategy`
 	});
 
 
-New in Flow.js version 1.0, there are separate options for each router: `defaults`, `runManager`, `scenarioManager`, and `runid` (the run filter router can only inherit options from the default). Each of these can take `run`  and `channelOptions` information, and takes `strategy` information when relevant:
+New in Flow.js version 1.0, there are separate options for each router: `defaults`, `runManager`, `scenarioManager`, and `runid` (the single run router can only inherit options from the default). Each of these can take `run`  and `channelOptions` information, and takes `strategy` information when relevant:
 
 	Flow.initialize({
-		// default options apply to all channels
+		// default options apply to all routers
 		defaults: {
 			run: { 
 				account: 'teamId',
@@ -61,7 +61,7 @@ New in Flow.js version 1.0, there are separate options for each router: `default
 			}
 		},
 		
-		// runManager options apply only to the run manager channel
+		// runManager options apply only to the run manager router
 		runManager: {
 			strategy: 'aStrategy',
 			run: {
@@ -73,7 +73,7 @@ New in Flow.js version 1.0, there are separate options for each router: `default
 			}
 		},
 		
-		// scenarioManager options apply only to the scenario manager channel
+		// scenarioManager options apply only to the scenario manager router
 		scenarioManager: {
 			run: {
 			

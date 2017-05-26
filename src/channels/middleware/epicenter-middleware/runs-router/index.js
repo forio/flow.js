@@ -58,7 +58,7 @@
  *
  *          <table border="1">
  *              <th>Final Scores</th>
- *              <tbody data-f-foreach="s in runs(;saved=true;scope.group=group1)" data-f-channel-include="finalScore">
+ *              <tbody data-f-foreach="s in runs(scope.group=group1)" data-f-channel-include="finalScore">
  *                  <!-- list the information; because the use case is for read-only info,
  *                      no need to use data-f-bind and a single run router -->
  *                  <tr><td>User: <%= s.user.userName =></td></tr>
@@ -66,7 +66,7 @@
  *              </tbody>
  *          </table>
  *
- * Note that these examples use several features in addition to a Multiple Runs Router: see more information on using [foreach](../../dom/attributes/foreach/default-foreach-attr/), the [meta channel](../meta-channel/), a [single run router](../single-run-router/), and [templates](../../../#templates).
+ * These examples use several features in addition to a Multiple Runs Router: see more information on using [foreach](../../dom/attributes/foreach/default-foreach-attr/), the [Meta Channel](../meta-channel/), a [Single Run Router](../single-run-router/), and [templates](../../../#templates).
  *
  * Also, note that for the particular filter of `;saved=true`, the `data-f-foreach="s in runs(;saved=true)` could also be expressed using a [Scenario Manager Router](../scenario-manager-router/): `data-f-foreach="s in sm:saved"`.
  */

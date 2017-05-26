@@ -9,24 +9,28 @@
  *
  * The parameters for initializing Flow.js include:
  *
- * * `channel` Configuration details for the channel Flow.js uses in connecting with underlying APIs.
- * * `channel.strategy` The run creation strategy describes when to create new runs when an end user visits this page. The default is `new-if-persisted`, which creates a new run when the end user is idle for longer than your project's **Model Session Timeout** (configured in your project's [Settings](../../../updating_your_settings/)), but otherwise uses the current run.. See more on [Run Strategies](../../../api_adapters/strategy/).
- * * `channel.run` Configuration details for each run created.
- * * `channel.run.account` The **User ID** or **Team ID** for this project. By default, taken from the URL where the user interface is hosted, so you only need to supply this is you are running your project's user interface [on your own server](../../../how_to/self_hosting/).
- * * `channel.run.project` The **Project ID** for this project.
- * * `channel.run.model` Name of the primary model file for this project. By default, taken from `data-f-model` in your HTML `<body>` tag.
- * * `channel.run.variables` Configuration options for the variables being listened to on this channel.
- * * `channel.run.variables.silent` Provides granular control over when user interface updates happen for changes on this channel. See below for possible values.
- * * `channel.run.variables.autoFetch` Options for fetching variables from the API as they're being subscribed. See [Variables Channel](../channels/variables-channel/) for details.
- * * `channel.run.operations` Configuration options for the operations being listened to on this channel. Currently there is only one configuration option: `silent`.
- * * `channel.run.operations.silent` Provides granular control over when user interface updates happen for changes on this channel. See below for possible values.
- * * `channel.run.server` Object with additional server configuration, defaults to `host: 'api.forio.com'`.
- * * `channel.run.transport` An object which takes all of the jquery.ajax options at <a href="http://api.jquery.com/jQuery.ajax/">http://api.jquery.com/jQuery.ajax/</a>.
+ * * `defaults` Configuration details for the default router Flow.js uses in connecting with underlying APIs.
+ * * `defaults.strategy` The run creation strategy describes when to create new runs when an end user visits this page. The default is `new-if-persisted`, which creates a new run when the end user is idle for longer than your project's **Model Session Timeout** (configured in your project's [Settings](../../../updating_your_settings/)), but otherwise uses the current run.. See more on [Run Strategies](../../../api_adapters/strategy/).
+ * * `defaults.run` Configuration details for each run created.
+ * * `defaults.run.account` The **User ID** or **Team ID** for this project. By default, taken from the URL where the user interface is hosted, so you only need to supply this is you are running your project's user interface [on your own server](../../../how_to/self_hosting/).
+ * * `defaults.run.project` The **Project ID** for this project.
+ * * `defaults.run.model` Name of the primary model file for this project. By default, taken from `data-f-model` in your HTML `<body>` tag.
+ * * `defaults.run.server` Object with additional server configuration, defaults to `host: 'api.forio.com'`.
+ * * `defaults.channelOptions.variables` Configuration options for the variables being listened to on this channel.
+ * * `defaults.channelOptions.variables.silent` Provides granular control over when user interface updates happen for changes on this channel. See below for possible values.
+ * * `defaults.channelOptions.variables.autoFetch` Options for fetching variables from the API as they're being subscribed. See [Variables Channel](../channels/variables-channel/) for details.
+ * * `defaults.channelOptions.operations` Configuration options for the operations being listened to on this channel. Currently there is only one configuration option: `silent`.
+ * * `defaults.channelOptions.operations.silent` Provides granular control over when user interface updates happen for changes on this channel. See below for possible values.
+ * * `defaults.run.transport` An object which takes all of the jquery.ajax options at <a href="http://api.jquery.com/jQuery.ajax/">http://api.jquery.com/jQuery.ajax/</a>.
+ * * `runManager`, `scenarioManager`, `runid` All fields under `defaults` can also be under:
+ *      * `runManager` to apply to the [Run Manager Router](../channels/run-manager-router/)
+ *      * `scenarioManager` to apply to the [Scenario Manager Router](../channels/scenario-manager-router/)
+ *      * `runid` to apply to the [Single Run Router](../channels/single-run-router/)
  * * `dom` Configuration options for the DOM where this instance of Flow.js is created.
  * * `dom.root` The root HTML element being managed by the Flow.js DOM Manager. Defaults to `body`.
  * * `dom.autoBind` If `true` (default), automatically parse variables added to the DOM after this `Flow.initialize()` call. Note, this does not work in IE versions < 11.
  *
- * The `silent` configuration option for the `run.variables` and `run.operations` is a flag for providing more granular control over when user interface updates happen for changes on this channel. Values can be:
+ * The `silent` configuration option for the `defaults.channelOptions.variables` and `defaults.channelOptions.operations` is a flag for providing more granular control over when user interface updates happen for changes on this channel. Values can be:
  *
  * * `false`: Always update the UI for any changes (variables updated, operations called) on this channel. This is the default behavior.
  * * `true`: Never update the UI for any on changes (variables updated, operations called) on this channel.
@@ -42,13 +46,15 @@
  * #### Example
  *
  *      Flow.initialize({
- *          channel: {
+ *          defaults: {
  *              strategy: 'new-if-persisted',
  *              run: {
  *                  model: 'supply-chain-game.py',
  *                  account: 'acme-simulations',
  *                  project: 'supply-chain-game',
- *                  server: { host: 'api.forio.com' },
+ *                  server: { host: 'api.forio.com' }
+ *              },
+ *              channelOptions {
  *                  variables: { silent: ['price', 'sales'] },
  *                  operations: { silent: false },
  *                  transport: {

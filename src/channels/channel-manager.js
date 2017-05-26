@@ -160,12 +160,12 @@ var ChannelManager = (function () {
          * **Examples**
          *
          *      Flow.channel.publish('operations:myOperation', myOperParam);
-         *      Flow.channel.publish({ name: operName, value: [operParam1, operParam2] });
+         *      Flow.channel.publish({ name: 'operations:operName', value: [operParam1, operParam2] });
          *
          *      Flow.channel.publish('variables:myVariable', newValue);
          *      Flow.channel.publish({ myVar1: newVal1, myVar2: newVal2 });
          *
-         * @param {String} topic Name of variable or operation. Alternatively, object of the form `{ variableName: value }` or `{ name: operName, value: [operParam1, operParam2] }`.
+         * @param {String} topic Name of variable or operation. Alternatively, object of the form `{ variableName: value }` or `{ name: 'operations:operName', value: [operParam1, operParam2] }`.
          * @param {Object} value Value for the updated variable or the argument to the operation.
          * @param {Object} options (Optional) Overrides for the default options.
          * @returns {promise}
@@ -268,7 +268,7 @@ var ChannelManager = (function () {
         /**
          * Stop receiving notifications for all operations. No parameters.
          *
-         * @return {} No return value.
+         * @return {*} No return value.
          */ 
         unsubscribeAll: function () {
             var currentlySubscribed = this.getSubscribedTopics();

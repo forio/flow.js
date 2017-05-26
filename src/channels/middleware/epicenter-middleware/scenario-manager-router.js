@@ -5,11 +5,11 @@
  *
  * In other projects, often called "run comparison" or "scenario comparison" projects, end users set some initial decisions, then simulate the model to its end. Typically end users will do this several times, creating several runs, and compare the results.
  *
- * The Scenario Manager Router makes it easy to create these "run comparison" projects using Flow.js, by routing incoming requests to the correct underlying API. In particular, specifying a scenario manager router for your Flow.js calls means that requests are routed to a set of runs, including `baseline`, `current`, and `saved`, which together comprise the three typical components in building a run comparison project:
+ * The Scenario Manager Router makes it easy to create these "run comparison" projects using Flow.js, by routing incoming requests to the correct underlying API. In particular, specifying a Scenario Manager Router for your Flow.js calls means that requests are routed to a set of runs, including `baseline`, `current`, and `saved`, which together comprise the three typical components in building a run comparison project:
  *
  * * A `current` run in which to make decisions; this is defined as a run that hasn't been advanced yet, and so can be used to set initial decisions. The current run maintains state across different sessions.
  * * A `baseline` run to compare against; this is defined as a run "advanced to the end" of your model using just the model defaults.
- * * A set of `saved` runs, that is, all runs that you want to use for comparisons. Note: The set of saved runs is an alias for a [multiple runs router](../multiple-runs-router/). This means that if you want to access particular variables, you'll need to add a second attribute, `data-f-channel-include`, and set the value to a comma-separated list of variables you want to access from the set of runs. (See examples, below and on the [multiple runs router](../multiple-runs-router/) page.)
+ * * A set of `saved` runs, that is, all runs that you want to use for comparisons. Note: The set of saved runs here is an alias for a [multiple runs router](../multiple-runs-router/). This router is a bit different from the others because it provides access to many runs rather than a particular run. In turn, this means that there is not a direct binding to information in a particular run; however, you can extract the run id and use that with [templating](../#templates) to bind to a specific model variable or model operation. Alternatively, if you want to access particular variables, you can add a second attribute, `data-f-channel-include`, and set the value to a comma-separated list of variables you want to access from the set of runs. (See examples, below and on the [multiple runs router](../multiple-runs-router/) page.)
  *
  * **Initializing a Scenario Manager Router**
  *
@@ -68,13 +68,13 @@
  *                  <tr><td>Run Name: <input data-f-bind="<%= s.id =>:meta:runName"></input></td></tr>
  *
  *                  <!-- list the sales; notes that if you want to list model variables, --> 
- *                  <!-- you need data-f-channel-include in the enclosing scope -->
+ *                  <!-- you need data-f-channel-include in the enclosing scope (the tbody, above) -->
  *                  <tr><td>Total Sales: <%= s.variables.sales =></td></tr>
  *
  *              </tbody>
  *          </table>
  *
- * Note that this example uses several features in addition to a Scenario Manager Router: see more information on using [foreach](../../dom/attributes/foreach/default-foreach-attr/), the [meta channel](../meta-channel/), a [single run router](../single-run-router/), and [templates](../../../#templates).
+ * This example uses several features in addition to a Scenario Manager Router: see more information on using [foreach](../../dom/attributes/foreach/default-foreach-attr/), the [Meta Channel](../meta-channel/), a [Single Run Router](../single-run-router/), and [templates](../../../#templates).
  *
  * Also, note that `data-f-foreach="s in sm:saved"` could also be expressed using a [Multiple Runs Router](../multiple-runs-router/): `data-f-foreach="s in runs(;saved=true)`.
  *
