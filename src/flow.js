@@ -123,9 +123,16 @@ var Flow = {
             this.channel = new ChannelManager(options.channel);
         }
 
-        return domManager.initialize($.extend(true, {
+        var prom = domManager.initialize($.extend(true, {
             channel: this.channel
         }, options.dom));
+        
+        this.channel.subscribe('operations:reset', function () {
+            domManager.unbindAll();
+            domManager.bindAll();
+        });
+
+        return prom;
     }
 };
 Flow.ChannelManager = ChannelManager;
