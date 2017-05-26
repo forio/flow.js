@@ -125,11 +125,11 @@ var ChannelManager = (function () {
         subscribe: function (topics, cb, options) {
             var subs = makeSubs(topics, cb, options);
             this.subscriptions = this.subscriptions.concat(subs);
-            var middlewares = this.middlewares.filter('subscribe');
+            var subscribeMiddlewares = this.middlewares.filter('subscribe');
 
             var toSend = subs.topics;
-            middlewares.forEach(function (middleware) {
-                toSend = middleware(toSend, options) || toSend;
+            subscribeMiddlewares.forEach(function (middleware) {
+                toSend = middleware(toSend, '', options) || toSend;
             });
             return subs.id;
         },

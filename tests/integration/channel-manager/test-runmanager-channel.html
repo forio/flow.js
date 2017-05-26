@@ -78,7 +78,7 @@
             var $target = $('.output[bind="' + key + '"]');
             $target.html(val[key]);
         });
-    });
+    }, { autoFetch: false });
 
 
     $('#btnStep').on('click', function (evt) {
