@@ -106,7 +106,7 @@ module.exports = (function () {
             });
 
             var subsid = $el.data(config.attrs.subscriptionId) || [];
-            _.each(subsid, function (subs) {
+            _.each([].concat(subsid), function (subs) {
                 channel.unsubscribe(subs);
             });
 
@@ -161,13 +161,15 @@ module.exports = (function () {
 
             var attrBindings = [];
             var nonBatchableVariables = [];
+            var channelConfig = domUtils.getChannelConfig(element);
+
             //NOTE: looping through attributes instead of .data because .data automatically camelcases properties and make it hard to retrvieve. Also don't want to index dynamically added (by flow) data attrs
             $(element.attributes).each(function (index, nodeMap) {
                 var attr = nodeMap.nodeName;
                 var attrVal = nodeMap.value;
 
                 var channelPrefix = domUtils.getChannel($el, attr);
-
+                
                 var wantedPrefix = 'data-f-';
                 if (attr.indexOf(wantedPrefix) === 0) {
                     attr = attr.replace(wantedPrefix, '');
@@ -205,7 +207,7 @@ module.exports = (function () {
                                     return channelPrefix + ':' + v;
                                 });
                             }
-                            subscribe(channel, varsToBind, $el, { batch: true });
+                            subscribe(channel, varsToBind, $el, $.extend({ batch: true }, channelConfig)); //TODO: Move batch defaults to subscription manager
                             binding.topics = varsToBind;
                         } else {
                             if (channelPrefix) {
@@ -220,7 +222,7 @@ module.exports = (function () {
             });
             $el.data(config.attrs.bindingsList, attrBindings);
             if (nonBatchableVariables.length) {
-                subscribe(channel, nonBatchableVariables, $el, { batch: false });
+                subscribe(channel, nonBatchableVariables, $el, $.extend({ batch: false }, channelConfig));
             }
         },
 
@@ -393,11 +395,6 @@ module.exports = (function () {
                 });
             };
             
-            channel.subscribe('operations:reset', function () {
-                me.unbindAll();
-                me.bindAll();
-                // console.log('Reset called', channel);
-            });
             var promise = $.Deferred();
             $(function () {
                 me.bindAll();
