@@ -12,7 +12,7 @@ module.exports = {
 
     target: '*',
 
-    test: /^(?:model|convert|channel)$/i,
+    test: /^(?:model|convert|channel)/i,
 
     handle: $.noop,
 
