@@ -117,15 +117,17 @@
 
 
         describe('Channel-manager integration', ()=> {
+            var channel;
+            beforeEach(()=> {
+                channel = utils.createDummyChannel();
+            });
             describe('#bind', ()=> {
                 it('should call subscribe on bind', ()=> {
-                    var channel = utils.createDummyChannel();
                     return utils.initWithNode('<div data-f-bind="a"> </div>', domManager, channel).then(function ($node) {
                         channel.subscribe.should.have.been.calledOnce;
                     });
                 });
                 it('should default to non-batch for single variable binds', ()=> {
-                    var channel = utils.createDummyChannel();
                     return utils.initWithNode('<div data-f-bind="a"> </div>', domManager, channel).then(function ($node) {
                         var args = channel.subscribe.getCall(0).args;
                         args[0].should.eql(['a']);
@@ -133,7 +135,6 @@
                     });
                 });
                 it('should default to batch for multi variable binds', ()=> {
-                    var channel = utils.createDummyChannel();
                     return utils.initWithNode('<div data-f-bind="a, b"> </div>', domManager, channel).then(function ($node) {
                         var args = channel.subscribe.getCall(0).args;
                         args[0].should.eql(['a', 'b']);
@@ -142,7 +143,6 @@
                 });
 
                 it('should pass in channel config', ()=> {
-                    var channel = utils.createDummyChannel();
                     return utils.initWithNode('<div data-f-bind="a" data-f-channel-foo="bar"> </div>', domManager, channel).then(function ($node) {
                         var args = channel.subscribe.getCall(0).args;
                         args[0].should.eql(['a']);
@@ -152,7 +152,6 @@
             });
             describe('#unbind', ()=> {
                 it('should call unsubscribe with subscriptionid', ()=> {
-                    var channel = utils.createDummyChannel();
                     var node = utils.create(`<div data-f-bind="a" data-${config.attrs.subscriptionId}="goo" data-f-channel-foo="bar"> </div>`);
                     domManager.unbindElement(node, channel);
                     channel.unsubscribe.should.have.been.calledOnce;
