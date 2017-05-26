@@ -11,6 +11,7 @@ export default function RunRouter(config, notifier) {
         channelOptions: {
             variables: {
                 autoFetch: true,
+                debounce: 200,
                 silent: false,
                 readOnly: false,
             },

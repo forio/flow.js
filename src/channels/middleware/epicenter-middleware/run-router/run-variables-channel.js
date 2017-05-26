@@ -5,11 +5,10 @@ export default function RunVariablesChannel($runServicePromise, notifier) {
 
     var id = _.uniqueId('variable-channel');
 
-    var fetchFn = function (runService) {
+    var fetchFn = function (runService, debounceInterval) {
         if (!runService.debouncedFetchers) {
             runService.debouncedFetchers = {};
         }
-        var debounceInterval = 200; //todo: make this over-ridable
         if (!runService.debouncedFetchers[id]) {
             runService.debouncedFetchers[id] = debounceAndMerge(function (variables) {
                 if (!variables || !variables.length) {
@@ -31,20 +30,25 @@ export default function RunVariablesChannel($runServicePromise, notifier) {
     return { 
         fetch: function () {
             return $runServicePromise.then(function (runService) {
-                return fetchFn(runService)(knownTopics).then(notifier);
+                return fetchFn(runService, 0)(knownTopics).then(notifier);
             });
         },
 
         unsubscribeHandler: function (unsubscribedTopics, remainingTopics) {
             knownTopics = remainingTopics;
         },
-        subscribeHandler: function (topics) {
+        subscribeHandler: function (topics, match, options) {
+            var isAutoFetchEnabled = options.autoFetch;
+            var debounceInterval = options.debounce;
+
             return $runServicePromise.then(function (runService) {
                 knownTopics = _.uniq(knownTopics.concat(topics));
                 if (!knownTopics.length) {
                     return $.Deferred().resolve([]).promise();
+                } else if (!isAutoFetchEnabled) {
+                    return $.Deferred().resolve(topics).promise();
                 }
-                return fetchFn(runService)(topics).then(notifier);
+                return fetchFn(runService, debounceInterval)(topics).then(notifier);
             });
         },
         publishHandler: function (topics, options) {

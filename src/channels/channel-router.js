@@ -11,8 +11,9 @@ export function notifySubscribeHandlers(handlers, topics, options) {
     var grouped = groupByHandlers(topics, handlers);
     grouped.forEach(function (handler) {
         if (handler.subscribeHandler) {
+            var mergedOptions = $.extend(true, {}, handler.options, options);
             var unprefixed = unprefix(handler.data, handler.matched);
-            handler.subscribeHandler(unprefixed, handler.matched, options);
+            handler.subscribeHandler(unprefixed, handler.matched, mergedOptions);
         }
     });
     return topics;
@@ -76,7 +77,7 @@ export function passthroughPublishInterceptors(handlers, publishData, options) {
  */
 export default function Router(handlers) {
     return {
-        subscribeHandler: function (topics, options) {
+        subscribeHandler: function (topics, matched, options) {
             return notifySubscribeHandlers(handlers, topics, options);
         },
         unsubscribeHandler: function (recentlyUnsubscribedTopics, remainingTopics) {
