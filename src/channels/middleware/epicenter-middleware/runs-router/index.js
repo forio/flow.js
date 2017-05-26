@@ -5,27 +5,30 @@ export default function RunsRouter(options, notifier, channelManagerContext) {
 
     var topicParamMap = {};
 
-    function extractFromTopic(topicString) {
-        var commaRegex = /,(?![^[]*])/;
-        var [filters, variables] = topicString.split(')(');
-
-        filters = filters.replace('(', '').replace(')', '');
+    function extractFiltersFromTopic(topicString) {
+        var filters = topicString.replace('(', '').replace(')', '');
         var filterParam = filters.split(';').reduce((accum, filter)=> {
             var [key, val] = filter.split('=');
+            if (val) {
+                val = true;
+            }
             accum[key] = val;
             return accum;
         }, {});
-
-        variables = variables.replace('(', '').replace(')', '');
-        variables = variables.split(commaRegex);
-
-        return { filter: filterParam, variables: variables };
+        return filterParam;
     }
 
-    function fetch(topic) {
-        var params = extractFromTopic(topic);
-        return runService.query(params.filter, { include: params.variables }).then((runs)=> {
+    function fetch(topic, variables) {
+        var filters = extractFiltersFromTopic(topic);
+        return runService.query(filters, { include: variables }).then((runs)=> {
             notifier([{ name: topic, value: runs }]);
+
+            if (topicParamMap[topic]) {
+                Object.keys(topicParamMap[topic]).forEach((runid)=> {
+                    channelManagerContext.unsubscribe(topicParamMap[topic][runid]);
+                });
+            }
+            
             return runs;
         });
     }
@@ -40,20 +43,21 @@ export default function RunsRouter(options, notifier, channelManagerContext) {
         subscribeHandler: function (topics, matched, options) {
             var topic = ([].concat(topics))[0];
 
-            var params = extractFromTopic(topic);
+            var filters = extractFiltersFromTopic(topic);
+            var variables = options && options.include;
 
-            if (topicParamMap[topic]) {
-                channelManagerContext.unsubscribe(topicParamMap[topic]);
-            }
-            return fetch(topic).then(function (runs) {
+     
+            return fetch(topic, variables).then(function (runs) {
+                var subsMap = {};
                 runs.forEach((run)=> {
-                    var subscriptions = Object.keys(params.filter).map((filter)=> run.id + ':meta:' + filter);
+                    var subscriptions = Object.keys(filters).map((filter)=> run.id + ':meta:' + filter);
                     var subsid = channelManagerContext.subscribe(subscriptions, function () {
-                        fetch(topic);
+                        fetch(topic, variables);
                     }, { batch: false, autoLoad: false, cache: false });
-                    topicParamMap[topic] = subsid;
-
+                    subsMap[run.id] = subsid;
                 });
+
+                topicParamMap[topic] = subsMap;
                 return runs;
             });
         }
