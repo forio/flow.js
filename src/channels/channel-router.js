@@ -7,12 +7,12 @@ import { unprefix, mapWithPrefix, silencable } from 'channels/middleware/utils';
  * @param  {Array} topics   Array of strings
  * @return {Array} Returns the original topics array
  */
-export function notifySubscribeHandlers(handlers, topics) {
+export function notifySubscribeHandlers(handlers, topics, options) {
     var grouped = groupByHandlers(topics, handlers);
     grouped.forEach(function (handler) {
         if (handler.subscribeHandler) {
             var unprefixed = unprefix(handler.data, handler.matched);
-            handler.subscribeHandler(unprefixed, handler.matched);
+            handler.subscribeHandler(unprefixed, handler.matched, options);
         }
     });
     return topics;
@@ -76,8 +76,8 @@ export function passthroughPublishInterceptors(handlers, publishData, options) {
  */
 export default function Router(handlers) {
     return {
-        subscribeHandler: function (topics) {
-            return notifySubscribeHandlers(handlers, topics);
+        subscribeHandler: function (topics, options) {
+            return notifySubscribeHandlers(handlers, topics, options);
         },
         unsubscribeHandler: function (recentlyUnsubscribedTopics, remainingTopics) {
             return notifyUnsubscribeHandlers(handlers, recentlyUnsubscribedTopics, remainingTopics);

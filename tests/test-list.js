@@ -10,7 +10,7 @@
 // require('./specs/utils/test-general-utils');
 // require('./specs/utils/test-parse-utils');
 // require('./specs/utils/test-dom-utils');
-require('./specs/dom/test-dom-manager');
+// require('./specs/dom/test-dom-manager');
 // require('./specs/converters/test-converter-manager');
 // require('./specs/dom/attributes/test-attribute-manager');
 // require('./specs/dom/test-default-input-node');

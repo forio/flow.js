@@ -37,7 +37,7 @@ export default function RunsRouter(options, notifier, channelManagerContext) {
             console.log('unsubs');
             // knownTopics = remainingTopics;
         },
-        subscribeHandler: function (topics) {
+        subscribeHandler: function (topics, matched, options) {
             var topic = ([].concat(topics))[0];
 
             var params = extractFromTopic(topic);
