@@ -1,3 +1,20 @@
+/**  
+* @typedef PublishObject
+* @type {object}
+* @property {String} name
+* @property {*} value
+*/
+
+/**
+ * @typedef Subscription
+ * @property {boolean} batch
+ * @property {boolean} cache
+ * @property {string[]} topics
+ * @property {Function} callback
+ * @property {object} availableData
+ * @property {object} lastSent
+ */
+
 'use strict';
 
 import createClass from 'utils/create-class';
@@ -37,6 +54,10 @@ function makeSubs(topics, callback, options) {
     }, opts);
 }
 
+/**
+* @param {Subscription} subscription 
+* @param {*} data
+*/
 function callbackIfChanged(subscription, data) {
     if (!_.isEqual(subscription.lastSent, data)) {
         subscription.lastSent = data;
@@ -44,7 +65,10 @@ function callbackIfChanged(subscription, data) {
     }
 }
 
-//[{ name, value}]
+/**
+* @param {PublishObject[]} topics
+* @param {Subscription} subscription 
+*/
 function checkAndNotifyBatch(topics, subscription) {
     var merged = topics.reduce(function (accum, topic) {
         accum[topic.name] = topic.value;
@@ -66,7 +90,11 @@ function checkAndNotifyBatch(topics, subscription) {
     }
 }
 
-//[{ name, value}]
+
+/**
+ * @param {PublishObject[]} topics
+ * @param {Subscription} subscription 
+ */
 function checkAndNotify(topics, subscription) {
     topics.forEach(function (topic) {
         if (_.includes(subscription.topics, topic.name) || _.includes(subscription.topics, '*')) {
@@ -77,6 +105,10 @@ function checkAndNotify(topics, subscription) {
     });
 }
 
+/**
+* @param {Subscription[]} subcriptionList
+* @return {array}
+*/
 function getTopicsFromSubsList(subcriptionList) {
     return subcriptionList.reduce(function (accum, subs) {
         accum = accum.concat(subs.topics);
