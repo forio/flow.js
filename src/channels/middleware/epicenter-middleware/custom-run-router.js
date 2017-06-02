@@ -9,10 +9,10 @@ export default function (options, notifier) {
     opts.channelOptions = options.channelOptions;
 
     return {
-        subscribeHandler: function (topics, prefix) {
+        subscribeHandler: function (topics, prefix, options) {
             var runid = stripSuffixDelimiter(prefix);
             var channel = runChannelFactory(runid, opts, withPrefix(notifier, prefix));
-            return channel.subscribeHandler(topics);
+            return channel.subscribeHandler(topics, prefix, options);
         },
         publishHandler: function (topics, prefix) {
             var runid = stripSuffixDelimiter(prefix);
