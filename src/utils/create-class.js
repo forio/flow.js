@@ -1,4 +1,4 @@
-module.exports = (function () {
+export default (function () {
     function defineProperties(target, props) {
         Object.keys(props).forEach(function (key) {
             var descriptor = {};

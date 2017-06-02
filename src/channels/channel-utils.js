@@ -1,3 +1,10 @@
+/**  
+* @typedef PublishObject
+* @type {object}
+* @property {String} name
+* @property {*} value
+*/  
+
 export function findBestHandler(topic, handlers) {
     for (var i = 0; i < handlers.length; i++) {
         var thishandler = handlers[i];
@@ -8,12 +15,24 @@ export function findBestHandler(topic, handlers) {
     }
     return undefined;
 }
+
+/**
+ * 
+ * @param {Object} obj
+ * @return {PublishObject[]}
+ */
 export function objectToArray(obj) {
     var mapped = Object.keys(obj || {}).map(function (t) {
         return { name: t, value: obj[t] };
     });
     return mapped;
 }
+
+/**
+ * Converts arrays of the form [{ name: '', value: ''}] to {[name]: value}
+ * @param {PublishObject[]} arr
+ * @returns {Object}
+ */
 export function arrayToObject(arr) {
     var result = (arr || []).reduce(function (accum, topic) {
         accum[topic.name] = topic.value;
@@ -22,6 +41,16 @@ export function arrayToObject(arr) {
     return result;
 }
 
+/**
+ * @typedef NormalizedParam
+ * @property {PublishObject[]} params
+ * @property {object} options
+ *
+ * @param {String | object | array} topic 
+ * @param {*} publishValue 
+ * @param {Object} options
+ * @return {NormalizedParam}
+ */
 export function normalizeParamOptions(topic, publishValue, options) {
     if (!topic) {
         return { params: [], options: {} };
