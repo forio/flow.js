@@ -72,7 +72,7 @@ describe('Channel Router', ()=> {
     });
 
     describe('passthroughPublishInterceptors', ()=> {
-        var ohyeahMiddleware, echoMiddleware, handlers, rejecterMiddleware, emptyMiddleware, channel;
+        var ohyeahMiddleware, echoMiddleware, handlers, emptyMiddleware;
         beforeEach(()=> {
             ohyeahMiddleware = sinon.spy(function (params) {
                 return params.map((p)=> {
@@ -81,9 +81,6 @@ describe('Channel Router', ()=> {
             });
             echoMiddleware = sinon.spy((a)=> a);
             emptyMiddleware = sinon.spy();
-            rejecterMiddleware = sinon.spy(function () {
-                return $.Deferred().reject().promise();
-            });
 
             handlers = [
                 { match: (v)=> v.indexOf('a') === 0 ? 'a' : false, publishHandler: echoMiddleware },
