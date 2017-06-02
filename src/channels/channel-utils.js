@@ -45,6 +45,9 @@ export function arrayToObject(arr) {
  * @typedef NormalizedParam
  * @property {PublishObject[]} params
  * @property {object} options
+ */
+
+/**
  *
  * @param {String | object | array} topic 
  * @param {*} publishValue 

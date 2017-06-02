@@ -47,8 +47,8 @@ export default function RunsRouter(options, notifier, channelManagerContext) {
             var filters = extractFiltersFromTopic(topic);
             var variables = options && options.include;
 
-     
-            var debouncedFetch = debounceAndMerge(fetch, 300, (accum, newval)=> newval);
+            var debounceInterval = 300;
+            var debouncedFetch = debounceAndMerge(fetch, debounceInterval, (accum, newval)=> newval);
             return fetch(topic, variables).then(function (runs) {
                 var subsMap = {};
                 //TODO: Provide this meta information to runs-factory so it doesn't trigger a fetch to get meta for each run

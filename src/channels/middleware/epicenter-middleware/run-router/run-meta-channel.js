@@ -1,6 +1,6 @@
 import { objectToArray, arrayToObject } from 'channels/channel-utils';
 
-var { intersection } = _;
+// var { intersection } = _;
 
 export default function RunMetaChannel($runServicePromise, notifier) {
 

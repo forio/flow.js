@@ -5,6 +5,7 @@ import { unprefix, mapWithPrefix, silencable } from 'channels/middleware/utils';
  * Handle subscriptions
  * @param  {Array} handlers Array of the form [{ match: function (){}, }]
  * @param  {Array} topics   Array of strings
+ * @param  {object} options
  * @return {Array} Returns the original topics array
  */
 export function notifySubscribeHandlers(handlers, topics, options) {
