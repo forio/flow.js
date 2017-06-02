@@ -1,4 +1,5 @@
-const { F } = window;
+import { debounceAndMerge } from 'utils/general';
+var { F } = window;
 
 export default function RunsRouter(options, notifier, channelManagerContext) {
     var runService = new F.service.Run(options.serviceOptions.run);
@@ -23,12 +24,12 @@ export default function RunsRouter(options, notifier, channelManagerContext) {
         return runService.query(filters, { include: variables }).then((runs)=> {
             notifier([{ name: topic, value: runs }]);
 
-            if (topicParamMap[topic]) {
-                Object.keys(topicParamMap[topic]).forEach((runid)=> {
-                    channelManagerContext.unsubscribe(topicParamMap[topic][runid]);
-                });
-            }
-            
+            // if (topicParamMap[topic]) {
+            //     Object.keys(topicParamMap[topic]).forEach((runid)=> {
+            //         channelManagerContext.unsubscribe(topicParamMap[topic][runid]);
+            //     });
+            // }
+
             return runs;
         });
     }
@@ -40,20 +41,22 @@ export default function RunsRouter(options, notifier, channelManagerContext) {
             console.log('unsubs');
             // knownTopics = remainingTopics;
         },
-        subscribeHandler: function (topics, matched, options) {
+        subscribeHandler: function (topics, options) {
             var topic = ([].concat(topics))[0];
 
             var filters = extractFiltersFromTopic(topic);
             var variables = options && options.include;
 
      
+            var debouncedFetch = debounceAndMerge(fetch, 300, (accum, newval)=> newval);
             return fetch(topic, variables).then(function (runs) {
                 var subsMap = {};
+                //TODO: Provide this meta information to runs-factory so it doesn't trigger a fetch to get meta for each run
                 runs.forEach((run)=> {
                     var subscriptions = Object.keys(filters).map((filter)=> run.id + ':meta:' + filter);
                     var subsid = channelManagerContext.subscribe(subscriptions, function () {
-                        fetch(topic, variables);
-                    }, { batch: false, autoLoad: false, cache: false });
+                        debouncedFetch(topic, variables);
+                    }, { batch: false, autoFetch: false, cache: false });
                     subsMap[run.id] = subsid;
                 });
 

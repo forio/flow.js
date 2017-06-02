@@ -129,7 +129,7 @@ var ChannelManager = (function () {
 
             var toSend = subs.topics;
             subscribeMiddlewares.forEach(function (middleware) {
-                toSend = middleware(toSend, '', options) || toSend;
+                toSend = middleware(toSend, options) || toSend;
             });
             return subs.id;
         },

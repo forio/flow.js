@@ -37,7 +37,7 @@ export default function RunVariablesChannel($runServicePromise, notifier) {
         unsubscribeHandler: function (unsubscribedTopics, remainingTopics) {
             knownTopics = remainingTopics;
         },
-        subscribeHandler: function (topics, match, options) {
+        subscribeHandler: function (topics, options) {
             var isAutoFetchEnabled = options.autoFetch;
             var debounceInterval = options.debounce;
 

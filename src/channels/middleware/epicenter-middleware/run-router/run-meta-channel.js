@@ -12,13 +12,14 @@ export default function RunMetaChannel($runServicePromise, notifier) {
         return notifier(toSend);
     }
     return {
-        subscribeHandler: function (topics) {
+        subscribeHandler: function (topics, options) {
+
             return $runServicePromise.then(function (runService) {
                 if (runService.runMeta) {
                     return $.Deferred().resolve(mergeAndSend(runService.runMeta, topics)).promise();
-                }
-
-                if (!runService.loadPromise) {
+                } else if (options.autoFetch === false) {
+                    return $.Deferred().resolve({}).promise();
+                } if (!runService.loadPromise) {
                     runService.loadPromise = runService.load().then(function (data) {
                         runService.runMeta = data;
                         return data;
