@@ -1,57 +1,21 @@
-Test: 
-batch subscriptions - @done
-prefetch variables
-
-readonly mode - done
-silent - done
-
-interpolation
-
-- Run channel with init operation
+Interpolation
 
 
-publish  -> save -> refresh -> notify
+This'll get the value of the input at resolution time
+<button data-f-on-click="submit(<#inp>)"></button>
 
-#publish 
-    - normalizes arguments
-    - errors if readonly
-    - does interpolation
+This'll subscribe to input and change price whenever input changes
+<div data-f-on-click="price[<#inp>]"></div>
 
-    - Saves
+Build new dom: router
+- Matches on # or on dom:<any valid css selector>
 
-#refresh
-    <Force-pull from the server & notify>
-    - Checks if silent
-    - fetches
-    - notify()
+<div data-f-on-click="price[<#inp>,<#inp2>]"></div>
 
-#notify
-    <Notify everyone without actually saving>
-    - finds listeners and updates
-    - Checks if `batch`
+Add `-on` adapter to show output of operations? --- not different from bind?
 
-
-#subscribe
-    - Determines if needed to get data AT ONCE for topics
-
-
-
-Option 1:
-
-Create a central subscription manager which supports batch/pre-fetch etc
-Plug in different 'data sources' - variables/ run etc.
-Central channel manages *all* subscriptions
-
-Option 2:
-Make each channel inherit from the same subscription manager, and override publish/subs as required. This mean it keeps track of their own subscriptions
-
-
------
-
-DomManager should add default prefix
-
-At worst, this should act as simple pubsub. .subsribe('Bluw') and .publish('sdfds') should work.
-
+<div data-f-when="submit">
+<div data-f-when="#input">
 
 -- 
 Silent mode:
