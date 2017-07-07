@@ -20,7 +20,7 @@ export default function RunVariablesChannel($runServicePromise, notifier) {
                 if (!accum) {
                     accum = [];
                 }
-                return _.uniq(accum.concat(newval));
+                return _.uniq(accum.concat(newval)).filter((v)=> !!(v && v.trim()));
             }]);
         }
         return runService.debouncedFetchers[id];
