@@ -1,0 +1,34 @@
+<!doctype html>
+<html>
+
+<head>
+    <meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <script src="/node_modules/jquery/dist/jquery.min.js"></script>
+    <script src="/node_modules/lodash/lodash.js"></script>
+    <script src="/node_modules/epicenter-js/dist/epicenter.min.js"></script>
+    <script src="/dist/flow-edge.js"></script>
+</head>
+
+<body data-f-model="bikes.xlsx">
+    <h1 data-f-bind="A1"></h1>
+    <script>
+    Flow.initialize({
+        channel: {
+            runManager: {
+                strategy: 'always-new',
+                run: {
+                    account: 'team-naren',
+                    project: 'test-excel',
+                }
+            }
+        }
+    });
+    //new window.Flow.Inspector('body');
+    </script>
+</body>
+
+</html>
