@@ -3,7 +3,11 @@
         "baseUrl": "./src/",
         "noEmit": true,
         "allowJs": true,
-        "checkJs": true
+        "checkJs": true,
+        "suppressExcessPropertyErrors": true
+    },
+    "typeAcquisition": {
+        "enable": true
     },
     "include": [
         "src/**/*"

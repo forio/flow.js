@@ -1,12 +1,26 @@
 import { groupByHandlers, groupSequentiallyByHandlers } from 'channels/channel-utils';
 import { unprefix, mapWithPrefix, silencable } from 'channels/middleware/utils';
 
+/**  
+* @typedef Handler
+* @type {Object}
+* @property {Function} match
+* @property {Function} subscribeHandler
+* @property {Function} unsubscribeHandler
+* @property {Function} publishHandler
+* @property {Object} options
+* @property {Array} data
+* @property {Number} key
+* @property {String} matched
+* @property {Boolean} isDefault
+*/
+
 /**
  * Handle subscriptions
- * @param  {Array} handlers Array of the form [{ match: function (){}, }]
- * @param  {Array} topics   Array of strings
- * @param  {object} options
- * @return {Array} Returns the original topics array
+ * @param  {Handler[]} handlers Array of the form [{ match: function (){}, }]
+ * @param  {String[]} topics   Array of strings
+ * @param  {Object} options
+ * @return {String[]} Returns the original topics array
  */
 export function notifySubscribeHandlers(handlers, topics, options) {
     var grouped = groupByHandlers(topics, handlers);
@@ -73,8 +87,8 @@ export function passthroughPublishInterceptors(handlers, publishData, options) {
 
 /**
  * Router
- * @param  {Array} handlers Array of the form [{ subscribeHandler, unsubscribeHandler, publishHandler }]
- * @return {Router}
+ * @param  {Handler[]} handlers Array of the form [{ subscribeHandler, unsubscribeHandler, publishHandler }]
+ * @return {Object}
  */
 export default function Router(handlers) {
     return {

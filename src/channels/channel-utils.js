@@ -1,10 +1,28 @@
 /**  
 * @typedef PublishObject
-* @type {object}
+* @type {Object}
 * @property {String} name
 * @property {*} value
-*/  
+*/
 
+/**  
+* @typedef Handler
+* @type {Object}
+* @property {Function} match
+* @property {Function} subscribeHandler
+* @property {Function} unsubscribeHandler
+* @property {Function} publishHandler
+* @property {Boolean} isDefault
+* @property {Object} options
+* @property {Array} data
+*/
+
+
+/**
+ * @param {String} topic
+ * @param {Handler[]} handlers
+ * @return {Handler | undefined}
+ */
 export function findBestHandler(topic, handlers) {
     for (var i = 0; i < handlers.length; i++) {
         var thishandler = handlers[i];
@@ -44,12 +62,12 @@ export function arrayToObject(arr) {
 /**
  * @typedef NormalizedParam
  * @property {PublishObject[]} params
- * @property {object} options
+ * @property {Object} options
  */
 
 /**
  *
- * @param {String | object | array} topic 
+ * @param {String | Object | array} topic 
  * @param {*} publishValue 
  * @param {Object} options
  * @return {NormalizedParam}
@@ -70,9 +88,9 @@ export function normalizeParamOptions(topic, publishValue, options) {
 
 /**
  * [groupByHandlers description]
- * @param  {Array} topics   List of topics to match. Format can be anything your handler.match function handles
- * @param  {Array} handlers Handlers of type [{ match: func }]
- * @return {Array} The handler array with each item now having an additional 'data' attr added to it
+ * @param  {String[]} topics   List of topics to match. Format can be anything your handler.match function handles
+ * @param  {Handler[]} handlers Handlers of type [{ match: func }]
+ * @return {Handler[]} The handler array with each item now having an additional 'data' attr added to it
  */
 export function groupByHandlers(topics, handlers) {
     handlers = handlers.map(function (h, index) {
@@ -97,9 +115,9 @@ export function groupByHandlers(topics, handlers) {
 
 /**
  * Takes a `publish` dataset and groups it by handler maintaining the data sequence
- * @param  {Array} data     Of the form [{ name: 'X', }]
- * @param  {Array} handlers Handlers of type [{ match: func }]
- * @return {Array} The handler array with each item now having an additional 'data' attr added to it
+ * @param  {PublishObject[]} data     Of the form [{ name: 'X', }]
+ * @param  {Handler[]} handlers Handlers of type [{ match: func }]
+ * @return {Handler[]} The handler array with each item now having an additional 'data' attr added to it
  */
 export function groupSequentiallyByHandlers(data, handlers) {
     handlers = handlers.map(function (h, index) {

@@ -1,6 +1,6 @@
 /**  
 * @typedef PublishObject
-* @type {object}
+* @type {Object}
 * @property {String} name
 * @property {*} value
 */
@@ -11,8 +11,8 @@
  * @property {boolean} cache
  * @property {string[]} topics
  * @property {Function} callback
- * @property {object} availableData
- * @property {object} lastSent
+ * @property {Object} availableData
+ * @property {Object} lastSent
  */
 
 'use strict';
@@ -21,6 +21,12 @@ import createClass from 'utils/create-class';
 import { normalizeParamOptions } from './channel-utils';
 import MiddlewareManager from './middleware/middleware-manager';
 
+/**
+ * 
+ * @param {String[]} topics 
+ * @param {Function} callback 
+ * @param {Object} options 
+ */
 function makeSubs(topics, callback, options) {
     var id = _.uniqueId('subs-');
     var defaults = {
@@ -107,7 +113,7 @@ function checkAndNotify(topics, subscription) {
 
 /**
 * @param {Subscription[]} subcriptionList
-* @return {array}
+* @return {String[]}
 */
 function getTopicsFromSubsList(subcriptionList) {
     return subcriptionList.reduce(function (accum, subs) {
