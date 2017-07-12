@@ -111,7 +111,7 @@ module.exports = {
             var hasData = (dataval !== null && dataval !== undefined);
 
             nodes.each(function (i, newNode) {
-                newNode = $(newNode).removeAttr('data-f-repeat');
+                newNode = $(newNode).removeAttr('data-f-repeat').removeAttr('data-' + config.repeat.templateId);
                 _.each(newNode.data(), function (val, key) {
                     if (!last) {
                         me.data(key, parseUtils.toImplicitType(val));
