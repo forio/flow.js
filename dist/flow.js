@@ -3774,7 +3774,7 @@ module.exports = {
         var id = this.data(config.repeat.templateId);
         if (id) {
             this.nextUntil(':not([data-' + id + '])').remove();
-            this.removeAttr('data-' + config.repeat.templateId);
+            // this.removeAttr('data-' + config.repeat.templateId); //FIXME: Something about calling rebind multiple times in IB makes this happen without the removal
         }
         var loopTemplate = this.data(config.repeat.template);
         if (loopTemplate) {
@@ -3810,7 +3810,7 @@ module.exports = {
             var hasData = dataval !== null && dataval !== undefined;
 
             nodes.each(function (i, newNode) {
-                newNode = $(newNode).removeAttr('data-f-repeat').removeAttr('data-' + config.repeat.templateId);
+                newNode = $(newNode).removeAttr('data-f-repeat');
                 _.each(newNode.data(), function (val, key) {
                     if (!last) {
                         me.data(key, parseUtils.toImplicitType(val));
