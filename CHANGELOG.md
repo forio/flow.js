@@ -2,6 +2,7 @@ You can access the current run and scenario manager instances through
 Flow.channel.epi.run.manager
 Flow.channel.epi.scenario.manager
 
+You can use data-f-channel-<stuff> to pass options to channels
 
 
 New Format:

@@ -34,7 +34,7 @@ export default function RunsRouter(options, notifier, channelManagerContext) {
         });
     }
 
-    return { 
+    return {
         fetch: fetch,
 
         unsubscribeHandler: function (unsubscribedTopics, remainingTopics) {

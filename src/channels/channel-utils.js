@@ -17,7 +17,6 @@
 * @property {Array} data
 */
 
-
 /**
  * @param {String} topic
  * @param {Handler[]} handlers
