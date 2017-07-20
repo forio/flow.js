@@ -1,6 +1,7 @@
 var CHANNEL_DELIMITER = ':';
 
 export { default as silencable } from './silencable';
+export { default as excludeReadOnly } from './exclude-read-only';
 
 export function stripSuffixDelimiter(text) {
     if (text && text.indexOf(CHANNEL_DELIMITER) === (text.length - 1)) {

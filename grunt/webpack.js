@@ -85,7 +85,7 @@ module.exports = function (grunt) {
                         ],
                         loader: 'babel-loader',
                         options: {
-                            plugins: ['istanbul']
+                            // plugins: ['istanbul']
                         }
                     },
                     { test: /\.html$/, loader: 'raw-loader' },

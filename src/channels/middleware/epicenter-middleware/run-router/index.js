@@ -22,7 +22,7 @@ export default function RunRouter(config, notifier) {
             meta: {
                 silent: false,
                 autoFetch: true,
-                readOnly: false
+                readOnly: ['id', 'created', 'account', 'project', 'model', 'lastModified']
             },
         }
     };
