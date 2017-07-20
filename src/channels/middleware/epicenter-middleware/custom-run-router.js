@@ -9,12 +9,13 @@ export default function (options, notifier) {
     opts.channelOptions = options.channelOptions;
 
     return {
-        subscribeHandler: function (topics, prefix) {
+        subscribeHandler: function (topics, options, prefix) {
             var runid = stripSuffixDelimiter(prefix);
+            //FIXME: Should i merge options here?
             var channel = runChannelFactory(runid, opts, withPrefix(notifier, prefix));
-            return channel.subscribeHandler(topics);
+            return channel.subscribeHandler(topics, options, prefix);
         },
-        publishHandler: function (topics, prefix) {
+        publishHandler: function (topics, options, prefix) {
             var runid = stripSuffixDelimiter(prefix);
             var channel = runChannelFactory(runid, opts, withPrefix(notifier, prefix));
             return channel.publishHandler(topics);

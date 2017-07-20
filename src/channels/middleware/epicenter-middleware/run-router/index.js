@@ -11,6 +11,7 @@ export default function RunRouter(config, notifier) {
         channelOptions: {
             variables: {
                 autoFetch: true,
+                debounce: 200,
                 silent: false,
                 readOnly: false,
             },
@@ -21,7 +22,7 @@ export default function RunRouter(config, notifier) {
             meta: {
                 silent: false,
                 autoFetch: true,
-                readOnly: false
+                readOnly: ['id', 'created', 'account', 'project', 'model', 'lastModified']
             },
         }
     };
@@ -68,7 +69,8 @@ export default function RunRouter(config, notifier) {
     router.publishHandler = function () {
         var prom = oldhandler.apply(router, arguments);
         return prom.then(function (result) { //all the silencing will be taken care of by the router
-            if (result && result.length) {
+            var hasOperation = _.find(result, (r)=> r.name.indexOf('operations:') === 0);
+            if (hasOperation) {
                 variableschannel.fetch();
             }
             return result;

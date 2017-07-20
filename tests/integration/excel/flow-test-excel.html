@@ -1,0 +1,39 @@
+<html>
+
+<head>
+    <title>Flow Inspector Test</title>
+    <script src="/node_modules/jquery/dist/jquery.min.js"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/lodash.js/2.4.1/lodash.js"></script>
+    <script src="/node_modules/epicenter-js/dist/epicenter.min.js"></script>
+    <script src="https://forio.com/tools/js-libs/flow/0.12.0/flow.min.js"></script>
+</head>
+
+<body data-f-model="bikes.xlsx">
+    <h1 data-f-bind="Year[0,<Step>]"></h1>
+    <button data-f-on-click="step">Step</button>
+    <h6>Current year</h6>
+    <table class="table">
+        <thead>
+            <tr>
+                <th></th>
+                <th data-f-repeat="Year"></th>
+            </tr>
+        </thead>
+        <tbody>
+        </tbody>
+    </table>
+    <script>
+    Flow.initialize({
+        channel: {
+            strategy: 'always-new',
+            run: {
+                account: 'team-naren',
+                project: 'test-excel',
+            }
+
+        }
+    });
+    </script>
+</body>
+
+</html>

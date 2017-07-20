@@ -8,11 +8,12 @@
 // componentsContext.keys().forEach(componentsContext);
 
 // require('./specs/utils/test-general-utils');
+// require('./specs/utils/test-parse-utils');
+// require('./specs/utils/test-dom-utils');
 // require('./specs/dom/test-dom-manager');
 // require('./specs/converters/test-converter-manager');
 // require('./specs/dom/attributes/test-attribute-manager');
 // require('./specs/dom/test-default-input-node');
-// require('./specs/utils/test-parse-utils');
 
 // require('./specs/dom/attributes/test-default-foreach-attr');
 // require('./specs/dom/attributes/test-repeat-attr');
@@ -23,6 +24,7 @@
 
 
 require('./specs/channels/test-channel-manager');
+require('./specs/channels/middleware/test-run-meta-channel');
 require('./specs/channels/test-channel-util');
 require('./specs/channels/test-channel-router');
 require('./specs/channels/utils/test-silencable');

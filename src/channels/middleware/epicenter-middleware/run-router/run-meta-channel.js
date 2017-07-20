@@ -1,5 +1,7 @@
 import { objectToArray, arrayToObject } from 'channels/channel-utils';
 
+var { intersection } = _;
+
 export default function RunMetaChannel($runServicePromise, notifier) {
 
     function mergeAndSend(runMeta, requestedTopics) {
@@ -12,13 +14,17 @@ export default function RunMetaChannel($runServicePromise, notifier) {
         return notifier(toSend);
     }
     return {
-        subscribeHandler: function (topics) {
+        subscribeHandler: function (topics, options) {
+            topics = [].concat(topics);
             return $runServicePromise.then(function (runService) {
-                if (runService.runMeta) {
+                var cachedValues = intersection(Object.keys(runService.runMeta || {}), topics);
+                if (options.autoFetch === false) {
+                    return $.Deferred().resolve({}).promise();
+                } else if (cachedValues.length === topics.length) {
+                    //FIXME: Add 'updated time' to meta, and fetch if that's < debounce interval -- use the custom debounce fn with the custom merge (debounce save as well?)
+                    //Make run service factory return patched run-service?
                     return $.Deferred().resolve(mergeAndSend(runService.runMeta, topics)).promise();
-                }
-
-                if (!runService.loadPromise) {
+                } if (!runService.loadPromise) {
                     runService.loadPromise = runService.load().then(function (data) {
                         runService.runMeta = data;
                         return data;

@@ -1,0 +1,10 @@
+{
+    "extends": "../tsconfig",
+    "include": [
+        "./specs/**/*"
+    ],
+    "compilerOptions": {
+        "moduleResolution": "node",
+        "baseUrl": "../"
+    }
+}

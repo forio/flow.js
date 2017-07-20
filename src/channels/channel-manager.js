@@ -4,6 +4,13 @@ import createClass from 'utils/create-class';
 import { normalizeParamOptions } from './channel-utils';
 import MiddlewareManager from './middleware/middleware-manager';
 
+/**
+ * 
+ * @param {String[]|String} topics 
+ * @param {Function} callback 
+ * @param {Object} options
+ * @return {Subscription}
+ */
 function makeSubs(topics, callback, options) {
     var id = _.uniqueId('subs-');
     var defaults = {
@@ -37,19 +44,31 @@ function makeSubs(topics, callback, options) {
     }, opts);
 }
 
+var cacheBySubsId = {};
+var sentDataBySubsId = {};
+
+/**
+* @param {Subscription} subscription 
+* @param {*} data
+*/
 function callbackIfChanged(subscription, data) {
-    if (!_.isEqual(subscription.lastSent, data)) {
-        subscription.lastSent = data;
+    var id = subscription.id;
+    if (!_.isEqual(sentDataBySubsId[id], data)) {
+        sentDataBySubsId[id] = data;
         subscription.callback(data);
     }
 }
 
-//[{ name, value}]
+/**
+* @param {Publishable[]} topics
+* @param {Subscription} subscription 
+*/
 function checkAndNotifyBatch(topics, subscription) {
+    var cached = cacheBySubsId[subscription.id] || {};
     var merged = topics.reduce(function (accum, topic) {
         accum[topic.name] = topic.value;
         return accum;
-    }, subscription.availableData || {});
+    }, cached);
     var matchingTopics = _.intersection(Object.keys(merged), subscription.topics);
     if (matchingTopics.length > 0) {
         var toSend = subscription.topics.reduce(function (accum, topic) {
@@ -58,7 +77,7 @@ function checkAndNotifyBatch(topics, subscription) {
         }, {});
 
         if (subscription.cache) {
-            subscription.availableData = toSend;
+            cacheBySubsId[subscription.id] = toSend;
         }
         if (matchingTopics.length === subscription.topics.length) {
             callbackIfChanged(subscription, toSend);
@@ -66,7 +85,11 @@ function checkAndNotifyBatch(topics, subscription) {
     }
 }
 
-//[{ name, value}]
+
+/**
+ * @param {Publishable[]} topics
+ * @param {Subscription} subscription 
+ */
 function checkAndNotify(topics, subscription) {
     topics.forEach(function (topic) {
         if (_.includes(subscription.topics, topic.name) || _.includes(subscription.topics, '*')) {
@@ -77,6 +100,10 @@ function checkAndNotify(topics, subscription) {
     });
 }
 
+/**
+* @param {Subscription[]} subcriptionList
+* @return {String[]}
+*/
 function getTopicsFromSubsList(subcriptionList) {
     return subcriptionList.reduce(function (accum, subs) {
         accum = accum.concat(subs.topics);
@@ -93,8 +120,15 @@ var ChannelManager = (function () {
     }
 
     createClass(ChannelManager, {
+        /**
+         * @type {Subscription[]}
+         */
         subscriptions: [],
 
+        /**
+         * @param {String | Publishable } topic
+         * @return {Promise}
+         */
         publish: function (topic, value, options) {
             var normalized = normalizeParamOptions(topic, value, options);
             var prom = $.Deferred().resolve(normalized.params).promise();
@@ -122,18 +156,31 @@ var ChannelManager = (function () {
         },
 
         //TODO: Allow subscribing to regex? Will solve problem of listening only to variables etc
+        /**
+         * @param {String[] | String} topics
+         * @param {Function} cb
+         * @param {Object} [options]
+         * @return {String}
+         */
         subscribe: function (topics, cb, options) {
             var subs = makeSubs(topics, cb, options);
             this.subscriptions = this.subscriptions.concat(subs);
-            var middlewares = this.middlewares.filter('subscribe');
+            var subscribeMiddlewares = this.middlewares.filter('subscribe');
 
             var toSend = subs.topics;
-            middlewares.forEach(function (middleware) {
-                toSend = middleware(toSend) || toSend;
+            subscribeMiddlewares.forEach(function (middleware) {
+                toSend = middleware(toSend, options) || toSend;
             });
             return subs.id;
         },
+        
+
+        /**
+         * @param {String} token
+         */
         unsubscribe: function (token) {
+            delete cacheBySubsId[token];
+            delete sentDataBySubsId[token];
             var data = this.subscriptions.reduce(function (accum, subs) {
                 if (subs.id === token) {
                     accum.unsubscribed.push(subs);
@@ -162,10 +209,18 @@ var ChannelManager = (function () {
             var middlewares = this.middlewares.filter('unsubscribe');
             middlewares.forEach((middleware)=> middleware(currentlySubscribed, []));
         },
+
+        /**
+         * @return {String[]}
+         */
         getSubscribedTopics: function () {
             var list = _.uniq(getTopicsFromSubsList(this.subscriptions));
             return list;
         },
+
+        /**
+         * @return {Subscription[]}
+         */
         getSubscribers: function (topic) {
             if (topic) {
                 return this.subscriptions.filter(function (subs) {

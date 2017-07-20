@@ -11,8 +11,20 @@ describe('Channel Router', ()=> {
             ]; 
             var topics = ['apple', 'ball'];
             notifySubscribeHandlers(handlers, topics);
-            expect(handler1).to.have.been.calledWith(['pple'], 'a');
-            expect(handler2).to.have.been.calledWith(['all'], 'b');
+            expect(handler1).to.have.been.calledWith(['pple'], {}, 'a');
+            expect(handler2).to.have.been.calledWith(['all'], {}, 'b');
+        });
+        it('should merge options', ()=> {
+            var handler1 = sinon.spy();
+            var handler2 = sinon.spy();
+            var handlers = [
+                { match: (v)=> v.indexOf('a') === 0 ? 'a' : false, subscribeHandler: handler1, options: { a: 1, b: 2 } },
+                { match: (v)=> v.indexOf('b') === 0 ? 'b' : false, subscribeHandler: handler2, options: { b: 2 } },
+            ]; 
+            var topics = ['apple', 'ball'];
+            notifySubscribeHandlers(handlers, topics, { b: 4, c: 3 });
+            expect(handler1).to.have.been.calledWith(['pple'], { a: 1, b: 4, c: 3 }, 'a');
+            expect(handler2).to.have.been.calledWith(['all'], { b: 4, c: 3 }, 'b');
         });
         it('should ignore subsribe requests with matches', ()=> {
             var handler1 = sinon.spy();
@@ -60,7 +72,7 @@ describe('Channel Router', ()=> {
     });
 
     describe('passthroughPublishInterceptors', ()=> {
-        var ohyeahMiddleware, echoMiddleware, handlers, rejecterMiddleware, emptyMiddleware, channel;
+        var ohyeahMiddleware, echoMiddleware, handlers, emptyMiddleware;
         beforeEach(()=> {
             ohyeahMiddleware = sinon.spy(function (params) {
                 return params.map((p)=> {
@@ -69,9 +81,6 @@ describe('Channel Router', ()=> {
             });
             echoMiddleware = sinon.spy((a)=> a);
             emptyMiddleware = sinon.spy();
-            rejecterMiddleware = sinon.spy(function () {
-                return $.Deferred().reject().promise();
-            });
 
             handlers = [
                 { match: (v)=> v.indexOf('a') === 0 ? 'a' : false, publishHandler: echoMiddleware },
