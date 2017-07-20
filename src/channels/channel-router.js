@@ -51,7 +51,7 @@ export function notifyUnsubscribeHandlers(handlers, recentlyUnsubscribedTopics, 
 /**
  * 
  * @param {Handler[]} handlers 
- * @param {PublishObject[]} publishData 
+ * @param {Publishable[]} publishData 
  * @param {Object} [options]
  * @return {Promise}
  */
@@ -109,7 +109,7 @@ export default function Router(handlers) {
         },
 
         /**
-         * @param {PublishObject[]} data
+         * @param {Publishable[]} data
          * @param {Object} [options]
          */
         publishHandler: function (data, options) {

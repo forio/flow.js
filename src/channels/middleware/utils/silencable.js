@@ -1,9 +1,9 @@
 var { isArray, includes } = _;
 
 /**
- * @param {PublishObject[]} published 
+ * @param {Publishable[]} published 
  * @param {boolean|String[]|{except: String[]}} [silentOptions]
- * @return {PublishObject[]}
+ * @return {Publishable[]} filtered list
  */
 export default function silencable(published, silentOptions) {
     if (silentOptions === true || !published) {

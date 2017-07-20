@@ -1,4 +1,4 @@
-interface PublishObject {
+interface Publishable {
     name: string;
     value: any;
 }

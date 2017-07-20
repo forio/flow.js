@@ -60,7 +60,7 @@ function callbackIfChanged(subscription, data) {
 }
 
 /**
-* @param {PublishObject[]} topics
+* @param {Publishable[]} topics
 * @param {Subscription} subscription 
 */
 function checkAndNotifyBatch(topics, subscription) {
@@ -87,7 +87,7 @@ function checkAndNotifyBatch(topics, subscription) {
 
 
 /**
- * @param {PublishObject[]} topics
+ * @param {Publishable[]} topics
  * @param {Subscription} subscription 
  */
 function checkAndNotify(topics, subscription) {
@@ -126,7 +126,7 @@ var ChannelManager = (function () {
         subscriptions: [],
 
         /**
-         * @param {String | PublishObject } topic
+         * @param {String | Publishable } topic
          * @return {Promise}
          */
         publish: function (topic, value, options) {

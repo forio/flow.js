@@ -2,15 +2,16 @@ var { isArray, includes } = _;
 
 /**
  * 
- * @param {PublishObject[]} published 
+ * @param {Publishable[]} publishable 
  * @param {boolean|String[]} readOnlyOptions 
+ * @return {Publishable[]} filtered list
  */
-export default function excludeReadOnly(published, readOnlyOptions) {
+export default function excludeReadOnly(publishable, readOnlyOptions) {
     if (readOnlyOptions === true) {
-        console.warn('Tried to publish to a readonly channel');
+        console.error('Tried to publish to a readonly channel', publishable);
         return [];
     } else if (isArray(readOnlyOptions)) {
-        var split = published.reduce((accum, data)=> {
+        var split = publishable.reduce((accum, data)=> {
             var isReadonly = includes(readOnlyOptions, data.name);
             if (isReadonly) {
                 accum.readOnly.push(data);
@@ -25,5 +26,5 @@ export default function excludeReadOnly(published, readOnlyOptions) {
         }
         return split.remaining;
     }
-    return published;
+    return publishable;
 }

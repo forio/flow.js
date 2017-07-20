@@ -17,7 +17,7 @@ export function findBestHandler(topic, handlers) {
 /**
  * 
  * @param {Object} obj
- * @return {PublishObject[]}
+ * @return {Publishable[]}
  */
 export function objectToArray(obj) {
     var mapped = Object.keys(obj || {}).map(function (t) {
@@ -28,7 +28,7 @@ export function objectToArray(obj) {
 
 /**
  * Converts arrays of the form [{ name: '', value: ''}] to {[name]: value}
- * @param {PublishObject[]} arr
+ * @param {Publishable[]} arr
  * @returns {Object}
  */
 export function arrayToObject(arr) {
@@ -41,7 +41,7 @@ export function arrayToObject(arr) {
 
 /**
  * @typedef NormalizedParam
- * @property {PublishObject[]} params
+ * @property {Publishable[]} params
  * @property {Object} options
  */
 
@@ -95,7 +95,7 @@ export function groupByHandlers(topics, handlers) {
 
 /**
  * Takes a `publish` dataset and groups it by handler maintaining the data sequence
- * @param  {PublishObject[]} data     Of the form [{ name: 'X', }]
+ * @param  {Publishable[]} data     Of the form [{ name: 'X', }]
  * @param  {Handler[]} handlers Handlers of type [{ match: func }]
  * @return {Handler[]} The handler array with each item now having an additional 'data' attr added to it
  */
