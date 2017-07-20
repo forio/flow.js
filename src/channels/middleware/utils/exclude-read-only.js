@@ -3,7 +3,7 @@ var { isArray, includes } = _;
 /**
  * 
  * @param {Publishable[]} publishable 
- * @param {boolean|String[]} readOnlyOptions 
+ * @param {boolean|string[]} readOnlyOptions 
  * @return {Publishable[]} filtered list
  */
 export default function excludeReadOnly(publishable, readOnlyOptions) {
