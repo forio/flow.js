@@ -293,7 +293,7 @@ describe('Subscription Manager', ()=> {
                 var spy1 = sinon.spy();
                 channel.subscribe(['price', 'cost'], spy1, { batch: true });
 
-                return channel.publish({ price: 2, cost: 1, foo: 'bar', apple: 'sauce' }).then(()=> {
+                return channel.publish({ price: 2, cost: 1, foo: 'bar', p: 'ter' }).then(()=> {
                     spy1.should.have.been.calledWith({ price: 2, cost: 1 });
                 });
             });
@@ -311,7 +311,7 @@ describe('Subscription Manager', ()=> {
                 });
             });
             it('should only provide what was explicitly subscribed to', ()=> {
-                return channel.publish({ price: 2, cost: 1, foo: 'bar', apple: 'sauce' }).then(()=> {
+                return channel.publish({ price: 2, cost: 1, foo: 'bar', p: 'ter' }).then(()=> {
                     spy2.should.have.been.calledTwice;
 
                     spy2.getCall(0).args[0].should.eql({ price: 2 });

@@ -32,7 +32,7 @@ function makeSubs(topics, callback, options) {
     var opts = $.extend({}, defaults, options);
     return $.extend(true, {
         id: id,
-        topics: topics,
+        topics: [].concat(topics),
         callback: callback,
     }, opts);
 }
