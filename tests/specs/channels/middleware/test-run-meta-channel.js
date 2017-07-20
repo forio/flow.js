@@ -1,5 +1,4 @@
 import Channel from 'src/channels/middleware/epicenter-middleware/run-router/run-meta-channel';
-import { expect } from 'chai';
 
 describe('Run Meta channel', ()=> {
     describe('#subscribeHandler', ()=> {
@@ -26,7 +25,7 @@ describe('Run Meta channel', ()=> {
             });
         });
 
-        describe.skip('With existing data', ()=> {
+        describe('With existing data', ()=> {
             afterEach(()=> {
                 delete mockRun.runMeta;
             });
