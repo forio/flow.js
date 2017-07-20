@@ -21,7 +21,7 @@ module.exports = (function () {
                         $node.on('update.f.ui', spy);
                         $node.prop('checked', true).trigger('change');
 
-                        spy.getCall(0).args[1].should.eql({ stuff: 1 });
+                        spy.getCall(0).args[1].should.eql({ stuff: true });
                     });
                 });
 
@@ -44,7 +44,7 @@ module.exports = (function () {
                         $node.on('update.f.ui', spy);
 
                         $node.prop('checked', false).trigger('change');
-                        spy.getCall(0).args[1].should.eql({ stuff: 0 });
+                        spy.getCall(0).args[1].should.eql({ stuff: false });
                     });
                 });
 
