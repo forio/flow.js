@@ -1,5 +1,10 @@
 var { isArray, includes } = _;
 
+/**
+ * @param {PublishObject[]} published 
+ * @param {boolean|String[]|{except: String[]}} [silentOptions]
+ * @return {PublishObject[]}
+ */
 export default function silencable(published, silentOptions) {
     if (silentOptions === true || !published) {
         return [];

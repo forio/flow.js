@@ -3,11 +3,14 @@ interface PublishObject {
     value: any;
 }
 
-interface Handler {
-    match: Function;
+interface BaseHandler {
     subscribeHandler?: Function;
     unsubscribeHandler?: Function;
     publishHandler?: Function;
+}
+
+interface Handler extends BaseHandler {
+    match: Function;
     isDefault?: boolean;
 }
 
@@ -17,4 +20,8 @@ interface Subscription {
     cache: boolean;
     topics: string[];
     callback: Function;
+}
+
+interface Router extends BaseHandler {
+    
 }

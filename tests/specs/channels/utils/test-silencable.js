@@ -1,4 +1,5 @@
 import silencable from 'src/channels/middleware/utils/silencable';
+import { expect } from 'chai';
 
 describe('Silencable', ()=> {
     var toPublish;

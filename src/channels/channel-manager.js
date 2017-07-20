@@ -6,7 +6,7 @@ import MiddlewareManager from './middleware/middleware-manager';
 
 /**
  * 
- * @param {String[] | String} topics 
+ * @param {String[]|String} topics 
  * @param {Function} callback 
  * @param {Object} options
  * @return {Subscription}
@@ -120,8 +120,15 @@ var ChannelManager = (function () {
     }
 
     createClass(ChannelManager, {
+        /**
+         * @type {Subscription[]}
+         */
         subscriptions: [],
 
+        /**
+         * @param {String | PublishObject } topic
+         * @return {Promise}
+         */
         publish: function (topic, value, options) {
             var normalized = normalizeParamOptions(topic, value, options);
             var prom = $.Deferred().resolve(normalized.params).promise();
@@ -153,6 +160,7 @@ var ChannelManager = (function () {
          * @param {String[] | String} topics
          * @param {Function} cb
          * @param {Object} options
+         * @return {String}
          */
         subscribe: function (topics, cb, options) {
             var subs = makeSubs(topics, cb, options);
@@ -166,6 +174,10 @@ var ChannelManager = (function () {
             return subs.id;
         },
         
+
+        /**
+         * @param {String} token
+         */
         unsubscribe: function (token) {
             var data = this.subscriptions.reduce(function (accum, subs) {
                 if (subs.id === token) {
@@ -195,10 +207,18 @@ var ChannelManager = (function () {
             var middlewares = this.middlewares.filter('unsubscribe');
             middlewares.forEach((middleware)=> middleware(currentlySubscribed, []));
         },
+
+        /**
+         * @return {String[]}
+         */
         getSubscribedTopics: function () {
             var list = _.uniq(getTopicsFromSubsList(this.subscriptions));
             return list;
         },
+
+        /**
+         * @return {Subscription[]}
+         */
         getSubscribers: function (topic) {
             if (topic) {
                 return this.subscriptions.filter(function (subs) {

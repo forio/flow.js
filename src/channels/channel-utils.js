@@ -47,7 +47,7 @@ export function arrayToObject(arr) {
 
 /**
  *
- * @param {String | Object | array} topic 
+ * @param {String|Object|array} topic 
  * @param {*} publishValue 
  * @param {Object} options
  * @return {NormalizedParam}

@@ -1,20 +1,6 @@
 import { groupByHandlers, groupSequentiallyByHandlers } from 'channels/channel-utils';
 import { unprefix, mapWithPrefix, silencable } from 'channels/middleware/utils';
 
-/**  
-* @typedef Handler
-* @type {Object}
-* @property {Function} match
-* @property {Function} subscribeHandler
-* @property {Function} unsubscribeHandler
-* @property {Function} publishHandler
-* @property {Object} options
-* @property {Array} data
-* @property {Number} key
-* @property {String} matched
-* @property {Boolean} isDefault
-*/
-
 /**
  * Handle subscriptions
  * @param  {Handler[]} handlers Array of the form [{ match: function (){}, }]
@@ -34,6 +20,12 @@ export function notifySubscribeHandlers(handlers, topics, options) {
     return topics;
 }
 
+/**
+ * 
+ * @param {Handler[]} handlers 
+ * @param {String[]} recentlyUnsubscribedTopics
+ * @param {String[]} remainingTopics 
+ */
 export function notifyUnsubscribeHandlers(handlers, recentlyUnsubscribedTopics, remainingTopics) {
     handlers = handlers.map(function (h, index) {
         h.unsubsKey = index;
@@ -56,6 +48,13 @@ export function notifyUnsubscribeHandlers(handlers, recentlyUnsubscribedTopics, 
     });
 }
 
+/**
+ * 
+ * @param {Handler[]} handlers 
+ * @param {PublishObject[]} publishData 
+ * @param {Object} options
+ * @return {Promise}
+ */
 export function passthroughPublishInterceptors(handlers, publishData, options) {
     var grouped = groupSequentiallyByHandlers(publishData, handlers);
     var $initialProm = $.Deferred().resolve([]).promise();
@@ -87,17 +86,30 @@ export function passthroughPublishInterceptors(handlers, publishData, options) {
 
 /**
  * Router
- * @param  {Handler[]} handlers Array of the form [{ subscribeHandler, unsubscribeHandler, publishHandler }]
- * @return {Object}
+ * @param  {Handler[]} handlers
+ * @return {Router}
  */
 export default function Router(handlers) {
-    return {
+    return $.extend(this, {
+        /**
+         * @param {String[]} topics
+         * @param {Object} options
+         */
         subscribeHandler: function (topics, options) {
             return notifySubscribeHandlers(handlers, topics, options);
         },
+        /**
+         * @param {String[]} recentlyUnsubscribedTopics
+         * @param {String[]} remainingTopics
+         */
         unsubscribeHandler: function (recentlyUnsubscribedTopics, remainingTopics) {
             return notifyUnsubscribeHandlers(handlers, recentlyUnsubscribedTopics, remainingTopics);
         },
+
+        /**
+         * @param {PublishObject[]} data
+         * @param {Object} options
+         */
         publishHandler: function (data, options) {
             return passthroughPublishInterceptors(handlers, data, options);
         },
@@ -119,5 +131,5 @@ export default function Router(handlers) {
         //         return accum;
         //     }, []);
         // }
-    };
+    });
 }
