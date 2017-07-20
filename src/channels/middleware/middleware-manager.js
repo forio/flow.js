@@ -19,12 +19,7 @@ export default function MiddlewareManager(options, notifier, channelManagerConte
 
         filter: function (type) {
             type = type + 'Handler';
-            return list.reduce(function (accum, m) {
-                if (m[type]) {
-                    accum.push(m[type]);
-                }
-                return accum;
-            }, []);
+            return list.filter((m)=> m && m[type]);
         }
     };
 
