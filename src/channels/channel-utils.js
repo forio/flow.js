@@ -1,22 +1,3 @@
-/**  
-* @typedef PublishObject
-* @type {Object}
-* @property {String} name
-* @property {*} value
-*/
-
-/**  
-* @typedef Handler
-* @type {Object}
-* @property {Function} match
-* @property {Function} subscribeHandler
-* @property {Function} unsubscribeHandler
-* @property {Function} publishHandler
-* @property {Boolean} isDefault
-* @property {Object} options
-* @property {Array} data
-*/
-
 /**
  * @param {String} topic
  * @param {Handler[]} handlers

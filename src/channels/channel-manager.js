@@ -1,21 +1,3 @@
-/**  
-* @typedef PublishObject
-* @type {Object}
-* @property {String} name
-* @property {*} value
-*/
-
-/**
- * @typedef Subscription
- * @property {boolean} batch
- * @property {String} id
- * @property {boolean} cache
- * @property {string[]} topics
- * @property {Function} callback
- * @property {Object} availableData
- * @property {Object} lastSent
- */
-
 'use strict';
 
 import createClass from 'utils/create-class';
@@ -62,13 +44,17 @@ function makeSubs(topics, callback, options) {
     }, opts);
 }
 
+var cacheBySubsId = {};
+var sentDataBySubsId = {};
+
 /**
 * @param {Subscription} subscription 
 * @param {*} data
 */
 function callbackIfChanged(subscription, data) {
-    if (!_.isEqual(subscription.lastSent, data)) {
-        subscription.lastSent = data;
+    var id = subscription.id;
+    if (!_.isEqual(sentDataBySubsId[id], data)) {
+        sentDataBySubsId[id] = data;
         subscription.callback(data);
     }
 }
@@ -78,10 +64,11 @@ function callbackIfChanged(subscription, data) {
 * @param {Subscription} subscription 
 */
 function checkAndNotifyBatch(topics, subscription) {
+    var cached = cacheBySubsId[subscription.id] || {};
     var merged = topics.reduce(function (accum, topic) {
         accum[topic.name] = topic.value;
         return accum;
-    }, subscription.availableData || {});
+    }, cached);
     var matchingTopics = _.intersection(Object.keys(merged), subscription.topics);
     if (matchingTopics.length > 0) {
         var toSend = subscription.topics.reduce(function (accum, topic) {
@@ -90,7 +77,7 @@ function checkAndNotifyBatch(topics, subscription) {
         }, {});
 
         if (subscription.cache) {
-            subscription.availableData = toSend;
+            cacheBySubsId[subscription.id] = toSend;
         }
         if (matchingTopics.length === subscription.topics.length) {
             callbackIfChanged(subscription, toSend);
@@ -178,6 +165,7 @@ var ChannelManager = (function () {
             });
             return subs.id;
         },
+        
         unsubscribe: function (token) {
             var data = this.subscriptions.reduce(function (accum, subs) {
                 if (subs.id === token) {
