@@ -179,6 +179,8 @@ var ChannelManager = (function () {
          * @param {String} token
          */
         unsubscribe: function (token) {
+            delete cacheBySubsId[token];
+            delete sentDataBySubsId[token];
             var data = this.subscriptions.reduce(function (accum, subs) {
                 if (subs.id === token) {
                     accum.unsubscribed.push(subs);
