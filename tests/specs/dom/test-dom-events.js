@@ -98,7 +98,7 @@ module.exports = (function () {
             return utils.initWithNode('<button data-f-on-click="reset"> Click </button>', domManager, channel).then(function ($node) {
                 var payload = { operations: [{ name: 'stuff', params: [] }] };
                 $node.trigger(config.events.operate, payload);
-                channel.publish.should.have.been.calledWith([{ 'operation:stuff': [] }]);
+                channel.publish.should.have.been.calledWith([{ name: 'operations:stuff', value: [] }]);
             });
         });
         it('should implicitly convert parameters to send to publish', function () {
@@ -106,7 +106,7 @@ module.exports = (function () {
             return utils.initWithNode('<button data-f-on-click="reset"> Click </button>', domManager, channel).then(function ($node) {
                 var payload = { operations: [{ name: 'stuff', params: ['1', 0] }] };
                 $node.trigger(config.events.operate, payload);
-                channel.publish.should.have.been.calledWith([{ 'operation:stuff': [1, 0] }]);
+                channel.publish.should.have.been.calledWith([{ name: 'operations:stuff', value: [1, 0] }]);
             });
         });
     });

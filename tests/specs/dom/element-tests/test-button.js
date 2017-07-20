@@ -9,7 +9,7 @@ module.exports = (function () {
                 var channel = utils.createDummyChannel();
                 return utils.initWithNode('<input type="button" data-f-on-click="step(1)"/>', domManager, channel).then(function ($node) {
                     $node.trigger('click');
-                    channel.publish.should.have.been.calledWith([{ 'operation:step': [1] }]);
+                    channel.publish.should.have.been.calledWith([{ name: 'operations:step', value: [1] }]);
                 });
             });
 
@@ -17,7 +17,7 @@ module.exports = (function () {
                 var channel = utils.createDummyChannel();
                 return utils.initWithNode('<input type="button" data-f-on-click="step(1, 2)"/>', domManager, channel).then(function ($node) {
                     $node.trigger('click');
-                    channel.publish.should.have.been.calledWith([{ 'operation:step': [1, 2] }]);
+                    channel.publish.should.have.been.calledWith([{ name: 'operations:step', value: [1, 2] }]);
                 });
             });
 
@@ -25,7 +25,7 @@ module.exports = (function () {
                 var channel = utils.createDummyChannel();
                 return utils.initWithNode('<input type="button" data-f-on-click="step(1, abc)"/>', domManager, channel).then(function ($node) {
                     $node.trigger('click');
-                    channel.publish.should.have.been.calledWith([{ 'operation:step': [1, 'abc'] }]);
+                    channel.publish.should.have.been.calledWith([{ name: 'operations:step', value: [1, 'abc'] }]);
                 });
             });
 
@@ -33,7 +33,7 @@ module.exports = (function () {
                 var channel = utils.createDummyChannel();
                 return utils.initWithNode('<input type="button" data-f-on-click="step(1,\'2\')"/>', domManager, channel).then(function ($node) {
                     $node.trigger('click');
-                    channel.publish.should.have.been.calledWith([{ 'operation:step': [1, '2'] }]);
+                    channel.publish.should.have.been.calledWith([{ name: 'operations:step', value: [1, '2'] }]);
                 });
             });
 
@@ -42,8 +42,8 @@ module.exports = (function () {
                 return utils.initWithNode('<input type="button" data-f-on-click="step(1, 2) | reset()"/>', domManager, channel).then(function ($node) {
                     $node.trigger('click');
                     channel.publish.should.have.been.calledWith([
-                        { 'operation:step': [1, 2] },
-                        { 'operation:reset': [] }]);
+                        { name: 'operations:step', value: [1, 2] },
+                        { name: 'operations:reset', value: [] }]);
                 });
             });
 
@@ -53,7 +53,7 @@ module.exports = (function () {
                         <input type="button" data-f-on-click='step(1, {"hello": "world" })'/>
                     `, domManager, channel).then(function ($node) {
                         $node.trigger('click');
-                        channel.publish.should.have.been.calledWith([{ 'operation:step': [1, { hello: 'world' }] }]);
+                        channel.publish.should.have.been.calledWith([{ name: 'operations:step', value: [1, { hello: 'world' }] }]);
                     });
             });
         });
