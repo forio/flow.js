@@ -29,7 +29,7 @@ describe('Subscription Manager', ()=> {
         });
     });
 
-    describe('Publish', ()=> {
+    describe('#publish', ()=> {
         it('should return a promise', ()=> {
             var p = channel.publish('booo', 'yes');
             expect(p.then).to.be.a('function');
@@ -252,46 +252,74 @@ describe('Subscription Manager', ()=> {
         afterEach(function () {
             channel.unsubscribeAll();
         });
-        it('should batch calls if subscribe is called with batch:true', function () {
-            return channel.publish({ price: 2, cost: 1 }).then(()=> {
-                spy1.should.have.been.calledOnce;
-                spy2.should.have.been.calledTwice;
+
+        describe('when true', ()=> {
+            it('should batch calls if subscribe is called with batch:true', function () {
+                return channel.publish({ price: 2, cost: 1 }).then(()=> {
+                    spy1.should.have.been.calledOnce;
+                });
+            });
+            it('should pass the correct parameters to batched calls', function () {
+                return channel.publish({ price: 2, cost: 1 }).then(()=> {
+                    spy1.should.have.been.calledWith({ price: 2, cost: 1 });
+                });
+            });
+            it('should call batch if it was provided more info than it asked for', function () {
+                return channel.publish({ price: 2, cost: 1, blah: 3 }).then(()=> {
+                    spy1.should.have.been.calledWith({ price: 2, cost: 1 });
+                });
+            });
+            it('should not re-trigger non-batched calls', function () {
+                var spy1 = sinon.spy();
+                channel.subscribe(['price', 'cost'], spy1, { batch: true });
+                channel.subscribe(['something', 'else'], spy1, { batch: false });
+
+                return channel.publish({ price: 2, cost: 1 }).then(()=> {
+                    spy1.should.have.been.calledOnce;
+                });
+            });
+            it('should not call batch for partial matches', ()=> {
+                var spy1 = sinon.spy();
+                var spy2 = sinon.spy();
+                channel.subscribe(['price', 'cost'], spy1, { batch: true });
+                channel.subscribe(['price', 'something', 'else'], spy2, { batch: false });
+
+                return channel.publish({ price: 2 }).then(()=> {
+                    spy2.should.have.been.calledOnce;
+                    spy1.should.not.have.been.called;
+                });
+            });
+            it('should only provide what was explicitly subscribed to', ()=> {
+                var spy1 = sinon.spy();
+                channel.subscribe(['price', 'cost'], spy1, { batch: true });
+
+                return channel.publish({ price: 2, cost: 1, foo: 'bar', apple: 'sauce' }).then(()=> {
+                    spy1.should.have.been.calledWith({ price: 2, cost: 1 });
+                });
             });
         });
-        it('should pass the correct parameters to batched calls', function () {
-            return channel.publish({ price: 2, cost: 1 }).then(()=> {
-                spy1.should.have.been.calledWith({ price: 2, cost: 1 });
-                spy2.getCall(0).args[0].should.eql({ price: 2 });
-                spy2.getCall(1).args[0].should.eql({ cost: 1 });
+        describe('When false', ()=> {
+            it('should call for multiple matches if subscribe is called with batch:false', function () {
+                return channel.publish({ price: 2, cost: 1 }).then(()=> {
+                    spy2.should.have.been.calledTwice;
+                });
             });
-        });
-        it('should call batch if it was provided more info than it asked for', function () {
-            return channel.publish({ price: 2, cost: 1, blah: 3 }).then(()=> {
-                spy1.should.have.been.calledWith({ price: 2, cost: 1 });
+            it('should pass the correct parameters to subscribers', function () {
+                return channel.publish({ price: 2, cost: 1 }).then(()=> {
+                    spy2.getCall(0).args[0].should.eql({ price: 2 });
+                    spy2.getCall(1).args[0].should.eql({ cost: 1 });
+                });
+            });
+            it('should only provide what was explicitly subscribed to', ()=> {
+                return channel.publish({ price: 2, cost: 1, foo: 'bar', apple: 'sauce' }).then(()=> {
+                    spy2.should.have.been.calledTwice;
+
+                    spy2.getCall(0).args[0].should.eql({ price: 2 });
+                    spy2.getCall(1).args[0].should.eql({ cost: 1 });
+                });
             });
         });
 
-        it('should not re-trigger non-batched calls', function () {
-            var spy1 = sinon.spy();
-            channel.subscribe(['price', 'cost'], spy1, { batch: true });
-            channel.subscribe(['something', 'else'], spy1, { batch: false });
-
-            return channel.publish({ price: 2, cost: 1 }).then(()=> {
-                spy1.should.have.been.calledOnce;
-            });
-        });
-
-        it('should not call batch for partial matches', ()=> {
-            var spy1 = sinon.spy();
-            var spy2 = sinon.spy();
-            channel.subscribe(['price', 'cost'], spy1, { batch: true });
-            channel.subscribe(['price', 'something', 'else'], spy2, { batch: false });
-
-            return channel.publish({ price: 2 }).then(()=> {
-                spy2.should.have.been.calledOnce;
-                spy1.should.not.have.been.called;
-            });
-        });
         describe('Cache', ()=> {
             describe('When on', ()=> {
                 it('should call batch if existing data is available', ()=> {
@@ -425,5 +453,10 @@ describe('Subscription Manager', ()=> {
             expect(channel.getSubscribers()).to.eql([]);
         });
 
+    });
+    describe('#notify', ()=> {
+        it('should notify subscribers of ', ()=> {
+            
+        }); 
     });
 });
