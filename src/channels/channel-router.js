@@ -66,7 +66,7 @@ export function passthroughPublishInterceptors(handlers, publishData, options) {
                 return dataSoFar;
             }
             var unprefixed = unprefix(handler.data, handler.matched);
-            var result = handler.publishHandler ? handler.publishHandler(unprefixed, handler.matched) : unprefixed;
+            var result = handler.publishHandler ? handler.publishHandler(unprefixed, mergedOptions, handler.matched) : unprefixed;
             var publishProm = $.Deferred().resolve(result).promise();
             return publishProm.then(function (published) {
                 return silencable(published, mergedOptions.silent);
