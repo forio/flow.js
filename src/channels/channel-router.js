@@ -5,7 +5,7 @@ import { unprefix, mapWithPrefix, silencable } from 'channels/middleware/utils';
  * Handle subscriptions
  * @param  {Handler[]} handlers Array of the form [{ match: function (){}, }]
  * @param  {String[]} topics   Array of strings
- * @param  {Object} options
+ * @param  {Object} [options]
  * @return {String[]} Returns the original topics array
  */
 export function notifySubscribeHandlers(handlers, topics, options) {
@@ -52,7 +52,7 @@ export function notifyUnsubscribeHandlers(handlers, recentlyUnsubscribedTopics, 
  * 
  * @param {Handler[]} handlers 
  * @param {PublishObject[]} publishData 
- * @param {Object} options
+ * @param {Object} [options]
  * @return {Promise}
  */
 export function passthroughPublishInterceptors(handlers, publishData, options) {
@@ -93,7 +93,7 @@ export default function Router(handlers) {
     return $.extend(this, {
         /**
          * @param {String[]} topics
-         * @param {Object} options
+         * @param {Object} [options]
          */
         subscribeHandler: function (topics, options) {
             return notifySubscribeHandlers(handlers, topics, options);
@@ -108,7 +108,7 @@ export default function Router(handlers) {
 
         /**
          * @param {PublishObject[]} data
-         * @param {Object} options
+         * @param {Object} [options]
          */
         publishHandler: function (data, options) {
             return passthroughPublishInterceptors(handlers, data, options);

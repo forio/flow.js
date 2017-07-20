@@ -28,7 +28,6 @@
     <script>
     var sm = new Flow.ChannelManager({
         runManager: {
-            strategy: 'new-if-missing',
             run: {
                 account: 'jaimedp',
                 project: 'glasses',
@@ -78,7 +77,7 @@
             var $target = $('.output[bind="' + key + '"]');
             $target.html(val[key]);
         });
-    }, { autoFetch: false });
+    }, { autoFetch: true });
 
 
     $('#btnStep').on('click', function (evt) {

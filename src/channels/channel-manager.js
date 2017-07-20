@@ -159,7 +159,7 @@ var ChannelManager = (function () {
         /**
          * @param {String[] | String} topics
          * @param {Function} cb
-         * @param {Object} options
+         * @param {Object} [options]
          * @return {String}
          */
         subscribe: function (topics, cb, options) {

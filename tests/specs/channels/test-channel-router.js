@@ -1,4 +1,5 @@
 import { notifySubscribeHandlers, notifyUnsubscribeHandlers, passthroughPublishInterceptors } from 'src/channels/channel-router';
+import { expect } from 'chai';
 
 describe('Channel Router', ()=> {
     describe('notifySubscribeHandlers', ()=> {
