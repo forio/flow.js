@@ -8,6 +8,7 @@
 /**
  * @typedef Subscription
  * @property {boolean} batch
+ * @property {String} id
  * @property {boolean} cache
  * @property {string[]} topics
  * @property {Function} callback
@@ -23,9 +24,10 @@ import MiddlewareManager from './middleware/middleware-manager';
 
 /**
  * 
- * @param {String[]} topics 
+ * @param {String[] | String} topics 
  * @param {Function} callback 
- * @param {Object} options 
+ * @param {Object} options
+ * @return {Subscription}
  */
 function makeSubs(topics, callback, options) {
     var id = _.uniqueId('subs-');
@@ -160,6 +162,11 @@ var ChannelManager = (function () {
         },
 
         //TODO: Allow subscribing to regex? Will solve problem of listening only to variables etc
+        /**
+         * @param {String[] | String} topics
+         * @param {Function} cb
+         * @param {Object} options
+         */
         subscribe: function (topics, cb, options) {
             var subs = makeSubs(topics, cb, options);
             this.subscriptions = this.subscriptions.concat(subs);
