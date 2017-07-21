@@ -18,6 +18,7 @@
 'use strict';
 
 var config = require('config');
+var toOperationFormat = require('utils/parse-utils').toOperationFormat;
 
 module.exports = {
 
@@ -31,15 +32,7 @@ module.exports = {
         attr = attr.replace('on-init', '');
         var me = this;
         $(function () {
-            var listOfOperations = _.invokeMap(value.split('|'), 'trim');
-            listOfOperations = listOfOperations.map(function (value) {
-                var fnName = value.split('(')[0];
-                var params = value.substring(value.indexOf('(') + 1, value.indexOf(')'));
-                var args = ($.trim(params) !== '') ? params.split(',') : [];
-                return { name: fnName, params: args };
-            });
-
-            //FIXME: this knows too much about the channel
+            var listOfOperations = toOperationFormat(value);
             me.trigger(config.events.operate, { operations: listOfOperations, serial: true, options: { readOnly: false } });
         });
         return false; //Don't bother binding on this attr. NOTE: Do readonly, true instead?;

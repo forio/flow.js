@@ -17,7 +17,7 @@
 
 'use strict';
 var config = require('config');
-
+var toOperationFormat = require('utils/parse-utils').toOperationFormat;
 
 module.exports = {
 
@@ -36,15 +36,7 @@ module.exports = {
         attr = attr.replace('on-', '');
         var me = this;
         this.off(attr).on(attr, function () {
-            var listOfOperations = _.invokeMap(value.split('|'), 'trim');
-            listOfOperations = listOfOperations.map(function (value) {
-                var fnName = value.split('(')[0];
-                var params = value.substring(value.indexOf('(') + 1, value.indexOf(')'));
-                var args = ($.trim(params) !== '') ? params.split(',') : [];
-
-                return { name: fnName, params: args };
-            });
-
+            var listOfOperations = toOperationFormat(value);
             me.trigger(config.events.operate, { operations: listOfOperations });
         });
         return false; //Don't bother binding on this attr. NOTE: Do readonly, true instead?;

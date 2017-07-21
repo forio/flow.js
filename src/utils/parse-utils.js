@@ -26,5 +26,18 @@ module.exports = {
             }
         }
         return converted;
+    },
+
+    toOperationFormat: function (value) {
+        var split = (value || '').split('|');
+        var listOfOperations = split.map(function (value) {
+            value = value.trim();
+            var fnName = value.split('(')[0];
+            var params = value.substring(value.indexOf('(') + 1, value.indexOf(')'));
+            var args = params.trim() !== '' ? params.split(',') : [];
+
+            return { name: fnName, params: args };
+        });
+        return listOfOperations;
     }
 };
