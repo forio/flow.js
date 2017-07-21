@@ -52,7 +52,7 @@ module.exports = {
                 }
             }
             if (attrConverters) {
-                attrConverters = _.invokeMap(attrConverters.split('|'), 'trim');
+                attrConverters = attrConverters.split('|').map((v)=> v.trim());
             }
         }
 
