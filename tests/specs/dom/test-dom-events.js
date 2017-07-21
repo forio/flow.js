@@ -89,14 +89,14 @@ module.exports = (function () {
         it('should call publish', function () {
             var channel = utils.createDummyChannel();
             return utils.initWithNode('<button data-f-on-click="reset"> Click </button>', domManager, channel).then(function ($node) {
-                $node.trigger(config.events.operate, { operations: [{ name: 'stuff', params: [] }] });
+                $node.trigger(config.events.operate, { operations: [{ name: 'stuff', value: [] }] });
                 channel.publish.should.have.been.calledOnce;
             });
         });
         it('should pass the right parameters to publish', function () {
             var channel = utils.createDummyChannel();
             return utils.initWithNode('<button data-f-on-click="reset"> Click </button>', domManager, channel).then(function ($node) {
-                var payload = { operations: [{ name: 'stuff', params: [] }] };
+                var payload = { operations: [{ name: 'stuff', value: [] }] };
                 $node.trigger(config.events.operate, payload);
                 channel.publish.should.have.been.calledWith([{ name: 'operations:stuff', value: [] }]);
             });
@@ -104,7 +104,7 @@ module.exports = (function () {
         it('should implicitly convert parameters to send to publish', function () {
             var channel = utils.createDummyChannel();
             return utils.initWithNode('<button data-f-on-click="reset"> Click </button>', domManager, channel).then(function ($node) {
-                var payload = { operations: [{ name: 'stuff', params: ['1', 0] }] };
+                var payload = { operations: [{ name: 'stuff', value: ['1', 0] }] };
                 $node.trigger(config.events.operate, payload);
                 channel.publish.should.have.been.calledWith([{ name: 'operations:stuff', value: [1, 0] }]);
             });

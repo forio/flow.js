@@ -36,7 +36,7 @@ module.exports = {
             var params = value.substring(value.indexOf('(') + 1, value.indexOf(')'));
             var args = params.trim() !== '' ? params.split(',') : [];
 
-            return { name: fnName, params: args };
+            return { name: fnName, value: args };
         });
         return listOfOperations;
     }

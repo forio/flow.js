@@ -39,7 +39,7 @@ module.exports = (function () {
                 $node.on(config.events.operate, spy);
                 $node.trigger('click');
 
-                spy.getCall(0).args[1].should.eql({ operations: [{ name: 'stuff', params: [] }] });
+                spy.getCall(0).args[1].should.eql({ operations: [{ name: 'stuff', value: [] }] });
 
             });
 
@@ -52,7 +52,7 @@ module.exports = (function () {
                 $node.trigger('click');
 
                 spy.getCall(0).args[1].should.eql({
-                    operations: [{ name: 'stuff', params: ['1'] }, { name: 'reset', params: ['0'] }],
+                    operations: [{ name: 'stuff', value: ['1'] }, { name: 'reset', value: ['0'] }],
                 });
 
             });

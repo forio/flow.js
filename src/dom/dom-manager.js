@@ -348,14 +348,19 @@ module.exports = (function () {
             var attachUIOperationsListener = function ($root) {
                 $root.off(config.events.operate).on(config.events.operate, function (evt, data) {
                     var filtered = ([].concat(data.operations || [])).reduce(function (accum, operation) {
-                        operation.params = operation.params.map(function (val) {
+                        var val = operation.value ? [].concat(operation.value) : [];
+                        operation.value = val.map(function (val) {
                             return parseUtils.toImplicitType($.trim(val));
                         });
                         var isConverter = converterManager.getConverter(operation.name);
                         if (isConverter) {
                             accum.converters.push(operation);
                         } else {
-                            accum.operations.push({ name: 'operations:' + operation.name, value: operation.params });
+                            //TODO: Add a test for this
+                            if (operation.name.indexOf(':') === -1) {
+                                operation.name = 'operations:' + operation.name;
+                            }
+                            accum.operations.push(operation);
                         }
                         return accum;
                     }, { operations: [], converters: [] });
