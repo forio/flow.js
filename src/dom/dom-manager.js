@@ -361,7 +361,7 @@ module.exports = (function () {
                     }, { operations: [], converters: [] });
 
                     var promise = (filtered.operations.length) ?
-                            channel.publish(filtered.operations) :
+                            channel.publish(filtered.operations, data.options) :
                             $.Deferred().resolve().promise();
                      
                     //FIXME: Needed for the 'gotopage' in interfacebuilder. Remove this once we add a window channel

@@ -33,7 +33,7 @@ module.exports = {
         var me = this;
         $(function () {
             var listOfOperations = toOperationFormat(value);
-            me.trigger(config.events.operate, { operations: listOfOperations, serial: true, options: { readOnly: false } });
+            me.trigger(config.events.operate, { operations: listOfOperations, options: { readOnly: false } });
         });
         return false; //Don't bother binding on this attr. NOTE: Do readonly, true instead?;
     }
