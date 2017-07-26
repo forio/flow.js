@@ -17,7 +17,8 @@
     "globals": {
         "$": false,
         "_": false,
-        "expect": false
+        "expect": false,
+        "sinon": false
     },
     "rules": {
         "array-callback-return": 2,

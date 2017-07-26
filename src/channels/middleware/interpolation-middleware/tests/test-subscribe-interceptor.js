@@ -79,7 +79,41 @@ describe.only('Subscribe Interceptor', ()=> {
         });
     });
 
-    it('should pass through if there are no interpolated variables', ()=> {
-        
+    describe('subscribeInterpolator', ()=> {
+        var mockSubscribe, wrapped;
+        beforeEach(()=> {
+            mockSubscribe = sinon.spy((topics, cb, options)=> {
+                var toReturn = topics.reduce((accum, topic, index)=> {
+                    accum[topic] = topic + '1';
+                    return accum;
+                }, {});
+                cb(toReturn);
+                return 'subsid';
+            });
+            wrapped = subscribeInterpolator(mockSubscribe);
+
+        });
+        it('should pass through options if not interpolated', ()=> {
+            var cb = sinon.spy();
+
+            var newsubsid = wrapped(['a', 'b', 'c'], cb);
+            expect(mockSubscribe).to.have.been.calledOnce;
+            expect(mockSubscribe).to.have.been.calledWith(['a', 'b', 'c'], cb);
+            expect(newsubsid).to.eql('subsid');
+        });
+
+        it('should call subscribe once with originals and once with interpolated', ()=> {
+            var originalInput = ['price', 'sales', 'revenue[<step>]'];
+            var finalCb = sinon.spy();
+
+            wrapped(originalInput, finalCb);
+            expect(finalCb).to.have.been.calledOnce;
+            expect(finalCb).to.have.been.calledWith({
+                price: 'price1',
+                sales: 'sales1',
+                'revenue[<step>]': 'revenue[step1]1',
+            });
+        });
     });
+    
 });

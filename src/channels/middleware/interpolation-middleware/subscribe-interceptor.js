@@ -41,7 +41,7 @@ export function mergeInterpolatedTopicsWithData(originalTopics, interpolatedTopi
     }, {});
 }
 
-export default function subscribeInterceptor(subscribeFn) {
+export default function subscribeInterpolator(subscribeFn) {
     return function interceptedSubscribe(topics, cb, options) {
         topics = [].concat(topics);
         var variablesToInterpolate = getVariablesToInterpolate(topics);
