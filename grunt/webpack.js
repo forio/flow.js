@@ -55,12 +55,7 @@ module.exports = function (grunt) {
             },
             // watch: true,
             // keepalive: true,
-            stats: {
-                // Configure the console output
-                colors: true,
-                modules: false,
-                reasons: false
-            },
+            stats: 'minimal',
             plugins: [
                 // new webpack.HotModuleReplacementPlugin()
             ],
@@ -72,22 +67,25 @@ module.exports = function (grunt) {
                 path: path.resolve('./tests/dist/'),
                 filename: 'tests-bundle.js'
             },
+            stats: 'minimal',
             module: {
                 rules: [
-                    Object.assign({}, babelloader, {
-                        include: path.resolve('./tests'),
-                    }),
-                    { 
-                        test: /\.js$/, 
-                        exclude: [
-                            /node_modules/,
-                            path.resolve('./tests'),
-                        ],
-                        loader: 'babel-loader',
-                        options: {
-                            // plugins: ['istanbul']
-                        }
-                    },
+                    babelloader,
+                    //TODO: Comment out istanbul for live tests to speedup
+                    // Object.assign({}, babelloader, {
+                    //     include: path.resolve('./tests'),
+                    // }),
+                    // { 
+                    //     test: /\.js$/, 
+                    //     exclude: [
+                    //         /node_modules/,
+                    //         path.resolve('./tests'),
+                    //     ],
+                    //     loader: 'babel-loader',
+                    //     options: {
+                    //         // plugins: ['istanbul']
+                    //     }
+                    // },
                     { test: /\.html$/, loader: 'raw-loader' },
                     { test: /\.py$/, loader: 'raw-loader' },
                     { test: /\.jl$/, loader: 'raw-loader' },
