@@ -2,7 +2,7 @@ import { default as subscribeInterpolator,
     getVariablesToInterpolate,
     interpolateTopicsWithVariables,
     mergeInterpolatedTopicsWithData,
-} from '../subscribe-interceptor';
+} from '../subscribe-interpolator';
 
 describe('Subscribe Interceptor', ()=> {
     describe('#getVariablesToInterpolate', ()=> {

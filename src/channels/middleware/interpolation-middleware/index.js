@@ -1,6 +1,6 @@
 // import { normalizeParamOptions } from './channel-utils';
 
-import subscribeInterpolator from './subscribe-interceptor';
+import subscribeInterpolator from './subscribe-interpolator';
 
 export default function interpolatable(channelManager) {
     var subscribeFn = channelManager.subscribe.bind(channelManager);
