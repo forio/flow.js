@@ -4,7 +4,7 @@ import { default as subscribeInterpolator,
     mergeInterpolatedTopicsWithData,
 } from '../subscribe-interceptor';
 
-describe.only('Subscribe Interceptor', ()=> {
+describe('Subscribe Interceptor', ()=> {
     describe('#getVariablesToInterpolate', ()=> {
         it('should return empty array if no matches', ()=> {
             var input = ['foo', 'bar'];
