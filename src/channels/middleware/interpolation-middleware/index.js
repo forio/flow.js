@@ -1,3 +1,5 @@
+// import { normalizeParamOptions } from './channel-utils';
+
 var { isArray } = _;
 
 /**
@@ -64,7 +66,11 @@ export default function interpolatable(channelManager) {
             return subsid;
         },
 
-        publish: function () {
+        notify: channelManager.notify.bind(channelManager),
+
+        publish: function (topic, value, options) {
+            // var normalized = normalizeParamOptions(topic, value, options);
+            
             return channelManager.publish.apply(channelManager, arguments);
         },
 

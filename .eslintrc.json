@@ -11,11 +11,13 @@
         "browser": true,
         "es6": true,
         "commonjs": true,
-        "node": true
+        "node": true,
+        "mocha": true
     },
     "globals": {
         "$": false,
-        "_": false
+        "_": false,
+        "expect": false
     },
     "rules": {
         "array-callback-return": 2,
