@@ -1,4 +1,4 @@
-var { isArray } = _;
+import { extractInterpolatedFromString, interpolateWithVariables } from './interpolatable-utils';
 
 /**
  * @param {String[]} topics
@@ -6,9 +6,7 @@ var { isArray } = _;
  */
 export function getVariablesToInterpolate(topics) {
     return topics.reduce((accum, topic)=> {
-        var inner = (topic.match(/<(.*?)>/g) || []).map((val) => {
-            return val.substring(1, val.length - 1); 
-        });
+        var inner = extractInterpolatedFromString(topic);
         accum = accum.concat(inner);
         return accum;
     }, []);
@@ -21,12 +19,7 @@ export function getVariablesToInterpolate(topics) {
  */
 export function interpolateTopicsWithVariables(topics, data) {
     return topics.map((topic) => {
-        var interpolatedTopic = topic.replace(/<(.*?)>/g, (match, inner)=> {
-            var val = data[inner];
-            var toReplace = isArray(val) ? val[val.length - 1] : val;
-            return toReplace;
-        });
-        return interpolatedTopic;
+        return interpolateWithVariables(topic, data);
     });
 }
 
@@ -42,13 +35,13 @@ export function mergeInterpolatedTopicsWithData(originalTopics, interpolatedTopi
 }
 
 export default function subscribeInterpolator(subscribeFn, interceptionCallback) {
-    return function interceptedSubscribe(topics, cb, options) {
+    return function interpolatedSubscribe(topics, cb, options) {
         topics = [].concat(topics);
-        var variablesToInterpolate = getVariablesToInterpolate(topics);
-        if (!variablesToInterpolate.length) {
+        var innerVariables = getVariablesToInterpolate(topics);
+        if (!innerVariables.length) {
             return subscribeFn(topics, cb, options);
         }
-        var innerSubsId = subscribeFn(variablesToInterpolate, function handleInnerVariableChange(data, innerVariablesMeta) {
+        var innerSubsId = subscribeFn(innerVariables, function handleInnerVariableChange(data, innerVariablesMeta) {
             var interpolatedTopics = interpolateTopicsWithVariables(topics, data);
 
             var outerSubsId = subscribeFn(interpolatedTopics, function handleInterpolatedVariableChange(actualData) {
