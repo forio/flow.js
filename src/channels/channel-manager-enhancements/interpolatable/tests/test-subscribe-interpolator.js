@@ -21,6 +21,11 @@ describe('Subscribe Interceptor', ()=> {
             var op = getVariablesToInterpolate(input);
             expect(op).to.eql(['bar', 'cat', 'blah']);
         });
+        it('should dedupe deps', ()=> {
+            var input = ['foo<bar><bar>', 'bar<vlag>', 'test[<bar>]'];
+            var op = getVariablesToInterpolate(input);
+            expect(op).to.eql(['bar', 'vlag']);
+        });
     });
     describe('#interpolateTopicsWithVariables', ()=> {
         it('should not interpolate if no matches found', ()=> {
@@ -118,8 +123,8 @@ describe('Subscribe Interceptor', ()=> {
             });
         });
 
-        describe.only('interceptionCallback', ()=> {
-            it('should not callback if there are no interpolated subscribptions', ()=> {
+        describe('interceptionCallback', ()=> {
+            it('should not callback if there are no interpolated subscriptions', ()=> {
                 var interceptionCallback = sinon.spy();
                 var wrapped = subscribeInterpolator(mockSubscribe, interceptionCallback);
                 wrapped(['a', 'b', 'c'], ()=>{});

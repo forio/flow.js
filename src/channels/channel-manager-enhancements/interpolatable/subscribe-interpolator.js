@@ -1,15 +1,17 @@
 import { extractInterpolatedFromString, interpolateWithVariables } from './interpolatable-utils';
+var { uniq } = _;
 
 /**
  * @param {String[]} topics
  * @return {String[]} interpolated
  */
 export function getVariablesToInterpolate(topics) {
-    return topics.reduce((accum, topic)=> {
+    var deps = topics.reduce((accum, topic)=> {
         var inner = extractInterpolatedFromString(topic);
         accum = accum.concat(inner);
         return accum;
     }, []);
+    return uniq(deps);
 }
 
 /**
