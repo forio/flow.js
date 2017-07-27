@@ -5,15 +5,24 @@ import subscribeInterpolator from './subscribe-interpolator';
 export default function interpolatable(channelManager) {
     var subsidMap = {};
 
-    var boundBaseSubs = channelManager.subscribe.bind(channelManager);
-    var interpolatedSubscribe = subscribeInterpolator(boundBaseSubs, (interpolatedSubsId, outerSubsId)=> {
-        subsidMap[interpolatedSubsId] = outerSubsId;
-    });
+    var boundBaseSubscribe = channelManager.subscribe.bind(channelManager);
+    var boundBaseUnsubscribe = channelManager.unsubscribe.bind(channelManager);
 
-    var unsubscribeFn = channelManager.unsubscribe.bind(channelManager);
+    var unsubscribe = function (token) {
+        var existing = subsidMap[token];
+        if (existing) {
+            boundBaseUnsubscribe(existing);
+        }
+        delete subsidMap[token];
+    };
+
     var publishFn = channelManager.publish.bind(channelManager);
+
     return {
-        subscribe: interpolatedSubscribe,
+        subscribe: subscribeInterpolator(boundBaseSubscribe, (interpolatedSubsId, outerSubsId)=> {
+            unsubscribe(interpolatedSubsId); //invalidate any older subscriptions
+            subsidMap[interpolatedSubsId] = outerSubsId;
+        }),
 
         notify: channelManager.notify.bind(channelManager),
 
