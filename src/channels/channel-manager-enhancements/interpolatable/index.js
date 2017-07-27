@@ -12,13 +12,16 @@ export default function interpolatable(channelManager) {
         var existing = subsidMap[token];
         if (existing) {
             boundBaseUnsubscribe(existing);
+        } else {
+            boundBaseUnsubscribe(token);
         }
         delete subsidMap[token];
+
     };
 
     var publishFn = channelManager.publish.bind(channelManager);
 
-    return $.extend(channelManager, {
+    return $.extend({}, channelManager, {
         subscribe: subscribeInterpolator(boundBaseSubscribe, (interpolatedSubsId, outerSubsId)=> {
             unsubscribe(interpolatedSubsId); //invalidate any older subscriptions
             subsidMap[interpolatedSubsId] = outerSubsId;
