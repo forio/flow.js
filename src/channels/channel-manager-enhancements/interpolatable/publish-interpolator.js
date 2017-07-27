@@ -1,4 +1,4 @@
-import { extractInterpolatedFromString, interpolateWithVariables } from './interpolatable-utils';
+import { extractDepencies, interpolateWithValues } from './interpolatable-utils';
 import { normalizeParamOptions } from 'channels/channel-utils';
 
 var { uniq } = _;
@@ -8,7 +8,7 @@ var { uniq } = _;
  */
 export function getDependencies(publishInputs) {
     var deps = publishInputs.reduce((accum, input)=> {
-        var inner = extractInterpolatedFromString(input.name);
+        var inner = extractDepencies(input.name);
         accum = accum.concat(inner);
         return accum;
     }, []);
@@ -23,7 +23,7 @@ export function getDependencies(publishInputs) {
 export function interpolateWithDependencies(publishInputs, valuesToInterpolate) {
     return publishInputs.map((ip) => {
         return {
-            name: interpolateWithVariables(ip.name, valuesToInterpolate),
+            name: interpolateWithValues(ip.name, valuesToInterpolate),
             value: ip.value,
         };
     });

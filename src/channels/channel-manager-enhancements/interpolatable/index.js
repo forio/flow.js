@@ -23,7 +23,7 @@ export default function interpolatable(channelManager) {
         boundBaseSubscribe(variables, (response, meta)=> {
             boundBaseUnsubscribe(meta.id);
             cb(response);
-        });
+        }, { autoFetch: true, batch: true });
     }
 
     return $.extend({}, channelManager, {

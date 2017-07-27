@@ -1,13 +1,13 @@
-import { extractInterpolatedFromString, interpolateWithVariables } from './interpolatable-utils';
+import { extractDepencies, interpolateWithValues } from './interpolatable-utils';
 var { uniq } = _;
 
 /**
  * @param {String[]} topics
  * @return {String[]} interpolated
  */
-export function getVariablesToInterpolate(topics) {
+export function getDependencies(topics) {
     var deps = topics.reduce((accum, topic)=> {
-        var inner = extractInterpolatedFromString(topic);
+        var inner = extractDepencies(topic);
         accum = accum.concat(inner);
         return accum;
     }, []);
@@ -19,9 +19,9 @@ export function getVariablesToInterpolate(topics) {
  * @param {Object} data
  * @return {String[]}
  */
-export function interpolateTopicsWithVariables(topics, data) {
+export function interpolateWithDependencies(topics, data) {
     return topics.map((topic) => {
-        return interpolateWithVariables(topic, data);
+        return interpolateWithValues(topic, data);
     });
 }
 
@@ -39,19 +39,19 @@ export function mergeInterpolatedTopicsWithData(originalTopics, interpolatedTopi
 export default function subscribeInterpolator(subscribeFn, interceptionCallback) {
     return function interpolatedSubscribe(topics, cb, options) {
         topics = [].concat(topics);
-        var innerVariables = getVariablesToInterpolate(topics);
-        if (!innerVariables.length) {
+        var dependencies = getDependencies(topics);
+        if (!dependencies.length) {
             return subscribeFn(topics, cb, options);
         }
-        var innerSubsId = subscribeFn(innerVariables, function handleInnerVariableChange(data, innerVariablesMeta) {
-            var interpolatedTopics = interpolateTopicsWithVariables(topics, data);
+        var innerSubsId = subscribeFn(dependencies, function handleDependencyValueChange(data, dependenciesMeta) {
+            var interpolatedTopics = interpolateWithDependencies(topics, data);
 
-            var outerSubsId = subscribeFn(interpolatedTopics, function handleInterpolatedVariableChange(actualData) {
+            var outerSubsId = subscribeFn(interpolatedTopics, function handleInterpolatedValueChange(actualData, actualMeta) {
                 var toSendback = mergeInterpolatedTopicsWithData(topics, interpolatedTopics, actualData);
-                cb(toSendback);
+                cb(toSendback, actualMeta);
             }, options);
 
-            (interceptionCallback || $.noop)(innerVariablesMeta.id, outerSubsId);
+            (interceptionCallback || $.noop)(dependenciesMeta.id, outerSubsId);
 
             return outerSubsId;
 

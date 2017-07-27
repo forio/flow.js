@@ -4,13 +4,13 @@ var interpolationRegex = /<(.*?)>/g;
 /**
  *  
  * @param {String} str
- * @return {String[]} inner variables
+ * @return {String[]} dependencies
  */
-export function extractInterpolatedFromString(str) {
-    var inner = (str.match(interpolationRegex) || []).map((val) => {
+export function extractDepencies(str) {
+    var deps = (str.match(interpolationRegex) || []).map((val) => {
         return val.substring(1, val.length - 1); 
     });
-    return inner;
+    return deps;
 }
 
 /**
@@ -18,7 +18,7 @@ export function extractInterpolatedFromString(str) {
  * @param {Object} data
  * @return {String} interpolated string
  */
-export function interpolateWithVariables(str, data) {
+export function interpolateWithValues(str, data) {
     var interpolatedTopic = str.replace(interpolationRegex, (match, inner)=> {
         var val = data[inner];
         var toReplace = isArray(val) ? val[val.length - 1] : val;

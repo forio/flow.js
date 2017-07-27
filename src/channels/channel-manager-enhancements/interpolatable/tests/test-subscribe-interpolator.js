@@ -1,51 +1,51 @@
 import { default as subscribeInterpolator, 
-    getVariablesToInterpolate,
-    interpolateTopicsWithVariables,
+    getDependencies,
+    interpolateWithDependencies,
     mergeInterpolatedTopicsWithData,
 } from '../subscribe-interpolator';
 
 describe('Subscribe Interceptor', ()=> {
-    describe('#getVariablesToInterpolate', ()=> {
+    describe('#getDependencies', ()=> {
         it('should return empty array if no matches', ()=> {
             var input = ['foo', 'bar'];
-            var op = getVariablesToInterpolate(input);
+            var op = getDependencies(input);
             expect(op).to.eql([]);
         });
         it('handle singly interpolated variables', ()=> {
             var input = ['foo<bar>', 'bar', 'test[<blah>]'];
-            var op = getVariablesToInterpolate(input);
+            var op = getDependencies(input);
             expect(op).to.eql(['bar', 'blah']);
         });
         it('should handle multiple interpolations on single variable', ()=> {
             var input = ['foo<bar><cat>', 'bar', 'test[<blah>]'];
-            var op = getVariablesToInterpolate(input);
+            var op = getDependencies(input);
             expect(op).to.eql(['bar', 'cat', 'blah']);
         });
         it('should dedupe deps', ()=> {
             var input = ['foo<bar><bar>', 'bar<vlag>', 'test[<bar>]'];
-            var op = getVariablesToInterpolate(input);
+            var op = getDependencies(input);
             expect(op).to.eql(['bar', 'vlag']);
         });
     });
-    describe('#interpolateTopicsWithVariables', ()=> {
+    describe('#interpolateWithDependencies', ()=> {
         it('should not interpolate if no matches found', ()=> {
             var input = ['foo', 'bar'];
-            var op = interpolateTopicsWithVariables(input, { foo: 2, bar: 4 });
+            var op = interpolateWithDependencies(input, { foo: 2, bar: 4 });
             expect(op).to.eql(input);
         });
         it('should interpolate single variable matches', ()=> {
             var input = ['foo<a>', 'bar[<b>]', 'bar', 'car<a>'];
-            var op = interpolateTopicsWithVariables(input, { a: 2, b: 4, c: 6 });
+            var op = interpolateWithDependencies(input, { a: 2, b: 4, c: 6 });
             expect(op).to.eql(['foo2', 'bar[4]', 'bar', 'car2']);
         });
         it('should interpolate multiple variable matches', ()=> {
             var input = ['foo[<a>,<b>]', 'bar[<b>]', 'bar', 'car<a><c>'];
-            var op = interpolateTopicsWithVariables(input, { a: 2, b: 4, c: 6 });
+            var op = interpolateWithDependencies(input, { a: 2, b: 4, c: 6 });
             expect(op).to.eql(['foo[2,4]', 'bar[4]', 'bar', 'car26']);
         });
         it('should use last item if interpolated with array', ()=> {
             var input = ['foo<a>', 'bar[<b>]', 'bar', 'car<a>'];
-            var op = interpolateTopicsWithVariables(input, { a: [2, 3, 4], c: 4, b: [6, 9] });
+            var op = interpolateWithDependencies(input, { a: [2, 3, 4], c: 4, b: [6, 9] });
             expect(op).to.eql(['foo4', 'bar[9]', 'bar', 'car4']);
         });
     });
