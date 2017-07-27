@@ -6,6 +6,7 @@ export default function interpolatable(channelManager) {
 
     var boundBaseSubscribe = channelManager.subscribe.bind(channelManager);
     var boundBaseUnsubscribe = channelManager.unsubscribe.bind(channelManager);
+    var boundBaseUnsubscribeAll = channelManager.unsubscribeAll.bind(channelManager);
     var boundBasePublish = channelManager.publish.bind(channelManager);
 
     var unsubscribe = function (token) {
@@ -32,6 +33,10 @@ export default function interpolatable(channelManager) {
         }),
 
         publish: publishInterpolator(boundBasePublish, oneTimeFetcher),
-        unsubscribe: unsubscribe
+        unsubscribe: unsubscribe,
+        unsubscribeAll: function () {
+            boundBaseUnsubscribeAll();
+            subsidMap = {};
+        }
     });
 }
