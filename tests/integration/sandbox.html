@@ -20,9 +20,18 @@
     <div data-f-bind="Price[<STEP>]"></div>
 
 
+    <h6>Outputs</h6>
+    Price
     <input type="text" id="txtPrice" data-f-bind="Price" />
 
-    <button id="btnStep" data-f-on-click="step">Step</button>
+    Price[0]
+    <input type="text" id="txtPrice" data-f-bind="Price[0]" />
+
+    Price[<STEP>]
+    <input type="text" id="txtPrice" data-f-bind="Price[<STEP>]" />
+
+    <button data-f-on-click="step">Step</button>
+    <button data-f-on-click="reset">Reset</button>
     <script>
         Flow.initialize({
             channel: {

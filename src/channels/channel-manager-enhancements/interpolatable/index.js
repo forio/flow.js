@@ -1,12 +1,12 @@
-// import { normalizeParamOptions } from './channel-utils';
-
 import subscribeInterpolator from './subscribe-interpolator';
+import publishInterpolator from './publish-interpolator';
 
 export default function interpolatable(channelManager) {
     var subsidMap = {};
 
     var boundBaseSubscribe = channelManager.subscribe.bind(channelManager);
     var boundBaseUnsubscribe = channelManager.unsubscribe.bind(channelManager);
+    var boundBasePublish = channelManager.publish.bind(channelManager);
 
     var unsubscribe = function (token) {
         var existing = subsidMap[token];
@@ -16,10 +16,14 @@ export default function interpolatable(channelManager) {
             boundBaseUnsubscribe(token);
         }
         delete subsidMap[token];
-
     };
-
-    var publishFn = channelManager.publish.bind(channelManager);
+    
+    function oneTimeFetcher(variables, cb) {
+        boundBaseSubscribe(variables, (response, meta)=> {
+            boundBaseUnsubscribe(meta.id);
+            cb(response);
+        });
+    }
 
     return $.extend({}, channelManager, {
         subscribe: subscribeInterpolator(boundBaseSubscribe, (interpolatedSubsId, outerSubsId)=> {
@@ -27,12 +31,7 @@ export default function interpolatable(channelManager) {
             subsidMap[interpolatedSubsId] = outerSubsId;
         }),
 
-        publish: function (topic, value, options) {
-            // var normalized = normalizeParamOptions(topic, value, options);
-            
-            return channelManager.publish.apply(channelManager, arguments);
-        },
-
+        publish: publishInterpolator(boundBasePublish, oneTimeFetcher),
         unsubscribe: unsubscribe
     });
 }
