@@ -18,7 +18,7 @@ module.exports = (function () {
                     utils.spyOnNode($node2, spy);
 
                     $node1.trigger('change');
-                    spy.should.have.been.called.once;
+                    spy.should.have.been.calledOnce;
                 });
             });
 

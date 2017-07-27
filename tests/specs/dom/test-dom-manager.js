@@ -61,9 +61,9 @@
 
 
                         $textNode.trigger('change');
-                        textspy.should.have.been.called.once;
-                        parentSpy.should.have.been.called.once;
-                        rootSpy.should.have.been.called.once;
+                        textspy.should.have.been.calledOnce;
+                        parentSpy.should.have.been.calledOnce;
+                        rootSpy.should.have.been.calledOnce;
                     });
                 });
 
