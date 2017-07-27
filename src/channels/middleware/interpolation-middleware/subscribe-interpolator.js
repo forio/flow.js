@@ -41,23 +41,27 @@ export function mergeInterpolatedTopicsWithData(originalTopics, interpolatedTopi
     }, {});
 }
 
-export default function subscribeInterpolator(subscribeFn) {
+export default function subscribeInterpolator(subscribeFn, interceptionCallback) {
     return function interceptedSubscribe(topics, cb, options) {
         topics = [].concat(topics);
         var variablesToInterpolate = getVariablesToInterpolate(topics);
         if (!variablesToInterpolate.length) {
             return subscribeFn(topics, cb, options);
         }
-        var subsid = subscribeFn(variablesToInterpolate, function handleInnerVariableChange(data) {
+        var innerSubsId = subscribeFn(variablesToInterpolate, function handleInnerVariableChange(data, innerVariablesMeta) {
             var interpolatedTopics = interpolateTopicsWithVariables(topics, data);
-            var newsubsid = subscribeFn(interpolatedTopics, function handleInterpolatedVariableChange(actualData) {
+
+            var outerSubsId = subscribeFn(interpolatedTopics, function handleInterpolatedVariableChange(actualData) {
                 var toSendback = mergeInterpolatedTopicsWithData(topics, interpolatedTopics, actualData);
                 cb(toSendback);
             }, options);
-            return newsubsid;
+
+            (interceptionCallback || $.noop)(innerVariablesMeta.id, outerSubsId);
+
+            return outerSubsId;
 
         }, { autoFetch: true, batch: true });
 
-        return subsid;
+        return innerSubsId;
     };
 }

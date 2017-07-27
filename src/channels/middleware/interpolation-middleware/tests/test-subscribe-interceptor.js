@@ -80,15 +80,18 @@ describe('Subscribe Interceptor', ()=> {
     });
 
     describe('subscribeInterpolator', ()=> {
-        var mockSubscribe, wrapped;
+        var mockSubscribe, wrapped, subsCounter;
         beforeEach(()=> {
+            subsCounter = 0;
             mockSubscribe = sinon.spy((topics, cb, options)=> {
                 var toReturn = topics.reduce((accum, topic, index)=> {
                     accum[topic] = topic + '1';
                     return accum;
                 }, {});
-                cb(toReturn);
-                return 'subsid';
+                subsCounter++;
+                var subsid = 'subsid' + subsCounter;
+                cb(toReturn, { id: subsid });
+                return subsid;
             });
             wrapped = subscribeInterpolator(mockSubscribe);
 
@@ -99,7 +102,7 @@ describe('Subscribe Interceptor', ()=> {
             var newsubsid = wrapped(['a', 'b', 'c'], cb);
             expect(mockSubscribe).to.have.been.calledOnce;
             expect(mockSubscribe).to.have.been.calledWith(['a', 'b', 'c'], cb);
-            expect(newsubsid).to.eql('subsid');
+            expect(newsubsid).to.eql('subsid1');
         });
 
         it('should call subscribe once with originals and once with interpolated', ()=> {
@@ -112,6 +115,23 @@ describe('Subscribe Interceptor', ()=> {
                 price: 'price1',
                 sales: 'sales1',
                 'revenue[<step>]': 'revenue[step1]1',
+            });
+        });
+
+        describe.only('interceptionCallback', ()=> {
+            it('should not callback if there are no interpolated subscribptions', ()=> {
+                var interceptionCallback = sinon.spy();
+                var wrapped = subscribeInterpolator(mockSubscribe, interceptionCallback);
+                wrapped(['a', 'b', 'c'], ()=>{});
+                expect(interceptionCallback).to.not.have.been.called;
+            });
+            it('should callback with two subsids if interpolated', ()=> {
+                var interceptionCallback = sinon.spy();
+                var wrapped = subscribeInterpolator(mockSubscribe, interceptionCallback);
+                wrapped(['a', 'b[<step>]', 'c'], ()=>{});
+
+                expect(interceptionCallback).to.have.been.calledOnce;
+                expect(interceptionCallback).to.have.been.calledWith('subsid1', 'subsid2');
             });
         });
     });

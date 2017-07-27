@@ -3,11 +3,17 @@
 import subscribeInterpolator from './subscribe-interpolator';
 
 export default function interpolatable(channelManager) {
-    var subscribeFn = channelManager.subscribe.bind(channelManager);
+    var subsidMap = {};
+
+    var boundBaseSubs = channelManager.subscribe.bind(channelManager);
+    var interpolatedSubscribe = subscribeInterpolator(boundBaseSubs, (interpolatedSubsId, outerSubsId)=> {
+        subsidMap[interpolatedSubsId] = outerSubsId;
+    });
+
     var unsubscribeFn = channelManager.unsubscribe.bind(channelManager);
     var publishFn = channelManager.publish.bind(channelManager);
     return {
-        subscribe: subscribeInterpolator(subscribeFn),
+        subscribe: interpolatedSubscribe,
 
         notify: channelManager.notify.bind(channelManager),
 
