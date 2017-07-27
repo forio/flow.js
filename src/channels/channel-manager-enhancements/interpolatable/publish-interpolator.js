@@ -4,7 +4,7 @@ import { normalizeParamOptions } from 'channels/channel-utils';
 var { uniq } = _;
 /**
  * @param {Publishable[]} publishInputs
- * @returns {String[]} inner variables to resolve
+ * @returns {String[]} dependencies for inputs
  */
 export function getDependencies(publishInputs) {
     var deps = publishInputs.reduce((accum, input)=> {
@@ -18,7 +18,7 @@ export function getDependencies(publishInputs) {
 /**
  * @param {Publishable[]} publishInputs
  * @param {Object} valuesToInterpolate
- * @returns {Publishable[]} inner variables to resolve
+ * @returns {Publishable[]} inputs with resolved dependencies
  */
 export function interpolateWithDependencies(publishInputs, valuesToInterpolate) {
     return publishInputs.map((ip) => {

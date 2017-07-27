@@ -36,7 +36,7 @@ export function mergeInterpolatedTopicsWithData(originalTopics, interpolatedTopi
     }, {});
 }
 
-export default function subscribeInterpolator(subscribeFn, interceptionCallback) {
+export default function subscribeInterpolator(subscribeFn, onDependencyChange) {
     return function interpolatedSubscribe(topics, cb, options) {
         topics = [].concat(topics);
         var dependencies = getDependencies(topics);
@@ -48,13 +48,12 @@ export default function subscribeInterpolator(subscribeFn, interceptionCallback)
 
             var outerSubsId = subscribeFn(interpolatedTopics, function handleInterpolatedValueChange(actualData, actualMeta) {
                 var toSendback = mergeInterpolatedTopicsWithData(topics, interpolatedTopics, actualData);
+
                 cb(toSendback, actualMeta);
             }, options);
 
-            (interceptionCallback || $.noop)(dependenciesMeta.id, outerSubsId);
-
+            (onDependencyChange || $.noop)(dependenciesMeta.id, outerSubsId);
             return outerSubsId;
-
         }, { autoFetch: true, batch: true });
 
         return innerSubsId;
