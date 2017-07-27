@@ -24,9 +24,11 @@ module.exports = function (grunt) {
         options: {
             plugins: [
                 // 'transform-es2015-modules-commonjs',
+                'babel-plugin-transform-es2015-classes',
                 'babel-plugin-transform-es2015-arrow-functions',
                 'transform-es2015-destructuring',
-                'babel-plugin-transform-es2015-template-literals'
+                'babel-plugin-transform-es2015-template-literals',
+                'transform-es2015-block-scoping'
             ]
         }
     };

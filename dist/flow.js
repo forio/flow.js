@@ -56,9 +56,6 @@ var Flow =
 /******/ 	// expose the module cache
 /******/ 	__webpack_require__.c = installedModules;
 /******/
-/******/ 	// identity function for calling harmony imports with the correct context
-/******/ 	__webpack_require__.i = function(value) { return value; };
-/******/
 /******/ 	// define getter function for harmony exports
 /******/ 	__webpack_require__.d = function(exports, name, getter) {
 /******/ 		if(!__webpack_require__.o(exports, name)) {
@@ -86,7 +83,7 @@ var Flow =
 /******/ 	__webpack_require__.p = "";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 46);
+/******/ 	return __webpack_require__(__webpack_require__.s = 11);
 /******/ })
 /************************************************************************/
 /******/ ([
@@ -147,19 +144,27 @@ module.exports = {
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__silencable__ = __webpack_require__(24);
+/* harmony export (immutable) */ __webpack_exports__["g"] = stripSuffixDelimiter;
+/* harmony export (immutable) */ __webpack_exports__["d"] = prefix;
+/* harmony export (immutable) */ __webpack_exports__["a"] = defaultPrefix;
+/* harmony export (immutable) */ __webpack_exports__["e"] = regex;
+/* harmony export (immutable) */ __webpack_exports__["c"] = mapWithPrefix;
+/* harmony export (immutable) */ __webpack_exports__["i"] = withPrefix;
+/* harmony export (immutable) */ __webpack_exports__["h"] = unprefix;
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__silencable__ = __webpack_require__(42);
 /* harmony reexport (binding) */ __webpack_require__.d(__webpack_exports__, "f", function() { return __WEBPACK_IMPORTED_MODULE_0__silencable__["a"]; });
-/* harmony export (immutable) */ __webpack_exports__["h"] = stripSuffixDelimiter;
-/* harmony export (immutable) */ __webpack_exports__["c"] = prefix;
-/* harmony export (immutable) */ __webpack_exports__["d"] = defaultPrefix;
-/* harmony export (immutable) */ __webpack_exports__["b"] = regex;
-/* harmony export (immutable) */ __webpack_exports__["g"] = mapWithPrefix;
-/* harmony export (immutable) */ __webpack_exports__["a"] = withPrefix;
-/* harmony export (immutable) */ __webpack_exports__["e"] = unprefix;
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__exclude_read_only__ = __webpack_require__(43);
+/* harmony reexport (binding) */ __webpack_require__.d(__webpack_exports__, "b", function() { return __WEBPACK_IMPORTED_MODULE_1__exclude_read_only__["a"]; });
 var CHANNEL_DELIMITER = ':';
 
 
 
+
+/**
+ * 
+ * @param {string} text
+ * @return {string}
+ */
 function stripSuffixDelimiter(text) {
     if (text && text.indexOf(CHANNEL_DELIMITER) === text.length - 1) {
         text = text.replace(CHANNEL_DELIMITER, '');
@@ -167,17 +172,33 @@ function stripSuffixDelimiter(text) {
     return text;
 }
 
+/**
+ * 
+ * @param {string} prefix
+ * @returns {matchFunction}
+ */
 function prefix(prefix) {
     return function matchPrefix(topic) {
         return topic.indexOf(prefix) === 0 ? prefix : false;
     };
 }
+
+/**
+* 
+* @param {string} prefix
+* @returns {matchFunction}
+*/
 function defaultPrefix(prefix) {
     return function matchPrefix(topic) {
         return prefix;
     };
 }
 
+/**
+ * 
+ * @param {string} regex
+ * @returns {matchFunction}
+ */
 function regex(regex) {
     var toMatch = new RegExp('^' + regex + CHANNEL_DELIMITER);
     return function matchRegex(topic) {
@@ -189,6 +210,12 @@ function regex(regex) {
     };
 }
 
+/**
+ * 
+ * @param {Publishable[]} dataArray 
+ * @param {string} prefix 
+ * @return {Publishable} array with name prefixed
+ */
 function mapWithPrefix(dataArray, prefix) {
     if (!prefix) return dataArray;
     return (dataArray || []).map(function (datapt) {
@@ -196,8 +223,18 @@ function mapWithPrefix(dataArray, prefix) {
     });
 }
 
+/**
+ * 
+ * @param {Function} callback 
+ * @param {string[]} prefixList
+ * @return {Function}
+ */
 function withPrefix(callback, prefixList) {
     prefixList = [].concat(prefixList);
+
+    /**
+     * @param {Publishable[]} data
+     */
     return function (data) {
         prefixList.forEach(function (prefix) {
             var mapped = mapWithPrefix(data, prefix);
@@ -206,6 +243,12 @@ function withPrefix(callback, prefixList) {
     };
 }
 
+/**
+ * 
+ * @param {Publishable[]} list 
+ * @param {string} prefix
+ * @return {Publishable[]} Item with prefix removed
+ */
 function unprefix(list, prefix) {
     if (!prefix) return list;
     var unprefixed = list.map(function (item) {
@@ -219,211 +262,6 @@ function unprefix(list, prefix) {
 
 /***/ }),
 /* 2 */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_channels_channel_utils__ = __webpack_require__(3);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_channels_middleware_utils__ = __webpack_require__(1);
-/* unused harmony export notifySubscribeHandlers */
-/* unused harmony export notifyUnsubscribeHandlers */
-/* unused harmony export passthroughPublishInterceptors */
-/* harmony export (immutable) */ __webpack_exports__["a"] = Router;
-
-
-
-/**
- * Handle subscriptions
- * @param  {Array} handlers Array of the form [{ match: function (){}, }]
- * @param  {Array} topics   Array of strings
- * @return {Array} Returns the original topics array
- */
-function notifySubscribeHandlers(handlers, topics) {
-    var grouped = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0_channels_channel_utils__["a" /* groupByHandlers */])(topics, handlers);
-    grouped.forEach(function (handler) {
-        if (handler.subscribeHandler) {
-            var unprefixed = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1_channels_middleware_utils__["e" /* unprefix */])(handler.data, handler.matched);
-            handler.subscribeHandler(unprefixed, handler.matched);
-        }
-    });
-    return topics;
-}
-
-function notifyUnsubscribeHandlers(handlers, recentlyUnsubscribedTopics, remainingTopics) {
-    handlers = handlers.map(function (h, index) {
-        h.unsubsKey = index;
-        return h;
-    });
-
-    var unsubsGrouped = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0_channels_channel_utils__["a" /* groupByHandlers */])(recentlyUnsubscribedTopics, handlers);
-    var remainingGrouped = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0_channels_channel_utils__["a" /* groupByHandlers */])(remainingTopics, handlers);
-
-    unsubsGrouped.forEach(function (handler) {
-        if (handler.unsubscribeHandler) {
-            var unprefixedUnsubs = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1_channels_middleware_utils__["e" /* unprefix */])(handler.data, handler.matched);
-            var matchingRemainingHandler = _.find(remainingGrouped, function (remainingHandler) {
-                return remainingHandler.unsubsKey === handler.unsubsKey;
-            });
-            var matchingTopicsRemaining = matchingRemainingHandler ? matchingRemainingHandler.data : [];
-            var unprefixedRemaining = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1_channels_middleware_utils__["e" /* unprefix */])(matchingTopicsRemaining || [], handler.matched);
-            handler.unsubscribeHandler(unprefixedUnsubs, unprefixedRemaining);
-        }
-    });
-}
-
-function passthroughPublishInterceptors(handlers, publishData, options) {
-    var grouped = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0_channels_channel_utils__["b" /* groupSequentiallyByHandlers */])(publishData, handlers);
-    var $initialProm = $.Deferred().resolve([]).promise();
-    grouped.forEach(function (handler) {
-        $initialProm = $initialProm.then(function (dataSoFar) {
-            var mergedOptions = $.extend(true, {}, handler.options, options);
-            if (mergedOptions.readOnly) {
-                console.warn('Tried to publish to a readonly channel', handler);
-                return dataSoFar;
-            }
-            var unprefixed = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1_channels_middleware_utils__["e" /* unprefix */])(handler.data, handler.matched);
-            var result = handler.publishHandler ? handler.publishHandler(unprefixed, handler.matched) : unprefixed;
-            var publishProm = $.Deferred().resolve(result).promise();
-            return publishProm.then(function (published) {
-                return __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1_channels_middleware_utils__["f" /* silencable */])(published, mergedOptions.silent);
-            }).then(function (published) {
-                var mapped = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1_channels_middleware_utils__["g" /* mapWithPrefix */])(published, handler.matched);
-                if (handler.isDefault && handler.matched) {
-                    mapped = mapped.concat(published);
-                }
-                return mapped;
-            }).then(function (mapped) {
-                return [].concat(dataSoFar, mapped);
-            });
-        });
-    });
-    return $initialProm;
-}
-
-/**
- * Router
- * @param  {Array} handlers Array of the form [{ subscribeHandler, unsubscribeHandler, publishHandler }]
- * @return {Router}
- */
-function Router(handlers) {
-    return {
-        subscribeHandler: function (topics) {
-            return notifySubscribeHandlers(handlers, topics);
-        },
-        unsubscribeHandler: function (recentlyUnsubscribedTopics, remainingTopics) {
-            return notifyUnsubscribeHandlers(handlers, recentlyUnsubscribedTopics, remainingTopics);
-        },
-        publishHandler: function (data, options) {
-            return passthroughPublishInterceptors(handlers, data, options);
-        }
-
-    };
-}
-
-/***/ }),
-/* 3 */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-/* unused harmony export findBestHandler */
-/* harmony export (immutable) */ __webpack_exports__["c"] = objectToArray;
-/* harmony export (immutable) */ __webpack_exports__["d"] = arrayToObject;
-/* harmony export (immutable) */ __webpack_exports__["e"] = normalizeParamOptions;
-/* harmony export (immutable) */ __webpack_exports__["a"] = groupByHandlers;
-/* harmony export (immutable) */ __webpack_exports__["b"] = groupSequentiallyByHandlers;
-function findBestHandler(topic, handlers) {
-    for (var i = 0; i < handlers.length; i++) {
-        var thishandler = handlers[i];
-        var match = thishandler.match(topic);
-        if (match !== false) {
-            return $.extend(true, {}, thishandler, { matched: match });
-        }
-    }
-    return undefined;
-}
-function objectToArray(obj) {
-    var mapped = Object.keys(obj || {}).map(function (t) {
-        return { name: t, value: obj[t] };
-    });
-    return mapped;
-}
-function arrayToObject(arr) {
-    var result = (arr || []).reduce(function (accum, topic) {
-        accum[topic.name] = topic.value;
-        return accum;
-    }, {});
-    return result;
-}
-
-function normalizeParamOptions(topic, publishValue, options) {
-    if (!topic) {
-        return { params: [], options: {} };
-    }
-    if ($.isPlainObject(topic)) {
-        return { params: objectToArray(topic), options: publishValue };
-    }
-    if ($.isArray(topic)) {
-        return { params: topic, options: publishValue };
-    }
-    return { params: [{ name: topic, value: publishValue }], options: options };
-}
-
-/**
- * [groupByHandlers description]
- * @param  {Array} topics   List of topics to match. Format can be anything your handler.match function handles
- * @param  {Array} handlers Handlers of type [{ match: func }]
- * @return {Array} The handler array with each item now having an additional 'data' attr added to it
- */
-function groupByHandlers(topics, handlers) {
-    handlers = handlers.map(function (h, index) {
-        h.key = index;
-        return h;
-    });
-    var topicMapping = [].concat(topics).reduce(function (accum, topic) {
-        var bestHandler = findBestHandler(topic, handlers);
-        if (bestHandler) {
-            //if handler matches different strings treat both as different handlers
-            var key = bestHandler.key + bestHandler.matched;
-            if (!accum[key]) {
-                bestHandler.data = [];
-                accum[key] = bestHandler;
-            }
-            accum[key].data.push(topic);
-        }
-        return accum;
-    }, {});
-    return _.values(topicMapping);
-}
-
-/**
- * Takes a `publish` dataset and groups it by handler maintaining the data sequence
- * @param  {Array} data     Of the form [{ name: 'X', }]
- * @param  {Array} handlers Handlers of type [{ match: func }]
- * @return {Array} The handler array with each item now having an additional 'data' attr added to it
- */
-function groupSequentiallyByHandlers(data, handlers) {
-    handlers = handlers.map(function (h, index) {
-        h.key = index;
-        return h;
-    });
-    var grouped = data.reduce(function (accum, dataPt) {
-        var lastHandler = accum[accum.length - 1];
-        var bestHandler = findBestHandler(dataPt.name, handlers);
-        if (bestHandler) {
-            if (lastHandler && bestHandler.key === lastHandler.key) {
-                lastHandler.data.push(dataPt);
-            } else {
-                accum.push($.extend({}, bestHandler, { data: [dataPt] }));
-            }
-        } else {
-            accum.push({ data: [dataPt], matched: false });
-        }
-        return accum;
-    }, []);
-    return grouped;
-}
-
-/***/ }),
-/* 4 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -455,212 +293,309 @@ module.exports = {
             }
         }
         return converted;
+    },
+
+    toOperationFormat: function (value) {
+        var split = (value || '').split('|');
+        var listOfOperations = split.map(function (value) {
+            value = value.trim();
+            var fnName = value.split('(')[0];
+            var params = value.substring(value.indexOf('(') + 1, value.indexOf(')'));
+            var args = params.trim() !== '' ? params.split(',') : [];
+
+            return { name: fnName, value: args };
+        });
+        return listOfOperations;
     }
 };
 
 /***/ }),
-/* 5 */
+/* 3 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__run_meta_channel__ = __webpack_require__(17);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__run_variables_channel__ = __webpack_require__(19);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__run_operations_channel__ = __webpack_require__(18);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3_channels_channel_router__ = __webpack_require__(2);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4_channels_middleware_utils__ = __webpack_require__(1);
-/* harmony export (immutable) */ __webpack_exports__["a"] = RunRouter;
-
-
-
-
-
-
-
-function RunRouter(config, notifier) {
-    var defaults = {
-        serviceOptions: {},
-        channelOptions: {
-            variables: {
-                autoFetch: true,
-                silent: false,
-                readOnly: false
-            },
-            operations: {
-                readOnly: false,
-                silent: false
-            },
-            meta: {
-                silent: false,
-                autoFetch: true,
-                readOnly: false
-            }
+/* unused harmony export findBestHandler */
+/* harmony export (immutable) */ __webpack_exports__["e"] = objectToArray;
+/* harmony export (immutable) */ __webpack_exports__["a"] = arrayToObject;
+/* harmony export (immutable) */ __webpack_exports__["d"] = normalizeParamOptions;
+/* harmony export (immutable) */ __webpack_exports__["b"] = groupByHandlers;
+/* harmony export (immutable) */ __webpack_exports__["c"] = groupSequentiallyByHandlers;
+/**
+ * @param {String} topic
+ * @param {Handler[]} handlers
+ * @return {MatchedHandler | undefined}
+ */
+function findBestHandler(topic, handlers) {
+    for (var i = 0; i < handlers.length; i++) {
+        var thishandler = handlers[i];
+        var match = thishandler.match(topic);
+        if (match !== false) {
+            return $.extend(true, {}, thishandler, { matched: match });
         }
-    };
-    var opts = $.extend(true, {}, defaults, config);
-
-    var serviceOptions = _.result(opts, 'serviceOptions');
-
-    var $initialProm = null;
-    if (serviceOptions instanceof window.F.service.Run) {
-        $initialProm = $.Deferred().resolve(serviceOptions).promise();
-    } else if (serviceOptions.then) {
-        $initialProm = serviceOptions;
-    } else {
-        var rs = new window.F.service.Run(serviceOptions);
-        $initialProm = $.Deferred().resolve(rs).promise();
     }
+    return undefined;
+}
 
-    var metaChannel = new __WEBPACK_IMPORTED_MODULE_0__run_meta_channel__["a" /* default */]($initialProm, __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_4_channels_middleware_utils__["a" /* withPrefix */])(notifier, 'meta:'));
-    var operationsChannel = new __WEBPACK_IMPORTED_MODULE_2__run_operations_channel__["a" /* default */]($initialProm, __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_4_channels_middleware_utils__["a" /* withPrefix */])(notifier, 'operations:'));
-    var variableschannel = new __WEBPACK_IMPORTED_MODULE_1__run_variables_channel__["a" /* default */]($initialProm, __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_4_channels_middleware_utils__["a" /* withPrefix */])(notifier, ['variables:', '']));
+/**
+ * 
+ * @param {Object} obj
+ * @return {Publishable[]}
+ */
+function objectToArray(obj) {
+    var mapped = Object.keys(obj || {}).map(function (t) {
+        return { name: t, value: obj[t] };
+    });
+    return mapped;
+}
 
-    var handlers = [$.extend({}, metaChannel, {
-        name: 'meta',
-        match: __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_4_channels_middleware_utils__["c" /* prefix */])('meta:'),
-        options: opts.channelOptions.meta
-    }), $.extend({}, operationsChannel, {
-        name: 'operations',
-        match: __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_4_channels_middleware_utils__["c" /* prefix */])('operations:'),
-        options: opts.channelOptions.operations
-    }), $.extend({}, variableschannel, {
-        isDefault: true,
-        name: 'variables',
-        match: __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_4_channels_middleware_utils__["d" /* defaultPrefix */])('variables:'),
-        options: opts.channelOptions.variables
-    })];
+/**
+ * Converts arrays of the form [{ name: '', value: ''}] to {[name]: value}
+ * @param {Publishable[]} arr
+ * @returns {Object}
+ */
+function arrayToObject(arr) {
+    var result = (arr || []).reduce(function (accum, topic) {
+        accum[topic.name] = topic.value;
+        return accum;
+    }, {});
+    return result;
+}
 
-    var router = new __WEBPACK_IMPORTED_MODULE_3_channels_channel_router__["a" /* default */](handlers, notifier);
-    var oldhandler = router.publishHandler;
-    router.publishHandler = function () {
-        var prom = oldhandler.apply(router, arguments);
-        return prom.then(function (result) {
-            //all the silencing will be taken care of by the router
-            if (result && result.length) {
-                variableschannel.fetch();
+/**
+ * @typedef NormalizedParam
+ * @property {Publishable[]} params
+ * @property {Object} options
+ */
+
+/**
+ *
+ * @param {String|Object|array} topic 
+ * @param {*} publishValue 
+ * @param {Object} options
+ * @return {NormalizedParam}
+ */
+function normalizeParamOptions(topic, publishValue, options) {
+    if (!topic) {
+        return { params: [], options: {} };
+    }
+    if ($.isPlainObject(topic)) {
+        return { params: objectToArray(topic), options: publishValue };
+    }
+    if ($.isArray(topic)) {
+        return { params: topic, options: publishValue };
+    }
+    return { params: [{ name: topic, value: publishValue }], options: options };
+}
+
+/**
+ * [groupByHandlers description]
+ * @param  {String[]} topics   List of topics to match. Format can be anything your handler.match function handles
+ * @param  {Handler[]} handlers Handlers of type [{ match: func }]
+ * @return {MatchedHandler[]} The handler array with each item now having an additional 'data' attr added to it
+ */
+function groupByHandlers(topics, handlers) {
+    handlers = handlers.map(function (h, index) {
+        h.key = index;
+        return h;
+    });
+    var topicMapping = [].concat(topics).reduce(function (accum, topic) {
+        var bestHandler = findBestHandler(topic, handlers);
+        if (bestHandler) {
+            //if handler matches different strings treat both as different handlers
+            var key = bestHandler.key + bestHandler.matched;
+            if (!accum[key]) {
+                bestHandler.data = [];
+                accum[key] = bestHandler;
             }
-            return result;
-        });
-    };
-    return router;
+            accum[key].data.push(topic);
+        }
+        return accum;
+    }, {});
+    return _.values(topicMapping);
+}
+
+/**
+ * Takes a `publish` dataset and groups it by handler maintaining the data sequence
+ * @param  {Publishable[]} data     Of the form [{ name: 'X', }]
+ * @param  {Handler[]} handlers Handlers of type [{ match: func }]
+ * @return {MatchedHandler[]} The handler array with each item now having an additional 'data' attr added to it
+ */
+function groupSequentiallyByHandlers(data, handlers) {
+    handlers = handlers.map(function (h, index) {
+        h.key = index;
+        return h;
+    });
+    var grouped = data.reduce(function (accum, dataPt) {
+        var lastHandler = accum[accum.length - 1];
+        var bestHandler = findBestHandler(dataPt.name, handlers);
+        if (bestHandler) {
+            if (lastHandler && bestHandler.key === lastHandler.key) {
+                lastHandler.data.push(dataPt);
+            } else {
+                accum.push($.extend({}, bestHandler, { data: [dataPt] }));
+            }
+        } else {
+            accum.push({ data: [dataPt], matched: false });
+        }
+        return accum;
+    }, []);
+    return grouped;
 }
 
 /***/ }),
-/* 6 */
-/***/ (function(module, exports, __webpack_require__) {
+/* 4 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
+/* unused harmony export notifySubscribeHandlers */
+/* unused harmony export notifyUnsubscribeHandlers */
+/* unused harmony export passthroughPublishInterceptors */
+/* harmony export (immutable) */ __webpack_exports__["a"] = Router;
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_channels_channel_utils__ = __webpack_require__(3);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_channels_middleware_utils__ = __webpack_require__(1);
 
 
-var extend = function (protoProps, staticProps) {
-    var me = this;
-    var child;
 
-    // The constructor function for the new subclass is either defined by you
-    // (the "constructor" property in your `extend` definition), or defaulted
-    // by us to simply call the parent's constructor.
-    if (protoProps && _.has(protoProps, 'constructor')) {
-        child = protoProps.constructor;
-    } else {
-        child = function () {
-            return me.apply(this, arguments);
-        };
-    }
-
-    // Add static properties to the constructor function, if supplied.
-    _.extend(child, me, staticProps);
-
-    // Set the prototype chain to inherit from `parent`, without calling
-    // `parent`'s constructor function.
-    var Surrogate = function () {
-        this.constructor = child;
-    };
-    Surrogate.prototype = me.prototype;
-    child.prototype = new Surrogate();
-
-    // Add prototype properties (instance properties) to the subclass,
-    // if supplied.
-    if (protoProps) {
-        _.extend(child.prototype, protoProps);
-    }
-
-    // Set a convenience property in case the parent's prototype is needed
-    // later.
-    child.__super__ = me.prototype; //eslint-disable-line no-underscore-dangle
-
-    return child;
-};
-
-var View = function (options) {
-    this.$el = options.$el || $(options.el);
-    this.el = options.el;
-    this.initialize.apply(this, arguments);
-};
-
-_.extend(View.prototype, {
-    initialize: function () {}
-});
-
-View.extend = extend;
-
-module.exports = View;
-
-/***/ }),
-/* 7 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-var config = __webpack_require__(0);
-var BaseView = __webpack_require__(8);
-
-module.exports = BaseView.extend({
-    propertyHandlers: [],
-
-    uiChangeEvent: 'change',
-    getUIValue: function () {
-        return this.$el.val();
-    },
-
-    removeEvents: function () {
-        this.$el.off(this.uiChangeEvent);
-    },
-
-    initialize: function () {
-        var me = this;
-        var propName = this.$el.data(config.binderAttr);
-
-        if (propName) {
-            this.$el.off(this.uiChangeEvent).on(this.uiChangeEvent, function () {
-                var val = me.getUIValue();
-
-                var params = {};
-                params[propName] = val;
-
-                me.$el.trigger(config.events.trigger, params);
-            });
+/**
+ * Handle subscriptions
+ * @param  {Handler[]} handlers Array of the form [{ match: function (){}, }]
+ * @param  {String[]} topics   Array of strings
+ * @param  {SubscribeOptions} [options]
+ * @return {String[]} Returns the original topics array
+ */
+function notifySubscribeHandlers(handlers, topics, options) {
+    var grouped = Object(__WEBPACK_IMPORTED_MODULE_0_channels_channel_utils__["b" /* groupByHandlers */])(topics, handlers);
+    grouped.forEach(function (handler) {
+        if (handler.subscribeHandler) {
+            var mergedOptions = $.extend(true, {}, handler.options, options);
+            var unprefixed = Object(__WEBPACK_IMPORTED_MODULE_1_channels_middleware_utils__["h" /* unprefix */])(handler.data, handler.matched);
+            handler.subscribeHandler(unprefixed, mergedOptions, handler.matched);
         }
-        BaseView.prototype.initialize.apply(this, arguments);
-    }
-}, { selector: 'input, select' });
+    });
+    return topics;
+}
+
+/**
+ * 
+ * @param {Handler[]} handlers 
+ * @param {String[]} recentlyUnsubscribedTopics
+ * @param {String[]} remainingTopics 
+ */
+function notifyUnsubscribeHandlers(handlers, recentlyUnsubscribedTopics, remainingTopics) {
+    handlers = handlers.map(function (h, index) {
+        h.unsubsKey = index;
+        return h;
+    });
+
+    var unsubsGrouped = Object(__WEBPACK_IMPORTED_MODULE_0_channels_channel_utils__["b" /* groupByHandlers */])(recentlyUnsubscribedTopics, handlers);
+    var remainingGrouped = Object(__WEBPACK_IMPORTED_MODULE_0_channels_channel_utils__["b" /* groupByHandlers */])(remainingTopics, handlers);
+
+    unsubsGrouped.forEach(function (handler) {
+        if (handler.unsubscribeHandler) {
+            var unprefixedUnsubs = Object(__WEBPACK_IMPORTED_MODULE_1_channels_middleware_utils__["h" /* unprefix */])(handler.data, handler.matched);
+            var matchingRemainingHandler = _.find(remainingGrouped, function (remainingHandler) {
+                return remainingHandler.unsubsKey === handler.unsubsKey;
+            });
+            var matchingTopicsRemaining = matchingRemainingHandler ? matchingRemainingHandler.data : [];
+            var unprefixedRemaining = Object(__WEBPACK_IMPORTED_MODULE_1_channels_middleware_utils__["h" /* unprefix */])(matchingTopicsRemaining || [], handler.matched);
+            handler.unsubscribeHandler(unprefixedUnsubs, unprefixedRemaining);
+        }
+    });
+}
+
+/**
+ * 
+ * @param {Handler[]} handlers 
+ * @param {Publishable[]} publishData 
+ * @param {PublishOptions} [options]
+ * @return {Promise}
+ */
+function passthroughPublishInterceptors(handlers, publishData, options) {
+    var grouped = Object(__WEBPACK_IMPORTED_MODULE_0_channels_channel_utils__["c" /* groupSequentiallyByHandlers */])(publishData, handlers);
+    var $initialProm = $.Deferred().resolve([]).promise();
+    grouped.forEach(function (handler) {
+        $initialProm = $initialProm.then(function (dataSoFar) {
+            var mergedOptions = $.extend(true, {}, handler.options, options);
+            var unprefixed = Object(__WEBPACK_IMPORTED_MODULE_1_channels_middleware_utils__["h" /* unprefix */])(handler.data, handler.matched);
+
+            var publishableData = Object(__WEBPACK_IMPORTED_MODULE_1_channels_middleware_utils__["b" /* excludeReadOnly */])(unprefixed, mergedOptions.readOnly);
+            if (!publishableData.length) {
+                return dataSoFar;
+            }
+
+            var result = handler.publishHandler ? handler.publishHandler(publishableData, mergedOptions, handler.matched) : publishableData;
+            var publishProm = $.Deferred().resolve(result).promise();
+            return publishProm.then(function (published) {
+                return Object(__WEBPACK_IMPORTED_MODULE_1_channels_middleware_utils__["f" /* silencable */])(published, mergedOptions.silent);
+            }).then(function (published) {
+                var mapped = Object(__WEBPACK_IMPORTED_MODULE_1_channels_middleware_utils__["c" /* mapWithPrefix */])(published, handler.matched);
+                if (handler.isDefault && handler.matched) {
+                    mapped = mapped.concat(published);
+                }
+                return mapped;
+            }).then(function (mapped) {
+                return [].concat(dataSoFar, mapped);
+            });
+        });
+    });
+    return $initialProm;
+}
+
+/**
+ * Router
+ * @param  {Handler[]} handlers
+ * @return {Router}
+ */
+function Router(handlers) {
+    return $.extend(this, {
+        /**
+         * @param {String[]} topics
+         * @param {SubscribeOptions} [options]
+         * @return {String[]} Returns the original topics array
+         */
+        subscribeHandler: function (topics, options) {
+            return notifySubscribeHandlers(handlers, topics, options);
+        },
+        /**
+         * @param {String[]} recentlyUnsubscribedTopics
+         * @param {String[]} remainingTopics
+         * @return {void}
+         */
+        unsubscribeHandler: function (recentlyUnsubscribedTopics, remainingTopics) {
+            return notifyUnsubscribeHandlers(handlers, recentlyUnsubscribedTopics, remainingTopics);
+        },
+
+        /**
+         * @param {Publishable[]} data
+         * @param {PublishOptions} [options]
+         * @return {Promise}
+         */
+        publishHandler: function (data, options) {
+            return passthroughPublishInterceptors(handlers, data, options);
+        }
+
+        // Ignoring till ready to implement
+        // addRoute: function (handler) {
+        //     if (!handler || !handler.match) {
+        //         throw Error('Handler does not have a valid `match` property');
+        //     }
+        //     handler.id = uniqueId('routehandler-');
+        //     handlers.push(handler);
+        //     return handler.id;
+        // },
+        // removeRoute: function (routeid) {
+        //     handlers = handlers.reduce(function (accum, handler) {
+        //         if (handler.id !== routeid) {
+        //             accum.push(handler);
+        //         }
+        //         return accum;
+        //     }, []);
+        // }
+    });
+}
 
 /***/ }),
-/* 8 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-var BaseView = __webpack_require__(6);
-
-module.exports = BaseView.extend({
-    propertyHandlers: [],
-
-    initialize: function () {}
-}, { selector: '*' });
-
-/***/ }),
-/* 9 */
+/* 5 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -729,28 +664,397 @@ module.exports = {
 };
 
 /***/ }),
+/* 6 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* harmony export (immutable) */ __webpack_exports__["a"] = RunRouter;
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__run_meta_channel__ = __webpack_require__(39);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__run_variables_channel__ = __webpack_require__(40);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__run_operations_channel__ = __webpack_require__(41);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3_channels_channel_router__ = __webpack_require__(4);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4_channels_middleware_utils__ = __webpack_require__(1);
+
+
+
+
+
+
+
+function RunRouter(config, notifier) {
+    var defaults = {
+        serviceOptions: {},
+        channelOptions: {
+            variables: {
+                autoFetch: true,
+                debounce: 200,
+                silent: false,
+                readOnly: false
+            },
+            operations: {
+                readOnly: false,
+                silent: false
+            },
+            meta: {
+                silent: false,
+                autoFetch: true,
+                readOnly: ['id', 'created', 'account', 'project', 'model', 'lastModified']
+            }
+        }
+    };
+    var opts = $.extend(true, {}, defaults, config);
+
+    var serviceOptions = _.result(opts, 'serviceOptions');
+
+    var $initialProm = null;
+    if (serviceOptions instanceof window.F.service.Run) {
+        $initialProm = $.Deferred().resolve(serviceOptions).promise();
+    } else if (serviceOptions.then) {
+        $initialProm = serviceOptions;
+    } else {
+        var rs = new window.F.service.Run(serviceOptions);
+        $initialProm = $.Deferred().resolve(rs).promise();
+    }
+
+    var metaChannel = new __WEBPACK_IMPORTED_MODULE_0__run_meta_channel__["a" /* default */]($initialProm, Object(__WEBPACK_IMPORTED_MODULE_4_channels_middleware_utils__["i" /* withPrefix */])(notifier, 'meta:'));
+    var operationsChannel = new __WEBPACK_IMPORTED_MODULE_2__run_operations_channel__["a" /* default */]($initialProm, Object(__WEBPACK_IMPORTED_MODULE_4_channels_middleware_utils__["i" /* withPrefix */])(notifier, 'operations:'));
+    var variableschannel = new __WEBPACK_IMPORTED_MODULE_1__run_variables_channel__["a" /* default */]($initialProm, Object(__WEBPACK_IMPORTED_MODULE_4_channels_middleware_utils__["i" /* withPrefix */])(notifier, ['variables:', '']));
+
+    var handlers = [$.extend({}, metaChannel, {
+        name: 'meta',
+        match: Object(__WEBPACK_IMPORTED_MODULE_4_channels_middleware_utils__["d" /* prefix */])('meta:'),
+        options: opts.channelOptions.meta
+    }), $.extend({}, operationsChannel, {
+        name: 'operations',
+        match: Object(__WEBPACK_IMPORTED_MODULE_4_channels_middleware_utils__["d" /* prefix */])('operations:'),
+        options: opts.channelOptions.operations
+    }), $.extend({}, variableschannel, {
+        isDefault: true,
+        name: 'variables',
+        match: Object(__WEBPACK_IMPORTED_MODULE_4_channels_middleware_utils__["a" /* defaultPrefix */])('variables:'),
+        options: opts.channelOptions.variables
+    })];
+
+    var router = new __WEBPACK_IMPORTED_MODULE_3_channels_channel_router__["a" /* default */](handlers, notifier);
+    var oldhandler = router.publishHandler;
+    router.publishHandler = function () {
+        var prom = oldhandler.apply(router, arguments);
+        return prom.then(function (result) {
+            //all the silencing will be taken care of by the router
+            var hasOperation = _.find(result, function (r) {
+                return r.name.indexOf('operations:') === 0;
+            });
+            if (hasOperation) {
+                variableschannel.fetch();
+            }
+            return result;
+        });
+    };
+    return router;
+}
+
+/***/ }),
+/* 7 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+var config = __webpack_require__(0);
+var BaseView = __webpack_require__(8);
+
+module.exports = BaseView.extend({
+    propertyHandlers: [],
+
+    uiChangeEvent: 'change',
+    getUIValue: function () {
+        return this.$el.val();
+    },
+
+    removeEvents: function () {
+        this.$el.off(this.uiChangeEvent);
+    },
+
+    initialize: function () {
+        var me = this;
+        var propName = this.$el.data(config.binderAttr);
+
+        if (propName) {
+            this.$el.off(this.uiChangeEvent).on(this.uiChangeEvent, function () {
+                var val = me.getUIValue();
+
+                var params = {};
+                params[propName] = val;
+
+                me.$el.trigger(config.events.trigger, params);
+            });
+        }
+        BaseView.prototype.initialize.apply(this, arguments);
+    }
+}, { selector: 'input, select' });
+
+/***/ }),
+/* 8 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+var BaseView = __webpack_require__(9);
+
+module.exports = BaseView.extend({
+    propertyHandlers: [],
+
+    initialize: function () {}
+}, { selector: '*' });
+
+/***/ }),
+/* 9 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+var extend = function (protoProps, staticProps) {
+    var me = this;
+    var child;
+
+    // The constructor function for the new subclass is either defined by you
+    // (the "constructor" property in your `extend` definition), or defaulted
+    // by us to simply call the parent's constructor.
+    if (protoProps && _.has(protoProps, 'constructor')) {
+        child = protoProps.constructor;
+    } else {
+        child = function () {
+            return me.apply(this, arguments);
+        };
+    }
+
+    // Add static properties to the constructor function, if supplied.
+    _.extend(child, me, staticProps);
+
+    // Set the prototype chain to inherit from `parent`, without calling
+    // `parent`'s constructor function.
+    var Surrogate = function () {
+        this.constructor = child;
+    };
+    Surrogate.prototype = me.prototype;
+    child.prototype = new Surrogate();
+
+    // Add prototype properties (instance properties) to the subclass,
+    // if supplied.
+    if (protoProps) {
+        _.extend(child.prototype, protoProps);
+    }
+
+    // Set a convenience property in case the parent's prototype is needed
+    // later.
+    child.__super__ = me.prototype; //eslint-disable-line no-underscore-dangle
+
+    return child;
+};
+
+var View = function (options) {
+    this.$el = options.$el || $(options.el);
+    this.el = options.el;
+    this.initialize.apply(this, arguments);
+};
+
+_.extend(View.prototype, {
+    initialize: function () {}
+});
+
+View.extend = extend;
+
+module.exports = View;
+
+/***/ }),
 /* 10 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__middleware_json_parse_middleware__ = __webpack_require__(22);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__middleware_epicenter_middleware__ = __webpack_require__(14);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__channel_manager__ = __webpack_require__(12);
-/* harmony export (immutable) */ __webpack_exports__["default"] = ChannelManager;
+/* harmony export (immutable) */ __webpack_exports__["a"] = extractDepencies;
+/* harmony export (immutable) */ __webpack_exports__["b"] = interpolateWithValues;
+var _ref = _,
+    isArray = _ref.isArray;
 
 
+var interpolationRegex = /<(.*?)>/g;
+/**
+ *  
+ * @param {String} str
+ * @return {String[]} dependencies
+ */
+function extractDepencies(str) {
+    var deps = (str.match(interpolationRegex) || []).map(function (val) {
+        return val.substring(1, val.length - 1);
+    });
+    return deps;
+}
 
-
-//Moving  epicenter-centric glue here so channel-manager can be tested in isolation
-function ChannelManager(opts) {
-    return new __WEBPACK_IMPORTED_MODULE_2__channel_manager__["a" /* default */]($.extend(true, {}, {
-        middlewares: [__WEBPACK_IMPORTED_MODULE_0__middleware_json_parse_middleware__["a" /* default */], __WEBPACK_IMPORTED_MODULE_1__middleware_epicenter_middleware__["a" /* default */]]
-    }, opts));
+/**
+ * @param {String} str
+ * @param {Object} data
+ * @return {String} interpolated string
+ */
+function interpolateWithValues(str, data) {
+    var interpolatedTopic = str.replace(interpolationRegex, function (match, inner) {
+        var val = data[inner];
+        var toReplace = isArray(val) ? val[val.length - 1] : val;
+        return toReplace;
+    });
+    return interpolatedTopic;
 }
 
 /***/ }),
 /* 11 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+/**
+ * ## Flow.js Initialization
+ *
+ * To use Flow.js in your project, simply call `Flow.initialize()` in your user interface. In the basic case, `Flow.initialize()` can be called without any arguments. While Flow.js needs to know the account, project, and model you are using, by default these values are extracted from the URL of Epicenter project and by the use of `data-f-model` in your `<body>` tag. See more on the [basics of using Flow.js in your project.](../../#using_in_project).
+ *
+ * However, sometimes you want to be explicit in your initialization call, and there are also some additional parameters that let you customize your use of Flow.js.
+ *
+ * #### Parameters
+ *
+ * The parameters for initializing Flow.js include:
+ *
+ * * `channel` Configuration details for the channel Flow.js uses in connecting with underlying APIs.
+ * * `channel.strategy` The run creation strategy describes when to create new runs when an end user visits this page. The default is `new-if-persisted`, which creates a new run when the end user is idle for longer than your project's **Model Session Timeout** (configured in your project's [Settings](../../../updating_your_settings/)), but otherwise uses the current run.. See more on [Run Strategies](../../../api_adapters/strategy/).
+ * * `channel.run` Configuration details for each run created.
+ * * `channel.run.account` The **User ID** or **Team ID** for this project. By default, taken from the URL where the user interface is hosted, so you only need to supply this is you are running your project's user interface [on your own server](../../../how_to/self_hosting/).
+ * * `channel.run.project` The **Project ID** for this project.
+ * * `channel.run.model` Name of the primary model file for this project. By default, taken from `data-f-model` in your HTML `<body>` tag.
+ * * `channel.run.variables` Configuration options for the variables being listened to on this channel.
+ * * `channel.run.variables.silent` Provides granular control over when user interface updates happen for changes on this channel. See below for possible values.
+ * * `channel.run.variables.autoFetch` Options for fetching variables from the API as they're being subscribed. See [Variables Channel](../channels/variables-channel/) for details.
+ * * `channel.run.operations` Configuration options for the operations being listened to on this channel. Currently there is only one configuration option: `silent`.
+ * * `channel.run.operations.silent` Provides granular control over when user interface updates happen for changes on this channel. See below for possible values.
+ * * `channel.run.server` Object with additional server configuration, defaults to `host: 'api.forio.com'`.
+ * * `channel.run.transport` An object which takes all of the jquery.ajax options at <a href="http://api.jquery.com/jQuery.ajax/">http://api.jquery.com/jQuery.ajax/</a>.
+ * * `dom` Configuration options for the DOM where this instance of Flow.js is created.
+ * * `dom.root` The root HTML element being managed by the Flow.js DOM Manager. Defaults to `body`.
+ * * `dom.autoBind` If `true` (default), automatically parse variables added to the DOM after this `Flow.initialize()` call. Note, this does not work in IE versions < 11.
+ *
+ * The `silent` configuration option for the `run.variables` and `run.operations` is a flag for providing more granular control over when user interface updates happen for changes on this channel. Values can be:
+ *
+ * * `false`: Always update the UI for any changes (variables updated, operations called) on this channel. This is the default behavior.
+ * * `true`: Never update the UI for any on changes (variables updated, operations called) on this channel.
+ * * Array of variables or operations for which the UI *should not* be updated. For example, `variables: { silent: [ 'price', 'sales' ] }` means this channel is silent (no updates for the UI) when the variables 'price' or 'sales' change, and the UI is always updated for any changes to other variables. This is useful if you know that changing 'price' or 'sales' does not impact anything else in the UI directly, for instance.
+ * * `except`: With array of variables or operations for which the UI *should* be updated. For example, `variables { silent: { except: [ 'price', 'sales' ] } }` is the converse of the above. The UI is always updated when anything on this channel changes *except* when the variables 'price' or 'sales' are updated.
+ *
+ * Although Flow.js provides a bi-directional binding between the model and the user interface, the `silent` configuration option applies only for the binding from the model to the user interface; updates in the user interface (including calls to operations) are still sent to the model.
+ *
+ * The `Flow.initialize()` call is based on the Epicenter.js [Run Service](../../../api_adapters/generated/run-api-service/) from the [API Adapters](../../../api_adapters/). See those pages for additional information on parameters.
+ *
+ * The `Flow.initialize()` call returns a promise, which is resolved when initialization is complete.
+ *
+ * #### Example
+ *
+ *      Flow.initialize({
+ *          channel: {
+ *              strategy: 'new-if-persisted',
+ *              run: {
+ *                  model: 'supply-chain-game.py',
+ *                  account: 'acme-simulations',
+ *                  project: 'supply-chain-game',
+ *                  server: { host: 'api.forio.com' },
+ *                  variables: { silent: ['price', 'sales'] },
+ *                  operations: { silent: false },
+ *                  transport: {
+ *                      beforeSend: function() { $('body').addClass('loading'); },
+ *                      complete: function() { $('body').removeClass('loading'); }
+ *                  }
+ *              }
+ *          }
+ *      }).then(function() {
+ *          // code that depends on initialization
+ *      });
+ *
+ */
+
+
+
+var domManager = __webpack_require__(12);
+var BaseView = __webpack_require__(9);
+
+var ChannelManager = __webpack_require__(35).default;
+// var parseUtils = require('utils/parse-utils');
+
+var Flow = {
+    dom: domManager,
+    utils: {
+        BaseView: BaseView
+    },
+    initialize: function (config) {
+        var model = $('body').data('f-model');
+
+        var defaults = {
+            channel: {
+                //FIXME: Defaults can't be here..
+                defaults: {
+                    run: {
+                        model: model
+                    }
+                }
+            },
+            dom: {
+                root: 'body',
+                autoBind: true
+            }
+        };
+
+        var options = $.extend(true, {}, defaults, config);
+        // var $root = $(options.dom.root);
+
+        // var initialFn = $root.data('f-on-init');
+        // //TOOD: Should move this to DOM Manager and just prioritize on-inits
+        // if (initialFn) {
+        //     var listOfOperations = _.invoke(initialFn.split('|'), 'trim');
+        //     listOfOperations = listOfOperations.map(function (value) {
+        //         var fnName = value.split('(')[0];
+        //         var params = value.substring(value.indexOf('(') + 1, value.indexOf(')'));
+        //         var args = ($.trim(params) !== '') ? params.split(',') : [];
+        //         args = args.map(function (a) {
+        //             return parseUtils.toImplicitType(a.trim());
+        //         });
+        //         var toReturn = {};
+        //         toReturn[fnName] = args;
+        //         return toReturn;
+        //     });
+
+        //     //TODO: Make a channel configuration factory which gets the initial info
+        //     options.channel.options.runManager.defaults.initialOperation = listOfOperations;
+        // }
+
+        if (config && config.channel && config.channel instanceof ChannelManager) {
+            this.channel = config.channel;
+        } else {
+            this.channel = new ChannelManager(options.channel);
+        }
+
+        var prom = domManager.initialize($.extend(true, {
+            channel: this.channel
+        }, options.dom));
+
+        this.channel.subscribe('operations:reset', function () {
+            domManager.unbindAll();
+            domManager.bindAll();
+        });
+
+        return prom;
+    }
+};
+Flow.ChannelManager = ChannelManager;
+//set by grunt
+if (true) Flow.version = "0.11.0"; //eslint-disable-line no-undef
+module.exports = Flow;
+
+/***/ }),
+/* 12 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -766,13 +1070,13 @@ function ChannelManager(opts) {
 
 module.exports = function () {
     var config = __webpack_require__(0);
-    var parseUtils = __webpack_require__(4);
-    var domUtils = __webpack_require__(48);
+    var parseUtils = __webpack_require__(2);
+    var domUtils = __webpack_require__(13);
 
-    var converterManager = __webpack_require__(26);
-    var nodeManager = __webpack_require__(44);
-    var attrManager = __webpack_require__(31);
-    var autoUpdatePlugin = __webpack_require__(45);
+    var converterManager = __webpack_require__(14);
+    var nodeManager = __webpack_require__(20);
+    var attrManager = __webpack_require__(22);
+    var autoUpdatePlugin = __webpack_require__(34);
 
     //Jquery selector to return everything which has a f- property set
     $.expr.pseudos[config.prefix] = function (el) {
@@ -862,7 +1166,7 @@ module.exports = function () {
             });
 
             var subsid = $el.data(config.attrs.subscriptionId) || [];
-            _.each(subsid, function (subs) {
+            _.each([].concat(subsid), function (subs) {
                 channel.unsubscribe(subs);
             });
 
@@ -917,6 +1221,8 @@ module.exports = function () {
 
             var attrBindings = [];
             var nonBatchableVariables = [];
+            var channelConfig = domUtils.getChannelConfig(element);
+
             //NOTE: looping through attributes instead of .data because .data automatically camelcases properties and make it hard to retrvieve. Also don't want to index dynamically added (by flow) data attrs
             $(element.attributes).each(function (index, nodeMap) {
                 var attr = nodeMap.nodeName;
@@ -936,7 +1242,9 @@ module.exports = function () {
 
                     if (isBindableAttr) {
                         //Convert pipes to converter attrs
-                        var withConv = _.invokeMap(attrVal.split('|'), 'trim');
+                        var withConv = attrVal.split('|').map(function (v) {
+                            return v.trim();
+                        });
                         if (withConv.length > 1) {
                             attrVal = withConv.shift();
                             $el.data('f-convert-' + attr, withConv);
@@ -955,13 +1263,15 @@ module.exports = function () {
                             //Assume it's templated for later use
 
                         } else if (attrVal.split(commaRegex).length > 1) {
-                            var varsToBind = _.invokeMap(attrVal.split(commaRegex), 'trim');
+                            var varsToBind = attrVal.split(commaRegex).map(function (v) {
+                                return v.trim();
+                            });
                             if (channelPrefix) {
                                 varsToBind = varsToBind.map(function (v) {
                                     return channelPrefix + ':' + v;
                                 });
                             }
-                            subscribe(channel, varsToBind, $el, { batch: true });
+                            subscribe(channel, varsToBind, $el, $.extend({ batch: true }, channelConfig)); //TODO: Move batch defaults to subscription manager
                             binding.topics = varsToBind;
                         } else {
                             if (channelPrefix) {
@@ -976,7 +1286,7 @@ module.exports = function () {
             });
             $el.data(config.attrs.bindingsList, attrBindings);
             if (nonBatchableVariables.length) {
-                subscribe(channel, nonBatchableVariables, $el, { batch: false });
+                subscribe(channel, nonBatchableVariables, $el, $.extend({ batch: false }, channelConfig));
             }
         },
 
@@ -1102,19 +1412,24 @@ module.exports = function () {
             var attachUIOperationsListener = function ($root) {
                 $root.off(config.events.operate).on(config.events.operate, function (evt, data) {
                     var filtered = [].concat(data.operations || []).reduce(function (accum, operation) {
-                        operation.params = operation.params.map(function (val) {
+                        var val = operation.value ? [].concat(operation.value) : [];
+                        operation.value = val.map(function (val) {
                             return parseUtils.toImplicitType($.trim(val));
                         });
                         var isConverter = converterManager.getConverter(operation.name);
                         if (isConverter) {
                             accum.converters.push(operation);
                         } else {
-                            accum.operations.push({ name: 'operations:' + operation.name, value: operation.params });
+                            //TODO: Add a test for this
+                            if (operation.name.indexOf(':') === -1) {
+                                operation.name = 'operations:' + operation.name;
+                            }
+                            accum.operations.push(operation);
                         }
                         return accum;
                     }, { operations: [], converters: [] });
 
-                    var promise = filtered.operations.length ? channel.publish(filtered.operations) : $.Deferred().resolve().promise();
+                    var promise = filtered.operations.length ? channel.publish(filtered.operations, data.options) : $.Deferred().resolve().promise();
 
                     //FIXME: Needed for the 'gotopage' in interfacebuilder. Remove this once we add a window channel
                     promise.then(function (args) {
@@ -1147,11 +1462,6 @@ module.exports = function () {
                 });
             };
 
-            channel.subscribe('operations:reset', function () {
-                me.unbindAll();
-                me.bindAll();
-                // console.log('Reset called', channel);
-            });
             var promise = $.Deferred();
             $(function () {
                 me.bindAll();
@@ -1177,890 +1487,76 @@ module.exports = function () {
 }();
 
 /***/ }),
-/* 12 */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_utils_create_class__ = __webpack_require__(47);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_utils_create_class___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_utils_create_class__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__channel_utils__ = __webpack_require__(3);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__middleware_middleware_manager__ = __webpack_require__(23);
-
-
-
-
-
-
-function makeSubs(topics, callback, options) {
-    var id = _.uniqueId('subs-');
-    var defaults = {
-        batch: false,
-
-        /**
-         * Determines if the last published data should be cached for future notifications. For e.g.,
-         *
-         * channel.subscribe(['price', 'cost'], callback1, { batch: true, cache: false });
-         * channel.subscribe(['price', 'cost'], callback2, { batch: true, cache: true });
-         *
-         * channel.publish({ price: 1 });
-         * channel.publish({ cost: 1 });
-         *
-         * callback1 will have been called once, and callback2 will not have been called. i.e., the channel caches the first publish value and notifies after all dependent topics have data
-         * If we'd done channel.publish({ price: 1, cost: 1 }) would have called both callback1 and callback2
-         *
-         * `cache: true` is useful if you know if your topics will can published individually, but you still want to handle them together.
-         * `cache: false` is useful if you know if your topics will *always* be published together and they'll be called at the same time.
-         *
-         * Note this has no discernible effect if batch is false
-         * @type {Boolean}
-         */
-        cache: true
-    };
-    var opts = $.extend({}, defaults, options);
-    return $.extend(true, {
-        id: id,
-        topics: topics,
-        callback: callback
-    }, opts);
-}
-
-function callbackIfChanged(subscription, data) {
-    if (!_.isEqual(subscription.lastSent, data)) {
-        subscription.lastSent = data;
-        subscription.callback(data);
-    }
-}
-
-//[{ name, value}]
-function checkAndNotifyBatch(topics, subscription) {
-    var merged = topics.reduce(function (accum, topic) {
-        accum[topic.name] = topic.value;
-        return accum;
-    }, subscription.availableData || {});
-    var matchingTopics = _.intersection(Object.keys(merged), subscription.topics);
-    if (matchingTopics.length > 0) {
-        var toSend = subscription.topics.reduce(function (accum, topic) {
-            accum[topic] = merged[topic];
-            return accum;
-        }, {});
-
-        if (subscription.cache) {
-            subscription.availableData = toSend;
-        }
-        if (matchingTopics.length === subscription.topics.length) {
-            callbackIfChanged(subscription, toSend);
-        }
-    }
-}
-
-//[{ name, value}]
-function checkAndNotify(topics, subscription) {
-    topics.forEach(function (topic) {
-        if (_.includes(subscription.topics, topic.name) || _.includes(subscription.topics, '*')) {
-            var toSend = {};
-            toSend[topic.name] = topic.value;
-            callbackIfChanged(subscription, toSend);
-        }
-    });
-}
-
-function getTopicsFromSubsList(subcriptionList) {
-    return subcriptionList.reduce(function (accum, subs) {
-        accum = accum.concat(subs.topics);
-        return accum;
-    }, []);
-}
-var ChannelManager = function () {
-    function ChannelManager(options) {
-        var defaults = {
-            middlewares: []
-        };
-        var opts = $.extend(true, {}, defaults, options);
-        this.middlewares = new __WEBPACK_IMPORTED_MODULE_2__middleware_middleware_manager__["a" /* default */](opts, this.notify.bind(this), this);
-    }
-
-    __WEBPACK_IMPORTED_MODULE_0_utils_create_class___default()(ChannelManager, {
-        subscriptions: [],
-
-        publish: function (topic, value, options) {
-            var normalized = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1__channel_utils__["e" /* normalizeParamOptions */])(topic, value, options);
-            var prom = $.Deferred().resolve(normalized.params).promise();
-            var lastAvailableData = normalized.params;
-            var middlewares = this.middlewares.filter('publish');
-            middlewares.forEach(function (middleware) {
-                prom = prom.then(function (publishResponse) {
-                    return middleware(publishResponse, normalized.options);
-                }).then(function (response) {
-                    lastAvailableData = response || lastAvailableData;
-                    return lastAvailableData;
-                });
-            });
-            prom = prom.then(this.notify.bind(this));
-            return prom;
-        },
-
-        notify: function (topic, value, options) {
-            var normalized = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1__channel_utils__["e" /* normalizeParamOptions */])(topic, value, options);
-            console.log('notify', normalized);
-            return this.subscriptions.forEach(function (subs) {
-                var fn = subs.batch ? checkAndNotifyBatch : checkAndNotify;
-                fn(normalized.params, subs);
-            });
-        },
-
-        //TODO: Allow subscribing to regex? Will solve problem of listening only to variables etc
-        subscribe: function (topics, cb, options) {
-            var subs = makeSubs(topics, cb, options);
-            this.subscriptions = this.subscriptions.concat(subs);
-            var middlewares = this.middlewares.filter('subscribe');
-
-            var toSend = subs.topics;
-            middlewares.forEach(function (middleware) {
-                toSend = middleware(toSend) || toSend;
-            });
-            return subs.id;
-        },
-        unsubscribe: function (token) {
-            var data = this.subscriptions.reduce(function (accum, subs) {
-                if (subs.id === token) {
-                    accum.unsubscribed.push(subs);
-                } else {
-                    accum.remaining.push(subs);
-                }
-                return accum;
-            }, { remaining: [], unsubscribed: [] });
-
-            if (!data.unsubscribed.length) {
-                throw new Error('No subscription found for token ' + token);
-            }
-            this.subscriptions = data.remaining;
-
-            var remainingTopics = getTopicsFromSubsList(data.remaining);
-            var unsubscribedTopics = getTopicsFromSubsList(data.unsubscribed);
-
-            var middlewares = this.middlewares.filter('unsubscribe');
-            middlewares.forEach(function (middleware) {
-                return middleware(unsubscribedTopics, remainingTopics);
-            });
-        },
-        unsubscribeAll: function () {
-            var currentlySubscribed = this.getSubscribedTopics();
-            this.subscriptions = [];
-            var middlewares = this.middlewares.filter('unsubscribe');
-            middlewares.forEach(function (middleware) {
-                return middleware(currentlySubscribed, []);
-            });
-        },
-        getSubscribedTopics: function () {
-            var list = _.uniq(getTopicsFromSubsList(this.subscriptions));
-            return list;
-        },
-        getSubscribers: function (topic) {
-            if (topic) {
-                return this.subscriptions.filter(function (subs) {
-                    return _.includes(subs.topics, topic);
-                });
-            }
-            return this.subscriptions;
-        }
-    });
-
-    return ChannelManager;
-}();
-
-/* harmony default export */ __webpack_exports__["a"] = (ChannelManager);
-
-/***/ }),
 /* 13 */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__run_router_factory__ = __webpack_require__(16);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_channels_middleware_utils__ = __webpack_require__(1);
-
-
-
-/* harmony default export */ __webpack_exports__["a"] = (function (options, notifier) {
-    if (!options) options = {};
-
-    var opts = {};
-    opts.serviceOptions = options.serviceOptions && options.serviceOptions.run ? options.serviceOptions.run : {};
-    opts.channelOptions = options.channelOptions;
-
-    return {
-        subscribeHandler: function (topics, prefix) {
-            var runid = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1_channels_middleware_utils__["h" /* stripSuffixDelimiter */])(prefix);
-            var channel = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0__run_router_factory__["a" /* default */])(runid, opts, __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1_channels_middleware_utils__["a" /* withPrefix */])(notifier, prefix));
-            return channel.subscribeHandler(topics);
-        },
-        publishHandler: function (topics, prefix) {
-            var runid = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1_channels_middleware_utils__["h" /* stripSuffixDelimiter */])(prefix);
-            var channel = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0__run_router_factory__["a" /* default */])(runid, opts, __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1_channels_middleware_utils__["a" /* withPrefix */])(notifier, prefix));
-            return channel.publishHandler(topics);
-        }
-    };
-});
-
-/***/ }),
-/* 14 */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__run_manager_router__ = __webpack_require__(15);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__scenario_manager_router__ = __webpack_require__(21);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__custom_run_router__ = __webpack_require__(13);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__runs_router__ = __webpack_require__(20);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4_channels_middleware_utils__ = __webpack_require__(1);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5_channels_channel_router__ = __webpack_require__(2);
-
-
-
-
-
-
-
-
-
-
-function getOptions(opts, key) {
-    var serviceOptions = $.extend(true, {}, opts.defaults, opts[key]);
-    var channelOptions = $.extend(true, {}, serviceOptions.channelOptions);
-    delete serviceOptions.channelOptions;
-
-    return { serviceOptions: serviceOptions, channelOptions: channelOptions };
-}
-
-var SCENARIO_PREFIX = 'sm:';
-var RUN_PREFIX = 'rm:';
-
-var sampleRunidLength = '000001593dd81950d4ee4f3df14841769a0b'.length;
-var runidRegex = '(?:.{' + sampleRunidLength + '})';
-
-/* harmony default export */ __webpack_exports__["a"] = (function (config, notifier, channelManagerContext) {
-    var opts = $.extend(true, {}, config);
-
-    var customRunChannelOpts = getOptions(opts, 'runid');
-    var customRunChannel = new __WEBPACK_IMPORTED_MODULE_2__custom_run_router__["a" /* default */](customRunChannelOpts, notifier);
-    var runsChannel = new __WEBPACK_IMPORTED_MODULE_3__runs_router__["a" /* default */](customRunChannelOpts, __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_4_channels_middleware_utils__["a" /* withPrefix */])(notifier, 'runs'), channelManagerContext);
-
-    var handlers = [$.extend({}, customRunChannel, {
-        name: 'customRun',
-        match: __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_4_channels_middleware_utils__["b" /* regex */])(runidRegex),
-        options: customRunChannelOpts.channelOptions
-    }), $.extend({}, runsChannel, {
-        name: 'archiveRuns',
-        match: __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_4_channels_middleware_utils__["c" /* prefix */])('runs'),
-        options: customRunChannelOpts.channelOptions
-    })];
-    var exposable = {};
-    if (opts.scenarioManager) {
-        var scenarioManagerOpts = getOptions(opts, 'scenarioManager');
-        var sm = new __WEBPACK_IMPORTED_MODULE_1__scenario_manager_router__["a" /* default */](scenarioManagerOpts, __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_4_channels_middleware_utils__["a" /* withPrefix */])(notifier, [SCENARIO_PREFIX, '']));
-        handlers.push($.extend({}, sm, {
-            name: 'scenario',
-            match: __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_4_channels_middleware_utils__["d" /* defaultPrefix */])(SCENARIO_PREFIX),
-            options: scenarioManagerOpts.channelOptions,
-            isDefault: true
-        }));
-
-        $.extend(exposable, sm.expose);
-    }
-
-    var runManagerOpts = getOptions(opts, 'runManager');
-    if (opts.runManager || !opts.scenarioManager && runManagerOpts.serviceOptions.run) {
-        var rm;
-        if (opts.scenarioManager) {
-            rm = new __WEBPACK_IMPORTED_MODULE_0__run_manager_router__["a" /* default */](runManagerOpts, __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_4_channels_middleware_utils__["a" /* withPrefix */])(notifier, RUN_PREFIX));
-            handlers.push($.extend({}, rm, {
-                name: 'run',
-                match: __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_4_channels_middleware_utils__["c" /* prefix */])(RUN_PREFIX),
-                options: runManagerOpts.channelOptions
-            }));
-        } else {
-            rm = new __WEBPACK_IMPORTED_MODULE_0__run_manager_router__["a" /* default */](runManagerOpts, __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_4_channels_middleware_utils__["a" /* withPrefix */])(notifier, [RUN_PREFIX, '']));
-            handlers.push($.extend({}, rm, {
-                name: 'run',
-                match: __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_4_channels_middleware_utils__["d" /* defaultPrefix */])(RUN_PREFIX),
-                isDefault: true,
-                options: runManagerOpts.channelOptions
-            }));
-        }
-
-        $.extend(exposable, rm.expose);
-    }
-
-    var router = new __WEBPACK_IMPORTED_MODULE_5_channels_channel_router__["a" /* default */](handlers, notifier);
-    router.expose = exposable;
-
-    return router;
-});
-
-/***/ }),
-/* 15 */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__run_router__ = __webpack_require__(5);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_channels_middleware_utils__ = __webpack_require__(1);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_channels_channel_router__ = __webpack_require__(2);
-
-
-
-
-
-/* harmony default export */ __webpack_exports__["a"] = (function (config, notifier) {
-    var defaults = {
-        serviceOptions: {},
-        channelOptions: {}
-    };
-    var opts = $.extend(true, {}, defaults, config);
-
-    var rm = new window.F.manager.RunManager(opts.serviceOptions);
-    var $creationPromise = rm.getRun().then(function () {
-        return rm.run;
-    });
-    var currentChannelOpts = $.extend(true, { serviceOptions: $creationPromise }, opts.defaults, opts.current);
-    var currentRunChannel = new __WEBPACK_IMPORTED_MODULE_0__run_router__["a" /* default */](currentChannelOpts, __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1_channels_middleware_utils__["a" /* withPrefix */])(notifier, ['current:', '']));
-
-    var handlers = [$.extend(currentRunChannel, {
-        match: __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1_channels_middleware_utils__["d" /* defaultPrefix */])('current:'),
-        isDefault: true,
-        options: currentChannelOpts.channelOptions
-    })];
-
-    var router = new __WEBPACK_IMPORTED_MODULE_2_channels_channel_router__["a" /* default */](handlers, notifier);
-    router.expose = { runManager: rm };
-    return router;
-});
-
-/***/ }),
-/* 16 */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__run_router__ = __webpack_require__(5);
-
-var knownRunIDServiceChannels = {};
-
-/* harmony default export */ __webpack_exports__["a"] = (function (runid, options, notifier) {
-    var runChannel = knownRunIDServiceChannels[runid];
-    if (!runChannel) {
-        var runOptions = $.extend(true, {}, options, { serviceOptions: { id: runid } });
-        runChannel = new __WEBPACK_IMPORTED_MODULE_0__run_router__["a" /* default */](runOptions, notifier);
-        knownRunIDServiceChannels[runid] = runChannel;
-    }
-    return runChannel;
-});
-
-/***/ }),
-/* 17 */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_channels_channel_utils__ = __webpack_require__(3);
-/* harmony export (immutable) */ __webpack_exports__["a"] = RunMetaChannel;
-
-
-function RunMetaChannel($runServicePromise, notifier) {
-
-    function mergeAndSend(runMeta, requestedTopics) {
-        var toSend = [].concat(requestedTopics).reduce(function (accum, meta) {
-            if (runMeta[meta] !== undefined) {
-                accum.push({ name: meta, value: runMeta[meta] });
-            }
-            return accum;
-        }, []);
-        return notifier(toSend);
-    }
-    return {
-        subscribeHandler: function (topics) {
-            return $runServicePromise.then(function (runService) {
-                if (runService.runMeta) {
-                    return $.Deferred().resolve(mergeAndSend(runService.runMeta, topics)).promise();
-                }
-
-                if (!runService.loadPromise) {
-                    runService.loadPromise = runService.load().then(function (data) {
-                        runService.runMeta = data;
-                        return data;
-                    });
-                }
-                return runService.loadPromise.then(function (data) {
-                    mergeAndSend(data, topics);
-                });
-            });
-        },
-        publishHandler: function (topics, options) {
-            return $runServicePromise.then(function (runService) {
-                var toSave = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0_channels_channel_utils__["d" /* arrayToObject */])(topics);
-                return runService.save(toSave).then(function (res) {
-                    runService.runMeta = $.extend({}, true, runService.runMeta, res);
-                    return __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0_channels_channel_utils__["c" /* objectToArray */])(res);
-                });
-            });
-        }
-    };
-}
-
-/***/ }),
-/* 18 */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-/* harmony export (immutable) */ __webpack_exports__["a"] = RunOperationsChannel;
-function RunOperationsChannel($runServicePromise) {
-    return {
-        publishHandler: function (topics, options) {
-            return $runServicePromise.then(function (runService) {
-                var toSave = topics.map(function (topic) {
-                    return { name: topic.name, params: topic.value };
-                });
-                return runService.serial(toSave).then(function (result) {
-                    var toReturn = result.map(function (response, index) {
-                        return { name: topics[index].name, value: response };
-                    });
-                    return toReturn;
-                });
-            });
-        }
-    };
-}
-
-/***/ }),
-/* 19 */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_utils_general__ = __webpack_require__(9);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_utils_general___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_utils_general__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_channels_channel_utils__ = __webpack_require__(3);
-/* harmony export (immutable) */ __webpack_exports__["a"] = RunVariablesChannel;
-
-
-
-function RunVariablesChannel($runServicePromise, notifier) {
-
-    var id = _.uniqueId('variable-channel');
-
-    var fetchFn = function (runService) {
-        if (!runService.debouncedFetchers) {
-            runService.debouncedFetchers = {};
-        }
-        var debounceInterval = 200; //todo: make this over-ridable
-        if (!runService.debouncedFetchers[id]) {
-            runService.debouncedFetchers[id] = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0_utils_general__["debounceAndMerge"])(function (variables) {
-                if (!variables || !variables.length) {
-                    return $.Deferred().resolve([]).promise();
-                }
-                return runService.variables().query(variables).then(__WEBPACK_IMPORTED_MODULE_1_channels_channel_utils__["c" /* objectToArray */]);
-            }, debounceInterval, [function mergeVariables(accum, newval) {
-                if (!accum) {
-                    accum = [];
-                }
-                return _.uniq(accum.concat(newval)).filter(function (v) {
-                    return !!(v && v.trim());
-                });
-            }]);
-        }
-        return runService.debouncedFetchers[id];
-    };
-
-    var knownTopics = [];
-    return {
-        fetch: function () {
-            return $runServicePromise.then(function (runService) {
-                return fetchFn(runService)(knownTopics).then(notifier);
-            });
-        },
-
-        unsubscribeHandler: function (unsubscribedTopics, remainingTopics) {
-            knownTopics = remainingTopics;
-        },
-        subscribeHandler: function (topics) {
-            return $runServicePromise.then(function (runService) {
-                knownTopics = _.uniq(knownTopics.concat(topics));
-                if (!knownTopics.length) {
-                    return $.Deferred().resolve([]).promise();
-                }
-                return fetchFn(runService)(topics).then(notifier);
-            });
-        },
-        publishHandler: function (topics, options) {
-            return $runServicePromise.then(function (runService) {
-                var toSave = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1_channels_channel_utils__["d" /* arrayToObject */])(topics);
-                return runService.variables().save(toSave).then(function (response) {
-                    return __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1_channels_channel_utils__["c" /* objectToArray */])(response);
-                });
-            });
-        }
-    };
-}
-
-/***/ }),
-/* 20 */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-/* harmony export (immutable) */ __webpack_exports__["a"] = RunsRouter;
-var _slicedToArray = function () { function sliceIterator(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"]) _i["return"](); } finally { if (_d) throw _e; } } return _arr; } return function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { return sliceIterator(arr, i); } else { throw new TypeError("Invalid attempt to destructure non-iterable instance"); } }; }();
-
-var _window = window;
-const F = _window.F;
-
-
-function RunsRouter(options, notifier, channelManagerContext) {
-    var runService = new F.service.Run(options.serviceOptions.run);
-
-    var topicParamMap = {};
-
-    function extractFromTopic(topicString) {
-        var commaRegex = /,(?![^[]*])/;
-
-        var _topicString$split = topicString.split(')('),
-            _topicString$split2 = _slicedToArray(_topicString$split, 2),
-            filters = _topicString$split2[0],
-            variables = _topicString$split2[1];
-
-        filters = filters.replace('(', '').replace(')', '');
-        var filterParam = filters.split(';').reduce(function (accum, filter) {
-            var _filter$split = filter.split('='),
-                _filter$split2 = _slicedToArray(_filter$split, 2),
-                key = _filter$split2[0],
-                val = _filter$split2[1];
-
-            accum[key] = val;
-            return accum;
-        }, {});
-
-        variables = variables.replace('(', '').replace(')', '');
-        variables = variables.split(commaRegex);
-
-        return { filter: filterParam, variables: variables };
-    }
-
-    function fetch(topic) {
-        var params = extractFromTopic(topic);
-        return runService.query(params.filter, { include: params.variables }).then(function (runs) {
-            notifier([{ name: topic, value: runs }]);
-            return runs;
-        });
-    }
-
-    return {
-        fetch: fetch,
-
-        unsubscribeHandler: function (unsubscribedTopics, remainingTopics) {
-            console.log('unsubs');
-            // knownTopics = remainingTopics;
-        },
-        subscribeHandler: function (topics) {
-            var topic = [].concat(topics)[0];
-
-            var params = extractFromTopic(topic);
-
-            if (topicParamMap[topic]) {
-                channelManagerContext.unsubscribe(topicParamMap[topic]);
-            }
-            return fetch(topic).then(function (runs) {
-                runs.forEach(function (run) {
-                    var subscriptions = Object.keys(params.filter).map(function (filter) {
-                        return run.id + ':meta:' + filter;
-                    });
-                    var subsid = channelManagerContext.subscribe(subscriptions, function () {
-                        fetch(topic);
-                    }, { batch: false, autoLoad: false, cache: false });
-                    topicParamMap[topic] = subsid;
-                });
-                return runs;
-            });
-        }
-    };
-}
-
-/***/ }),
-/* 21 */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__run_router__ = __webpack_require__(5);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_channels_middleware_utils__ = __webpack_require__(1);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_channels_channel_router__ = __webpack_require__(2);
-
-
-
-
-/* harmony default export */ __webpack_exports__["a"] = (function (config, notifier) {
-    var defaults = {
-        serviceOptions: {},
-        channelOptions: {}
-    };
-    var opts = $.extend(true, {}, defaults, config);
-
-    var sm = new window.F.manager.ScenarioManager(opts.serviceOptions);
-
-    var baselinePromise = sm.baseline.getRun().then(function () {
-        return sm.baseline.run;
-    });
-    var baselineOptions = $.extend(true, {
-        serviceOptions: baselinePromise,
-        channelOptions: {
-            meta: {
-                readOnly: true
-            },
-            variables: {
-                readOnly: true
-            }
-        }
-    }, opts.defaults, opts.baseline);
-    var currentRunPromise = sm.current.getRun().then(function () {
-        return sm.current.run;
-    });
-
-    var runOptions = $.extend(true, {
-        serviceOptions: currentRunPromise
-    }, opts.defaults, opts.current);
-
-    var baselineChannel = new __WEBPACK_IMPORTED_MODULE_0__run_router__["a" /* default */](baselineOptions, __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1_channels_middleware_utils__["a" /* withPrefix */])(notifier, 'baseline:'));
-    var currentRunChannel = new __WEBPACK_IMPORTED_MODULE_0__run_router__["a" /* default */](runOptions, __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1_channels_middleware_utils__["a" /* withPrefix */])(notifier, ['current:', '']));
-    var handlers = [$.extend(baselineChannel, {
-        name: 'baseline',
-        match: __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1_channels_middleware_utils__["c" /* prefix */])('baseline:'),
-        options: baselineOptions.channelOptions
-    }), $.extend(currentRunChannel, {
-        isDefault: true,
-        name: 'current',
-        match: __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1_channels_middleware_utils__["d" /* defaultPrefix */])('current:'),
-        options: runOptions.channelOptions
-    })];
-
-    var router = new __WEBPACK_IMPORTED_MODULE_2_channels_channel_router__["a" /* default */](handlers, notifier);
-    router.expose = { scenarioManager: sm };
-    return router;
-});
-
-/***/ }),
-/* 22 */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-/* harmony export (immutable) */ __webpack_exports__["a"] = JSONMiddleware;
-var parseUtils = __webpack_require__(4);
-function JSONMiddleware(config, notifier) {
-    return {
-        subscribeHandler: function (topics) {
-            var sorted = [].concat(topics).reduce(function (acc, topic) {
-                var parsed = parseUtils.toImplicitType(topic);
-                if (typeof parsed === 'string') {
-                    acc.rest.push(topic);
-                } else {
-                    acc.claimed.push(topic);
-                }
-                return acc;
-            }, { claimed: [], rest: [] });
-
-            var mapped = sorted.claimed.map(function (item) {
-                return { name: item, value: parseUtils.toImplicitType(item) };
-            });
-            notifier(mapped);
-
-            return sorted.rest;
-        }
-    };
-}
-
-/***/ }),
-/* 23 */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-/* harmony export (immutable) */ __webpack_exports__["a"] = MiddlewareManager;
-function MiddlewareManager(options, notifier, channelManagerContext) {
-    var defaults = {
-        middlewares: []
-    };
-    var opts = $.extend(true, {}, defaults, options);
-    var optsToPassOn = _.omit(opts, Object.keys(defaults));
-
-    var list = [];
-    var publicAPI = {
-        list: list,
-
-        add: function (middleware, index) {
-            if (_.isFunction(middleware)) {
-                middleware = new middleware(optsToPassOn, notifier, channelManagerContext);
-            }
-            $.extend(channelManagerContext, middleware.expose); //add any public props middleware wants to expose
-            list.push(middleware);
-        },
-
-        filter: function (type) {
-            type = type + 'Handler';
-            return list.reduce(function (accum, m) {
-                if (m[type]) {
-                    accum.push(m[type]);
-                }
-                return accum;
-            }, []);
-        }
-    };
-
-    $.extend(this, publicAPI);
-    opts.middlewares.forEach(this.add);
-}
-
-/***/ }),
-/* 24 */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-/* harmony export (immutable) */ __webpack_exports__["a"] = silencable;
-var _ref = _,
-    isArray = _ref.isArray,
-    includes = _ref.includes;
-
-
-function silencable(published, silentOptions) {
-    if (silentOptions === true || !published) {
-        return [];
-    } else if (isArray(silentOptions)) {
-        return published.reduce(function (accum, data) {
-            if (!includes(silentOptions, data.name)) {
-                accum.push(data);
-            }
-            return accum;
-        }, []);
-    } else if (silentOptions && silentOptions.except) {
-        return published.reduce(function (accum, data) {
-            if (includes(silentOptions.except || [], data.name)) {
-                accum.push(data);
-            }
-            return accum;
-        }, []);
-    }
-    return published;
-}
-
-/***/ }),
-/* 25 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
-/**
- * ## Array Converters
- *
- * Converters allow you to convert data -- in particular, model variables that you display in your project's user interface -- from one form to another.
- *
- * There are two ways to specify conversion or formatting for the display output of a particular model variable:
- *
- * * Add the attribute `data-f-convert` to any element that also has the `data-f-bind` or `data-f-foreach`.
- * * Use the `|` (pipe) character within the value of any `data-f-` attribute (not just `data-f-bind` or `data-f-foreach`).
- *
- * In general, if the model variable is an array, the converter is applied to each element of the array. There are a few built in array converters which, rather than converting all elements of an array, select particular elements from within the array or otherwise treat array variables specially.
- *
- */
 
 
+module.exports = {
 
-var list = [{
-    /**
-     * Convert the input into an array. Concatenates all elements of the input.
-     *
-     * @param {Array} val The array model variable.
-     */
-    alias: 'list',
-    acceptList: true,
-    convert: function (val) {
-        return [].concat(val);
-    }
-}, {
-    /**
-     * Select only the last element of the array.
-     *
-     * **Example**
-     *
-     *      <div>
-     *          In the current year, we have <span data-f-bind="Sales | last"></span> in sales.
-     *      </div>
-     *
-     * @param {Array} val The array model variable.
-     */
-    alias: 'last',
-    acceptList: true,
-    convert: function (val) {
-        val = [].concat(val);
-        return val[val.length - 1];
-    }
-}, {
-    /**
-     * Reverse the array.
-     *
-     * **Example**
-     *
-     *      <p>Show the history of our sales, starting with the last (most recent):</p>
-     *      <ul data-f-foreach="Sales | reverse">
-     *          <li></li>
-     *      </ul>
-     *
-     * @param {Array} val The array model variable.
-     */
-    alias: 'reverse',
-    acceptList: true,
-    convert: function (val) {
-        val = [].concat(val);
-        return val.reverse();
-    }
-}, {
-    /**
-     * Select only the first element of the array.
-     *
-     * **Example**
-     *
-     *      <div>
-     *          Our initial investment was <span data-f-bind="Capital | first"></span>.
-     *      </div>
-     *
-     * @param {Array} val The array model variable.
-     */
-    alias: 'first',
-    acceptList: true,
-    convert: function (val) {
-        val = [].concat(val);
-        return val[0];
-    }
-}, {
-    /**
-     * Select only the previous (second to last) element of the array.
-     *
-     * **Example**
-     *
-     *      <div>
-     *          Last year we had <span data-f-bind="Sales | previous"></span> in sales.
-     *      </div>
-     *
-     * @param {Array} val The array model variable.
-     */
-    alias: 'previous',
-    acceptList: true,
-    convert: function (val) {
-        val = [].concat(val);
-        return val.length <= 1 ? val[0] : val[val.length - 2];
-    }
-}];
-
-_.each(list, function (item) {
-    var oldfn = item.convert;
-    var newfn = function (val) {
-        if ($.isPlainObject(val)) {
-            return _.mapValues(val, oldfn);
+    match: function (matchExpr, matchValue, context) {
+        if (_.isString(matchExpr)) {
+            return matchExpr === '*' || matchExpr.toLowerCase() === matchValue.toLowerCase();
+        } else if (_.isFunction(matchExpr)) {
+            return matchExpr(matchValue, context);
+        } else if (_.isRegExp(matchExpr)) {
+            return matchValue.match(matchExpr);
         }
-        return oldfn(val);
-    };
-    item.convert = newfn;
-});
-module.exports = list;
+    },
+
+    getChannel: function ($el, property) {
+        property = property.replace('data-f-', '');
+        var channel = $el.data('f-channel-' + property);
+        if (channel === undefined) {
+            channel = $el.attr('data-f-channel'); //.data shows value cached by jquery
+            if (channel === undefined) {
+                var $parentEl = $el.closest('[data-f-channel]');
+                if ($parentEl) {
+                    channel = $parentEl.attr('data-f-channel');
+                }
+            }
+        }
+        return channel;
+    },
+
+    getChannelConfig: function (el) {
+        var attrs = el.attributes;
+        var config = {};
+        for (var i = 0; i < attrs.length; i++) {
+            var attrib = el.attributes[i];
+            if (attrib.specified && attrib.name.indexOf('data-f-channel-') === 0) {
+                var key = attrib.name.replace('data-f-channel-', '');
+                config[key] = attrib.value;
+            }
+        }
+        return config;
+    },
+
+    getConvertersList: function ($el, property) {
+        var attrConverters = $el.data('f-convert-' + property);
+        //FIXME: figure out how not to hard-code names here
+        if (!attrConverters && (property === 'bind' || property === 'foreach' || property === 'repeat')) {
+            attrConverters = $el.attr('data-f-convert'); //.data shows value cached by jquery
+            if (!attrConverters) {
+                var $parentEl = $el.closest('[data-f-convert]');
+                if ($parentEl) {
+                    attrConverters = $parentEl.attr('data-f-convert');
+                }
+            }
+            if (attrConverters) {
+                attrConverters = attrConverters.split('|').map(function (v) {
+                    return v.trim();
+                });
+            }
+        }
+
+        return attrConverters;
+    }
+};
 
 /***/ }),
-/* 26 */
+/* 14 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -2192,8 +1688,9 @@ var converterManager = {
         if (!list || !list.length) {
             return value;
         }
-        list = [].concat(list);
-        list = _.invokeMap(list, 'trim');
+        list = [].concat(list).map(function (v) {
+            return v.trim();
+        });
 
         var currentValue = value;
         var me = this;
@@ -2235,15 +1732,16 @@ var converterManager = {
      * Counter-part to `convert()`. Translates converted values back to their original form.
      *
      * @param  {String} value Value to parse.
-     * @param  {String|Array} list  List of parsers to run the value through. Outermost is invokeMapd first.
+     * @param  {String|Array} list  List of parsers to run the value through. Outermost is invoked first.
      * @return {Any} Original value.
      */
     parse: function (value, list) {
         if (!list || !list.length) {
             return value;
         }
-        list = [].concat(list).reverse();
-        list = _.invokeMap(list, 'trim');
+        list = [].concat(list).reverse().map(function (v) {
+            return v.trim();
+        });
 
         var currentValue = value;
         var me = this;
@@ -2258,7 +1756,7 @@ var converterManager = {
 };
 
 //Bootstrap
-var defaultconverters = [__webpack_require__(27), __webpack_require__(29), __webpack_require__(25), __webpack_require__(30), __webpack_require__(28)];
+var defaultconverters = [__webpack_require__(15), __webpack_require__(16), __webpack_require__(17), __webpack_require__(18), __webpack_require__(19)];
 
 $.each(defaultconverters.reverse(), function (index, converter) {
     if (_.isArray(converter)) {
@@ -2273,7 +1771,7 @@ $.each(defaultconverters.reverse(), function (index, converter) {
 module.exports = converterManager;
 
 /***/ }),
-/* 27 */
+/* 15 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -2311,7 +1809,245 @@ module.exports = {
 };
 
 /***/ }),
-/* 28 */
+/* 16 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+/**
+ * ## String Converters
+ *
+ * Converters allow you to convert data -- in particular, model variables that you display in your project's user interface -- from one form to another.
+ *
+ * There are two ways to specify conversion or formatting for the display output of a particular model variable:
+ *
+ * * Add the attribute `data-f-convert` to any element that also has the `data-f-bind` or `data-f-foreach`.
+ * * Use the `|` (pipe) character within the value of any `data-f-` attribute (not just `data-f-bind` or `data-f-foreach`).
+ *
+ * For model variables that are strings (or that have been converted to strings), there are several special string formats you can apply.
+ */
+
+
+
+module.exports = {
+
+    /**
+     * Convert the model variable to a string. Often used for chaining to another converter.
+     *
+     * **Example**
+     *
+     *      <div>
+     *          This year you are in charge of sales for
+     *          <span data-f-bind="salesMgr.region | s | upperCase"></span>.
+     *      </div>
+     *
+     * @param {Array} val The model variable.
+     * @returns {String} converted string
+     */
+    s: function (val) {
+        return val + '';
+    },
+
+    /**
+     * Convert the model variable to UPPER CASE.
+     *
+     * **Example**
+     *
+     *      <div>
+     *          This year you are in charge of sales for
+     *          <span data-f-bind="salesMgr.region | s | upperCase"></span>.
+     *      </div>
+     *
+     * @param {Array} val The model variable.
+     * @returns {String} converted string
+     */
+    upperCase: function (val) {
+        return (val + '').toUpperCase();
+    },
+
+    /**
+     * Convert the model variable to lower case.
+     *
+     * **Example**
+     *
+     *      <div>
+     *          Enter your user name:
+     *          <input data-f-bind="userName | lowerCase"></input>.
+     *      </div>
+     *
+     * @param {Array} val The model variable.
+     * @returns {String} converted string
+     */
+    lowerCase: function (val) {
+        return (val + '').toLowerCase();
+    },
+
+    /**
+     * Convert the model variable to Title Case.
+     *
+     * **Example**
+     *
+     *      <div>
+     *          Congratulations on your promotion!
+     *          Your new title is: <span data-f-bind="currentRole | titleCase"></span>.
+     *      </div>
+     *
+     * @param {Array} val The model variable.
+     * @returns {String} converted string
+     */
+    titleCase: function (val) {
+        val = val + '';
+        return val.replace(/\w\S*/g, function (txt) {
+            return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();
+        });
+    }
+};
+
+/***/ }),
+/* 17 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+/**
+ * ## Array Converters
+ *
+ * Converters allow you to convert data -- in particular, model variables that you display in your project's user interface -- from one form to another.
+ *
+ * There are two ways to specify conversion or formatting for the display output of a particular model variable:
+ *
+ * * Add the attribute `data-f-convert` to any element that also has the `data-f-bind` or `data-f-foreach`.
+ * * Use the `|` (pipe) character within the value of any `data-f-` attribute (not just `data-f-bind` or `data-f-foreach`).
+ *
+ * In general, if the model variable is an array, the converter is applied to each element of the array. There are a few built in array converters which, rather than converting all elements of an array, select particular elements from within the array or otherwise treat array variables specially.
+ *
+ */
+
+
+
+var list = [{
+    /**
+     * Convert the input into an array. Concatenates all elements of the input.
+     *
+     * @param {Array} val The array model variable.
+     */
+    alias: 'list',
+    acceptList: true,
+    convert: function (val) {
+        return [].concat(val);
+    }
+}, {
+    /**
+     * Select only the last element of the array.
+     *
+     * **Example**
+     *
+     *      <div>
+     *          In the current year, we have <span data-f-bind="Sales | last"></span> in sales.
+     *      </div>
+     *
+     * @param {Array} val The array model variable.
+     */
+    alias: 'last',
+    acceptList: true,
+    convert: function (val) {
+        val = [].concat(val);
+        return val[val.length - 1];
+    }
+}, {
+    /**
+     * Reverse the array.
+     *
+     * **Example**
+     *
+     *      <p>Show the history of our sales, starting with the last (most recent):</p>
+     *      <ul data-f-foreach="Sales | reverse">
+     *          <li></li>
+     *      </ul>
+     *
+     * @param {Array} val The array model variable.
+     */
+    alias: 'reverse',
+    acceptList: true,
+    convert: function (val) {
+        val = [].concat(val);
+        return val.reverse();
+    }
+}, {
+    /**
+     * Select only the first element of the array.
+     *
+     * **Example**
+     *
+     *      <div>
+     *          Our initial investment was <span data-f-bind="Capital | first"></span>.
+     *      </div>
+     *
+     * @param {Array} val The array model variable.
+     */
+    alias: 'first',
+    acceptList: true,
+    convert: function (val) {
+        val = [].concat(val);
+        return val[0];
+    }
+}, {
+    /**
+     * Select only the previous (second to last) element of the array.
+     *
+     * **Example**
+     *
+     *      <div>
+     *          Last year we had <span data-f-bind="Sales | previous"></span> in sales.
+     *      </div>
+     *
+     * @param {Array} val The array model variable.
+     */
+    alias: 'previous',
+    acceptList: true,
+    convert: function (val) {
+        val = [].concat(val);
+        return val.length <= 1 ? val[0] : val[val.length - 2];
+    }
+}];
+
+_.each(list, function (item) {
+    var oldfn = item.convert;
+    var newfn = function (val) {
+        if ($.isPlainObject(val)) {
+            return _.mapValues(val, oldfn);
+        }
+        return oldfn(val);
+    };
+    item.convert = newfn;
+});
+module.exports = list;
+
+/***/ }),
+/* 18 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+var list = [];
+
+var supported = ['values', 'keys', 'compact', 'difference', 'union', 'uniq', 'without', 'xor', 'zip'];
+_.each(supported, function (fn) {
+    var item = {
+        alias: fn,
+        acceptList: true,
+        convert: function (val) {
+            if ($.isPlainObject(val)) {
+                return _.mapValues(val, _[fn]);
+            }
+            return _[fn](val);
+        }
+    };
+    list.push(item);
+});
+module.exports = list;
+
+/***/ }),
+/* 19 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -2649,126 +2385,100 @@ module.exports = {
 };
 
 /***/ }),
-/* 29 */
+/* 20 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
-/**
- * ## String Converters
- *
- * Converters allow you to convert data -- in particular, model variables that you display in your project's user interface -- from one form to another.
- *
- * There are two ways to specify conversion or formatting for the display output of a particular model variable:
- *
- * * Add the attribute `data-f-convert` to any element that also has the `data-f-bind` or `data-f-foreach`.
- * * Use the `|` (pipe) character within the value of any `data-f-` attribute (not just `data-f-bind` or `data-f-foreach`).
- *
- * For model variables that are strings (or that have been converted to strings), there are several special string formats you can apply.
- */
 
 
+var normalize = function (selector, handler) {
+    if (_.isFunction(handler)) {
+        handler = {
+            handle: handler
+        };
+    }
+    if (!selector) {
+        selector = '*';
+    }
+    handler.selector = selector;
+    return handler;
+};
 
-module.exports = {
+var match = function (toMatch, node) {
+    if (_.isString(toMatch)) {
+        return toMatch === node.selector;
+    }
+    return $(toMatch).is(node.selector);
+};
+
+var nodeManager = {
+    list: [],
 
     /**
-     * Convert the model variable to a string. Often used for chaining to another converter.
-     *
-     * **Example**
-     *
-     *      <div>
-     *          This year you are in charge of sales for
-     *          <span data-f-bind="salesMgr.region | s | upperCase"></span>.
-     *      </div>
-     *
-     * @param {Array} val The model variable.
-     * @returns {String} converted string
+     * Add a new node handler
+     * @param  {string} selector jQuery-compatible selector to use to match nodes
+     * @param  {function} handler  Handlers are new-able functions. They will be called with $el as context.? TODO: Think this through
+     * @returns {undefined}
      */
-    s: function (val) {
-        return val + '';
+    register: function (selector, handler) {
+        this.list.unshift(normalize(selector, handler));
     },
 
-    /**
-     * Convert the model variable to UPPER CASE.
-     *
-     * **Example**
-     *
-     *      <div>
-     *          This year you are in charge of sales for
-     *          <span data-f-bind="salesMgr.region | s | upperCase"></span>.
-     *      </div>
-     *
-     * @param {Array} val The model variable.
-     * @returns {String} converted string
-     */
-    upperCase: function (val) {
-        return (val + '').toUpperCase();
-    },
-
-    /**
-     * Convert the model variable to lower case.
-     *
-     * **Example**
-     *
-     *      <div>
-     *          Enter your user name:
-     *          <input data-f-bind="userName | lowerCase"></input>.
-     *      </div>
-     *
-     * @param {Array} val The model variable.
-     * @returns {String} converted string
-     */
-    lowerCase: function (val) {
-        return (val + '').toLowerCase();
-    },
-
-    /**
-     * Convert the model variable to Title Case.
-     *
-     * **Example**
-     *
-     *      <div>
-     *          Congratulations on your promotion!
-     *          Your new title is: <span data-f-bind="currentRole | titleCase"></span>.
-     *      </div>
-     *
-     * @param {Array} val The model variable.
-     * @returns {String} converted string
-     */
-    titleCase: function (val) {
-        val = val + '';
-        return val.replace(/\w\S*/g, function (txt) {
-            return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();
+    getHandler: function (selector) {
+        return _.find(this.list, function (node) {
+            return match(selector, node);
         });
+    },
+
+    replace: function (selector, handler) {
+        var index;
+        _.each(this.list, function (currentHandler, i) {
+            if (selector === currentHandler.selector) {
+                index = i;
+                return false;
+            }
+        });
+        this.list.splice(index, 1, normalize(selector, handler));
     }
 };
 
+//bootstraps
+var defaultHandlers = [__webpack_require__(21), __webpack_require__(7), __webpack_require__(8)];
+_.each(defaultHandlers.reverse(), function (handler) {
+    nodeManager.register(handler.selector, handler);
+});
+
+module.exports = nodeManager;
+
 /***/ }),
-/* 30 */
+/* 21 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 
-var list = [];
+var BaseView = __webpack_require__(7);
 
-var supported = ['values', 'keys', 'compact', 'difference', 'union', 'uniq', 'without', 'xor', 'zip'];
-_.each(supported, function (fn) {
-    var item = {
-        alias: fn,
-        acceptList: true,
-        convert: function (val) {
-            if ($.isPlainObject(val)) {
-                return _.mapValues(val, _[fn]);
-            }
-            return _[fn](val);
-        }
-    };
-    list.push(item);
-});
-module.exports = list;
+module.exports = BaseView.extend({
+
+    propertyHandlers: [],
+
+    getUIValue: function () {
+        var $el = this.$el;
+        var offVal = typeof $el.data('f-off') !== 'undefined' ? $el.data('f-off') : false;
+        //attr = initial value, prop = current value
+        var onVal = typeof $el.attr('value') !== 'undefined' ? $el.prop('value') : true;
+
+        var val = $el.is(':checked') ? onVal : offVal;
+        return val;
+    },
+    initialize: function () {
+        BaseView.prototype.initialize.apply(this, arguments);
+    }
+}, { selector: ':checkbox,:radio' });
 
 /***/ }),
-/* 31 */
+/* 22 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -2816,9 +2526,9 @@ module.exports = list;
 
 
 
-var defaultHandlers = [__webpack_require__(40),
+var defaultHandlers = [__webpack_require__(23),
 // require('./events/init-event-attr'),
-__webpack_require__(37), __webpack_require__(38), __webpack_require__(32), __webpack_require__(34), __webpack_require__(35), __webpack_require__(42), __webpack_require__(41), __webpack_require__(39), __webpack_require__(33), __webpack_require__(36)];
+__webpack_require__(24), __webpack_require__(25), __webpack_require__(26), __webpack_require__(27), __webpack_require__(28), __webpack_require__(29), __webpack_require__(30), __webpack_require__(31), __webpack_require__(32), __webpack_require__(33)];
 
 var handlersList = [];
 
@@ -2925,7 +2635,343 @@ module.exports = {
 };
 
 /***/ }),
-/* 32 */
+/* 23 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+/**
+ * ## No-op Attributes
+ *
+ * Flow.js provides special handling for both `data-f-model` (described [here](../../../../#using_in_project)) and `data-f-convert` (described [here](../../../../converter-overview/)). For these attributes, the default behavior is to do nothing, so that this additional special handling can take precendence.
+ *
+ */
+
+
+
+// Attributes which are just parameters to others and can just be ignored
+
+module.exports = {
+
+    target: '*',
+
+    test: /^(?:model|convert|channel)/i,
+
+    handle: $.noop,
+
+    init: function () {
+        return false;
+    }
+};
+
+/***/ }),
+/* 24 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+/**
+ * ## Call Operation in Response to User Action
+ *
+ * Many models call particular operations in response to end user actions, such as clicking a button or submitting a form.
+ *
+ * #### data-f-on-event
+ *
+ * For any HTML attribute using `on` -- typically on click or on submit -- you can add the attribute `data-f-on-XXX`, and set the value to the name of the operation. To call multiple operations, use the `|` (pipe) character to chain operations. Operations are called serially, in the order listed.
+ *
+ * **Example**
+ *
+ *      <button data-f-on-click="reset">Reset</button>
+ *
+ *      <button data-f-on-click="step(1)">Advance One Step</button>
+ *
+ */
+
+
+
+var config = __webpack_require__(0);
+var toOperationFormat = __webpack_require__(2).toOperationFormat;
+
+module.exports = {
+
+    target: '*',
+
+    test: function (attr, $node) {
+        return attr.indexOf('on-') === 0;
+    },
+
+    unbind: function (attr) {
+        attr = attr.replace('on-', '');
+        this.off(attr);
+    },
+
+    init: function (attr, value) {
+        attr = attr.replace('on-', '');
+        var me = this;
+        this.off(attr).on(attr, function () {
+            var listOfOperations = toOperationFormat(value);
+            me.trigger(config.events.operate, { operations: listOfOperations });
+        });
+        return false; //Don't bother binding on this attr. NOTE: Do readonly, true instead?;
+    }
+};
+
+/***/ }),
+/* 25 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+/**
+ * ## Display Array and Object Variables: data-f-foreach
+ *
+ * If your model variable is an array, you can reference specific elements of the array using `data-f-bind`: `data-f-bind="sales[3]"` or `data-f-bind="sales[<currentRegion>]"`, as described under [data-f-bind](../../binds/default-bind-attr/).
+ *
+ * However, sometimes you want to loop over *all* of the children of the referenced variable. The `data-f-foreach` attribute allows you to automatically loop over all the 'children' of a referenced variable &mdash; that is, all the elements of an array, or all the fields of an object.
+ *
+ * You can use the `data-f-foreach` attribute to name the variable, then use a combination of templates and aliases to access the index and value of each child for display. (Templates are available as part of Flow.js's lodash dependency. See more background on [working with templates](../../../../../#templates).)
+ *
+ * **To display a DOM element based on an array variable from your model:**
+ *
+ * 1. Add the `data-f-foreach` attribute to any HTML element that has repeated sub-elements. The two most common examples are lists and tables. The `data-f-foreach` goes on the enclosing element. For a list, this is the `<ul>`, and for a table, it's the `<tbody>`.
+ * 2. Set the value of the `data-f-foreach` attribute in your top-level HTML element to reference the model array variable. You can do this either with or without introducing an alias to reference the array elements: `<ul data-f-foreach="Time"></ul>` or `<ul data-f-foreach="t in Time"></ul>`.
+ * 3. Add the HTML in which the value of your model array variable should appear. Optionally, inside this inner HTML element, you can use templates (`<%= %>`) to reference the `index` (for arrays) or `key` (for objects) and `value` to display, or to reference the alias you introduced. The `index`, `key`, and `value` are special variables that Flow.js populates for you. 
+ *
+ *
+ * **Examples:**
+ *
+ * **Basic use of data-f-foreach.** Start with an HTML element that has repeated sub-elements. Add the model variable to this HTML element. Then, add the HTML sub-element where your model variable should appear. 
+ *
+ * By default, the `value` of the array element or object field is automatically added to the generated HTML:
+ *
+ *      <!-- the model variable Time is an array of years
+ *          create a list that shows which year -->
+ *
+ *      <ul data-f-foreach="Time">
+ *          <li></li>
+ *      </ul>
+ *
+ * In the third step of the model, this example generates the HTML:
+ *
+ *      <ul data-f-foreach="Time">
+ *            <li>2015</li>
+ *            <li>2016</li>
+ *            <li>2017</li>
+ *      </ul>
+ *
+ * which appears as:
+ *
+ *      * 2015
+ *      * 2016
+ *      * 2017
+ *
+ * **Add templates to reference the index and value.** Optionally, you can use templates (`<%= %>`) to reference the `index` and `value` of the array element to display.
+ *
+ *      <!-- the model variable Time is an array of years
+ *          create a list that shows which year -->
+ *
+ *      <ul data-f-foreach="Time">
+ *          <li> Year <%= index %>: <%= value %> </li>
+ *      </ul>
+ *
+ * In the third step of the model, this example generates:
+ *
+ *      <ul data-f-foreach="Time">
+ *          <li>Year 1: 2015</li>
+ *          <li>Year 2: 2016</li>
+ *          <li>Year 3: 2017</li>
+ *      </ul>
+ *
+ * which appears as:
+ *
+ *      * Year 1: 2015
+ *      * Year 2: 2016
+ *      * Year 3: 2017
+ *
+ *
+ * **Add an alias for the value.** Alternatively, you can add an alias when you initially introduce your model array variable, then reference that alias within templates (`<%= %>`). For example:
+ *
+ *      <ul data-f-foreach="f in Fruits">
+ *          <li> <%= f %> </li>
+ *      </ul>
+ *
+ * which generates:
+ *
+ *      <ul data-f-foreach="f in Fruits">
+ *          <li> apples </li>
+ *          <li> bananas </li>
+ *          <li> cherries </li>
+ *          <li> oranges </li>
+ * 
+ * **Nesting with aliases.** An advantage to introducing aliases is that you can nest HTML elements that have repeated sub-elements. For example:
+ *
+ *      <!-- given Sales, an array whose elements are themselves arrays of the sales for each Region -->
+ *      <ul data-f-foreach="r in Regions">
+ *          <li>Region <%= r %>: 
+ *              <ul data-f-foreach="s in Sales[<%= r %>]">
+ *                  <li>Sales <%= s %></li>
+ *              </ul>
+ *          </li>
+ *      </ul>
+ *
+ * **Logic, data processing.** Finally, note that you can add logic to the display of your data by combining templating with either the `value` or an alias. For example, suppose you only want to display the sales total if it is greater than 250:
+ *
+ *      <table>
+ *          <tbody data-f-foreach="r in regions">
+ *              <tr data-f-foreach="s in sales">
+ *                  <td><%= r + ": " %> <%= (s > 250) ? s : "sales below threshold" %></td>
+ *              </tr>
+ *          </tbody>
+ *      </table>
+ *
+ * (However, if you want to completely hide the table cell for the region if the sales total is too low, you still need to [write your own converter](../../../../../converter-overview).)
+ *
+ * **Notes:**
+ *
+ * * You can use the `data-f-foreach` attribute with both arrays and objects. If the model variable is an object, reference the `key` instead of the `index` in your templates.
+ * * You can use nested `data-f-foreach` attributes to created nested loops of your data. 
+ * * The `data-f-foreach`, whether using aliases or not, goes on the enclosing element. For a list, this is the `<ul>`, and for a table, it's the `<tbody>`.
+ * * The template syntax is to enclose each code fragment (including `index`, `key`, `variable`, or alias) in `<%=` and `%>`. Templates are available as part of Flow.js's lodash dependency. See more background on [working with templates](../../../../../#templates).
+ * * The `key`, `index`, and `value` are special variables that Flow.js populates for you. However, they are *no longer available* if you use aliases.
+ * * As with other `data-f-` attributes, you can specify [converters](../../../../../converter-overview) to convert data from one form to another:
+ *
+ *          <ul data-f-foreach="Sales | $x,xxx">
+ *              <li> Year <%= index %>: Sales of <%= value %> </li>
+ *          </ul>
+ *
+ * * The `data-f-foreach` attribute is [similar to the `data-f-repeat` attribute](../../repeat-attr/), so you may want to review the examples there as well.
+ */
+
+
+
+var parseUtils = __webpack_require__(2);
+var config = __webpack_require__(0);
+
+function refToMarkup(refKey) {
+    return '<!--' + refKey + '-->';
+}
+
+module.exports = {
+
+    test: 'foreach',
+
+    target: '*',
+
+    unbind: function (attr) {
+        var template = this.data(config.attrs.foreachTemplate);
+        if (template) {
+            this.html(template);
+            this.removeData(config.attrs.foreachTemplate);
+            this.removeData(config.attrs.keyAs);
+            this.removeData(config.attrs.valueAs);
+        }
+    },
+
+    parse: function (attrVal) {
+        var inMatch = attrVal.match(/(.*) (?:in|of) (.*)/);
+        if (inMatch) {
+            var itMatch = inMatch[1].match(/\((.*),(.*)\)/);
+            if (itMatch) {
+                this.data(config.attrs.keyAs, itMatch[1].trim());
+                this.data(config.attrs.valueAs, itMatch[2].trim());
+            } else {
+                this.data(config.attrs.valueAs, inMatch[1].trim());
+            }
+            attrVal = inMatch[2];
+        }
+        return attrVal;
+    },
+
+    handle: function (value, prop) {
+        value = $.isPlainObject(value) ? value : [].concat(value);
+        var loopTemplate = this.data(config.attrs.foreachTemplate);
+        if (!loopTemplate) {
+            loopTemplate = this.html();
+            this.data(config.attrs.foreachTemplate, loopTemplate);
+        }
+        var $me = this.empty();
+        var cloop = loopTemplate.replace(/&lt;/g, '<').replace(/&gt;/g, '>');
+
+        var defaultKey = $.isPlainObject(value) ? 'key' : 'index';
+        var keyAttr = $me.data(config.attrs.keyAs) || defaultKey;
+        var valueAttr = $me.data(config.attrs.valueAs) || 'value';
+
+        var keyRegex = new RegExp('\\b' + keyAttr + '\\b');
+        var valueRegex = new RegExp('\\b' + valueAttr + '\\b');
+
+        var closestKnownDataEl = this.closest('[data-current-index]');
+        var knownData = {};
+        if (closestKnownDataEl.length) {
+            knownData = closestKnownDataEl.data('current-index');
+        }
+        var closestParentWithMissing = this.closest('[data-missing-references]');
+        if (closestParentWithMissing.length) {
+            //(grand)parent already stubbed out missing references
+            var missing = closestParentWithMissing.data('missing-references');
+            _.each(missing, function (replacement, template) {
+                if (keyRegex.test(template) || valueRegex.test(template)) {
+                    cloop = cloop.replace(refToMarkup(replacement), template);
+                }
+            });
+        } else {
+            var missingReferences = {};
+            var templateTagsUsed = cloop.match(/<%[=-]?([\s\S]+?)%>/g);
+            if (templateTagsUsed) {
+                templateTagsUsed.forEach(function (tag) {
+                    if (tag.match(/\w+/) && !keyRegex.test(tag) && !valueRegex.test(tag)) {
+                        var refKey = missingReferences[tag];
+                        if (!refKey) {
+                            refKey = _.uniqueId('no-ref');
+                            missingReferences[tag] = refKey;
+                        }
+                        var r = new RegExp(tag, 'g');
+                        cloop = cloop.replace(r, refToMarkup(refKey));
+                    }
+                });
+            }
+            if (_.size(missingReferences)) {
+                //Attr, not data, to make jQ selector easy. No f- prefix to keep this from flow.
+                this.attr('data-missing-references', JSON.stringify(missingReferences));
+            }
+        }
+
+        var templateFn = _.template(cloop);
+        _.each(value, function (dataval, datakey) {
+            if (!dataval) {
+                dataval = dataval + '';
+            }
+            var templateData = {};
+            templateData[keyAttr] = datakey;
+            templateData[valueAttr] = dataval;
+
+            $.extend(templateData, knownData);
+
+            var nodes;
+            var isTemplated;
+            try {
+                var templatedLoop = templateFn(templateData);
+                isTemplated = templatedLoop !== cloop;
+                nodes = $(templatedLoop);
+            } catch (e) {
+                //you don't have all the references you need;
+                nodes = $(cloop);
+                isTemplated = true;
+                $(nodes).attr('data-current-index', JSON.stringify(templateData));
+            }
+
+            nodes.each(function (i, newNode) {
+                newNode = $(newNode);
+                _.each(newNode.data(), function (val, key) {
+                    newNode.data(key, parseUtils.toImplicitType(val));
+                });
+                if (!isTemplated && !newNode.html().trim()) {
+                    newNode.html(dataval);
+                }
+            });
+            $me.append(nodes);
+        });
+    }
+};
+
+/***/ }),
+/* 26 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -2967,7 +3013,350 @@ module.exports = {
 };
 
 /***/ }),
-/* 33 */
+/* 27 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+/**
+ * ## Inputs and Selects
+ *
+ * In the [default case](../default-bind-attr/), the `data-f-bind` attribute creates a bi-directional binding between the DOM element and the model variable. This binding is **bi-directional**, meaning that as the model changes, the interface is automatically updated; and when end users change values in the interface, the model is automatically updated.
+ *
+ * Flow.js provides special handling for DOM elements `input` and `select`.
+ *
+ * In particular, if you add the `data-f-bind` attribute to a `select` or `input` element, the option matching the value of the model variable is automatically selected.
+ *
+ * **Example**
+ *
+ * 		<!-- option selected if sample_int is 8, 10, or 12 -->
+ * 		<select data-f-bind="sample_int">
+ * 			<option value="8"> 8 </option>
+ * 			<option value="10"> 10 </option>
+ * 			<option value="12"> 12 </option>
+ * 		</select>
+ *
+ */
+
+
+
+module.exports = {
+    target: 'input, select',
+
+    test: 'bind',
+
+    handle: function (value) {
+        if (_.isArray(value)) {
+            value = value[value.length - 1];
+        }
+        this.val(value);
+    }
+};
+
+/***/ }),
+/* 28 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+/**
+ * ## Class Attribute: data-f-class
+ *
+ * You can bind model variables to names of CSS classes, so that you can easily change the styling of HTML elements based on the values of model variables.
+ *
+ * **To bind model variables to CSS classes:**
+ *
+ * 1. Add the `data-f-class` attribute to an HTML element.
+ * 2. Set the value to the name of the model variable.
+ * 3. Optionally, add an additional `class` attribute to the HTML element.
+ *      * If you only use the `data-f-class` attribute, the value of `data-f-class` is the class name.
+ *      * If you *also* add a `class` attribute, the value of `data-f-class` is *appended* to the class name.
+ * 4. Add classes to your CSS code whose names include possible values of that model variable.
+ *
+ * **Example**
+ *
+ *      <style type="text/css">
+ *          .North { color: grey }
+ *          .South { color: purple }
+ *          .East { color: blue }
+ *          .West { color: orange }
+ *          .sales.good { color: green }
+ *          .sales.bad { color: red }
+ *          .sales.value-100 { color: yellow }
+ *       </style>
+ *
+ *       <div data-f-class="salesMgr.region">
+ *           Content colored by region
+ *       </div>
+ *
+ *       <div data-f-class="salesMgr.performance" class="sales">
+ *           Content green if salesMgr.performance is good, red if bad
+ *       </div>
+ *
+ *       <div data-f-class="salesMgr.numRegions" class="sales">
+ *           Content yellow if salesMgr.numRegions is 100
+ *       </div>
+ *
+ */
+
+
+
+var config = __webpack_require__(0);
+
+module.exports = {
+
+    test: 'class',
+
+    target: '*',
+
+    handle: function (value, prop) {
+        if (_.isArray(value)) {
+            value = value[value.length - 1];
+        }
+
+        var addedClasses = this.data(config.classesAdded);
+        if (!addedClasses) {
+            addedClasses = {};
+        }
+        if (addedClasses[prop]) {
+            this.removeClass(addedClasses[prop]);
+        }
+
+        if (_.isNumber(value)) {
+            value = 'value-' + value;
+        }
+        addedClasses[prop] = value;
+        //Fixme: prop is always "class"
+        this.addClass(value);
+        this.data(config.classesAdded, addedClasses);
+    }
+};
+
+/***/ }),
+/* 29 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+/**
+ * ## Display Array Variables: data-f-repeat
+ *
+ * The `data-f-repeat` attribute allows you to automatically loop over a referenced variable. The most common use case is in time-based models, like those written in [SimLang](../../../../../model_code/forio_simlang/) or [Vensim](../../../../../model_code/vensim/), when you want to report the value of the variable at every time step so far. The `data-f-repeat` attribute automatically repeats the DOM element it's attached to, filling in the value.
+ *
+ * **To display a DOM element repeatedly based on an array variable from the model:**
+ *
+ * 1. Add the `data-f-repeat` attribute to any HTML element that has repeated sub-elements. The two most common examples are lists and tables.
+ * 2. Set the value of the `data-f-repeat` attribute in the HTML element you want to repeat to the name of the array variable.
+ * 3. Optionally, you can use templates (`<%= %>`) to reference the `index` (for arrays) or `key` (for objects) and `value` to display. The `index`, `key`, and `value` are special variables that Flow.js populates for you.
+ *
+ *
+ * **Examples:**
+ *
+ * For example, to create a table that displays the year and cost for every step of the model that has occurred so far:
+ *
+ *      <table>
+ *          <tr>
+ *              <td>Year</td>
+ *              <td data-f-repeat="Cost[Products]"><%= index + 1 %></td>
+ *          </tr>
+ *          <tr>
+ *              <td>Cost of Products</td>
+ *              <td data-f-repeat="Cost[Products]"></td>
+ *          </tr>
+ *      </table>
+ *
+ * In the third step of the model, this example generates the HTML:
+ *
+ *      <table>
+ *          <tr>
+ *              <td>Year</td>
+ *              <td data-f-repeat="Cost[Products]">1</td>
+ *              <td>2</td>
+ *              <td>3</td>
+ *          </tr>
+ *          <tr>
+ *              <td>Cost of Products</td>
+ *              <td data-f-repeat="Cost[Products]">100</td>
+ *              <td>102</td>
+ *              <td>105</td>
+ *          </tr>
+ *      </table>
+ *
+ * You can also use this with a `<div>` and have the `<div>` itself repeated. For example:
+ *
+ *      <div data-f-repeat="sample_array"></div>
+ *
+ * generates:
+ *
+ *      <div data-f-repeat="sample_array">2</div>
+ *      <div>4</div>
+ *      <div>6</div>
+ *
+ * **Notes:**
+ *
+ * * You can use the `data-f-repeat` attribute with both arrays and objects. If the model variable is an object, reference the `key` instead of the `index` in your templates.
+ * * The `key`, `index`, and `value` are special variables that Flow.js populates for you.
+ * * The template syntax is to enclose each keyword (`index`, `key`, `variable`) in `<%=` and `%>`. Templates are available as part of Flow.js's lodash dependency. See more background on [working with templates](../../../../#templates).
+ * * In most cases the same effect can be achieved with the [`data-f-foreach` attribute](../../attributes/foreach/default-foreach-attr/), which is similar. In the common use case of a table of data displayed over time, the `data-f-repeat` can be more concise and easier to read. However, the `data-f-foreach` allows aliasing, and so can be more useful especially if you are nesting HTML elements or want to introduce logic about how to display the values.
+ *
+ */
+
+
+
+var parseUtils = __webpack_require__(2);
+var gutils = __webpack_require__(5);
+var config = __webpack_require__(0).attrs;
+module.exports = {
+
+    test: 'repeat',
+
+    target: '*',
+
+    unbind: function (attr) {
+        var id = this.data(config.repeat.templateId);
+        if (id) {
+            this.nextUntil(':not([data-' + id + '])').remove();
+            // this.removeAttr('data-' + config.repeat.templateId); //FIXME: Something about calling rebind multiple times in IB makes this happen without the removal
+        }
+        var loopTemplate = this.data(config.repeat.template);
+        if (loopTemplate) {
+            this.removeData(config.repeat.template);
+            this.replaceWith(loopTemplate);
+        }
+    },
+
+    handle: function (value, prop) {
+        value = $.isPlainObject(value) ? value : [].concat(value);
+        var loopTemplate = this.data(config.repeat.template);
+        var id = this.data(config.repeat.templateId);
+
+        if (!loopTemplate) {
+            loopTemplate = this.get(0).outerHTML;
+            this.data(config.repeat.template, loopTemplate);
+        }
+
+        if (id) {
+            this.nextUntil(':not([data-' + id + '])').remove();
+        } else {
+            id = gutils.random('repeat-');
+            this.attr('data-' + config.repeat.templateId, id);
+        }
+
+        var last;
+        var me = this;
+        _.each(value, function (dataval, datakey) {
+            var cloop = loopTemplate.replace(/&lt;/g, '<').replace(/&gt;/g, '>');
+            var templatedLoop = _.template(cloop)({ value: dataval, key: datakey, index: datakey });
+            var isTemplated = templatedLoop !== cloop;
+            var nodes = $(templatedLoop);
+            var hasData = dataval !== null && dataval !== undefined;
+
+            nodes.each(function (i, newNode) {
+                newNode = $(newNode).removeAttr('data-f-repeat').removeAttr('data-' + config.repeat.templateId);
+                _.each(newNode.data(), function (val, key) {
+                    if (!last) {
+                        me.data(key, parseUtils.toImplicitType(val));
+                    } else {
+                        newNode.data(key, parseUtils.toImplicitType(val));
+                    }
+                });
+                newNode.attr('data-' + id, true);
+                if (!isTemplated && !newNode.children().length && hasData) {
+                    newNode.html(dataval + '');
+                }
+            });
+            if (!last) {
+                last = me.html(nodes.html());
+            } else {
+                last = nodes.insertAfter(last);
+            }
+        });
+    }
+};
+
+/***/ }),
+/* 30 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+/**
+ * ## Binding for data-f-[boolean]
+ *
+ * Flow.js provides special handling for HTML attributes that take Boolean values.
+ *
+ * In particular, for most HTML attributes that expect Boolean values, the attribute is directly set to the value of the model variable. This is true for `checked`, `selected`, `async`, `autofocus`, `autoplay`, `controls`, `defer`, `ismap`, `loop`, `multiple`, `open`, `required`, and `scoped`.
+ *
+ * However, there are a few notable exceptions. For the HTML attributes `disabled`, `hidden`, and `readonly`, the attribute is set to the *opposite* of the value of the model variable. This makes the resulting HTML easier to read.
+ *
+ * **Example**
+ *
+ *      <!-- this checkbox is CHECKED when sampleBool is TRUE,
+ *           and UNCHECKED when sampleBool is FALSE -->
+ *      <input type="checkbox" data-f-checked="sampleBool" />
+ *
+ *      <!-- this button is ENABLED when sampleBool is TRUE,
+ *           and DISABLED when sampleBool is FALSE -->
+ *      <button data-f-disabled="sampleBool">Click Me</button>
+ *
+ */
+
+
+
+module.exports = {
+    target: '*',
+
+    test: /^(?:checked|selected|async|autofocus|autoplay|controls|defer|ismap|loop|multiple|open|required|scoped)$/i,
+
+    handle: function (value, prop) {
+        if (_.isArray(value)) {
+            value = value[value.length - 1];
+        }
+        var val = this.attr('value') ? value == this.prop('value') : !!value; //eslint-disable-line eqeqeq
+        this.prop(prop, val);
+    }
+};
+
+/***/ }),
+/* 31 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+/**
+ * ## Binding for data-f-[boolean]
+ *
+ * Flow.js provides special handling for HTML attributes that take Boolean values.
+ *
+ * In particular, for most HTML attributes that expect Boolean values, the attribute is directly set to the value of the model variable. This is true for `checked`, `selected`, `async`, `autofocus`, `autoplay`, `controls`, `defer`, `ismap`, `loop`, `multiple`, `open`, `required`, and `scoped`.
+ *
+ * However, there are a few notable exceptions. For the HTML attributes `disabled`, `hidden`, and `readonly`, the attribute is set to the *opposite* of the value of the model variable. This makes the resulting HTML easier to read.
+ *
+ * **Example**
+ *
+ *      <!-- this checkbox is CHECKED when sampleBool is TRUE,
+ *           and UNCHECKED when sampleBool is FALSE -->
+ *      <input type="checkbox" data-f-checked="sampleBool" />
+ *
+ *      <!-- this button is ENABLED when sampleBool is TRUE,
+ *           and DISABLED when sampleBool is FALSE -->
+ *      <button data-f-disabled="sampleBool">Click Me</button>
+ *
+ */
+
+
+
+module.exports = {
+
+    target: '*',
+
+    test: /^(?:disabled|hidden|readonly)$/i,
+
+    handle: function (value, prop) {
+        if (_.isArray(value)) {
+            value = value[value.length - 1];
+        }
+        this.prop(prop, !value);
+    }
+};
+
+/***/ }),
+/* 32 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -3104,125 +3493,7 @@ module.exports = {
 };
 
 /***/ }),
-/* 34 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-/**
- * ## Inputs and Selects
- *
- * In the [default case](../default-bind-attr/), the `data-f-bind` attribute creates a bi-directional binding between the DOM element and the model variable. This binding is **bi-directional**, meaning that as the model changes, the interface is automatically updated; and when end users change values in the interface, the model is automatically updated.
- *
- * Flow.js provides special handling for DOM elements `input` and `select`.
- *
- * In particular, if you add the `data-f-bind` attribute to a `select` or `input` element, the option matching the value of the model variable is automatically selected.
- *
- * **Example**
- *
- * 		<!-- option selected if sample_int is 8, 10, or 12 -->
- * 		<select data-f-bind="sample_int">
- * 			<option value="8"> 8 </option>
- * 			<option value="10"> 10 </option>
- * 			<option value="12"> 12 </option>
- * 		</select>
- *
- */
-
-
-
-module.exports = {
-    target: 'input, select',
-
-    test: 'bind',
-
-    handle: function (value) {
-        if (_.isArray(value)) {
-            value = value[value.length - 1];
-        }
-        this.val(value);
-    }
-};
-
-/***/ }),
-/* 35 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-/**
- * ## Class Attribute: data-f-class
- *
- * You can bind model variables to names of CSS classes, so that you can easily change the styling of HTML elements based on the values of model variables.
- *
- * **To bind model variables to CSS classes:**
- *
- * 1. Add the `data-f-class` attribute to an HTML element.
- * 2. Set the value to the name of the model variable.
- * 3. Optionally, add an additional `class` attribute to the HTML element.
- *      * If you only use the `data-f-class` attribute, the value of `data-f-class` is the class name.
- *      * If you *also* add a `class` attribute, the value of `data-f-class` is *appended* to the class name.
- * 4. Add classes to your CSS code whose names include possible values of that model variable.
- *
- * **Example**
- *
- *      <style type="text/css">
- *          .North { color: grey }
- *          .South { color: purple }
- *          .East { color: blue }
- *          .West { color: orange }
- *          .sales.good { color: green }
- *          .sales.bad { color: red }
- *          .sales.value-100 { color: yellow }
- *       </style>
- *
- *       <div data-f-class="salesMgr.region">
- *           Content colored by region
- *       </div>
- *
- *       <div data-f-class="salesMgr.performance" class="sales">
- *           Content green if salesMgr.performance is good, red if bad
- *       </div>
- *
- *       <div data-f-class="salesMgr.numRegions" class="sales">
- *           Content yellow if salesMgr.numRegions is 100
- *       </div>
- *
- */
-
-
-
-var config = __webpack_require__(0);
-
-module.exports = {
-
-    test: 'class',
-
-    target: '*',
-
-    handle: function (value, prop) {
-        if (_.isArray(value)) {
-            value = value[value.length - 1];
-        }
-
-        var addedClasses = this.data(config.classesAdded);
-        if (!addedClasses) {
-            addedClasses = {};
-        }
-        if (addedClasses[prop]) {
-            this.removeClass(addedClasses[prop]);
-        }
-
-        if (_.isNumber(value)) {
-            value = 'value-' + value;
-        }
-        addedClasses[prop] = value;
-        //Fixme: prop is always "class"
-        this.addClass(value);
-        this.data(config.classesAdded, addedClasses);
-    }
-};
-
-/***/ }),
-/* 36 */
+/* 33 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -3265,668 +3536,7 @@ module.exports = {
 };
 
 /***/ }),
-/* 37 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-/**
- * ## Call Operation in Response to User Action
- *
- * Many models call particular operations in response to end user actions, such as clicking a button or submitting a form.
- *
- * #### data-f-on-event
- *
- * For any HTML attribute using `on` -- typically on click or on submit -- you can add the attribute `data-f-on-XXX`, and set the value to the name of the operation. To call multiple operations, use the `|` (pipe) character to chain operations. Operations are called serially, in the order listed.
- *
- * **Example**
- *
- *      <button data-f-on-click="reset">Reset</button>
- *
- *      <button data-f-on-click="step(1)">Advance One Step</button>
- *
- */
-
-
-
-var config = __webpack_require__(0);
-
-module.exports = {
-
-    target: '*',
-
-    test: function (attr, $node) {
-        return attr.indexOf('on-') === 0;
-    },
-
-    unbind: function (attr) {
-        attr = attr.replace('on-', '');
-        this.off(attr);
-    },
-
-    init: function (attr, value) {
-        attr = attr.replace('on-', '');
-        var me = this;
-        this.off(attr).on(attr, function () {
-            var listOfOperations = _.invokeMap(value.split('|'), 'trim');
-            listOfOperations = listOfOperations.map(function (value) {
-                var fnName = value.split('(')[0];
-                var params = value.substring(value.indexOf('(') + 1, value.indexOf(')'));
-                var args = $.trim(params) !== '' ? params.split(',') : [];
-
-                return { name: fnName, params: args };
-            });
-
-            me.trigger(config.events.operate, { operations: listOfOperations });
-        });
-        return false; //Don't bother binding on this attr. NOTE: Do readonly, true instead?;
-    }
-};
-
-/***/ }),
-/* 38 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-/**
- * ## Display Array and Object Variables: data-f-foreach
- *
- * If your model variable is an array, you can reference specific elements of the array using `data-f-bind`: `data-f-bind="sales[3]"` or `data-f-bind="sales[<currentRegion>]"`, as described under [data-f-bind](../../binds/default-bind-attr/).
- *
- * However, sometimes you want to loop over *all* of the children of the referenced variable. The `data-f-foreach` attribute allows you to automatically loop over all the 'children' of a referenced variable &mdash; that is, all the elements of an array, or all the fields of an object.
- *
- * You can use the `data-f-foreach` attribute to name the variable, then use a combination of templates and aliases to access the index and value of each child for display. (Templates are available as part of Flow.js's lodash dependency. See more background on [working with templates](../../../../../#templates).)
- *
- * **To display a DOM element based on an array variable from your model:**
- *
- * 1. Add the `data-f-foreach` attribute to any HTML element that has repeated sub-elements. The two most common examples are lists and tables. The `data-f-foreach` goes on the enclosing element. For a list, this is the `<ul>`, and for a table, it's the `<tbody>`.
- * 2. Set the value of the `data-f-foreach` attribute in your top-level HTML element to reference the model array variable. You can do this either with or without introducing an alias to reference the array elements: `<ul data-f-foreach="Time"></ul>` or `<ul data-f-foreach="t in Time"></ul>`.
- * 3. Add the HTML in which the value of your model array variable should appear. Optionally, inside this inner HTML element, you can use templates (`<%= %>`) to reference the `index` (for arrays) or `key` (for objects) and `value` to display, or to reference the alias you introduced. The `index`, `key`, and `value` are special variables that Flow.js populates for you. 
- *
- *
- * **Examples:**
- *
- * **Basic use of data-f-foreach.** Start with an HTML element that has repeated sub-elements. Add the model variable to this HTML element. Then, add the HTML sub-element where your model variable should appear. 
- *
- * By default, the `value` of the array element or object field is automatically added to the generated HTML:
- *
- *      <!-- the model variable Time is an array of years
- *          create a list that shows which year -->
- *
- *      <ul data-f-foreach="Time">
- *          <li></li>
- *      </ul>
- *
- * In the third step of the model, this example generates the HTML:
- *
- *      <ul data-f-foreach="Time">
- *            <li>2015</li>
- *            <li>2016</li>
- *            <li>2017</li>
- *      </ul>
- *
- * which appears as:
- *
- *      * 2015
- *      * 2016
- *      * 2017
- *
- * **Add templates to reference the index and value.** Optionally, you can use templates (`<%= %>`) to reference the `index` and `value` of the array element to display.
- *
- *      <!-- the model variable Time is an array of years
- *          create a list that shows which year -->
- *
- *      <ul data-f-foreach="Time">
- *          <li> Year <%= index %>: <%= value %> </li>
- *      </ul>
- *
- * In the third step of the model, this example generates:
- *
- *      <ul data-f-foreach="Time">
- *          <li>Year 1: 2015</li>
- *          <li>Year 2: 2016</li>
- *          <li>Year 3: 2017</li>
- *      </ul>
- *
- * which appears as:
- *
- *      * Year 1: 2015
- *      * Year 2: 2016
- *      * Year 3: 2017
- *
- *
- * **Add an alias for the value.** Alternatively, you can add an alias when you initially introduce your model array variable, then reference that alias within templates (`<%= %>`). For example:
- *
- *      <ul data-f-foreach="f in Fruits">
- *          <li> <%= f %> </li>
- *      </ul>
- *
- * which generates:
- *
- *      <ul data-f-foreach="f in Fruits">
- *          <li> apples </li>
- *          <li> bananas </li>
- *          <li> cherries </li>
- *          <li> oranges </li>
- * 
- * **Nesting with aliases.** An advantage to introducing aliases is that you can nest HTML elements that have repeated sub-elements. For example:
- *
- *      <!-- given Sales, an array whose elements are themselves arrays of the sales for each Region -->
- *      <ul data-f-foreach="r in Regions">
- *          <li>Region <%= r %>: 
- *              <ul data-f-foreach="s in Sales[<%= r %>]">
- *                  <li>Sales <%= s %></li>
- *              </ul>
- *          </li>
- *      </ul>
- *
- * **Logic, data processing.** Finally, note that you can add logic to the display of your data by combining templating with either the `value` or an alias. For example, suppose you only want to display the sales total if it is greater than 250:
- *
- *      <table>
- *          <tbody data-f-foreach="r in regions">
- *              <tr data-f-foreach="s in sales">
- *                  <td><%= r + ": " %> <%= (s > 250) ? s : "sales below threshold" %></td>
- *              </tr>
- *          </tbody>
- *      </table>
- *
- * (However, if you want to completely hide the table cell for the region if the sales total is too low, you still need to [write your own converter](../../../../../converter-overview).)
- *
- * **Notes:**
- *
- * * You can use the `data-f-foreach` attribute with both arrays and objects. If the model variable is an object, reference the `key` instead of the `index` in your templates.
- * * You can use nested `data-f-foreach` attributes to created nested loops of your data. 
- * * The `data-f-foreach`, whether using aliases or not, goes on the enclosing element. For a list, this is the `<ul>`, and for a table, it's the `<tbody>`.
- * * The template syntax is to enclose each code fragment (including `index`, `key`, `variable`, or alias) in `<%=` and `%>`. Templates are available as part of Flow.js's lodash dependency. See more background on [working with templates](../../../../../#templates).
- * * The `key`, `index`, and `value` are special variables that Flow.js populates for you. However, they are *no longer available* if you use aliases.
- * * As with other `data-f-` attributes, you can specify [converters](../../../../../converter-overview) to convert data from one form to another:
- *
- *          <ul data-f-foreach="Sales | $x,xxx">
- *              <li> Year <%= index %>: Sales of <%= value %> </li>
- *          </ul>
- *
- * * The `data-f-foreach` attribute is [similar to the `data-f-repeat` attribute](../../repeat-attr/), so you may want to review the examples there as well.
- */
-
-
-
-var parseUtils = __webpack_require__(4);
-var config = __webpack_require__(0);
-
-function refToMarkup(refKey) {
-    return '<!--' + refKey + '-->';
-}
-
-module.exports = {
-
-    test: 'foreach',
-
-    target: '*',
-
-    unbind: function (attr) {
-        var template = this.data(config.attrs.foreachTemplate);
-        if (template) {
-            this.html(template);
-            this.removeData(config.attrs.foreachTemplate);
-            this.removeData(config.attrs.keyAs);
-            this.removeData(config.attrs.valueAs);
-        }
-    },
-
-    parse: function (attrVal) {
-        var inMatch = attrVal.match(/(.*) (?:in|of) (.*)/);
-        if (inMatch) {
-            var itMatch = inMatch[1].match(/\((.*),(.*)\)/);
-            if (itMatch) {
-                this.data(config.attrs.keyAs, itMatch[1].trim());
-                this.data(config.attrs.valueAs, itMatch[2].trim());
-            } else {
-                this.data(config.attrs.valueAs, inMatch[1].trim());
-            }
-            attrVal = inMatch[2];
-        }
-        return attrVal;
-    },
-
-    handle: function (value, prop) {
-        value = $.isPlainObject(value) ? value : [].concat(value);
-        var loopTemplate = this.data(config.attrs.foreachTemplate);
-        if (!loopTemplate) {
-            loopTemplate = this.html();
-            this.data(config.attrs.foreachTemplate, loopTemplate);
-        }
-        var $me = this.empty();
-        var cloop = loopTemplate.replace(/&lt;/g, '<').replace(/&gt;/g, '>');
-
-        var defaultKey = $.isPlainObject(value) ? 'key' : 'index';
-        var keyAttr = $me.data(config.attrs.keyAs) || defaultKey;
-        var valueAttr = $me.data(config.attrs.valueAs) || 'value';
-
-        var keyRegex = new RegExp('\\b' + keyAttr + '\\b');
-        var valueRegex = new RegExp('\\b' + valueAttr + '\\b');
-
-        var closestKnownDataEl = this.closest('[data-current-index]');
-        var knownData = {};
-        if (closestKnownDataEl.length) {
-            knownData = closestKnownDataEl.data('current-index');
-        }
-        var closestParentWithMissing = this.closest('[data-missing-references]');
-        if (closestParentWithMissing.length) {
-            //(grand)parent already stubbed out missing references
-            var missing = closestParentWithMissing.data('missing-references');
-            _.each(missing, function (replacement, template) {
-                if (keyRegex.test(template) || valueRegex.test(template)) {
-                    cloop = cloop.replace(refToMarkup(replacement), template);
-                }
-            });
-        } else {
-            var missingReferences = {};
-            var templateTagsUsed = cloop.match(/<%[=-]?([\s\S]+?)%>/g);
-            if (templateTagsUsed) {
-                templateTagsUsed.forEach(function (tag) {
-                    if (tag.match(/\w+/) && !keyRegex.test(tag) && !valueRegex.test(tag)) {
-                        var refKey = missingReferences[tag];
-                        if (!refKey) {
-                            refKey = _.uniqueId('no-ref');
-                            missingReferences[tag] = refKey;
-                        }
-                        var r = new RegExp(tag, 'g');
-                        cloop = cloop.replace(r, refToMarkup(refKey));
-                    }
-                });
-            }
-            if (_.size(missingReferences)) {
-                //Attr, not data, to make jQ selector easy. No f- prefix to keep this from flow.
-                this.attr('data-missing-references', JSON.stringify(missingReferences));
-            }
-        }
-
-        var templateFn = _.template(cloop);
-        _.each(value, function (dataval, datakey) {
-            if (!dataval) {
-                dataval = dataval + '';
-            }
-            var templateData = {};
-            templateData[keyAttr] = datakey;
-            templateData[valueAttr] = dataval;
-
-            $.extend(templateData, knownData);
-
-            var nodes;
-            var isTemplated;
-            try {
-                var templatedLoop = templateFn(templateData);
-                isTemplated = templatedLoop !== cloop;
-                nodes = $(templatedLoop);
-            } catch (e) {
-                //you don't have all the references you need;
-                nodes = $(cloop);
-                isTemplated = true;
-                $(nodes).attr('data-current-index', JSON.stringify(templateData));
-            }
-
-            nodes.each(function (i, newNode) {
-                newNode = $(newNode);
-                _.each(newNode.data(), function (val, key) {
-                    newNode.data(key, parseUtils.toImplicitType(val));
-                });
-                if (!isTemplated && !newNode.html().trim()) {
-                    newNode.html(dataval);
-                }
-            });
-            $me.append(nodes);
-        });
-    }
-};
-
-/***/ }),
-/* 39 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-/**
- * ## Binding for data-f-[boolean]
- *
- * Flow.js provides special handling for HTML attributes that take Boolean values.
- *
- * In particular, for most HTML attributes that expect Boolean values, the attribute is directly set to the value of the model variable. This is true for `checked`, `selected`, `async`, `autofocus`, `autoplay`, `controls`, `defer`, `ismap`, `loop`, `multiple`, `open`, `required`, and `scoped`.
- *
- * However, there are a few notable exceptions. For the HTML attributes `disabled`, `hidden`, and `readonly`, the attribute is set to the *opposite* of the value of the model variable. This makes the resulting HTML easier to read.
- *
- * **Example**
- *
- *      <!-- this checkbox is CHECKED when sampleBool is TRUE,
- *           and UNCHECKED when sampleBool is FALSE -->
- *      <input type="checkbox" data-f-checked="sampleBool" />
- *
- *      <!-- this button is ENABLED when sampleBool is TRUE,
- *           and DISABLED when sampleBool is FALSE -->
- *      <button data-f-disabled="sampleBool">Click Me</button>
- *
- */
-
-
-
-module.exports = {
-
-    target: '*',
-
-    test: /^(?:disabled|hidden|readonly)$/i,
-
-    handle: function (value, prop) {
-        if (_.isArray(value)) {
-            value = value[value.length - 1];
-        }
-        this.prop(prop, !value);
-    }
-};
-
-/***/ }),
-/* 40 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-/**
- * ## No-op Attributes
- *
- * Flow.js provides special handling for both `data-f-model` (described [here](../../../../#using_in_project)) and `data-f-convert` (described [here](../../../../converter-overview/)). For these attributes, the default behavior is to do nothing, so that this additional special handling can take precendence.
- *
- */
-
-
-
-// Attributes which are just parameters to others and can just be ignored
-
-module.exports = {
-
-    target: '*',
-
-    test: /^(?:model|convert|channel)$/i,
-
-    handle: $.noop,
-
-    init: function () {
-        return false;
-    }
-};
-
-/***/ }),
-/* 41 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-/**
- * ## Binding for data-f-[boolean]
- *
- * Flow.js provides special handling for HTML attributes that take Boolean values.
- *
- * In particular, for most HTML attributes that expect Boolean values, the attribute is directly set to the value of the model variable. This is true for `checked`, `selected`, `async`, `autofocus`, `autoplay`, `controls`, `defer`, `ismap`, `loop`, `multiple`, `open`, `required`, and `scoped`.
- *
- * However, there are a few notable exceptions. For the HTML attributes `disabled`, `hidden`, and `readonly`, the attribute is set to the *opposite* of the value of the model variable. This makes the resulting HTML easier to read.
- *
- * **Example**
- *
- *      <!-- this checkbox is CHECKED when sampleBool is TRUE,
- *           and UNCHECKED when sampleBool is FALSE -->
- *      <input type="checkbox" data-f-checked="sampleBool" />
- *
- *      <!-- this button is ENABLED when sampleBool is TRUE,
- *           and DISABLED when sampleBool is FALSE -->
- *      <button data-f-disabled="sampleBool">Click Me</button>
- *
- */
-
-
-
-module.exports = {
-    target: '*',
-
-    test: /^(?:checked|selected|async|autofocus|autoplay|controls|defer|ismap|loop|multiple|open|required|scoped)$/i,
-
-    handle: function (value, prop) {
-        if (_.isArray(value)) {
-            value = value[value.length - 1];
-        }
-        var val = this.attr('value') ? value == this.prop('value') : !!value; //eslint-disable-line eqeqeq
-        this.prop(prop, val);
-    }
-};
-
-/***/ }),
-/* 42 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-/**
- * ## Display Array Variables: data-f-repeat
- *
- * The `data-f-repeat` attribute allows you to automatically loop over a referenced variable. The most common use case is in time-based models, like those written in [SimLang](../../../../../model_code/forio_simlang/) or [Vensim](../../../../../model_code/vensim/), when you want to report the value of the variable at every time step so far. The `data-f-repeat` attribute automatically repeats the DOM element it's attached to, filling in the value.
- *
- * **To display a DOM element repeatedly based on an array variable from the model:**
- *
- * 1. Add the `data-f-repeat` attribute to any HTML element that has repeated sub-elements. The two most common examples are lists and tables.
- * 2. Set the value of the `data-f-repeat` attribute in the HTML element you want to repeat to the name of the array variable.
- * 3. Optionally, you can use templates (`<%= %>`) to reference the `index` (for arrays) or `key` (for objects) and `value` to display. The `index`, `key`, and `value` are special variables that Flow.js populates for you.
- *
- *
- * **Examples:**
- *
- * For example, to create a table that displays the year and cost for every step of the model that has occurred so far:
- *
- *      <table>
- *          <tr>
- *              <td>Year</td>
- *              <td data-f-repeat="Cost[Products]"><%= index + 1 %></td>
- *          </tr>
- *          <tr>
- *              <td>Cost of Products</td>
- *              <td data-f-repeat="Cost[Products]"></td>
- *          </tr>
- *      </table>
- *
- * In the third step of the model, this example generates the HTML:
- *
- *      <table>
- *          <tr>
- *              <td>Year</td>
- *              <td data-f-repeat="Cost[Products]">1</td>
- *              <td>2</td>
- *              <td>3</td>
- *          </tr>
- *          <tr>
- *              <td>Cost of Products</td>
- *              <td data-f-repeat="Cost[Products]">100</td>
- *              <td>102</td>
- *              <td>105</td>
- *          </tr>
- *      </table>
- *
- * You can also use this with a `<div>` and have the `<div>` itself repeated. For example:
- *
- *      <div data-f-repeat="sample_array"></div>
- *
- * generates:
- *
- *      <div data-f-repeat="sample_array">2</div>
- *      <div>4</div>
- *      <div>6</div>
- *
- * **Notes:**
- *
- * * You can use the `data-f-repeat` attribute with both arrays and objects. If the model variable is an object, reference the `key` instead of the `index` in your templates.
- * * The `key`, `index`, and `value` are special variables that Flow.js populates for you.
- * * The template syntax is to enclose each keyword (`index`, `key`, `variable`) in `<%=` and `%>`. Templates are available as part of Flow.js's lodash dependency. See more background on [working with templates](../../../../#templates).
- * * In most cases the same effect can be achieved with the [`data-f-foreach` attribute](../../attributes/foreach/default-foreach-attr/), which is similar. In the common use case of a table of data displayed over time, the `data-f-repeat` can be more concise and easier to read. However, the `data-f-foreach` allows aliasing, and so can be more useful especially if you are nesting HTML elements or want to introduce logic about how to display the values.
- *
- */
-
-
-
-var parseUtils = __webpack_require__(4);
-var gutils = __webpack_require__(9);
-var config = __webpack_require__(0).attrs;
-module.exports = {
-
-    test: 'repeat',
-
-    target: '*',
-
-    unbind: function (attr) {
-        var id = this.data(config.repeat.templateId);
-        if (id) {
-            this.nextUntil(':not([data-' + id + '])').remove();
-            // this.removeAttr('data-' + config.repeat.templateId); //FIXME: Something about calling rebind multiple times in IB makes this happen without the removal
-        }
-        var loopTemplate = this.data(config.repeat.template);
-        if (loopTemplate) {
-            this.removeData(config.repeat.template);
-            this.replaceWith(loopTemplate);
-        }
-    },
-
-    handle: function (value, prop) {
-        value = $.isPlainObject(value) ? value : [].concat(value);
-        var loopTemplate = this.data(config.repeat.template);
-        var id = this.data(config.repeat.templateId);
-
-        if (!loopTemplate) {
-            loopTemplate = this.get(0).outerHTML;
-            this.data(config.repeat.template, loopTemplate);
-        }
-
-        if (id) {
-            this.nextUntil(':not([data-' + id + '])').remove();
-        } else {
-            id = gutils.random('repeat-');
-            this.attr('data-' + config.repeat.templateId, id);
-        }
-
-        var last;
-        var me = this;
-        _.each(value, function (dataval, datakey) {
-            var cloop = loopTemplate.replace(/&lt;/g, '<').replace(/&gt;/g, '>');
-            var templatedLoop = _.template(cloop)({ value: dataval, key: datakey, index: datakey });
-            var isTemplated = templatedLoop !== cloop;
-            var nodes = $(templatedLoop);
-            var hasData = dataval !== null && dataval !== undefined;
-
-            nodes.each(function (i, newNode) {
-                newNode = $(newNode).removeAttr('data-f-repeat').removeAttr('data-' + config.repeat.templateId);
-                _.each(newNode.data(), function (val, key) {
-                    if (!last) {
-                        me.data(key, parseUtils.toImplicitType(val));
-                    } else {
-                        newNode.data(key, parseUtils.toImplicitType(val));
-                    }
-                });
-                newNode.attr('data-' + id, true);
-                if (!isTemplated && !newNode.children().length && hasData) {
-                    newNode.html(dataval + '');
-                }
-            });
-            if (!last) {
-                last = me.html(nodes.html());
-            } else {
-                last = nodes.insertAfter(last);
-            }
-        });
-    }
-};
-
-/***/ }),
-/* 43 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-var BaseView = __webpack_require__(7);
-
-module.exports = BaseView.extend({
-
-    propertyHandlers: [],
-
-    getUIValue: function () {
-        var $el = this.$el;
-        var offVal = typeof $el.data('f-off') !== 'undefined' ? $el.data('f-off') : false;
-        //attr = initial value, prop = current value
-        var onVal = typeof $el.attr('value') !== 'undefined' ? $el.prop('value') : true;
-
-        var val = $el.is(':checked') ? onVal : offVal;
-        return val;
-    },
-    initialize: function () {
-        BaseView.prototype.initialize.apply(this, arguments);
-    }
-}, { selector: ':checkbox,:radio' });
-
-/***/ }),
-/* 44 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-var normalize = function (selector, handler) {
-    if (_.isFunction(handler)) {
-        handler = {
-            handle: handler
-        };
-    }
-    if (!selector) {
-        selector = '*';
-    }
-    handler.selector = selector;
-    return handler;
-};
-
-var match = function (toMatch, node) {
-    if (_.isString(toMatch)) {
-        return toMatch === node.selector;
-    }
-    return $(toMatch).is(node.selector);
-};
-
-var nodeManager = {
-    list: [],
-
-    /**
-     * Add a new node handler
-     * @param  {string} selector jQuery-compatible selector to use to match nodes
-     * @param  {function} handler  Handlers are new-able functions. They will be called with $el as context.? TODO: Think this through
-     * @returns {undefined}
-     */
-    register: function (selector, handler) {
-        this.list.unshift(normalize(selector, handler));
-    },
-
-    getHandler: function (selector) {
-        return _.find(this.list, function (node) {
-            return match(selector, node);
-        });
-    },
-
-    replace: function (selector, handler) {
-        var index;
-        _.each(this.list, function (currentHandler, i) {
-            if (selector === currentHandler.selector) {
-                index = i;
-                return false;
-            }
-        });
-        this.list.splice(index, 1, normalize(selector, handler));
-    }
-};
-
-//bootstraps
-var defaultHandlers = [__webpack_require__(43), __webpack_require__(7), __webpack_require__(8)];
-_.each(defaultHandlers.reverse(), function (handler) {
-    nodeManager.register(handler.selector, handler);
-});
-
-module.exports = nodeManager;
-
-/***/ }),
-/* 45 */
+/* 34 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -3972,220 +3582,1126 @@ module.exports = function (target, domManager) {
 };
 
 /***/ }),
-/* 46 */
-/***/ (function(module, exports, __webpack_require__) {
+/* 35 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/**
- * ## Flow.js Initialization
- *
- * To use Flow.js in your project, simply call `Flow.initialize()` in your user interface. In the basic case, `Flow.initialize()` can be called without any arguments. While Flow.js needs to know the account, project, and model you are using, by default these values are extracted from the URL of Epicenter project and by the use of `data-f-model` in your `<body>` tag. See more on the [basics of using Flow.js in your project.](../../#using_in_project).
- *
- * However, sometimes you want to be explicit in your initialization call, and there are also some additional parameters that let you customize your use of Flow.js.
- *
- * #### Parameters
- *
- * The parameters for initializing Flow.js include:
- *
- * * `channel` Configuration details for the channel Flow.js uses in connecting with underlying APIs.
- * * `channel.strategy` The run creation strategy describes when to create new runs when an end user visits this page. The default is `new-if-persisted`, which creates a new run when the end user is idle for longer than your project's **Model Session Timeout** (configured in your project's [Settings](../../../updating_your_settings/)), but otherwise uses the current run.. See more on [Run Strategies](../../../api_adapters/strategy/).
- * * `channel.run` Configuration details for each run created.
- * * `channel.run.account` The **User ID** or **Team ID** for this project. By default, taken from the URL where the user interface is hosted, so you only need to supply this is you are running your project's user interface [on your own server](../../../how_to/self_hosting/).
- * * `channel.run.project` The **Project ID** for this project.
- * * `channel.run.model` Name of the primary model file for this project. By default, taken from `data-f-model` in your HTML `<body>` tag.
- * * `channel.run.variables` Configuration options for the variables being listened to on this channel.
- * * `channel.run.variables.silent` Provides granular control over when user interface updates happen for changes on this channel. See below for possible values.
- * * `channel.run.variables.autoFetch` Options for fetching variables from the API as they're being subscribed. See [Variables Channel](../channels/variables-channel/) for details.
- * * `channel.run.operations` Configuration options for the operations being listened to on this channel. Currently there is only one configuration option: `silent`.
- * * `channel.run.operations.silent` Provides granular control over when user interface updates happen for changes on this channel. See below for possible values.
- * * `channel.run.server` Object with additional server configuration, defaults to `host: 'api.forio.com'`.
- * * `channel.run.transport` An object which takes all of the jquery.ajax options at <a href="http://api.jquery.com/jQuery.ajax/">http://api.jquery.com/jQuery.ajax/</a>.
- * * `dom` Configuration options for the DOM where this instance of Flow.js is created.
- * * `dom.root` The root HTML element being managed by the Flow.js DOM Manager. Defaults to `body`.
- * * `dom.autoBind` If `true` (default), automatically parse variables added to the DOM after this `Flow.initialize()` call. Note, this does not work in IE versions < 11.
- *
- * The `silent` configuration option for the `run.variables` and `run.operations` is a flag for providing more granular control over when user interface updates happen for changes on this channel. Values can be:
- *
- * * `false`: Always update the UI for any changes (variables updated, operations called) on this channel. This is the default behavior.
- * * `true`: Never update the UI for any on changes (variables updated, operations called) on this channel.
- * * Array of variables or operations for which the UI *should not* be updated. For example, `variables: { silent: [ 'price', 'sales' ] }` means this channel is silent (no updates for the UI) when the variables 'price' or 'sales' change, and the UI is always updated for any changes to other variables. This is useful if you know that changing 'price' or 'sales' does not impact anything else in the UI directly, for instance.
- * * `except`: With array of variables or operations for which the UI *should* be updated. For example, `variables { silent: { except: [ 'price', 'sales' ] } }` is the converse of the above. The UI is always updated when anything on this channel changes *except* when the variables 'price' or 'sales' are updated.
- *
- * Although Flow.js provides a bi-directional binding between the model and the user interface, the `silent` configuration option applies only for the binding from the model to the user interface; updates in the user interface (including calls to operations) are still sent to the model.
- *
- * The `Flow.initialize()` call is based on the Epicenter.js [Run Service](../../../api_adapters/generated/run-api-service/) from the [API Adapters](../../../api_adapters/). See those pages for additional information on parameters.
- *
- * The `Flow.initialize()` call returns a promise, which is resolved when initialization is complete.
- *
- * #### Example
- *
- *      Flow.initialize({
- *          channel: {
- *              strategy: 'new-if-persisted',
- *              run: {
- *                  model: 'supply-chain-game.py',
- *                  account: 'acme-simulations',
- *                  project: 'supply-chain-game',
- *                  server: { host: 'api.forio.com' },
- *                  variables: { silent: ['price', 'sales'] },
- *                  operations: { silent: false },
- *                  transport: {
- *                      beforeSend: function() { $('body').addClass('loading'); },
- *                      complete: function() { $('body').removeClass('loading'); }
- *                  }
- *              }
- *          }
- *      }).then(function() {
- *          // code that depends on initialization
- *      });
- *
- */
+Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
+/* harmony export (immutable) */ __webpack_exports__["default"] = ChannelManager;
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__middleware_json_parse_middleware__ = __webpack_require__(36);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__middleware_epicenter_middleware__ = __webpack_require__(37);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__channel_manager__ = __webpack_require__(48);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__channel_manager_enhancements__ = __webpack_require__(50);
 
 
 
-var domManager = __webpack_require__(11);
-var BaseView = __webpack_require__(6);
 
-var ChannelManager = __webpack_require__(10).default;
-// var parseUtils = require('utils/parse-utils');
 
-var Flow = {
-    dom: domManager,
-    utils: {
-        BaseView: BaseView
-    },
-    initialize: function (config) {
-        var model = $('body').data('f-model');
 
-        var defaults = {
-            channel: {
-                //FIXME: Defaults can't be here..
-                defaults: {
-                    run: {
-                        model: model
-                    }
+//Moving  epicenter-centric glue here so channel-manager can be tested in isolation
+function ChannelManager(opts) {
+    var cm = new __WEBPACK_IMPORTED_MODULE_2__channel_manager__["a" /* default */]($.extend(true, {}, {
+        middlewares: [__WEBPACK_IMPORTED_MODULE_0__middleware_json_parse_middleware__["a" /* default */], __WEBPACK_IMPORTED_MODULE_1__middleware_epicenter_middleware__["a" /* default */]]
+    }, opts));
+    return Object(__WEBPACK_IMPORTED_MODULE_3__channel_manager_enhancements__["a" /* interpolatable */])(cm);
+}
+
+/***/ }),
+/* 36 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* harmony export (immutable) */ __webpack_exports__["a"] = JSONMiddleware;
+var parseUtils = __webpack_require__(2);
+function JSONMiddleware(config, notifier) {
+    return {
+        subscribeHandler: function (topics) {
+            var sorted = [].concat(topics).reduce(function (acc, topic) {
+                var parsed = parseUtils.toImplicitType(topic);
+                if (typeof parsed === 'string') {
+                    acc.rest.push(topic);
+                } else {
+                    acc.claimed.push(topic);
                 }
-            },
-            dom: {
-                root: 'body',
-                autoBind: true
-            }
-        };
+                return acc;
+            }, { claimed: [], rest: [] });
 
-        var options = $.extend(true, {}, defaults, config);
-        // var $root = $(options.dom.root);
+            var mapped = sorted.claimed.map(function (item) {
+                return { name: item, value: parseUtils.toImplicitType(item) };
+            });
+            notifier(mapped);
 
-        // var initialFn = $root.data('f-on-init');
-        // //TOOD: Should move this to DOM Manager and just prioritize on-inits
-        // if (initialFn) {
-        //     var listOfOperations = _.invoke(initialFn.split('|'), 'trim');
-        //     listOfOperations = listOfOperations.map(function (value) {
-        //         var fnName = value.split('(')[0];
-        //         var params = value.substring(value.indexOf('(') + 1, value.indexOf(')'));
-        //         var args = ($.trim(params) !== '') ? params.split(',') : [];
-        //         args = args.map(function (a) {
-        //             return parseUtils.toImplicitType(a.trim());
-        //         });
-        //         var toReturn = {};
-        //         toReturn[fnName] = args;
-        //         return toReturn;
-        //     });
+            return sorted.rest;
+        }
+    };
+}
 
-        //     //TODO: Make a channel configuration factory which gets the initial info
-        //     options.channel.options.runManager.defaults.initialOperation = listOfOperations;
-        // }
+/***/ }),
+/* 37 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
 
-        if (config && config.channel && config.channel instanceof ChannelManager) {
-            this.channel = config.channel;
+"use strict";
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__run_manager_router__ = __webpack_require__(38);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__scenario_manager_router__ = __webpack_require__(44);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__custom_run_router__ = __webpack_require__(45);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__runs_router__ = __webpack_require__(47);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4_channels_middleware_utils__ = __webpack_require__(1);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5_channels_channel_router__ = __webpack_require__(4);
+
+
+
+
+
+
+
+
+
+
+function getOptions(opts, key) {
+    var serviceOptions = $.extend(true, {}, opts.defaults, opts[key]);
+    var channelOptions = $.extend(true, {}, serviceOptions.channelOptions);
+    delete serviceOptions.channelOptions;
+
+    return { serviceOptions: serviceOptions, channelOptions: channelOptions };
+}
+
+var SCENARIO_PREFIX = 'sm:';
+var RUN_PREFIX = 'rm:';
+
+var sampleRunidLength = '000001593dd81950d4ee4f3df14841769a0b'.length;
+var runidRegex = '(?:.{' + sampleRunidLength + '})';
+
+/* harmony default export */ __webpack_exports__["a"] = (function (config, notifier, channelManagerContext) {
+    var opts = $.extend(true, {}, config);
+
+    var customRunChannelOpts = getOptions(opts, 'runid');
+    var customRunChannel = new __WEBPACK_IMPORTED_MODULE_2__custom_run_router__["a" /* default */](customRunChannelOpts, notifier);
+    var runsChannel = new __WEBPACK_IMPORTED_MODULE_3__runs_router__["a" /* default */](customRunChannelOpts, Object(__WEBPACK_IMPORTED_MODULE_4_channels_middleware_utils__["i" /* withPrefix */])(notifier, 'runs'), channelManagerContext);
+
+    /** @type {Handler[]} **/
+    var handlers = [$.extend({}, customRunChannel, {
+        name: 'customRun',
+        match: Object(__WEBPACK_IMPORTED_MODULE_4_channels_middleware_utils__["e" /* regex */])(runidRegex),
+        options: customRunChannelOpts.channelOptions
+    }), $.extend({}, runsChannel, {
+        name: 'archiveRuns',
+        match: Object(__WEBPACK_IMPORTED_MODULE_4_channels_middleware_utils__["d" /* prefix */])('runs'),
+        options: customRunChannelOpts.channelOptions
+    })];
+    var exposable = {};
+    if (opts.scenarioManager) {
+        var scenarioManagerOpts = getOptions(opts, 'scenarioManager');
+        var sm = new __WEBPACK_IMPORTED_MODULE_1__scenario_manager_router__["a" /* default */](scenarioManagerOpts, Object(__WEBPACK_IMPORTED_MODULE_4_channels_middleware_utils__["i" /* withPrefix */])(notifier, [SCENARIO_PREFIX, '']));
+        handlers.push($.extend({}, sm, {
+            name: 'scenario',
+            match: Object(__WEBPACK_IMPORTED_MODULE_4_channels_middleware_utils__["a" /* defaultPrefix */])(SCENARIO_PREFIX),
+            options: scenarioManagerOpts.channelOptions,
+            isDefault: true
+        }));
+
+        $.extend(exposable, sm.expose);
+    }
+
+    var runManagerOpts = getOptions(opts, 'runManager');
+    if (opts.runManager || !opts.scenarioManager && runManagerOpts.serviceOptions.run) {
+        var rm;
+        if (opts.scenarioManager) {
+            rm = new __WEBPACK_IMPORTED_MODULE_0__run_manager_router__["a" /* default */](runManagerOpts, Object(__WEBPACK_IMPORTED_MODULE_4_channels_middleware_utils__["i" /* withPrefix */])(notifier, RUN_PREFIX));
+            handlers.push($.extend({}, rm, {
+                name: 'run',
+                match: Object(__WEBPACK_IMPORTED_MODULE_4_channels_middleware_utils__["d" /* prefix */])(RUN_PREFIX),
+                options: runManagerOpts.channelOptions
+            }));
         } else {
-            this.channel = new ChannelManager(options.channel);
+            rm = new __WEBPACK_IMPORTED_MODULE_0__run_manager_router__["a" /* default */](runManagerOpts, Object(__WEBPACK_IMPORTED_MODULE_4_channels_middleware_utils__["i" /* withPrefix */])(notifier, [RUN_PREFIX, '']));
+            handlers.push($.extend({}, rm, {
+                name: 'run',
+                match: Object(__WEBPACK_IMPORTED_MODULE_4_channels_middleware_utils__["a" /* defaultPrefix */])(RUN_PREFIX),
+                isDefault: true,
+                options: runManagerOpts.channelOptions
+            }));
         }
 
-        return domManager.initialize($.extend(true, {
-            channel: this.channel
-        }, options.dom));
+        $.extend(exposable, rm.expose);
     }
-};
-Flow.ChannelManager = ChannelManager;
-//set by grunt
-if (true) Flow.version = "0.11.0"; //eslint-disable-line no-undef
-module.exports = Flow;
+
+    var router = new __WEBPACK_IMPORTED_MODULE_5_channels_channel_router__["a" /* default */](handlers, notifier);
+    router.expose = exposable;
+
+    return router;
+});
+
+/***/ }),
+/* 38 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__run_router__ = __webpack_require__(6);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_channels_middleware_utils__ = __webpack_require__(1);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_channels_channel_router__ = __webpack_require__(4);
+
+
+
+
+
+/* harmony default export */ __webpack_exports__["a"] = (function (config, notifier) {
+    var defaults = {
+        serviceOptions: {},
+        channelOptions: {}
+    };
+    var opts = $.extend(true, {}, defaults, config);
+
+    var rm = new window.F.manager.RunManager(opts.serviceOptions);
+    var $creationPromise = rm.getRun().then(function () {
+        return rm.run;
+    });
+    var currentChannelOpts = $.extend(true, { serviceOptions: $creationPromise }, opts.defaults, opts.current);
+    var currentRunChannel = new __WEBPACK_IMPORTED_MODULE_0__run_router__["a" /* default */](currentChannelOpts, Object(__WEBPACK_IMPORTED_MODULE_1_channels_middleware_utils__["i" /* withPrefix */])(notifier, ['current:', '']));
+
+    var handlers = [$.extend(currentRunChannel, {
+        match: Object(__WEBPACK_IMPORTED_MODULE_1_channels_middleware_utils__["a" /* defaultPrefix */])('current:'),
+        isDefault: true,
+        options: currentChannelOpts.channelOptions
+    })];
+
+    var router = new __WEBPACK_IMPORTED_MODULE_2_channels_channel_router__["a" /* default */](handlers, notifier);
+    router.expose = { runManager: rm };
+    return router;
+});
+
+/***/ }),
+/* 39 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* harmony export (immutable) */ __webpack_exports__["a"] = RunMetaChannel;
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_channels_channel_utils__ = __webpack_require__(3);
+
+
+var _ref = _,
+    intersection = _ref.intersection;
+
+
+function RunMetaChannel($runServicePromise, notifier) {
+
+    function mergeAndSend(runMeta, requestedTopics) {
+        var toSend = [].concat(requestedTopics).reduce(function (accum, meta) {
+            if (runMeta[meta] !== undefined) {
+                accum.push({ name: meta, value: runMeta[meta] });
+            }
+            return accum;
+        }, []);
+        return notifier(toSend);
+    }
+    return {
+        subscribeHandler: function (topics, options) {
+            topics = [].concat(topics);
+            return $runServicePromise.then(function (runService) {
+                var cachedValues = intersection(Object.keys(runService.runMeta || {}), topics);
+                if (options.autoFetch === false) {
+                    return $.Deferred().resolve({}).promise();
+                } else if (cachedValues.length === topics.length) {
+                    //FIXME: Add 'updated time' to meta, and fetch if that's < debounce interval -- use the custom debounce fn with the custom merge (debounce save as well?)
+                    //Make run service factory return patched run-service?
+                    return $.Deferred().resolve(mergeAndSend(runService.runMeta, topics)).promise();
+                }if (!runService.loadPromise) {
+                    runService.loadPromise = runService.load().then(function (data) {
+                        runService.runMeta = data;
+                        return data;
+                    });
+                }
+                return runService.loadPromise.then(function (data) {
+                    mergeAndSend(data, topics);
+                });
+            });
+        },
+        publishHandler: function (topics, options) {
+            return $runServicePromise.then(function (runService) {
+                var toSave = Object(__WEBPACK_IMPORTED_MODULE_0_channels_channel_utils__["a" /* arrayToObject */])(topics);
+                return runService.save(toSave).then(function (res) {
+                    runService.runMeta = $.extend({}, true, runService.runMeta, res);
+                    return Object(__WEBPACK_IMPORTED_MODULE_0_channels_channel_utils__["e" /* objectToArray */])(res);
+                });
+            });
+        }
+    };
+}
+
+/***/ }),
+/* 40 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* harmony export (immutable) */ __webpack_exports__["a"] = RunVariablesChannel;
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_utils_general__ = __webpack_require__(5);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_utils_general___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_utils_general__);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_channels_channel_utils__ = __webpack_require__(3);
+
+
+
+function RunVariablesChannel($runServicePromise, notifier) {
+
+    var id = _.uniqueId('variable-channel');
+
+    var fetchFn = function (runService, debounceInterval) {
+        if (!runService.debouncedFetchers) {
+            runService.debouncedFetchers = {};
+        }
+        if (!runService.debouncedFetchers[id]) {
+            runService.debouncedFetchers[id] = Object(__WEBPACK_IMPORTED_MODULE_0_utils_general__["debounceAndMerge"])(function (variables) {
+                if (!variables || !variables.length) {
+                    return $.Deferred().resolve([]).promise();
+                }
+                return runService.variables().query(variables).then(__WEBPACK_IMPORTED_MODULE_1_channels_channel_utils__["e" /* objectToArray */]);
+            }, debounceInterval, [function mergeVariables(accum, newval) {
+                if (!accum) {
+                    accum = [];
+                }
+                return _.uniq(accum.concat(newval)).filter(function (v) {
+                    return !!(v && v.trim());
+                });
+            }]);
+        }
+        return runService.debouncedFetchers[id];
+    };
+
+    var knownTopics = [];
+    return {
+        fetch: function () {
+            return $runServicePromise.then(function (runService) {
+                return fetchFn(runService, 0)(knownTopics).then(notifier);
+            });
+        },
+
+        unsubscribeHandler: function (unsubscribedTopics, remainingTopics) {
+            knownTopics = remainingTopics;
+        },
+        subscribeHandler: function (topics, options) {
+            var isAutoFetchEnabled = options.autoFetch;
+            var debounceInterval = options.debounce;
+
+            return $runServicePromise.then(function (runService) {
+                knownTopics = _.uniq(knownTopics.concat(topics));
+                if (!knownTopics.length) {
+                    return $.Deferred().resolve([]).promise();
+                } else if (!isAutoFetchEnabled) {
+                    return $.Deferred().resolve(topics).promise();
+                }
+                return fetchFn(runService, debounceInterval)(topics).then(notifier);
+            });
+        },
+        publishHandler: function (topics, options) {
+            return $runServicePromise.then(function (runService) {
+                var toSave = Object(__WEBPACK_IMPORTED_MODULE_1_channels_channel_utils__["a" /* arrayToObject */])(topics);
+                return runService.variables().save(toSave).then(function (response) {
+                    return Object(__WEBPACK_IMPORTED_MODULE_1_channels_channel_utils__["e" /* objectToArray */])(response);
+                });
+            });
+        }
+    };
+}
+
+/***/ }),
+/* 41 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* harmony export (immutable) */ __webpack_exports__["a"] = RunOperationsChannel;
+function RunOperationsChannel($runServicePromise) {
+    return {
+        publishHandler: function (topics, options) {
+            return $runServicePromise.then(function (runService) {
+                var toSave = topics.map(function (topic) {
+                    return { name: topic.name, params: topic.value };
+                });
+                return runService.serial(toSave).then(function (result) {
+                    var toReturn = result.map(function (response, index) {
+                        return { name: topics[index].name, value: response };
+                    });
+                    return toReturn;
+                });
+            });
+        }
+    };
+}
+
+/***/ }),
+/* 42 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* harmony export (immutable) */ __webpack_exports__["a"] = silencable;
+var _ref = _,
+    isArray = _ref.isArray,
+    includes = _ref.includes;
+
+/**
+ * @param {Publishable[]} published 
+ * @param {boolean|String[]|{except: String[]}} [silentOptions]
+ * @return {Publishable[]} filtered list
+ */
+
+function silencable(published, silentOptions) {
+    if (silentOptions === true || !published) {
+        return [];
+    } else if (isArray(silentOptions)) {
+        return published.filter(function (data) {
+            return !includes(silentOptions, data.name);
+        });
+    } else if (silentOptions && silentOptions.except) {
+        return published.filter(function (data) {
+            return includes(silentOptions.except || [], data.name);
+        });
+    }
+    return published;
+}
+
+/***/ }),
+/* 43 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* harmony export (immutable) */ __webpack_exports__["a"] = excludeReadOnly;
+var _ref = _,
+    isArray = _ref.isArray,
+    includes = _ref.includes;
+
+/**
+ * 
+ * @param {Publishable[]} publishable 
+ * @param {boolean|string[]} readOnlyOptions 
+ * @return {Publishable[]} filtered list
+ */
+
+function excludeReadOnly(publishable, readOnlyOptions) {
+    if (readOnlyOptions === true) {
+        console.error('Tried to publish to a readonly channel', publishable);
+        return [];
+    } else if (isArray(readOnlyOptions)) {
+        var split = publishable.reduce(function (accum, data) {
+            var isReadonly = includes(readOnlyOptions, data.name);
+            if (isReadonly) {
+                accum.readOnly.push(data);
+            } else {
+                accum.remaining.push(data);
+            }
+            return accum;
+        }, { readOnly: [], remaining: [] });
+
+        if (split.readOnly.length) {
+            console.error('Ignoring readonly publishes', split.readOnly);
+        }
+        return split.remaining;
+    }
+    return publishable;
+}
+
+/***/ }),
+/* 44 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__run_router__ = __webpack_require__(6);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_channels_middleware_utils__ = __webpack_require__(1);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_channels_channel_router__ = __webpack_require__(4);
+
+
+
+
+/* harmony default export */ __webpack_exports__["a"] = (function (config, notifier) {
+    var defaults = {
+        serviceOptions: {},
+        channelOptions: {}
+    };
+    var opts = $.extend(true, {}, defaults, config);
+
+    var sm = new window.F.manager.ScenarioManager(opts.serviceOptions);
+
+    var baselinePromise = sm.baseline.getRun().then(function () {
+        return sm.baseline.run;
+    });
+    var baselineOptions = $.extend(true, {
+        serviceOptions: baselinePromise,
+        channelOptions: {
+            meta: {
+                readOnly: true
+            },
+            variables: {
+                readOnly: true
+            }
+        }
+    }, opts.defaults, opts.baseline);
+    var currentRunPromise = sm.current.getRun().then(function () {
+        return sm.current.run;
+    });
+
+    var runOptions = $.extend(true, {
+        serviceOptions: currentRunPromise
+    }, opts.defaults, opts.current);
+
+    var baselineChannel = new __WEBPACK_IMPORTED_MODULE_0__run_router__["a" /* default */](baselineOptions, Object(__WEBPACK_IMPORTED_MODULE_1_channels_middleware_utils__["i" /* withPrefix */])(notifier, 'baseline:'));
+    var currentRunChannel = new __WEBPACK_IMPORTED_MODULE_0__run_router__["a" /* default */](runOptions, Object(__WEBPACK_IMPORTED_MODULE_1_channels_middleware_utils__["i" /* withPrefix */])(notifier, ['current:', '']));
+    var handlers = [$.extend(baselineChannel, {
+        name: 'baseline',
+        match: Object(__WEBPACK_IMPORTED_MODULE_1_channels_middleware_utils__["d" /* prefix */])('baseline:'),
+        options: baselineOptions.channelOptions
+    }), $.extend(currentRunChannel, {
+        isDefault: true,
+        name: 'current',
+        match: Object(__WEBPACK_IMPORTED_MODULE_1_channels_middleware_utils__["a" /* defaultPrefix */])('current:'),
+        options: runOptions.channelOptions
+    })];
+
+    var router = new __WEBPACK_IMPORTED_MODULE_2_channels_channel_router__["a" /* default */](handlers, notifier);
+    router.expose = { scenarioManager: sm };
+    return router;
+});
+
+/***/ }),
+/* 45 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__run_router_factory__ = __webpack_require__(46);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_channels_middleware_utils__ = __webpack_require__(1);
+
+
+
+/* harmony default export */ __webpack_exports__["a"] = (function (options, notifier) {
+    if (!options) options = {};
+
+    var opts = {};
+    opts.serviceOptions = options.serviceOptions && options.serviceOptions.run ? options.serviceOptions.run : {};
+    opts.channelOptions = options.channelOptions;
+
+    return {
+        subscribeHandler: function (topics, options, prefix) {
+            var runid = Object(__WEBPACK_IMPORTED_MODULE_1_channels_middleware_utils__["g" /* stripSuffixDelimiter */])(prefix);
+            //FIXME: Should i merge options here?
+            var channel = Object(__WEBPACK_IMPORTED_MODULE_0__run_router_factory__["a" /* default */])(runid, opts, Object(__WEBPACK_IMPORTED_MODULE_1_channels_middleware_utils__["i" /* withPrefix */])(notifier, prefix));
+            return channel.subscribeHandler(topics, options, prefix);
+        },
+        publishHandler: function (topics, options, prefix) {
+            var runid = Object(__WEBPACK_IMPORTED_MODULE_1_channels_middleware_utils__["g" /* stripSuffixDelimiter */])(prefix);
+            var channel = Object(__WEBPACK_IMPORTED_MODULE_0__run_router_factory__["a" /* default */])(runid, opts, Object(__WEBPACK_IMPORTED_MODULE_1_channels_middleware_utils__["i" /* withPrefix */])(notifier, prefix));
+            return channel.publishHandler(topics);
+        }
+    };
+});
+
+/***/ }),
+/* 46 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__run_router__ = __webpack_require__(6);
+
+var knownRunIDServiceChannels = {};
+
+/* harmony default export */ __webpack_exports__["a"] = (function (runid, options, notifier) {
+    var runChannel = knownRunIDServiceChannels[runid];
+    if (!runChannel) {
+        var runOptions = $.extend(true, {}, options, { serviceOptions: { id: runid } });
+        runChannel = new __WEBPACK_IMPORTED_MODULE_0__run_router__["a" /* default */](runOptions, notifier);
+        knownRunIDServiceChannels[runid] = runChannel;
+    }
+    return runChannel;
+});
 
 /***/ }),
 /* 47 */
-/***/ (function(module, exports) {
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
 
-module.exports = function () {
-    function defineProperties(target, props) {
-        Object.keys(props).forEach(function (key) {
-            var descriptor = {};
-            descriptor.key = key;
-            descriptor.value = props[key];
-            descriptor.enumerable = false;
-            descriptor.writable = true;
-            descriptor.configurable = true;
-            Object.defineProperty(target, key, descriptor);
+"use strict";
+/* harmony export (immutable) */ __webpack_exports__["a"] = RunsRouter;
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_utils_general__ = __webpack_require__(5);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_utils_general___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_utils_general__);
+var _slicedToArray = function () { function sliceIterator(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"]) _i["return"](); } finally { if (_d) throw _e; } } return _arr; } return function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { return sliceIterator(arr, i); } else { throw new TypeError("Invalid attempt to destructure non-iterable instance"); } }; }();
+
+
+var _window = window,
+    F = _window.F;
+
+
+function RunsRouter(options, notifier, channelManagerContext) {
+    var runService = new F.service.Run(options.serviceOptions.run);
+
+    var topicParamMap = {};
+
+    function extractFiltersFromTopic(topicString) {
+        var filters = topicString.replace('(', '').replace(')', '');
+        var filterParam = filters.split(';').reduce(function (accum, filter) {
+            var _filter$split = filter.split('='),
+                _filter$split2 = _slicedToArray(_filter$split, 2),
+                key = _filter$split2[0],
+                val = _filter$split2[1];
+
+            if (val) {
+                val = true;
+            }
+            accum[key] = val;
+            return accum;
+        }, {});
+        return filterParam;
+    }
+
+    function fetch(topic, variables) {
+        var filters = extractFiltersFromTopic(topic);
+        return runService.query(filters, { include: variables }).then(function (runs) {
+            notifier([{ name: topic, value: runs }]);
+
+            // if (topicParamMap[topic]) {
+            //     Object.keys(topicParamMap[topic]).forEach((runid)=> {
+            //         channelManagerContext.unsubscribe(topicParamMap[topic][runid]);
+            //     });
+            // }
+
+            return runs;
         });
     }
-    return function (Constructor, protoProps, staticProps) {
-        if (protoProps) defineProperties(Constructor.prototype, protoProps);
-        if (staticProps) defineProperties(Constructor, staticProps);
-        return Constructor;
+
+    return {
+        fetch: fetch,
+
+        unsubscribeHandler: function (unsubscribedTopics, remainingTopics) {
+            console.log('unsubs');
+            // knownTopics = remainingTopics;
+        },
+        subscribeHandler: function (topics, options) {
+            var topic = [].concat(topics)[0];
+
+            var filters = extractFiltersFromTopic(topic);
+            var variables = options && options.include;
+
+            var debounceInterval = 300;
+            var debouncedFetch = Object(__WEBPACK_IMPORTED_MODULE_0_utils_general__["debounceAndMerge"])(fetch, debounceInterval, function (accum, newval) {
+                return newval;
+            });
+            return fetch(topic, variables).then(function (runs) {
+                var subsMap = {};
+                //TODO: Provide this meta information to runs-factory so it doesn't trigger a fetch to get meta for each run
+                runs.forEach(function (run) {
+                    var subscriptions = Object.keys(filters).map(function (filter) {
+                        return run.id + ':meta:' + filter;
+                    });
+                    var subsid = channelManagerContext.subscribe(subscriptions, function () {
+                        debouncedFetch(topic, variables);
+                    }, { batch: false, autoFetch: false, cache: false });
+                    subsMap[run.id] = subsid;
+                });
+
+                topicParamMap[topic] = subsMap;
+                return runs;
+            });
+        }
     };
-}();
+}
 
 /***/ }),
 /* 48 */
-/***/ (function(module, exports, __webpack_require__) {
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__channel_utils__ = __webpack_require__(3);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__middleware_middleware_manager__ = __webpack_require__(49);
 
 
-module.exports = {
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-    match: function (matchExpr, matchValue, context) {
-        if (_.isString(matchExpr)) {
-            return matchExpr === '*' || matchExpr.toLowerCase() === matchValue.toLowerCase();
-        } else if (_.isFunction(matchExpr)) {
-            return matchExpr(matchValue, context);
-        } else if (_.isRegExp(matchExpr)) {
-            return matchValue.match(matchExpr);
-        }
-    },
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
-    getChannel: function ($el, property) {
-        property = property.replace('data-f-', '');
-        var channel = $el.data('f-channel-' + property);
-        if (channel === undefined) {
-            channel = $el.attr('data-f-channel'); //.data shows value cached by jquery
-            if (channel === undefined) {
-                var $parentEl = $el.closest('[data-f-channel]');
-                if ($parentEl) {
-                    channel = $parentEl.attr('data-f-channel');
-                }
-            }
-        }
-        return channel;
-    },
-    getConvertersList: function ($el, property) {
-        var attrConverters = $el.data('f-convert-' + property);
-        //FIXME: figure out how not to hard-code names here
-        if (!attrConverters && (property === 'bind' || property === 'foreach' || property === 'repeat')) {
-            attrConverters = $el.attr('data-f-convert'); //.data shows value cached by jquery
-            if (!attrConverters) {
-                var $parentEl = $el.closest('[data-f-convert]');
-                if ($parentEl) {
-                    attrConverters = $parentEl.attr('data-f-convert');
-                }
-            }
-            if (attrConverters) {
-                attrConverters = _.invokeMap(attrConverters.split('|'), 'trim');
-            }
-        }
 
-        return attrConverters;
+
+
+/**
+ * 
+ * @param {String[]|String} topics 
+ * @param {Function} callback 
+ * @param {Object} options
+ * @return {Subscription}
+ */
+function makeSubs(topics, callback, options) {
+    var id = _.uniqueId('subs-');
+    var defaults = {
+        batch: false,
+
+        /**
+         * Determines if the last published data should be cached for future notifications. For e.g.,
+         *
+         * channel.subscribe(['price', 'cost'], callback1, { batch: true, cache: false });
+         * channel.subscribe(['price', 'cost'], callback2, { batch: true, cache: true });
+         *
+         * channel.publish({ price: 1 });
+         * channel.publish({ cost: 1 });
+         *
+         * callback1 will have been called once, and callback2 will not have been called. i.e., the channel caches the first publish value and notifies after all dependent topics have data
+         * If we'd done channel.publish({ price: 1, cost: 1 }) would have called both callback1 and callback2
+         *
+         * `cache: true` is useful if you know if your topics will can published individually, but you still want to handle them together.
+         * `cache: false` is useful if you know if your topics will *always* be published together and they'll be called at the same time.
+         *
+         * Note this has no discernible effect if batch is false
+         * @type {Boolean}
+         */
+        cache: true
+    };
+    var opts = $.extend({}, defaults, options);
+    if (!callback || !_.isFunction(callback)) {
+        throw new Error('subscribe callback should be a function, got', callback);
     }
-};
+    return $.extend(true, {
+        id: id,
+        topics: [].concat(topics),
+        callback: callback
+    }, opts);
+}
+
+var cacheBySubsId = {};
+var sentDataBySubsId = {};
+
+/**
+* @param {Subscription} subscription 
+* @param {*} data
+*/
+function callbackIfChanged(subscription, data) {
+    var id = subscription.id;
+    if (!_.isEqual(sentDataBySubsId[id], data)) {
+        sentDataBySubsId[id] = data;
+        subscription.callback(data, { id: id });
+    }
+}
+
+/**
+* @param {Publishable[]} topics
+* @param {Subscription} subscription 
+*/
+function checkAndNotifyBatch(topics, subscription) {
+    var cached = cacheBySubsId[subscription.id] || {};
+    var merged = topics.reduce(function (accum, topic) {
+        accum[topic.name] = topic.value;
+        return accum;
+    }, cached);
+    var matchingTopics = _.intersection(Object.keys(merged), subscription.topics);
+    if (matchingTopics.length > 0) {
+        var toSend = subscription.topics.reduce(function (accum, topic) {
+            accum[topic] = merged[topic];
+            return accum;
+        }, {});
+
+        if (subscription.cache) {
+            cacheBySubsId[subscription.id] = toSend;
+        }
+        if (matchingTopics.length === subscription.topics.length) {
+            callbackIfChanged(subscription, toSend);
+        }
+    }
+}
+
+/**
+ * @param {Publishable[]} topics
+ * @param {Subscription} subscription 
+ */
+function checkAndNotify(topics, subscription) {
+    topics.forEach(function (topic) {
+        if (_.includes(subscription.topics, topic.name) || _.includes(subscription.topics, '*')) {
+            var toSend = {};
+            toSend[topic.name] = topic.value;
+            callbackIfChanged(subscription, toSend);
+        }
+    });
+}
+
+/**
+* @param {Subscription[]} subcriptionList
+* @return {String[]}
+*/
+function getTopicsFromSubsList(subcriptionList) {
+    return subcriptionList.reduce(function (accum, subs) {
+        accum = accum.concat(subs.topics);
+        return accum;
+    }, []);
+}
+
+var ChannelManager = function () {
+    function ChannelManager(options) {
+        _classCallCheck(this, ChannelManager);
+
+        var defaults = {
+            middlewares: []
+        };
+        var opts = $.extend(true, {}, defaults, options);
+        this.middlewares = new __WEBPACK_IMPORTED_MODULE_1__middleware_middleware_manager__["a" /* default */](opts, this.notify.bind(this), this);
+        this.subscriptions = [];
+    }
+
+    /**
+     * @param {String | Publishable } topic
+     * @param {Any} [value] item to publish
+     * @param {Object} [options]
+     * @return {Promise}
+     */
+
+
+    _createClass(ChannelManager, [{
+        key: 'publish',
+        value: function publish(topic, value, options) {
+            var normalized = Object(__WEBPACK_IMPORTED_MODULE_0__channel_utils__["d" /* normalizeParamOptions */])(topic, value, options);
+            var prom = $.Deferred().resolve(normalized.params).promise();
+            var lastAvailableData = normalized.params;
+            var middlewares = this.middlewares.filter('publish');
+            middlewares.forEach(function (middleware) {
+                prom = prom.then(function (publishResponse) {
+                    return middleware(publishResponse, normalized.options);
+                }).then(function (response) {
+                    lastAvailableData = response || lastAvailableData;
+                    return lastAvailableData;
+                });
+            });
+            prom = prom.then(this.notify.bind(this));
+            return prom;
+        }
+    }, {
+        key: 'notify',
+        value: function notify(topic, value, options) {
+            var normalized = Object(__WEBPACK_IMPORTED_MODULE_0__channel_utils__["d" /* normalizeParamOptions */])(topic, value, options);
+            // console.log('notify', normalized);
+            return this.subscriptions.forEach(function (subs) {
+                var fn = subs.batch ? checkAndNotifyBatch : checkAndNotify;
+                fn(normalized.params, subs);
+            });
+        }
+
+        //TODO: Allow subscribing to regex? Will solve problem of listening only to variables etc
+        /**
+         * @param {String[] | String} topics
+         * @param {Function} cb
+         * @param {Object} [options]
+         * @return {String}
+         */
+
+    }, {
+        key: 'subscribe',
+        value: function subscribe(topics, cb, options) {
+            var subs = makeSubs(topics, cb, options);
+            this.subscriptions = this.subscriptions.concat(subs);
+            var subscribeMiddlewares = this.middlewares.filter('subscribe');
+
+            var toSend = subs.topics;
+            subscribeMiddlewares.forEach(function (middleware) {
+                toSend = middleware(toSend, options) || toSend;
+            });
+            return subs.id;
+        }
+
+        /**
+         * @param {String} token
+         */
+
+    }, {
+        key: 'unsubscribe',
+        value: function unsubscribe(token) {
+            delete cacheBySubsId[token];
+            delete sentDataBySubsId[token];
+            var data = this.subscriptions.reduce(function (accum, subs) {
+                if (subs.id === token) {
+                    accum.unsubscribed.push(subs);
+                } else {
+                    accum.remaining.push(subs);
+                }
+                return accum;
+            }, { remaining: [], unsubscribed: [] });
+
+            if (!data.unsubscribed.length) {
+                throw new Error('No subscription found for token ' + token);
+            }
+            this.subscriptions = data.remaining;
+
+            var remainingTopics = getTopicsFromSubsList(data.remaining);
+            var unsubscribedTopics = getTopicsFromSubsList(data.unsubscribed);
+
+            var middlewares = this.middlewares.filter('unsubscribe');
+            middlewares.forEach(function (middleware) {
+                return middleware(unsubscribedTopics, remainingTopics);
+            });
+        }
+    }, {
+        key: 'unsubscribeAll',
+        value: function unsubscribeAll() {
+            var currentlySubscribed = this.getSubscribedTopics();
+            this.subscriptions = [];
+            var middlewares = this.middlewares.filter('unsubscribe');
+            middlewares.forEach(function (middleware) {
+                return middleware(currentlySubscribed, []);
+            });
+        }
+
+        /**
+         * @return {String[]}
+         */
+
+    }, {
+        key: 'getSubscribedTopics',
+        value: function getSubscribedTopics() {
+            var list = _.uniq(getTopicsFromSubsList(this.subscriptions));
+            return list;
+        }
+
+        /**
+         * @param {String} [topic] optional topic to filter by
+         * @return {Subscription[]}
+         */
+
+    }, {
+        key: 'getSubscribers',
+        value: function getSubscribers(topic) {
+            if (topic) {
+                return this.subscriptions.filter(function (subs) {
+                    return _.includes(subs.topics, topic);
+                });
+            }
+            return this.subscriptions;
+        }
+    }]);
+
+    return ChannelManager;
+}();
+
+/* harmony default export */ __webpack_exports__["a"] = (ChannelManager);
+
+/***/ }),
+/* 49 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* harmony export (immutable) */ __webpack_exports__["a"] = MiddlewareManager;
+function MiddlewareManager(options, notifier, channelManagerContext) {
+    var defaults = {
+        middlewares: []
+    };
+    var opts = $.extend(true, {}, defaults, options);
+    var optsToPassOn = _.omit(opts, Object.keys(defaults));
+
+    var list = [];
+    var publicAPI = {
+        list: list,
+
+        add: function (middleware, index) {
+            if (_.isFunction(middleware)) {
+                middleware = new middleware(optsToPassOn, notifier, channelManagerContext);
+            }
+            $.extend(channelManagerContext, middleware.expose); //add any public props middleware wants to expose
+            list.push(middleware);
+        },
+
+        filter: function (type) {
+            type = type + 'Handler';
+            return list.reduce(function (accum, m) {
+                if (m[type]) {
+                    accum.push(m[type]);
+                }
+                return accum;
+            }, []);
+        }
+    };
+
+    $.extend(this, publicAPI);
+    opts.middlewares.forEach(this.add);
+}
+
+/***/ }),
+/* 50 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__interpolatable__ = __webpack_require__(51);
+/* harmony reexport (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return __WEBPACK_IMPORTED_MODULE_0__interpolatable__["a"]; });
+
+
+/***/ }),
+/* 51 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* harmony export (immutable) */ __webpack_exports__["a"] = interpolatable;
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__subscribe_interpolator__ = __webpack_require__(52);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__publish_interpolator__ = __webpack_require__(53);
+
+
+
+function interpolatable(channelManager) {
+    var subsidMap = {};
+
+    var boundBaseSubscribe = channelManager.subscribe.bind(channelManager);
+    var boundBaseUnsubscribe = channelManager.unsubscribe.bind(channelManager);
+    var boundBaseUnsubscribeAll = channelManager.unsubscribeAll.bind(channelManager);
+    var boundBasePublish = channelManager.publish.bind(channelManager);
+
+    var unsubscribe = function (token) {
+        var existing = subsidMap[token];
+        if (existing) {
+            boundBaseUnsubscribe(existing);
+        } else {
+            boundBaseUnsubscribe(token);
+        }
+        delete subsidMap[token];
+    };
+
+    function oneTimeFetcher(variables, cb) {
+        boundBaseSubscribe(variables, function (response, meta) {
+            boundBaseUnsubscribe(meta.id);
+            cb(response);
+        }, { autoFetch: true, batch: true });
+    }
+
+    return $.extend({}, channelManager.prototype, {
+        subscribe: Object(__WEBPACK_IMPORTED_MODULE_0__subscribe_interpolator__["a" /* default */])(boundBaseSubscribe, function (interpolatedSubsId, outerSubsId) {
+            unsubscribe(interpolatedSubsId); //invalidate any older subscriptions
+            subsidMap[interpolatedSubsId] = outerSubsId;
+        }),
+
+        publish: Object(__WEBPACK_IMPORTED_MODULE_1__publish_interpolator__["a" /* default */])(boundBasePublish, oneTimeFetcher),
+        unsubscribe: unsubscribe,
+        unsubscribeAll: function () {
+            boundBaseUnsubscribeAll();
+            subsidMap = {};
+        }
+    });
+}
+
+/***/ }),
+/* 52 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* unused harmony export getDependencies */
+/* unused harmony export interpolateWithDependencies */
+/* unused harmony export mergeInterpolatedTopicsWithData */
+/* harmony export (immutable) */ __webpack_exports__["a"] = subscribeInterpolator;
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__interpolatable_utils__ = __webpack_require__(10);
+
+var _ref = _,
+    uniq = _ref.uniq;
+
+/**
+ * @param {String[]} topics
+ * @return {String[]} interpolated
+ */
+
+function getDependencies(topics) {
+    var deps = topics.reduce(function (accum, topic) {
+        var inner = Object(__WEBPACK_IMPORTED_MODULE_0__interpolatable_utils__["a" /* extractDepencies */])(topic);
+        accum = accum.concat(inner);
+        return accum;
+    }, []);
+    return uniq(deps);
+}
+
+/**
+ * @param {String[]} topics
+ * @param {Object} data
+ * @return {String[]}
+ */
+function interpolateWithDependencies(topics, data) {
+    return topics.map(function (topic) {
+        return Object(__WEBPACK_IMPORTED_MODULE_0__interpolatable_utils__["b" /* interpolateWithValues */])(topic, data);
+    });
+}
+
+function mergeInterpolatedTopicsWithData(originalTopics, interpolatedTopics, data) {
+    return interpolatedTopics.reduce(function (accum, interpolatedTopic, index) {
+        var original = originalTopics[index];
+        var val = data[interpolatedTopic];
+        if (val !== undefined) {
+            accum[original] = data[interpolatedTopic];
+        }
+        return accum;
+    }, {});
+}
+
+function subscribeInterpolator(subscribeFn, interceptionCallback) {
+    return function interpolatedSubscribe(topics, cb, options) {
+        topics = [].concat(topics);
+        var dependencies = getDependencies(topics);
+        if (!dependencies.length) {
+            return subscribeFn(topics, cb, options);
+        }
+        var innerSubsId = subscribeFn(dependencies, function handleDependencyValueChange(data, dependenciesMeta) {
+            var interpolatedTopics = interpolateWithDependencies(topics, data);
+
+            var outerSubsId = subscribeFn(interpolatedTopics, function handleInterpolatedValueChange(actualData, actualMeta) {
+                var toSendback = mergeInterpolatedTopicsWithData(topics, interpolatedTopics, actualData);
+                cb(toSendback, actualMeta);
+            }, options);
+
+            (interceptionCallback || $.noop)(dependenciesMeta.id, outerSubsId);
+
+            return outerSubsId;
+        }, { autoFetch: true, batch: true });
+
+        return innerSubsId;
+    };
+}
+
+/***/ }),
+/* 53 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* unused harmony export getDependencies */
+/* unused harmony export interpolateWithDependencies */
+/* harmony export (immutable) */ __webpack_exports__["a"] = publishInterpolator;
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__interpolatable_utils__ = __webpack_require__(10);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_channels_channel_utils__ = __webpack_require__(3);
+
+
+
+var _ref = _,
+    uniq = _ref.uniq;
+/**
+ * @param {Publishable[]} publishInputs
+ * @returns {String[]} inner variables to resolve
+ */
+
+function getDependencies(publishInputs) {
+    var deps = publishInputs.reduce(function (accum, input) {
+        var inner = Object(__WEBPACK_IMPORTED_MODULE_0__interpolatable_utils__["a" /* extractDepencies */])(input.name);
+        accum = accum.concat(inner);
+        return accum;
+    }, []);
+    return uniq(deps);
+}
+
+/**
+ * @param {Publishable[]} publishInputs
+ * @param {Object} valuesToInterpolate
+ * @returns {Publishable[]} inner variables to resolve
+ */
+function interpolateWithDependencies(publishInputs, valuesToInterpolate) {
+    return publishInputs.map(function (ip) {
+        return {
+            name: Object(__WEBPACK_IMPORTED_MODULE_0__interpolatable_utils__["b" /* interpolateWithValues */])(ip.name, valuesToInterpolate),
+            value: ip.value
+        };
+    });
+}
+
+function publishInterpolator(publishFunction, fetchFn) {
+    return function interpolatedPublishfunction(topic, value, options) {
+        var normalizedPublishInputs = Object(__WEBPACK_IMPORTED_MODULE_1_channels_channel_utils__["d" /* normalizeParamOptions */])(topic, value, options);
+        var dependencies = getDependencies(normalizedPublishInputs.params);
+        if (!dependencies.length) {
+            return publishFunction(topic, value, options);
+        }
+
+        var prom = $.Deferred();
+        fetchFn(dependencies, function handleDependencyChange(resolvedDependencies) {
+            var interpolated = interpolateWithDependencies(normalizedPublishInputs.params, resolvedDependencies);
+            var newPublishProm = publishFunction(interpolated, normalizedPublishInputs.options);
+            prom.resolve(newPublishProm);
+        });
+        return prom.promise();
+    };
+}
 
 /***/ })
 /******/ ]);

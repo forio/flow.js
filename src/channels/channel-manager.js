@@ -1,6 +1,5 @@
 'use strict';
 
-import createClass from 'utils/create-class';
 import { normalizeParamOptions } from './channel-utils';
 import MiddlewareManager from './middleware/middleware-manager';
 
@@ -113,131 +112,123 @@ function getTopicsFromSubsList(subcriptionList) {
         return accum;
     }, []);
 }
-var ChannelManager = (function () {
-    function ChannelManager(options) {
+
+export default class ChannelManager {
+    constructor(options) {
         var defaults = {
             middlewares: []
         };
         var opts = $.extend(true, {}, defaults, options);
         this.middlewares = new MiddlewareManager(opts, this.notify.bind(this), this);
+        this.subscriptions = [];
     }
 
-    createClass(ChannelManager, {
-        /**
-         * @type {Subscription[]}
-         */
-        subscriptions: [],
-
-        /**
-         * @param {String | Publishable } topic
-         * @param {Any} [value] item to publish
-         * @param {Object} [options]
-         * @return {Promise}
-         */
-        publish: function (topic, value, options) {
-            var normalized = normalizeParamOptions(topic, value, options);
-            var prom = $.Deferred().resolve(normalized.params).promise();
-            var lastAvailableData = normalized.params;
-            var middlewares = this.middlewares.filter('publish');
-            middlewares.forEach(function (middleware) {
-                prom = prom.then(function (publishResponse) {
-                    return middleware(publishResponse, normalized.options);
-                }).then(function (response) {
-                    lastAvailableData = response || lastAvailableData;
-                    return lastAvailableData;
-                });
+    /**
+     * @param {String | Publishable } topic
+     * @param {Any} [value] item to publish
+     * @param {Object} [options]
+     * @return {Promise}
+     */
+    publish(topic, value, options) {
+        var normalized = normalizeParamOptions(topic, value, options);
+        var prom = $.Deferred().resolve(normalized.params).promise();
+        var lastAvailableData = normalized.params;
+        var middlewares = this.middlewares.filter('publish');
+        middlewares.forEach(function (middleware) {
+            prom = prom.then(function (publishResponse) {
+                return middleware(publishResponse, normalized.options);
+            }).then(function (response) {
+                lastAvailableData = response || lastAvailableData;
+                return lastAvailableData;
             });
-            prom = prom.then(this.notify.bind(this));
-            return prom;
-        },
+        });
+        prom = prom.then(this.notify.bind(this));
+        return prom;
+    }
 
-        notify: function (topic, value, options) {
-            var normalized = normalizeParamOptions(topic, value, options);
-            // console.log('notify', normalized);
-            return this.subscriptions.forEach(function (subs) {
-                var fn = subs.batch ? checkAndNotifyBatch : checkAndNotify;
-                fn(normalized.params, subs);
-            });
-        },
+    notify(topic, value, options) {
+        var normalized = normalizeParamOptions(topic, value, options);
+        // console.log('notify', normalized);
+        return this.subscriptions.forEach(function (subs) {
+            var fn = subs.batch ? checkAndNotifyBatch : checkAndNotify;
+            fn(normalized.params, subs);
+        });
+    }
 
-        //TODO: Allow subscribing to regex? Will solve problem of listening only to variables etc
-        /**
-         * @param {String[] | String} topics
-         * @param {Function} cb
-         * @param {Object} [options]
-         * @return {String}
-         */
-        subscribe: function (topics, cb, options) {
-            var subs = makeSubs(topics, cb, options);
-            this.subscriptions = this.subscriptions.concat(subs);
-            var subscribeMiddlewares = this.middlewares.filter('subscribe');
+    //TODO: Allow subscribing to regex? Will solve problem of listening only to variables etc
+    /**
+     * @param {String[] | String} topics
+     * @param {Function} cb
+     * @param {Object} [options]
+     * @return {String}
+     */
+    subscribe(topics, cb, options) {
+        var subs = makeSubs(topics, cb, options);
+        this.subscriptions = this.subscriptions.concat(subs);
+        var subscribeMiddlewares = this.middlewares.filter('subscribe');
 
-            var toSend = subs.topics;
-            subscribeMiddlewares.forEach(function (middleware) {
-                toSend = middleware(toSend, options) || toSend;
-            });
-            return subs.id;
-        },
+        var toSend = subs.topics;
+        subscribeMiddlewares.forEach(function (middleware) {
+            toSend = middleware(toSend, options) || toSend;
+        });
+        return subs.id;
+    }
         
 
-        /**
-         * @param {String} token
-         */
-        unsubscribe: function (token) {
-            delete cacheBySubsId[token];
-            delete sentDataBySubsId[token];
-            var data = this.subscriptions.reduce(function (accum, subs) {
-                if (subs.id === token) {
-                    accum.unsubscribed.push(subs);
-                } else {
-                    accum.remaining.push(subs);
-                }
-                return accum;
-            }, { remaining: [], unsubscribed: [] });
-
-            if (!data.unsubscribed.length) {
-                throw new Error('No subscription found for token ' + token);
+    /**
+     * @param {String} token
+     */
+    unsubscribe(token) {
+        delete cacheBySubsId[token];
+        delete sentDataBySubsId[token];
+        var data = this.subscriptions.reduce(function (accum, subs) {
+            if (subs.id === token) {
+                accum.unsubscribed.push(subs);
+            } else {
+                accum.remaining.push(subs);
             }
-            this.subscriptions = data.remaining;
+            return accum;
+        }, { remaining: [], unsubscribed: [] });
 
-            var remainingTopics = getTopicsFromSubsList(data.remaining);
-            var unsubscribedTopics = getTopicsFromSubsList(data.unsubscribed);
-
-            var middlewares = this.middlewares.filter('unsubscribe');
-            middlewares.forEach(function (middleware) {
-                return middleware(unsubscribedTopics, remainingTopics);
-            });
-        },
-        unsubscribeAll: function () {
-            var currentlySubscribed = this.getSubscribedTopics();
-            this.subscriptions = [];
-            var middlewares = this.middlewares.filter('unsubscribe');
-            middlewares.forEach((middleware)=> middleware(currentlySubscribed, []));
-        },
-
-        /**
-         * @return {String[]}
-         */
-        getSubscribedTopics: function () {
-            var list = _.uniq(getTopicsFromSubsList(this.subscriptions));
-            return list;
-        },
-
-        /**
-         * @param {String} [topic] optional topic to filter by
-         * @return {Subscription[]}
-         */
-        getSubscribers: function (topic) {
-            if (topic) {
-                return this.subscriptions.filter(function (subs) {
-                    return _.includes(subs.topics, topic);
-                });
-            }
-            return this.subscriptions;
+        if (!data.unsubscribed.length) {
+            throw new Error('No subscription found for token ' + token);
         }
-    });
+        this.subscriptions = data.remaining;
 
-    return ChannelManager;
-}());
+        var remainingTopics = getTopicsFromSubsList(data.remaining);
+        var unsubscribedTopics = getTopicsFromSubsList(data.unsubscribed);
 
-export default ChannelManager;
+        var middlewares = this.middlewares.filter('unsubscribe');
+        middlewares.forEach(function (middleware) {
+            return middleware(unsubscribedTopics, remainingTopics);
+        });
+    }
+    unsubscribeAll() {
+        var currentlySubscribed = this.getSubscribedTopics();
+        this.subscriptions = [];
+        var middlewares = this.middlewares.filter('unsubscribe');
+        middlewares.forEach((middleware)=> middleware(currentlySubscribed, []));
+    }
+
+    /**
+     * @return {String[]}
+     */
+    getSubscribedTopics() {
+        var list = _.uniq(getTopicsFromSubsList(this.subscriptions));
+        return list;
+    }
+
+    /**
+     * @param {String} [topic] optional topic to filter by
+     * @return {Subscription[]}
+     */
+    getSubscribers(topic) {
+        if (topic) {
+            return this.subscriptions.filter(function (subs) {
+                return _.includes(subs.topics, topic);
+            });
+        }
+        return this.subscriptions;
+    }
+}
+
