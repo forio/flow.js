@@ -26,7 +26,7 @@ export default function interpolatable(channelManager) {
         }, { autoFetch: true, batch: true });
     }
 
-    return $.extend({}, channelManager, {
+    return $.extend({}, channelManager.prototype, {
         subscribe: subscribeInterpolator(boundBaseSubscribe, (interpolatedSubsId, outerSubsId)=> {
             unsubscribe(interpolatedSubsId); //invalidate any older subscriptions
             subsidMap[interpolatedSubsId] = outerSubsId;

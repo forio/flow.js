@@ -130,6 +130,8 @@ var ChannelManager = (function () {
 
         /**
          * @param {String | Publishable } topic
+         * @param {Any} [value] item to publish
+         * @param {Object} [options]
          * @return {Promise}
          */
         publish: function (topic, value, options) {
@@ -222,6 +224,7 @@ var ChannelManager = (function () {
         },
 
         /**
+         * @param {String} [topic] optional topic to filter by
          * @return {Subscription[]}
          */
         getSubscribers: function (topic) {

@@ -68,9 +68,9 @@ describe('Channel Utils', ()=> {
         var groupByHandlers = utils.groupByHandlers;
         it('should group arrays', ()=> {
             var handlers = [
-               { match: (v)=> v.indexOf('a') === 0 ? 'foo' : false },
-               { match: (v)=> v.indexOf('b') === 0 ? 'bar' : false },
-               { match: (v)=> v.indexOf('c') === 0 ? 'cat' : false },
+                { match: (v)=> v.indexOf('a') === 0 ? 'foo' : false },
+                { match: (v)=> v.indexOf('b') === 0 ? 'bar' : false },
+                { match: (v)=> v.indexOf('c') === 0 ? 'cat' : false },
             ];
             var data = ['apple', 'apples', 'banana', 'amazon'];
             var op = groupByHandlers(data, handlers);
@@ -80,8 +80,8 @@ describe('Channel Utils', ()=> {
         });
         it('should skip handlers with no matches ', ()=> {
             var handlers = [
-               { match: (v)=> v.indexOf('a') === 0 ? 'foo' : false },
-               { match: (v)=> v.indexOf('b') === 0 ? 'bar' : false },
+                { match: (v)=> v.indexOf('a') === 0 ? 'foo' : false },
+                { match: (v)=> v.indexOf('b') === 0 ? 'bar' : false },
             ];
             var data = ['cat', 'ball'];
             var op = groupByHandlers(data, handlers);
@@ -90,8 +90,8 @@ describe('Channel Utils', ()=> {
         });
         it('should return empty if not matches found', ()=> {
             var handlers = [
-               { match: (v)=> v.indexOf('a') === 0 ? 'foo' : false },
-               { match: (v)=> v.indexOf('b') === 0 ? 'bar' : false },
+                { match: (v)=> v.indexOf('a') === 0 ? 'foo' : false },
+                { match: (v)=> v.indexOf('b') === 0 ? 'bar' : false },
             ];
             var data = ['cat', 'trex'];
             var op = groupByHandlers(data, handlers);
@@ -99,8 +99,8 @@ describe('Channel Utils', ()=> {
         });
         it('should pass through additional handler props', ()=> {
             var handlers = [
-               { foo: 'bar', match: (v)=> v.indexOf('a') === 0 ? 'foo' : false },
-               { bat: 'man', match: (v)=> v.indexOf('b') === 0 ? 'bar' : false },
+                { foo: 'bar', match: (v)=> v.indexOf('a') === 0 ? 'foo' : false },
+                { bat: 'man', match: (v)=> v.indexOf('b') === 0 ? 'bar' : false },
             ];
             var data = ['apple', 'banana'];
             var op = groupByHandlers(data, handlers);
@@ -109,7 +109,7 @@ describe('Channel Utils', ()=> {
         });
         it('should treat handlers with different returned matches as different handlers', ()=> {
             var handlers = [
-               { match: (v)=> v },
+                { match: (v)=> v },
             ];
             var data = ['apple', 'banana'];
             var op = groupByHandlers(data, handlers);
@@ -123,14 +123,14 @@ describe('Channel Utils', ()=> {
         var groupSequentiallyByHandlers = utils.groupSequentiallyByHandlers;
         it('should group arrays', ()=> {
             var data = [
-               { name: 'apple' },
-               { name: 'apples' },
-               { name: 'bar' },
-               { name: 'amazon' },
+                { name: 'apple' },
+                { name: 'apples' },
+                { name: 'bar' },
+                { name: 'amazon' },
             ];
             var handlers = [
-               { match: (v)=> v.indexOf('a') === 0 ? 'foo' : false },
-               { match: (v)=> v.indexOf('b') === 0 ? 'bar' : false },
+                { match: (v)=> v.indexOf('a') === 0 ? 'foo' : false },
+                { match: (v)=> v.indexOf('b') === 0 ? 'bar' : false },
             ];
             var op = groupSequentiallyByHandlers(data, handlers);
             expect(op.length).to.eql(3);
@@ -140,12 +140,12 @@ describe('Channel Utils', ()=> {
         });
         it('should pass through additional data pts', ()=> {
             var data = [
-               { name: 'apple', clark: 'kent' },
-               { name: 'bar', tony: 'stark' },
+                { name: 'apple', clark: 'kent' },
+                { name: 'bar', tony: 'stark' },
             ];
             var handlers = [
-               { match: (v)=> v.indexOf('a') === 0 ? 'foo' : false },
-               { match: (v)=> v.indexOf('b') === 0 ? 'bar' : false },
+                { match: (v)=> v.indexOf('a') === 0 ? 'foo' : false },
+                { match: (v)=> v.indexOf('b') === 0 ? 'bar' : false },
             ];
             var op = groupSequentiallyByHandlers(data, handlers);
             expect(op[0].clark).to.eql(handlers[1].clark);
@@ -154,8 +154,8 @@ describe('Channel Utils', ()=> {
 
         it('should skip handlers with no matches ', ()=> {
             var handlers = [
-               { match: (v)=> v.indexOf('a') === 0 ? 'foo' : false },
-               { match: (v)=> v.indexOf('b') === 0 ? 'bar' : false },
+                { match: (v)=> v.indexOf('a') === 0 ? 'foo' : false },
+                { match: (v)=> v.indexOf('b') === 0 ? 'bar' : false },
             ];
             var data = [{ name: 'cat' }, { name: 'ball' }];
             var op = groupSequentiallyByHandlers(data, handlers);
@@ -165,8 +165,8 @@ describe('Channel Utils', ()=> {
         });
         it('should echo back if no matches found', ()=> {
             var handlers = [
-               { match: (v)=> v.indexOf('a') === 0 ? 'foo' : false },
-               { match: (v)=> v.indexOf('b') === 0 ? 'bar' : false },
+                { match: (v)=> v.indexOf('a') === 0 ? 'foo' : false },
+                { match: (v)=> v.indexOf('b') === 0 ? 'bar' : false },
             ];
             var data = [{ name: 'cat' }, { name: 'trex' }];
             var op = groupSequentiallyByHandlers(data, handlers);
