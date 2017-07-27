@@ -37,6 +37,9 @@ function makeSubs(topics, callback, options) {
         cache: true,
     };
     var opts = $.extend({}, defaults, options);
+    if (!callback || !_.isFunction(callback)) {
+        throw new Error('subscribe callback should be a function, got', callback);
+    }
     return $.extend(true, {
         id: id,
         topics: [].concat(topics),
@@ -55,7 +58,7 @@ function callbackIfChanged(subscription, data) {
     var id = subscription.id;
     if (!_.isEqual(sentDataBySubsId[id], data)) {
         sentDataBySubsId[id] = data;
-        subscription.callback(data);
+        subscription.callback(data, { id: id });
     }
 }
 
