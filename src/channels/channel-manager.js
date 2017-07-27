@@ -70,7 +70,7 @@ function checkAndNotifyBatch(topics, subscription) {
     var merged = topics.reduce(function (accum, topic) {
         accum[topic.name] = topic.value;
         return accum;
-    }, cached);
+    }, $.extend({}, true, cached));
     var matchingTopics = _.intersection(Object.keys(merged), subscription.topics);
     if (matchingTopics.length > 0) {
         var toSend = subscription.topics.reduce(function (accum, topic) {
