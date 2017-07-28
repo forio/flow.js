@@ -5,17 +5,22 @@ module.exports = function (grunt) {
         options: {
             run: true,
             growlOnSuccess: false,
-            reporter: 'Min',
         },
         testdev: {
-            log: true,
-            src: ['tests/index.html']
+            src: ['tests/index.html'],
+            options: {
+                reporter: 'Min',
+                log: true
+            }
         },
         test: {
             src: ['tests/index.html'],
-            coverage: {
-                jsonReport: 'coverage',
-                lcovReport: 'coverage',
+            options: {
+                reporter: 'Nyan',
+                coverage: {
+                    jsonReport: 'coverage',
+                    lcovReport: 'coverage',
+                }
             }
         }
     });
