@@ -85,11 +85,10 @@ describe('Interpolatable - Integration Test', ()=> {
         });
     });
 
-    describe.only('#unsubscribe', ()=> {
+    describe('#unsubscribe', ()=> {
         afterEach(()=> {
             icm.unsubscribeAll();
         });
-
         it('should unsubscribe both dependents and dependencies', ()=> {
             var cb = sinon.spy();
             var subs1 = icm.subscribe(['price[<time>]', 'sales'], cb);
@@ -104,8 +103,32 @@ describe('Interpolatable - Integration Test', ()=> {
             icm.notify({ time: 5 });
             icm.notify({ 'price[5]': 4 });
             expect(cb).to.have.been.calledOnce;
-
         });
-        
+        it('should pass through unknown subs requests', ()=> {
+            var cb = sinon.spy();
+            var subs1 = icm.subscribe(['price', 'sales'], cb);
+            icm.notify({ 'price': 4 });
+            
+            expect(cb).to.have.been.calledOnce;
+            icm.unsubscribe(subs1);
+            icm.notify({ 'price': 5 });
+            expect(cb).to.have.been.calledOnce;
+        });
+    });
+    describe.only('#unsubscribeAll', ()=> {
+        it('should unsubscribe all outer and inner dependencies', ()=> {
+            var cb = sinon.spy();
+            icm.subscribe(['price', 'sales'], cb);
+            icm.subscribe(['price<time>', 'sales'], cb);
+            icm.subscribe(['apples<time>'], cb);
+
+            icm.notify({ 'time': 4 });
+            expect(icm.getSubscribedTopics().length).to.eql(5);
+            
+            icm.unsubscribeAll();
+            expect(icm.subscriptions.length).to.eql(0);
+            expect(icm.getSubscribedTopics().length).to.eql(0);
+            
+        });
     });
 });

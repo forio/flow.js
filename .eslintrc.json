@@ -226,6 +226,7 @@
             "sinon": false
         },
         "rules": {
+            "quote-props": 0,
             "no-magic-numbers": 0,
             "one-var": 0,
             "no-unused-expressions": 0
