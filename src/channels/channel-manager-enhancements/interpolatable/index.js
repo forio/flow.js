@@ -24,8 +24,10 @@ export default function interpolatable(ChannelManager) {
         }
         unsubscribe(token) {
             var existing = subsidMap[token];
-            var toDelete = existing || token;
-            super.unsubscribe(toDelete);
+            if (existing) {
+                super.unsubscribe(existing);
+            }
+            super.unsubscribe(token);
             delete subsidMap[token];
         }
         unsubscribeAll() {

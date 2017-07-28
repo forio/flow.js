@@ -3597,13 +3597,15 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 
 
 
+var InterpolatableChannelManager = Object(__WEBPACK_IMPORTED_MODULE_3__channel_manager_enhancements__["a" /* interpolatable */])(__WEBPACK_IMPORTED_MODULE_2__channel_manager__["a" /* default */]);
 
+console.log(__WEBPACK_IMPORTED_MODULE_3__channel_manager_enhancements__["a" /* interpolatable */], InterpolatableChannelManager);
 //Moving  epicenter-centric glue here so channel-manager can be tested in isolation
 function ChannelManager(opts) {
-    var cm = new __WEBPACK_IMPORTED_MODULE_2__channel_manager__["a" /* default */]($.extend(true, {}, {
+    var cm = new InterpolatableChannelManager($.extend(true, {}, {
         middlewares: [__WEBPACK_IMPORTED_MODULE_0__middleware_json_parse_middleware__["a" /* default */], __WEBPACK_IMPORTED_MODULE_1__middleware_epicenter_middleware__["a" /* default */]]
     }, opts));
-    return Object(__WEBPACK_IMPORTED_MODULE_3__channel_manager_enhancements__["a" /* interpolatable */])(cm);
+    return cm;
 }
 
 /***/ }),
@@ -4332,6 +4334,8 @@ var ChannelManager = function () {
         var opts = $.extend(true, {}, defaults, options);
         this.middlewares = new __WEBPACK_IMPORTED_MODULE_1__middleware_middleware_manager__["a" /* default */](opts, this.notify.bind(this), this);
         this.subscriptions = [];
+
+        this.subscribe = this.subscribe.bind(this);
     }
 
     /**
@@ -4525,47 +4529,62 @@ function MiddlewareManager(options, notifier, channelManagerContext) {
 /* harmony export (immutable) */ __webpack_exports__["a"] = interpolatable;
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__subscribe_interpolator__ = __webpack_require__(52);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__publish_interpolator__ = __webpack_require__(53);
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+var _get = function get(object, property, receiver) { if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { return get(parent, property, receiver); } } else if ("value" in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } };
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
 
 
-function interpolatable(channelManager) {
+
+function interpolatable(ChannelManager) {
     var subsidMap = {};
 
-    var boundBaseSubscribe = channelManager.subscribe.bind(channelManager);
-    var boundBaseUnsubscribe = channelManager.unsubscribe.bind(channelManager);
-    var boundBaseUnsubscribeAll = channelManager.unsubscribeAll.bind(channelManager);
-    var boundBasePublish = channelManager.publish.bind(channelManager);
+    return function (_ChannelManager) {
+        _inherits(InterpolatedChannelManager, _ChannelManager);
 
-    var unsubscribe = function (token) {
-        var existing = subsidMap[token];
-        if (existing) {
-            boundBaseUnsubscribe(existing);
-        } else {
-            boundBaseUnsubscribe(token);
+        function InterpolatedChannelManager(options) {
+            _classCallCheck(this, InterpolatedChannelManager);
+
+            var _this = _possibleConstructorReturn(this, (InterpolatedChannelManager.__proto__ || Object.getPrototypeOf(InterpolatedChannelManager)).call(this, options));
+
+            _this.subscribe = Object(__WEBPACK_IMPORTED_MODULE_0__subscribe_interpolator__["a" /* default */])(_this.subscribe.bind(_this), function (interpolatedSubsId, outerSubsId) {
+                _this.unsubscribe(interpolatedSubsId); //invalidate any older subscriptions
+                subsidMap[interpolatedSubsId] = outerSubsId;
+            });
+
+            _this.publish = Object(__WEBPACK_IMPORTED_MODULE_1__publish_interpolator__["a" /* default */])(_this.publish.bind(_this), function (variables, cb) {
+                _get(InterpolatedChannelManager.prototype.__proto__ || Object.getPrototypeOf(InterpolatedChannelManager.prototype), 'subscribe', _this).call(_this, variables, function (response, meta) {
+                    _this.unsubscribe(meta.id);
+                    cb(response);
+                }, { autoFetch: true, batch: true });
+            });
+            return _this;
         }
-        delete subsidMap[token];
-    };
 
-    function oneTimeFetcher(variables, cb) {
-        boundBaseSubscribe(variables, function (response, meta) {
-            boundBaseUnsubscribe(meta.id);
-            cb(response);
-        }, { autoFetch: true, batch: true });
-    }
+        _createClass(InterpolatedChannelManager, [{
+            key: 'unsubscribe',
+            value: function unsubscribe(token) {
+                var existing = subsidMap[token];
+                var toDelete = existing || token;
+                _get(InterpolatedChannelManager.prototype.__proto__ || Object.getPrototypeOf(InterpolatedChannelManager.prototype), 'unsubscribe', this).call(this, toDelete);
+                delete subsidMap[token];
+            }
+        }, {
+            key: 'unsubscribeAll',
+            value: function unsubscribeAll() {
+                subsidMap = {};
+                _get(InterpolatedChannelManager.prototype.__proto__ || Object.getPrototypeOf(InterpolatedChannelManager.prototype), 'unsubscribeAll', this).call(this);
+            }
+        }]);
 
-    return $.extend({}, channelManager.prototype, {
-        subscribe: Object(__WEBPACK_IMPORTED_MODULE_0__subscribe_interpolator__["a" /* default */])(boundBaseSubscribe, function (interpolatedSubsId, outerSubsId) {
-            unsubscribe(interpolatedSubsId); //invalidate any older subscriptions
-            subsidMap[interpolatedSubsId] = outerSubsId;
-        }),
-
-        publish: Object(__WEBPACK_IMPORTED_MODULE_1__publish_interpolator__["a" /* default */])(boundBasePublish, oneTimeFetcher),
-        unsubscribe: unsubscribe,
-        unsubscribeAll: function () {
-            boundBaseUnsubscribeAll();
-            subsidMap = {};
-        }
-    });
+        return InterpolatedChannelManager;
+    }(ChannelManager);
 }
 
 /***/ }),
