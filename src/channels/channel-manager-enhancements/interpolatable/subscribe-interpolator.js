@@ -1,4 +1,4 @@
-import { extractDepencies, interpolateWithValues } from './interpolatable-utils';
+import { extractDependencies, interpolateWithValues } from './interpolatable-utils';
 var { uniq } = _;
 
 /**
@@ -7,7 +7,7 @@ var { uniq } = _;
  */
 export function getDependencies(topics) {
     var deps = topics.reduce((accum, topic)=> {
-        var inner = extractDepencies(topic);
+        var inner = extractDependencies(topic);
         accum = accum.concat(inner);
         return accum;
     }, []);
@@ -25,6 +25,12 @@ export function interpolateWithDependencies(topics, data) {
     });
 }
 
+/**
+ * @param  {String[]} originalTopics     
+ * @param  {String[]} interpolatedTopics 
+ * @param  {Object} data               
+ * @return {Object}                    Interpolated
+ */
 export function mergeInterpolatedTopicsWithData(originalTopics, interpolatedTopics, data) {
     return interpolatedTopics.reduce((accum, interpolatedTopic, index)=> {
         var original = originalTopics[index];
@@ -36,6 +42,12 @@ export function mergeInterpolatedTopicsWithData(originalTopics, interpolatedTopi
     }, {});
 }
 
+/**
+ * Takes a subscribe function and resolves any interpolated inputs
+ * @param  {Function} subscribeFn        function to wrap
+ * @param  {Function} onDependencyChange callback function when any dependencies change
+ * @return {Function}                    wrapped function
+ */
 export default function subscribeInterpolator(subscribeFn, onDependencyChange) {
     return function interpolatedSubscribe(topics, cb, options) {
         topics = [].concat(topics);

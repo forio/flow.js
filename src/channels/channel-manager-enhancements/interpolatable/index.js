@@ -1,9 +1,17 @@
 import subscribeInterpolator from './subscribe-interpolator';
 import publishInterpolator from './publish-interpolator';
 
+/**
+ * Decorates passed channel manager with interpolation functionality
+ * @param  {ChannelManager} ChannelManager
+ * @return {ChannelManager}                wrapped channel manager
+ */
 export default function interpolatable(ChannelManager) {
     var subsidMap = {};
 
+    /**
+     * @implements {ChannelManager}
+     */
     return class InterpolatedChannelManager extends ChannelManager {
         constructor(options) {
             super(options);

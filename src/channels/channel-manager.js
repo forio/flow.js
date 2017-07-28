@@ -3,6 +3,7 @@
 import { normalizeParamOptions } from './channel-utils';
 import MiddlewareManager from './middleware/middleware-manager';
 
+var { uniqueId, isFunction, intersection, includes, uniq } = _;
 /**
  * 
  * @param {String[]|String} topics 
@@ -11,7 +12,7 @@ import MiddlewareManager from './middleware/middleware-manager';
  * @return {Subscription}
  */
 function makeSubs(topics, callback, options) {
-    var id = _.uniqueId('subs-');
+    var id = uniqueId('subs-');
     var defaults = {
         batch: false,
 
@@ -36,8 +37,8 @@ function makeSubs(topics, callback, options) {
         cache: true,
     };
     var opts = $.extend({}, defaults, options);
-    if (!callback || !_.isFunction(callback)) {
-        throw new Error('subscribe callback should be a function, got', callback);
+    if (!callback || !isFunction(callback)) {
+        throw new Error('subscribe callback should be a function');
     }
     return $.extend(true, {
         id: id,
@@ -71,7 +72,7 @@ function checkAndNotifyBatch(topics, subscription) {
         accum[topic.name] = topic.value;
         return accum;
     }, $.extend({}, true, cached));
-    var matchingTopics = _.intersection(Object.keys(merged), subscription.topics);
+    var matchingTopics = intersection(Object.keys(merged), subscription.topics);
     if (matchingTopics.length > 0) {
         var toSend = subscription.topics.reduce(function (accum, topic) {
             accum[topic] = merged[topic];
@@ -94,7 +95,7 @@ function checkAndNotifyBatch(topics, subscription) {
  */
 function checkAndNotify(topics, subscription) {
     topics.forEach(function (topic) {
-        if (_.includes(subscription.topics, topic.name) || _.includes(subscription.topics, '*')) {
+        if (includes(subscription.topics, topic.name) || includes(subscription.topics, '*')) {
             var toSend = {};
             toSend[topic.name] = topic.value;
             callbackIfChanged(subscription, toSend);
@@ -113,6 +114,9 @@ function getTopicsFromSubsList(subcriptionList) {
     }, []);
 }
 
+/**
+ * @implements {ChannelManager}
+ */
 export default class ChannelManager {
     constructor(options) {
         var defaults = {
@@ -125,7 +129,7 @@ export default class ChannelManager {
 
     /**
      * @param {String | Publishable } topic
-     * @param {Any} [value] item to publish
+     * @param {any} [value] item to publish
      * @param {Object} [options]
      * @return {Promise}
      */
@@ -214,7 +218,7 @@ export default class ChannelManager {
      * @return {String[]}
      */
     getSubscribedTopics() {
-        var list = _.uniq(getTopicsFromSubsList(this.subscriptions));
+        var list = uniq(getTopicsFromSubsList(this.subscriptions));
         return list;
     }
 
@@ -225,7 +229,7 @@ export default class ChannelManager {
     getSubscribers(topic) {
         if (topic) {
             return this.subscriptions.filter(function (subs) {
-                return _.includes(subs.topics, topic);
+                return includes(subs.topics, topic);
             });
         }
         return this.subscriptions;
