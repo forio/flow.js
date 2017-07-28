@@ -47,14 +47,14 @@ module.exports = (function () {
                 });
             });
 
-            it('should call operation with double params with no, object', function () {
+            it('should call operation with double params with no object', function () {
                 var channel = utils.createDummyChannel();
                 return utils.initWithNode(`
-                        <input type="button" data-f-on-click='step(1, {"hello": "world" })'/>
-                    `, domManager, channel).then(function ($node) {
-                        $node.trigger('click');
-                        channel.publish.should.have.been.calledWith([{ name: 'operations:step', value: [1, { hello: 'world' }] }]);
-                    });
+                    <input type="button" data-f-on-click='step(1, {"hello": "world" })'/>
+                `, domManager, channel).then(function ($node) {
+                    $node.trigger('click');
+                    channel.publish.should.have.been.calledWith([{ name: 'operations:step', value: [1, { hello: 'world' }] }]);
+                });
             });
         });
     });

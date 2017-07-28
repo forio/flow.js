@@ -215,5 +215,21 @@
         }],
         "space-unary-ops": 2,
         "wrap-regex": 2
-    }
+    },
+    "overrides": [{
+        "files": ["**/tests/*.js"],
+        "env": {
+            "mocha": true
+        },
+        "globals": {
+            "expect": false,
+            "sinon": false
+        },
+        "rules": {
+            "quote-props": 0,
+            "no-magic-numbers": 0,
+            "one-var": 0,
+            "no-unused-expressions": 0
+        }
+    }]
 }

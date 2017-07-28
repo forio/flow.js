@@ -1,5 +1,6 @@
 import ChannelManager from 'src/channels/channel-manager';
 
+function noop() {}
 describe('Subscription Manager', ()=> {
     var channel;
     beforeEach(()=> {
@@ -19,11 +20,11 @@ describe('Subscription Manager', ()=> {
             channel.unsubscribeAll();
         });
         it('should allow single subscriptions', ()=> {
-            channel.subscribe('price', {});
+            channel.subscribe('price', noop);
             expect(channel.getSubscribers('price').length).to.equal(1);
         });
         it('should allow single subscriptions', ()=> {
-            channel.subscribe(['price', 'sales'], {});
+            channel.subscribe(['price', 'sales'], noop);
             expect(channel.getSubscribers('price').length).to.equal(1);
             expect(channel.getSubscribers('sales').length).to.equal(1);
         });
@@ -173,7 +174,7 @@ describe('Subscription Manager', ()=> {
                 expect(channel.middlewares.filter('subscribe')).to.eql([m1, m2]);
             });
             it('should be called in the right order each time there\'s a subscribe call', ()=> {
-                channel.subscribe(['Foo', 'Bar']);
+                channel.subscribe(['Foo', 'Bar'], noop);
                 expect(m1).to.have.been.calledOnce;
                 expect(m2).to.have.been.calledOnce;
 
@@ -181,7 +182,7 @@ describe('Subscription Manager', ()=> {
             });
             it('should call each middleware with a list of subscribed topics', ()=> {
                 var topics = ['Foo', 'Bar'];
-                channel.subscribe(['Foo', 'Bar']);
+                channel.subscribe(['Foo', 'Bar'], noop);
                 expect(m1).to.have.been.calledWith(topics);
                 expect(m2).to.have.been.calledWith(topics);
             });
@@ -203,7 +204,7 @@ describe('Subscription Manager', ()=> {
                 expect(channel.middlewares.filter('unsubscribe')).to.eql([m1, m2]);
             });
             it('should be called in the right order each time there\'s a unsubscribed call', ()=> {
-                var token = channel.subscribe(['Foo', 'Bar']);
+                var token = channel.subscribe(['Foo', 'Bar'], noop);
                 channel.unsubscribe(token);
 
                 expect(m1).to.have.been.calledOnce;
@@ -212,8 +213,8 @@ describe('Subscription Manager', ()=> {
                 expect(m1).to.have.been.calledBefore(m2);
             });
             it('should call each middleware with a list of unsubscribed & remaining topics', ()=> {
-                var token1 = channel.subscribe(['Foo', 'Bar']);
-                var token2 = channel.subscribe(['Adam', 'West']);
+                var token1 = channel.subscribe(['Foo', 'Bar'], noop);
+                var token2 = channel.subscribe(['Adam', 'West'], noop);
 
                 channel.unsubscribe(token1);
                 var m1Args = m1.getCall(0).args;
@@ -228,8 +229,8 @@ describe('Subscription Manager', ()=> {
             });
 
             it('should be called after unsubscribeall', ()=> {
-                channel.subscribe(['Foo', 'Bar']);
-                channel.subscribe(['Adam', 'West']);
+                channel.subscribe(['Foo', 'Bar'], noop);
+                channel.subscribe(['Adam', 'West'], noop);
                 channel.unsubscribeAll();
 
                 var m1Args = m1.getCall(0).args;
@@ -358,33 +359,15 @@ describe('Subscription Manager', ()=> {
             channel.unsubscribeAll();
         });
         it('to register subscribers if called with a single topic', function () {
-            channel.subscribe('price', {});
+            channel.subscribe('price', noop);
             expect(channel.subscriptions.length).to.equal(1);
         });
         it('count multiple topics as a single subscription', function () {
-            channel.subscribe(['price', 'sales'], {});
+            channel.subscribe(['price', 'sales'], noop);
             expect(channel.subscriptions.length).to.equal(1);
         });
-        // it('to update inner variable dependencies for single items', function () {
-        //     expect(channel.subscribe(['price[<time>]'], {});
-
-        //     var subs = expect(channel.getSubscribers('price[<time>]');
-        //     subs.length).to.equal(1);
-        //     expect(channel.getTopicDependencies().to.eql(['time']);
-        // });
-
-        // it('to update inner variable dependencies for multiple items', function () {
-        //     expect(channel.subscribe(['price[<time>]', 'apples', 'sales[<step>]'], {});
-
-        //     expect(channel.getSubscribers('price[<time>]').length).to.equal(1);
-        //     expect(channel.getSubscribers('apples').length).to.equal(1);
-        //     expect(channel.getSubscribers('sales[<step>]').length).to.equal(1);
-
-        //     expect(channel.getTopicDependencies().to.eql(['time', 'step']);
-        // });
         it('should generate a token', function () {
-            var dummyObject = { a: 1 };
-            var token = channel.subscribe(['price', 'apples'], dummyObject);
+            var token = channel.subscribe(['price', 'apples'], noop);
             expect(token).to.be.a('string');
         });
     });
@@ -394,32 +377,27 @@ describe('Subscription Manager', ()=> {
             channel.unsubscribeAll();
         });
         it('should update list on subscribe', ()=> {
-            var dummyObject = { a: 1 };
-            channel.subscribe(['apples', 'sales'], dummyObject);
+            channel.subscribe(['apples', 'sales'], noop);
             expect(channel.getSubscribedTopics()).to.eql(['apples', 'sales']);
         });
         it('should update list across multiple subscribes', ()=> {
-            var dummyObject = { a: 1 };
-            channel.subscribe(['apples', 'sales'], dummyObject);
+            channel.subscribe(['apples', 'sales'], noop);
             channel.subscribe(['bat', 'man'], ()=>{ });
             expect(channel.getSubscribedTopics()).to.eql(['apples', 'sales', 'bat', 'man']);
         });
         it('should dedupe', ()=> {
-            var dummyObject = { a: 1 };
-            channel.subscribe(['apples', 'sales'], dummyObject);
+            channel.subscribe(['apples', 'sales'], noop);
             channel.subscribe(['apples', 'bat', 'man'], ()=>{ });
             expect(channel.getSubscribedTopics()).to.eql(['apples', 'sales', 'bat', 'man']);
         });
         it('should remove on subscribed', ()=> {
-            var dummyObject = { a: 1 };
-            channel.subscribe(['apples', 'sales'], dummyObject);
+            channel.subscribe(['apples', 'sales'], noop);
             var token = channel.subscribe(['bat', 'man'], ()=>{ });
             channel.unsubscribe(token);
             expect(channel.getSubscribedTopics()).to.eql(['apples', 'sales']);
         });
         it('should only remove deduped subscriptions', ()=> {
-            var dummyObject = { a: 1 };
-            channel.subscribe(['apples', 'sales'], dummyObject);
+            channel.subscribe(['apples', 'sales'], noop);
             var token = channel.subscribe(['apples', 'bat', 'man'], ()=>{ });
             channel.unsubscribe(token);
             expect(channel.getSubscribedTopics()).to.eql(['apples', 'sales']);
@@ -431,8 +409,7 @@ describe('Subscription Manager', ()=> {
         });
 
         it('should use the token to unsubscribe', function () {
-            var dummyObject = { a: 1 };
-            var token = channel.subscribe(['apples', 'sales'], dummyObject);
+            var token = channel.subscribe(['apples', 'sales'], noop);
 
             expect(channel.getSubscribers('apples').length).to.equal(1);
 
@@ -445,8 +422,8 @@ describe('Subscription Manager', ()=> {
     });
     describe('#unsubscribeAll', function () {
         it('should clear out state variables', function () {
-            channel.subscribe(['price'], {});
-            channel.subscribe(['target'], {});
+            channel.subscribe(['price'], noop);
+            channel.subscribe(['target'], noop);
             expect(channel.getSubscribers().length).to.eql(2);
 
             channel.unsubscribeAll();

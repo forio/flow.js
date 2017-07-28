@@ -24,9 +24,11 @@ module.exports = function (grunt) {
         options: {
             plugins: [
                 // 'transform-es2015-modules-commonjs',
-                'babel-plugin-transform-es2015-arrow-functions',
                 'transform-es2015-destructuring',
-                'babel-plugin-transform-es2015-template-literals'
+                'transform-es2015-block-scoping',
+                'babel-plugin-transform-es2015-arrow-functions',
+                'babel-plugin-transform-es2015-classes',
+                'babel-plugin-transform-es2015-template-literals',
             ]
         }
     };
@@ -55,16 +57,35 @@ module.exports = function (grunt) {
             },
             // watch: true,
             // keepalive: true,
-            stats: {
-                // Configure the console output
-                colors: true,
-                modules: false,
-                reasons: false
-            },
+            stats: 'minimal',
             plugins: [
                 // new webpack.HotModuleReplacementPlugin()
             ],
             devtool: 'eval'
+        },
+        testsdev: {
+            entry: path.resolve('./tests/test-list.js'),
+            output: {
+                path: path.resolve('./tests/dist/'),
+                filename: 'tests-bundle.js'
+            },
+            stats: 'minimal',
+            module: {
+                rules: [
+                    Object.assign({}, babelloader, {
+                        include: path.resolve('./tests'),
+                    }),
+                    { test: /\.html$/, loader: 'raw-loader' },
+                    { test: /\.py$/, loader: 'raw-loader' },
+                    { test: /\.jl$/, loader: 'raw-loader' },
+                ]
+            },
+            devtool: 'eval',
+            resolve: {
+                alias: {
+                    src: __dirname + '/../src'
+                }
+            }
         },
         tests: {
             entry: path.resolve('./tests/test-list.js'),
@@ -72,6 +93,7 @@ module.exports = function (grunt) {
                 path: path.resolve('./tests/dist/'),
                 filename: 'tests-bundle.js'
             },
+            stats: 'minimal',
             module: {
                 rules: [
                     Object.assign({}, babelloader, {
@@ -85,7 +107,7 @@ module.exports = function (grunt) {
                         ],
                         loader: 'babel-loader',
                         options: {
-                            // plugins: ['istanbul']
+                            plugins: ['istanbul']
                         }
                     },
                     { test: /\.html$/, loader: 'raw-loader' },

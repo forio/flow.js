@@ -96,6 +96,7 @@ export default function Router(handlers) {
         /**
          * @param {String[]} topics
          * @param {SubscribeOptions} [options]
+         * @return {String[]} Returns the original topics array
          */
         subscribeHandler: function (topics, options) {
             return notifySubscribeHandlers(handlers, topics, options);
@@ -103,6 +104,7 @@ export default function Router(handlers) {
         /**
          * @param {String[]} recentlyUnsubscribedTopics
          * @param {String[]} remainingTopics
+         * @return {void}
          */
         unsubscribeHandler: function (recentlyUnsubscribedTopics, remainingTopics) {
             return notifyUnsubscribeHandlers(handlers, recentlyUnsubscribedTopics, remainingTopics);
@@ -111,6 +113,7 @@ export default function Router(handlers) {
         /**
          * @param {Publishable[]} data
          * @param {PublishOptions} [options]
+         * @return {Promise}
          */
         publishHandler: function (data, options) {
             return passthroughPublishInterceptors(handlers, data, options);

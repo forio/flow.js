@@ -15,7 +15,7 @@ module.exports = (function () {
                 return utils.initWithNode(nodes, domManager).then(function ($node) {
                     var spy = utils.spyOnNode($node);
                     $node.trigger('change');
-                    spy.should.have.been.called.once;
+                    spy.should.have.been.calledOnce;
                 });
             });
 

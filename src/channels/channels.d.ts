@@ -1,3 +1,13 @@
+interface SubscribeOptions {
+    autoFetch: boolean;
+}
+// interface ChannelManager {
+//     subscribe: (topics: string[] | string, options: SubscribeOptions) => string;
+//     unsubscribe: (token: string) => void;
+//     unsubscribeAll: () => void;
+//     publish: () => Promise<Publishable>;
+// }
+
 interface matchFunction extends Function {
     (prefix:string):boolean | string;
 }
@@ -7,29 +17,21 @@ interface Publishable {
     value: any;
 }
 
-interface SubscribeOptions {
-    autoFetch: boolean;
-}
+
 interface PublishOptions {
     readOnly: boolean | string[];
     silent: boolean | string[] | { except: string[] };
 }
 
-interface subscribeHandler extends Function {
-    (topics: string[], options: SubscribeOptions, match?:string): void;
-}
-interface publishHandler extends Function {
-    (publishData: Publishable[], options: PublishOptions, match?:string): Promise<Publishable[]>;
-}
 
 interface HandlerOptions extends SubscribeOptions, PublishOptions {
 
 }
 
 interface BaseHandler {
-    subscribeHandler?: subscribeHandler;
-    unsubscribeHandler?: Function;
-    publishHandler?: publishHandler;
+    subscribeHandler?: (topics: string[], options: SubscribeOptions, match?:string)=> void;
+    unsubscribeHandler?: (unsubscribedTopics: string[], remainingTopics: string[])=> void;
+    publishHandler?: (publishData: Publishable[], options: PublishOptions, match?:string)=> Promise<Publishable[]>;
 }
 
 interface Handler extends BaseHandler {

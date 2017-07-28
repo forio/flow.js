@@ -17,10 +17,9 @@ module.exports = function (grunt) {
         require('./' + task)(grunt);
     });
 
-    grunt.registerTask('generateDev', ['webpack:edge', 'webpack:tests']);
     grunt.registerTask('addons', ['webpack:addons', 'sass:addons']);
     grunt.registerTask('addonsDev', ['watch:scriptsAddons', 'watch:stylesAddons']);
-    grunt.registerTask('test', ['generateDev', 'mocha', 'coverage-report']);
+    grunt.registerTask('test', ['webpack:edge', 'webpack:tests', 'mocha:test', 'coverage-report']);
     grunt.registerTask('documentation', ['eslint', 'markdox']);
     grunt.registerTask('validate', ['eslint', 'test']);
     grunt.registerTask('production', ['validate', 'addons', 'webpack:mapped', 'webpack:min']);
@@ -32,5 +31,5 @@ module.exports = function (grunt) {
         });
     });
 
-    grunt.registerTask('default', ['generateDev', 'watch']);
+    grunt.registerTask('default', ['webpack:edge', 'webpack:testsdev', 'watch']);
 };
