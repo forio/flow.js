@@ -27,10 +27,12 @@ module.exports = function (grunt) {
                 { pattern: 'node_modules/jquery/dist/jquery.js', watched: false, included: true, served: true },
                 { pattern: 'node_modules/lodash/lodash.js', watched: false, included: true, served: true },
                 { pattern: 'node_modules/epicenter-js/dist/epicenter.min.js', watched: false, included: true, served: true },
-                // { pattern: 'tests/dist/tests-bundle.js', watched: true, included: true, served: true },
-                { pattern: 'tests/test-list.js', watched: true, included: true, served: true },
-                // { pattern: 'tests/specs/dom/test-dom-manager.js', watched: false, included: true, served: true },
+                { pattern: 'tests/specs/**/*.js', watched: true, included: true, served: true },
+                // { pattern: 'tests/test-list.js', watched: true, included: true, served: true },
                 // { pattern: 'tests/specs/sample.js', watched: false, included: true, served: true },
+            ],
+            exclude: [
+                'tests/specs/test-flow.js'
             ],
             reporters: ['progress'],
             singleRun: false,
@@ -44,8 +46,8 @@ module.exports = function (grunt) {
                 }
             },
             preprocessors: {
-                // 'tests/specs/**/*.js': ['webpack'],
-                'tests/test-list.js': ['webpack'],
+                'tests/specs/**/*.js': ['webpack'],
+                // 'tests/test-list.js': ['webpack'],
             },
             webpack: {
                 stats: {
