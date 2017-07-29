@@ -6,6 +6,7 @@ module.exports = function (grunt) {
         test: /\.js$/, 
         exclude: /node_modules\/(?!(autotrack|dom-utils))/,
         loader: 'babel-loader',
+        include: path.resolve('./tests'),
         options: {
             plugins: [
                 // 'transform-es2015-modules-commonjs',
@@ -34,7 +35,7 @@ module.exports = function (grunt) {
             exclude: [
                 'tests/specs/test-flow.js'
             ],
-            reporters: ['progress'],
+            reporters: ['mocha'],
             singleRun: false,
             browserConsoleLogOptions: {
                 terminal: false
@@ -49,19 +50,20 @@ module.exports = function (grunt) {
                 'tests/specs/**/*.js': ['webpack'],
                 // 'tests/test-list.js': ['webpack'],
             },
+            mochaReporter: {
+                showDiff: 'unified',
+                ignoreSkipped: true,
+                output: 'minimal',
+            },
+            webpackMiddleware: {
+                 // webpack-dev-middleware configuration
+                 // i. e.
+                 stats: 'errors-only'
+            },
             webpack: {
-                stats: {
-                    assets: false,
-                    modules: false,
-                    entrypoints: false,
-                    chunks: false,
-                    children: false,
-                },
                 module: {
                     rules: [
-                        Object.assign({}, babelloader, {
-                            include: path.resolve('./tests'),
-                        }),
+                        babelloader,
                         { test: /\.html$/, loader: 'raw-loader' },
                         { test: /\.py$/, loader: 'raw-loader' },
                         { test: /\.jl$/, loader: 'raw-loader' },
