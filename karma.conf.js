@@ -19,7 +19,7 @@ module.exports = function(config) {
     };
     config.set({
         basePath: '',
-        browsers: ['Chrome'],
+        browsers: ['ChromeHeadless'],
         frameworks: ['mocha', 'sinon-chai'],
         hostname: 'local.forio.com',
         files: [
