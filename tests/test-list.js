@@ -32,7 +32,7 @@ require('./specs/channels/test-channel-util');
 require('./specs/channels/test-channel-router');
 require('./specs/channels/utils/test-silencable');
 
-require('./specs/test-flow');
+// require('./specs/test-flow'); Needs more work with testing timers
 
 
-require('../src/flow'); //directly require if you need to skip flow inspector
+// require('../src/flow'); //directly require if you need to skip flow inspector

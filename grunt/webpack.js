@@ -73,7 +73,7 @@ module.exports = function (grunt) {
             module: {
                 rules: [
                     Object.assign({}, babelloader, {
-                        include: path.resolve('./tests'),
+                        include: path.resolve('./tests/specs'),
                     }),
                     { test: /\.html$/, loader: 'raw-loader' },
                     { test: /\.py$/, loader: 'raw-loader' },

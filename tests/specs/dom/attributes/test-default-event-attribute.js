@@ -13,7 +13,7 @@ module.exports = (function () {
                 $node.on(config.events.operate, spy);
                 $node.trigger('click');
 
-                spy.should.have.been.called;
+                expect(spy).to.have.been.called;
             });
 
             it('should only trigger one operation per event', function () {
@@ -24,11 +24,11 @@ module.exports = (function () {
                 $node.on(config.events.operate, spy);
                 $node.trigger('click');
 
-                spy.should.have.been.calledOnce;
+                expect(spy).to.have.been.calledOnce;
 
                 $node.trigger('click');
 
-                spy.should.have.been.calledTwice;
+                expect(spy).to.have.been.calledTwice;
             });
 
             it('should pass the right parameters to operate', function () {
@@ -59,19 +59,21 @@ module.exports = (function () {
         });
 
         describe('#unbind', function () {
-            var $node = $('<button data-f-on-click="stuff"> Click </button>');
-            defaultEventAttr.init.call($node, 'on-click', 'stuff');
+            it('should remove event listeners', ()=> {
+                var $node = $('<button data-f-on-click="stuff"> Click </button>');
+                defaultEventAttr.init.call($node, 'on-click', 'stuff');
 
-            var spy = sinon.spy();
-            $node.on(config.events.operate, spy);
-            $node.trigger('click');
+                var spy = sinon.spy();
+                $node.on(config.events.operate, spy);
+                $node.trigger('click');
 
-            spy.should.have.been.calledOnce;
+                expect(spy).to.have.been.calledOnce;
 
-            defaultEventAttr.unbind.call($node, 'on-click');
-            $node.trigger('click');
+                defaultEventAttr.unbind.call($node, 'on-click');
+                $node.trigger('click');
 
-            spy.should.have.been.calledOnce;
+                expect(spy).to.have.been.calledOnce;
+            });
         });
     });
 }());
