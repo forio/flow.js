@@ -5,7 +5,7 @@ module.exports = function (grunt) {
     grunt.config.set('watch', {
         source: {
             files: ['src/**/*.js'],
-            tasks: ['karma']
+            tasks: ['karma:allTests']
         },
         stylesAddons: {
             files: ['src/add-ons/**/*.scss'],
@@ -20,7 +20,7 @@ module.exports = function (grunt) {
                 interrupt: true,
                 spawn: false
             },
-            files: ['tests/specs/**/*.js', 'tests/specs/*.js', 'tests/*.js', '!tests/dist/*'],
+            files: ['tests/specs/**/test-*.js', 'tests/specs/test-*.js', 'src/**/test-*.js'],
             tasks: []
         }
     });
