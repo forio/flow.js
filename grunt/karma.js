@@ -70,18 +70,16 @@ module.exports = function (grunt) {
         },
         allTests: {
             files: fileDeps.concat([
-                { src: 'tests/test-list.js', watched: true, included: true, served: true },
-                // { pattern: 'tests/specs/**/*.js', watched: true, included: true, served: true },
+                { src: 'tests/test-list.js', watched: false, included: true, served: true },
             ]),
             options: {
                 preprocessors: {
-                    'tests/specs/**/*.js': ['webpack'],
                     'tests/test-list.js': ['webpack'],
                 },
                 browserConsoleLogOptions: {
                     terminal: false
                 },
-                // background: true,
+                // background: false,
                 singleRun: true,
                 exclude: [
                     'tests/specs/test-flow.js'

@@ -4,7 +4,7 @@ module.exports = function (grunt) {
     // grunt.loadNpmTasks('grunt-contrib-watch');
     grunt.config.set('watch', {
         source: {
-            files: ['src/**/*.js'],
+            files: ['src/**/*.js', '!src/**/test-*.js'],
             tasks: ['karma:allTests']
         },
         stylesAddons: {

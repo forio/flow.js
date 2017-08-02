@@ -7,7 +7,7 @@ export function findBestHandler(topic, handlers) {
     for (var i = 0; i < handlers.length; i++) {
         var thishandler = handlers[i];
         var match = thishandler.match(topic);
-        if (match !== false) {
+        if (match === false) {
             return $.extend(true, {}, thishandler, { matched: match });
         }
     }
