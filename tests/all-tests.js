@@ -1,4 +1,15 @@
-var testsInSource = require.context('../src/', true, /tests\/test-(.*)\.js$/i);
-testsInSource.keys().forEach(testsInSource);
+var blacklist = [
+    'flow.js',
+    'src/add-ons/',
+];
 
-require('../src/flow'); //directly require if you need to skip flow inspector
+require('./specs/utils/test-general-utils');
+require('./specs/utils/test-parse-utils');
+require('./specs/utils/test-dom-utils');
+
+var sourceContext = require.context('../src/', true, /\.js$/i);
+console.log(sourceContext.keys());
+sourceContext.keys().filter((k)=> {
+    var isBlacklisted = blacklist.filter((b)=> b.indexOf(k) !== -1).length > 0;
+    return !isBlacklisted;
+});

@@ -6,14 +6,13 @@ module.exports = function (grunt) {
         test: /\.js$/,
         exclude: /node_modules\/(?!(autotrack|dom-utils))/,
         loader: 'babel-loader',
-        include: path.resolve('./tests'),
     };
     var babelloaderForOlderBrowsers = Object.assign({}, babelloader, {
         options: {
             plugins: [
-                // ['istanbul', {
-                //     // exclude: ['tests/**/*.js']
-                // }],
+                ['istanbul', {
+                    exclude: ['tests/**/*.js']
+                }],
                 'transform-es2015-destructuring',
                 'transform-es2015-block-scoping',
                 'babel-plugin-transform-es2015-arrow-functions',
@@ -107,7 +106,7 @@ module.exports = function (grunt) {
             ]),
             options: {
                 preprocessors: {
-                    'src/**/*.js': ['webpack', 'coverage'],
+                    'src/**/*.js': ['webpack'],
                     'tests/specs/**/*.js': ['webpack'],
                 },
                 browserConsoleLogOptions: {
