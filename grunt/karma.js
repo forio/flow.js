@@ -11,7 +11,10 @@ module.exports = function (grunt) {
         options: {
             plugins: [
                 ['istanbul', {
-                    exclude: ['tests/**/*.js']
+                    exclude: [
+                        'tests/**/*.js',
+                        'src/**/test-*.js',
+                    ]
                 }],
                 'transform-es2015-destructuring',
                 'transform-es2015-block-scoping',
@@ -40,22 +43,18 @@ module.exports = function (grunt) {
             frameworks: ['mocha', 'sinon-chai'],
             hostname: 'local.forio.com',
             reporters: ['mocha'],
-            singleRun: false,
+            singleRun: true,
             browserConsoleLogOptions: {
                 terminal: false
             },
             // logLevel: 'debug',
-            client: {
-                chai: {
-                    // includeStack: true
-                }
-            },
             mochaReporter: {
                 showDiff: 'unified',
                 ignoreSkipped: true,
                 output: 'minimal',
             },
             webpackMiddleware: {
+                noInfo: true,
                 stats: 'none'
             },
             webpack: {
@@ -72,32 +71,18 @@ module.exports = function (grunt) {
                 }
             }
         },
-        allTests: {
+        testList: {
             files: fileDeps.concat([
                 { src: 'tests/test-list.js', watched: false, included: true, served: true },
             ]),
             options: {
                 preprocessors: {
                     'tests/test-list.js': ['webpack'],
-                },
-                browserConsoleLogOptions: {
-                    terminal: false
-                },
-                // background: false,
-                singleRun: true,
-                exclude: [
-                    'tests/specs/test-flow.js'
-                ],
+                }
             }
         },
         singleTest: {
-            files: fileDeps,
-            options: {
-                browserConsoleLogOptions: {
-                    terminal: false
-                },
-                singleRun: true,
-            }
+            files: fileDeps
         },
         testWithCoverage: {
             files: fileDeps.concat([
@@ -105,27 +90,23 @@ module.exports = function (grunt) {
                 { src: 'src/**/*.js', watched: false, included: true, served: true },
             ]),
             options: {
+                logLevel: 'error',
                 preprocessors: {
                     'src/**/*.js': ['webpack'],
                     'tests/specs/**/*.js': ['webpack'],
                 },
-                browserConsoleLogOptions: {
-                    terminal: false
-                },
-                // background: false,
-                singleRun: true,
                 exclude: [
                     'tests/specs/test-flow.js',
                     'src/flow.js',
                     'src/add-ons/**/*',
-                    'src/add-ons/*',
                 ],
                 coverageReporter: {
-                    type: 'lcov',
-                    subdir: '.',
-                    dir: 'coverage/'
+                    reporters: [
+                        { type: 'lcov', subdir: '.', dir: 'coverage/' },
+                        { type: 'text-summary' }
+                    ]
                 },
-                reporters: ['progress', 'coverage'],
+                reporters: ['progress', 'mocha', 'coverage'],
                 webpack: {
                     module: {
                         rules: [babelloaderForOlderBrowsers].concat(webpackLoaders)
@@ -142,5 +123,4 @@ module.exports = function (grunt) {
             }
         }
     });
-
 };
