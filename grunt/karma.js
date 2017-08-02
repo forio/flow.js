@@ -18,24 +18,28 @@ module.exports = function (grunt) {
             ]
         }
     };
+
+    var fileDeps = [
+        { pattern: 'node_modules/jquery/dist/jquery.js', watched: false, included: true, served: true },
+        { pattern: 'node_modules/lodash/lodash.js', watched: false, included: true, served: true },
+        { pattern: 'node_modules/epicenter-js/dist/epicenter.min.js', watched: false, included: true, served: true },
+        { pattern: 'tests/test-list.js', watched: true, included: true, served: true },
+    ];
     grunt.config.set('karma', {
         options: {
             basePath: '',
             browsers: ['ChromeHeadless'],
             frameworks: ['mocha', 'sinon-chai'],
             hostname: 'local.forio.com',
-            files: [
-                { pattern: 'node_modules/jquery/dist/jquery.js', watched: false, included: true, served: true },
-                { pattern: 'node_modules/lodash/lodash.js', watched: false, included: true, served: true },
-                { pattern: 'node_modules/epicenter-js/dist/epicenter.min.js', watched: false, included: true, served: true },
+            files: fileDeps.concat([
                 { pattern: 'tests/specs/**/*.js', watched: true, included: true, served: true },
                 // { pattern: 'tests/test-list.js', watched: true, included: true, served: true },
-            ],
+            ]),
             exclude: [
                 'tests/specs/test-flow.js'
             ],
             reporters: ['mocha'],
-            singleRun: true,
+            singleRun: false,
             browserConsoleLogOptions: {
                 terminal: false
             },
@@ -47,7 +51,7 @@ module.exports = function (grunt) {
             },
             preprocessors: {
                 'tests/specs/**/*.js': ['webpack'],
-                // 'tests/test-list.js': ['webpack'],
+                'tests/test-list.js': ['webpack'],
             },
             mochaReporter: {
                 showDiff: 'unified',
@@ -75,8 +79,11 @@ module.exports = function (grunt) {
                 }
             }
         },
-        tests: {
-
+        singleTest: {
+            options: {
+                singleRun: true,
+                files: fileDeps,
+            }
         }
     });
 
