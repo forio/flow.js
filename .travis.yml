@@ -3,5 +3,3 @@ node_js:
   - "6"
 after_success:
   - 'cat ./coverage/lcov.info | ./node_modules/.bin/coveralls'
-addons:
-  chrome: stable

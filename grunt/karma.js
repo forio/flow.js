@@ -90,6 +90,7 @@ module.exports = function (grunt) {
                 { src: 'src/**/*.js', watched: false, included: true, served: true },
             ]),
             options: {
+                browsers: ['PhantomJS'],
                 logLevel: 'error',
                 preprocessors: {
                     'src/**/*.js': ['webpack'],
