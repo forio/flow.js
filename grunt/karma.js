@@ -2,26 +2,26 @@
 var path = require('path');
 
 module.exports = function (grunt) {
-    var babelloader = { 
-        test: /\.js$/, 
+    var babelloader = {
+        test: /\.js$/,
         exclude: /node_modules\/(?!(autotrack|dom-utils))/,
         loader: 'babel-loader',
         include: path.resolve('./tests'),
         options: {
             plugins: [
                 // 'transform-es2015-modules-commonjs',
-                'transform-es2015-destructuring',
-                'transform-es2015-block-scoping',
-                'babel-plugin-transform-es2015-arrow-functions',
-                'babel-plugin-transform-es2015-classes',
-                'babel-plugin-transform-es2015-template-literals',
+                // 'transform-es2015-destructuring',
+                // 'transform-es2015-block-scoping',
+                // 'babel-plugin-transform-es2015-arrow-functions',
+                // 'babel-plugin-transform-es2015-classes',
+                // 'babel-plugin-transform-es2015-template-literals',
             ]
         }
     };
     grunt.config.set('karma', {
         options: {
             basePath: '',
-            browsers: ['Chrome'],
+            browsers: ['ChromeHeadless'],
             frameworks: ['mocha', 'sinon-chai'],
             hostname: 'local.forio.com',
             files: [
@@ -30,13 +30,12 @@ module.exports = function (grunt) {
                 { pattern: 'node_modules/epicenter-js/dist/epicenter.min.js', watched: false, included: true, served: true },
                 { pattern: 'tests/specs/**/*.js', watched: true, included: true, served: true },
                 // { pattern: 'tests/test-list.js', watched: true, included: true, served: true },
-                // { pattern: 'tests/specs/sample.js', watched: false, included: true, served: true },
             ],
             exclude: [
                 'tests/specs/test-flow.js'
             ],
             reporters: ['mocha'],
-            singleRun: false,
+            singleRun: true,
             browserConsoleLogOptions: {
                 terminal: false
             },
@@ -56,9 +55,7 @@ module.exports = function (grunt) {
                 output: 'minimal',
             },
             webpackMiddleware: {
-                 // webpack-dev-middleware configuration
-                 // i. e.
-                 stats: 'errors-only'
+                stats: 'errors-only'
             },
             webpack: {
                 module: {
@@ -71,9 +68,9 @@ module.exports = function (grunt) {
                 },
                 devtool: 'eval',
                 resolve: {
-                    modules: [__dirname + '/../src', 'node_modules'],
+                    modules: [path.resolve('./src'), 'node_modules'],
                     alias: {
-                        src: __dirname + '/../src'
+                        src: path.resolve('./src')
                     }
                 }
             }

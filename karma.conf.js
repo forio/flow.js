@@ -1,14 +1,15 @@
 var path = require('path');
 
-module.exports = function(config) {
+module.exports = function (config) {
     var babelloader = {
         test: /\.js$/,
         exclude: /node_modules\/(?!(autotrack|dom-utils))/,
         loader: 'babel-loader',
         include: path.resolve('./tests'),
+    };
+    var babelWithPlugins = Object.assign({}, babelloader, {
         options: {
             plugins: [
-                // 'transform-es2015-modules-commonjs',
                 'transform-es2015-destructuring',
                 'transform-es2015-block-scoping',
                 'babel-plugin-transform-es2015-arrow-functions',
@@ -16,7 +17,8 @@ module.exports = function(config) {
                 'babel-plugin-transform-es2015-template-literals',
             ]
         }
-    };
+    });
+
     config.set({
         basePath: '',
         browsers: ['ChromeHeadless'],
@@ -26,9 +28,8 @@ module.exports = function(config) {
             { pattern: 'node_modules/jquery/dist/jquery.js', watched: false, included: true, served: true },
             { pattern: 'node_modules/lodash/lodash.js', watched: false, included: true, served: true },
             { pattern: 'node_modules/epicenter-js/dist/epicenter.min.js', watched: false, included: true, served: true },
-            // { pattern: 'tests/specs/**/*.js', watched: true, included: true, served: true },
-            { pattern: 'tests/test-list.js', watched: true, included: true, served: true },
-            // { pattern: 'tests/specs/sample.js', watched: false, included: true, served: true },
+            { pattern: 'tests/specs/**/*.js', watched: true, included: true, served: true },
+            // { pattern: 'tests/test-list.js', watched: true, included: true, served: true },
         ],
         exclude: [
             'tests/specs/test-flow.js'
@@ -45,8 +46,8 @@ module.exports = function(config) {
             }
         },
         preprocessors: {
-            // 'tests/specs/**/*.js': ['webpack'],
-            'tests/test-list.js': ['webpack'],
+            'tests/specs/**/*.js': ['webpack'],
+            // 'tests/test-list.js': ['webpack'],
         },
         mochaReporter: {
             showDiff: 'unified',
@@ -74,5 +75,4 @@ module.exports = function(config) {
             }
         }
     });
-
 };
