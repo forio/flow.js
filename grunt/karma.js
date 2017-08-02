@@ -11,9 +11,9 @@ module.exports = function (grunt) {
     var babelloaderForOlderBrowsers = Object.assign({}, babelloader, {
         options: {
             plugins: [
-                ['istanbul', {
-                    exclude: ['src/**/*.js']
-                }],
+                // ['istanbul', {
+                //     // exclude: ['tests/**/*.js']
+                // }],
                 'transform-es2015-destructuring',
                 'transform-es2015-block-scoping',
                 'babel-plugin-transform-es2015-arrow-functions',
@@ -37,6 +37,7 @@ module.exports = function (grunt) {
         options: {
             basePath: '',
             browsers: ['ChromeHeadless'],
+            // browsers: ['Chrome'],
             frameworks: ['mocha', 'sinon-chai'],
             hostname: 'local.forio.com',
             reporters: ['mocha'],
@@ -102,11 +103,12 @@ module.exports = function (grunt) {
         testWithCoverage: {
             files: fileDeps.concat([
                 { src: 'tests/specs/**/*.js', watched: false, included: true, served: true },
-                { src: 'src/**/test-*.js', watched: false, included: true, served: true },
+                { src: 'src/**/*.js', watched: false, included: true, served: true },
             ]),
             options: {
                 preprocessors: {
-                    '**/test-*.js': ['webpack'],
+                    'src/**/*.js': ['webpack', 'coverage'],
+                    'tests/specs/**/*.js': ['webpack'],
                 },
                 browserConsoleLogOptions: {
                     terminal: false
@@ -114,7 +116,10 @@ module.exports = function (grunt) {
                 // background: false,
                 singleRun: true,
                 exclude: [
-                    'tests/specs/test-flow.js'
+                    'tests/specs/test-flow.js',
+                    'src/flow.js',
+                    'src/add-ons/**/*',
+                    'src/add-ons/*',
                 ],
                 coverageReporter: {
                     type: 'html',
