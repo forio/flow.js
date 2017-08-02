@@ -119,5 +119,6 @@ var FlowInspector = function (root) {
     });
 };
 
+if (!window.Flow) { window.Flow = {}; }
 window.Flow.Inspector = FlowInspector;
 module.exports = FlowInspector;
