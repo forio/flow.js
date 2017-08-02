@@ -122,7 +122,8 @@ module.exports = function (grunt) {
                     'src/add-ons/*',
                 ],
                 coverageReporter: {
-                    type: 'html',
+                    type: 'lcov',
+                    subdir: '.',
                     dir: 'coverage/'
                 },
                 reporters: ['progress', 'coverage'],
