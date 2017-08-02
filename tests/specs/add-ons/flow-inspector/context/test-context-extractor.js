@@ -6,7 +6,7 @@ var extractBetween = function (startingLine, endingLine, code) {
     return code.split(/\n/).slice(startingLine - 1, endingLine).join('\n');
 };
 
-describe.skip('Context Extractor', function () {
+describe('Context Extractor', function () {
     describe('Julia', function () {
         var code;
         var extractor;
