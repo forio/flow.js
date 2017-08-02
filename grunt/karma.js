@@ -20,38 +20,27 @@ module.exports = function (grunt) {
     };
 
     var fileDeps = [
-        { pattern: 'node_modules/jquery/dist/jquery.js', watched: false, included: true, served: true },
-        { pattern: 'node_modules/lodash/lodash.js', watched: false, included: true, served: true },
-        { pattern: 'node_modules/epicenter-js/dist/epicenter.min.js', watched: false, included: true, served: true },
-        { pattern: 'tests/test-list.js', watched: true, included: true, served: true },
+        { src: 'node_modules/jquery/dist/jquery.js', watched: false, included: true, served: true },
+        { src: 'node_modules/lodash/lodash.js', watched: false, included: true, served: true },
+        { src: 'node_modules/epicenter-js/dist/epicenter.min.js', watched: false, included: true, served: true },
+        // { pattern: 'tests/test-list.js', watched: true, included: true, served: true },
     ];
     grunt.config.set('karma', {
         options: {
             basePath: '',
-            browsers: ['ChromeHeadless'],
+            browsers: ['Chrome'],
             frameworks: ['mocha', 'sinon-chai'],
             hostname: 'local.forio.com',
-            files: fileDeps.concat([
-                { pattern: 'tests/specs/**/*.js', watched: true, included: true, served: true },
-                // { pattern: 'tests/test-list.js', watched: true, included: true, served: true },
-            ]),
-            exclude: [
-                'tests/specs/test-flow.js'
-            ],
             reporters: ['mocha'],
             singleRun: false,
             browserConsoleLogOptions: {
                 terminal: false
             },
-            // logLevel: 'debug',
+            logLevel: 'debug',
             client: {
                 chai: {
                     // includeStack: true
                 }
-            },
-            preprocessors: {
-                'tests/specs/**/*.js': ['webpack'],
-                'tests/test-list.js': ['webpack'],
             },
             mochaReporter: {
                 showDiff: 'unified',
@@ -59,7 +48,7 @@ module.exports = function (grunt) {
                 output: 'minimal',
             },
             webpackMiddleware: {
-                stats: 'errors-only'
+                stats: 'normal'
             },
             webpack: {
                 module: {
@@ -70,6 +59,7 @@ module.exports = function (grunt) {
                         { test: /\.jl$/, loader: 'raw-loader' },
                     ]
                 },
+                stats: 'normal',
                 devtool: 'eval',
                 resolve: {
                     modules: [path.resolve('./src'), 'node_modules'],
@@ -79,10 +69,34 @@ module.exports = function (grunt) {
                 }
             }
         },
-        singleTest: {
+        allTests: {
+            files: fileDeps.concat([
+                { src: 'tests/test-list.js', watched: true, included: true, served: true },
+                // { pattern: 'tests/specs/**/*.js', watched: true, included: true, served: true },
+            ]),
             options: {
+                preprocessors: {
+                    'tests/specs/**/*.js': ['webpack'],
+                    'tests/test-list.js': ['webpack'],
+                },
+                browserConsoleLogOptions: {
+                    terminal: false
+                },
+                // background: true,
                 singleRun: true,
-                files: fileDeps,
+                exclude: [
+                    'tests/specs/test-flow.js'
+                ],
+            }
+        },
+        singleTest: {
+            files: fileDeps,
+            options: {
+                browserConsoleLogOptions: {
+                    terminal: false
+                },
+                // background: true,
+                singleRun: true,
             }
         }
     });
