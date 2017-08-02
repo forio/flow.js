@@ -5,7 +5,7 @@ module.exports = function (grunt) {
     grunt.config.set('watch', {
         source: {
             files: ['src/**/*.js', '!src/**/test-*.js'],
-            tasks: ['karma:allTests']
+            tasks: ['karma:testList', 'webpack:edge']
         },
         stylesAddons: {
             files: ['src/add-ons/**/*.scss'],
@@ -47,6 +47,5 @@ module.exports = function (grunt) {
         if (target === 'tests' && action !== 'deleted') {
             handleSpecFileChanged(filepath);
         }
-
     });
 };

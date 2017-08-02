@@ -106,7 +106,7 @@ module.exports = function (grunt) {
                         { type: 'text-summary' }
                     ]
                 },
-                reporters: ['progress', 'mocha', 'coverage'],
+                reporters: ['mocha', 'progress', 'coverage'],
                 webpack: {
                     module: {
                         rules: [babelloaderForOlderBrowsers].concat(webpackLoaders)

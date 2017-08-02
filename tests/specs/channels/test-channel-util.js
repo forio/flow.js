@@ -17,7 +17,7 @@ describe('Channel Utils', ()=> {
             var options = { foo: 'bah' };
             var output = convert(input, options);
             var expectedOutput = { 
-                params: [{ name: 'a', value: 1}, { name: 'b', value: 'good' }], 
+                params: [{ name: 'a', value: 1 }, { name: 'b', value: 'good' }], 
                 options: options 
             };
 
