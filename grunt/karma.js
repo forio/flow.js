@@ -6,19 +6,30 @@ module.exports = function (grunt) {
         test: /\.js$/,
         exclude: /node_modules\/(?!(autotrack|dom-utils))/,
         loader: 'babel-loader',
-        include: path.resolve('./tests'),
+    };
+    var babelloaderForOlderBrowsers = Object.assign({}, babelloader, {
         options: {
             plugins: [
-                // 'transform-es2015-modules-commonjs',
-                // 'transform-es2015-destructuring',
-                // 'transform-es2015-block-scoping',
-                // 'babel-plugin-transform-es2015-arrow-functions',
-                // 'babel-plugin-transform-es2015-classes',
-                // 'babel-plugin-transform-es2015-template-literals',
+                ['istanbul', {
+                    exclude: [
+                        'tests/**/*.js',
+                        'src/**/test-*.js',
+                    ]
+                }],
+                'transform-es2015-destructuring',
+                'transform-es2015-block-scoping',
+                'babel-plugin-transform-es2015-arrow-functions',
+                'babel-plugin-transform-es2015-classes',
+                'babel-plugin-transform-es2015-template-literals',
             ]
         }
-    };
+    });
 
+    var webpackLoaders = [
+        { test: /\.html$/, loader: 'raw-loader' },
+        { test: /\.py$/, loader: 'raw-loader' },
+        { test: /\.jl$/, loader: 'raw-loader' }
+    ];
     var fileDeps = [
         { src: 'node_modules/jquery/dist/jquery.js', watched: false, included: true, served: true },
         { src: 'node_modules/lodash/lodash.js', watched: false, included: true, served: true },
@@ -28,35 +39,27 @@ module.exports = function (grunt) {
         options: {
             basePath: '',
             browsers: ['ChromeHeadless'],
+            // browsers: ['Chrome'],
             frameworks: ['mocha', 'sinon-chai'],
             hostname: 'local.forio.com',
             reporters: ['mocha'],
-            singleRun: false,
+            singleRun: true,
             browserConsoleLogOptions: {
                 terminal: false
             },
             // logLevel: 'debug',
-            client: {
-                chai: {
-                    // includeStack: true
-                }
-            },
             mochaReporter: {
                 showDiff: 'unified',
                 ignoreSkipped: true,
                 output: 'minimal',
             },
             webpackMiddleware: {
+                noInfo: true,
                 stats: 'none'
             },
             webpack: {
                 module: {
-                    rules: [
-                        babelloader,
-                        { test: /\.html$/, loader: 'raw-loader' },
-                        { test: /\.py$/, loader: 'raw-loader' },
-                        { test: /\.jl$/, loader: 'raw-loader' },
-                    ]
+                    rules: [babelloader].concat(webpackLoaders)
                 },
                 stats: 'errors-only',
                 devtool: 'eval',
@@ -68,33 +71,56 @@ module.exports = function (grunt) {
                 }
             }
         },
-        allTests: {
+        testList: {
             files: fileDeps.concat([
                 { src: 'tests/test-list.js', watched: false, included: true, served: true },
             ]),
             options: {
                 preprocessors: {
                     'tests/test-list.js': ['webpack'],
-                },
-                browserConsoleLogOptions: {
-                    terminal: false
-                },
-                // background: false,
-                singleRun: true,
-                exclude: [
-                    'tests/specs/test-flow.js'
-                ],
+                }
             }
         },
         singleTest: {
-            files: fileDeps,
+            files: fileDeps
+        },
+        testWithCoverage: {
+            files: fileDeps.concat([
+                { src: 'tests/specs/**/*.js', watched: false, included: true, served: true },
+                { src: 'src/**/*.js', watched: false, included: true, served: true },
+            ]),
             options: {
-                browserConsoleLogOptions: {
-                    terminal: false
+                logLevel: 'error',
+                preprocessors: {
+                    'src/**/*.js': ['webpack'],
+                    'tests/specs/**/*.js': ['webpack'],
                 },
-                singleRun: true,
+                exclude: [
+                    'tests/specs/test-flow.js',
+                    'src/flow.js',
+                    'src/add-ons/**/*',
+                ],
+                coverageReporter: {
+                    reporters: [
+                        { type: 'lcov', subdir: '.', dir: 'coverage/' },
+                        { type: 'text-summary' }
+                    ]
+                },
+                reporters: ['progress', 'mocha', 'coverage'],
+                webpack: {
+                    module: {
+                        rules: [babelloaderForOlderBrowsers].concat(webpackLoaders)
+                    },
+                    stats: 'errors-only',
+                    devtool: 'eval',
+                    resolve: {
+                        modules: [path.resolve('./src'), 'node_modules'],
+                        alias: {
+                            src: path.resolve('./src')
+                        }
+                    }
+                }
             }
         }
     });
-
 };
