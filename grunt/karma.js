@@ -7,18 +7,27 @@ module.exports = function (grunt) {
         exclude: /node_modules\/(?!(autotrack|dom-utils))/,
         loader: 'babel-loader',
         include: path.resolve('./tests'),
+    };
+    var babelloaderForOlderBrowsers = Object.assign({}, babelloader, {
         options: {
             plugins: [
-                // 'transform-es2015-modules-commonjs',
-                // 'transform-es2015-destructuring',
-                // 'transform-es2015-block-scoping',
-                // 'babel-plugin-transform-es2015-arrow-functions',
-                // 'babel-plugin-transform-es2015-classes',
-                // 'babel-plugin-transform-es2015-template-literals',
+                ['istanbul', {
+                    exclude: ['src/**/*.js']
+                }],
+                'transform-es2015-destructuring',
+                'transform-es2015-block-scoping',
+                'babel-plugin-transform-es2015-arrow-functions',
+                'babel-plugin-transform-es2015-classes',
+                'babel-plugin-transform-es2015-template-literals',
             ]
         }
-    };
+    });
 
+    var webpackLoaders = [
+        { test: /\.html$/, loader: 'raw-loader' },
+        { test: /\.py$/, loader: 'raw-loader' },
+        { test: /\.jl$/, loader: 'raw-loader' }
+    ];
     var fileDeps = [
         { src: 'node_modules/jquery/dist/jquery.js', watched: false, included: true, served: true },
         { src: 'node_modules/lodash/lodash.js', watched: false, included: true, served: true },
@@ -51,12 +60,7 @@ module.exports = function (grunt) {
             },
             webpack: {
                 module: {
-                    rules: [
-                        babelloader,
-                        { test: /\.html$/, loader: 'raw-loader' },
-                        { test: /\.py$/, loader: 'raw-loader' },
-                        { test: /\.jl$/, loader: 'raw-loader' },
-                    ]
+                    rules: [babelloader].concat(webpackLoaders)
                 },
                 stats: 'errors-only',
                 devtool: 'eval',
@@ -93,6 +97,43 @@ module.exports = function (grunt) {
                     terminal: false
                 },
                 singleRun: true,
+            }
+        },
+        testWithCoverage: {
+            files: fileDeps.concat([
+                { src: 'tests/specs/**/*.js', watched: false, included: true, served: true },
+                { src: 'src/**/test-*.js', watched: false, included: true, served: true },
+            ]),
+            options: {
+                preprocessors: {
+                    '**/test-*.js': ['webpack'],
+                },
+                browserConsoleLogOptions: {
+                    terminal: false
+                },
+                // background: false,
+                singleRun: true,
+                exclude: [
+                    'tests/specs/test-flow.js'
+                ],
+                coverageReporter: {
+                    type: 'html',
+                    dir: 'coverage/'
+                },
+                reporters: ['progress', 'coverage'],
+                webpack: {
+                    module: {
+                        rules: [babelloaderForOlderBrowsers].concat(webpackLoaders)
+                    },
+                    stats: 'errors-only',
+                    devtool: 'eval',
+                    resolve: {
+                        modules: [path.resolve('./src'), 'node_modules'],
+                        alias: {
+                            src: path.resolve('./src')
+                        }
+                    }
+                }
             }
         }
     });
