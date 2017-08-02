@@ -23,12 +23,11 @@ module.exports = function (grunt) {
         { src: 'node_modules/jquery/dist/jquery.js', watched: false, included: true, served: true },
         { src: 'node_modules/lodash/lodash.js', watched: false, included: true, served: true },
         { src: 'node_modules/epicenter-js/dist/epicenter.min.js', watched: false, included: true, served: true },
-        // { pattern: 'tests/test-list.js', watched: true, included: true, served: true },
     ];
     grunt.config.set('karma', {
         options: {
             basePath: '',
-            browsers: ['Chrome'],
+            browsers: ['ChromeHeadless'],
             frameworks: ['mocha', 'sinon-chai'],
             hostname: 'local.forio.com',
             reporters: ['mocha'],
@@ -36,7 +35,7 @@ module.exports = function (grunt) {
             browserConsoleLogOptions: {
                 terminal: false
             },
-            logLevel: 'debug',
+            // logLevel: 'debug',
             client: {
                 chai: {
                     // includeStack: true
@@ -48,7 +47,7 @@ module.exports = function (grunt) {
                 output: 'minimal',
             },
             webpackMiddleware: {
-                stats: 'normal'
+                stats: 'none'
             },
             webpack: {
                 module: {
@@ -59,7 +58,7 @@ module.exports = function (grunt) {
                         { test: /\.jl$/, loader: 'raw-loader' },
                     ]
                 },
-                stats: 'normal',
+                stats: 'errors-only',
                 devtool: 'eval',
                 resolve: {
                     modules: [path.resolve('./src'), 'node_modules'],
@@ -95,7 +94,6 @@ module.exports = function (grunt) {
                 browserConsoleLogOptions: {
                     terminal: false
                 },
-                // background: true,
                 singleRun: true,
             }
         }
