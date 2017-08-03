@@ -1,8 +1,11 @@
 language: node_js
 node_js:
   - "6"
-after_success:
-  - 'cat ./coverage/lcov.info | ./node_modules/.bin/coveralls'
+cache:
+  directories:
+    - ~/.npm
+    - ~/.yarn-cache
+    - travis_phantomjs
 before_install:
   # Upgrade PhantomJS.
   - |
@@ -15,3 +18,5 @@ before_install:
         tar -xvf phantomjs-$PHANTOMJS_VERSION-linux-x86_64.tar.bz2 -C $PWD/travis_phantomjs
       fi
       phantomjs -v
+after_success:
+  - 'cat ./coverage/lcov.info | ./node_modules/.bin/coveralls'
