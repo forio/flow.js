@@ -416,7 +416,7 @@ describe('Subscription Manager', ()=> {
             channel.unsubscribe(token);
             expect(channel.getSubscribers()).to.eql([]);
         });
-        it('should throw an error if invalid token is provided', function () {
+        it.only('should throw an error if invalid token is provided', function () {
             expect(()=> channel.unsubscribe('token')).to.throw(Error);
         });
     });
