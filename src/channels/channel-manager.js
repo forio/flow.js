@@ -1,8 +1,6 @@
 'use strict';
 
 import { normalizeParamOptions } from './channel-utils';
-import withMiddleware from './channel-manager-enhancements/with-middleware';
-
 var { uniqueId, isFunction, intersection, includes, uniq } = _;
 /**
  * 
@@ -203,5 +201,5 @@ class ChannelManager {
     }
 }
 
-export default withMiddleware(ChannelManager);
+export default ChannelManager;
 
