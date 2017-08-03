@@ -63,66 +63,6 @@ module.exports = function (grunt) {
             ],
             devtool: 'eval'
         },
-        testsdev: {
-            entry: path.resolve('./tests/test-list.js'),
-            output: {
-                path: path.resolve('./tests/dist/'),
-                filename: 'tests-bundle.js'
-            },
-            stats: 'minimal',
-            module: {
-                rules: [
-                    Object.assign({}, babelloader, {
-                        include: path.resolve('./tests'),
-                    }),
-                    { test: /\.html$/, loader: 'raw-loader' },
-                    { test: /\.py$/, loader: 'raw-loader' },
-                    { test: /\.jl$/, loader: 'raw-loader' },
-                ]
-            },
-            devtool: 'eval',
-            resolve: {
-                alias: {
-                    src: __dirname + '/../src'
-                }
-            }
-        },
-        tests: {
-            entry: path.resolve('./tests/test-list.js'),
-            output: {
-                path: path.resolve('./tests/dist/'),
-                filename: 'tests-bundle.js'
-            },
-            stats: 'minimal',
-            module: {
-                rules: [
-                    Object.assign({}, babelloader, {
-                        include: path.resolve('./tests'),
-                    }),
-                    { 
-                        test: /\.js$/, 
-                        exclude: [
-                            /node_modules/,
-                            path.resolve('./tests'),
-                        ],
-                        loader: 'babel-loader',
-                        options: {
-                            plugins: ['istanbul']
-                        }
-                    },
-                    { test: /\.html$/, loader: 'raw-loader' },
-                    { test: /\.py$/, loader: 'raw-loader' },
-                    { test: /\.jl$/, loader: 'raw-loader' },
-                ]
-            },
-            devtool: 'eval',
-            resolve: {
-                alias: {
-                    src: __dirname + '/../src'
-                }
-            }
-        },
-
         mapped: {
             entry: path.resolve('./src/flow.js'),
             output: {
