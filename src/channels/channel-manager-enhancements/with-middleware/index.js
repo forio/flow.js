@@ -13,7 +13,7 @@ function getTopicsFromSubsList(subcriptionList) {
  * @param  {ChannelManager} ChannelManager
  * @return {ChannelManager}                wrapped channel manager
  */
-export default function interpolatable(ChannelManager) {
+export default function withMiddleware(ChannelManager) {
     /**
      * @implements {ChannelManager}
      */
