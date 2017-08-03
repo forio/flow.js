@@ -1,4 +1,4 @@
-import MiddlewareManager from '../../middleware/middleware-manager';
+import MiddlewareManager from './middleware-manager';
 import { normalizeParamOptions } from '../../channel-utils';
 
 function getTopicsFromSubsList(subcriptionList) {

@@ -2,12 +2,12 @@ import JSONParseMiddleware from './middleware/json-parse-middleware';
 import EpicenterMiddleware from './middleware/epicenter-middleware';
 import DefaultChannelManager from './channel-manager';
 
-import { interpolatable } from './channel-manager-enhancements';
+import { interpolatable, withMiddleware } from './channel-manager-enhancements';
 
 //Moving  epicenter-centric glue here so channel-manager can be tested in isolation
-var InterpolatableChannelManager = interpolatable(DefaultChannelManager);
+var InterpolatableChannelManagerWithMiddleware = interpolatable(withMiddleware(DefaultChannelManager));
 export default function ChannelManager(opts) {
-    var cm = new InterpolatableChannelManager($.extend(true, {}, {
+    var cm = new InterpolatableChannelManagerWithMiddleware($.extend(true, {}, {
         middlewares: [JSONParseMiddleware, EpicenterMiddleware]
     }, opts));
     return cm;
