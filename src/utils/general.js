@@ -15,6 +15,13 @@ module.exports = {
         return number;
     },
 
+    /**
+     * A promise-returning debounce function. Also lets you decide what to do with arguments passed in while being debounced
+     * @param  {Function} fn                function to debounce
+     * @param  {Number}   debounceInterval  interval
+     * @param  {Array}   argumentsReducers A reducer for each argument to the function
+     * @return {Promise}                     
+     */
     debounceAndMerge: function (fn, debounceInterval, argumentsReducers) {
         var timer = null;
 
