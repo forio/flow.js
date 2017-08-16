@@ -40,18 +40,6 @@ export default function (config, notifier, channelManagerContext) {
         options: customRunChannelOpts.channelOptions,
     })];
     var exposable = {};
-    if (opts.scenarioManager) {
-        var scenarioManagerOpts = getOptions(opts, 'scenarioManager');
-        var sm = new ScenarioRouter(scenarioManagerOpts, withPrefix(notifier, [SCENARIO_PREFIX, '']));
-        handlers.push($.extend({}, sm, { 
-            name: 'scenario',
-            match: defaultPrefix(SCENARIO_PREFIX),
-            options: scenarioManagerOpts.channelOptions,
-            isDefault: true,
-        }));
-
-        $.extend(exposable, sm.expose);
-    }
 
     var runManagerOpts = getOptions(opts, 'runManager');
     if (opts.runManager || (!opts.scenarioManager && runManagerOpts.serviceOptions.run)) {
@@ -74,6 +62,19 @@ export default function (config, notifier, channelManagerContext) {
         }
 
         $.extend(exposable, rm.expose);
+    }
+
+    if (opts.scenarioManager) {
+        var scenarioManagerOpts = getOptions(opts, 'scenarioManager');
+        var sm = new ScenarioRouter(scenarioManagerOpts, withPrefix(notifier, [SCENARIO_PREFIX, '']));
+        handlers.push($.extend({}, sm, { 
+            name: 'scenario',
+            match: defaultPrefix(SCENARIO_PREFIX),
+            options: scenarioManagerOpts.channelOptions,
+            isDefault: true,
+        }));
+
+        $.extend(exposable, sm.expose);
     }
 
     var router = new Router(handlers, notifier);
