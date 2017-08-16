@@ -3,7 +3,7 @@
 import { toImplicitType, toOperationFormat } from 'src/utils/parse-utils';
 
 describe('parse utils', function () {
-    describe.only('#toImplicitType', function () {
+    describe('#toImplicitType', function () {
         it('identifies strings', function () {
             toImplicitType('abc').should.equal('abc');
             toImplicitType('').should.equal('');

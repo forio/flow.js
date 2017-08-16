@@ -196,7 +196,7 @@
         }],
         "padded-blocks": [0, "never"],
         "quote-props": [2, "as-needed"],
-        "quotes": [2, "single"],
+        "quotes": [2, "single", { "avoidEscape": true }],
         "semi-spacing": [2, {
             "before": false,
             "after": true

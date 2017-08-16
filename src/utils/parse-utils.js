@@ -6,32 +6,32 @@ function toImplicitType(data) {
 
     var converted = data;
     if (typeof data === 'string') {
-        data = data.trim();
+        converted = data.trim();
 
-        if (data === 'true') {
+        if (converted === 'true') {
             converted = true;
-        } else if (data === 'false') {
+        } else if (converted === 'false') {
             converted = false;
-        } else if (data === 'null') {
+        } else if (converted === 'null') {
             converted = null;
-        } else if (data === 'undefined') {
+        } else if (converted === 'undefined') {
             converted = '';
-        } else if (data.charAt(0) === '\'' || data.charAt(0) === '"') {
-            converted = data.substring(1, data.length - 1);
-        } else if ($.isNumeric(data)) {
-            converted = +data;
-        } else if (arrRegex.test(data)) {
-            const bracketReplaced = data.replace(/[[\]]/g, '');
+        } else if (converted.charAt(0) === '\'' || converted.charAt(0) === '"') {
+            converted = converted.substring(1, converted.length - 1);
+        } else if ($.isNumeric(converted)) {
+            converted = +converted;
+        } else if (arrRegex.test(converted)) {
+            const bracketReplaced = converted.replace(/[[\]]/g, '');
             if (!bracketReplaced) return [];
             const parsed = bracketReplaced.split(/,(?![^[]*])/).map((val)=> {
                 return toImplicitType(val);
             });
             return parsed;
-        } else if (objRegex.test(data)) {
+        } else if (objRegex.test(converted)) {
             try {
-                converted = JSON.parse(data);
+                converted = JSON.parse(converted);
             } catch (e) {
-                console.error('toImplicitType: couldn\'t convert', data);
+                console.error('toImplicitType: couldn\'t convert', converted);
             }
         }
     }
