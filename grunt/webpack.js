@@ -34,6 +34,7 @@ module.exports = function (grunt) {
     };
     grunt.config.set('webpack', {
         options: {
+            stats: 'errors-only',
             plugins: [
                 new webpack.DefinePlugin({
                     RELEASE_VERSION: JSON.stringify(version)
@@ -57,7 +58,6 @@ module.exports = function (grunt) {
             module: {
                 rules: []
             },
-            stats: 'verbose',
             plugins: [],
             // devtool: 'eval'
         },
