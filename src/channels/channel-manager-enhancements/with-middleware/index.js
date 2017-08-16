@@ -27,6 +27,13 @@ export default function withMiddleware(ChannelManager) {
             this.middlewares = new MiddlewareManager(opts, this.notify.bind(this), this);
         }
 
+        /**
+         * Allow intercepting and handling/suppressing data to publish calls.
+         * @param {string | Publishable } topic
+         * @param {any} [value] item to publish
+         * @param {Object} [options]
+         * @return {Promise}
+         */
         publish(topic, value, options) {
             var normalized = normalizeParamOptions(topic, value, options);
             var prom = $.Deferred().resolve(normalized.params).promise();
@@ -45,14 +52,27 @@ export default function withMiddleware(ChannelManager) {
             });
             return prom;
         }
+        /**
+         * Allow intercepting and excluding topics from subscription
+         * @param  {string | string[]}   topics
+         * @param  {Function} cb
+         * @param  {Object}   options
+         * @return {string}           subscription id
+         */
         subscribe(topics, cb, options) {
             var subscribeMiddlewares = this.middlewares.filter('subscribe');
-            var toSend = [].concat(topics);
+            var newTopics = [].concat(topics);
             subscribeMiddlewares.forEach(function (middleware) {
-                toSend = middleware(toSend, options) || toSend;
+                newTopics = middleware(newTopics, options) || newTopics;
             });
-            return super.subscribe(topics, cb, options);
+            return super.subscribe(newTopics, cb, options);
         }
+
+        /**
+         * Calls unsubscribe middleware *after* unsubscription with a list of recently unsubscribed topics
+         * @param  {string} token
+         * @return {void}
+         */
         unsubscribe(token) {
             var currentTopics = getTopicsFromSubsList(this.subscriptions);
             super.unsubscribe(token);
@@ -64,12 +84,16 @@ export default function withMiddleware(ChannelManager) {
                 return middleware(unsubscribedTopics, remainingTopics);
             });
         }
+
+        /**
+         * Calls unsubscribe middleware after unsubscribeAll on the channel
+         * @return {void}
+         */
         unsubscribeAll() {
             var currentlySubscribed = this.getSubscribedTopics();
+            super.unsubscribeAll();
             var middlewares = this.middlewares.filter('unsubscribe');
             middlewares.forEach((middleware)=> middleware(currentlySubscribed, []));
-
-            super.unsubscribeAll();
         }
     };
 }

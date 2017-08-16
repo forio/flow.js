@@ -1,6 +1,11 @@
 var parseUtils = require('utils/parse-utils');
 export default function JSONMiddleware(config, notifier) {
     return {
+        /**
+         * Subscribe to string literals
+         * @param  {string[]} topics
+         * @return {string[]}        topics excluding parsed
+         */
         subscribeHandler: function (topics) {
             var sorted = ([].concat(topics)).reduce(function (acc, topic) {
                 var parsed = parseUtils.toImplicitType(topic);
