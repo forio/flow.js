@@ -34,14 +34,12 @@ module.exports = function (grunt) {
     };
     grunt.config.set('webpack', {
         options: {
+            stats: 'errors-only',
             plugins: [
                 new webpack.DefinePlugin({
                     RELEASE_VERSION: JSON.stringify(version)
                 })
             ],
-            module: {
-                rules: [babelloader]
-            },
             resolve: {
                 modules: [__dirname + '/../src', 'node_modules']
             }
@@ -55,13 +53,11 @@ module.exports = function (grunt) {
                 library: 'Flow',
                 libraryTarget: 'var'
             },
-            // watch: true,
-            // keepalive: true,
-            stats: 'minimal',
-            plugins: [
-                // new webpack.HotModuleReplacementPlugin()
-            ],
-            devtool: 'eval'
+            module: {
+                rules: [] //meant for testing in a new browser so no babel transpiling required
+            },
+            plugins: [],
+            // devtool: 'eval'
         },
         mapped: {
             entry: path.resolve('./src/flow.js'),
@@ -70,6 +66,9 @@ module.exports = function (grunt) {
                 filename: 'flow.js',
                 library: 'Flow',
                 libraryTarget: 'var'
+            },
+            module: {
+                rules: [babelloader]
             },
             plugins: [
                 new webpack.DefinePlugin({
@@ -89,6 +88,9 @@ module.exports = function (grunt) {
                 filename: 'flow.min.js',
                 library: 'Flow',
                 libraryTarget: 'var'
+            },
+            module: {
+                rules: [babelloader]
             },
             plugins: [
                 new webpack.DefinePlugin({
@@ -114,6 +116,7 @@ module.exports = function (grunt) {
             ],
             module: {
                 rules: [
+                    babelloader,
                     { test: /\.html$/, loader: 'raw-loader' },
                 ]
             }

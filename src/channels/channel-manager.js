@@ -1,8 +1,6 @@
 'use strict';
 
 import { normalizeParamOptions } from './channel-utils';
-import MiddlewareManager from './middleware/middleware-manager';
-
 var { uniqueId, isFunction, intersection, includes, uniq } = _;
 /**
  * 
@@ -117,13 +115,8 @@ function getTopicsFromSubsList(subcriptionList) {
 /**
  * @implements {ChannelManager}
  */
-export default class ChannelManager {
+class ChannelManager {
     constructor(options) {
-        var defaults = {
-            middlewares: []
-        };
-        var opts = $.extend(true, {}, defaults, options);
-        this.middlewares = new MiddlewareManager(opts, this.notify.bind(this), this);
         this.subscriptions = [];
     }
 
@@ -136,16 +129,6 @@ export default class ChannelManager {
     publish(topic, value, options) {
         var normalized = normalizeParamOptions(topic, value, options);
         var prom = $.Deferred().resolve(normalized.params).promise();
-        var lastAvailableData = normalized.params;
-        var middlewares = this.middlewares.filter('publish');
-        middlewares.forEach(function (middleware) {
-            prom = prom.then(function (publishResponse) {
-                return middleware(publishResponse, normalized.options);
-            }).then(function (response) {
-                lastAvailableData = response || lastAvailableData;
-                return lastAvailableData;
-            });
-        });
         prom = prom.then(this.notify.bind(this));
         return prom;
     }
@@ -169,12 +152,6 @@ export default class ChannelManager {
     subscribe(topics, cb, options) {
         var subs = makeSubs(topics, cb, options);
         this.subscriptions = this.subscriptions.concat(subs);
-        var subscribeMiddlewares = this.middlewares.filter('subscribe');
-
-        var toSend = subs.topics;
-        subscribeMiddlewares.forEach(function (middleware) {
-            toSend = middleware(toSend, options) || toSend;
-        });
         return subs.id;
     }
         
@@ -183,35 +160,23 @@ export default class ChannelManager {
      * @param {String} token
      */
     unsubscribe(token) {
-        delete cacheBySubsId[token];
-        delete sentDataBySubsId[token];
-        var data = this.subscriptions.reduce(function (accum, subs) {
-            if (subs.id === token) {
-                accum.unsubscribed.push(subs);
-            } else {
-                accum.remaining.push(subs);
-            }
-            return accum;
-        }, { remaining: [], unsubscribed: [] });
-
-        if (!data.unsubscribed.length) {
+        var olderLength = this.subscriptions.length;
+        if (!olderLength) {
+            throw new Error('No subscriptions found to unsubscribe from');
+        }
+    
+        var remaining = this.subscriptions.filter(function (subs) {
+            return subs.id !== token;
+        });
+        if (!remaining.length === olderLength) {
             throw new Error('No subscription found for token ' + token);
         }
-        this.subscriptions = data.remaining;
-
-        var remainingTopics = getTopicsFromSubsList(data.remaining);
-        var unsubscribedTopics = getTopicsFromSubsList(data.unsubscribed);
-
-        var middlewares = this.middlewares.filter('unsubscribe');
-        middlewares.forEach(function (middleware) {
-            return middleware(unsubscribedTopics, remainingTopics);
-        });
+        delete cacheBySubsId[token];
+        delete sentDataBySubsId[token];
+        this.subscriptions = remaining;
     }
     unsubscribeAll() {
-        var currentlySubscribed = this.getSubscribedTopics();
         this.subscriptions = [];
-        var middlewares = this.middlewares.filter('unsubscribe');
-        middlewares.forEach((middleware)=> middleware(currentlySubscribed, []));
     }
 
     /**
@@ -235,4 +200,6 @@ export default class ChannelManager {
         return this.subscriptions;
     }
 }
+
+export default ChannelManager;
 

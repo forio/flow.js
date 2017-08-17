@@ -48,7 +48,7 @@ describe('Test general utils', ()=> {
             clock.tick(100);
             expect(fnToDebounce).to.have.have.been.calledOnce; 
         });
-        it('should concatenate multiple arguments', ()=> {
+        it('should concatenate multiple arguments with default reducer', ()=> {
             var fnToDebounce = sinon.spy();
             var debounced = debounce(fnToDebounce, 200);
 
@@ -58,6 +58,22 @@ describe('Test general utils', ()=> {
             clock.tick(200);
             clock.tick(100);
             expect(fnToDebounce).to.have.have.been.calledWith([1, 2]); 
+        });
+        it('should should allow passing in custom reducers', ()=> {
+            var fnToDebounce = sinon.spy(function (a) {
+                // console.log('final ip', arguments);
+            });
+            var customReducer = function (memo, val) {
+                // console.log(arguments);
+                return val.split('').reverse().join('');
+            };
+            var debounced = debounce(fnToDebounce, 200, [customReducer]);
+            debounced('apple');
+            clock.tick(100);
+            debounced('sauce');
+            clock.tick(200);
+            clock.tick(100);
+            expect(fnToDebounce).to.have.have.been.calledWith('ecuas'); 
         });
         it('should clear arguments after being called once', ()=> {
             var fnToDebounce = sinon.spy();

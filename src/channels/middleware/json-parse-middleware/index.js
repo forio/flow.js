@@ -1,22 +1,30 @@
-var parseUtils = require('utils/parse-utils');
+import { toImplicitType } from 'utils/parse-utils';
+
 export default function JSONMiddleware(config, notifier) {
     return {
+        /**
+         * Subscribe to string literals
+         * @param  {string[]} topics
+         * @return {string[]}        topics excluding parsed
+         */
         subscribeHandler: function (topics) {
             var sorted = ([].concat(topics)).reduce(function (acc, topic) {
-                var parsed = parseUtils.toImplicitType(topic);
+                var parsed = toImplicitType(topic);
                 if (typeof parsed === 'string') {
                     acc.rest.push(topic);
                 } else {
-                    acc.claimed.push(topic);
+                    acc.claimed.push({
+                        name: topic,
+                        value: parsed
+                    });
                 }
                 return acc;
             }, { claimed: [], rest: [] });
         
-            var mapped = sorted.claimed.map(function (item) {
-                return { name: item, value: parseUtils.toImplicitType(item) };
-            });
-            notifier(mapped);
-            
+            if (sorted.claimed.length) {
+                notifier(sorted.claimed);
+            }
+           
             return sorted.rest;
         }
     };

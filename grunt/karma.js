@@ -81,6 +81,18 @@ module.exports = function (grunt) {
                 }
             }
         },
+        debugMode: {
+            browsers: ['Chrome'],
+            singleRun: false,
+            files: fileDeps.concat([
+                { src: 'tests/test-list.js', watched: true, included: true, served: true },
+            ]),
+            options: {
+                preprocessors: {
+                    'tests/test-list.js': ['webpack'],
+                }
+            }
+        },
         singleTest: {
             files: fileDeps
         },

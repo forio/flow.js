@@ -11,6 +11,7 @@ export default function MiddlewareManager(options, notifier, channelManagerConte
 
         add: function (middleware, index) {
             if (_.isFunction(middleware)) {
+                //FIXME: move channelManagerContext functionality to router
                 middleware = new middleware(optsToPassOn, notifier, channelManagerContext);
             }
             $.extend(channelManagerContext, middleware.expose); //add any public props middleware wants to expose
