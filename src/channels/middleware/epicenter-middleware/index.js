@@ -10,8 +10,8 @@ import Router from 'channels/channel-router';
 
 function getOptions(opts, key) {
     var serviceOptions = $.extend(true, {}, opts.defaults, opts[key]);
-    var channelOptions = $.extend(true, {}, serviceOptions.channelOptions);
-    delete serviceOptions.channelOptions;
+    var channelOptions = $.extend(true, {}, serviceOptions.options);
+    delete serviceOptions.options;
 
     return { serviceOptions: serviceOptions, channelOptions: channelOptions };
 }
