@@ -53,10 +53,8 @@ module.exports = function (grunt) {
                 library: 'Flow',
                 libraryTarget: 'var'
             },
-            // watch: true,
-            // keepalive: true,
             module: {
-                rules: []
+                rules: [] //meant for testing in a new browser so no babel transpiling required
             },
             plugins: [],
             // devtool: 'eval'
