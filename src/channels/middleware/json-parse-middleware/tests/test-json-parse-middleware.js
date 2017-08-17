@@ -1,6 +1,6 @@
 import Middleware from '../index.js';
 
-describe.only('JSON Parse middleware', ()=> {
+describe('JSON Parse middleware', ()=> {
     var notifier, jp;
     beforeEach(()=> {
         notifier = sinon.spy();
