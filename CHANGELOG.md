@@ -14,7 +14,7 @@ channel({
         run: {
 
         },
-        channelOptions: {
+        options: {
             variables: { silent: ['price', 'sales'] },
             operations: { silent: false },
         }
@@ -32,7 +32,7 @@ channel({
                 complete: function() { $('body').removeClass('loading'); }
             }
         },
-        channelOptions: {
+        options: {
             variables: { silent: ['price', 'sales'] },
             operations: { silent: false },
         }
@@ -43,7 +43,7 @@ channel({
             account: 'acme-simulations',
             project: 'supply-chain-game',
         },
-        channelOptions: {
+        options: {
             variables: { silent: ['price', 'sales'] },
             operations: { silent: false },
         }
