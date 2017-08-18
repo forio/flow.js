@@ -25,8 +25,6 @@ require('./specs/channels/test-channel-manager'); //0.6secons
 require('./specs/channels/middleware/test-run-meta-channel');
 require('./specs/channels/test-channel-util');
 require('./specs/channels/test-channel-router'); //1.1 secs..
-require('./specs/channels/utils/test-silencable');
-
 // require('./specs/test-flow'); Needs more work with testing timers
 
 
