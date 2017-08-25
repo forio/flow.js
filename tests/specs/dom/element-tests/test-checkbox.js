@@ -14,7 +14,7 @@ module.exports = (function () {
             });
 
             describe('On Check', function () {
-                it.skip('should pass the right value on check - no default', function () {
+                it('should pass the right value on check - no default', function () {
                     var channel = utils.createDummyChannel();
                     return utils.initWithNode('<input type="checkbox" data-f-bind="stuff"/>', domManager, channel).then(function ($node) {
                         var spy = sinon.spy();
@@ -37,7 +37,7 @@ module.exports = (function () {
                 });
             });
             describe('On UnCheck', function () {
-                it.skip('should pass the right value on uncheck - no default', function () {
+                it('should pass the right value on uncheck - no default', function () {
                     var channel = utils.createDummyChannel();
                     return utils.initWithNode('<input type="checkbox" data-f-bind="stuff" checked/>', domManager, channel).then(function ($node) {
                         var spy = sinon.spy();
