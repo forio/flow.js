@@ -1455,7 +1455,7 @@ module.exports = function () {
                     //FIXME: Needed for the 'gotopage' in interfacebuilder. Remove this once we add a window channel
                     promise.then(function (args) {
                         _.each(filtered.converters, function (con) {
-                            converterManager.convert(con.params, [con.name]);
+                            converterManager.convert(con.value, [con.name]);
                         });
                     });
                 });
@@ -2486,9 +2486,9 @@ module.exports = BaseView.extend({
 
     getUIValue: function () {
         var $el = this.$el;
-        var offVal = typeof $el.data('f-off') !== 'undefined' ? $el.data('f-off') : false;
+        var offVal = typeof $el.data('f-off') !== 'undefined' ? $el.data('f-off') : 0;
         //attr = initial value, prop = current value
-        var onVal = typeof $el.attr('value') !== 'undefined' ? $el.prop('value') : true;
+        var onVal = typeof $el.attr('value') !== 'undefined' ? $el.prop('value') : 1;
 
         var val = $el.is(':checked') ? onVal : offVal;
         return val;

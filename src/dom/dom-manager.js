@@ -372,7 +372,7 @@ module.exports = (function () {
                     //FIXME: Needed for the 'gotopage' in interfacebuilder. Remove this once we add a window channel
                     promise.then(function (args) {
                         _.each(filtered.converters, function (con) {
-                            converterManager.convert(con.params, [con.name]);
+                            converterManager.convert(con.value, [con.name]);
                         });
                     });
                 });
