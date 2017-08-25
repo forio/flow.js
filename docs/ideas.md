@@ -1,3 +1,25 @@
+Multi runs
+
+Implement as an interpolator? <saved=true> will translate to "<runidlengthstr>,id:2342", which will then be caught by custom run manager
+    - This will take care of removing/adding, since we're unsubscribing
+    - Trigger changes on this whenever savedruns.add/remove
+
+- Translate <saved=true;trashed:false> to runid1,rundid2. 
+- Bind on "saved" and "trashed" for each of those runs
+- If any of those change, unsubscribe and refetch/intelligently remove runid from cache
+- If anyone else is listening on saved:false they should know, so trigger refetch on everything listening on saved.
+    + => Have a map of <property>:<value>:<runids>
+
+-- Allow multiple interpolator definitions; each interpolator will have a "match" fn. So saved runs interpolator will keep track of saved runs
+    - will listen for an "Bound" meta changes, like say, refetching everything listening on saved if specifically bound on saved
+
+
+Also broadcast on runid:something whenever an indvidual run changes (i.e. run router would get id from meta and take care of it)
+    - saved runs router can just listen on
+    - Always have scenario and run managers bind on <runid:> for current run? They can unsubscribe on reset
+
+
+-----
 Interpolation
 
 
@@ -10,7 +32,7 @@ This'll subscribe to input and change price whenever input changes
 Build new dom: router
 - Matches on # or on dom:<any valid css selector>
 
-<div data-f-on-click="price[<#inp>,<#inp2>]"></div>
+<div data-f-on-click="variables:price[<#inp>,<#inp2>]"></div>
 
 Add `-on` adapter to show output of operations? --- not different from bind?
 
