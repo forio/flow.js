@@ -763,7 +763,7 @@ function RunRouter(config, notifier) {
         return prom.then(function (result) {
             //all the silencing will be taken care of by the router
             var hasOperation = _.find(result, function (r) {
-                return r.name.indexOf('operations:') === 0;
+                return r.name.indexOf('operations:') === 0 || r.name.indexOf('variables:') === 0;
             });
             if (hasOperation) {
                 variableschannel.fetch();
@@ -2486,9 +2486,9 @@ module.exports = BaseView.extend({
 
     getUIValue: function () {
         var $el = this.$el;
-        var offVal = typeof $el.data('f-off') !== 'undefined' ? $el.data('f-off') : 0;
+        var offVal = typeof $el.data('f-off') !== 'undefined' ? $el.data('f-off') : false;
         //attr = initial value, prop = current value
-        var onVal = typeof $el.attr('value') !== 'undefined' ? $el.prop('value') : 1;
+        var onVal = typeof $el.attr('value') !== 'undefined' ? $el.prop('value') : true;
 
         var val = $el.is(':checked') ? onVal : offVal;
         return val;

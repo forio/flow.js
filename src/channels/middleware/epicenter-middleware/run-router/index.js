@@ -69,8 +69,8 @@ export default function RunRouter(config, notifier) {
     router.publishHandler = function () {
         var prom = oldhandler.apply(router, arguments);
         return prom.then(function (result) { //all the silencing will be taken care of by the router
-            var hasOperation = _.find(result, (r)=> r.name.indexOf('operations:') === 0);
-            if (hasOperation) {
+            var shouldFetch = _.find(result, (r)=> r.name.indexOf('operations:') === 0 || r.name.indexOf('variables:') === 0);
+            if (shouldFetch) {
                 variableschannel.fetch();
             }
             return result;
