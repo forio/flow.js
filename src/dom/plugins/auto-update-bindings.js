@@ -3,7 +3,7 @@
 /**
  * Hooks up dom elements to mutation observer
  * @param  {HTMLElement} target     [description]
- * @param  {[type]} domManager [description]
+ * @param  {Object} domManager [description]
  * @return {void}
  */
 module.exports = function (target, domManager) {

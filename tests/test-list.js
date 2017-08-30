@@ -19,8 +19,6 @@ require('./specs/dom/attributes/test-default-foreach-attr');
 require('./specs/dom/attributes/test-repeat-attr');
 require('./specs/dom/attributes/test-default-bind-attr');
 
-require('./specs/dom/plugins/test-auto-update-bindings');
-
 require('./specs/channels/test-channel-manager'); //0.6secons
 require('./specs/channels/middleware/test-run-meta-channel');
 require('./specs/channels/test-channel-util');
