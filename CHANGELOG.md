@@ -12,9 +12,9 @@ channel({
     
     defaults: {
         run: {
-
+            strategy: '',
         },
-        options: {
+        channelOptions: {
             variables: { silent: ['price', 'sales'] },
             operations: { silent: false },
         }

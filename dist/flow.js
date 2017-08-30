@@ -762,10 +762,10 @@ function RunRouter(config, notifier) {
         var prom = oldhandler.apply(router, arguments);
         return prom.then(function (result) {
             //all the silencing will be taken care of by the router
-            var hasOperation = _.find(result, function (r) {
+            var shouldFetch = _.find(result, function (r) {
                 return r.name.indexOf('operations:') === 0 || r.name.indexOf('variables:') === 0;
             });
-            if (hasOperation) {
+            if (shouldFetch) {
                 variableschannel.fetch();
             }
             return result;
@@ -3690,8 +3690,8 @@ function JSONMiddleware(config, notifier) {
 
 function getOptions(opts, key) {
     var serviceOptions = $.extend(true, {}, opts.defaults, opts[key]);
-    var channelOptions = $.extend(true, {}, serviceOptions.options);
-    delete serviceOptions.options;
+    var channelOptions = $.extend(true, {}, serviceOptions.channelOptions);
+    delete serviceOptions.channelOptions;
 
     return { serviceOptions: serviceOptions, channelOptions: channelOptions };
 }
