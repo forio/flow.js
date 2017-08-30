@@ -1,8 +1,14 @@
 'use strict';
 
+/**
+ * Hooks up dom elements to mutation observer
+ * @param  {HTMLElement} target     [description]
+ * @param  {[type]} domManager [description]
+ * @return {void}
+ */
 module.exports = function (target, domManager) {
     if (!window.MutationObserver) {
-        return false;
+        return;
     }
 
     // Create an observer instance

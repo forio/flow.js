@@ -8,8 +8,10 @@
  */
 'use strict';
 
+const { each, isArray, includes, pick, without } = window._;
+
 module.exports = (function () {
-    var config = require('config');
+    var config = require('../config');
     var parseUtils = require('utils/parse-utils');
     var domUtils = require('utils/dom');
 
@@ -36,6 +38,10 @@ module.exports = (function () {
         return obj.nodeName.indexOf('-') !== -1;
     };
 
+    /**
+     * @param {JQuery<HTMLElement>} root
+     * @return {JQuery<HTMLElement>}
+     */ 
     var getMatchingElements = function (root) {
         var $root = $(root);
         var matchedElements = $root.find(':' + config.prefix);
@@ -45,16 +51,19 @@ module.exports = (function () {
         return matchedElements;
     };
 
-    var getElementOrError = function (element, context) {
-        if (element instanceof $) {
-            element = element.get(0);
-        }
-        if (!element || !element.nodeName) {
+    /**
+     * @param {JQuery<HTMLElement> | HTMLElement} element
+     * @param {*} [context]
+     * @return {HTMLElement}
+     */ 
+    function getElementOrError(element, context) {
+        var el = (element instanceof $) ? element.get(0) : element;
+        if (!el || !el.nodeName) {
             console.error(context, 'Expected to get DOM Element, got ', element);
             throw new Error(context + ': Expected to get DOM Element, got' + (typeof element));
         }
-        return element;
-    };
+        return el;
+    }
 
     var publicAPI = {
 
@@ -67,33 +76,33 @@ module.exports = (function () {
         },
 
         /**
-         * Unbind the element: unsubscribe from all updates on the relevant channels.
+         * Unbind the element; unsubscribe from all updates on the relevant channels.
          *
-         * @param {DomElement} element The element to remove from the data binding.
+         * @param {JQuery<HTMLElement>} element The element to remove from the data binding.
          * @param {ChannelInstance} channel (Optional) The channel from which to unsubscribe. Defaults to the [variables channel](../channels/variables-channel/).
-         * @returns {undefined}
+         * @returns {void}
          */
         unbindElement: function (element, channel) {
             if (!channel) {
                 channel = this.options.channel;
             }
-            element = getElementOrError(element);
+            const domEl = getElementOrError(element);
             var $el = $(element);
             if (!$el.is(':' + config.prefix)) {
-                return false;
+                return;
             }
-            this.private.matchedElements = _.without(this.private.matchedElements, element);
+            this.private.matchedElements = without(this.private.matchedElements, element);
 
             //FIXME: have to readd events to be able to remove them. Ugly
             var Handler = nodeManager.getHandler($el);
             var h = new Handler.handle({
-                el: element
+                el: domEl
             });
             if (h.removeEvents) {
                 h.removeEvents();
             }
 
-            $(element.attributes).each(function (index, nodeMap) {
+            $(domEl.attributes).each(function (index, nodeMap) {
                 var attr = nodeMap.nodeName;
                 var wantedPrefix = 'data-f-';
                 if (attr.indexOf(wantedPrefix) === 0) {
@@ -106,11 +115,11 @@ module.exports = (function () {
             });
 
             var subsid = $el.data(config.attrs.subscriptionId) || [];
-            _.each([].concat(subsid), function (subs) {
+            each([].concat(subsid), function (subs) {
                 channel.unsubscribe(subs);
             });
 
-            _.each($el.data(), function (val, key) {
+            each($el.data(), function (val, key) {
                 if (key.indexOf('f-') === 0 || key.match(/^f[A-Z]/)) {
                     $el.removeData(key);
                     // var hyphenated = key.replace(/([A-Z])/g, '-$1').toLowerCase();
@@ -124,27 +133,27 @@ module.exports = (function () {
         /**
          * Bind the element: subscribe from updates on the relevant channels.
          *
-         * @param {DomElement} element The element to add to the data binding.
+         * @param {JQuery<HTMLElement>} element The element to add to the data binding.
          * @param {ChannelInstance} channel (Optional) The channel to subscribe to. Defaults to the [run channel](../channels/run-channel/).
-         * @returns {undefined}
+         * @returns {void}
          */
         bindElement: function (element, channel) {
             if (!channel) {
                 channel = this.options.channel;
             }
-            element = getElementOrError(element);
-            var $el = $(element);
+            const domEl = getElementOrError(element);
+            var $el = $(domEl);
             if (!$el.is(':' + config.prefix)) {
-                return false;
+                return;
             }
-            if (!_.includes(this.private.matchedElements, element)) {
-                this.private.matchedElements.push(element);
+            if (!includes(this.private.matchedElements, domEl)) {
+                this.private.matchedElements.push(domEl);
             }
 
             //Send to node manager to handle ui changes
             var Handler = nodeManager.getHandler($el);
             new Handler.handle({
-                el: element
+                el: domEl
             });
 
             var subscribe = function (subsChannel, varsToBind, $bindEl, options) {
@@ -161,10 +170,10 @@ module.exports = (function () {
 
             var attrBindings = [];
             var nonBatchableVariables = [];
-            var channelConfig = domUtils.getChannelConfig(element);
+            var channelConfig = domUtils.getChannelConfig(domEl);
 
             //NOTE: looping through attributes instead of .data because .data automatically camelcases properties and make it hard to retrvieve. Also don't want to index dynamically added (by flow) data attrs
-            $(element.attributes).each(function (index, nodeMap) {
+            $(domEl.attributes).each(function (index, nodeMap) {
                 var attr = nodeMap.nodeName;
                 var attrVal = nodeMap.value;
 
@@ -229,13 +238,13 @@ module.exports = (function () {
         /**
          * Bind all provided elements.
          *
-         * @param  {Array|jQuerySelector} elementsToBind (Optional) If not provided, binds all matching elements within default root provided at initialization.
-         * @returns {undefined}
+         * @param  {JQuery<HTMLElement>} elementsToBind (Optional) If not provided, binds all matching elements within default root provided at initialization.
+         * @returns {void}
          */
         bindAll: function (elementsToBind) {
             if (!elementsToBind) {
                 elementsToBind = getMatchingElements(this.options.root);
-            } else if (!_.isArray(elementsToBind)) {
+            } else if (!isArray(elementsToBind)) {
                 elementsToBind = getMatchingElements(elementsToBind);
             }
 
@@ -248,14 +257,14 @@ module.exports = (function () {
         /**
          * Unbind provided elements.
          *
-         * @param  {Array} elementsToUnbind (Optional) If not provided, unbinds everything.
-         * @returns {undefined}
+         * @param  {JQuery<HTMLElement>} elementsToUnbind (Optional) If not provided, unbinds everything.
+         * @returns {void}
          */
         unbindAll: function (elementsToUnbind) {
             var me = this;
             if (!elementsToUnbind) {
                 elementsToUnbind = this.private.matchedElements;
-            } else if (!_.isArray(elementsToUnbind)) {
+            } else if (!isArray(elementsToUnbind)) {
                 elementsToUnbind = getMatchingElements(elementsToUnbind);
             }
             $.each(elementsToUnbind, function (index, element) {
@@ -267,10 +276,10 @@ module.exports = (function () {
          * Initialize the DOM Manager to work with a particular HTML element and all elements within that root. Data bindings between individual HTML elements and the model variables specified in the attributes will happen via the channel.
          *
          * @param {Object} options (Optional) Overrides for the default options.
-         * @param {String} options.root The root HTML element being managed by this instance of the DOM Manager. Defaults to `body`.
+         * @param {string} options.root The root HTML element being managed by this instance of the DOM Manager. Defaults to `body`.
          * @param {Object} options.channel The channel to communicate with. Defaults to the Channel Manager from [Epicenter.js](../../../api_adapters/).
-         * @param {Boolean} options.autoBind If `true` (default), any variables added to the DOM after `Flow.initialize()` has been called will be automatically parsed, and subscriptions added to channels. Note, this does not work in IE versions < 11.
-         * @returns {undefined}
+         * @param {boolean} options.autoBind If `true` (default), any variables added to the DOM after `Flow.initialize()` has been called will be automatically parsed, and subscriptions added to channels. Note, this does not work in IE versions < 11.
+         * @returns {Promise}
          */
         initialize: function (options) {
             var defaults = {
@@ -302,12 +311,12 @@ module.exports = (function () {
                     var bindings = $el.data(config.attrs.bindingsList);
                     var toconvert = {};
                     $.each(data, function (variableName, value) {
-                        _.each(bindings, function (binding) {
+                        each(bindings, function (binding) {
                             var channelPrefix = domUtils.getChannel($el, binding.attr);
                             var interestedTopics = binding.topics;
-                            if (_.includes(interestedTopics, variableName)) {
+                            if (includes(interestedTopics, variableName)) {
                                 if (binding.topics.length > 1) {
-                                    var matching = _.pick(data, interestedTopics);
+                                    var matching = pick(data, interestedTopics);
                                     if (!channelPrefix) {
                                         value = matching;
                                     } else {
@@ -333,7 +342,7 @@ module.exports = (function () {
                     var $el = $(evt.target);
                     var attrConverters = domUtils.getConvertersList($el, 'bind');
 
-                    _.each(data, function (val, key) {
+                    each(data, function (val, key) {
                         key = key.split('|')[0].trim(); //in case the pipe formatting syntax was used
                         val = converterManager.parse(val, attrConverters);
                         parsedData[key] = parseUtils.toImplicitType(val);
@@ -371,7 +380,7 @@ module.exports = (function () {
                      
                     //FIXME: Needed for the 'gotopage' in interfacebuilder. Remove this once we add a window channel
                     promise.then(function (args) {
-                        _.each(filtered.converters, function (con) {
+                        each(filtered.converters, function (con) {
                             converterManager.convert(con.value, [con.name]);
                         });
                     });
@@ -393,7 +402,7 @@ module.exports = (function () {
                     };
 
                     if ($.isPlainObject(data)) {
-                        _.each(data, convert);
+                        each(data, convert);
                     } else {
                         convert(data, 'bind');
                     }

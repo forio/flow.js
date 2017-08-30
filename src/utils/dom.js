@@ -27,6 +27,10 @@ module.exports = {
         return channel;
     },
 
+    /**
+     * @param {HTMLElement} el
+     * @return {Object}
+     */ 
     getChannelConfig: function (el) {
         var attrs = el.attributes;
         var config = {};
