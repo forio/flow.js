@@ -112,52 +112,6 @@ describe('DOM Manager', function () {
         require('./test-dom-converters');
     });
 
-
-    describe('Channel-manager integration', ()=> {
-        var channel;
-        beforeEach(()=> {
-            channel = utils.createDummyChannel();
-        });
-        describe('#bind', ()=> {
-            it('should call subscribe on bind', ()=> {
-                return utils.initWithNode('<div data-f-bind="a"> </div>', domManager, channel).then(function ($node) {
-                    channel.subscribe.should.have.been.calledOnce;
-                });
-            });
-            it('should default to non-batch for single variable binds', ()=> {
-                return utils.initWithNode('<div data-f-bind="a"> </div>', domManager, channel).then(function ($node) {
-                    var args = channel.subscribe.getCall(0).args;
-                    args[0].should.eql(['a']);
-                    args[2].should.eql({ batch: false }); //args[1] is callback fn
-                });
-            });
-            it('should default to batch for multi variable binds', ()=> {
-                return utils.initWithNode('<div data-f-bind="a, b"> </div>', domManager, channel).then(function ($node) {
-                    var args = channel.subscribe.getCall(0).args;
-                    args[0].should.eql(['a', 'b']);
-                    args[2].should.eql({ batch: true }); //args[1] is callback fn
-                });
-            });
-
-            it('should pass in channel config', ()=> {
-                return utils.initWithNode('<div data-f-bind="a" data-f-channel-foo="bar"> </div>', domManager, channel).then(function ($node) {
-                    var args = channel.subscribe.getCall(0).args;
-                    args[0].should.eql(['a']);
-                    args[2].should.eql({ batch: false, foo: 'bar' }); //args[1] is callback fn
-                });
-            });
-        });
-        describe('#unbind', ()=> {
-            it('should call unsubscribe with subscriptionid', ()=> {
-                var node = utils.create(`<div data-f-bind="a" data-${config.attrs.subscriptionId}="goo" data-f-channel-foo="bar"> </div>`);
-                domManager.unbindElement(node, channel);
-                channel.unsubscribe.should.have.been.calledOnce;
-                var args = channel.unsubscribe.getCall(0).args;
-                args[0].should.eql('goo');
-            });
-        });
-    });
-
     describe('#bindElement', function () {
         it('should bind elements added to the dom', function () {
             return utils.initWithNode('<div data-f-bind="a"> </div>', domManager).then(function ($node) {
@@ -184,6 +138,59 @@ describe('DOM Manager', function () {
                 domManager.private.matchedElements.length.should.equal(1);
                 domManager.bindElement(addedNode);
                 domManager.private.matchedElements.length.should.equal(2);
+            });
+        });
+        describe('Subscriptions', ()=> {
+            var channel;
+            beforeEach(()=> {
+                channel = utils.createDummyChannel();
+            });
+            describe('#bind', ()=> {
+                it('should subscribe single elements', ()=> {
+                    const el = $('<div data-f-bind="a"> </div>');
+                    domManager.bindElement(el, channel);
+                    expect(channel.subscribe).to.have.been.calledOnce;
+                    expect(channel.subscribe).to.have.been.calledWith(['a']);
+                });
+                it('should only subscribe for top-level elements', ()=> {
+                    const el = $('<div data-f-bind="a"><input type="text" data-f-bind="boo" /></div>');
+                    domManager.bindElement(el, channel);
+                    expect(channel.subscribe).to.have.been.calledOnce;
+                    expect(channel.subscribe).to.have.been.calledWith(['a']);
+                });
+                it('add subscribption id to element', ()=> {
+                    const $el = $('<div data-f-bind="a"><input type="text" data-f-bind="boo" /></div>');
+                    const subsAttr = config.attrs.subscriptionId;
+                    expect($el.data(subsAttr)).to.not.exist;
+                    domManager.bindElement($el, channel);
+                    expect($el.data(subsAttr)).to.exist;
+                });
+
+                it('should default to non-batch for single variable binds', ()=> {
+                    const el = $('<div data-f-bind="a"> </div>');
+                    domManager.bindElement(el, channel);
+
+                    var args = channel.subscribe.getCall(0).args;
+                    args[0].should.eql(['a']);
+                    args[2].should.eql({ batch: false }); //args[1] is callback fn
+                });
+                it('should default to batch for multi variable binds', ()=> {
+                    const el = $('<div data-f-bind="a, b"> </div>');
+                    domManager.bindElement(el, channel);
+
+                    var args = channel.subscribe.getCall(0).args;
+                    args[0].should.eql(['a', 'b']);
+                    args[2].should.eql({ batch: true }); //a
+                });
+
+                it('should pass in channel config', ()=> {
+                    const $el = $('<div data-f-bind="a" data-f-channel-foo="bar"> </div>');
+                    domManager.bindElement($el, channel);
+
+                    var args = channel.subscribe.getCall(0).args;
+                    args[0].should.eql(['a']);
+                    args[2].should.eql({ batch: false, foo: 'bar' }); //args[1] is callback fn
+                });
             });
         });
     });
@@ -318,6 +325,16 @@ describe('DOM Manager', function () {
                     expect($node.children().length).to.equal(1);
                     expect($node.html()).to.equal(originalHTML);
                 });
+            });
+        });
+        describe('Subscriptions', ()=> {
+            it('should call unsubscribe with subscriptionid', ()=> {
+                const channel = utils.createDummyChannel();
+                var node = utils.create(`<div data-f-bind="a" data-${config.attrs.subscriptionId}="goo" data-f-channel-foo="bar"> </div>`);
+                domManager.unbindElement(node, channel);
+                channel.unsubscribe.should.have.been.calledOnce;
+                var args = channel.unsubscribe.getCall(0).args;
+                args[0].should.eql('goo');
             });
         });
     });
