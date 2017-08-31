@@ -1,5 +1,5 @@
 import { extractDependencies, interpolateWithValues } from './interpolatable-utils';
-var { uniq } = _;
+import { uniq } from 'lodash';
 
 /**
  * @param {String[]} topics

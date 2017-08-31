@@ -1,4 +1,4 @@
-var { isArray, includes } = _;
+import { isArray, includes } from 'lodash';
 
 /**
  * @param {Publishable[]} published 

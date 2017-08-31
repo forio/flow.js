@@ -117,10 +117,10 @@
  *
  * * The `data-f-foreach` attribute is [similar to the `data-f-repeat` attribute](../../repeat-attr/), so you may want to review the examples there as well.
  */
+const parseUtils = require('../../../utils/parse-utils');
+const config = require('../../../config');
 
-'use strict';
-var parseUtils = require('../../../utils/parse-utils');
-var config = require('../../../config');
+const { uniqueId, each, size, template } = require('lodash');
 
 function refToMarkup(refKey) {
     return '<!--' + refKey + '-->';
@@ -183,7 +183,7 @@ module.exports = {
         var closestParentWithMissing = this.closest('[data-missing-references]');
         if (closestParentWithMissing.length) { //(grand)parent already stubbed out missing references
             var missing = closestParentWithMissing.data('missing-references');
-            _.each(missing, function (replacement, template) {
+            each(missing, function (replacement, template) {
                 if (keyRegex.test(template) || valueRegex.test(template)) {
                     cloop = cloop.replace(refToMarkup(replacement), template);
                 }
@@ -196,7 +196,7 @@ module.exports = {
                     if (tag.match(/\w+/) && !keyRegex.test(tag) && !valueRegex.test(tag)) {
                         var refKey = missingReferences[tag];
                         if (!refKey) {
-                            refKey = _.uniqueId('no-ref');
+                            refKey = uniqueId('no-ref');
                             missingReferences[tag] = refKey;
                         }
                         var r = new RegExp(tag, 'g');
@@ -204,14 +204,14 @@ module.exports = {
                     }
                 });
             }
-            if (_.size(missingReferences)) {
+            if (size(missingReferences)) {
                 //Attr, not data, to make jQ selector easy. No f- prefix to keep this from flow.
                 this.attr('data-missing-references', JSON.stringify(missingReferences));
             }
         }
 
-        var templateFn = _.template(cloop);
-        _.each(value, function (dataval, datakey) {
+        var templateFn = template(cloop);
+        each(value, function (dataval, datakey) {
             if (!dataval) {
                 dataval = dataval + '';
             }
@@ -235,7 +235,7 @@ module.exports = {
 
             nodes.each(function (i, newNode) {
                 newNode = $(newNode);
-                _.each(newNode.data(), function (val, key) {
+                each(newNode.data(), function (val, key) {
                     newNode.data(key, parseUtils.toImplicitType(val));
                 });
                 if (!isTemplated && !newNode.html().trim()) {

@@ -17,8 +17,7 @@
  * 		</select>
  *
  */
-
-'use strict';
+const { isArray } = require('lodash');
 
 module.exports = {
     target: 'input, select',
@@ -26,7 +25,7 @@ module.exports = {
     test: 'bind',
 
     handle: function (value) {
-        if (_.isArray(value)) {
+        if (isArray(value)) {
             value = value[value.length - 1];
         }
         this.val(value);

@@ -42,6 +42,15 @@ module.exports = function (grunt) {
             ],
             resolve: {
                 modules: [__dirname + '/../src', 'node_modules']
+            },
+            externals: {
+                jquery: 'jQuery',
+                lodash: {
+                    commonjs: 'lodash',
+                    commonjs2: 'lodash',
+                    amd: '_',
+                    root: '_'
+                }
             }
         },
         edge: {

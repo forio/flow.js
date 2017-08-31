@@ -2,7 +2,7 @@
 module.exports = (function () {
     var autoUpdate = require('../auto-update-bindings');
     describe('Update behavior', function () {
-        it('should call bind for added elements', function () {
+        it.skip('should call bind for added elements', function () {
             var $node = $('<div> </div>');
             var dummyDom = {
                 bindAll: sinon.spy(),

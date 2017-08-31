@@ -19,15 +19,14 @@
  *
  */
 
-'use strict';
-
+const { isArray } = require('lodash');
 module.exports = {
     target: '*',
 
     test: /^(?:checked|selected|async|autofocus|autoplay|controls|defer|ismap|loop|multiple|open|required|scoped)$/i,
 
     handle: function (value, prop) {
-        if (_.isArray(value)) {
+        if (isArray(value)) {
             value = value[value.length - 1];
         }
         var val = (this.attr('value')) ? (value == this.prop('value')) : !!value; //eslint-disable-line eqeqeq

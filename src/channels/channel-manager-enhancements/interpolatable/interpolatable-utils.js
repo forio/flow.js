@@ -1,4 +1,4 @@
-var { isArray } = _;
+import { isArray } from 'lodash';
 
 var interpolationRegex = /<(.*?)>/g;
 /**

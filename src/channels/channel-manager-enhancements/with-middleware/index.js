@@ -1,5 +1,6 @@
 import MiddlewareManager from './middleware-manager';
 import { normalizeParamOptions } from '../../channel-utils';
+import { difference } from 'lodash';
 
 function getTopicsFromSubsList(subcriptionList) {
     return subcriptionList.reduce(function (accum, subs) {
@@ -78,7 +79,7 @@ export default function withMiddleware(ChannelManager) {
             super.unsubscribe(token);
             var remainingTopics = getTopicsFromSubsList(this.subscriptions);
 
-            var unsubscribedTopics = _.difference(currentTopics, remainingTopics);
+            var unsubscribedTopics = difference(currentTopics, remainingTopics);
             var middlewares = this.middlewares.filter('unsubscribe');
             middlewares.forEach(function (middleware) {
                 return middleware(unsubscribedTopics, remainingTopics);

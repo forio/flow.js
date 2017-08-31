@@ -1,3 +1,5 @@
+import { values } from 'lodash';
+
 /**
  * @param {String} topic
  * @param {Handler[]} handlers
@@ -90,7 +92,7 @@ export function groupByHandlers(topics, handlers) {
         }
         return accum;
     }, {});
-    return _.values(topicMapping);
+    return values(topicMapping);
 }
 
 /**

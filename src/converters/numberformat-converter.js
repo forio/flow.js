@@ -62,7 +62,7 @@
  *
  */
 
-'use strict';
+const { isArray, isString, isNumber } = require('lodash');
 module.exports = {
     alias: function (name) {
         //TODO: Fancy regex to match number formats here
@@ -212,10 +212,10 @@ module.exports = {
         }
 
         function format (number, formatTXT) { // eslint-disable-line
-            if (_.isArray(number)) {
+            if (isArray(number)) {
                 number = number[number.length - 1];
             }
-            if (!_.isString(number) && !_.isNumber(number)) {
+            if (!isString(number) && !isNumber(number)) {
                 return number;
             }
 

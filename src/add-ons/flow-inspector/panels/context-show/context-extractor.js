@@ -1,7 +1,8 @@
 'use strict';
 
-var JuliaExtractor = require('./rules/julia-extract-rules');
-var PythonExtractor = require('./rules/python-extract-rules');
+const JuliaExtractor = require('./rules/julia-extract-rules');
+const PythonExtractor = require('./rules/python-extract-rules');
+const { findIndex } = require('lodash');
 
 var Extractor = function (modelName, modelContents) {
     this.contents = modelContents.split(/\n/);
@@ -18,7 +19,7 @@ Extractor.prototype.showContext = function (reference, isFunction) {
     var pattern = (isFunction) ? this.extractor.fn : this.extractor.variable;
     reference = reference.split(/[[.(]/)[0];
 
-    var startIndex = _.findIndex(this.contents, pattern.start(reference));
+    var startIndex = findIndex(this.contents, pattern.start(reference));
     var fromStart = this.contents.slice(startIndex + 1);
     var endIndex = pattern.end(fromStart, this.contents[startIndex]);
 

@@ -1,4 +1,4 @@
-'use strict';
+const { findIndex } = require('lodash');
 
 module.exports = {
     fn: {
@@ -9,7 +9,7 @@ module.exports = {
             };
         },
         end: function (fromStart) {
-            return _.findIndex(fromStart, function (val, index) {
+            return findIndex(fromStart, function (val, index) {
                 return val.match(/^end/);//ignore leading whitespaces to avoid returning early for nested ends
             });
         },
@@ -23,7 +23,7 @@ module.exports = {
             };
         },
         end: function (fromStart) {
-            return _.findIndex(fromStart, function (val, index) {
+            return findIndex(fromStart, function (val, index) {
                 return val.trim() === '' || (val.indexOf('=') !== -1);
             });
         },

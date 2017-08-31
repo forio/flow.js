@@ -1,16 +1,18 @@
+import { omit, isFunction } from 'lodash';
+
 export default function MiddlewareManager(options, notifier, channelManagerContext) {
     var defaults = {
         middlewares: []
     };
     var opts = $.extend(true, {}, defaults, options);
-    var optsToPassOn = _.omit(opts, Object.keys(defaults));
+    var optsToPassOn = omit(opts, Object.keys(defaults));
 
     var list = [];
     var publicAPI = {
         list: list,
 
         add: function (middleware, index) {
-            if (_.isFunction(middleware)) {
+            if (isFunction(middleware)) {
                 //FIXME: move channelManagerContext functionality to router
                 middleware = new middleware(optsToPassOn, notifier, channelManagerContext);
             }

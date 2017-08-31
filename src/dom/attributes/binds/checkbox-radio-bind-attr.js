@@ -16,8 +16,7 @@
  *      <input type="checkbox" data-f-bind="sampleBool" />
  *
  */
-
-'use strict';
+const { isArray } = require('lodash');
 
 module.exports = {
 
@@ -26,7 +25,7 @@ module.exports = {
     test: 'bind',
 
     handle: function (value) {
-        if (_.isArray(value)) {
+        if (isArray(value)) {
             value = value[value.length - 1];
         }
         var settableValue = this.attr('value'); //initial value

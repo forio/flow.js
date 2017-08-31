@@ -81,7 +81,8 @@
  */
 
 'use strict';
-var config = require('../../../config');
+const config = require('../../../config');
+const { template, isArray } = require('lodash');
 
 module.exports = {
 
@@ -108,14 +109,14 @@ module.exports = {
         }
         var bindTemplate = this.data(config.attrs.bindTemplate);
         if (bindTemplate) {
-            templated = _.template(bindTemplate)(valueToTemplate);
+            templated = template(bindTemplate)(valueToTemplate);
             this.html(templated);
         } else {
             var oldHTML = this.html();
             var cleanedHTML = oldHTML.replace(/&lt;/g, '<').replace(/&gt;/g, '>');
-            templated = _.template(cleanedHTML)(valueToTemplate);
+            templated = template(cleanedHTML)(valueToTemplate);
             if (cleanedHTML === templated) { //templating did nothing
-                if (_.isArray(value)) {
+                if (isArray(value)) {
                     value = value[value.length - 1];
                 }
                 value = ($.isPlainObject(value)) ? JSON.stringify(value) : value + '';

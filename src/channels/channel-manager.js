@@ -1,7 +1,8 @@
 'use strict';
 
+import $ from 'jquery';
 import { normalizeParamOptions } from './channel-utils';
-var { uniqueId, isFunction, intersection, includes, uniq } = _;
+import { uniqueId, isFunction, intersection, includes, uniq, isEqual } from 'lodash';
 /**
  * 
  * @param {String[]|String} topics 
@@ -54,7 +55,7 @@ var sentDataBySubsId = {};
 */
 function callbackIfChanged(subscription, data) {
     var id = subscription.id;
-    if (!_.isEqual(sentDataBySubsId[id], data)) {
+    if (!isEqual(sentDataBySubsId[id], data)) {
         sentDataBySubsId[id] = data;
         subscription.callback(data, { id: id });
     }

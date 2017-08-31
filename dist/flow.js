@@ -284,9 +284,9 @@ function groupSequentiallyByHandlers(data, handlers) {
 /* harmony export (immutable) */ __webpack_exports__["c"] = mapWithPrefix;
 /* harmony export (immutable) */ __webpack_exports__["i"] = withPrefix;
 /* harmony export (immutable) */ __webpack_exports__["h"] = unprefix;
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__silencable__ = __webpack_require__(42);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__silencable__ = __webpack_require__(44);
 /* harmony reexport (binding) */ __webpack_require__.d(__webpack_exports__, "f", function() { return __WEBPACK_IMPORTED_MODULE_0__silencable__["a"]; });
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__exclude_read_only__ = __webpack_require__(43);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__exclude_read_only__ = __webpack_require__(45);
 /* harmony reexport (binding) */ __webpack_require__.d(__webpack_exports__, "b", function() { return __WEBPACK_IMPORTED_MODULE_1__exclude_read_only__["a"]; });
 var CHANNEL_DELIMITER = ':';
 
@@ -690,9 +690,9 @@ module.exports = {
 
 "use strict";
 /* harmony export (immutable) */ __webpack_exports__["a"] = RunRouter;
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__run_meta_channel__ = __webpack_require__(39);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__run_variables_channel__ = __webpack_require__(40);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__run_operations_channel__ = __webpack_require__(41);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__run_meta_channel__ = __webpack_require__(41);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__run_variables_channel__ = __webpack_require__(42);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__run_operations_channel__ = __webpack_require__(43);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_3_channels_channel_router__ = __webpack_require__(4);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_4_channels_middleware_utils__ = __webpack_require__(2);
 
@@ -999,10 +999,10 @@ function interpolateWithValues(topic, data) {
 
 
 
-var domManager = __webpack_require__(12);
+var domManager = __webpack_require__(12).default;
 var BaseView = __webpack_require__(9);
 
-var ChannelManager = __webpack_require__(35).default;
+var ChannelManager = __webpack_require__(37).default;
 // var parseUtils = require('utils/parse-utils');
 
 var Flow = {
@@ -1089,15 +1089,24 @@ module.exports = Flow;
  */
 
 
+var _require = __webpack_require__(13),
+    each = _require.each,
+    isArray = _require.isArray,
+    includes = _require.includes,
+    pick = _require.pick,
+    without = _require.without;
+
+var $ = __webpack_require__(14);
+
 module.exports = function () {
     var config = __webpack_require__(0);
     var parseUtils = __webpack_require__(3);
-    var domUtils = __webpack_require__(13);
+    var domUtils = __webpack_require__(15);
 
-    var converterManager = __webpack_require__(14);
-    var nodeManager = __webpack_require__(20);
-    var attrManager = __webpack_require__(22);
-    var autoUpdatePlugin = __webpack_require__(34);
+    var converterManager = __webpack_require__(16);
+    var nodeManager = __webpack_require__(22);
+    var attrManager = __webpack_require__(24);
+    var autoUpdatePlugin = __webpack_require__(36);
 
     //Jquery selector to return everything which has a f- property set
     $.expr.pseudos[config.prefix] = function (el) {
@@ -1117,6 +1126,10 @@ module.exports = function () {
         return obj.nodeName.indexOf('-') !== -1;
     };
 
+    /**
+     * @param {JQuery<HTMLElement>} root
+     * @return {JQuery<HTMLElement>}
+     */
     var getMatchingElements = function (root) {
         var $root = $(root);
         var matchedElements = $root.find(':' + config.prefix);
@@ -1126,16 +1139,19 @@ module.exports = function () {
         return matchedElements;
     };
 
-    var getElementOrError = function (element, context) {
-        if (element instanceof $) {
-            element = element.get(0);
-        }
-        if (!element || !element.nodeName) {
+    /**
+     * @param {JQuery<HTMLElement> | HTMLElement} element
+     * @param {*} [context]
+     * @return {HTMLElement}
+     */
+    function getElementOrError(element, context) {
+        var el = element instanceof $ ? element.get(0) : element;
+        if (!el || !el.nodeName) {
             console.error(context, 'Expected to get DOM Element, got ', element);
             throw new Error(context + ': Expected to get DOM Element, got' + typeof element);
         }
-        return element;
-    };
+        return el;
+    }
 
     var publicAPI = {
 
@@ -1148,33 +1164,33 @@ module.exports = function () {
         },
 
         /**
-         * Unbind the element: unsubscribe from all updates on the relevant channels.
+         * Unbind the element; unsubscribe from all updates on the relevant channels.
          *
-         * @param {DomElement} element The element to remove from the data binding.
+         * @param {JQuery<HTMLElement>} element The element to remove from the data binding.
          * @param {ChannelInstance} channel (Optional) The channel from which to unsubscribe. Defaults to the [variables channel](../channels/variables-channel/).
-         * @returns {undefined}
+         * @returns {void}
          */
         unbindElement: function (element, channel) {
             if (!channel) {
                 channel = this.options.channel;
             }
-            element = getElementOrError(element);
+            var domEl = getElementOrError(element);
             var $el = $(element);
             if (!$el.is(':' + config.prefix)) {
-                return false;
+                return;
             }
-            this.private.matchedElements = _.without(this.private.matchedElements, element);
+            this.private.matchedElements = without(this.private.matchedElements, element);
 
             //FIXME: have to readd events to be able to remove them. Ugly
             var Handler = nodeManager.getHandler($el);
             var h = new Handler.handle({
-                el: element
+                el: domEl
             });
             if (h.removeEvents) {
                 h.removeEvents();
             }
 
-            $(element.attributes).each(function (index, nodeMap) {
+            $(domEl.attributes).each(function (index, nodeMap) {
                 var attr = nodeMap.nodeName;
                 var wantedPrefix = 'data-f-';
                 if (attr.indexOf(wantedPrefix) === 0) {
@@ -1187,11 +1203,11 @@ module.exports = function () {
             });
 
             var subsid = $el.data(config.attrs.subscriptionId) || [];
-            _.each([].concat(subsid), function (subs) {
+            each([].concat(subsid), function (subs) {
                 channel.unsubscribe(subs);
             });
 
-            _.each($el.data(), function (val, key) {
+            each($el.data(), function (val, key) {
                 if (key.indexOf('f-') === 0 || key.match(/^f[A-Z]/)) {
                     $el.removeData(key);
                     // var hyphenated = key.replace(/([A-Z])/g, '-$1').toLowerCase();
@@ -1205,27 +1221,27 @@ module.exports = function () {
         /**
          * Bind the element: subscribe from updates on the relevant channels.
          *
-         * @param {DomElement} element The element to add to the data binding.
+         * @param {JQuery<HTMLElement>} element The element to add to the data binding.
          * @param {ChannelInstance} channel (Optional) The channel to subscribe to. Defaults to the [run channel](../channels/run-channel/).
-         * @returns {undefined}
+         * @returns {void}
          */
         bindElement: function (element, channel) {
             if (!channel) {
                 channel = this.options.channel;
             }
-            element = getElementOrError(element);
-            var $el = $(element);
+            var domEl = getElementOrError(element);
+            var $el = $(domEl);
             if (!$el.is(':' + config.prefix)) {
-                return false;
+                return;
             }
-            if (!_.includes(this.private.matchedElements, element)) {
-                this.private.matchedElements.push(element);
+            if (!includes(this.private.matchedElements, domEl)) {
+                this.private.matchedElements.push(domEl);
             }
 
             //Send to node manager to handle ui changes
             var Handler = nodeManager.getHandler($el);
             new Handler.handle({
-                el: element
+                el: domEl
             });
 
             var subscribe = function (subsChannel, varsToBind, $bindEl, options) {
@@ -1242,10 +1258,10 @@ module.exports = function () {
 
             var attrBindings = [];
             var nonBatchableVariables = [];
-            var channelConfig = domUtils.getChannelConfig(element);
+            var channelConfig = domUtils.getChannelConfig(domEl);
 
             //NOTE: looping through attributes instead of .data because .data automatically camelcases properties and make it hard to retrvieve. Also don't want to index dynamically added (by flow) data attrs
-            $(element.attributes).each(function (index, nodeMap) {
+            $(domEl.attributes).each(function (index, nodeMap) {
                 var attr = nodeMap.nodeName;
                 var attrVal = nodeMap.value;
 
@@ -1314,13 +1330,13 @@ module.exports = function () {
         /**
          * Bind all provided elements.
          *
-         * @param  {Array|jQuerySelector} elementsToBind (Optional) If not provided, binds all matching elements within default root provided at initialization.
-         * @returns {undefined}
+         * @param  {JQuery<HTMLElement>} elementsToBind (Optional) If not provided, binds all matching elements within default root provided at initialization.
+         * @returns {void}
          */
         bindAll: function (elementsToBind) {
             if (!elementsToBind) {
                 elementsToBind = getMatchingElements(this.options.root);
-            } else if (!_.isArray(elementsToBind)) {
+            } else if (!isArray(elementsToBind)) {
                 elementsToBind = getMatchingElements(elementsToBind);
             }
 
@@ -1333,14 +1349,14 @@ module.exports = function () {
         /**
          * Unbind provided elements.
          *
-         * @param  {Array} elementsToUnbind (Optional) If not provided, unbinds everything.
-         * @returns {undefined}
+         * @param  {JQuery<HTMLElement>} elementsToUnbind (Optional) If not provided, unbinds everything.
+         * @returns {void}
          */
         unbindAll: function (elementsToUnbind) {
             var me = this;
             if (!elementsToUnbind) {
                 elementsToUnbind = this.private.matchedElements;
-            } else if (!_.isArray(elementsToUnbind)) {
+            } else if (!isArray(elementsToUnbind)) {
                 elementsToUnbind = getMatchingElements(elementsToUnbind);
             }
             $.each(elementsToUnbind, function (index, element) {
@@ -1352,10 +1368,10 @@ module.exports = function () {
          * Initialize the DOM Manager to work with a particular HTML element and all elements within that root. Data bindings between individual HTML elements and the model variables specified in the attributes will happen via the channel.
          *
          * @param {Object} options (Optional) Overrides for the default options.
-         * @param {String} options.root The root HTML element being managed by this instance of the DOM Manager. Defaults to `body`.
+         * @param {string} options.root The root HTML element being managed by this instance of the DOM Manager. Defaults to `body`.
          * @param {Object} options.channel The channel to communicate with. Defaults to the Channel Manager from [Epicenter.js](../../../api_adapters/).
-         * @param {Boolean} options.autoBind If `true` (default), any variables added to the DOM after `Flow.initialize()` has been called will be automatically parsed, and subscriptions added to channels. Note, this does not work in IE versions < 11.
-         * @returns {undefined}
+         * @param {boolean} options.autoBind If `true` (default), any variables added to the DOM after `Flow.initialize()` has been called will be automatically parsed, and subscriptions added to channels. Note, this does not work in IE versions < 11.
+         * @returns {Promise}
          */
         initialize: function (options) {
             var defaults = {
@@ -1387,12 +1403,12 @@ module.exports = function () {
                     var bindings = $el.data(config.attrs.bindingsList);
                     var toconvert = {};
                     $.each(data, function (variableName, value) {
-                        _.each(bindings, function (binding) {
+                        each(bindings, function (binding) {
                             var channelPrefix = domUtils.getChannel($el, binding.attr);
                             var interestedTopics = binding.topics;
-                            if (_.includes(interestedTopics, variableName)) {
+                            if (includes(interestedTopics, variableName)) {
                                 if (binding.topics.length > 1) {
-                                    var matching = _.pick(data, interestedTopics);
+                                    var matching = pick(data, interestedTopics);
                                     if (!channelPrefix) {
                                         value = matching;
                                     } else {
@@ -1418,7 +1434,7 @@ module.exports = function () {
                     var $el = $(evt.target);
                     var attrConverters = domUtils.getConvertersList($el, 'bind');
 
-                    _.each(data, function (val, key) {
+                    each(data, function (val, key) {
                         key = key.split('|')[0].trim(); //in case the pipe formatting syntax was used
                         val = converterManager.parse(val, attrConverters);
                         parsedData[key] = parseUtils.toImplicitType(val);
@@ -1454,7 +1470,7 @@ module.exports = function () {
 
                     //FIXME: Needed for the 'gotopage' in interfacebuilder. Remove this once we add a window channel
                     promise.then(function (args) {
-                        _.each(filtered.converters, function (con) {
+                        each(filtered.converters, function (con) {
                             converterManager.convert(con.value, [con.name]);
                         });
                     });
@@ -1476,7 +1492,7 @@ module.exports = function () {
                     };
 
                     if ($.isPlainObject(data)) {
-                        _.each(data, convert);
+                        each(data, convert);
                     } else {
                         convert(data, 'bind');
                     }
@@ -1509,6 +1525,18 @@ module.exports = function () {
 
 /***/ }),
 /* 13 */
+/***/ (function(module, exports) {
+
+module.exports = undefined;
+
+/***/ }),
+/* 14 */
+/***/ (function(module, exports) {
+
+module.exports = jQuery;
+
+/***/ }),
+/* 15 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -1541,6 +1569,10 @@ module.exports = {
         return channel;
     },
 
+    /**
+     * @param {HTMLElement} el
+     * @return {Object}
+     */
     getChannelConfig: function (el) {
         var attrs = el.attributes;
         var config = {};
@@ -1577,7 +1609,7 @@ module.exports = {
 };
 
 /***/ }),
-/* 14 */
+/* 16 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -1777,7 +1809,7 @@ var converterManager = {
 };
 
 //Bootstrap
-var defaultconverters = [__webpack_require__(15), __webpack_require__(16), __webpack_require__(17), __webpack_require__(18), __webpack_require__(19)];
+var defaultconverters = [__webpack_require__(17), __webpack_require__(18), __webpack_require__(19), __webpack_require__(20), __webpack_require__(21)];
 
 $.each(defaultconverters.reverse(), function (index, converter) {
     if (_.isArray(converter)) {
@@ -1792,7 +1824,7 @@ $.each(defaultconverters.reverse(), function (index, converter) {
 module.exports = converterManager;
 
 /***/ }),
-/* 15 */
+/* 17 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -1830,7 +1862,7 @@ module.exports = {
 };
 
 /***/ }),
-/* 16 */
+/* 18 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -1924,7 +1956,7 @@ module.exports = {
 };
 
 /***/ }),
-/* 17 */
+/* 19 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -2043,7 +2075,7 @@ _.each(list, function (item) {
 module.exports = list;
 
 /***/ }),
-/* 18 */
+/* 20 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -2068,7 +2100,7 @@ _.each(supported, function (fn) {
 module.exports = list;
 
 /***/ }),
-/* 19 */
+/* 21 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -2406,25 +2438,44 @@ module.exports = {
 };
 
 /***/ }),
-/* 20 */
+/* 22 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 
+/**
+ * @typedef NodeHandler
+ * @property {string} selector
+ * @property {Function} handle
+ */
+
+/**
+ * @param {string | undefined} selector
+ * @param {Function | NodeHandler } handler
+ * @return {NodeHandler}
+ */
+
 var normalize = function (selector, handler) {
-    if (_.isFunction(handler)) {
-        handler = {
-            handle: handler
-        };
-    }
     if (!selector) {
         selector = '*';
     }
+    if (_.isFunction(handler)) {
+        handler = {
+            selector: selector,
+            handle: handler
+        };
+    }
+
     handler.selector = selector;
     return handler;
 };
 
+/**
+ * @param {string|HTMLElement|JQuery<HTMLElement>} toMatch
+ * @param { {selector:string} } node
+ * @return {boolean}
+ */
 var match = function (toMatch, node) {
     if (_.isString(toMatch)) {
         return toMatch === node.selector;
@@ -2439,12 +2490,16 @@ var nodeManager = {
      * Add a new node handler
      * @param  {string} selector jQuery-compatible selector to use to match nodes
      * @param  {function} handler  Handlers are new-able functions. They will be called with $el as context.? TODO: Think this through
-     * @returns {undefined}
+     * @returns {void}
      */
     register: function (selector, handler) {
         this.list.unshift(normalize(selector, handler));
     },
 
+    /**
+     * @param {string|HTMLElement|JQuery<HTMLElement>} toMatch
+     * @return NodeHandler
+     */
     getHandler: function (selector) {
         return _.find(this.list, function (node) {
             return match(selector, node);
@@ -2464,7 +2519,7 @@ var nodeManager = {
 };
 
 //bootstraps
-var defaultHandlers = [__webpack_require__(21), __webpack_require__(7), __webpack_require__(8)];
+var defaultHandlers = [__webpack_require__(23), __webpack_require__(7), __webpack_require__(8)];
 _.each(defaultHandlers.reverse(), function (handler) {
     nodeManager.register(handler.selector, handler);
 });
@@ -2472,7 +2527,7 @@ _.each(defaultHandlers.reverse(), function (handler) {
 module.exports = nodeManager;
 
 /***/ }),
-/* 21 */
+/* 23 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -2499,7 +2554,7 @@ module.exports = BaseView.extend({
 }, { selector: ':checkbox,:radio' });
 
 /***/ }),
-/* 22 */
+/* 24 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -2547,9 +2602,9 @@ module.exports = BaseView.extend({
 
 
 
-var defaultHandlers = [__webpack_require__(23),
+var defaultHandlers = [__webpack_require__(25),
 // require('./events/init-event-attr'),
-__webpack_require__(24), __webpack_require__(25), __webpack_require__(26), __webpack_require__(27), __webpack_require__(28), __webpack_require__(29), __webpack_require__(30), __webpack_require__(31), __webpack_require__(32), __webpack_require__(33)];
+__webpack_require__(26), __webpack_require__(27), __webpack_require__(28), __webpack_require__(29), __webpack_require__(30), __webpack_require__(31), __webpack_require__(32), __webpack_require__(33), __webpack_require__(34), __webpack_require__(35)];
 
 var handlersList = [];
 
@@ -2656,7 +2711,7 @@ module.exports = {
 };
 
 /***/ }),
-/* 23 */
+/* 25 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -2685,7 +2740,7 @@ module.exports = {
 };
 
 /***/ }),
-/* 24 */
+/* 26 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -2736,7 +2791,7 @@ module.exports = {
 };
 
 /***/ }),
-/* 25 */
+/* 27 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -2992,7 +3047,7 @@ module.exports = {
 };
 
 /***/ }),
-/* 26 */
+/* 28 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -3034,7 +3089,7 @@ module.exports = {
 };
 
 /***/ }),
-/* 27 */
+/* 29 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -3074,7 +3129,7 @@ module.exports = {
 };
 
 /***/ }),
-/* 28 */
+/* 30 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -3152,7 +3207,7 @@ module.exports = {
 };
 
 /***/ }),
-/* 29 */
+/* 31 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -3293,7 +3348,7 @@ module.exports = {
 };
 
 /***/ }),
-/* 30 */
+/* 32 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -3335,7 +3390,7 @@ module.exports = {
 };
 
 /***/ }),
-/* 31 */
+/* 33 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -3377,7 +3432,7 @@ module.exports = {
 };
 
 /***/ }),
-/* 32 */
+/* 34 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -3514,7 +3569,7 @@ module.exports = {
 };
 
 /***/ }),
-/* 33 */
+/* 35 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -3557,15 +3612,22 @@ module.exports = {
 };
 
 /***/ }),
-/* 34 */
+/* 36 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 
+/**
+ * Hooks up dom elements to mutation observer
+ * @param  {HTMLElement} target     [description]
+ * @param  {Object} domManager [description]
+ * @return {void}
+ */
+
 module.exports = function (target, domManager) {
     if (!window.MutationObserver) {
-        return false;
+        return;
     }
 
     // Create an observer instance
@@ -3603,16 +3665,16 @@ module.exports = function (target, domManager) {
 };
 
 /***/ }),
-/* 35 */
+/* 37 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 /* harmony export (immutable) */ __webpack_exports__["default"] = ChannelManager;
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__middleware_json_parse_middleware__ = __webpack_require__(36);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__middleware_epicenter_middleware__ = __webpack_require__(37);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__channel_manager__ = __webpack_require__(48);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__channel_manager_enhancements__ = __webpack_require__(49);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__middleware_json_parse_middleware__ = __webpack_require__(38);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__middleware_epicenter_middleware__ = __webpack_require__(39);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__channel_manager__ = __webpack_require__(50);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__channel_manager_enhancements__ = __webpack_require__(51);
 
 
 
@@ -3629,7 +3691,7 @@ function ChannelManager(opts) {
 }
 
 /***/ }),
-/* 36 */
+/* 38 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -3668,14 +3730,14 @@ function JSONMiddleware(config, notifier) {
 }
 
 /***/ }),
-/* 37 */
+/* 39 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__run_manager_router__ = __webpack_require__(38);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__scenario_manager_router__ = __webpack_require__(44);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__custom_run_router__ = __webpack_require__(45);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__runs_router__ = __webpack_require__(47);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__run_manager_router__ = __webpack_require__(40);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__scenario_manager_router__ = __webpack_require__(46);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__custom_run_router__ = __webpack_require__(47);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__runs_router__ = __webpack_require__(49);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_4_channels_middleware_utils__ = __webpack_require__(2);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_5_channels_channel_router__ = __webpack_require__(4);
 
@@ -3764,7 +3826,7 @@ var runidRegex = '(?:.{' + sampleRunidLength + '})';
 });
 
 /***/ }),
-/* 38 */
+/* 40 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -3802,7 +3864,7 @@ var runidRegex = '(?:.{' + sampleRunidLength + '})';
 });
 
 /***/ }),
-/* 39 */
+/* 41 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -3860,7 +3922,7 @@ function RunMetaChannel($runServicePromise, notifier) {
 }
 
 /***/ }),
-/* 40 */
+/* 42 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -3934,7 +3996,7 @@ function RunVariablesChannel($runServicePromise, notifier) {
 }
 
 /***/ }),
-/* 41 */
+/* 43 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -3958,7 +4020,7 @@ function RunOperationsChannel($runServicePromise) {
 }
 
 /***/ }),
-/* 42 */
+/* 44 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -3989,7 +4051,7 @@ function silencable(published, silentOptions) {
 }
 
 /***/ }),
-/* 43 */
+/* 45 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -4033,7 +4095,7 @@ function excludeReadOnly(publishable, readOnlyOptions) {
 }
 
 /***/ }),
-/* 44 */
+/* 46 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -4094,11 +4156,11 @@ function excludeReadOnly(publishable, readOnlyOptions) {
 });
 
 /***/ }),
-/* 45 */
+/* 47 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__run_router_factory__ = __webpack_require__(46);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__run_router_factory__ = __webpack_require__(48);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_channels_middleware_utils__ = __webpack_require__(2);
 
 
@@ -4126,7 +4188,7 @@ function excludeReadOnly(publishable, readOnlyOptions) {
 });
 
 /***/ }),
-/* 46 */
+/* 48 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -4145,7 +4207,7 @@ var knownRunIDServiceChannels = {};
 });
 
 /***/ }),
-/* 47 */
+/* 49 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -4234,7 +4296,7 @@ function RunsRouter(options, notifier, channelManagerContext) {
 }
 
 /***/ }),
-/* 48 */
+/* 50 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -4478,25 +4540,25 @@ var ChannelManager = function () {
 /* harmony default export */ __webpack_exports__["a"] = (ChannelManager);
 
 /***/ }),
-/* 49 */
+/* 51 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__interpolatable__ = __webpack_require__(50);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__interpolatable__ = __webpack_require__(52);
 /* harmony reexport (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return __WEBPACK_IMPORTED_MODULE_0__interpolatable__["a"]; });
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__with_middleware__ = __webpack_require__(53);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__with_middleware__ = __webpack_require__(55);
 /* harmony reexport (binding) */ __webpack_require__.d(__webpack_exports__, "b", function() { return __WEBPACK_IMPORTED_MODULE_1__with_middleware__["a"]; });
 
 
 
 /***/ }),
-/* 50 */
+/* 52 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 /* harmony export (immutable) */ __webpack_exports__["a"] = interpolatable;
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__subscribe_interpolator__ = __webpack_require__(51);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__publish_interpolator__ = __webpack_require__(52);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__subscribe_interpolator__ = __webpack_require__(53);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__publish_interpolator__ = __webpack_require__(54);
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
 var _get = function get(object, property, receiver) { if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { return get(parent, property, receiver); } } else if ("value" in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } };
@@ -4569,7 +4631,7 @@ function interpolatable(ChannelManager) {
 }
 
 /***/ }),
-/* 51 */
+/* 53 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -4655,7 +4717,7 @@ function subscribeInterpolator(subscribeFn, onDependencyChange) {
 }
 
 /***/ }),
-/* 52 */
+/* 54 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -4722,12 +4784,12 @@ function publishInterpolator(publishFunction, fetchFn) {
 }
 
 /***/ }),
-/* 53 */
+/* 55 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 /* harmony export (immutable) */ __webpack_exports__["a"] = withMiddleware;
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__middleware_manager__ = __webpack_require__(54);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__middleware_manager__ = __webpack_require__(56);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__channel_utils__ = __webpack_require__(1);
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
@@ -4866,7 +4928,7 @@ function withMiddleware(ChannelManager) {
 }
 
 /***/ }),
-/* 54 */
+/* 56 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";

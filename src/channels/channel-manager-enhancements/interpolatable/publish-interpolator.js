@@ -1,7 +1,8 @@
 import { extractDependencies, interpolateWithValues } from './interpolatable-utils';
 import { normalizeParamOptions } from 'channels/channel-utils';
 
-var { uniq } = _;
+import { uniq } from 'lodash';
+
 /**
  * @param {Publishable[]} publishInputs
  * @returns {String[]} dependencies for inputs

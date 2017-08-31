@@ -37,9 +37,8 @@
  *       </div>
  *
  */
-
-'use strict';
-var config = require('../../config');
+const { isArray, isNumber } = require('lodash');
+const config = require('../../config');
 
 module.exports = {
 
@@ -48,7 +47,7 @@ module.exports = {
     target: '*',
 
     handle: function (value, prop) {
-        if (_.isArray(value)) {
+        if (isArray(value)) {
             value = value[value.length - 1];
         }
 
@@ -60,7 +59,7 @@ module.exports = {
             this.removeClass(addedClasses[prop]);
         }
 
-        if (_.isNumber(value)) {
+        if (isNumber(value)) {
             value = 'value-' + value;
         }
         addedClasses[prop] = value;

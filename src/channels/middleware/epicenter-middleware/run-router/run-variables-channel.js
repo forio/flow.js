@@ -1,9 +1,10 @@
 import { debounceAndMerge } from 'utils/general';
 import { objectToArray, arrayToObject } from 'channels/channel-utils';
+import { uniqueId, uniq } from 'lodash';
 
 export default function RunVariablesChannel($runServicePromise, notifier) {
 
-    var id = _.uniqueId('variable-channel');
+    var id = uniqueId('variable-channel');
 
     var fetchFn = function (runService, debounceInterval) {
         if (!runService.debouncedFetchers) {
@@ -19,7 +20,7 @@ export default function RunVariablesChannel($runServicePromise, notifier) {
                 if (!accum) {
                     accum = [];
                 }
-                return _.uniq(accum.concat(newval)).filter((v)=> !!(v && v.trim()));
+                return uniq(accum.concat(newval)).filter((v)=> !!(v && v.trim()));
             }]);
         }
         return runService.debouncedFetchers[id];
@@ -42,7 +43,7 @@ export default function RunVariablesChannel($runServicePromise, notifier) {
             var debounceInterval = options.debounce;
 
             return $runServicePromise.then(function (runService) {
-                knownTopics = _.uniq(knownTopics.concat(topics));
+                knownTopics = uniq(knownTopics.concat(topics));
                 if (!knownTopics.length) {
                     return $.Deferred().resolve([]).promise();
                 } else if (!isAutoFetchEnabled) {

@@ -1,13 +1,13 @@
-'use strict';
+const { isString, isFunction, isRegExp } = require('lodash');
 
 module.exports = {
 
     match: function (matchExpr, matchValue, context) {
-        if (_.isString(matchExpr)) {
+        if (isString(matchExpr)) {
             return (matchExpr === '*' || (matchExpr.toLowerCase() === matchValue.toLowerCase()));
-        } else if (_.isFunction(matchExpr)) {
+        } else if (isFunction(matchExpr)) {
             return matchExpr(matchValue, context);
-        } else if (_.isRegExp(matchExpr)) {
+        } else if (isRegExp(matchExpr)) {
             return matchValue.match(matchExpr);
         }
     },

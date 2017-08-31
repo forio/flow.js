@@ -5,6 +5,8 @@ import OperationsChannel from './run-operations-channel';
 import Router from 'channels/channel-router';
 import { withPrefix, prefix, defaultPrefix } from 'channels/middleware/utils';
 
+import { result } from 'lodash';
+
 export default function RunRouter(config, notifier) {
     var defaults = {
         serviceOptions: {},
@@ -28,7 +30,7 @@ export default function RunRouter(config, notifier) {
     };
     var opts = $.extend(true, {}, defaults, config);
 
-    var serviceOptions = _.result(opts, 'serviceOptions');
+    var serviceOptions = result(opts, 'serviceOptions');
 
     var $initialProm = null;
     if (serviceOptions instanceof window.F.service.Run) {
@@ -69,7 +71,7 @@ export default function RunRouter(config, notifier) {
     router.publishHandler = function () {
         var prom = oldhandler.apply(router, arguments);
         return prom.then(function (result) { //all the silencing will be taken care of by the router
-            var shouldFetch = _.find(result, (r)=> r.name.indexOf('operations:') === 0 || r.name.indexOf('variables:') === 0);
+            var shouldFetch = find(result, (r)=> r.name.indexOf('operations:') === 0 || r.name.indexOf('variables:') === 0);
             if (shouldFetch) {
                 variableschannel.fetch();
             }

@@ -65,7 +65,7 @@
 
 'use strict';
 
-var domManager = require('./dom/dom-manager');
+var domManager = require('./dom/dom-manager').default;
 var BaseView = require('./utils/base-view');
 
 var ChannelManager = require('channels/configured-channel-manager').default;

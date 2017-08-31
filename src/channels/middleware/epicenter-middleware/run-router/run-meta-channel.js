@@ -1,6 +1,5 @@
 import { objectToArray, arrayToObject } from 'channels/channel-utils';
-
-var { intersection } = _;
+import { intersection } from 'lodash';
 
 export default function RunMetaChannel($runServicePromise, notifier) {
 

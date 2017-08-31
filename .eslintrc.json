@@ -14,8 +14,7 @@
         "node": true
     },
     "globals": {
-        "$": false,
-        "_": false
+        "$": false
     },
     "rules": {
         "array-callback-return": 2,

@@ -1,4 +1,4 @@
-'use strict';
+const { each } = require('lodash');
 
 var panelManager = {
     list: {},
@@ -16,7 +16,7 @@ var availablePanels = {
     context: require('./context-show/context-show-panel'),
     filter: require('./legend-toggle/legend-panel')
 };
-_.each(availablePanels, function (panel, alias) {
+each(availablePanels, function (panel, alias) {
     panelManager.register(alias, panel);
 });
 

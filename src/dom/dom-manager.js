@@ -8,7 +8,7 @@
  */
 'use strict';
 
-const { each, isArray, includes, pick, without } = window._;
+const { each, isArray, includes, pick, without } = require('lodash');
 
 module.exports = (function () {
     var config = require('../config');

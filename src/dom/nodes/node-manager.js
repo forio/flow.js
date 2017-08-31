@@ -1,5 +1,4 @@
-'use strict';
-
+const { each, isString, isFunction, find } = require('lodash');
 /**
  * @typedef NodeHandler
  * @property {string} selector
@@ -16,7 +15,7 @@ var normalize = function (selector, handler) {
     if (!selector) {
         selector = '*';
     }
-    if (_.isFunction(handler)) {
+    if (isFunction(handler)) {
         handler = {
             selector: selector,
             handle: handler
@@ -33,7 +32,7 @@ var normalize = function (selector, handler) {
  * @return {boolean}
  */ 
 var match = function (toMatch, node) {
-    if (_.isString(toMatch)) {
+    if (isString(toMatch)) {
         return toMatch === node.selector;
     }
     return $(toMatch).is(node.selector);
@@ -53,18 +52,18 @@ var nodeManager = {
     },
 
     /**
-     * @param {string|HTMLElement|JQuery<HTMLElement>} toMatch
+     * @param {string|HTMLElement|JQuery<HTMLElement>} selector
      * @return NodeHandler
      */ 
     getHandler: function (selector) {
-        return _.find(this.list, function (node) {
+        return find(this.list, function (node) {
             return match(selector, node);
         });
     },
 
     replace: function (selector, handler) {
         var index;
-        _.each(this.list, function (currentHandler, i) {
+        each(this.list, function (currentHandler, i) {
             if (selector === currentHandler.selector) {
                 index = i;
                 return false;
@@ -80,7 +79,7 @@ var defaultHandlers = [
     require('./default-input-node'),
     require('./default-node')
 ];
-_.each(defaultHandlers.reverse(), function (handler) {
+each(defaultHandlers.reverse(), function (handler) {
     nodeManager.register(handler.selector, handler);
 });
 

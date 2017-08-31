@@ -1,4 +1,4 @@
-'use strict';
+const { every, findIndex } = require('lodash');
 
 module.exports = {
     fn: {
@@ -11,7 +11,7 @@ module.exports = {
         end: function (fromStart, startValue) {
             var leadingSpacesInStart = startValue.match(/^[ \t]*/)[0].length;
             var indexOfLastGoodLine = 0;
-            _.every(fromStart, function (line, index) {
+            every(fromStart, function (line, index) {
                 var leadingSpacesInLine = line.match(/^[ \t]*/)[0].length;
                 if (line.trim() !== '') {
                     if (leadingSpacesInLine === leadingSpacesInStart) {
@@ -34,7 +34,7 @@ module.exports = {
             };
         },
         end: function (fromStart) {
-            return _.findIndex(fromStart, function (val, index) {
+            return findIndex(fromStart, function (val, index) {
                 return val.trim() === '' || (val.indexOf('=') !== -1);
             });
         },

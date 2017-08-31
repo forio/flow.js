@@ -22,7 +22,7 @@
  *            // of ['Formal Milestone Name', milestoneMonth, completionPercentage]
  *
  *            var schedStr = '<ul>';
- *            var sortedSched = _.sortBy(sched, function(el) { return el[1]; });
+ *            var sortedSched = sortBy(sched, function(el) { return el[1]; });
  *
  *            for (var i = 0; i < sortedSched.length; i++) {
  *                  schedStr += '<li><strong>' + sortedSched[i][0]
@@ -40,7 +40,7 @@
  *
  */
 
-'use strict';
+const { isString, isFunction, isRegExp, filter, each } = require('lodash');
 
 var defaultHandlers = [
     require('./no-op-attr'),
@@ -63,7 +63,7 @@ var normalize = function (attributeMatcher, nodeMatcher, handler) {
     if (!nodeMatcher) {
         nodeMatcher = '*';
     }
-    if (_.isFunction(handler)) {
+    if (isFunction(handler)) {
         handler = {
             handle: handler
         };
@@ -79,19 +79,19 @@ $.each(defaultHandlers, function (index, handler) {
 var matchAttr = function (matchExpr, attr, $el) {
     var attrMatch;
 
-    if (_.isString(matchExpr)) {
+    if (isString(matchExpr)) {
         attrMatch = (matchExpr === '*' || (matchExpr.toLowerCase() === attr.toLowerCase()));
-    } else if (_.isFunction(matchExpr)) {
+    } else if (isFunction(matchExpr)) {
         //TODO: remove element selectors from attributes
         attrMatch = matchExpr(attr, $el);
-    } else if (_.isRegExp(matchExpr)) {
+    } else if (isRegExp(matchExpr)) {
         attrMatch = attr.match(matchExpr);
     }
     return attrMatch;
 };
 
 var matchNode = function (target, nodeFilter) {
-    return (_.isString(nodeFilter)) ? (nodeFilter === target) : nodeFilter.is(target);
+    return (isString(nodeFilter)) ? (nodeFilter === target) : nodeFilter.is(target);
 };
 
 module.exports = {
@@ -99,10 +99,10 @@ module.exports = {
     /**
      * Add a new attribute handler.
      *
-     * @param  {String|Function|Regex} attributeMatcher Description of which attributes to match.
+     * @param  {String|Function|RegExp} attributeMatcher Description of which attributes to match.
      * @param  {String} nodeMatcher Which nodes to add attributes to. Use [jquery Selector syntax](https://api.jquery.com/category/selectors/).
      * @param  {Function|Object} handler If `handler` is a function, the function is called with `$element` as context, and attribute value + name. If `handler` is an object, it should include two functions, and have the form: `{ init: fn,  handle: fn }`. The `init` function is called when the page loads; use this to define event handlers. The `handle` function is called with `$element` as context, and attribute value + name.
-     * @returns {undefined}
+     * @returns {void}
      */
     register: function (attributeMatcher, nodeMatcher, handler) {
         handlersList.unshift(normalize.apply(null, arguments));
@@ -112,16 +112,16 @@ module.exports = {
      * Find an attribute matcher matching some criteria.
      *
      * @param  {String} attrFilter Attribute to match.
-     * @param  {String|$el} nodeFilter Node to match.
+     * @param  {String|JQuery<HTMLElement>} nodeFilter Node to match.
      *
      * @return {Array|Null} An array of matching attribute handlers, or null if no matches found.
      */
     filter: function (attrFilter, nodeFilter) {
-        var filtered = _.filter(handlersList, function (handler) {
+        var filtered = filter(handlersList, function (handler) {
             return matchAttr(handler.test, attrFilter);
         });
         if (nodeFilter) {
-            filtered = _.filter(filtered, function (handler) {
+            filtered = filter(filtered, function (handler) {
                 return matchNode(handler.target, nodeFilter);
             });
         }
@@ -132,13 +132,13 @@ module.exports = {
      * Replace an existing attribute handler.
      *
      * @param  {String} attrFilter Attribute to match.
-     * @param  {String | $el} nodeFilter Node to match.
+     * @param  {String|JQuery<HTMLElement>} nodeFilter Node to match.
      * @param  {Function|Object} handler The updated attribute handler. If `handler` is a function, the function is called with `$element` as context, and attribute value + name. If `handler` is an object, it should include two functions, and have the form: `{ init: fn,  handle: fn }`. The `init` function is called when the page loads; use this to define event handlers. The `handle` function is called with `$element` as context, and attribute value + name.
-     * @returns {undefined}
+     * @returns {void}
      */
     replace: function (attrFilter, nodeFilter, handler) {
         var index;
-        _.each(handlersList, function (currentHandler, i) {
+        each(handlersList, function (currentHandler, i) {
             if (matchAttr(currentHandler.test, attrFilter) && matchNode(currentHandler.target, nodeFilter)) {
                 index = i;
                 return false;
@@ -151,7 +151,7 @@ module.exports = {
      *  Retrieve the appropriate handler for a particular attribute. There may be multiple matching handlers, but the first (most exact) match is always used.
      *
      * @param {String} property The attribute.
-     * @param {$el} $el The DOM element.
+     * @param {JQuery<HTMLElement>} $el The DOM element.
      *
      * @return {Object} The attribute handler.
      */

@@ -61,10 +61,10 @@
  *
  */
 
-'use strict';
-var parseUtils = require('../../utils/parse-utils');
-var gutils = require('../../utils/general');
-var config = require('../../config').attrs;
+const { each, template } = require('lodash');
+const parseUtils = require('../../utils/parse-utils');
+const gutils = require('../../utils/general');
+const config = require('../../config').attrs;
 module.exports = {
 
     test: 'repeat',
@@ -103,16 +103,16 @@ module.exports = {
   
         var last;
         var me = this;
-        _.each(value, function (dataval, datakey) {
+        each(value, function (dataval, datakey) {
             var cloop = loopTemplate.replace(/&lt;/g, '<').replace(/&gt;/g, '>');
-            var templatedLoop = _.template(cloop)({ value: dataval, key: datakey, index: datakey });
+            var templatedLoop = template(cloop)({ value: dataval, key: datakey, index: datakey });
             var isTemplated = templatedLoop !== cloop;
             var nodes = $(templatedLoop);
             var hasData = (dataval !== null && dataval !== undefined);
 
             nodes.each(function (i, newNode) {
                 newNode = $(newNode).removeAttr('data-f-repeat').removeAttr('data-' + config.repeat.templateId);
-                _.each(newNode.data(), function (val, key) {
+                each(newNode.data(), function (val, key) {
                     if (!last) {
                         me.data(key, parseUtils.toImplicitType(val));
                     } else {

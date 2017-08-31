@@ -1,4 +1,4 @@
-var { isArray, includes, isFunction } = _;
+import { isArray, includes, isFunction } from 'lodash';
 
 /**
  * 

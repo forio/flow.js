@@ -1,14 +1,14 @@
-'use strict';
+const { uniqueId, random, toArray } = require('lodash');
 
 module.exports = {
     random: function (prefix, min, max) {
         if (!min) {
-            min = parseInt(_.uniqueId(), 10);
+            min = parseInt(uniqueId(), 10);
         }
         if (!max) {
             max = 100000; //eslint-disable-line no-magic-numbers
         }
-        var number = _.random(min, max, false) + '';
+        var number = random(min, max, false) + '';
         if (prefix) {
             number = prefix + number;
         }
@@ -20,7 +20,7 @@ module.exports = {
      * @param  {Function} fn                function to debounce
      * @param  {Number}   debounceInterval  interval
      * @param  {Array}   argumentsReducers A reducer for each argument to the function
-     * @return {Promise}                     
+     * @return {Function}                     
      */
     debounceAndMerge: function (fn, debounceInterval, argumentsReducers) {
         var timer = null;
@@ -39,7 +39,7 @@ module.exports = {
         }
         return function () {
             var $def = $.Deferred();
-            var newArgs = _.toArray(arguments);
+            var newArgs = toArray(arguments);
             argsToPass = newArgs.map(function (arg, index) {
                 var reducer = argumentsReducers[index];
                 if (reducer) {

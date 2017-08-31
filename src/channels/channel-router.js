@@ -1,5 +1,6 @@
 import { groupByHandlers, groupSequentiallyByHandlers } from 'channels/channel-utils';
 import { unprefix, mapWithPrefix, silencable, excludeReadOnly } from 'channels/middleware/utils';
+import { find } from 'lodash';
 
 /**
  * Handle subscriptions
@@ -38,7 +39,7 @@ export function notifyUnsubscribeHandlers(handlers, recentlyUnsubscribedTopics, 
     unsubsGrouped.forEach(function (handler) {
         if (handler.unsubscribeHandler) {
             var unprefixedUnsubs = unprefix(handler.data, handler.matched);
-            var matchingRemainingHandler = _.find(remainingGrouped, function (remainingHandler) {
+            var matchingRemainingHandler = find(remainingGrouped, function (remainingHandler) {
                 return remainingHandler.unsubsKey === handler.unsubsKey;
             });
             var matchingTopicsRemaining = matchingRemainingHandler ? matchingRemainingHandler.data : [];

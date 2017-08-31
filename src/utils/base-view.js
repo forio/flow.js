@@ -1,20 +1,20 @@
-'use strict';
+const { extend, has } = require('lodash');
 
-var extend = function (protoProps, staticProps) {
+var extendView = function (protoProps, staticProps) {
     var me = this;
     var child;
 
     // The constructor function for the new subclass is either defined by you
     // (the "constructor" property in your `extend` definition), or defaulted
     // by us to simply call the parent's constructor.
-    if (protoProps && _.has(protoProps, 'constructor')) {
+    if (protoProps && has(protoProps, 'constructor')) {
         child = protoProps.constructor;
     } else {
         child = function () { return me.apply(this, arguments); };
     }
 
     // Add static properties to the constructor function, if supplied.
-    _.extend(child, me, staticProps);
+    extend(child, me, staticProps);
 
     // Set the prototype chain to inherit from `parent`, without calling
     // `parent`'s constructor function.
@@ -25,7 +25,7 @@ var extend = function (protoProps, staticProps) {
     // Add prototype properties (instance properties) to the subclass,
     // if supplied.
     if (protoProps) {
-        _.extend(child.prototype, protoProps);
+        extend(child.prototype, protoProps);
     }
 
     // Set a convenience property in case the parent's prototype is needed
@@ -41,11 +41,10 @@ var View = function (options) {
     this.initialize.apply(this, arguments);
 
 };
-
-_.extend(View.prototype, {
+extend(View.prototype, {
     initialize: function () {},
 });
 
-View.extend = extend;
+View.extend = extendView;
 
 module.exports = View;
