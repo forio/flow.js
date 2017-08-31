@@ -92,6 +92,14 @@ describe('Interpolatable - Integration Test', ()=> {
             var args = cb.getCall(1).args;
             expect(args[0]).to.eql({ 'price[<time>]': 14 });
         });
+
+        it('should not change response type', ()=> {
+            const plainChannel = new ChannelManager();
+            const noop = ()=> {};
+            const result1 = plainChannel.subscribe('foo', noop);
+            const result2 = icm.subscribe('foo', noop);
+            expect(typeof result1).to.eql(typeof result2);
+        });
     });
 
     describe('#unsubscribe', ()=> {

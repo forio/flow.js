@@ -113,33 +113,24 @@ describe('DOM Manager', function () {
     });
 
     describe('#bindElement', function () {
-        it('should bind elements added to the dom', function () {
-            return utils.initWithNode('<div data-f-bind="a"> </div>', domManager).then(function ($node) {
-                $node.append('<input type="text" data-f-bind="boo" />');
-                var addedNode = $node.find(':text');
-
-                var textspy = sinon.spy();
-                $(addedNode).on('update.f.ui', textspy);
-
-                $(addedNode).val('hello').trigger('change');
-                textspy.should.not.have.been.called;
-
-                domManager.bindElement(addedNode);
-
-                $(addedNode).val('hello1').trigger('change');
-                textspy.should.have.been.calledOnce;
-            });
+        it('should update list of added items if match', function () {
+            domManager.private.matchedElements.length.should.equal(0);
+            domManager.bindElement($('<input type="text" data-f-bind="boo" />'));
+            domManager.private.matchedElements.length.should.equal(1);
         });
-        it('should update list of added items', function () {
-            return utils.initWithNode('<div data-f-bind="a"> </div>', domManager).then(function ($node) {
-                $node.append('<input type="text" data-f-bind="boo" />');
-                var addedNode = $node.find(':text');
-
-                domManager.private.matchedElements.length.should.equal(1);
-                domManager.bindElement(addedNode);
-                domManager.private.matchedElements.length.should.equal(2);
-            });
+        it('should not update list of added items if match', function () {
+            domManager.private.matchedElements.length.should.equal(0);
+            domManager.bindElement($('<input type="text" data-bind="boo" />'));
+            domManager.private.matchedElements.length.should.equal(0);
         });
+        it('should not bind same item twice', function () {
+            const $el = $('<input type="text" data-f-bind="boo" />');
+            domManager.bindElement($el);
+            domManager.private.matchedElements.length.should.equal(1);
+            domManager.bindElement($el);
+            domManager.private.matchedElements.length.should.equal(1);
+        });
+
         describe('Subscriptions', ()=> {
             var channel;
             beforeEach(()=> {

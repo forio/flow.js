@@ -10,9 +10,10 @@ var utils = {
             return $.Deferred().resolve().promise();
         });
         var dummyChannel = function () {
+            var i = 0;
             return {
                 publish: publishSpy,
-                subscribe: sinon.spy(),
+                subscribe: sinon.spy(()=> 'subsid' + (i++)),
                 unsubscribe: sinon.spy()
             };
         };

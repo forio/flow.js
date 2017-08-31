@@ -124,6 +124,13 @@ describe('Middleware', ()=> {
             expect(m1).to.have.been.calledWith(topics);
             expect(m2).to.have.been.calledWith(topics);
         });
+        it('should not change response type', ()=> {
+            const plainChannel = new ChannelManager();
+            const result1 = plainChannel.subscribe('foo', noop);
+            const result2 = channel.subscribe('foo', noop);
+
+            expect(typeof result1).to.eql(typeof result2);
+        });
     });
     describe('Unsubscribe Middleware', ()=> {
         var m1, m2, channel;
