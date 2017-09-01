@@ -90,6 +90,10 @@ module.exports = {
 
     test: 'bind',
 
+    /**
+     * @param {string} attr
+     * @return {void}
+     */ 
     unbind: function (attr) {
         var template = this.data(config.attrs.bindTemplate);
         if (template) {
@@ -97,6 +101,10 @@ module.exports = {
         }
     },
 
+    /**
+    * @param {Array|string|number|Object} value
+    * @return {void}
+    */ 
     handle: function (value) {
         var templated;
         var valueToTemplate = $.extend({}, value);

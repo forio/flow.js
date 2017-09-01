@@ -12,6 +12,7 @@
 
 'use strict';
 module.exports = {
+    alias: 'i',
     /**
      * Convert the model variable to an integer. Often used for chaining to another converter.
      *
@@ -22,10 +23,10 @@ module.exports = {
      *          <span data-f-bind="Odometer | i | s0.0"></span> miles.
      *      </div>
      *
-     * @param {Array} value The model variable.
+     * @param {string} value The model variable.
+     * @return {number}
      */
-    alias: 'i',
     convert: function (value) {
-        return parseFloat(value, 10);
+        return parseFloat(value);
     }
 };

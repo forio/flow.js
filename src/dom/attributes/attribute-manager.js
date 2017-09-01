@@ -57,8 +57,19 @@ var defaultHandlers = [
     require('./default-attr')
 ];
 
+/**
+ * @typedef AttributeHandler
+ * @property {string|Function|RegExp} test
+ * @property {Function} handle
+ * @property {string|JQuery<HTMLElement>} target
+ */
+
+ 
 var handlersList = [];
 
+/**
+ * @return {AttributeHandler}
+ */ 
 var normalize = function (attributeMatcher, nodeMatcher, handler) {
     if (!nodeMatcher) {
         nodeMatcher = '*';
@@ -99,8 +110,8 @@ module.exports = {
     /**
      * Add a new attribute handler.
      *
-     * @param  {String|Function|RegExp} attributeMatcher Description of which attributes to match.
-     * @param  {String} nodeMatcher Which nodes to add attributes to. Use [jquery Selector syntax](https://api.jquery.com/category/selectors/).
+     * @param  {string|Function|RegExp} attributeMatcher Description of which attributes to match.
+     * @param  {string|JQuery<HTMLElement>} nodeMatcher Which nodes to add attributes to. Use [jquery Selector syntax](https://api.jquery.com/category/selectors/).
      * @param  {Function|Object} handler If `handler` is a function, the function is called with `$element` as context, and attribute value + name. If `handler` is an object, it should include two functions, and have the form: `{ init: fn,  handle: fn }`. The `init` function is called when the page loads; use this to define event handlers. The `handle` function is called with `$element` as context, and attribute value + name.
      * @returns {void}
      */
@@ -111,8 +122,8 @@ module.exports = {
     /**
      * Find an attribute matcher matching some criteria.
      *
-     * @param  {String} attrFilter Attribute to match.
-     * @param  {String|JQuery<HTMLElement>} nodeFilter Node to match.
+     * @param  {string} attrFilter Attribute to match.
+     * @param  {string|JQuery<HTMLElement>} nodeFilter Node to match.
      *
      * @return {Array|Null} An array of matching attribute handlers, or null if no matches found.
      */
@@ -131,8 +142,8 @@ module.exports = {
     /**
      * Replace an existing attribute handler.
      *
-     * @param  {String} attrFilter Attribute to match.
-     * @param  {String|JQuery<HTMLElement>} nodeFilter Node to match.
+     * @param  {string} attrFilter Attribute to match.
+     * @param  {string|JQuery<HTMLElement>} nodeFilter Node to match.
      * @param  {Function|Object} handler The updated attribute handler. If `handler` is a function, the function is called with `$element` as context, and attribute value + name. If `handler` is an object, it should include two functions, and have the form: `{ init: fn,  handle: fn }`. The `init` function is called when the page loads; use this to define event handlers. The `handle` function is called with `$element` as context, and attribute value + name.
      * @returns {void}
      */
@@ -150,7 +161,7 @@ module.exports = {
     /**
      *  Retrieve the appropriate handler for a particular attribute. There may be multiple matching handlers, but the first (most exact) match is always used.
      *
-     * @param {String} property The attribute.
+     * @param {string} property The attribute.
      * @param {JQuery<HTMLElement>} $el The DOM element.
      *
      * @return {Object} The attribute handler.

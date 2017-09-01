@@ -24,6 +24,10 @@ module.exports = {
 
     test: 'bind',
 
+    /**
+     * @param {string[]|number[]|string|number} value
+     * @return {void}
+     */ 
     handle: function (value) {
         if (isArray(value)) {
             value = value[value.length - 1];

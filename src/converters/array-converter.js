@@ -15,18 +15,21 @@
 const { mapValues, each } = require('lodash');
 var list = [
     {
+        alias: 'list',
+        acceptList: true,
         /**
          * Convert the input into an array. Concatenates all elements of the input.
          *
-         * @param {Array} val The array model variable.
+         * @param {*} val value to convert to Array
+         * @return {Array} value converted to array
          */
-        alias: 'list',
-        acceptList: true,
         convert: function (val) {
             return [].concat(val);
         }
     },
     {
+        alias: 'last',
+        acceptList: true,
         /**
          * Select only the last element of the array.
          *
@@ -37,15 +40,16 @@ var list = [
          *      </div>
          *
          * @param {Array} val The array model variable.
+         * @return {*} last element of array
          */
-        alias: 'last',
-        acceptList: true,
         convert: function (val) {
             val = [].concat(val);
             return val[val.length - 1];
         }
     },
     {
+        alias: 'reverse',
+        acceptList: true,
         /**
          * Reverse the array.
          *
@@ -57,15 +61,16 @@ var list = [
          *      </ul>
          *
          * @param {Array} val The array model variable.
+         * @returns {Array} reversed array
          */
-        alias: 'reverse',
-        acceptList: true,
         convert: function (val) {
             val = [].concat(val);
             return val.reverse();
         }
     },
     {
+        alias: 'first',
+        acceptList: true,
         /**
          * Select only the first element of the array.
          *
@@ -76,15 +81,16 @@ var list = [
          *      </div>
          *
          * @param {Array} val The array model variable.
+         * @returns {*} first element of array
          */
-        alias: 'first',
-        acceptList: true,
         convert: function (val) {
             val = [].concat(val);
             return val[0];
         }
     },
     {
+        alias: 'previous',
+        acceptList: true,
         /**
          * Select only the previous (second to last) element of the array.
          *
@@ -95,9 +101,8 @@ var list = [
          *      </div>
          *
          * @param {Array} val The array model variable.
+         * @returns {*} previous (second to last) element of the array.
          */
-        alias: 'previous',
-        acceptList: true,
         convert: function (val) {
             val = [].concat(val);
             return (val.length <= 1) ? val[0] : val[val.length - 2];

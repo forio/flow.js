@@ -25,7 +25,7 @@ module.exports = {
      *      </div>
      *
      * @param {Array} val The model variable.
-     * @returns {String} converted string
+     * @returns {string} converted string
      */
     s: function (val) {
         return val + '';
@@ -42,7 +42,7 @@ module.exports = {
      *      </div>
      *
      * @param {Array} val The model variable.
-     * @returns {String} converted string
+     * @returns {string} converted string
      */
     upperCase: function (val) {
         return (val + '').toUpperCase();
@@ -59,7 +59,7 @@ module.exports = {
      *      </div>
      *
      * @param {Array} val The model variable.
-     * @returns {String} converted string
+     * @returns {string} converted string
      */
     lowerCase: function (val) {
         return (val + '').toLowerCase();
@@ -75,8 +75,8 @@ module.exports = {
      *          Your new title is: <span data-f-bind="currentRole | titleCase"></span>.
      *      </div>
      *
-     * @param {Array} val The model variable.
-     * @returns {String} converted string
+     * @param {string} val The model variable.
+     * @returns {string} converted string
      */
     titleCase: function (val) {
         val = val + '';

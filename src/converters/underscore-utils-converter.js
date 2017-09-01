@@ -8,7 +8,7 @@ var supported = [
     'uniq', 'without',
     'xor', 'zip'
 ];
-_.each(supported, function (fn) {
+supported.forEach(function (fn) {
     var item = {
         alias: fn,
         acceptList: true,
