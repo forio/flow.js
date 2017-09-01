@@ -45,12 +45,7 @@ module.exports = function (grunt) {
             },
             externals: {
                 jquery: 'jQuery',
-                lodash: {
-                    commonjs: 'lodash',
-                    commonjs2: 'lodash',
-                    amd: '_',
-                    root: '_'
-                }
+                lodash: '_',
             }
         },
         edge: {
@@ -111,7 +106,7 @@ module.exports = function (grunt) {
                 }),
                 new webpack.optimize.UglifyJsPlugin(uglifyOptions),
             ],
-            devtool: 'source-map'
+            devtool: 'source-map',
         },
         addons: {
             entry: path.resolve('./src/add-ons/flow-inspector/flow-inspector.js'),
