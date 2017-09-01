@@ -8,7 +8,7 @@ import { withPrefix, prefix, defaultPrefix } from 'channels/middleware/utils';
 import { result } from 'lodash';
 
 export default function RunRouter(config, notifier) {
-    var defaults = {
+    const defaults = {
         serviceOptions: {},
         channelOptions: {
             variables: {
@@ -28,50 +28,55 @@ export default function RunRouter(config, notifier) {
             },
         }
     };
-    var opts = $.extend(true, {}, defaults, config);
+    const opts = $.extend(true, {}, defaults, config);
 
-    var serviceOptions = result(opts, 'serviceOptions');
+    const serviceOptions = result(opts, 'serviceOptions');
 
-    var $initialProm = null;
+    const $initialProm = null;
     if (serviceOptions instanceof window.F.service.Run) {
         $initialProm = $.Deferred().resolve(serviceOptions).promise();
     } else if (serviceOptions.then) {
         $initialProm = serviceOptions;
     } else {
-        var rs = new window.F.service.Run(serviceOptions);
+        const rs = new window.F.service.Run(serviceOptions);
         $initialProm = $.Deferred().resolve(rs).promise();
     }
 
+    const VARIABLES_PREFIX = 'variables:';
+    const META_PREFIX = 'meta:';
+    const OPERATIONS_PREFIX = 'operations:';
 
-    var metaChannel = new MetaChannel($initialProm, withPrefix(notifier, 'meta:'));
-    var operationsChannel = new OperationsChannel($initialProm, withPrefix(notifier, 'operations:'));
-    var variableschannel = new VariablesChannel($initialProm, withPrefix(notifier, ['variables:', '']));
+    const metaChannel = new MetaChannel($initialProm, withPrefix(notifier, META_PREFIX));
+    const operationsChannel = new OperationsChannel($initialProm, withPrefix(notifier, OPERATIONS_PREFIX));
+    const variableschannel = new VariablesChannel($initialProm, withPrefix(notifier, [VARIABLES_PREFIX, '']));
 
-    var handlers = [
+    const handlers = [
         $.extend({}, metaChannel, { 
             name: 'meta',
-            match: prefix('meta:'),
+            match: prefix(META_PREFIX),
             options: opts.channelOptions.meta,
         }),
         $.extend({}, operationsChannel, { 
             name: 'operations',
-            match: prefix('operations:'),
+            match: prefix(OPERATIONS_PREFIX),
             options: opts.channelOptions.operations,
         }),
         $.extend({}, variableschannel, { 
             isDefault: true,
             name: 'variables',
-            match: defaultPrefix('variables:'),
+            match: defaultPrefix(VARIABLES_PREFIX),
             options: opts.channelOptions.variables,
         }),
     ];
 
-    var router = new Router(handlers, notifier);
-    var oldhandler = router.publishHandler;
+    // router.addRoute(prefix('meta:'), metaChannel, opts.channelOptions.meta);
+
+    const router = new Router(handlers, notifier);
+    const oldhandler = router.publishHandler;
     router.publishHandler = function () {
-        var prom = oldhandler.apply(router, arguments);
+        const prom = oldhandler.apply(router, arguments);
         return prom.then(function (result) { //all the silencing will be taken care of by the router
-            var shouldFetch = find(result, (r)=> r.name.indexOf('operations:') === 0 || r.name.indexOf('variables:') === 0);
+            const shouldFetch = find(result, (r)=> r.name.indexOf(OPERATIONS_PREFIX) === 0 || r.name.indexOf(VARIABLES_PREFIX) === 0);
             if (shouldFetch) {
                 variableschannel.fetch();
             }
