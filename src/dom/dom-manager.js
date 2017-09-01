@@ -164,8 +164,9 @@ module.exports = (function () {
                 var subsid = subsChannel.subscribe(varsToBind, function (params) {
                     $bindEl.trigger(config.events.channelDataReceived, params);
                 }, options);
-                var newsubs = ($el.data(config.attrs.subscriptionId) || []).concat(subsid);
-                $el.data(config.attrs.subscriptionId, newsubs);
+                var subsAttr = config.attrs.subscriptionId;
+                var newsubs = ($el.data(subsAttr) || []).concat(subsid);
+                $el.attr(`data-${subsAttr}`, newsubs);
             };
 
             var attrBindings = [];
