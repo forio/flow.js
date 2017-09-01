@@ -7,7 +7,7 @@ var interpolationRegex = /<(.*?)>/g;
  * @return {String[]} dependencies
  */
 export function extractDependencies(topic) {
-    var deps = (topic.match(interpolationRegex) || []).map((val) => {
+    var deps = (topic.match(interpolationRegex) || []).map((val)=> {
         return val.substring(1, val.length - 1); 
     });
     return deps;

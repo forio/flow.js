@@ -127,13 +127,13 @@ describe('Subscribe Interceptor', ()=> {
             it('should not callback if there are no interpolated subscriptions', ()=> {
                 var interceptionCallback = sinon.spy();
                 var wrapped = subscribeInterpolator(mockSubscribe, interceptionCallback);
-                wrapped(['a', 'b', 'c'], ()=>{});
+                wrapped(['a', 'b', 'c'], ()=> {});
                 expect(interceptionCallback).to.not.have.been.called;
             });
             it('should callback with two subsids if interpolated', ()=> {
                 var interceptionCallback = sinon.spy();
                 var wrapped = subscribeInterpolator(mockSubscribe, interceptionCallback);
-                wrapped(['a', 'b[<step>]', 'c'], ()=>{});
+                wrapped(['a', 'b[<step>]', 'c'], ()=> {});
 
                 expect(interceptionCallback).to.have.been.calledOnce;
                 expect(interceptionCallback).to.have.been.calledWith('subsid1', 'subsid2');

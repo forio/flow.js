@@ -1,5 +1,5 @@
 export function addable(obj, parser) {
-    const handlers = [];
+    let handlers = [];
     const boundObj = Object.keys(obj).reduce((accum, key)=> {
         const fn = obj[key];
         accum[key] = fn.bind(fn, handlers);

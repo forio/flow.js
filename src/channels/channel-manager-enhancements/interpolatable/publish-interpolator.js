@@ -22,7 +22,7 @@ export function getDependencies(publishInputs) {
  * @returns {Publishable[]} inputs with resolved dependencies
  */
 export function interpolateWithDependencies(publishInputs, valuesToInterpolate) {
-    return publishInputs.map((ip) => {
+    return publishInputs.map((ip)=> {
         return {
             name: interpolateWithValues(ip.name, valuesToInterpolate),
             value: ip.value,

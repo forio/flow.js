@@ -6,7 +6,7 @@ function makeMockChannelManager(pubSpy, subsSpy) {
         constructor() {
             this.publish = pubSpy;
             this.subscribe = subsSpy;
-            this.unsubscribe = ()=>{};
+            this.unsubscribe = ()=> {};
         }
     };
 }

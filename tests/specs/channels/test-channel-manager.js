@@ -206,23 +206,23 @@ describe('Subscription Manager', ()=> {
         });
         it('should update list across multiple subscribes', ()=> {
             channel.subscribe(['apples', 'sales'], noop);
-            channel.subscribe(['bat', 'man'], ()=>{ });
+            channel.subscribe(['bat', 'man'], (()=> {}));
             expect(channel.getSubscribedTopics()).to.eql(['apples', 'sales', 'bat', 'man']);
         });
         it('should dedupe', ()=> {
             channel.subscribe(['apples', 'sales'], noop);
-            channel.subscribe(['apples', 'bat', 'man'], ()=>{ });
+            channel.subscribe(['apples', 'bat', 'man'], (()=> {}));
             expect(channel.getSubscribedTopics()).to.eql(['apples', 'sales', 'bat', 'man']);
         });
         it('should remove on subscribed', ()=> {
             channel.subscribe(['apples', 'sales'], noop);
-            var token = channel.subscribe(['bat', 'man'], ()=>{ });
+            var token = channel.subscribe(['bat', 'man'], (()=> {}));
             channel.unsubscribe(token);
             expect(channel.getSubscribedTopics()).to.eql(['apples', 'sales']);
         });
         it('should only remove deduped subscriptions', ()=> {
             channel.subscribe(['apples', 'sales'], noop);
-            var token = channel.subscribe(['apples', 'bat', 'man'], ()=>{ });
+            var token = channel.subscribe(['apples', 'bat', 'man'], (()=> {}));
             channel.unsubscribe(token);
             expect(channel.getSubscribedTopics()).to.eql(['apples', 'sales']);
         });
