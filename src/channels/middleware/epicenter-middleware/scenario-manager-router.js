@@ -1,6 +1,6 @@
 import RunRouter from './run-router';
 import { prefix, withPrefix, defaultPrefix } from 'channels/middleware/utils';
-import Router from 'channels/channel-router';
+import router from 'channels/channel-router';
 
 export default function (config, notifier) {
     var defaults = {
@@ -46,7 +46,7 @@ export default function (config, notifier) {
 
     ];
     
-    var router = new Router(handlers, notifier);
-    router.expose = { scenarioManager: sm };
-    return router;
+    var scenarioManagerRouter = router(handlers, notifier);
+    scenarioManagerRouter.expose = { scenarioManager: sm };
+    return scenarioManagerRouter;
 }

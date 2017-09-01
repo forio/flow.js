@@ -92,8 +92,8 @@ export function passthroughPublishInterceptors(handlers, publishData, options) {
  * @param  {Handler[]} handlers
  * @return {Router}
  */
-export default function Router(handlers) {
-    return $.extend(this, {
+export default function router(handlers) {
+    return {
         /**
          * @param {String[]} topics
          * @param {SubscribeOptions} [options]
@@ -137,5 +137,5 @@ export default function Router(handlers) {
         //         return accum;
         //     }, []);
         // }
-    });
+    };
 }

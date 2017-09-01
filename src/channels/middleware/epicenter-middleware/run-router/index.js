@@ -2,7 +2,7 @@ import MetaChannel from './run-meta-channel';
 import VariablesChannel from './run-variables-channel';
 import OperationsChannel from './run-operations-channel';
 
-import Router from 'channels/channel-router';
+import router from 'channels/channel-router';
 import { withPrefix, prefix, defaultPrefix } from 'channels/middleware/utils';
 
 import { result } from 'lodash';
@@ -32,7 +32,7 @@ export default function RunRouter(config, notifier) {
 
     const serviceOptions = result(opts, 'serviceOptions');
 
-    const $initialProm = null;
+    let $initialProm = null;
     if (serviceOptions instanceof window.F.service.Run) {
         $initialProm = $.Deferred().resolve(serviceOptions).promise();
     } else if (serviceOptions.then) {
@@ -71,9 +71,9 @@ export default function RunRouter(config, notifier) {
 
     // router.addRoute(prefix('meta:'), metaChannel, opts.channelOptions.meta);
 
-    const router = new Router(handlers, notifier);
-    const oldhandler = router.publishHandler;
-    router.publishHandler = function () {
+    const runRouter = router(handlers, notifier);
+    const oldhandler = runRouter.publishHandler;
+    runRouter.publishHandler = function () {
         const prom = oldhandler.apply(router, arguments);
         return prom.then(function (result) { //all the silencing will be taken care of by the router
             const shouldFetch = find(result, (r)=> r.name.indexOf(OPERATIONS_PREFIX) === 0 || r.name.indexOf(VARIABLES_PREFIX) === 0);
@@ -83,5 +83,5 @@ export default function RunRouter(config, notifier) {
             return result;
         });
     };
-    return router;
+    return runRouter;
 }
