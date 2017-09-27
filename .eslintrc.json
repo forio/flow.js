@@ -131,7 +131,7 @@
         "no-undef": 2,
         "no-undefined": 0,
         "no-unused-vars": [1, {
-            "args": "after-used",
+            "args": "none",
             "ignoreRestSiblings": true
         }],
         "no-use-before-define": 1,
@@ -212,7 +212,7 @@
         }],
         "semi": [2, "always"],
         "sort-vars": 0,
-        "keyword-spacing": ["error", {"before": true, "after": true, "overrides": {}}],
+        "keyword-spacing": ["error", { "before": true, "after": true, "overrides": {} }],
         "space-before-blocks": 2,
         "space-before-function-paren": [2, {
             "anonymous": "always",
