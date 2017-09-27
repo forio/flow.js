@@ -119,6 +119,8 @@ module.exports = (function () {
                 channel.unsubscribe(subs);
             });
 
+            $el.removeAttr(`data-${config.attrs.subscriptionId}`).removeData(config.attrs.subscriptionId);
+
             each($el.data(), function (val, key) {
                 if (key.indexOf('f-') === 0 || key.match(/^f[A-Z]/)) {
                     $el.removeData(key);

@@ -24,7 +24,7 @@ module.exports = {
         bindingsList: 'f-attr-bindings',
 
         //Subscription id returned by the channel. Used to ubsubscribe later
-        subscriptionId: 'f-subscription-id',
+        subscriptionId: 'subscription-id',
 
         //Used by the classes attr handler to keep track of which classes were added by itself
         classesAdded: 'f-added-classes',
