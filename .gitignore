@@ -31,6 +31,7 @@ node_modules
 documentation/generated
 
 dist/flow-edge.js
+dist/flow-edge.js.map
 tests/dist/*
 
 # instrumented files by Istanbul and coveragefiles

@@ -61,6 +61,8 @@ module.exports = function (grunt) {
                 rules: [] //meant for testing in a new browser so no babel transpiling required
             },
             plugins: [],
+            devtool: 'cheap-module-source-map',
+
             // devtool: 'eval'
         },
         mapped: {
