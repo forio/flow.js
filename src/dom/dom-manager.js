@@ -168,7 +168,7 @@ module.exports = (function () {
                 }, options);
                 var subsAttr = config.attrs.subscriptionId;
                 var newsubs = ($el.data(subsAttr) || []).concat(subsid);
-                $el.attr(`data-${subsAttr}`, newsubs);
+                $el.attr(`data-${subsAttr}`, JSON.stringify(newsubs));
             };
 
             var attrBindings = [];
