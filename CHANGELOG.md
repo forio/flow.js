@@ -269,7 +269,7 @@ $("#element").trigger('f.convert', 2000)
 console.log($("#element").val()); //Will be $2,000.00.
 
 $("#element").trigger('f.convert', {someattr: 2000})
-console.log($("#element").prop('someattr')); //Will be $2,000.00.
+console.log($("#element").attr('someattr')); //Will be $2,000.00.
 ```
 
 This is useful if you want to update the UI element 'manually' without having to wait for a response from the model.

@@ -8,27 +8,25 @@
 </head>
 
 <body>
-    <div data-f-bind="Time"></div>
-    <div data-f-bind="STEP"></div>
 
-    Price
-    <div data-f-bind="Price"></div>
-
-
-    Price[step]
-    <div data-f-bind="Price[<STEP>]"></div>
-
-
-    <h6>Outputs</h6>
-    Price
-    <input type="text" id="txtPrice" data-f-bind="Price" />
-
-    Price[0]
-    <input type="text" id="txtPrice" data-f-bind="Price[0]" />
-
-    Price[<STEP>]
-    <input type="text" id="txtPrice" data-f-bind="Price[<STEP>]" />
-
+    <table class="table">
+        <thead>
+            <tr>
+                <th></th>
+                <th>Price</th>
+            </tr>
+        </thead>
+        <tbody data-f-foreach="Time">
+            <tr>
+                <th><%= value %></th>
+                <td data-f-repeat="Price"></td>
+            </tr>
+            <tr>
+                <th><%= value %></th>
+                <td data-f-repeat="Sales"></td>
+            </tr>
+        </tbody>
+    </table>
     <button data-f-on-click="step">Step</button>
     <button data-f-on-click="reset">Reset</button>
     <script>

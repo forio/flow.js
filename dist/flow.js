@@ -124,7 +124,7 @@ module.exports = {
         bindingsList: 'f-attr-bindings',
 
         //Subscription id returned by the channel. Used to ubsubscribe later
-        subscriptionId: 'f-subscription-id',
+        subscriptionId: 'subscription-id',
 
         //Used by the classes attr handler to keep track of which classes were added by itself
         classesAdded: 'f-added-classes',
@@ -474,7 +474,7 @@ function toOperationFormat(value) {
 /* unused harmony export notifySubscribeHandlers */
 /* unused harmony export notifyUnsubscribeHandlers */
 /* unused harmony export passthroughPublishInterceptors */
-/* harmony export (immutable) */ __webpack_exports__["a"] = Router;
+/* harmony export (immutable) */ __webpack_exports__["a"] = router;
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_channels_channel_utils__ = __webpack_require__(2);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_channels_middleware_utils__ = __webpack_require__(3);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_lodash__ = __webpack_require__(0);
@@ -520,7 +520,7 @@ function notifyUnsubscribeHandlers(handlers, recentlyUnsubscribedTopics, remaini
     unsubsGrouped.forEach(function (handler) {
         if (handler.unsubscribeHandler) {
             var unprefixedUnsubs = Object(__WEBPACK_IMPORTED_MODULE_1_channels_middleware_utils__["h" /* unprefix */])(handler.data, handler.matched);
-            var matchingRemainingHandler = Object(__WEBPACK_IMPORTED_MODULE_2_lodash__["find"])(remainingGrouped, function (remainingHandler) {
+            var matchingRemainingHandler = __WEBPACK_IMPORTED_MODULE_2_lodash___default.a.find(remainingGrouped, function (remainingHandler) {
                 return remainingHandler.unsubsKey === handler.unsubsKey;
             });
             var matchingTopicsRemaining = matchingRemainingHandler ? matchingRemainingHandler.data : [];
@@ -573,8 +573,8 @@ function passthroughPublishInterceptors(handlers, publishData, options) {
  * @param  {Handler[]} handlers
  * @return {Router}
  */
-function Router(handlers) {
-    return $.extend(this, {
+function router(handlers) {
+    return {
         /**
          * @param {String[]} topics
          * @param {SubscribeOptions} [options]
@@ -618,7 +618,7 @@ function Router(handlers) {
         //         return accum;
         //     }, []);
         // }
-    });
+    };
 }
 
 /***/ }),
@@ -631,6 +631,7 @@ var _require = __webpack_require__(0),
     toArray = _require.toArray;
 
 module.exports = {
+
     random: function (prefix, min, max) {
         if (!min) {
             min = parseInt(uniqueId(), 10);
@@ -638,11 +639,11 @@ module.exports = {
         if (!max) {
             max = 100000; //eslint-disable-line no-magic-numbers
         }
-        var number = random(min, max, false) + '';
+        var rnd = random(min, max, false) + '';
         if (prefix) {
-            number = prefix + number;
+            rnd = prefix + rnd;
         }
-        return number;
+        return rnd;
     },
 
     /**
@@ -744,7 +745,7 @@ function RunRouter(config, notifier) {
     };
     var opts = $.extend(true, {}, defaults, config);
 
-    var serviceOptions = Object(__WEBPACK_IMPORTED_MODULE_5_lodash__["result"])(opts, 'serviceOptions');
+    var serviceOptions = __WEBPACK_IMPORTED_MODULE_5_lodash___default.a.result(opts, 'serviceOptions');
 
     var $initialProm = null;
     if (serviceOptions instanceof window.F.service.Run) {
@@ -756,33 +757,39 @@ function RunRouter(config, notifier) {
         $initialProm = $.Deferred().resolve(rs).promise();
     }
 
-    var metaChannel = new __WEBPACK_IMPORTED_MODULE_0__run_meta_channel__["a" /* default */]($initialProm, Object(__WEBPACK_IMPORTED_MODULE_4_channels_middleware_utils__["i" /* withPrefix */])(notifier, 'meta:'));
-    var operationsChannel = new __WEBPACK_IMPORTED_MODULE_2__run_operations_channel__["a" /* default */]($initialProm, Object(__WEBPACK_IMPORTED_MODULE_4_channels_middleware_utils__["i" /* withPrefix */])(notifier, 'operations:'));
-    var variableschannel = new __WEBPACK_IMPORTED_MODULE_1__run_variables_channel__["a" /* default */]($initialProm, Object(__WEBPACK_IMPORTED_MODULE_4_channels_middleware_utils__["i" /* withPrefix */])(notifier, ['variables:', '']));
+    var VARIABLES_PREFIX = 'variables:';
+    var META_PREFIX = 'meta:';
+    var OPERATIONS_PREFIX = 'operations:';
+
+    var metaChannel = new __WEBPACK_IMPORTED_MODULE_0__run_meta_channel__["a" /* default */]($initialProm, Object(__WEBPACK_IMPORTED_MODULE_4_channels_middleware_utils__["i" /* withPrefix */])(notifier, META_PREFIX));
+    var operationsChannel = new __WEBPACK_IMPORTED_MODULE_2__run_operations_channel__["a" /* default */]($initialProm, Object(__WEBPACK_IMPORTED_MODULE_4_channels_middleware_utils__["i" /* withPrefix */])(notifier, OPERATIONS_PREFIX));
+    var variableschannel = new __WEBPACK_IMPORTED_MODULE_1__run_variables_channel__["a" /* default */]($initialProm, Object(__WEBPACK_IMPORTED_MODULE_4_channels_middleware_utils__["i" /* withPrefix */])(notifier, [VARIABLES_PREFIX, '']));
 
     var handlers = [$.extend({}, metaChannel, {
         name: 'meta',
-        match: Object(__WEBPACK_IMPORTED_MODULE_4_channels_middleware_utils__["d" /* prefix */])('meta:'),
+        match: Object(__WEBPACK_IMPORTED_MODULE_4_channels_middleware_utils__["d" /* prefix */])(META_PREFIX),
         options: opts.channelOptions.meta
     }), $.extend({}, operationsChannel, {
         name: 'operations',
-        match: Object(__WEBPACK_IMPORTED_MODULE_4_channels_middleware_utils__["d" /* prefix */])('operations:'),
+        match: Object(__WEBPACK_IMPORTED_MODULE_4_channels_middleware_utils__["d" /* prefix */])(OPERATIONS_PREFIX),
         options: opts.channelOptions.operations
     }), $.extend({}, variableschannel, {
         isDefault: true,
         name: 'variables',
-        match: Object(__WEBPACK_IMPORTED_MODULE_4_channels_middleware_utils__["a" /* defaultPrefix */])('variables:'),
+        match: Object(__WEBPACK_IMPORTED_MODULE_4_channels_middleware_utils__["a" /* defaultPrefix */])(VARIABLES_PREFIX),
         options: opts.channelOptions.variables
     })];
 
-    var router = new __WEBPACK_IMPORTED_MODULE_3_channels_channel_router__["a" /* default */](handlers, notifier);
-    var oldhandler = router.publishHandler;
-    router.publishHandler = function () {
-        var prom = oldhandler.apply(router, arguments);
+    // router.addRoute(prefix('meta:'), metaChannel, opts.channelOptions.meta);
+
+    var runRouter = Object(__WEBPACK_IMPORTED_MODULE_3_channels_channel_router__["a" /* default */])(handlers, notifier);
+    var oldhandler = runRouter.publishHandler;
+    runRouter.publishHandler = function () {
+        var prom = oldhandler.apply(__WEBPACK_IMPORTED_MODULE_3_channels_channel_router__["a" /* default */], arguments);
         return prom.then(function (result) {
             //all the silencing will be taken care of by the router
-            var shouldFetch = find(result, function (r) {
-                return r.name.indexOf('operations:') === 0 || r.name.indexOf('variables:') === 0;
+            var shouldFetch = __WEBPACK_IMPORTED_MODULE_5_lodash___default.a.find(result, function (r) {
+                return r.name.indexOf(OPERATIONS_PREFIX) === 0 || r.name.indexOf(VARIABLES_PREFIX) === 0;
             });
             if (shouldFetch) {
                 variableschannel.fetch();
@@ -790,7 +797,7 @@ function RunRouter(config, notifier) {
             return result;
         });
     };
-    return router;
+    return runRouter;
 }
 
 /***/ }),
@@ -1108,8 +1115,9 @@ module.exports = Flow;
  */
 
 
+var _ = __webpack_require__(0);
+
 var _require = __webpack_require__(0),
-    each = _require.each,
     isArray = _require.isArray,
     includes = _require.includes,
     pick = _require.pick,
@@ -1220,11 +1228,13 @@ module.exports = function () {
             });
 
             var subsid = $el.data(config.attrs.subscriptionId) || [];
-            each([].concat(subsid), function (subs) {
+            _.each([].concat(subsid), function (subs) {
                 channel.unsubscribe(subs);
             });
 
-            each($el.data(), function (val, key) {
+            $el.removeAttr('data-' + config.attrs.subscriptionId).removeData(config.attrs.subscriptionId);
+
+            _.each($el.data(), function (val, key) {
                 if (key.indexOf('f-') === 0 || key.match(/^f[A-Z]/)) {
                     $el.removeData(key);
                     // var hyphenated = key.replace(/([A-Z])/g, '-$1').toLowerCase();
@@ -1271,7 +1281,7 @@ module.exports = function () {
                 }, options);
                 var subsAttr = config.attrs.subscriptionId;
                 var newsubs = ($el.data(subsAttr) || []).concat(subsid);
-                $el.attr('data-' + subsAttr, newsubs);
+                $el.attr('data-' + subsAttr, JSON.stringify(newsubs));
             };
 
             var attrBindings = [];
@@ -1421,7 +1431,7 @@ module.exports = function () {
                     var bindings = $el.data(config.attrs.bindingsList);
                     var toconvert = {};
                     $.each(data, function (variableName, value) {
-                        each(bindings, function (binding) {
+                        _.each(bindings, function (binding) {
                             var channelPrefix = domUtils.getChannel($el, binding.attr);
                             var interestedTopics = binding.topics;
                             if (includes(interestedTopics, variableName)) {
@@ -1452,7 +1462,7 @@ module.exports = function () {
                     var $el = $(evt.target);
                     var attrConverters = domUtils.getConvertersList($el, 'bind');
 
-                    each(data, function (val, key) {
+                    _.each(data, function (val, key) {
                         key = key.split('|')[0].trim(); //in case the pipe formatting syntax was used
                         val = converterManager.parse(val, attrConverters);
                         parsedData[key] = parseUtils.toImplicitType(val);
@@ -1488,7 +1498,7 @@ module.exports = function () {
 
                     //FIXME: Needed for the 'gotopage' in interfacebuilder. Remove this once we add a window channel
                     promise.then(function (args) {
-                        each(filtered.converters, function (con) {
+                        _.each(filtered.converters, function (con) {
                             converterManager.convert(con.value, [con.name]);
                         });
                     });
@@ -1510,7 +1520,7 @@ module.exports = function () {
                     };
 
                     if ($.isPlainObject(data)) {
-                        each(data, convert);
+                        _.each(data, convert);
                     } else {
                         convert(data, 'bind');
                     }
@@ -1631,15 +1641,14 @@ module.exports = {
  *
  */
 
+var _ = __webpack_require__(0);
+
 var _require = __webpack_require__(0),
     isFunction = _require.isFunction,
     isString = _require.isString,
     isRegExp = _require.isRegExp,
-    each = _require.each,
-    find = _require.find,
     isArray = _require.isArray,
-    mapValues = _require.mapValues,
-    map = _require.map;
+    mapValues = _require.mapValues;
 
 var normalize = function (alias, converter, acceptList) {
     var ret = [];
@@ -1729,7 +1738,7 @@ var converterManager = {
      */
     replace: function (alias, converter) {
         var index;
-        each(this.list, function (currentConverter, i) {
+        _.each(this.list, function (currentConverter, i) {
             if (matchConverter(alias, currentConverter)) {
                 index = i;
                 return false;
@@ -1739,7 +1748,7 @@ var converterManager = {
     },
 
     getConverter: function (alias) {
-        return find(this.list, function (converter) {
+        return _.find(this.list, function (converter) {
             return matchConverter(alias, converter);
         });
     },
@@ -1764,7 +1773,7 @@ var converterManager = {
         var me = this;
 
         var convertArray = function (converter, val, converterName) {
-            return map(val, function (v) {
+            return _.map(val, function (v) {
                 return converter.convert(v, converterName);
             });
         };
@@ -1782,7 +1791,7 @@ var converterManager = {
                 return convert(converter, val, converterName);
             });
         };
-        each(list, function (converterName) {
+        _.each(list, function (converterName) {
             var converter = me.getConverter(converterName);
             if (!converter) {
                 throw new Error('Could not find converter for ' + converterName);
@@ -1813,7 +1822,7 @@ var converterManager = {
 
         var currentValue = value;
         var me = this;
-        each(list, function (converterName) {
+        _.each(list, function (converterName) {
             var converter = me.getConverter(converterName);
             if (converter.parse) {
                 currentValue = converter.parse(currentValue, converterName);
@@ -1828,7 +1837,7 @@ var defaultconverters = [__webpack_require__(16), __webpack_require__(17), __web
 
 $.each(defaultconverters.reverse(), function (index, converter) {
     if (isArray(converter)) {
-        each(converter, function (c) {
+        _.each(converter, function (c) {
             converterManager.register(c);
         });
     } else {
@@ -1858,6 +1867,7 @@ module.exports = converterManager;
 
 
 module.exports = {
+  alias: 'i',
   /**
    * Convert the model variable to an integer. Often used for chaining to another converter.
    *
@@ -1868,11 +1878,11 @@ module.exports = {
    *          <span data-f-bind="Odometer | i | s0.0"></span> miles.
    *      </div>
    *
-   * @param {Array} value The model variable.
+   * @param {string} value The model variable.
+   * @return {number}
    */
-  alias: 'i',
   convert: function (value) {
-    return parseFloat(value, 10);
+    return parseFloat(value);
   }
 };
 
@@ -1909,7 +1919,7 @@ module.exports = {
      *      </div>
      *
      * @param {Array} val The model variable.
-     * @returns {String} converted string
+     * @returns {string} converted string
      */
     s: function (val) {
         return val + '';
@@ -1926,7 +1936,7 @@ module.exports = {
      *      </div>
      *
      * @param {Array} val The model variable.
-     * @returns {String} converted string
+     * @returns {string} converted string
      */
     upperCase: function (val) {
         return (val + '').toUpperCase();
@@ -1943,7 +1953,7 @@ module.exports = {
      *      </div>
      *
      * @param {Array} val The model variable.
-     * @returns {String} converted string
+     * @returns {string} converted string
      */
     lowerCase: function (val) {
         return (val + '').toLowerCase();
@@ -1959,8 +1969,8 @@ module.exports = {
      *          Your new title is: <span data-f-bind="currentRole | titleCase"></span>.
      *      </div>
      *
-     * @param {Array} val The model variable.
-     * @returns {String} converted string
+     * @param {string} val The model variable.
+     * @returns {string} converted string
      */
     titleCase: function (val) {
         val = val + '';
@@ -1988,22 +1998,23 @@ module.exports = {
  *
  */
 
-var _require = __webpack_require__(0),
-    mapValues = _require.mapValues,
-    each = _require.each;
+var _ = __webpack_require__(0);
 
 var list = [{
+    alias: 'list',
+    acceptList: true,
     /**
      * Convert the input into an array. Concatenates all elements of the input.
      *
-     * @param {Array} val The array model variable.
+     * @param {*} val value to convert to Array
+     * @return {Array} value converted to array
      */
-    alias: 'list',
-    acceptList: true,
     convert: function (val) {
         return [].concat(val);
     }
 }, {
+    alias: 'last',
+    acceptList: true,
     /**
      * Select only the last element of the array.
      *
@@ -2014,14 +2025,15 @@ var list = [{
      *      </div>
      *
      * @param {Array} val The array model variable.
+     * @return {*} last element of array
      */
-    alias: 'last',
-    acceptList: true,
     convert: function (val) {
         val = [].concat(val);
         return val[val.length - 1];
     }
 }, {
+    alias: 'reverse',
+    acceptList: true,
     /**
      * Reverse the array.
      *
@@ -2033,14 +2045,15 @@ var list = [{
      *      </ul>
      *
      * @param {Array} val The array model variable.
+     * @returns {Array} reversed array
      */
-    alias: 'reverse',
-    acceptList: true,
     convert: function (val) {
         val = [].concat(val);
         return val.reverse();
     }
 }, {
+    alias: 'first',
+    acceptList: true,
     /**
      * Select only the first element of the array.
      *
@@ -2051,14 +2064,15 @@ var list = [{
      *      </div>
      *
      * @param {Array} val The array model variable.
+     * @returns {*} first element of array
      */
-    alias: 'first',
-    acceptList: true,
     convert: function (val) {
         val = [].concat(val);
         return val[0];
     }
 }, {
+    alias: 'previous',
+    acceptList: true,
     /**
      * Select only the previous (second to last) element of the array.
      *
@@ -2069,20 +2083,19 @@ var list = [{
      *      </div>
      *
      * @param {Array} val The array model variable.
+     * @returns {*} previous (second to last) element of the array.
      */
-    alias: 'previous',
-    acceptList: true,
     convert: function (val) {
         val = [].concat(val);
         return val.length <= 1 ? val[0] : val[val.length - 2];
     }
 }];
 
-each(list, function (item) {
+_.each(list, function (item) {
     var oldfn = item.convert;
     var newfn = function (val) {
         if ($.isPlainObject(val)) {
-            return mapValues(val, oldfn);
+            return _.mapValues(val, oldfn);
         }
         return oldfn(val);
     };
@@ -2099,7 +2112,7 @@ var _ = __webpack_require__(0);
 var list = [];
 
 var supported = ['values', 'keys', 'compact', 'difference', 'union', 'uniq', 'without', 'xor', 'zip'];
-_.each(supported, function (fn) {
+supported.forEach(function (fn) {
     var item = {
         alias: fn,
         acceptList: true,
@@ -2458,11 +2471,11 @@ module.exports = {
 /* 21 */
 /***/ (function(module, exports, __webpack_require__) {
 
+var _ = __webpack_require__(0);
+
 var _require = __webpack_require__(0),
-    each = _require.each,
     isString = _require.isString,
-    isFunction = _require.isFunction,
-    find = _require.find;
+    isFunction = _require.isFunction;
 /**
  * @typedef NodeHandler
  * @property {string} selector
@@ -2521,14 +2534,14 @@ var nodeManager = {
      * @return NodeHandler
      */
     getHandler: function (selector) {
-        return find(this.list, function (node) {
+        return _.find(this.list, function (node) {
             return match(selector, node);
         });
     },
 
     replace: function (selector, handler) {
         var index;
-        each(this.list, function (currentHandler, i) {
+        _.each(this.list, function (currentHandler, i) {
             if (selector === currentHandler.selector) {
                 index = i;
                 return false;
@@ -2540,7 +2553,7 @@ var nodeManager = {
 
 //bootstraps
 var defaultHandlers = [__webpack_require__(22), __webpack_require__(8), __webpack_require__(9)];
-each(defaultHandlers.reverse(), function (handler) {
+_.each(defaultHandlers.reverse(), function (handler) {
     nodeManager.register(handler.selector, handler);
 });
 
@@ -2630,8 +2643,18 @@ var defaultHandlers = [__webpack_require__(24),
 // require('./events/init-event-attr'),
 __webpack_require__(25), __webpack_require__(26), __webpack_require__(27), __webpack_require__(28), __webpack_require__(29), __webpack_require__(30), __webpack_require__(31), __webpack_require__(32), __webpack_require__(33), __webpack_require__(34)];
 
+/**
+ * @typedef AttributeHandler
+ * @property {string|Function|RegExp} test
+ * @property {Function} handle
+ * @property {string|JQuery<HTMLElement>} target
+ */
+
 var handlersList = [];
 
+/**
+ * @return {AttributeHandler}
+ */
 var normalize = function (attributeMatcher, nodeMatcher, handler) {
     if (!nodeMatcher) {
         nodeMatcher = '*';
@@ -2671,8 +2694,8 @@ module.exports = {
     /**
      * Add a new attribute handler.
      *
-     * @param  {String|Function|RegExp} attributeMatcher Description of which attributes to match.
-     * @param  {String} nodeMatcher Which nodes to add attributes to. Use [jquery Selector syntax](https://api.jquery.com/category/selectors/).
+     * @param  {string|Function|RegExp} attributeMatcher Description of which attributes to match.
+     * @param  {string|JQuery<HTMLElement>} nodeMatcher Which nodes to add attributes to. Use [jquery Selector syntax](https://api.jquery.com/category/selectors/).
      * @param  {Function|Object} handler If `handler` is a function, the function is called with `$element` as context, and attribute value + name. If `handler` is an object, it should include two functions, and have the form: `{ init: fn,  handle: fn }`. The `init` function is called when the page loads; use this to define event handlers. The `handle` function is called with `$element` as context, and attribute value + name.
      * @returns {void}
      */
@@ -2683,8 +2706,8 @@ module.exports = {
     /**
      * Find an attribute matcher matching some criteria.
      *
-     * @param  {String} attrFilter Attribute to match.
-     * @param  {String|JQuery<HTMLElement>} nodeFilter Node to match.
+     * @param  {string} attrFilter Attribute to match.
+     * @param  {string|JQuery<HTMLElement>} nodeFilter Node to match.
      *
      * @return {Array|Null} An array of matching attribute handlers, or null if no matches found.
      */
@@ -2703,8 +2726,8 @@ module.exports = {
     /**
      * Replace an existing attribute handler.
      *
-     * @param  {String} attrFilter Attribute to match.
-     * @param  {String|JQuery<HTMLElement>} nodeFilter Node to match.
+     * @param  {string} attrFilter Attribute to match.
+     * @param  {string|JQuery<HTMLElement>} nodeFilter Node to match.
      * @param  {Function|Object} handler The updated attribute handler. If `handler` is a function, the function is called with `$element` as context, and attribute value + name. If `handler` is an object, it should include two functions, and have the form: `{ init: fn,  handle: fn }`. The `init` function is called when the page loads; use this to define event handlers. The `handle` function is called with `$element` as context, and attribute value + name.
      * @returns {void}
      */
@@ -2722,7 +2745,7 @@ module.exports = {
     /**
      *  Retrieve the appropriate handler for a particular attribute. There may be multiple matching handlers, but the first (most exact) match is always used.
      *
-     * @param {String} property The attribute.
+     * @param {string} property The attribute.
      * @param {JQuery<HTMLElement>} $el The DOM element.
      *
      * @return {Object} The attribute handler.
@@ -3103,6 +3126,10 @@ module.exports = {
 
     test: 'bind',
 
+    /**
+     * @param {string[]|number[]|string|number} value
+     * @return {void}
+     */
     handle: function (value) {
         if (isArray(value)) {
             value = value[value.length - 1];
@@ -3144,6 +3171,10 @@ module.exports = {
 
     test: 'bind',
 
+    /**
+    * @param {string[]|number[]|string|number} value
+    * @return {void}
+    */
     handle: function (value) {
         if (isArray(value)) {
             value = value[value.length - 1];
@@ -3557,6 +3588,10 @@ module.exports = {
 
     test: 'bind',
 
+    /**
+     * @param {string} attr
+     * @return {void}
+     */
     unbind: function (attr) {
         var template = this.data(config.attrs.bindTemplate);
         if (template) {
@@ -3564,6 +3599,10 @@ module.exports = {
         }
     },
 
+    /**
+    * @param {Array|string|number|Object} value
+    * @return {void}
+    */
     handle: function (value) {
         var templated;
         var valueToTemplate = $.extend({}, value);
@@ -3629,6 +3668,10 @@ module.exports = {
 
 
 
+var _require = __webpack_require__(0),
+    isArray = _require.isArray,
+    isObject = _require.isObject;
+
 module.exports = {
 
     test: '*',
@@ -3636,7 +3679,8 @@ module.exports = {
     target: '*',
 
     handle: function (value, prop) {
-        this.prop(prop, value);
+        var val = isArray(value) || isObject(value) ? JSON.stringify(value) : value;
+        this.attr(prop, val);
     }
 };
 
@@ -3655,7 +3699,7 @@ module.exports = {
  */
 
 module.exports = function (target, domManager) {
-    if (!window.MutationObserver) {
+    if (typeof MutationObserver === 'undefined') {
         return;
     }
 
@@ -3689,7 +3733,6 @@ module.exports = function (target, domManager) {
         characterData: false
     };
     observer.observe(target, mutconfig);
-    // Later, you can stop observing
     // observer.disconnect();
 };
 
@@ -3848,10 +3891,10 @@ var runidRegex = '(?:.{' + sampleRunidLength + '})';
         $.extend(exposable, sm.expose);
     }
 
-    var router = new __WEBPACK_IMPORTED_MODULE_5_channels_channel_router__["a" /* default */](handlers, notifier);
-    router.expose = exposable;
+    var epicenterRouter = Object(__WEBPACK_IMPORTED_MODULE_5_channels_channel_router__["a" /* default */])(handlers, notifier);
+    epicenterRouter.expose = exposable;
 
-    return router;
+    return epicenterRouter;
 });
 
 /***/ }),
@@ -3887,9 +3930,9 @@ var runidRegex = '(?:.{' + sampleRunidLength + '})';
         options: currentChannelOpts.channelOptions
     })];
 
-    var router = new __WEBPACK_IMPORTED_MODULE_2_channels_channel_router__["a" /* default */](handlers, notifier);
-    router.expose = { runManager: rm };
-    return router;
+    var runMangerRouter = Object(__WEBPACK_IMPORTED_MODULE_2_channels_channel_router__["a" /* default */])(handlers, notifier);
+    runMangerRouter.expose = { runManager: rm };
+    return runMangerRouter;
 });
 
 /***/ }),
@@ -4178,9 +4221,9 @@ function excludeReadOnly(publishable, readOnlyOptions) {
         options: runOptions.channelOptions
     })];
 
-    var router = new __WEBPACK_IMPORTED_MODULE_2_channels_channel_router__["a" /* default */](handlers, notifier);
-    router.expose = { scenarioManager: sm };
-    return router;
+    var scenarioManagerRouter = Object(__WEBPACK_IMPORTED_MODULE_2_channels_channel_router__["a" /* default */])(handlers, notifier);
+    scenarioManagerRouter.expose = { scenarioManager: sm };
+    return scenarioManagerRouter;
 });
 
 /***/ }),
