@@ -218,7 +218,7 @@ describe('DOM Manager', function () {
                     var keys = Object.keys($node.data());
 
                     var directTranslates = ['fConvertBind', 'fConvertOther', 'fOther', 'fBind'];
-                    var flowAdded = ['fSubscriptionId', 'fAttrBindings'];
+                    var flowAdded = ['subscriptionId', 'fAttrBindings'];
                     var toMatch = [].concat(directTranslates).concat(flowAdded);
                     keys.sort().should.eql(toMatch.sort());
 
@@ -235,14 +235,14 @@ describe('DOM Manager', function () {
 
                     var notAddedByFlow = ['myStuff', 'fsomething'];
                     var directTranslates = ['fConvertBind', 'fConvertOther', 'fOther', 'fBind'];
-                    var flowAdded = ['fSubscriptionId', 'fAttrBindings'];
+                    var flowAdded = ['subscriptionId', 'fAttrBindings'];
                     var toMatch = [].concat(directTranslates).concat(flowAdded).concat(notAddedByFlow);
                     keys.sort().should.eql(toMatch.sort());
 
                     domManager.unbindElement($node);
 
                     var newkeys = Object.keys($node.data());
-                    newkeys.should.eql(notAddedByFlow.sort());
+                    (newkeys.sort()).should.eql(notAddedByFlow.sort());
                 });
             });
         });
