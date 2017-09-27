@@ -100,7 +100,7 @@ var converterManager = {
      */
     replace: function (alias, converter) {
         var index;
-        _.each(this.list, function (currentConverter, i) {
+        this.list.forEach(function (currentConverter, i) {
             if (matchConverter(alias, currentConverter)) {
                 index = i;
                 return false;
@@ -151,7 +151,7 @@ var converterManager = {
                 return convert(converter, val, converterName);
             });
         };
-        _.each(list, function (converterName) {
+        list.forEach(function (converterName) {
             var converter = me.getConverter(converterName);
             if (!converter) {
                 throw new Error('Could not find converter for ' + converterName);
@@ -180,7 +180,7 @@ var converterManager = {
 
         var currentValue = value;
         var me = this;
-        _.each(list, function (converterName) {
+        list.forEach(function (converterName) {
             var converter = me.getConverter(converterName);
             if (converter.parse) {
                 currentValue = converter.parse(currentValue, converterName);
@@ -200,9 +200,9 @@ var defaultconverters = [
     require('./numberformat-converter'),
 ];
 
-$.each(defaultconverters.reverse(), function (index, converter) {
+defaultconverters.reverse().forEach(function (converter) {
     if (isArray(converter)) {
-        _.each(converter, function (c) {
+        converter.forEach(function (c) {
             converterManager.register(c);
         });
     } else {

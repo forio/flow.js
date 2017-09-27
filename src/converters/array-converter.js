@@ -111,7 +111,7 @@ var list = [
     }
 ];
 
-_.each(list, function (item) {
+list.forEach(function (item) {
     var oldfn = item.convert;
     var newfn = function (val) {
         if ($.isPlainObject(val)) {

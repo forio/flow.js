@@ -116,7 +116,7 @@ module.exports = (function () {
             });
 
             var subsid = $el.data(config.attrs.subscriptionId) || [];
-            _.each([].concat(subsid), function (subs) {
+            [].concat(subsid).forEach(function (subs) {
                 channel.unsubscribe(subs);
             });
 

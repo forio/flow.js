@@ -64,7 +64,7 @@ var nodeManager = {
 
     replace: function (selector, handler) {
         var index;
-        _.each(this.list, function (currentHandler, i) {
+        this.list.forEach(function (currentHandler, i) {
             if (selector === currentHandler.selector) {
                 index = i;
                 return false;
@@ -80,7 +80,7 @@ var defaultHandlers = [
     require('./default-input-node'),
     require('./default-node')
 ];
-_.each(defaultHandlers.reverse(), function (handler) {
+defaultHandlers.reverse().forEach(function (handler) {
     nodeManager.register(handler.selector, handler);
 });
 
