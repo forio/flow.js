@@ -8,7 +8,8 @@
  */
 'use strict';
 
-const { each, isArray, includes, pick, without } = require('lodash');
+const _ = require('lodash');
+const { isArray, includes, pick, without } = require('lodash');
 
 module.exports = (function () {
     var config = require('../config');
@@ -115,13 +116,13 @@ module.exports = (function () {
             });
 
             var subsid = $el.data(config.attrs.subscriptionId) || [];
-            each([].concat(subsid), function (subs) {
+            _.each([].concat(subsid), function (subs) {
                 channel.unsubscribe(subs);
             });
 
             $el.removeAttr(`data-${config.attrs.subscriptionId}`).removeData(config.attrs.subscriptionId);
 
-            each($el.data(), function (val, key) {
+            _.each($el.data(), function (val, key) {
                 if (key.indexOf('f-') === 0 || key.match(/^f[A-Z]/)) {
                     $el.removeData(key);
                     // var hyphenated = key.replace(/([A-Z])/g, '-$1').toLowerCase();
@@ -314,7 +315,7 @@ module.exports = (function () {
                     var bindings = $el.data(config.attrs.bindingsList);
                     var toconvert = {};
                     $.each(data, function (variableName, value) {
-                        each(bindings, function (binding) {
+                        _.each(bindings, function (binding) {
                             var channelPrefix = domUtils.getChannel($el, binding.attr);
                             var interestedTopics = binding.topics;
                             if (includes(interestedTopics, variableName)) {
@@ -345,7 +346,7 @@ module.exports = (function () {
                     var $el = $(evt.target);
                     var attrConverters = domUtils.getConvertersList($el, 'bind');
 
-                    each(data, function (val, key) {
+                    _.each(data, function (val, key) {
                         key = key.split('|')[0].trim(); //in case the pipe formatting syntax was used
                         val = converterManager.parse(val, attrConverters);
                         parsedData[key] = parseUtils.toImplicitType(val);
@@ -383,7 +384,7 @@ module.exports = (function () {
                      
                     //FIXME: Needed for the 'gotopage' in interfacebuilder. Remove this once we add a window channel
                     promise.then(function (args) {
-                        each(filtered.converters, function (con) {
+                        _.each(filtered.converters, function (con) {
                             converterManager.convert(con.value, [con.name]);
                         });
                     });
@@ -405,7 +406,7 @@ module.exports = (function () {
                     };
 
                     if ($.isPlainObject(data)) {
-                        each(data, convert);
+                        _.each(data, convert);
                     } else {
                         convert(data, 'bind');
                     }

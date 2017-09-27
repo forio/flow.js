@@ -9,7 +9,8 @@
  *
  */
 
-const { isFunction, isString, isRegExp, each, find, isArray, mapValues, map } = require('lodash');
+const _ = require('lodash');
+const { isFunction, isString, isRegExp, isArray, mapValues } = require('lodash');
 
 var normalize = function (alias, converter, acceptList) {
     var ret = [];
@@ -99,7 +100,7 @@ var converterManager = {
      */
     replace: function (alias, converter) {
         var index;
-        each(this.list, function (currentConverter, i) {
+        _.each(this.list, function (currentConverter, i) {
             if (matchConverter(alias, currentConverter)) {
                 index = i;
                 return false;
@@ -109,7 +110,7 @@ var converterManager = {
     },
 
     getConverter: function (alias) {
-        return find(this.list, function (converter) {
+        return _.find(this.list, function (converter) {
             return matchConverter(alias, converter);
         });
     },
@@ -132,7 +133,7 @@ var converterManager = {
         var me = this;
 
         var convertArray = function (converter, val, converterName) {
-            return map(val, function (v) {
+            return _.map(val, function (v) {
                 return converter.convert(v, converterName);
             });
         };
@@ -150,7 +151,7 @@ var converterManager = {
                 return convert(converter, val, converterName);
             });
         };
-        each(list, function (converterName) {
+        _.each(list, function (converterName) {
             var converter = me.getConverter(converterName);
             if (!converter) {
                 throw new Error('Could not find converter for ' + converterName);
@@ -179,7 +180,7 @@ var converterManager = {
 
         var currentValue = value;
         var me = this;
-        each(list, function (converterName) {
+        _.each(list, function (converterName) {
             var converter = me.getConverter(converterName);
             if (converter.parse) {
                 currentValue = converter.parse(currentValue, converterName);
@@ -201,7 +202,7 @@ var defaultconverters = [
 
 $.each(defaultconverters.reverse(), function (index, converter) {
     if (isArray(converter)) {
-        each(converter, function (c) {
+        _.each(converter, function (c) {
             converterManager.register(c);
         });
     } else {

@@ -12,7 +12,8 @@
  *
  */
 
-const { mapValues, each } = require('lodash');
+const _ = require('lodash');
+
 var list = [
     {
         alias: 'list',
@@ -110,11 +111,11 @@ var list = [
     }
 ];
 
-each(list, function (item) {
+_.each(list, function (item) {
     var oldfn = item.convert;
     var newfn = function (val) {
         if ($.isPlainObject(val)) {
-            return mapValues(val, oldfn);
+            return _.mapValues(val, oldfn);
         }
         return oldfn(val);
     };
