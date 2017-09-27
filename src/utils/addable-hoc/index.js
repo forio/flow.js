@@ -1,3 +1,5 @@
+import _ from 'lodash';
+
 export function addable(obj, parser) {
     let handlers = [];
     const boundObj = Object.keys(obj).reduce((accum, key)=> {
@@ -8,8 +10,9 @@ export function addable(obj, parser) {
 
     return Object.assign({}, boundObj, {
         list: ()=> handlers,
-        add: function (name, ...args) {
-            const parsed = parser(...args);
+        add: function (name) {
+            const args = _.toArray(arguments).slice(1);
+            const parsed = parser.apply(null, args);
             parsed.name = name;
             handlers.push(parsed);
         },
