@@ -74,9 +74,16 @@ export default function RunRouter(config, notifier) {
     const runRouter = router(handlers, notifier);
     const oldhandler = runRouter.publishHandler;
     runRouter.publishHandler = function () {
+        const noFetchOperations = ['reset']; //don't fetch on reset since subscribed variables will be obsolete anyway
         const prom = oldhandler.apply(router, arguments);
         return prom.then(function (result) { //all the silencing will be taken care of by the router
-            const shouldFetch = _.find(result, (r)=> r.name.indexOf(OPERATIONS_PREFIX) === 0 || r.name.indexOf(VARIABLES_PREFIX) === 0);
+            const shouldFetch = _.find(result, (r)=> {
+                const isVariable = r.name.indexOf(VARIABLES_PREFIX) === 0;
+                const isOperation = r.name.indexOf(OPERATIONS_PREFIX) === 0;
+                const isNoFetchOperation = _.find(noFetchOperations, (opnName)=> r.name.indexOf(opnName) !== -1);
+
+                return isVariable || (isOperation && !isNoFetchOperation);
+            });
             if (shouldFetch) {
                 variableschannel.fetch();
             }
