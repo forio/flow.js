@@ -11,6 +11,8 @@
     <div data-f-bind="Time"></div>
     <div data-f-bind="STEP"></div>
 
+    <div data-f-bind="Time | lessThan(2016, isLess, isGreater)"></div> 
+
     Price
     <div data-f-bind="Price"></div>
 
@@ -22,9 +24,7 @@
     <h6>Outputs</h6>
     Price
     <input type="text" id="txtPrice" data-f-bind="Price" /> Price[0]
-    <input type="text" id="txtPrice" data-f-bind="Price[0]" /> Price[
-
-    <STEP>]
+    <input type="text" id="txtPrice" data-f-bind="Price[0]" /> Price[STEP]
         <input type="text" id="txtPrice" data-f-bind="Price[<STEP>]" />
 
         <button data-f-on-click="step">Step</button>
