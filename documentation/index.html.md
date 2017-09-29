@@ -26,7 +26,7 @@ Learn more about advanced topics:
 * [Flow.js and data visualization: graphing with Contour](./graphing-overview/)
 * [Flow Inspector: debugging with Flow.js](./inspector-overview/)
 
-**The current version of Flow is 0.11.0.** See the [Using Flow.js in your Project](#using_in_project) section below. You can also view the history of releases on <a href="https://github.com/forio/flow.js/releases/" "target=_blank">GitHub</a>.
+**The current version of Flow is 0.12.0.** See the [Using Flow.js in your Project](#using_in_project) section below. You can also view the history of releases on <a href="https://github.com/forio/flow.js/releases/" "target=_blank">GitHub</a>.
 
 
 <a name="using_in_project"></a>
@@ -36,10 +36,10 @@ Learn more about advanced topics:
 
 1. Add the Flow.js required libraries to your project. Flow.js requires the following files:
 	* [`jquery.js`](http://jquery.com): document manipulation, DOM element selection, and event handling used by Flow.js
-		* NOTE: Flow.js requires version 2.x of `jquery.js`.
+		* NOTE: Flow.js requires version 3.x of `jquery.js`.
 	* [`lodash.js`](http://lodash.com): utilities and performance enhancements used by Flow.js; also used in [templating](#templates)
 		* NOTE: Flow.js requires version 2.x of `lodash.js`.
-	* [`epicenter.js`](https://forio.com/tools/js-libs/2.1.0/epicenter.min.js): [Epicenter API Adapters](../api_adapters/) with services and utilities for connecting to project models using the underlying Epicenter RESTful APIs.
+	* [`epicenter.js`](../api_adapters/): [Epicenter API Adapters](../api_adapters/) with services and utilities for connecting to project models using the underlying Epicenter RESTful APIs.
 2. Add Flow.js itself to your project. The latest version of the Flow.js library is available from our set of tools: <a href="https://forio.com/tools/js-libs/flow/latest/flow.min.js" target="_blank">https://forio.com/tools/js-libs/flow/latest/flow.min.js</a>. (You can also review previous versions and detailed release notes on <a href="https://github.com/forio/flow.js/releases" target="_blank">GitHub</a>.)
 3. Call the `Flow.initialize()` method. This tells Flow.js to create and initialize a run for you. (Runs are sets of particular user interactions with your project.)
 4. In order to finish initializing a run, Flow.js needs to know the name of the model. Add the attribute `data-f-model` to the `<body>` tag. Set the value to the name of your [model file](../writing_your_model/).
@@ -48,9 +48,9 @@ Learn more about advanced topics:
 
 		<html>
 			<head>
-				<script src="//ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+				<script src="//ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script>
 				<script src="//cdnjs.cloudflare.com/ajax/libs/lodash.js/2.4.1/lodash.js"></script>
-				<script src="//forio.com/tools/js-libs/2.1.0/epicenter.min.js"></script>
+				<script src="//forio.com/tools/js-libs/2.2.0/epicenter.min.js"></script>
 				<script src="//forio.com/tools/js-libs/flow/latest/flow.js"></script>
 				
 				<script>

@@ -1,7 +1,7 @@
 /*!
  * 
  * ++++++++   ++++++++   ++++++++         Flow.js
- * ++++++++   ,+++++++~   ++++++++        v0.11.0
+ * ++++++++   ,+++++++~   ++++++++        v0.12.0
  *  ++++++++   ++++++++   ++++++++
  *  ~+++++++~   ++++++++   ++++++++       Github: https://github.com/forio/flow.js
  *   ++++++++   ++++++++   ++++++++:
@@ -150,6 +150,97 @@ module.exports = {
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
+Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "toImplicitType", function() { return toImplicitType; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "toOperationFormat", function() { return toOperationFormat; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "splitNameArgs", function() { return splitNameArgs; });
+
+
+function toImplicitType(data) {
+    var objRegex = /^(?:\{.*\})$/;
+    var arrRegex = /^(?:\[.*])$/;
+
+    var converted = data;
+    if (typeof data === 'string') {
+        converted = data.trim();
+
+        if (converted === 'true') {
+            converted = true;
+        } else if (converted === 'false') {
+            converted = false;
+        } else if (converted === 'null') {
+            converted = null;
+        } else if (converted === 'undefined') {
+            converted = '';
+        } else if (converted.charAt(0) === '\'' || converted.charAt(0) === '"') {
+            converted = converted.substring(1, converted.length - 1);
+        } else if ($.isNumeric(converted)) {
+            converted = +converted;
+        } else if (arrRegex.test(converted)) {
+            var bracketReplaced = converted.replace(/[[\]]/g, '');
+            if (!bracketReplaced) return [];
+            var parsed = bracketReplaced.split(/,(?![^[]*])/).map(function (val) {
+                return toImplicitType(val);
+            });
+            return parsed;
+        } else if (objRegex.test(converted)) {
+            try {
+                converted = JSON.parse(converted);
+            } catch (e) {
+                console.error('toImplicitType: couldn\'t convert', converted);
+            }
+        }
+    }
+    return converted;
+}
+
+function splitUnescapedCommas(str) {
+    var regex = /(\\.|[^,])+/g;
+    var m;
+
+    var op = [];
+    while ((m = regex.exec(str)) !== null) {
+        //eslint-disable-line
+        // This is necessary to avoid infinite loops with zero-width matches
+        if (m.index === regex.lastIndex) {
+            regex.lastIndex++;
+        }
+        m.forEach(function (match, groupIndex) {
+            if (groupIndex === 0) {
+                op.push(match.replace('\\', ''));
+            }
+        });
+    }
+    return op;
+}
+
+function toOperationFormat(value) {
+    var split = (value || '').split('|');
+    var listOfOperations = split.map(function (value) {
+        value = value.trim();
+        var fnName = value.split('(')[0];
+        var params = value.substring(value.indexOf('(') + 1, value.indexOf(')'));
+        var args = params.trim() !== '' ? params.split(',') : [];
+
+        return { name: fnName, value: args };
+    });
+    return listOfOperations;
+}
+
+function splitNameArgs(value) {
+    var fnName = value.split('(')[0];
+    var params = value.substring(value.indexOf('(') + 1, value.indexOf(')'));
+    var args = splitUnescapedCommas(params);
+    args = args.map(toImplicitType);
+    return { name: fnName, args: args };
+}
+
+
+/***/ }),
+/* 3 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
 /* unused harmony export findBestHandler */
 /* harmony export (immutable) */ __webpack_exports__["e"] = objectToArray;
 /* harmony export (immutable) */ __webpack_exports__["a"] = arrayToObject;
@@ -283,7 +374,7 @@ function groupSequentiallyByHandlers(data, handlers) {
 }
 
 /***/ }),
-/* 3 */
+/* 4 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -294,9 +385,9 @@ function groupSequentiallyByHandlers(data, handlers) {
 /* harmony export (immutable) */ __webpack_exports__["c"] = mapWithPrefix;
 /* harmony export (immutable) */ __webpack_exports__["i"] = withPrefix;
 /* harmony export (immutable) */ __webpack_exports__["h"] = unprefix;
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__silencable__ = __webpack_require__(43);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__silencable__ = __webpack_require__(47);
 /* harmony reexport (binding) */ __webpack_require__.d(__webpack_exports__, "f", function() { return __WEBPACK_IMPORTED_MODULE_0__silencable__["a"]; });
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__exclude_read_only__ = __webpack_require__(44);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__exclude_read_only__ = __webpack_require__(48);
 /* harmony reexport (binding) */ __webpack_require__.d(__webpack_exports__, "b", function() { return __WEBPACK_IMPORTED_MODULE_1__exclude_read_only__["a"]; });
 var CHANNEL_DELIMITER = ':';
 
@@ -404,69 +495,6 @@ function unprefix(list, prefix) {
 }
 
 /***/ }),
-/* 4 */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "toImplicitType", function() { return toImplicitType; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "toOperationFormat", function() { return toOperationFormat; });
-
-
-function toImplicitType(data) {
-    var objRegex = /^(?:\{.*\})$/;
-    var arrRegex = /^(?:\[.*])$/;
-
-    var converted = data;
-    if (typeof data === 'string') {
-        converted = data.trim();
-
-        if (converted === 'true') {
-            converted = true;
-        } else if (converted === 'false') {
-            converted = false;
-        } else if (converted === 'null') {
-            converted = null;
-        } else if (converted === 'undefined') {
-            converted = '';
-        } else if (converted.charAt(0) === '\'' || converted.charAt(0) === '"') {
-            converted = converted.substring(1, converted.length - 1);
-        } else if ($.isNumeric(converted)) {
-            converted = +converted;
-        } else if (arrRegex.test(converted)) {
-            var bracketReplaced = converted.replace(/[[\]]/g, '');
-            if (!bracketReplaced) return [];
-            var parsed = bracketReplaced.split(/,(?![^[]*])/).map(function (val) {
-                return toImplicitType(val);
-            });
-            return parsed;
-        } else if (objRegex.test(converted)) {
-            try {
-                converted = JSON.parse(converted);
-            } catch (e) {
-                console.error('toImplicitType: couldn\'t convert', converted);
-            }
-        }
-    }
-    return converted;
-}
-
-function toOperationFormat(value) {
-    var split = (value || '').split('|');
-    var listOfOperations = split.map(function (value) {
-        value = value.trim();
-        var fnName = value.split('(')[0];
-        var params = value.substring(value.indexOf('(') + 1, value.indexOf(')'));
-        var args = params.trim() !== '' ? params.split(',') : [];
-
-        return { name: fnName, value: args };
-    });
-    return listOfOperations;
-}
-
-
-
-/***/ }),
 /* 5 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
@@ -475,8 +503,8 @@ function toOperationFormat(value) {
 /* unused harmony export notifyUnsubscribeHandlers */
 /* unused harmony export passthroughPublishInterceptors */
 /* harmony export (immutable) */ __webpack_exports__["a"] = Router;
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_channels_channel_utils__ = __webpack_require__(2);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_channels_middleware_utils__ = __webpack_require__(3);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_channels_channel_utils__ = __webpack_require__(3);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_channels_middleware_utils__ = __webpack_require__(4);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_lodash__ = __webpack_require__(0);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_lodash___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_2_lodash__);
 
@@ -705,11 +733,11 @@ module.exports = {
 
 "use strict";
 /* harmony export (immutable) */ __webpack_exports__["a"] = RunRouter;
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__run_meta_channel__ = __webpack_require__(40);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__run_variables_channel__ = __webpack_require__(41);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__run_operations_channel__ = __webpack_require__(42);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__run_meta_channel__ = __webpack_require__(44);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__run_variables_channel__ = __webpack_require__(45);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__run_operations_channel__ = __webpack_require__(46);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_3_channels_channel_router__ = __webpack_require__(5);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4_channels_middleware_utils__ = __webpack_require__(3);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4_channels_middleware_utils__ = __webpack_require__(4);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_5_lodash__ = __webpack_require__(0);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_5_lodash___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_5_lodash__);
 
@@ -963,7 +991,7 @@ function interpolateWithValues(topic, data) {
  * The parameters for initializing Flow.js include:
  *
  * * `channel` Configuration details for the channel Flow.js uses in connecting with underlying APIs.
- * * `channel.strategy` The run creation strategy describes when to create new runs when an end user visits this page. The default is `new-if-persisted`, which creates a new run when the end user is idle for longer than your project's **Model Session Timeout** (configured in your project's [Settings](../../../updating_your_settings/)), but otherwise uses the current run.. See more on [Run Strategies](../../../api_adapters/strategy/).
+ * * `channel.strategy` The run creation strategy describes when to create new runs when an end user visits this page. The default is `new-if-persisted`, which creates a new run when the end user is idle for longer than your project's **Model Session Timeout** (configured in your project's [Settings](../../../updating_your_settings/)), but otherwise uses the current run.. See more on [Run Strategies](../../../api_adapters/generated/strategies/).
  * * `channel.run` Configuration details for each run created.
  * * `channel.run.account` The **User ID** or **Team ID** for this project. By default, taken from the URL where the user interface is hosted, so you only need to supply this is you are running your project's user interface [on your own server](../../../how_to/self_hosting/).
  * * `channel.run.project` The **Project ID** for this project.
@@ -1021,7 +1049,7 @@ function interpolateWithValues(topic, data) {
 var domManager = __webpack_require__(13);
 var BaseView = __webpack_require__(10);
 
-var ChannelManager = __webpack_require__(36).default;
+var ChannelManager = __webpack_require__(40).default;
 // var parseUtils = require('utils/parse-utils');
 
 var Flow = {
@@ -1090,7 +1118,7 @@ var Flow = {
 };
 Flow.ChannelManager = ChannelManager;
 //set by grunt
-if (true) Flow.version = "0.11.0"; //eslint-disable-line no-undef
+if (true) Flow.version = "0.12.0"; //eslint-disable-line no-undef
 module.exports = Flow;
 
 /***/ }),
@@ -1117,13 +1145,13 @@ var _require = __webpack_require__(0),
 
 module.exports = function () {
     var config = __webpack_require__(1);
-    var parseUtils = __webpack_require__(4);
+    var parseUtils = __webpack_require__(2);
     var domUtils = __webpack_require__(14);
 
     var converterManager = __webpack_require__(15);
-    var nodeManager = __webpack_require__(21);
-    var attrManager = __webpack_require__(23);
-    var autoUpdatePlugin = __webpack_require__(35);
+    var nodeManager = __webpack_require__(23);
+    var attrManager = __webpack_require__(25);
+    var autoUpdatePlugin = __webpack_require__(39);
 
     //Jquery selector to return everything which has a f- property set
     $.expr.pseudos[config.prefix] = function (el) {
@@ -1641,6 +1669,9 @@ var _require = __webpack_require__(0),
     mapValues = _require.mapValues,
     map = _require.map;
 
+var _require2 = __webpack_require__(2),
+    splitNameArgs = _require2.splitNameArgs;
+
 var normalize = function (alias, converter, acceptList) {
     var ret = [];
     //nomalize('flip', fn)
@@ -1739,9 +1770,14 @@ var converterManager = {
     },
 
     getConverter: function (alias) {
-        return find(this.list, function (converter) {
-            return matchConverter(alias, converter);
+        var norm = splitNameArgs(alias);
+        var conv = find(this.list, function (converter) {
+            return matchConverter(norm.name, converter);
         });
+        if (conv && norm.args) {
+            return $.extend({}, conv, { convert: Function.bind.apply(conv.convert, [null].concat(norm.args)) });
+        }
+        return conv;
     },
 
     /**
@@ -1824,7 +1860,7 @@ var converterManager = {
 };
 
 //Bootstrap
-var defaultconverters = [__webpack_require__(16), __webpack_require__(17), __webpack_require__(18), __webpack_require__(19), __webpack_require__(20)];
+var defaultconverters = [__webpack_require__(16), __webpack_require__(17), __webpack_require__(18), __webpack_require__(19), __webpack_require__(20), __webpack_require__(21), __webpack_require__(22)];
 
 $.each(defaultconverters.reverse(), function (index, converter) {
     if (isArray(converter)) {
@@ -1846,18 +1882,19 @@ module.exports = converterManager;
 /**
  * ## Number Converters
  *
- * Converters allow you to convert data -- in particular, model variables that you display in your project's user interface -- from one form to another.
+ * Converters allow you to change how data is displayed. They let you display the value of any model variable in a different format than it is stored in the model -- converting the output value from one format to another.
  *
  * There are two ways to specify conversion or formatting for the display output of a particular model variable:
  *
- * * Add the attribute `data-f-convert` to any element that also has the `data-f-bind` or `data-f-foreach`.
- * * Use the `|` (pipe) character within the value of any `data-f-` attribute (not just `data-f-bind` or `data-f-foreach`).
+ * * Use the `|` (pipe) character within the value of any `data-f-` attribute. Converters are chainable, so you can apply several in a row to a particular variable.
+ * * Add the attribute `data-f-convert` to any element to convert all of the model variables referenced within that element's scope.
  *
  */
 
 
 
 module.exports = {
+  alias: 'i',
   /**
    * Convert the model variable to an integer. Often used for chaining to another converter.
    *
@@ -1868,11 +1905,11 @@ module.exports = {
    *          <span data-f-bind="Odometer | i | s0.0"></span> miles.
    *      </div>
    *
-   * @param {Array} value The model variable.
+   * @param {string} value The model variable.
+   * @return {number}
    */
-  alias: 'i',
   convert: function (value) {
-    return parseFloat(value, 10);
+    return parseFloat(value);
   }
 };
 
@@ -1884,12 +1921,12 @@ module.exports = {
 /**
  * ## String Converters
  *
- * Converters allow you to convert data -- in particular, model variables that you display in your project's user interface -- from one form to another.
+ * Converters allow you to change how data is displayed. They let you display the value of any model variable in a different format than it is stored in the model -- converting the output value from one format to another.
  *
  * There are two ways to specify conversion or formatting for the display output of a particular model variable:
  *
- * * Add the attribute `data-f-convert` to any element that also has the `data-f-bind` or `data-f-foreach`.
- * * Use the `|` (pipe) character within the value of any `data-f-` attribute (not just `data-f-bind` or `data-f-foreach`).
+ * * Use the `|` (pipe) character within the value of any `data-f-` attribute. Converters are chainable, so you can apply several in a row to a particular variable.
+ * * Add the attribute `data-f-convert` to any element to convert all of the model variables referenced within that element's scope.
  *
  * For model variables that are strings (or that have been converted to strings), there are several special string formats you can apply.
  */
@@ -1909,7 +1946,7 @@ module.exports = {
      *      </div>
      *
      * @param {Array} val The model variable.
-     * @returns {String} converted string
+     * @returns {string} converted string
      */
     s: function (val) {
         return val + '';
@@ -1926,7 +1963,7 @@ module.exports = {
      *      </div>
      *
      * @param {Array} val The model variable.
-     * @returns {String} converted string
+     * @returns {string} converted string
      */
     upperCase: function (val) {
         return (val + '').toUpperCase();
@@ -1943,7 +1980,7 @@ module.exports = {
      *      </div>
      *
      * @param {Array} val The model variable.
-     * @returns {String} converted string
+     * @returns {string} converted string
      */
     lowerCase: function (val) {
         return (val + '').toLowerCase();
@@ -1959,8 +1996,8 @@ module.exports = {
      *          Your new title is: <span data-f-bind="currentRole | titleCase"></span>.
      *      </div>
      *
-     * @param {Array} val The model variable.
-     * @returns {String} converted string
+     * @param {string} val The model variable.
+     * @returns {string} converted string
      */
     titleCase: function (val) {
         val = val + '';
@@ -1977,12 +2014,12 @@ module.exports = {
 /**
  * ## Array Converters
  *
- * Converters allow you to convert data -- in particular, model variables that you display in your project's user interface -- from one form to another.
+ * Converters allow you to change how data is displayed. They let you display the value of any model variable in a different format than it is stored in the model -- converting the output value from one format to another.
  *
  * There are two ways to specify conversion or formatting for the display output of a particular model variable:
  *
- * * Add the attribute `data-f-convert` to any element that also has the `data-f-bind` or `data-f-foreach`.
- * * Use the `|` (pipe) character within the value of any `data-f-` attribute (not just `data-f-bind` or `data-f-foreach`).
+ * * Use the `|` (pipe) character within the value of any `data-f-` attribute. Converters are chainable, so you can apply several in a row to a particular variable.
+ * * Add the attribute `data-f-convert` to any element to convert all of the model variables referenced within that element's scope.
  *
  * In general, if the model variable is an array, the converter is applied to each element of the array. There are a few built in array converters which, rather than converting all elements of an array, select particular elements from within the array or otherwise treat array variables specially.
  *
@@ -1993,17 +2030,20 @@ var _require = __webpack_require__(0),
     each = _require.each;
 
 var list = [{
+    alias: 'list',
+    acceptList: true,
     /**
      * Convert the input into an array. Concatenates all elements of the input.
      *
-     * @param {Array} val The array model variable.
+     * @param {*} val value to convert to Array
+     * @return {Array} value converted to array
      */
-    alias: 'list',
-    acceptList: true,
     convert: function (val) {
         return [].concat(val);
     }
 }, {
+    alias: 'last',
+    acceptList: true,
     /**
      * Select only the last element of the array.
      *
@@ -2014,14 +2054,15 @@ var list = [{
      *      </div>
      *
      * @param {Array} val The array model variable.
+     * @return {*} last element of array
      */
-    alias: 'last',
-    acceptList: true,
     convert: function (val) {
         val = [].concat(val);
         return val[val.length - 1];
     }
 }, {
+    alias: 'reverse',
+    acceptList: true,
     /**
      * Reverse the array.
      *
@@ -2033,14 +2074,15 @@ var list = [{
      *      </ul>
      *
      * @param {Array} val The array model variable.
+     * @returns {Array} reversed array
      */
-    alias: 'reverse',
-    acceptList: true,
     convert: function (val) {
         val = [].concat(val);
         return val.reverse();
     }
 }, {
+    alias: 'first',
+    acceptList: true,
     /**
      * Select only the first element of the array.
      *
@@ -2051,14 +2093,15 @@ var list = [{
      *      </div>
      *
      * @param {Array} val The array model variable.
+     * @returns {*} first element of array
      */
-    alias: 'first',
-    acceptList: true,
     convert: function (val) {
         val = [].concat(val);
         return val[0];
     }
 }, {
+    alias: 'previous',
+    acceptList: true,
     /**
      * Select only the previous (second to last) element of the array.
      *
@@ -2069,9 +2112,8 @@ var list = [{
      *      </div>
      *
      * @param {Array} val The array model variable.
+     * @returns {*} previous (second to last) element of the array.
      */
-    alias: 'previous',
-    acceptList: true,
     convert: function (val) {
         val = [].concat(val);
         return val.length <= 1 ? val[0] : val[val.length - 2];
@@ -2099,7 +2141,7 @@ var _ = __webpack_require__(0);
 var list = [];
 
 var supported = ['values', 'keys', 'compact', 'difference', 'union', 'uniq', 'without', 'xor', 'zip'];
-_.each(supported, function (fn) {
+supported.forEach(function (fn) {
     var item = {
         alias: fn,
         acceptList: true,
@@ -2121,16 +2163,16 @@ module.exports = list;
 /**
  * ## Number Format Converters
  *
- * Converters allow you to convert data -- in particular, model variables that you display in your project's user interface -- from one form to another.
+ * Converters allow you to change how data is displayed. They let you display the value of any model variable in a different format than it is stored in the model -- converting the output value from one format to another.
  *
  * There are two ways to specify conversion or formatting for the display output of a particular model variable:
  *
- * * Add the attribute `data-f-convert` to any element that also has the `data-f-bind` or `data-f-foreach`.
- * * Use the `|` (pipe) character within the value of any `data-f-` attribute (not just `data-f-bind` or `data-f-foreach`).
+ * * Use the `|` (pipe) character within the value of any `data-f-` attribute. Converters are chainable, so you can apply several in a row to a particular variable.
+ * * Add the attribute `data-f-convert` to any element to convert all of the model variables referenced within that element's scope.
  *
  * For model variables that are numbers (or that have been [converted to numbers](../number-converter/)), there are several special number formats you can apply.
  *
- * ####Currency Number Format
+ * #### Currency Number Format
  *
  * After the `|` (pipe) character, use `$` (dollar sign), `0`, and `.` (decimal point) in your converter to describe how currency should appear. The specifications follow the Excel currency formatting conventions.
  *
@@ -2145,7 +2187,7 @@ module.exports = list;
  *      <input type="text" data-f-bind="price[car] | $0." />
  *
  *
- * ####Specific Digits Number Format
+ * #### Specific Digits Number Format
  *
  * After the `|` (pipe) character, use `#` (pound) and `,` (comma) in your converter to describe how the number should appear. The specifications follow the Excel number formatting conventions.
  *
@@ -2156,7 +2198,7 @@ module.exports = list;
  *      <input type="text" data-f-bind="sales[car] | #,###" />
  *
  *
- * ####Percentage Number Format
+ * #### Percentage Number Format
  *
  * After the `|` (pipe) character, use `%` (percent) and `0` in your converter to display the number as a percent.
  *
@@ -2167,7 +2209,7 @@ module.exports = list;
  *      <input type="text" data-f-bind="profitMargin[car] | 0%" />
  *
  *
- * ####Short Number Format
+ * #### Short Number Format
  *
  * After the `|` (pipe) character, use `s` and `0` in your converter to describe how the number should appear.
  *
@@ -2458,6 +2500,284 @@ module.exports = {
 /* 21 */
 /***/ (function(module, exports, __webpack_require__) {
 
+"use strict";
+/**
+ * ## Number Comparison Converters
+ *
+ * Converters allow you to change how data is displayed. They let you display the value of any model variable in a different format than it is stored in the model -- converting the output value from one format to another.
+ *
+ * For a number comparison converter, the original format is your model variable, and the resulting "format" is a (possibly unrelated) value of your choosing. This resulting value is selected based on how the value of the model variable compares to a reference value that you pass to the converter.
+ *
+ * There are two ways to specify conversion or formatting for the display output of a particular model variable:
+ *
+ * * Use the `|` (pipe) character within the value of any `data-f-` attribute. Converters are chainable, so you can apply several in a row to a particular variable.
+ * * Add the attribute `data-f-convert` to any element to convert all of the model variables referenced within that element's scope.
+ *
+ * For example:
+ *
+ *      <!-- displays "true" or the number of widgets -->
+ *      <span data-f-bind="widgets | greaterThan(50)"></span>
+ *
+ *      <!-- displays the first string if true, the second if false -->
+ *      <span data-f-bind="widgets | greaterThan(50, 'nice job!', 'not enough widgets')"></span>
+ *
+ * You can also chain multiple converters to simulate evaluating multiple if\else conditions; for e.g. the following logic
+ *
+ *      if (temperature > 80) {
+ *          return 'hot';
+ *      } else if (temperature > 60) {
+ *          return 'pleasant';
+ *      } else if (temperature >= 30) {
+ *          return 'cold';
+ *      } else {
+ *          return 'freezing!';
+ *      }
+ *
+ * can be represented as
+ *
+ *      <h4 data-f-bind="temperature | greaterThan(80, hot) | greaterThan(60, pleasant) | greaterThanEqual(30, cold, freezing!)"></h4>
+ */
+
+
+
+function parseArgs(limit, trueVal, falseVal, valueToCompare, matchString) {
+    var toReturn = { trueVal: true, falseVal: false };
+    switch (arguments.length) {
+        case 5:
+            //eslint-disable-line
+            return $.extend(toReturn, { trueVal: trueVal, falseVal: falseVal, input: valueToCompare });
+        case 4:
+            //eslint-disable-line
+            return $.extend(toReturn, { trueVal: trueVal, falseVal: falseVal, input: falseVal });
+        case 3:
+            //eslint-disable-line
+            return $.extend(toReturn, { input: trueVal, falseVal: trueVal });
+        default:
+            return toReturn;
+    }
+}
+module.exports = {
+    /**
+     * Convert the model variable to true, or other values passed to the converter, based on whether the model variable is greater than the limit.
+     *
+     * **Example**
+     *
+     *      <div>
+     *          <!-- displays true or the number of widgets -->
+     *          <span data-f-bind="widgets | greaterThan(50)"></span> 
+     *
+     *          <!-- displays custom text -->
+     *          <span data-f-bind="widgets | greaterThan(50, 'Congratulations!', 'Better luck next year')"></span>
+     *      </div>
+     *
+     * @param {Number} limit The reference value to compare the model variable against.
+     * @param {String} trueVal (Optional) The format (value) to display if the model variable is greater than `limit`. If not included, the display is `true`. If there are commas in this argument, they must be escaped with `\`.
+     * @param {String} falseVal (Optional) The format (value) to display if the model variable is less than or equal to `limit`. If not included, the display is the value of the model variable. If there are commas in this argument, they must be escaped with `\`.
+     * @return {Any} If the model variable is greater than `limit`, returns trueVal or `true`. Otherwise returns falseVal if provided, or echoes the input.
+     */
+    greaterThan: function (limit) {
+        var args = parseArgs.apply(null, arguments);
+        return Number(args.input) > Number(limit) ? args.trueVal : args.falseVal;
+    },
+
+    /**
+     * Convert the model variable to true, or other values passed to the converter, based on whether the model variable is greater than or equal to the limit.
+     *
+     * **Example**
+     *
+     *      <div>
+     *          <!-- displays true or the number of widgets -->
+     *          <span data-f-bind="widgets | greaterThan(50)"></span> 
+     *
+     *          <!-- displays custom text -->
+     *          <span data-f-bind="widgets | greaterThan(50, 'Congratulations!', 'Better luck next year')"></span>
+     *      </div>
+     *
+     * @param {Number} limit The reference value to compare the model variable against.
+     * @param {String} trueVal (Optional) The format (value) to display if the model variable is greater than or equal to `limit`. If not included, the display is `true`. If there are commas in this argument, they must be escaped with `\`.
+     * @param {String} falseVal (Optional) The format (value) to display if the model variable is less than `limit`. If not included, the display is the value of the model variable. If there are commas in this argument, they must be escaped with `\`.
+     * @return {Any} If the model variable is greater than or equal to `limit`, returns trueVal or `true`. Otherwise returns falseVal if provided, or echoes the input.
+     */
+    greaterThanEqual: function (limit) {
+        var args = parseArgs.apply(null, arguments);
+        return Number(args.input) >= Number(limit) ? args.trueVal : args.falseVal;
+    },
+
+    /**
+     * Convert the model variable to true, or other values passed to the converter, based on whether the model variable is equal to the limit.
+     *
+     * 
+     * **Example**
+     *
+     *      <div>
+     *          <!-- displays true or the number of widgets -->
+     *          <span data-f-bind="widgets | equalsNumber(50)"></span> 
+     *
+     *          <!-- display custom text -->
+     *          <span data-f-bind="widgets | equalsNumber(50, 'Met the goal exactly!', 'Not an exact match')"></span>
+     *      </div>
+     *
+     * @param {Number} limit The reference value to compare the model variable against.
+     * @param {String} trueVal (Optional) The format (value) to display if the model variable is equal to `limit`. If not included, the display is `true`. If there are commas in this argument, they must be escaped with `\`.
+     * @param {String} falseVal (Optional) The format (value) to display if the model variable is not equal to `limit`. If not included, the display is the value of the model variable. If there are commas in this argument, they must be escaped with `\`.
+     * @return {Any} If the model variable equals `limit`, returns trueVal or `true`. Otherwise returns falseVal if provided, or echoes the input.
+     */
+    equalsNumber: function (limit) {
+        var args = parseArgs.apply(null, arguments);
+        return Number(args.input) === Number(limit) ? args.trueVal : args.falseVal;
+    },
+
+    /**
+     * Convert the model variable to true, or other values passed to the converter, based on whether the model variable is less than the limit.
+     *
+     * **Example**
+     *
+     *      <div>
+     *          <!-- displays true or the number of widgets -->
+     *          <span data-f-bind="widgets | lessThan(50)"></span> 
+     *
+     *          <!-- display custom text -->
+     *          <span data-f-bind="widgets | lessThan(50, 'Oops didn't make quite enough!', 'Built a lot of widgets this year!')"></span>
+     *      </div>
+     *
+     * @param {Number} limit The reference value to compare the model variable against.
+     * @param {String} trueVal (Optional) The format (value) to display if the model variable is less than `limit`. If not included, the display is `true`. If there are commas in this argument, they must be escaped with `\`.
+     * @param {String} falseVal (Optional) The format (value) to display if the model variable is less than `limit`. If not included, the display is the value of the model variable. If there are commas in this argument, they must be escaped with `\`.
+     * @return {Any} If the model variable is less than `limit`, returns trueVal or `true`. Otherwise returns falseVal if provided, or echoes the input.
+     */
+    lessThan: function (limit) {
+        var args = parseArgs.apply(null, arguments);
+        return Number(args.input) < Number(limit) ? args.trueVal : args.falseVal;
+    },
+
+    /**
+     * Convert the model variable to true, or other values passed to the converter, based on whether the model variable is less than or equal to the limit.
+     *
+     * **Example**
+     *
+     *      <div>
+     *          <!-- displays true or the number of widgets -->
+     *          <span data-f-bind="widgets | lessThanEqual(50)"></span> 
+     *
+     *          <!-- display custom text -->
+     *          <span data-f-bind="widgets | lessThanEqual(50, 'Oops didn't make quite enough!', 'Built a lot of widgets this year!')"></span>
+     *      </div>
+     *
+     * @param {Number} limit The reference value to compare the model variable against.
+     * @param {String} trueVal (Optional) The format (value) to display if the model variable is less than or equal to `limit`. If not included, the display is `true`. If there are commas in this argument, they must be escaped with `\`.
+     * @param {String} falseVal (Optional) The format (value) to display if the model variable is less than or equal to `limit`. If not included, the display is the value of the model variable. If there are commas in this argument, they must be escaped with `\`.
+     * @return {Any} If the model variable is less than or equal to `limit`, returns trueVal or `true`. Otherwise returns falseVal if provided, or echoes the input.
+     */
+    lessThanEqual: function (limit) {
+        var args = parseArgs.apply(null, arguments);
+        return Number(args.input) <= Number(limit) ? args.trueVal : args.falseVal;
+    }
+};
+
+/***/ }),
+/* 22 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+/**
+ * ## Boolean Conditional Converters
+ *
+ * Converters allow you to change how data is displayed. They let you display the value of any model variable in a different format than it is stored in the model -- converting the output value from one format to another.
+ *
+ * For a boolean conditional converter, the original format is your model variable, and the resulting "format" is a boolean value, or another value of your choosing.
+ *
+ * There are two ways to specify conversion or formatting for the display output of a particular model variable:
+ *
+ * * Use the `|` (pipe) character within the value of any `data-f-` attribute. Converters are chainable, so you can apply several in a row to a particular variable.
+ * * Add the attribute `data-f-convert` to any element to convert all of the model variables referenced within that element's scope.
+ *
+ * For example:
+ *
+ *      <!-- displays "true" or "false" -->
+ *      <!-- in particular, true if sampleVar is truthy (1, true, 'some string', [] etc.), 
+ *            false if sampleVar is falsy (0, false, '') -->
+ *      <span data-f-bind="sampleVar | toBool"></span>
+ *
+ */
+
+
+
+function parseArgs(trueVal, falseVal, input, matchString) {
+    var toReturn = { trueVal: true, falseVal: false };
+    switch (arguments.length) {
+        case 4:
+            //eslint-disable-line
+            return $.extend(toReturn, { trueVal: trueVal, falseVal: falseVal, input: input });
+        case 3:
+            //eslint-disable-line
+            return $.extend(toReturn, { trueVal: trueVal, falseVal: falseVal, input: falseVal });
+        default:
+            return toReturn;
+    }
+}
+
+module.exports = {
+    /**
+     * Convert 'truthy' values to true and 'falsy' values to false.
+     *
+     * **Example**
+     *
+     *      <!-- displays "true" or "false" -->
+     *      <!-- in particular, true if sampleVar is truthy (1, true, 'some string', [] etc.), 
+     *            false if sampleVar is falsy (0, false, '') -->
+     *      <span data-f-bind="sampleVar | toBool"></span>
+     * 
+     * @param {Any} value
+     * @return {Boolean}
+     */
+    toBool: function (value) {
+        return !!value;
+    },
+
+    /**
+     * Convert the input to a new value (for example, some text), based on whether it is true or false.
+     *
+     * **Example**
+     *
+     *      <div>
+     *          <span data-f-bind="sampleVar | ifTrue('yes! please move forward', 'not ready to proceed')"></span> 
+     *          <span data-f-bind="sampleVar | ifTrue('yes! please move forward')"></span>
+     *      </div>
+     *
+     * @param {String} trueVal The value to display if the input is true. If there are commas in this argument, they must be escaped with `\`.
+     * @param {String} falseVal (Optional) The value to display if the input is false. If not included, returns the input. If there are commas in this argument, they must be escaped with `\`.
+     * @param {Any} input (Optional) The input to test. If not included, the output of the previous argument is used.
+     * @return {Any} If input is true, returns trueVal. If input is false, returns falseVal if provided, or echoes the input.
+     */
+    ifTrue: function () {
+        var args = parseArgs.apply(null, arguments);
+        return args.input ? args.trueVal : args.falseVal;
+    },
+    /**
+     * Convert the input to a new value (for example, some text), based on whether it is false or true.
+     *
+     * **Example**
+     *
+     *      <div>
+     *          <span data-f-bind="sampleVar | ifFalse('not ready to proceed', 'actually this is still true')"></span> 
+     *          <span data-f-bind="sampleVar | ifFalse('not ready to proceed')"></span>
+     *      </div>
+     *
+     * @param {String} trueVal The value to display if the input is false. If there are commas in this argument, they must be escaped with `\`.
+     * @param {String} falseVal (Optional) The value to display if the input is true. If not included, returns the input. If there are commas in this argument, they must be escaped with `\`.
+     * @param {Any} input (Optional) The input to test. If not included, the output of the previous argument is used.
+     * @return {Any} If input is false, returns trueVal. If input is true, returns falseVal if provided, or echoes the input.
+     */
+    ifFalse: function () {
+        var args = parseArgs.apply(null, arguments);
+        return !args.input ? args.trueVal : args.falseVal;
+    }
+};
+
+/***/ }),
+/* 23 */
+/***/ (function(module, exports, __webpack_require__) {
+
 var _require = __webpack_require__(0),
     each = _require.each,
     isString = _require.isString,
@@ -2539,7 +2859,7 @@ var nodeManager = {
 };
 
 //bootstraps
-var defaultHandlers = [__webpack_require__(22), __webpack_require__(8), __webpack_require__(9)];
+var defaultHandlers = [__webpack_require__(24), __webpack_require__(8), __webpack_require__(9)];
 each(defaultHandlers.reverse(), function (handler) {
     nodeManager.register(handler.selector, handler);
 });
@@ -2547,7 +2867,7 @@ each(defaultHandlers.reverse(), function (handler) {
 module.exports = nodeManager;
 
 /***/ }),
-/* 22 */
+/* 24 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -2574,7 +2894,7 @@ module.exports = BaseView.extend({
 }, { selector: ':checkbox,:radio' });
 
 /***/ }),
-/* 23 */
+/* 25 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /**
@@ -2626,9 +2946,16 @@ var _require = __webpack_require__(0),
     filter = _require.filter,
     each = _require.each;
 
-var defaultHandlers = [__webpack_require__(24),
+var defaultHandlers = [__webpack_require__(26),
 // require('./events/init-event-attr'),
-__webpack_require__(25), __webpack_require__(26), __webpack_require__(27), __webpack_require__(28), __webpack_require__(29), __webpack_require__(30), __webpack_require__(31), __webpack_require__(32), __webpack_require__(33), __webpack_require__(34)];
+__webpack_require__(27), __webpack_require__(28), __webpack_require__(29), __webpack_require__(30), __webpack_require__(31), __webpack_require__(32), __webpack_require__(33), __webpack_require__(34), __webpack_require__(35), __webpack_require__(36), __webpack_require__(37), __webpack_require__(38)];
+
+/**
+ * @typedef AttributeHandler
+ * @property {string|Function|RegExp} test
+ * @property {Function} handle
+ * @property {string|JQuery<HTMLElement>} target
+ */
 
 var handlersList = [];
 
@@ -2671,8 +2998,8 @@ module.exports = {
     /**
      * Add a new attribute handler.
      *
-     * @param  {String|Function|RegExp} attributeMatcher Description of which attributes to match.
-     * @param  {String} nodeMatcher Which nodes to add attributes to. Use [jquery Selector syntax](https://api.jquery.com/category/selectors/).
+     * @param  {string|Function|RegExp} attributeMatcher Description of which attributes to match.
+     * @param  {string|JQuery<HTMLElement>} nodeMatcher Which nodes to add attributes to. Use [jquery Selector syntax](https://api.jquery.com/category/selectors/).
      * @param  {Function|Object} handler If `handler` is a function, the function is called with `$element` as context, and attribute value + name. If `handler` is an object, it should include two functions, and have the form: `{ init: fn,  handle: fn }`. The `init` function is called when the page loads; use this to define event handlers. The `handle` function is called with `$element` as context, and attribute value + name.
      * @returns {void}
      */
@@ -2683,8 +3010,8 @@ module.exports = {
     /**
      * Find an attribute matcher matching some criteria.
      *
-     * @param  {String} attrFilter Attribute to match.
-     * @param  {String|JQuery<HTMLElement>} nodeFilter Node to match.
+     * @param  {string} attrFilter Attribute to match.
+     * @param  {string|JQuery<HTMLElement>} nodeFilter Node to match.
      *
      * @return {Array|Null} An array of matching attribute handlers, or null if no matches found.
      */
@@ -2703,8 +3030,8 @@ module.exports = {
     /**
      * Replace an existing attribute handler.
      *
-     * @param  {String} attrFilter Attribute to match.
-     * @param  {String|JQuery<HTMLElement>} nodeFilter Node to match.
+     * @param  {string} attrFilter Attribute to match.
+     * @param  {string|JQuery<HTMLElement>} nodeFilter Node to match.
      * @param  {Function|Object} handler The updated attribute handler. If `handler` is a function, the function is called with `$element` as context, and attribute value + name. If `handler` is an object, it should include two functions, and have the form: `{ init: fn,  handle: fn }`. The `init` function is called when the page loads; use this to define event handlers. The `handle` function is called with `$element` as context, and attribute value + name.
      * @returns {void}
      */
@@ -2722,7 +3049,7 @@ module.exports = {
     /**
      *  Retrieve the appropriate handler for a particular attribute. There may be multiple matching handlers, but the first (most exact) match is always used.
      *
-     * @param {String} property The attribute.
+     * @param {string} property The attribute.
      * @param {JQuery<HTMLElement>} $el The DOM element.
      *
      * @return {Object} The attribute handler.
@@ -2735,7 +3062,7 @@ module.exports = {
 };
 
 /***/ }),
-/* 24 */
+/* 26 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -2764,7 +3091,7 @@ module.exports = {
 };
 
 /***/ }),
-/* 25 */
+/* 27 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -2788,7 +3115,7 @@ module.exports = {
 
 
 var config = __webpack_require__(1);
-var toOperationFormat = __webpack_require__(4).toOperationFormat;
+var toOperationFormat = __webpack_require__(2).toOperationFormat;
 
 module.exports = {
 
@@ -2815,7 +3142,7 @@ module.exports = {
 };
 
 /***/ }),
-/* 26 */
+/* 28 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /**
@@ -2937,7 +3264,7 @@ module.exports = {
  *
  * * The `data-f-foreach` attribute is [similar to the `data-f-repeat` attribute](../../repeat-attr/), so you may want to review the examples there as well.
  */
-var parseUtils = __webpack_require__(4);
+var parseUtils = __webpack_require__(2);
 var config = __webpack_require__(1);
 
 var _require = __webpack_require__(0),
@@ -3073,7 +3400,7 @@ module.exports = {
 };
 
 /***/ }),
-/* 27 */
+/* 29 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /**
@@ -3103,6 +3430,10 @@ module.exports = {
 
     test: 'bind',
 
+    /**
+     * @param {string[]|number[]|string|number} value
+     * @return {void}
+     */
     handle: function (value) {
         if (isArray(value)) {
             value = value[value.length - 1];
@@ -3114,7 +3445,7 @@ module.exports = {
 };
 
 /***/ }),
-/* 28 */
+/* 30 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /**
@@ -3144,6 +3475,10 @@ module.exports = {
 
     test: 'bind',
 
+    /**
+    * @param {string[]|number[]|string|number} value
+    * @return {void}
+    */
     handle: function (value) {
         if (isArray(value)) {
             value = value[value.length - 1];
@@ -3153,7 +3488,7 @@ module.exports = {
 };
 
 /***/ }),
-/* 29 */
+/* 31 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /**
@@ -3231,7 +3566,7 @@ module.exports = {
 };
 
 /***/ }),
-/* 30 */
+/* 32 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /**
@@ -3301,7 +3636,7 @@ var _require = __webpack_require__(0),
     each = _require.each,
     template = _require.template;
 
-var parseUtils = __webpack_require__(4);
+var parseUtils = __webpack_require__(2);
 var gutils = __webpack_require__(6);
 var config = __webpack_require__(1).attrs;
 module.exports = {
@@ -3373,7 +3708,7 @@ module.exports = {
 };
 
 /***/ }),
-/* 31 */
+/* 33 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /**
@@ -3415,7 +3750,7 @@ module.exports = {
 };
 
 /***/ }),
-/* 32 */
+/* 34 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /**
@@ -3457,7 +3792,96 @@ module.exports = {
 };
 
 /***/ }),
-/* 33 */
+/* 35 */
+/***/ (function(module, exports, __webpack_require__) {
+
+/**
+ * ## Display Elements Conditionally (showif)
+ *
+ * The `data-f-showif` attribute allows you to display DOM elements based on either the value of the model variable (true or false), or the value of a [comparison (Number Comparison Converter)](../../../../converters/number-compare-converter/) using a model variable.
+ *
+ * **Examples:**
+ *
+ *      <!-- model variable already has a boolean value -->
+ *      <div data-f-showif="sampleBooleanModelVariable">Only appears if the model variable is true</div>
+ *
+ *      <!-- chain with the greaterThan converter to produce a boolean value,
+ *          text is shown when widgets is greater than 50 -->
+ *      <div data-f-showif="widgets | greaterThan(50)"/>Nice job, we've sold plenty of widgets!</div>
+ *
+ * **Notes:**
+ *
+ * * By default, the DOM element to which you add the `data-f-showif` attribute is *not* displayed.
+ * * You can chain model variable(s) together with any number of converters. The result of the conversion must be boolean.
+ */
+
+var _require = __webpack_require__(0),
+    isArray = _require.isArray;
+
+module.exports = {
+    test: 'showif',
+
+    target: '*',
+
+    init: function () {
+        this.hide(); //hide by default; if not this shows text until data is fetched
+        return true;
+    },
+
+    handle: function (value, prop) {
+        if (isArray(value)) {
+            value = value[value.length - 1];
+        }
+        return value === true ? this.show() : this.hide();
+    }
+};
+
+/***/ }),
+/* 36 */
+/***/ (function(module, exports, __webpack_require__) {
+
+/**
+ * ## Display Elements Conditionally (hideif)
+ *
+ * The `data-f-hideif` attribute allows you to hide DOM elements based on either the value of the model variable (true or false), or the value of a [comparison (Number Comparison Converter)](../../../../converters/number-compare-converter/) using a model variable.
+ *
+ * **Examples:**
+ *
+ *      <!-- model variable already has a boolean value -->
+ *      <div data-f-hideif="sampleBooleanModelVariable">Remains hidden if the model variable is true</div>
+ *
+ *      <!-- chain with the greaterThan converter to produce a boolean value, 
+ *          text is hidden when widgets is greater than 10 -->
+ *      <div data-f-hideif="widgets | greaterThan(10)"/>Get to work, we need to sell more widgets!</div>
+ *
+ * **Notes:**
+ *
+ * * By default, the DOM element to which you add the `data-f-hideif` attribute is *not* displayed.
+ * * You can chain model variable(s) together with any number of converters. The result of the conversion must be boolean.
+ */
+
+var _require = __webpack_require__(0),
+    isArray = _require.isArray;
+
+module.exports = {
+    test: 'hideif',
+
+    target: '*',
+
+    init: function () {
+        this.hide(); //hide by default; if not this shows text until data is fetched
+        return true;
+    },
+    handle: function (value, prop) {
+        if (isArray(value)) {
+            value = value[value.length - 1];
+        }
+        return value === true ? this.hide() : this.show();
+    }
+};
+
+/***/ }),
+/* 37 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -3557,6 +3981,10 @@ module.exports = {
 
     test: 'bind',
 
+    /**
+     * @param {string} attr
+     * @return {void}
+     */
     unbind: function (attr) {
         var template = this.data(config.attrs.bindTemplate);
         if (template) {
@@ -3564,6 +3992,10 @@ module.exports = {
         }
     },
 
+    /**
+    * @param {Array|string|number|Object} value
+    * @return {void}
+    */
     handle: function (value) {
         var templated;
         var valueToTemplate = $.extend({}, value);
@@ -3598,7 +4030,7 @@ module.exports = {
 };
 
 /***/ }),
-/* 34 */
+/* 38 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -3641,7 +4073,7 @@ module.exports = {
 };
 
 /***/ }),
-/* 35 */
+/* 39 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -3694,16 +4126,16 @@ module.exports = function (target, domManager) {
 };
 
 /***/ }),
-/* 36 */
+/* 40 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 /* harmony export (immutable) */ __webpack_exports__["default"] = ChannelManager;
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__middleware_json_parse_middleware__ = __webpack_require__(37);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__middleware_epicenter_middleware__ = __webpack_require__(38);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__channel_manager__ = __webpack_require__(49);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__channel_manager_enhancements__ = __webpack_require__(51);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__middleware_json_parse_middleware__ = __webpack_require__(41);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__middleware_epicenter_middleware__ = __webpack_require__(42);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__channel_manager__ = __webpack_require__(53);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__channel_manager_enhancements__ = __webpack_require__(55);
 
 
 
@@ -3720,12 +4152,12 @@ function ChannelManager(opts) {
 }
 
 /***/ }),
-/* 37 */
+/* 41 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 /* harmony export (immutable) */ __webpack_exports__["a"] = JSONMiddleware;
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_utils_parse_utils__ = __webpack_require__(4);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_utils_parse_utils__ = __webpack_require__(2);
 
 
 function JSONMiddleware(config, notifier) {
@@ -3759,15 +4191,15 @@ function JSONMiddleware(config, notifier) {
 }
 
 /***/ }),
-/* 38 */
+/* 42 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__run_manager_router__ = __webpack_require__(39);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__scenario_manager_router__ = __webpack_require__(45);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__custom_run_router__ = __webpack_require__(46);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__runs_router__ = __webpack_require__(48);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4_channels_middleware_utils__ = __webpack_require__(3);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__run_manager_router__ = __webpack_require__(43);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__scenario_manager_router__ = __webpack_require__(49);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__custom_run_router__ = __webpack_require__(50);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__runs_router__ = __webpack_require__(52);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4_channels_middleware_utils__ = __webpack_require__(4);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_5_channels_channel_router__ = __webpack_require__(5);
 
 
@@ -3855,12 +4287,12 @@ var runidRegex = '(?:.{' + sampleRunidLength + '})';
 });
 
 /***/ }),
-/* 39 */
+/* 43 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__run_router__ = __webpack_require__(7);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_channels_middleware_utils__ = __webpack_require__(3);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_channels_middleware_utils__ = __webpack_require__(4);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_channels_channel_router__ = __webpack_require__(5);
 
 
@@ -3893,12 +4325,12 @@ var runidRegex = '(?:.{' + sampleRunidLength + '})';
 });
 
 /***/ }),
-/* 40 */
+/* 44 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 /* harmony export (immutable) */ __webpack_exports__["a"] = RunMetaChannel;
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_channels_channel_utils__ = __webpack_require__(2);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_channels_channel_utils__ = __webpack_require__(3);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_lodash__ = __webpack_require__(0);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_lodash___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1_lodash__);
 
@@ -3950,14 +4382,14 @@ function RunMetaChannel($runServicePromise, notifier) {
 }
 
 /***/ }),
-/* 41 */
+/* 45 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 /* harmony export (immutable) */ __webpack_exports__["a"] = RunVariablesChannel;
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_utils_general__ = __webpack_require__(6);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_utils_general___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_utils_general__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_channels_channel_utils__ = __webpack_require__(2);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_channels_channel_utils__ = __webpack_require__(3);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_lodash__ = __webpack_require__(0);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_lodash___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_2_lodash__);
 
@@ -4027,7 +4459,7 @@ function RunVariablesChannel($runServicePromise, notifier) {
 }
 
 /***/ }),
-/* 42 */
+/* 46 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -4051,7 +4483,7 @@ function RunOperationsChannel($runServicePromise) {
 }
 
 /***/ }),
-/* 43 */
+/* 47 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -4081,7 +4513,7 @@ function silencable(published, silentOptions) {
 }
 
 /***/ }),
-/* 44 */
+/* 48 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -4123,12 +4555,12 @@ function excludeReadOnly(publishable, readOnlyOptions) {
 }
 
 /***/ }),
-/* 45 */
+/* 49 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__run_router__ = __webpack_require__(7);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_channels_middleware_utils__ = __webpack_require__(3);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_channels_middleware_utils__ = __webpack_require__(4);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_channels_channel_router__ = __webpack_require__(5);
 
 
@@ -4184,12 +4616,12 @@ function excludeReadOnly(publishable, readOnlyOptions) {
 });
 
 /***/ }),
-/* 46 */
+/* 50 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__run_router_factory__ = __webpack_require__(47);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_channels_middleware_utils__ = __webpack_require__(3);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__run_router_factory__ = __webpack_require__(51);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_channels_middleware_utils__ = __webpack_require__(4);
 
 
 
@@ -4216,7 +4648,7 @@ function excludeReadOnly(publishable, readOnlyOptions) {
 });
 
 /***/ }),
-/* 47 */
+/* 51 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -4235,7 +4667,7 @@ var knownRunIDServiceChannels = {};
 });
 
 /***/ }),
-/* 48 */
+/* 52 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -4324,13 +4756,13 @@ function RunsRouter(options, notifier, channelManagerContext) {
 }
 
 /***/ }),
-/* 49 */
+/* 53 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_jquery__ = __webpack_require__(50);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_jquery__ = __webpack_require__(54);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_jquery___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_jquery__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__channel_utils__ = __webpack_require__(2);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__channel_utils__ = __webpack_require__(3);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_lodash__ = __webpack_require__(0);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_lodash___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_2_lodash__);
 
@@ -4567,31 +4999,31 @@ var ChannelManager = function () {
 /* harmony default export */ __webpack_exports__["a"] = (ChannelManager);
 
 /***/ }),
-/* 50 */
+/* 54 */
 /***/ (function(module, exports) {
 
 module.exports = jQuery;
 
 /***/ }),
-/* 51 */
+/* 55 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__interpolatable__ = __webpack_require__(52);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__interpolatable__ = __webpack_require__(56);
 /* harmony reexport (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return __WEBPACK_IMPORTED_MODULE_0__interpolatable__["a"]; });
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__with_middleware__ = __webpack_require__(55);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__with_middleware__ = __webpack_require__(59);
 /* harmony reexport (binding) */ __webpack_require__.d(__webpack_exports__, "b", function() { return __WEBPACK_IMPORTED_MODULE_1__with_middleware__["a"]; });
 
 
 
 /***/ }),
-/* 52 */
+/* 56 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 /* harmony export (immutable) */ __webpack_exports__["a"] = interpolatable;
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__subscribe_interpolator__ = __webpack_require__(53);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__publish_interpolator__ = __webpack_require__(54);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__subscribe_interpolator__ = __webpack_require__(57);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__publish_interpolator__ = __webpack_require__(58);
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
 var _get = function get(object, property, receiver) { if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { return get(parent, property, receiver); } } else if ("value" in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } };
@@ -4664,7 +5096,7 @@ function interpolatable(ChannelManager) {
 }
 
 /***/ }),
-/* 53 */
+/* 57 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -4750,7 +5182,7 @@ function subscribeInterpolator(subscribeFn, onDependencyChange) {
 }
 
 /***/ }),
-/* 54 */
+/* 58 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -4758,7 +5190,7 @@ function subscribeInterpolator(subscribeFn, onDependencyChange) {
 /* unused harmony export interpolateWithDependencies */
 /* harmony export (immutable) */ __webpack_exports__["a"] = publishInterpolator;
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__interpolatable_utils__ = __webpack_require__(11);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_channels_channel_utils__ = __webpack_require__(2);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_channels_channel_utils__ = __webpack_require__(3);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_lodash__ = __webpack_require__(0);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_lodash___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_2_lodash__);
 
@@ -4818,13 +5250,13 @@ function publishInterpolator(publishFunction, fetchFn) {
 }
 
 /***/ }),
-/* 55 */
+/* 59 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 /* harmony export (immutable) */ __webpack_exports__["a"] = withMiddleware;
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__middleware_manager__ = __webpack_require__(56);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__channel_utils__ = __webpack_require__(2);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__middleware_manager__ = __webpack_require__(60);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__channel_utils__ = __webpack_require__(3);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_lodash__ = __webpack_require__(0);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_lodash___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_2_lodash__);
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
@@ -4965,7 +5397,7 @@ function withMiddleware(ChannelManager) {
 }
 
 /***/ }),
-/* 56 */
+/* 60 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";

@@ -10,6 +10,7 @@
  */
 
 const { isFunction, isString, isRegExp, each, find, isArray, mapValues, map } = require('lodash');
+const { splitNameArgs } = require('../utils/parse-utils');
 
 var normalize = function (alias, converter, acceptList) {
     var ret = [];
@@ -109,9 +110,14 @@ var converterManager = {
     },
 
     getConverter: function (alias) {
-        return find(this.list, function (converter) {
-            return matchConverter(alias, converter);
+        var norm = splitNameArgs(alias);
+        var conv = find(this.list, function (converter) {
+            return matchConverter(norm.name, converter);
         });
+        if (conv && norm.args) {
+            return $.extend({}, conv, { convert: Function.bind.apply(conv.convert, [null].concat(norm.args)) });
+        }
+        return conv;
     },
 
     /**
@@ -197,6 +203,8 @@ var defaultconverters = [
     require('./array-converter'),
     require('./underscore-utils-converter'),
     require('./numberformat-converter'),
+    require('./number-compare-converters'),
+    require('./bool-conditional-converters'),
 ];
 
 $.each(defaultconverters.reverse(), function (index, converter) {

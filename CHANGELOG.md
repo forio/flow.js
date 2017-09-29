@@ -1,54 +1,23 @@
-You can access the current run and scenario manager instances through
-Flow.channel.epi.run.manager
-Flow.channel.epi.scenario.manager
+<a name="0.12.0"></a>
+## 0.12.0 (2017-05-18)
 
-You can use data-f-channel-<stuff> to pass options to channels
+This update includes several new features:
 
+* New 'toggle' attributes for [showing](https://forio.com/epicenter/docs/public/data_binding_flow_js/generated/dom/attributes/toggles/show-if/) and [hiding](https://forio.com/epicenter/docs/public/data_binding_flow_js/generated/dom/attributes/toggles/hide-if/) elements conditionally.
 
-New Format:
+		<div data-f-showif="widgets | greaterThan(50)"/>Nice job, we've sold plenty of widgets!</div>
 
-channel({
-    middlewares: [],
-    
-    defaults: {
-        run: {
-            strategy: '',
-        },
-        channelOptions: {
-            variables: { silent: ['price', 'sales'] },
-            operations: { silent: false },
-        }
-    },
+* New [number comparison converters](https://forio.com/epicenter/docs/public/data_binding_flow_js/generated/converters/number-compare-converter/), which allow you to convert from a (numeric) model to another value of your choosing.
 
-    runManager: {
-        strategy: 'new-if-persisted',
-        run: {
-            model: 'supply-chain-game.py',
-            account: 'acme-simulations',
-            project: 'supply-chain-game',
-            server: { host: 'api.forio.com' },
-            transport: {
-                beforeSend: function() { $('body').addClass('loading'); },
-                complete: function() { $('body').removeClass('loading'); }
-            }
-        },
-        options: {
-            variables: { silent: ['price', 'sales'] },
-            operations: { silent: false },
-        }
-    },
-    scenarioManager: {
-        run: {
-            model: 'supply-chain-game.py',
-            account: 'acme-simulations',
-            project: 'supply-chain-game',
-        },
-        options: {
-            variables: { silent: ['price', 'sales'] },
-            operations: { silent: false },
-        }
-    },
-});
+		<span data-f-bind="widgets | greaterThan(50, 'nice job!', 'not enough widgets')"></span> 
+
+* New [Boolean conditional converters](https://forio.com/epicenter/docs/public/data_binding_flow_js/generated/converters/bool-conditional-converter/), which allow you to convert from a model variable to a boolean value, or another value of your choosing.
+
+		<span data-f-bind="sampleVar | ifTrue('yes! please move forward', 'not ready to proceed')"></span>
+
+* It is now recommended to move to jquery 3. The upcoming 1.0 release of Flow.js drop support for jquery2.
+
+There are also a few minor improvements, including a [how to on updating elements when a model operation is called](https://forio.com/epicenter/docs/public/how_to/operation_update/), and, under the hood, more complete cleanup of the "unbind" operation.
 
 <a name"0.11.0"></a>
 ## 0.11.0 (2016-12-14)

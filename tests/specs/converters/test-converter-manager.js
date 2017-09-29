@@ -42,6 +42,28 @@ describe('Converter Manager', function () {
                 });
                 cm.convert('2', ['i', 'multiply']).should.equal(6);
             });
+            it('should be able to pass single parameter to converter', function () {
+                var spy = sinon.spy(function multiply(ip, val) {
+                    return ip * val;
+                });
+                cm.register('multiplyOperand', spy);
+
+                var result = cm.convert(3, ['multiplyOperand(2)']);
+                result.should.equal(6);
+
+                spy.should.have.been.calledWith(2, 3);
+            });
+            it('should be able to pass multiple parameters to converter', function () {
+                var spy = sinon.spy(function multiply(ip, ip2, val) {
+                    return ip * ip2 * val;
+                });
+                cm.register('multiplyOperand', spy);
+
+                var result = cm.convert(4, ['multiplyOperand(2, 3)']);
+                result.should.equal(24);
+
+                spy.should.have.been.calledWith(2, 3, 4);
+            });
         });
         describe('Arrays', function () {
             it('should apply converter to each item in an array if provided an array + non-list converter', function () {
@@ -69,12 +91,20 @@ describe('Converter Manager', function () {
                 cm.convert({ a: [1, 2], b: [3, 4] }, 'multiply').should.eql({ a: [3, 6], b: [9, 12] });
             });
         });
-
-        it('should throw an error if converter is not found', function () {
-            var c = function () { cm.convert({ a: 1, b: 2 }, 'does not exist'); };
-            c.should.throw(/could not find/i);
+        it('should convert with an array of converters', function () {
+            cm.register('multiply', function (val) {
+                return val * 3;
+            });
+            cm.convert('2', ['i', 'multiply']).should.equal(6);
         });
     });
+
+
+    it('should throw an error if converter is not found', function () {
+        var c = function () { cm.convert({ a: 1, b: 2 }, 'does not exist'); };
+        c.should.throw(/could not find/i);
+    });
+
     describe('#replace', function () {
         it('should replace existing string converters with new ones', function () {
             var conv = cm.getConverter('s');

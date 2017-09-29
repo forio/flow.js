@@ -21,29 +21,27 @@
 
     <h6>Outputs</h6>
     Price
-    <input type="text" id="txtPrice" data-f-bind="Price" />
+    <input type="text" id="txtPrice" data-f-bind="Price" /> Price[0]
+    <input type="text" id="txtPrice" data-f-bind="Price[0]" /> Price[
 
-    Price[0]
-    <input type="text" id="txtPrice" data-f-bind="Price[0]" />
+    <STEP>]
+        <input type="text" id="txtPrice" data-f-bind="Price[<STEP>]" />
 
-    Price[<STEP>]
-    <input type="text" id="txtPrice" data-f-bind="Price[<STEP>]" />
-
-    <button data-f-on-click="step">Step</button>
-    <button data-f-on-click="reset">Reset</button>
-    <script>
-        Flow.initialize({
-            channel: {
-                defaults: {
-                    run: {
-                        account: 'jaimedp',
-                        project: 'glasses',
-                        model: 'gglasses.vmf',
+        <button data-f-on-click="step">Step</button>
+        <button data-f-on-click="reset">Reset</button>
+        <script>
+            Flow.initialize({
+                channel: {
+                    defaults: {
+                        run: {
+                            account: 'jaimedp',
+                            project: 'glasses',
+                            model: 'gglasses.vmf',
+                        }
                     }
                 }
-            }
-        });
-    </script>
+            });
+        </script>
 </body>
 
 </html>

@@ -38,6 +38,25 @@ function toImplicitType(data) {
     return converted;
 }
 
+function splitUnescapedCommas(str) {
+    var regex = /(\\.|[^,])+/g;
+    var m;
+
+    var op = [];
+    while ((m = regex.exec(str)) !== null) { //eslint-disable-line
+        // This is necessary to avoid infinite loops with zero-width matches
+        if (m.index === regex.lastIndex) {
+            regex.lastIndex++;
+        }
+        m.forEach(function (match, groupIndex) {
+            if (groupIndex === 0) {
+                op.push(match.replace('\\', ''));
+            }
+        });
+    }
+    return op;
+}
+
 function toOperationFormat(value) {
     var split = (value || '').split('|');
     var listOfOperations = split.map(function (value) {
@@ -51,4 +70,11 @@ function toOperationFormat(value) {
     return listOfOperations;
 }
 
-export { toImplicitType, toOperationFormat };
+function splitNameArgs(value) {
+    var fnName = value.split('(')[0];
+    var params = value.substring(value.indexOf('(') + 1, value.indexOf(')'));
+    var args = splitUnescapedCommas(params);
+    args = args.map(toImplicitType);
+    return { name: fnName, args: args };
+}
+export { toImplicitType, toOperationFormat, splitNameArgs };
