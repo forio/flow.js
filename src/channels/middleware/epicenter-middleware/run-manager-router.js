@@ -1,7 +1,7 @@
 import RunChannel from './run-router';
 
 import { withPrefix, defaultPrefix } from 'channels/middleware/utils';
-import Router from 'channels/channel-router';
+import router from 'channels/channel-router';
 
 export default function (config, notifier) {
     var defaults = {
@@ -24,7 +24,7 @@ export default function (config, notifier) {
         })
     ];
 
-    var router = new Router(handlers, notifier);
-    router.expose = { runManager: rm };
-    return router;
+    var runMangerRouter = router(handlers, notifier);
+    runMangerRouter.expose = { runManager: rm };
+    return runMangerRouter;
 }

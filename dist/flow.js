@@ -1,7 +1,7 @@
 /*!
  * 
  * ++++++++   ++++++++   ++++++++         Flow.js
- * ++++++++   ,+++++++~   ++++++++        v0.12.0
+ * ++++++++   ,+++++++~   ++++++++        v0.11.0
  *  ++++++++   ++++++++   ++++++++
  *  ~+++++++~   ++++++++   ++++++++       Github: https://github.com/forio/flow.js
  *   ++++++++   ++++++++   ++++++++:
@@ -124,7 +124,7 @@ module.exports = {
         bindingsList: 'f-attr-bindings',
 
         //Subscription id returned by the channel. Used to ubsubscribe later
-        subscriptionId: 'f-subscription-id',
+        subscriptionId: 'subscription-id',
 
         //Used by the classes attr handler to keep track of which classes were added by itself
         classesAdded: 'f-added-classes',
@@ -342,7 +342,7 @@ function groupByHandlers(topics, handlers) {
         }
         return accum;
     }, {});
-    return Object(__WEBPACK_IMPORTED_MODULE_0_lodash__["values"])(topicMapping);
+    return __WEBPACK_IMPORTED_MODULE_0_lodash___default.a.values(topicMapping);
 }
 
 /**
@@ -448,7 +448,7 @@ function regex(regex) {
  * 
  * @param {Publishable[]} dataArray 
  * @param {string} prefix 
- * @return {Publishable} array with name prefixed
+ * @return {Publishable[]} array with name prefixed
  */
 function mapWithPrefix(dataArray, prefix) {
     if (!prefix) return dataArray;
@@ -502,7 +502,7 @@ function unprefix(list, prefix) {
 /* unused harmony export notifySubscribeHandlers */
 /* unused harmony export notifyUnsubscribeHandlers */
 /* unused harmony export passthroughPublishInterceptors */
-/* harmony export (immutable) */ __webpack_exports__["a"] = Router;
+/* harmony export (immutable) */ __webpack_exports__["a"] = router;
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_channels_channel_utils__ = __webpack_require__(3);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_channels_middleware_utils__ = __webpack_require__(4);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_lodash__ = __webpack_require__(0);
@@ -548,7 +548,7 @@ function notifyUnsubscribeHandlers(handlers, recentlyUnsubscribedTopics, remaini
     unsubsGrouped.forEach(function (handler) {
         if (handler.unsubscribeHandler) {
             var unprefixedUnsubs = Object(__WEBPACK_IMPORTED_MODULE_1_channels_middleware_utils__["h" /* unprefix */])(handler.data, handler.matched);
-            var matchingRemainingHandler = Object(__WEBPACK_IMPORTED_MODULE_2_lodash__["find"])(remainingGrouped, function (remainingHandler) {
+            var matchingRemainingHandler = __WEBPACK_IMPORTED_MODULE_2_lodash___default.a.find(remainingGrouped, function (remainingHandler) {
                 return remainingHandler.unsubsKey === handler.unsubsKey;
             });
             var matchingTopicsRemaining = matchingRemainingHandler ? matchingRemainingHandler.data : [];
@@ -598,18 +598,19 @@ function passthroughPublishInterceptors(handlers, publishData, options) {
 
 /**
  * Router
- * @param  {Handler[]} handlers
+ * @param  {Handler[]} myHandlers
  * @return {Router}
  */
-function Router(handlers) {
-    return $.extend(this, {
+function router(handlers) {
+    var myHandlers = handlers || [];
+    return {
         /**
          * @param {String[]} topics
          * @param {SubscribeOptions} [options]
          * @return {String[]} Returns the original topics array
          */
         subscribeHandler: function (topics, options) {
-            return notifySubscribeHandlers(handlers, topics, options);
+            return notifySubscribeHandlers(myHandlers, topics, options);
         },
         /**
          * @param {String[]} recentlyUnsubscribedTopics
@@ -617,7 +618,7 @@ function Router(handlers) {
          * @return {void}
          */
         unsubscribeHandler: function (recentlyUnsubscribedTopics, remainingTopics) {
-            return notifyUnsubscribeHandlers(handlers, recentlyUnsubscribedTopics, remainingTopics);
+            return notifyUnsubscribeHandlers(myHandlers, recentlyUnsubscribedTopics, remainingTopics);
         },
 
         /**
@@ -626,27 +627,24 @@ function Router(handlers) {
          * @return {Promise}
          */
         publishHandler: function (data, options) {
-            return passthroughPublishInterceptors(handlers, data, options);
-        }
+            return passthroughPublishInterceptors(myHandlers, data, options);
+        },
 
         // Ignoring till ready to implement
-        // addRoute: function (handler) {
-        //     if (!handler || !handler.match) {
-        //         throw Error('Handler does not have a valid `match` property');
-        //     }
-        //     handler.id = uniqueId('routehandler-');
-        //     handlers.push(handler);
-        //     return handler.id;
-        // },
-        // removeRoute: function (routeid) {
-        //     handlers = handlers.reduce(function (accum, handler) {
-        //         if (handler.id !== routeid) {
-        //             accum.push(handler);
-        //         }
-        //         return accum;
-        //     }, []);
-        // }
-    });
+        addRoute: function (handler) {
+            if (!handler || !handler.match) {
+                throw Error('Handler does not have a valid `match` property');
+            }
+            handler.id = __WEBPACK_IMPORTED_MODULE_2_lodash___default.a.uniqueId('routehandler-');
+            myHandlers.push(handler);
+            return handler.id;
+        },
+        removeRoute: function (routeid) {
+            myHandlers = myHandlers.filter(function (handler) {
+                return handler.id !== routeid;
+            });
+        }
+    };
 }
 
 /***/ }),
@@ -659,6 +657,7 @@ var _require = __webpack_require__(0),
     toArray = _require.toArray;
 
 module.exports = {
+
     random: function (prefix, min, max) {
         if (!min) {
             min = parseInt(uniqueId(), 10);
@@ -666,11 +665,11 @@ module.exports = {
         if (!max) {
             max = 100000; //eslint-disable-line no-magic-numbers
         }
-        var number = random(min, max, false) + '';
+        var rnd = random(min, max, false) + '';
         if (prefix) {
-            number = prefix + number;
+            rnd = prefix + rnd;
         }
-        return number;
+        return rnd;
     },
 
     /**
@@ -772,7 +771,7 @@ function RunRouter(config, notifier) {
     };
     var opts = $.extend(true, {}, defaults, config);
 
-    var serviceOptions = Object(__WEBPACK_IMPORTED_MODULE_5_lodash__["result"])(opts, 'serviceOptions');
+    var serviceOptions = __WEBPACK_IMPORTED_MODULE_5_lodash___default.a.result(opts, 'serviceOptions');
 
     var $initialProm = null;
     if (serviceOptions instanceof window.F.service.Run) {
@@ -784,33 +783,39 @@ function RunRouter(config, notifier) {
         $initialProm = $.Deferred().resolve(rs).promise();
     }
 
-    var metaChannel = new __WEBPACK_IMPORTED_MODULE_0__run_meta_channel__["a" /* default */]($initialProm, Object(__WEBPACK_IMPORTED_MODULE_4_channels_middleware_utils__["i" /* withPrefix */])(notifier, 'meta:'));
-    var operationsChannel = new __WEBPACK_IMPORTED_MODULE_2__run_operations_channel__["a" /* default */]($initialProm, Object(__WEBPACK_IMPORTED_MODULE_4_channels_middleware_utils__["i" /* withPrefix */])(notifier, 'operations:'));
-    var variableschannel = new __WEBPACK_IMPORTED_MODULE_1__run_variables_channel__["a" /* default */]($initialProm, Object(__WEBPACK_IMPORTED_MODULE_4_channels_middleware_utils__["i" /* withPrefix */])(notifier, ['variables:', '']));
+    var VARIABLES_PREFIX = 'variables:';
+    var META_PREFIX = 'meta:';
+    var OPERATIONS_PREFIX = 'operations:';
+
+    var metaChannel = new __WEBPACK_IMPORTED_MODULE_0__run_meta_channel__["a" /* default */]($initialProm, Object(__WEBPACK_IMPORTED_MODULE_4_channels_middleware_utils__["i" /* withPrefix */])(notifier, META_PREFIX));
+    var operationsChannel = new __WEBPACK_IMPORTED_MODULE_2__run_operations_channel__["a" /* default */]($initialProm, Object(__WEBPACK_IMPORTED_MODULE_4_channels_middleware_utils__["i" /* withPrefix */])(notifier, OPERATIONS_PREFIX));
+    var variableschannel = new __WEBPACK_IMPORTED_MODULE_1__run_variables_channel__["a" /* default */]($initialProm, Object(__WEBPACK_IMPORTED_MODULE_4_channels_middleware_utils__["i" /* withPrefix */])(notifier, [VARIABLES_PREFIX, '']));
 
     var handlers = [$.extend({}, metaChannel, {
         name: 'meta',
-        match: Object(__WEBPACK_IMPORTED_MODULE_4_channels_middleware_utils__["d" /* prefix */])('meta:'),
+        match: Object(__WEBPACK_IMPORTED_MODULE_4_channels_middleware_utils__["d" /* prefix */])(META_PREFIX),
         options: opts.channelOptions.meta
     }), $.extend({}, operationsChannel, {
         name: 'operations',
-        match: Object(__WEBPACK_IMPORTED_MODULE_4_channels_middleware_utils__["d" /* prefix */])('operations:'),
+        match: Object(__WEBPACK_IMPORTED_MODULE_4_channels_middleware_utils__["d" /* prefix */])(OPERATIONS_PREFIX),
         options: opts.channelOptions.operations
     }), $.extend({}, variableschannel, {
         isDefault: true,
         name: 'variables',
-        match: Object(__WEBPACK_IMPORTED_MODULE_4_channels_middleware_utils__["a" /* defaultPrefix */])('variables:'),
+        match: Object(__WEBPACK_IMPORTED_MODULE_4_channels_middleware_utils__["a" /* defaultPrefix */])(VARIABLES_PREFIX),
         options: opts.channelOptions.variables
     })];
 
-    var router = new __WEBPACK_IMPORTED_MODULE_3_channels_channel_router__["a" /* default */](handlers, notifier);
-    var oldhandler = router.publishHandler;
-    router.publishHandler = function () {
-        var prom = oldhandler.apply(router, arguments);
+    // router.addRoute(prefix('meta:'), metaChannel, opts.channelOptions.meta);
+
+    var runRouter = Object(__WEBPACK_IMPORTED_MODULE_3_channels_channel_router__["a" /* default */])(handlers, notifier);
+    var oldhandler = runRouter.publishHandler;
+    runRouter.publishHandler = function () {
+        var prom = oldhandler.apply(__WEBPACK_IMPORTED_MODULE_3_channels_channel_router__["a" /* default */], arguments);
         return prom.then(function (result) {
             //all the silencing will be taken care of by the router
-            var shouldFetch = find(result, function (r) {
-                return r.name.indexOf('operations:') === 0 || r.name.indexOf('variables:') === 0;
+            var shouldFetch = __WEBPACK_IMPORTED_MODULE_5_lodash___default.a.find(result, function (r) {
+                return r.name.indexOf(OPERATIONS_PREFIX) === 0 || r.name.indexOf(VARIABLES_PREFIX) === 0;
             });
             if (shouldFetch) {
                 variableschannel.fetch();
@@ -818,7 +823,7 @@ function RunRouter(config, notifier) {
             return result;
         });
     };
-    return router;
+    return runRouter;
 }
 
 /***/ }),
@@ -1118,7 +1123,7 @@ var Flow = {
 };
 Flow.ChannelManager = ChannelManager;
 //set by grunt
-if (true) Flow.version = "0.12.0"; //eslint-disable-line no-undef
+if (true) Flow.version = "0.11.0"; //eslint-disable-line no-undef
 module.exports = Flow;
 
 /***/ }),
@@ -1136,8 +1141,9 @@ module.exports = Flow;
  */
 
 
+var _ = __webpack_require__(0);
+
 var _require = __webpack_require__(0),
-    each = _require.each,
     isArray = _require.isArray,
     includes = _require.includes,
     pick = _require.pick,
@@ -1248,11 +1254,13 @@ module.exports = function () {
             });
 
             var subsid = $el.data(config.attrs.subscriptionId) || [];
-            each([].concat(subsid), function (subs) {
+            [].concat(subsid).forEach(function (subs) {
                 channel.unsubscribe(subs);
             });
 
-            each($el.data(), function (val, key) {
+            $el.removeAttr('data-' + config.attrs.subscriptionId).removeData(config.attrs.subscriptionId);
+
+            _.each($el.data(), function (val, key) {
                 if (key.indexOf('f-') === 0 || key.match(/^f[A-Z]/)) {
                     $el.removeData(key);
                     // var hyphenated = key.replace(/([A-Z])/g, '-$1').toLowerCase();
@@ -1299,7 +1307,7 @@ module.exports = function () {
                 }, options);
                 var subsAttr = config.attrs.subscriptionId;
                 var newsubs = ($el.data(subsAttr) || []).concat(subsid);
-                $el.attr('data-' + subsAttr, newsubs);
+                $el.attr('data-' + subsAttr, JSON.stringify(newsubs));
             };
 
             var attrBindings = [];
@@ -1449,7 +1457,7 @@ module.exports = function () {
                     var bindings = $el.data(config.attrs.bindingsList);
                     var toconvert = {};
                     $.each(data, function (variableName, value) {
-                        each(bindings, function (binding) {
+                        _.each(bindings, function (binding) {
                             var channelPrefix = domUtils.getChannel($el, binding.attr);
                             var interestedTopics = binding.topics;
                             if (includes(interestedTopics, variableName)) {
@@ -1480,7 +1488,7 @@ module.exports = function () {
                     var $el = $(evt.target);
                     var attrConverters = domUtils.getConvertersList($el, 'bind');
 
-                    each(data, function (val, key) {
+                    _.each(data, function (val, key) {
                         key = key.split('|')[0].trim(); //in case the pipe formatting syntax was used
                         val = converterManager.parse(val, attrConverters);
                         parsedData[key] = parseUtils.toImplicitType(val);
@@ -1516,7 +1524,7 @@ module.exports = function () {
 
                     //FIXME: Needed for the 'gotopage' in interfacebuilder. Remove this once we add a window channel
                     promise.then(function (args) {
-                        each(filtered.converters, function (con) {
+                        _.each(filtered.converters, function (con) {
                             converterManager.convert(con.value, [con.name]);
                         });
                     });
@@ -1538,7 +1546,7 @@ module.exports = function () {
                     };
 
                     if ($.isPlainObject(data)) {
-                        each(data, convert);
+                        _.each(data, convert);
                     } else {
                         convert(data, 'bind');
                     }
@@ -1659,15 +1667,15 @@ module.exports = {
  *
  */
 
+var _ = __webpack_require__(0);
+
 var _require = __webpack_require__(0),
     isFunction = _require.isFunction,
     isString = _require.isString,
     isRegExp = _require.isRegExp,
-    each = _require.each,
     find = _require.find,
     isArray = _require.isArray,
-    mapValues = _require.mapValues,
-    map = _require.map;
+    mapValues = _require.mapValues;
 
 var _require2 = __webpack_require__(2),
     splitNameArgs = _require2.splitNameArgs;
@@ -1741,9 +1749,9 @@ var converterManager = {
      *          The current sales manager is <span data-f-bind="salesMgr | sig"></span>.
      *      </div>
      *
-     * @param  {String|Function|RegExp} alias Formatter name.
-     * @param  {Function|Object} converter If a function, `converter` is called with the value. If an object, should include fields for `alias` (name), `parse` (function), and `convert` (function).
-     * @param {Boolean} acceptList Determines if the converter is a 'list' converter or not. List converters take in arrays as inputs, others expect single values.
+     * @param  {string|function|RegExp} alias Formatter name.
+     * @param  {function|object} [converter] If a function, `converter` is called with the value. If an object, should include fields for `alias` (name), `parse` (function), and `convert` (function).
+     * @param {boolean} [acceptList] Determines if the converter is a 'list' converter or not. List converters take in arrays as inputs, others expect single values.
      * @returns {void}
      */
     register: function (alias, converter, acceptList) {
@@ -1754,13 +1762,13 @@ var converterManager = {
     /**
      * Replace an already registered converter with a new one of the same name.
      *
-     * @param {String} alias Formatter name.
-     * @param {Function|Object} converter If a function, `converter` is called with the value. If an object, should include fields for `alias` (name), `parse` (function), and `convert` (function).
+     * @param {string} alias Formatter name.
+     * @param {function|object} converter If a function, `converter` is called with the value. If an object, should include fields for `alias` (name), `parse` (function), and `convert` (function).
      * @returns {void}
      */
     replace: function (alias, converter) {
         var index;
-        each(this.list, function (currentConverter, i) {
+        this.list.forEach(function (currentConverter, i) {
             if (matchConverter(alias, currentConverter)) {
                 index = i;
                 return false;
@@ -1784,7 +1792,7 @@ var converterManager = {
      * Pipes the value sequentially through a list of provided converters.
      *
      * @param  {*} value Input for the converter to tag.
-     * @param  {Array|Object} list List of converters (maps to converter alias).
+     * @param  {string|string[]} list List of converters (maps to converter alias).
      *
      * @return {*} Converted value.
      */
@@ -1800,7 +1808,7 @@ var converterManager = {
         var me = this;
 
         var convertArray = function (converter, val, converterName) {
-            return map(val, function (v) {
+            return _.map(val, function (v) {
                 return converter.convert(v, converterName);
             });
         };
@@ -1818,7 +1826,7 @@ var converterManager = {
                 return convert(converter, val, converterName);
             });
         };
-        each(list, function (converterName) {
+        list.forEach(function (converterName) {
             var converter = me.getConverter(converterName);
             if (!converter) {
                 throw new Error('Could not find converter for ' + converterName);
@@ -1835,8 +1843,8 @@ var converterManager = {
     /**
      * Counter-part to `convert()`. Translates converted values back to their original form.
      *
-     * @param  {String} value Value to parse.
-     * @param  {String|Array} list  List of parsers to run the value through. Outermost is invoked first.
+     * @param  {*} value Value to parse.
+     * @param  {string|string[]} list  List of parsers to run the value through. Outermost is invoked first.
      * @return {*} Original value.
      */
     parse: function (value, list) {
@@ -1849,7 +1857,7 @@ var converterManager = {
 
         var currentValue = value;
         var me = this;
-        each(list, function (converterName) {
+        list.forEach(function (converterName) {
             var converter = me.getConverter(converterName);
             if (converter.parse) {
                 currentValue = converter.parse(currentValue, converterName);
@@ -1862,9 +1870,9 @@ var converterManager = {
 //Bootstrap
 var defaultconverters = [__webpack_require__(16), __webpack_require__(17), __webpack_require__(18), __webpack_require__(19), __webpack_require__(20), __webpack_require__(21), __webpack_require__(22)];
 
-$.each(defaultconverters.reverse(), function (index, converter) {
+defaultconverters.reverse().forEach(function (converter) {
     if (isArray(converter)) {
-        each(converter, function (c) {
+        converter.forEach(function (c) {
             converterManager.register(c);
         });
     } else {
@@ -2025,9 +2033,7 @@ module.exports = {
  *
  */
 
-var _require = __webpack_require__(0),
-    mapValues = _require.mapValues,
-    each = _require.each;
+var _ = __webpack_require__(0);
 
 var list = [{
     alias: 'list',
@@ -2036,7 +2042,7 @@ var list = [{
      * Convert the input into an array. Concatenates all elements of the input.
      *
      * @param {*} val value to convert to Array
-     * @return {Array} value converted to array
+     * @return {array} value converted to array
      */
     convert: function (val) {
         return [].concat(val);
@@ -2053,7 +2059,7 @@ var list = [{
      *          In the current year, we have <span data-f-bind="Sales | last"></span> in sales.
      *      </div>
      *
-     * @param {Array} val The array model variable.
+     * @param {array} val The array model variable.
      * @return {*} last element of array
      */
     convert: function (val) {
@@ -2073,8 +2079,8 @@ var list = [{
      *          <li></li>
      *      </ul>
      *
-     * @param {Array} val The array model variable.
-     * @returns {Array} reversed array
+     * @param {array} val The array model variable.
+     * @returns {array} reversed array
      */
     convert: function (val) {
         val = [].concat(val);
@@ -2092,7 +2098,7 @@ var list = [{
      *          Our initial investment was <span data-f-bind="Capital | first"></span>.
      *      </div>
      *
-     * @param {Array} val The array model variable.
+     * @param {array} val The array model variable.
      * @returns {*} first element of array
      */
     convert: function (val) {
@@ -2111,7 +2117,7 @@ var list = [{
      *          Last year we had <span data-f-bind="Sales | previous"></span> in sales.
      *      </div>
      *
-     * @param {Array} val The array model variable.
+     * @param {array} val The array model variable.
      * @returns {*} previous (second to last) element of the array.
      */
     convert: function (val) {
@@ -2120,11 +2126,11 @@ var list = [{
     }
 }];
 
-each(list, function (item) {
+list.forEach(function (item) {
     var oldfn = item.convert;
     var newfn = function (val) {
         if ($.isPlainObject(val)) {
-            return mapValues(val, oldfn);
+            return _.mapValues(val, oldfn);
         }
         return oldfn(val);
     };
@@ -2778,11 +2784,11 @@ module.exports = {
 /* 23 */
 /***/ (function(module, exports, __webpack_require__) {
 
+var _ = __webpack_require__(0);
+
 var _require = __webpack_require__(0),
-    each = _require.each,
     isString = _require.isString,
-    isFunction = _require.isFunction,
-    find = _require.find;
+    isFunction = _require.isFunction;
 /**
  * @typedef NodeHandler
  * @property {string} selector
@@ -2841,14 +2847,14 @@ var nodeManager = {
      * @return NodeHandler
      */
     getHandler: function (selector) {
-        return find(this.list, function (node) {
+        return _.find(this.list, function (node) {
             return match(selector, node);
         });
     },
 
     replace: function (selector, handler) {
         var index;
-        each(this.list, function (currentHandler, i) {
+        this.list.forEach(function (currentHandler, i) {
             if (selector === currentHandler.selector) {
                 index = i;
                 return false;
@@ -2860,7 +2866,7 @@ var nodeManager = {
 
 //bootstraps
 var defaultHandlers = [__webpack_require__(24), __webpack_require__(8), __webpack_require__(9)];
-each(defaultHandlers.reverse(), function (handler) {
+defaultHandlers.reverse().forEach(function (handler) {
     nodeManager.register(handler.selector, handler);
 });
 
@@ -2971,7 +2977,7 @@ var normalize = function (attributeMatcher, nodeMatcher, handler) {
     return $.extend(handler, { test: attributeMatcher, target: nodeMatcher });
 };
 
-$.each(defaultHandlers, function (index, handler) {
+defaultHandlers.forEach(function (handler) {
     handlersList.push(normalize(handler.test, handler.target, handler));
 });
 
@@ -4061,6 +4067,10 @@ module.exports = {
 
 
 
+var _require = __webpack_require__(0),
+    isArray = _require.isArray,
+    isObject = _require.isObject;
+
 module.exports = {
 
     test: '*',
@@ -4068,7 +4078,8 @@ module.exports = {
     target: '*',
 
     handle: function (value, prop) {
-        this.prop(prop, value);
+        var val = isArray(value) || isObject(value) ? JSON.stringify(value) : value;
+        this.attr(prop, val);
     }
 };
 
@@ -4087,7 +4098,7 @@ module.exports = {
  */
 
 module.exports = function (target, domManager) {
-    if (!window.MutationObserver) {
+    if (typeof MutationObserver === 'undefined') {
         return;
     }
 
@@ -4121,7 +4132,6 @@ module.exports = function (target, domManager) {
         characterData: false
     };
     observer.observe(target, mutconfig);
-    // Later, you can stop observing
     // observer.disconnect();
 };
 
@@ -4280,10 +4290,10 @@ var runidRegex = '(?:.{' + sampleRunidLength + '})';
         $.extend(exposable, sm.expose);
     }
 
-    var router = new __WEBPACK_IMPORTED_MODULE_5_channels_channel_router__["a" /* default */](handlers, notifier);
-    router.expose = exposable;
+    var epicenterRouter = Object(__WEBPACK_IMPORTED_MODULE_5_channels_channel_router__["a" /* default */])(handlers, notifier);
+    epicenterRouter.expose = exposable;
 
-    return router;
+    return epicenterRouter;
 });
 
 /***/ }),
@@ -4319,9 +4329,9 @@ var runidRegex = '(?:.{' + sampleRunidLength + '})';
         options: currentChannelOpts.channelOptions
     })];
 
-    var router = new __WEBPACK_IMPORTED_MODULE_2_channels_channel_router__["a" /* default */](handlers, notifier);
-    router.expose = { runManager: rm };
-    return router;
+    var runMangerRouter = Object(__WEBPACK_IMPORTED_MODULE_2_channels_channel_router__["a" /* default */])(handlers, notifier);
+    runMangerRouter.expose = { runManager: rm };
+    return runMangerRouter;
 });
 
 /***/ }),
@@ -4610,9 +4620,9 @@ function excludeReadOnly(publishable, readOnlyOptions) {
         options: runOptions.channelOptions
     })];
 
-    var router = new __WEBPACK_IMPORTED_MODULE_2_channels_channel_router__["a" /* default */](handlers, notifier);
-    router.expose = { scenarioManager: sm };
-    return router;
+    var scenarioManagerRouter = Object(__WEBPACK_IMPORTED_MODULE_2_channels_channel_router__["a" /* default */])(handlers, notifier);
+    scenarioManagerRouter.expose = { scenarioManager: sm };
+    return scenarioManagerRouter;
 });
 
 /***/ }),

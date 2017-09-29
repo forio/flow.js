@@ -7,7 +7,7 @@
  * @return {void}
  */
 module.exports = function (target, domManager) {
-    if (!window.MutationObserver) {
+    if (typeof MutationObserver === 'undefined') {
         return;
     }
 
@@ -42,6 +42,5 @@ module.exports = function (target, domManager) {
         characterData: false
     };
     observer.observe(target, mutconfig);
-    // Later, you can stop observing
     // observer.disconnect();
 };

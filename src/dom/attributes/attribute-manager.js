@@ -81,7 +81,7 @@ var normalize = function (attributeMatcher, nodeMatcher, handler) {
     return $.extend(handler, { test: attributeMatcher, target: nodeMatcher });
 };
 
-$.each(defaultHandlers, function (index, handler) {
+defaultHandlers.forEach(function (handler) {
     handlersList.push(normalize(handler.test, handler.target, handler));
 });
 

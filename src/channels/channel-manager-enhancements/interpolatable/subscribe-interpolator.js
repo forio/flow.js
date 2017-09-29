@@ -20,7 +20,7 @@ export function getDependencies(topics) {
  * @return {String[]}
  */
 export function interpolateWithDependencies(topics, data) {
-    return topics.map((topic) => {
+    return topics.map((topic)=> {
         return interpolateWithValues(topic, data);
     });
 }

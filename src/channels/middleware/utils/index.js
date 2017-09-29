@@ -57,7 +57,7 @@ export function regex(regex) {
  * 
  * @param {Publishable[]} dataArray 
  * @param {string} prefix 
- * @return {Publishable} array with name prefixed
+ * @return {Publishable[]} array with name prefixed
  */
 export function mapWithPrefix(dataArray, prefix) {
     if (!prefix) return dataArray;

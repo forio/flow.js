@@ -1,4 +1,5 @@
-const { each, isString, isFunction, find } = require('lodash');
+const _ = require('lodash');
+const { isString, isFunction } = require('lodash');
 /**
  * @typedef NodeHandler
  * @property {string} selector
@@ -56,14 +57,14 @@ var nodeManager = {
      * @return NodeHandler
      */ 
     getHandler: function (selector) {
-        return find(this.list, function (node) {
+        return _.find(this.list, function (node) {
             return match(selector, node);
         });
     },
 
     replace: function (selector, handler) {
         var index;
-        each(this.list, function (currentHandler, i) {
+        this.list.forEach(function (currentHandler, i) {
             if (selector === currentHandler.selector) {
                 index = i;
                 return false;
@@ -79,7 +80,7 @@ var defaultHandlers = [
     require('./default-input-node'),
     require('./default-node')
 ];
-each(defaultHandlers.reverse(), function (handler) {
+defaultHandlers.reverse().forEach(function (handler) {
     nodeManager.register(handler.selector, handler);
 });
 

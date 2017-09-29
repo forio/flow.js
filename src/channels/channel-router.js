@@ -1,6 +1,6 @@
 import { groupByHandlers, groupSequentiallyByHandlers } from 'channels/channel-utils';
 import { unprefix, mapWithPrefix, silencable, excludeReadOnly } from 'channels/middleware/utils';
-import { find } from 'lodash';
+import _ from 'lodash';
 
 /**
  * Handle subscriptions
@@ -39,7 +39,7 @@ export function notifyUnsubscribeHandlers(handlers, recentlyUnsubscribedTopics, 
     unsubsGrouped.forEach(function (handler) {
         if (handler.unsubscribeHandler) {
             var unprefixedUnsubs = unprefix(handler.data, handler.matched);
-            var matchingRemainingHandler = find(remainingGrouped, function (remainingHandler) {
+            var matchingRemainingHandler = _.find(remainingGrouped, function (remainingHandler) {
                 return remainingHandler.unsubsKey === handler.unsubsKey;
             });
             var matchingTopicsRemaining = matchingRemainingHandler ? matchingRemainingHandler.data : [];
@@ -89,18 +89,19 @@ export function passthroughPublishInterceptors(handlers, publishData, options) {
 
 /**
  * Router
- * @param  {Handler[]} handlers
+ * @param  {Handler[]} myHandlers
  * @return {Router}
  */
-export default function Router(handlers) {
-    return $.extend(this, {
+export default function router(handlers) {
+    let myHandlers = handlers || [];
+    return {
         /**
          * @param {String[]} topics
          * @param {SubscribeOptions} [options]
          * @return {String[]} Returns the original topics array
          */
         subscribeHandler: function (topics, options) {
-            return notifySubscribeHandlers(handlers, topics, options);
+            return notifySubscribeHandlers(myHandlers, topics, options);
         },
         /**
          * @param {String[]} recentlyUnsubscribedTopics
@@ -108,7 +109,7 @@ export default function Router(handlers) {
          * @return {void}
          */
         unsubscribeHandler: function (recentlyUnsubscribedTopics, remainingTopics) {
-            return notifyUnsubscribeHandlers(handlers, recentlyUnsubscribedTopics, remainingTopics);
+            return notifyUnsubscribeHandlers(myHandlers, recentlyUnsubscribedTopics, remainingTopics);
         },
 
         /**
@@ -117,25 +118,22 @@ export default function Router(handlers) {
          * @return {Promise}
          */
         publishHandler: function (data, options) {
-            return passthroughPublishInterceptors(handlers, data, options);
+            return passthroughPublishInterceptors(myHandlers, data, options);
         },
 
         // Ignoring till ready to implement
-        // addRoute: function (handler) {
-        //     if (!handler || !handler.match) {
-        //         throw Error('Handler does not have a valid `match` property');
-        //     }
-        //     handler.id = uniqueId('routehandler-');
-        //     handlers.push(handler);
-        //     return handler.id;
-        // },
-        // removeRoute: function (routeid) {
-        //     handlers = handlers.reduce(function (accum, handler) {
-        //         if (handler.id !== routeid) {
-        //             accum.push(handler);
-        //         }
-        //         return accum;
-        //     }, []);
-        // }
-    });
+        addRoute: function (handler) {
+            if (!handler || !handler.match) {
+                throw Error('Handler does not have a valid `match` property');
+            }
+            handler.id = _.uniqueId('routehandler-');
+            myHandlers.push(handler);
+            return handler.id;
+        },
+        removeRoute: function (routeid) {
+            myHandlers = myHandlers.filter((handler)=> {
+                return handler.id !== routeid;
+            });
+        }
+    };
 }

@@ -1,6 +1,7 @@
 const { uniqueId, random, toArray } = require('lodash');
 
 module.exports = {
+
     random: function (prefix, min, max) {
         if (!min) {
             min = parseInt(uniqueId(), 10);
@@ -8,11 +9,11 @@ module.exports = {
         if (!max) {
             max = 100000; //eslint-disable-line no-magic-numbers
         }
-        var number = random(min, max, false) + '';
+        var rnd = random(min, max, false) + '';
         if (prefix) {
-            number = prefix + number;
+            rnd = prefix + rnd;
         }
-        return number;
+        return rnd;
     },
 
     /**

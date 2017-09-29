@@ -25,6 +25,7 @@
 
 'use strict';
 
+const { isArray, isObject } = require('lodash');
 module.exports = {
 
     test: '*',
@@ -32,6 +33,7 @@ module.exports = {
     target: '*',
 
     handle: function (value, prop) {
-        this.prop(prop, value);
+        const val = (isArray(value) || isObject(value)) ? JSON.stringify(value) : value;
+        this.attr(prop, val);
     }
 };

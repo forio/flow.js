@@ -1,6 +1,6 @@
 {
     "name": "flow.js",
-    "version": "0.12.0",
+    "version": "0.11.0",
     "description": "Data binding library",
     "main": "src/flow.js",
     "directories": {
@@ -17,14 +17,6 @@
         "url": "https://github.com/forio/flow.js.git"
     },
     "devDependencies": {
-        "@types/chai": "^4.0.1",
-        "@types/expect": "^1.20.1",
-        "@types/jquery": "^3.2.9",
-        "@types/lodash": "^4.14.71",
-        "@types/mocha": "^2.2.41",
-        "@types/node": "^8.0.17",
-        "@types/sinon": "^2.3.3",
-        "@types/sinon-chai": "^2.7.28",
         "babel-core": "^6.25.0",
         "babel-loader": "^7.1.1",
         "babel-plugin-istanbul": "^4.1.4",

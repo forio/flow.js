@@ -6,7 +6,7 @@ import RunsRouter from './runs-router';
 
 import { regex, withPrefix, prefix as prefixMatch, defaultPrefix } from 'channels/middleware/utils';
 
-import Router from 'channels/channel-router';
+import router from 'channels/channel-router';
 
 function getOptions(opts, key) {
     var serviceOptions = $.extend(true, {}, opts.defaults, opts[key]);
@@ -77,8 +77,8 @@ export default function (config, notifier, channelManagerContext) {
         $.extend(exposable, sm.expose);
     }
 
-    var router = new Router(handlers, notifier);
-    router.expose = exposable;
+    var epicenterRouter = router(handlers, notifier);
+    epicenterRouter.expose = exposable;
     
-    return router;
+    return epicenterRouter;
 }

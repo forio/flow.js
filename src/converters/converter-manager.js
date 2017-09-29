@@ -9,7 +9,8 @@
  *
  */
 
-const { isFunction, isString, isRegExp, each, find, isArray, mapValues, map } = require('lodash');
+const _ = require('lodash');
+const { isFunction, isString, isRegExp, find, isArray, mapValues } = require('lodash');
 const { splitNameArgs } = require('../utils/parse-utils');
 
 var normalize = function (alias, converter, acceptList) {
@@ -81,9 +82,9 @@ var converterManager = {
      *          The current sales manager is <span data-f-bind="salesMgr | sig"></span>.
      *      </div>
      *
-     * @param  {String|Function|RegExp} alias Formatter name.
-     * @param  {Function|Object} converter If a function, `converter` is called with the value. If an object, should include fields for `alias` (name), `parse` (function), and `convert` (function).
-     * @param {Boolean} acceptList Determines if the converter is a 'list' converter or not. List converters take in arrays as inputs, others expect single values.
+     * @param  {string|function|RegExp} alias Formatter name.
+     * @param  {function|object} [converter] If a function, `converter` is called with the value. If an object, should include fields for `alias` (name), `parse` (function), and `convert` (function).
+     * @param {boolean} [acceptList] Determines if the converter is a 'list' converter or not. List converters take in arrays as inputs, others expect single values.
      * @returns {void}
      */
     register: function (alias, converter, acceptList) {
@@ -94,13 +95,13 @@ var converterManager = {
     /**
      * Replace an already registered converter with a new one of the same name.
      *
-     * @param {String} alias Formatter name.
-     * @param {Function|Object} converter If a function, `converter` is called with the value. If an object, should include fields for `alias` (name), `parse` (function), and `convert` (function).
+     * @param {string} alias Formatter name.
+     * @param {function|object} converter If a function, `converter` is called with the value. If an object, should include fields for `alias` (name), `parse` (function), and `convert` (function).
      * @returns {void}
      */
     replace: function (alias, converter) {
         var index;
-        each(this.list, function (currentConverter, i) {
+        this.list.forEach(function (currentConverter, i) {
             if (matchConverter(alias, currentConverter)) {
                 index = i;
                 return false;
@@ -124,7 +125,7 @@ var converterManager = {
      * Pipes the value sequentially through a list of provided converters.
      *
      * @param  {*} value Input for the converter to tag.
-     * @param  {Array|Object} list List of converters (maps to converter alias).
+     * @param  {string|string[]} list List of converters (maps to converter alias).
      *
      * @return {*} Converted value.
      */
@@ -138,7 +139,7 @@ var converterManager = {
         var me = this;
 
         var convertArray = function (converter, val, converterName) {
-            return map(val, function (v) {
+            return _.map(val, function (v) {
                 return converter.convert(v, converterName);
             });
         };
@@ -156,7 +157,7 @@ var converterManager = {
                 return convert(converter, val, converterName);
             });
         };
-        each(list, function (converterName) {
+        list.forEach(function (converterName) {
             var converter = me.getConverter(converterName);
             if (!converter) {
                 throw new Error('Could not find converter for ' + converterName);
@@ -173,8 +174,8 @@ var converterManager = {
     /**
      * Counter-part to `convert()`. Translates converted values back to their original form.
      *
-     * @param  {String} value Value to parse.
-     * @param  {String|Array} list  List of parsers to run the value through. Outermost is invoked first.
+     * @param  {*} value Value to parse.
+     * @param  {string|string[]} list  List of parsers to run the value through. Outermost is invoked first.
      * @return {*} Original value.
      */
     parse: function (value, list) {
@@ -185,7 +186,7 @@ var converterManager = {
 
         var currentValue = value;
         var me = this;
-        each(list, function (converterName) {
+        list.forEach(function (converterName) {
             var converter = me.getConverter(converterName);
             if (converter.parse) {
                 currentValue = converter.parse(currentValue, converterName);
@@ -207,9 +208,9 @@ var defaultconverters = [
     require('./bool-conditional-converters'),
 ];
 
-$.each(defaultconverters.reverse(), function (index, converter) {
+defaultconverters.reverse().forEach(function (converter) {
     if (isArray(converter)) {
-        each(converter, function (c) {
+        converter.forEach(function (c) {
             converterManager.register(c);
         });
     } else {
