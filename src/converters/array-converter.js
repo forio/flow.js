@@ -22,7 +22,7 @@ var list = [
          * Convert the input into an array. Concatenates all elements of the input.
          *
          * @param {*} val value to convert to Array
-         * @return {Array} value converted to array
+         * @return {array} value converted to array
          */
         convert: function (val) {
             return [].concat(val);
@@ -40,7 +40,7 @@ var list = [
          *          In the current year, we have <span data-f-bind="Sales | last"></span> in sales.
          *      </div>
          *
-         * @param {Array} val The array model variable.
+         * @param {array} val The array model variable.
          * @return {*} last element of array
          */
         convert: function (val) {
@@ -61,8 +61,8 @@ var list = [
          *          <li></li>
          *      </ul>
          *
-         * @param {Array} val The array model variable.
-         * @returns {Array} reversed array
+         * @param {array} val The array model variable.
+         * @returns {array} reversed array
          */
         convert: function (val) {
             val = [].concat(val);
@@ -81,7 +81,7 @@ var list = [
          *          Our initial investment was <span data-f-bind="Capital | first"></span>.
          *      </div>
          *
-         * @param {Array} val The array model variable.
+         * @param {array} val The array model variable.
          * @returns {*} first element of array
          */
         convert: function (val) {
@@ -101,7 +101,7 @@ var list = [
          *          Last year we had <span data-f-bind="Sales | previous"></span> in sales.
          *      </div>
          *
-         * @param {Array} val The array model variable.
+         * @param {array} val The array model variable.
          * @returns {*} previous (second to last) element of the array.
          */
         convert: function (val) {

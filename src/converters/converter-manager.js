@@ -81,9 +81,9 @@ var converterManager = {
      *          The current sales manager is <span data-f-bind="salesMgr | sig"></span>.
      *      </div>
      *
-     * @param  {String|Function|RegExp} alias Formatter name.
-     * @param  {Function|Object} converter If a function, `converter` is called with the value. If an object, should include fields for `alias` (name), `parse` (function), and `convert` (function).
-     * @param {Boolean} acceptList Determines if the converter is a 'list' converter or not. List converters take in arrays as inputs, others expect single values.
+     * @param  {string|function|RegExp} alias Formatter name.
+     * @param  {function|object} [converter] If a function, `converter` is called with the value. If an object, should include fields for `alias` (name), `parse` (function), and `convert` (function).
+     * @param {boolean} [acceptList] Determines if the converter is a 'list' converter or not. List converters take in arrays as inputs, others expect single values.
      * @returns {void}
      */
     register: function (alias, converter, acceptList) {
@@ -94,8 +94,8 @@ var converterManager = {
     /**
      * Replace an already registered converter with a new one of the same name.
      *
-     * @param {String} alias Formatter name.
-     * @param {Function|Object} converter If a function, `converter` is called with the value. If an object, should include fields for `alias` (name), `parse` (function), and `convert` (function).
+     * @param {string} alias Formatter name.
+     * @param {function|object} converter If a function, `converter` is called with the value. If an object, should include fields for `alias` (name), `parse` (function), and `convert` (function).
      * @returns {void}
      */
     replace: function (alias, converter) {
@@ -119,7 +119,7 @@ var converterManager = {
      * Pipes the value sequentially through a list of provided converters.
      *
      * @param  {*} value Input for the converter to tag.
-     * @param  {Array|Object} list List of converters (maps to converter alias).
+     * @param  {string|string[]} list List of converters (maps to converter alias).
      *
      * @return {*} Converted value.
      */
@@ -168,8 +168,8 @@ var converterManager = {
     /**
      * Counter-part to `convert()`. Translates converted values back to their original form.
      *
-     * @param  {String} value Value to parse.
-     * @param  {String|Array} list  List of parsers to run the value through. Outermost is invoked first.
+     * @param  {*} value Value to parse.
+     * @param  {string|string[]} list  List of parsers to run the value through. Outermost is invoked first.
      * @return {*} Original value.
      */
     parse: function (value, list) {
