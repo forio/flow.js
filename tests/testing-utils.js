@@ -2,7 +2,7 @@
 var utils = {
     create: function (str) {
         var div = document.createElement('div');
-        div.innerHTML = str;
+        div.innerHTML = str.trim();
         return (div.childNodes.length === 1) ? div.childNodes[0] : div.childNodes;
     },
     createDummyChannel: function () {
