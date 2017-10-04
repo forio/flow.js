@@ -66,6 +66,40 @@ module.exports = (function () {
         return el;
     }
 
+    //Unbind utils
+    function removeAllSubscriptions($el, channel) {
+        var subsid = $el.data(config.attrs.subscriptionId) || [];
+        [].concat(subsid).forEach(function (subs) {
+            channel.unsubscribe(subs);
+        });
+        $el.removeAttr(`data-${config.attrs.subscriptionId}`).removeData(config.attrs.subscriptionId);
+    }
+    function unbindAllAttributes(domEl) {
+        const $el = $(domEl);
+        $(domEl.attributes).each(function (index, nodeMap) {
+            var attr = nodeMap.nodeName;
+            var wantedPrefix = 'data-f-';
+            if (attr.indexOf(wantedPrefix) === 0) {
+                attr = attr.replace(wantedPrefix, '');
+                var handler = attrManager.getHandler(attr, $el);
+                if (handler.unbind) {
+                    handler.unbind.call($el, attr);
+                }
+            }
+        });
+    }
+    function unbindAllNodeHandlers(domEl) {
+        const $el = $(domEl);
+        //FIXME: have to readd events to be able to remove them. Ugly
+        var Handler = nodeManager.getHandler($el);
+        var h = new Handler.handle({
+            el: domEl
+        });
+        if (h.removeEvents) {
+            h.removeEvents();
+        }
+    }
+
     var publicAPI = {
 
         nodes: nodeManager,
@@ -94,34 +128,10 @@ module.exports = (function () {
             }
             this.private.matchedElements = without(this.private.matchedElements, element);
 
-            //FIXME: have to readd events to be able to remove them. Ugly
-            var Handler = nodeManager.getHandler($el);
-            var h = new Handler.handle({
-                el: domEl
-            });
-            if (h.removeEvents) {
-                h.removeEvents();
-            }
-
-            $(domEl.attributes).each(function (index, nodeMap) {
-                var attr = nodeMap.nodeName;
-                var wantedPrefix = 'data-f-';
-                if (attr.indexOf(wantedPrefix) === 0) {
-                    attr = attr.replace(wantedPrefix, '');
-                    var handler = attrManager.getHandler(attr, $el);
-                    if (handler.unbind) {
-                        handler.unbind.call($el, attr);
-                    }
-                }
-            });
-
-            var subsid = $el.data(config.attrs.subscriptionId) || [];
-            [].concat(subsid).forEach(function (subs) {
-                channel.unsubscribe(subs);
-            });
-
-            $el.removeAttr(`data-${config.attrs.subscriptionId}`).removeData(config.attrs.subscriptionId);
-
+            unbindAllNodeHandlers(domEl);
+            unbindAllAttributes(domEl);
+            removeAllSubscriptions($el, channel);
+     
             _.each($el.data(), function (val, key) {
                 if (key.indexOf('f-') === 0 || key.match(/^f[A-Z]/)) {
                     $el.removeData(key);
@@ -144,14 +154,21 @@ module.exports = (function () {
             if (!channel) {
                 channel = this.options.channel;
             }
+            // this.unbindElement(element); //unbind actually removes the data,and jquery doesn't refetch when .data() is called..
             const domEl = getElementOrError(element);
             var $el = $(domEl);
             if (!$el.is(':' + config.prefix)) {
                 return;
             }
+
             if (!includes(this.private.matchedElements, domEl)) {
                 this.private.matchedElements.push(domEl);
             }
+
+
+            const subsDataSuffix = config.attrs.subscriptionId;
+            const subsAttr = `data-${config.attrs.subscriptionId}`;
+            // $el.removeAttr(subsAttr).removeData(subsDataSuffix);
 
             //Send to node manager to handle ui changes
             var Handler = nodeManager.getHandler($el);
@@ -167,9 +184,8 @@ module.exports = (function () {
                 var subsid = subsChannel.subscribe(varsToBind, function (params) {
                     $bindEl.trigger(config.events.channelDataReceived, params);
                 }, options);
-                var subsAttr = config.attrs.subscriptionId;
-                var newsubs = ($el.data(subsAttr) || []).concat(subsid);
-                $el.attr(`data-${subsAttr}`, JSON.stringify(newsubs));
+                var newsubs = ($el.data(subsDataSuffix) || []).concat(subsid);
+                $el.attr(subsAttr, JSON.stringify(newsubs)).data(subsDataSuffix, newsubs);
             };
 
             var attrBindings = [];
