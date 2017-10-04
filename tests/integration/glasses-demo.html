@@ -5,27 +5,31 @@
     <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css">
     <link rel="stylesheet" href="/dist/add-ons/flow-inspector.css">
     <link rel="stylesheet" href="../../dist/add-ons/flow-inspector.css">
-    <script src="/node_modules/jquery/dist/jquery.min.js"></script>
+    <script src="/node_modules/jquery/dist/jquery.js"></script>
     <script src="/node_modules/lodash/lodash.min.js"></script>
     <script src="/node_modules/epicenter-js/dist/epicenter.min.js"></script>
     <!-- <script src="http://local.forio.com:8084/dist/epicenter-edge.js"></script> -->
 
+    <!-- <script src="https://forio.com/tools/js-libs/flow/1.0.0/flow.min.js"></script> -->
     <script src="/dist/flow-edge.js"></script>
+
     <!-- <script src="/dist/flow.min.js"></script> -->
     <script src="/dist/add-ons/flow-inspector.min.js"></script>
+    <title>Foo</title>
 </head>
-<body data-f-model="gglasses.vmf" data-f-on-init="start_game | step(10)" class="flow-debug">
+<body data-f-model="gglasses.vmf" data-f-on-init="step(10)" class="flow-debug">
     <div class="content-wrapper container">
-        <h1> Google Glasses Sales Simulator </h1>
+      <h1> Google Glasses Sales Simulator </h1>
 
         <div style="margin-top: 30px;">
             <label>Set your price: </label>
             <input type="text" data-f-bind="Price" placeholder="s">
 
             <button class="btn btn-primary"  data-f-on-click="step(1000)">Advance</button>
-            <button class="btn" data-ub-component="Button"  data-f-on-click="reset | start_game">Reset</button>
+            <button class="btn" data-ub-component="Button"  data-f-on-click="reset">Reset</button>
 
         </div>
+        <!--  
         <div>
             You typed <strong data-f-bind="Price"></strong>
         </div>
@@ -42,20 +46,24 @@
         Profit
         <ul data-f-foreach="Time">
             <li> Year <%= index + 1 %>, value <%= value %> </li>
-        </ul>
+        </ul> -->
 
-    <table class="table">
+    <h6>Nested</h6>
+    <ul data-f-foreach="Time">
+        <li data-f-foreach="Price"><div></div></li>
+    </ul>
+<!--     <table class="table">
         <thead>
             <th> Profit </th>
             <th> Price </th>
         </thead>
         <tbody data-f-foreach="Time">
            <tr>
-                <td data-f-bind="Profit[<%= index + 1 %>] | $#,###">  </td>
-                <td data-f-bind="Price[<%= index + 1 %>]"></td>
+                <td data-f-bind="Profit[<%= index %>] | $#,###">  </td>
+                <td data-f-bind="Price[<%= index %>]"></td>
            </tr>
         </tbody>
-    </table>
+    </table> -->
 
     <script>
             Flow.initialize({
