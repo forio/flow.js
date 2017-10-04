@@ -55,7 +55,7 @@ describe('f.convert', function () {
         var channel = utils.createDummyChannel();
         return utils.initWithNode('<input type="text" data-f-bind="price" data-f-stuff="43 | $0.00" />', domManager, channel).then(function ($node) {
             $node.trigger('f.convert', { stuff: '43' });
-            $node.attr('stuff').should.equal('$43.00');
+            $node.prop('stuff').should.equal('$43.00');
         });
     });
     it('should work if triggered with value directly', function () {
@@ -70,7 +70,7 @@ describe('f.convert', function () {
         return utils.initWithNode('<input type="text" data-f-bind="price" data-f-stuff="a,b" />', domManager, channel).then(function ($node) {
             var data = { a: 1, b: 2 };
             $node.trigger('f.convert', { stuff: data });
-            JSON.parse($node.attr('stuff')).should.eql(data);
+            $node.prop('stuff').should.eql(data);
         });
     });
     it('should work if triggered with value objects piped to converters', function () {
@@ -78,7 +78,7 @@ describe('f.convert', function () {
         return utils.initWithNode('<input type="text" data-f-bind="price" data-f-stuff="a,b | s" />', domManager, channel).then(function ($node) {
             var data = { a: 1, b: 2 };
             $node.trigger('f.convert', { stuff: data });
-            JSON.parse($node.attr('stuff')).should.eql({ a: '1', b: '2' });
+            $node.prop('stuff').should.eql({ a: '1', b: '2' });
         });
     });
 });

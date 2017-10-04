@@ -130,7 +130,7 @@ describe('converters', function () {
                         apple: 'sauce'
                     });
 
-                    $node.attr('stuff').should.equal('Sauce');
+                    $node.prop('stuff').should.equal('Sauce');
                 });
             });
             it('should convert values with multiple converters', function () {
@@ -139,7 +139,7 @@ describe('converters', function () {
                         apple: 'sauce'
                     });
 
-                    $node.attr('stuff').should.equal('ecuaS');
+                    $node.prop('stuff').should.equal('ecuaS');
                 });
 
             });
