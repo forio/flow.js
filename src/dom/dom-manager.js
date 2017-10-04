@@ -165,10 +165,9 @@ module.exports = (function () {
                 this.private.matchedElements.push(domEl);
             }
 
-
             const subsDataSuffix = config.attrs.subscriptionId;
             const subsAttr = `data-${config.attrs.subscriptionId}`;
-            // $el.removeAttr(subsAttr).removeData(subsDataSuffix);
+            $el.removeAttr(subsAttr).removeData(subsDataSuffix);
 
             //Send to node manager to handle ui changes
             var Handler = nodeManager.getHandler($el);
