@@ -81,8 +81,11 @@
  */
 
 'use strict';
-const config = require('../../../config');
 const { template } = require('lodash');
+
+const CHANGE_ATTR = 'data-changed';
+
+const elTemplateMap = new WeakMap();
 
 module.exports = {
 
@@ -95,10 +98,13 @@ module.exports = {
      * @return {void}
      */ 
     unbind: function (attr) {
-        var template = this.data(config.attrs.bindTemplate);
-        if (template) {
-            this.html(template);
+        const el = this.get(0);
+        const bindTemplate = elTemplateMap.get(el);
+        if (bindTemplate) {
+            this.html(bindTemplate);
+            elTemplateMap.delete(el);
         }
+        this.removeAttr(CHANGE_ATTR);
     },
 
     /**
@@ -106,9 +112,9 @@ module.exports = {
     * @return {void}
     */ 
     handle: function (value) {
-        const CHANGE_ATTR = 'data-changed';
-
         const me = this;
+        const el = this.get(0);
+        
         let valueToTemplate = $.extend({}, value);
         if (!$.isPlainObject(value)) {
             const variableName = this.data('f-bind');//Hack because i don't have access to variable name here otherwise
@@ -117,7 +123,7 @@ module.exports = {
         } else {
             valueToTemplate.value = value; //If the key has 'weird' characters like '<>' hard to get at with a template otherwise
         }
-        const bindTemplate = this.data(config.attrs.bindTemplate);
+        const bindTemplate = elTemplateMap.get(el);
         if (bindTemplate) {
             const templated = template(bindTemplate)(valueToTemplate);
             this.html(templated);
@@ -138,7 +144,7 @@ module.exports = {
                 }
 
             } else {
-                this.data(config.attrs.bindTemplate, cleanedHTML);
+                elTemplateMap.set(el, cleanedHTML);
                 this.html(templated);
             }
         }

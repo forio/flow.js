@@ -39,8 +39,5 @@ module.exports = {
         foreachTemplate: 'f-foreach-template',
         keyAs: 'f-foreach-key-as',
         valueAs: 'f-foreach-value-as',
-
-        //Used by bind attr handler to keep track of template after first evaluation
-        bindTemplate: 'f-bind-template'
     }
 };

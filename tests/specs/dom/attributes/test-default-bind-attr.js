@@ -133,7 +133,7 @@ describe('Default Bind', function () {
         });
     });
 
-    describe.only('Animation hooks', ()=> {
+    describe('Animation hooks', ()=> {
         function verifyChangeValue(el, condition, callback) {
             setTimeout(()=> {
                 expect(el.hasAttribute('data-changed')).to.equal(condition);
