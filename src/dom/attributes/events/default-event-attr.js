@@ -35,7 +35,8 @@ module.exports = {
     init: function (attr, value) {
         attr = attr.replace('on-', '');
         var me = this;
-        this.off(attr).on(attr, function () {
+        this.off(attr).on(attr, function (evt) {
+            evt.preventDefault();
             var listOfOperations = toOperationFormat(value);
             me.trigger(config.events.operate, { operations: listOfOperations });
         });
