@@ -82,7 +82,7 @@
 
 'use strict';
 const config = require('../../../config');
-const { template, isArray } = require('lodash');
+const { template } = require('lodash');
 
 module.exports = {
 
@@ -106,29 +106,37 @@ module.exports = {
     * @return {void}
     */ 
     handle: function (value) {
-        var templated;
-        var valueToTemplate = $.extend({}, value);
+        const CHANGE_ATTR = 'data-changed';
+
+        const me = this;
+        let valueToTemplate = $.extend({}, value);
         if (!$.isPlainObject(value)) {
-            var variableName = this.data('f-bind');//Hack because i don't have access to variable name here otherwise
+            const variableName = this.data('f-bind');//Hack because i don't have access to variable name here otherwise
             valueToTemplate = { value: value };
             valueToTemplate[variableName] = value;
         } else {
             valueToTemplate.value = value; //If the key has 'weird' characters like '<>' hard to get at with a template otherwise
         }
-        var bindTemplate = this.data(config.attrs.bindTemplate);
+        const bindTemplate = this.data(config.attrs.bindTemplate);
         if (bindTemplate) {
-            templated = template(bindTemplate)(valueToTemplate);
+            const templated = template(bindTemplate)(valueToTemplate);
             this.html(templated);
         } else {
-            var oldHTML = this.html();
-            var cleanedHTML = oldHTML.replace(/&lt;/g, '<').replace(/&gt;/g, '>');
-            templated = template(cleanedHTML)(valueToTemplate);
+            const oldHTML = me.html();
+            const cleanedHTML = oldHTML.replace(/&lt;/g, '<').replace(/&gt;/g, '>');
+            const templated = template(cleanedHTML)(valueToTemplate);
             if (cleanedHTML === templated) { //templating did nothing
-                if (isArray(value)) {
+                if (Array.isArray(value)) {
                     value = value[value.length - 1];
                 }
                 value = ($.isPlainObject(value)) ? JSON.stringify(value) : value + '';
-                this.html(value);
+
+                me.removeAttr(CHANGE_ATTR);
+                if (cleanedHTML !== value) {
+                    me.html(value);
+                    setTimeout(()=> me.attr(CHANGE_ATTR, true), 0); //need this to trigger animation
+                }
+
             } else {
                 this.data(config.attrs.bindTemplate, cleanedHTML);
                 this.html(templated);
