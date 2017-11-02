@@ -132,4 +132,60 @@ describe('Default Bind', function () {
             });
         });
     });
+
+    describe.only('Animation hooks', ()=> {
+        function verifyChangeValue(el, condition, callback) {
+            setTimeout(()=> {
+                expect(el.hasAttribute('data-changed')).to.equal(condition);
+                callback();
+            }, 0);
+        }
+        describe('without templates', ()=> {
+            it('should animate if value changed', (done)=> {
+                utils.initWithNode('<div data-f-bind="Price"></div>', domManager).then(function ($node) {
+                    const el = $node.get(0);
+                    expect(el.hasAttribute('data-changed')).to.equal(false);
+
+                    $node.trigger('update.f.model', { Price: 30 });
+                    verifyChangeValue(el, true, done);
+                });
+            });
+            it('should not animate if initial value doesn\'t change', (done)=> {
+                utils.initWithNode('<div data-f-bind="Price">30</div>', domManager).then(function ($node) {
+                    const el = $node.get(0);
+                    expect(el.hasAttribute('data-changed')).to.equal(false);
+
+                    $node.trigger('update.f.model', { Price: 30 });
+                    verifyChangeValue(el, false, done);
+                });
+            });
+            it('should not animate if later value doesn\'t change', (done)=> {
+                utils.initWithNode('<div data-f-bind="Price">30</div>', domManager).then(function ($node) {
+                    const el = $node.get(0);
+                    expect(el.hasAttribute('data-changed')).to.equal(false);
+
+                    $node.trigger('update.f.model', { Price: 40 });
+                    verifyChangeValue(el, true, ()=> {
+                        $node.trigger('update.f.model', { Price: 40 });
+                        verifyChangeValue(el, false, ()=> {
+                            $node.trigger('update.f.model', { Price: 50 });
+                            verifyChangeValue(el, true, done);
+                        });
+                    });
+                });
+            });
+        });
+        it('should not add change attr if templated', (done)=> {
+            utils.initWithNode('<div data-f-bind="Price"><%= value %></div>', domManager).then(function ($node) {
+                const el = $node.get(0);
+                expect(el.hasAttribute('data-changed')).to.equal(false);
+
+                $node.trigger('update.f.model', { Price: 30 });
+                verifyChangeValue(el, false, ()=> {
+                    $node.trigger('update.f.model', { Price: 40 });
+                    verifyChangeValue(el, false, done);
+                });
+            });
+        });
+    });
 });
