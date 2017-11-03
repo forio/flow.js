@@ -354,7 +354,7 @@ module.exports = (function () {
                     if (boundChildren.length) {
                         //Unbind children so loops etc pick the right template. 
                         //Autobind will add it back later anyway
-                        me.unbindAll();
+                        me.unbindAll(boundChildren);
                     }
                     $el.trigger(config.events.convert, toconvert);
                 });
