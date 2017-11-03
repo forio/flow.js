@@ -350,6 +350,12 @@ module.exports = (function () {
                             }
                         });
                     });
+                    const boundChildren = $el.find(`:${config.prefix}`).get();
+                    if (boundChildren.length) {
+                        //Unbind children so loops etc pick the right template. 
+                        //Autobind will add it back later anyway
+                        me.unbindAll();
+                    }
                     $el.trigger(config.events.convert, toconvert);
                 });
             };
@@ -359,7 +365,7 @@ module.exports = (function () {
                     var parsedData = {}; //if not all subsequent listeners will get the modified data
 
                     var $el = $(evt.target);
-                    var attrConverters = domUtils.getConvertersList($el, 'bind');
+                    var attrConverters = domUtils.getConvertersList($el, 'bind'); //Only bind can trigger changes
 
                     _.each(data, function (val, key) {
                         key = key.split('|')[0].trim(); //in case the pipe formatting syntax was used
