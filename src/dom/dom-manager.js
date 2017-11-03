@@ -107,7 +107,7 @@ module.exports = (function () {
         converters: converterManager,
         //utils for testing
         private: {
-            matchedElements: []
+            matchedElements: new Map()
         },
 
         /**
@@ -126,7 +126,7 @@ module.exports = (function () {
             if (!$el.is(':' + config.prefix)) {
                 return;
             }
-            this.private.matchedElements = without(this.private.matchedElements, element);
+            this.private.matchedElements.delete(element);
 
             unbindAllNodeHandlers(domEl);
             unbindAllAttributes(domEl);
@@ -159,9 +159,7 @@ module.exports = (function () {
                 return;
             }
 
-            if (!includes(this.private.matchedElements, domEl)) {
-                this.private.matchedElements.push(domEl);
-            }
+            this.private.matchedElements.set(domEl, true);
 
             const subsDataSuffix = config.attrs.subscriptionId;
             const subsAttr = `data-${config.attrs.subscriptionId}`;
@@ -274,13 +272,16 @@ module.exports = (function () {
         /**
          * Unbind provided elements.
          *
-         * @param  {JQuery<HTMLElement> | HTMLElement[]} elementsToUnbind (Optional) If not provided, unbinds everything.
+         * @param  {JQuery<HTMLElement> | HTMLElement[]} [elementsToUnbind] (Optional) If not provided, unbinds everything.
          * @returns {void}
          */
         unbindAll: function (elementsToUnbind) {
             var me = this;
             if (!elementsToUnbind) {
-                elementsToUnbind = this.private.matchedElements;
+                elementsToUnbind = [];
+                this.private.matchedElements.forEach((val, key)=> {
+                    elementsToUnbind.push(key);
+                });
             } else if (!isArray(elementsToUnbind)) {
                 elementsToUnbind = getMatchingElements(elementsToUnbind);
             }
