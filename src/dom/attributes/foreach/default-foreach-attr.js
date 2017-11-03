@@ -146,9 +146,9 @@ module.exports = {
     },
 
     parse: function (attrVal, $el) {
-        var inMatch = attrVal.match(/(.*) (?:in|of) (.*)/);
+        const inMatch = attrVal.match(/(.*) (?:in|of) (.*)/);
         if (inMatch) {
-            var itMatch = inMatch[1].match(/\((.*),(.*)\)/);
+            const itMatch = inMatch[1].match(/\((.*),(.*)\)/);
             if (itMatch) {
                 $el.data(config.attrs.keyAs, itMatch[1].trim());
                 $el.data(config.attrs.valueAs, itMatch[2].trim());
@@ -169,42 +169,43 @@ module.exports = {
             loopTemplate = $el.html();
             elTemplateMap.set(el, loopTemplate);
         }
-        var $me = $el.empty();
-        var cloop = loopTemplate.replace(/&lt;/g, '<').replace(/&gt;/g, '>');
-
-        var defaultKey = $.isPlainObject(value) ? 'key' : 'index';
-        var keyAttr = $me.data(config.attrs.keyAs) || defaultKey;
-        var valueAttr = $me.data(config.attrs.valueAs) || 'value';
         
-        var keyRegex = new RegExp('\\b' + keyAttr + '\\b');
-        var valueRegex = new RegExp('\\b' + valueAttr + '\\b');
+        $el.empty();
+        let cloop = loopTemplate.replace(/&lt;/g, '<').replace(/&gt;/g, '>');
+
+        const defaultKey = $.isPlainObject(value) ? 'key' : 'index';
+        const keyAttr = $el.data(config.attrs.keyAs) || defaultKey;
+        const valueAttr = $el.data(config.attrs.valueAs) || 'value';
+        
+        const keyRegex = new RegExp('\\b' + keyAttr + '\\b');
+        const valueRegex = new RegExp('\\b' + valueAttr + '\\b');
 
 
-        var closestKnownDataEl = $el.closest('[data-current-index]');
-        var knownData = {};
+        const closestKnownDataEl = $el.closest('[data-current-index]');
+        let knownData = {};
         if (closestKnownDataEl.length) {
             knownData = closestKnownDataEl.data('current-index');
         }
-        var closestParentWithMissing = $el.closest('[data-missing-references]');
+        const closestParentWithMissing = $el.closest('[data-missing-references]');
         if (closestParentWithMissing.length) { //(grand)parent already stubbed out missing references
-            var missing = closestParentWithMissing.data('missing-references');
+            const missing = closestParentWithMissing.data('missing-references');
             each(missing, function (replacement, template) {
                 if (keyRegex.test(template) || valueRegex.test(template)) {
                     cloop = cloop.replace(refToMarkup(replacement), template);
                 }
             });
         } else {
-            var missingReferences = {};
-            var templateTagsUsed = cloop.match(/<%[=-]?([\s\S]+?)%>/g);
+            const missingReferences = {};
+            const templateTagsUsed = cloop.match(/<%[=-]?([\s\S]+?)%>/g);
             if (templateTagsUsed) {
                 templateTagsUsed.forEach(function (tag) {
                     if (tag.match(/\w+/) && !keyRegex.test(tag) && !valueRegex.test(tag)) {
-                        var refKey = missingReferences[tag];
+                        let refKey = missingReferences[tag];
                         if (!refKey) {
                             refKey = uniqueId('no-ref');
                             missingReferences[tag] = refKey;
                         }
-                        var r = new RegExp(tag, 'g');
+                        const r = new RegExp(tag, 'g');
                         cloop = cloop.replace(r, refToMarkup(refKey));
                     }
                 });
@@ -215,21 +216,21 @@ module.exports = {
             }
         }
 
-        var templateFn = template(cloop);
+        const templateFn = template(cloop);
         each(value, function (dataval, datakey) {
             if (!dataval) {
                 dataval = dataval + '';
             }
-            var templateData = {};
+            const templateData = {};
             templateData[keyAttr] = datakey;
             templateData[valueAttr] = dataval;
             
             $.extend(templateData, knownData);
 
-            var nodes;
-            var isTemplated;
+            let nodes;
+            let isTemplated;
             try {
-                var templatedLoop = templateFn(templateData);
+                const templatedLoop = templateFn(templateData);
                 isTemplated = templatedLoop !== cloop;
                 nodes = $(templatedLoop);
             } catch (e) { //you don't have all the references you need;
@@ -239,16 +240,15 @@ module.exports = {
             }
 
             nodes.each(function (i, newNode) {
-                newNode = $(newNode);
-                each(newNode.data(), function (val, key) {
-                    newNode.data(key, parseUtils.toImplicitType(val));
+                const $newNode = $(newNode);
+                each($newNode.data(), function (val, key) {
+                    $newNode.data(key, parseUtils.toImplicitType(val));
                 });
-                if (!isTemplated && !newNode.html().trim()) {
-                    newNode.html(dataval);
+                if (!isTemplated && !$newNode.html().trim()) {
+                    $newNode.html(dataval);
                 }
             });
-            $me.append(nodes);
-            
+            $el.append(nodes);
         });
     }
 };
