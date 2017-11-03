@@ -66,6 +66,8 @@ const parseUtils = require('../../utils/parse-utils');
 const gutils = require('../../utils/general');
 const config = require('../../config').attrs;
 
+const elTemplateMap = new WeakMap(); //<domel>: template
+
 module.exports = {
 
     test: 'repeat',
@@ -78,21 +80,25 @@ module.exports = {
             $el.nextUntil(':not([data-' + id + '])').remove();
             // this.removeAttr('data-' + config.repeat.templateId); //FIXME: Something about calling rebind multiple times in IB makes this happen without the removal
         }
-        var loopTemplate = $el.data(config.repeat.template);
+
+        const el = $el.get(0);
+        const loopTemplate = elTemplateMap.get(el);
         if (loopTemplate) {
-            $el.removeData(config.repeat.template);
+            elTemplateMap.delete(el);
             $el.replaceWith(loopTemplate);
         }
     },
 
     handle: function (value, prop, $el) {
         value = ($.isPlainObject(value) ? value : [].concat(value));
-        var loopTemplate = $el.data(config.repeat.template);
         var id = $el.data(config.repeat.templateId);
+        
+        const el = $el.get(0);
 
+        let loopTemplate = elTemplateMap.get(el);
         if (!loopTemplate) {
-            loopTemplate = $el.get(0).outerHTML;
-            $el.data(config.repeat.template, loopTemplate);
+            loopTemplate = el.outerHTML;
+            elTemplateMap.set(el, loopTemplate);
         }
 
         if (id) {
