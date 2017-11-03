@@ -139,8 +139,6 @@ module.exports = (function () {
                     // $el.removeData(hyphenated);
                 }
             });
-
-            return this;
         },
 
         /**
@@ -257,7 +255,7 @@ module.exports = (function () {
         /**
          * Bind all provided elements.
          *
-         * @param  {JQuery<HTMLElement> | HTMLElement[]} elementsToBind (Optional) If not provided, binds all matching elements within default root provided at initialization.
+         * @param  {JQuery<HTMLElement> | HTMLElement[]} [elementsToBind] (Optional) If not provided, binds all matching elements within default root provided at initialization.
          * @returns {void}
          */
         bindAll: function (elementsToBind) {

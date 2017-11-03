@@ -143,14 +143,14 @@ describe('update.f.ui', function () {
         });
     });
     it('should trigger f.convert to convert values', function () {
-        var channel = utils.createDummyChannel();
-        return utils.initWithNode('<input type="text" data-f-bind="apple | $#,###.00"/>', domManager, channel).then(function ($node) {
+        return utils.initWithNode('<input type="text" data-f-bind="apple | $#,###.00"/>', domManager).then(function ($node) {
             var spy = sinon.spy();
             $node.on('f.convert', spy);
+
             var payload = { apple: '20000' };
             $node.trigger('update.f.ui', payload);
 
-            spy.should.have.been.calledOnce;
+            spy.should.have.been.calledTwice;//once by the trigger, once by the publish
             spy.getCall(0).args[1].should.eql({ bind: 20000 });
         });
     });
