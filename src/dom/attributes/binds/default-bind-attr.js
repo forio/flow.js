@@ -84,14 +84,21 @@
 const { template } = require('lodash');
 
 const CHANGE_ATTR = 'data-changed';
+const INITIAL_CHANGE_ATTR = 'initial-data-change';
 
-const elTemplateMap = new WeakMap();
+const elTemplateMap = new WeakMap(); //<dom-element>: template
+const elInitialMap = new WeakMap(); //<dom-element>: boolean
 
 module.exports = {
 
     target: '*',
 
     test: 'bind',
+
+    init: function () {
+        this.removeAttr(`${CHANGE_ATTR} ${INITIAL_CHANGE_ATTR}`);
+        return true;
+    },
 
     /**
      * @param {string} attr
@@ -100,11 +107,12 @@ module.exports = {
     unbind: function (attr) {
         const el = this.get(0);
         const bindTemplate = elTemplateMap.get(el);
+        elInitialMap.delete(el);
         if (bindTemplate) {
             this.html(bindTemplate);
             elTemplateMap.delete(el);
         }
-        this.removeAttr(CHANGE_ATTR);
+        this.removeAttr(`${CHANGE_ATTR} ${INITIAL_CHANGE_ATTR}`);
     },
 
     /**
@@ -140,6 +148,12 @@ module.exports = {
                 me.removeAttr(CHANGE_ATTR);
                 if (cleanedHTML !== value) {
                     me.html(value);
+                    if (elInitialMap.get(el)) {
+                        me.removeAttr(INITIAL_CHANGE_ATTR);
+                    } else {
+                        me.attr(INITIAL_CHANGE_ATTR, true);
+                        elInitialMap.set(el, true);
+                    }
                     setTimeout(()=> me.attr(CHANGE_ATTR, true), 0); //need this to trigger animation
                 }
 
