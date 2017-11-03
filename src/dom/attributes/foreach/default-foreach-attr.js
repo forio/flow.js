@@ -120,7 +120,7 @@
 const parseUtils = require('../../../utils/parse-utils');
 const config = require('../../../config');
 
-const { uniqueId, each, size, template } = require('lodash');
+const { uniqueId, each, template } = require('lodash');
 
 function refToMarkup(refKey) {
     return '<!--' + refKey + '-->';
@@ -190,11 +190,7 @@ module.exports = {
         const keyRegex = new RegExp('\\b' + keyAttr + '\\b');
         const valueRegex = new RegExp('\\b' + valueAttr + '\\b');
 
-        const closestKnownDataEl = $el.closest(`[${CURRENT_INDEX_ATTR}]`);
-        let knownData = {};
-        if (closestKnownDataEl.length) {
-            knownData = closestKnownDataEl.data(CURRENT_INDEX_KEY);
-        }
+        //This needs to handle nested loops so you may not have all the data you need
         const closestParentWithMissing = $el.closest(`[${MISSING_REFERENCE_ATTR}]`);
         if (closestParentWithMissing.length) { //(grand)parent already stubbed out missing references
             const missing = closestParentWithMissing.data(MISSING_REFERENCES_KEY);
@@ -203,6 +199,7 @@ module.exports = {
                     cloop = cloop.replace(refToMarkup(replacement), template);
                 }
             });
+            //TODO: Remove attr from grandparent?
         } else {
             const missingReferences = {};
             const templateTagsUsed = cloop.match(/<%[=-]?([\s\S]+?)%>/g);
@@ -219,16 +216,21 @@ module.exports = {
                     }
                 });
             }
-            if (size(missingReferences)) {
+            if (Object.keys(missingReferences).length) {
                 //Attr, not data, to make jQ selector easy. No f- prefix to keep this from flow.
                 $el.attr(MISSING_REFERENCE_ATTR, JSON.stringify(missingReferences));
             }
         }
 
+        const closestKnownDataEl = $el.closest(`[${CURRENT_INDEX_ATTR}]`);
+        let knownData = {};
+        if (closestKnownDataEl.length) {
+            knownData = closestKnownDataEl.data(CURRENT_INDEX_KEY);
+        }
         const templateFn = template(cloop);
         each(value, function (dataval, datakey) {
             if (!dataval) {
-                dataval = dataval + '';
+                dataval = dataval + ''; //convert undefineds to strings
             }
             const templateData = {};
             templateData[keyAttr] = datakey;
@@ -242,6 +244,7 @@ module.exports = {
                 const templatedLoop = templateFn(templateData);
                 isTemplated = templatedLoop !== cloop;
                 nodes = $(templatedLoop);
+                //TODO: Cleanup the extra attrs here?
             } catch (e) { //you don't have all the references you need;
                 nodes = $(cloop);
                 isTemplated = true;
