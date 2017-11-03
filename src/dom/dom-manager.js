@@ -67,12 +67,10 @@ module.exports = (function () {
     }
 
     //Unbind utils
-    function removeAllSubscriptions($el, channel) {
-        var subsid = $el.data(config.attrs.subscriptionId) || [];
-        [].concat(subsid).forEach(function (subs) {
+    function removeAllSubscriptions(subscriptions, channel) {
+        subscriptions.forEach(function (subs) {
             channel.unsubscribe(subs);
         });
-        $el.removeAttr(`data-${config.attrs.subscriptionId}`).removeData(config.attrs.subscriptionId);
     }
     function unbindAllAttributes(domEl) {
         const $el = $(domEl);
@@ -123,14 +121,15 @@ module.exports = (function () {
             }
             const domEl = getElementOrError(element);
             var $el = $(element);
-            if (!$el.is(':' + config.prefix)) {
+            const existingData = this.private.matchedElements.get(domEl);
+            if (!$el.is(':' + config.prefix) || !existingData) {
                 return;
             }
             this.private.matchedElements.delete(element);
 
             unbindAllNodeHandlers(domEl);
             unbindAllAttributes(domEl);
-            removeAllSubscriptions($el, channel);
+            removeAllSubscriptions(existingData.subscriptions, channel);
      
             _.each($el.data(), function (val, key) {
                 if (key.indexOf('f-') === 0 || key.match(/^f[A-Z]/)) {
@@ -159,17 +158,13 @@ module.exports = (function () {
                 return;
             }
 
-            this.private.matchedElements.set(domEl, true);
-
-            const subsDataSuffix = config.attrs.subscriptionId;
-            const subsAttr = `data-${config.attrs.subscriptionId}`;
-            $el.removeAttr(subsAttr).removeData(subsDataSuffix);
-
             //Send to node manager to handle ui changes
             var Handler = nodeManager.getHandler($el);
             new Handler.handle({
                 el: domEl
             });
+
+            const subscriptionsForElement = [];
 
             var subscribe = function (subsChannel, varsToBind, $bindEl, options) {
                 if (!varsToBind || !varsToBind.length) {
@@ -179,8 +174,7 @@ module.exports = (function () {
                 var subsid = subsChannel.subscribe(varsToBind, function (params) {
                     $bindEl.trigger(config.events.channelDataReceived, params);
                 }, options);
-                var newsubs = ($el.data(subsDataSuffix) || []).concat(subsid);
-                $el.attr(subsAttr, JSON.stringify(newsubs)).data(subsDataSuffix, newsubs);
+                return subsid;
             };
 
             var attrBindings = [];
@@ -231,7 +225,9 @@ module.exports = (function () {
                                     return channelPrefix + ':' + v;
                                 });
                             }
-                            subscribe(channel, varsToBind, $el, $.extend({ batch: true }, channelConfig)); //TODO: Move batch defaults to subscription manager
+                            const subsid = subscribe(channel, varsToBind, $el, $.extend({ batch: true }, channelConfig)); //TODO: Move batch defaults to subscription manager
+                            subscriptionsForElement.push(subsid);
+
                             binding.topics = varsToBind;
                         } else {
                             if (channelPrefix) {
@@ -246,8 +242,14 @@ module.exports = (function () {
             });
             $el.data(config.attrs.bindingsList, attrBindings);
             if (nonBatchableVariables.length) {
-                subscribe(channel, nonBatchableVariables, $el, $.extend({ batch: false }, channelConfig));
+                const subsid = subscribe(channel, nonBatchableVariables, $el, $.extend({ batch: false }, channelConfig));
+                subscriptionsForElement.push(subsid);
             }
+
+            this.private.matchedElements.set(domEl, {
+                subscriptions: subscriptionsForElement
+            });
+
         },
 
         /**

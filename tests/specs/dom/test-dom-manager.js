@@ -149,14 +149,6 @@ describe('DOM Manager', function () {
                     expect(channel.subscribe).to.have.been.calledOnce;
                     expect(channel.subscribe).to.have.been.calledWith(['a']);
                 });
-                it('add subscribption id to element', ()=> {
-                    const $el = $('<div data-f-bind="a"><input type="text" data-f-bind="boo" /></div>');
-                    const subsAttr = config.attrs.subscriptionId;
-                    expect($el.data(subsAttr)).to.not.exist;
-                    domManager.bindElement($el, channel);
-                    expect($el.data(subsAttr)).to.exist;
-                });
-
                 it('should default to non-batch for single variable binds', ()=> {
                     const el = $('<div data-f-bind="a"> </div>');
                     domManager.bindElement(el, channel);
@@ -218,7 +210,7 @@ describe('DOM Manager', function () {
                     var keys = Object.keys($node.data());
 
                     var directTranslates = ['fConvertBind', 'fConvertOther', 'fOther', 'fBind'];
-                    var flowAdded = ['subscriptionId', 'fAttrBindings'];
+                    var flowAdded = ['fAttrBindings'];
                     var toMatch = [].concat(directTranslates).concat(flowAdded);
                     keys.sort().should.eql(toMatch.sort());
 
@@ -235,7 +227,7 @@ describe('DOM Manager', function () {
 
                     var notAddedByFlow = ['myStuff', 'fsomething'];
                     var directTranslates = ['fConvertBind', 'fConvertOther', 'fOther', 'fBind'];
-                    var flowAdded = ['subscriptionId', 'fAttrBindings'];
+                    var flowAdded = ['fAttrBindings'];
                     var toMatch = [].concat(directTranslates).concat(flowAdded).concat(notAddedByFlow);
                     keys.sort().should.eql(toMatch.sort());
 
@@ -321,11 +313,13 @@ describe('DOM Manager', function () {
         describe('Subscriptions', ()=> {
             it('should call unsubscribe with subscriptionid', ()=> {
                 const channel = utils.createDummyChannel();
-                var node = utils.create(`<div data-f-bind="a" data-${config.attrs.subscriptionId}="goo" data-f-channel-foo="bar"> </div>`);
+                var node = utils.create('<div data-f-bind="a" data-f-channel-foo="bar"> </div>');
+                domManager.bindElement(node, channel);
                 domManager.unbindElement(node, channel);
+
                 channel.unsubscribe.should.have.been.calledOnce;
                 var args = channel.unsubscribe.getCall(0).args;
-                args[0].should.eql('goo');
+                expect(typeof args[0]).to.equal('string');
             });
         });
     });
