@@ -128,6 +128,12 @@ function refToMarkup(refKey) {
 
 const elTemplateMap = new WeakMap();
 
+const MISSING_REFERENCES_KEY = 'missing-references';
+const MISSING_REFERENCE_ATTR = `data-${MISSING_REFERENCES_KEY}`;
+
+const CURRENT_INDEX_KEY = 'current-index';
+const CURRENT_INDEX_ATTR = `data-${CURRENT_INDEX_KEY}`;
+
 module.exports = {
 
     test: 'foreach',
@@ -141,8 +147,12 @@ module.exports = {
             $el.html(template);
             elTemplateMap.delete(el);
         }
-        $el.removeData(config.attrs.keyAs);
-        $el.removeData(config.attrs.valueAs);
+
+        const dataToRemove = [config.attrs.keyAs, config.attrs.valueAs, MISSING_REFERENCES_KEY];
+        $el.removeData(dataToRemove);
+
+        const attrsToRemove = [MISSING_REFERENCE_ATTR, CURRENT_INDEX_ATTR];
+        $el.removeAttr(attrsToRemove.join(' ')); //TODO: This means unbinding only parent may mess up children?
     },
 
     parse: function (attrVal, $el) {
@@ -180,15 +190,14 @@ module.exports = {
         const keyRegex = new RegExp('\\b' + keyAttr + '\\b');
         const valueRegex = new RegExp('\\b' + valueAttr + '\\b');
 
-
-        const closestKnownDataEl = $el.closest('[data-current-index]');
+        const closestKnownDataEl = $el.closest(`[${CURRENT_INDEX_ATTR}]`);
         let knownData = {};
         if (closestKnownDataEl.length) {
-            knownData = closestKnownDataEl.data('current-index');
+            knownData = closestKnownDataEl.data(CURRENT_INDEX_KEY);
         }
-        const closestParentWithMissing = $el.closest('[data-missing-references]');
+        const closestParentWithMissing = $el.closest(`[${MISSING_REFERENCE_ATTR}]`);
         if (closestParentWithMissing.length) { //(grand)parent already stubbed out missing references
-            const missing = closestParentWithMissing.data('missing-references');
+            const missing = closestParentWithMissing.data(MISSING_REFERENCES_KEY);
             each(missing, function (replacement, template) {
                 if (keyRegex.test(template) || valueRegex.test(template)) {
                     cloop = cloop.replace(refToMarkup(replacement), template);
@@ -212,7 +221,7 @@ module.exports = {
             }
             if (size(missingReferences)) {
                 //Attr, not data, to make jQ selector easy. No f- prefix to keep this from flow.
-                $el.attr('data-missing-references', JSON.stringify(missingReferences));
+                $el.attr(MISSING_REFERENCE_ATTR, JSON.stringify(missingReferences));
             }
         }
 
@@ -236,7 +245,7 @@ module.exports = {
             } catch (e) { //you don't have all the references you need;
                 nodes = $(cloop);
                 isTemplated = true;
-                $(nodes).attr('data-current-index', JSON.stringify(templateData));
+                $(nodes).attr(CURRENT_INDEX_ATTR, JSON.stringify(templateData));
             }
 
             nodes.each(function (i, newNode) {
