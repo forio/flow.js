@@ -83,7 +83,7 @@ module.exports = (function () {
                 attr = attr.replace(wantedPrefix, '');
                 var handler = attrManager.getHandler(attr, $el);
                 if (handler.unbind) {
-                    handler.unbind.call($el, attr);
+                    handler.unbind.call($el, attr, $el);
                 }
             }
         });
@@ -205,7 +205,7 @@ module.exports = (function () {
                     var handler = attrManager.getHandler(attr, $el);
                     var isBindableAttr = true;
                     if (handler && handler.init) {
-                        isBindableAttr = handler.init.call($el, attr, attrVal);
+                        isBindableAttr = handler.init.call($el, attr, attrVal, $el);
                     }
 
                     if (isBindableAttr) {
@@ -417,7 +417,7 @@ module.exports = (function () {
 
                         var handler = attrManager.getHandler(prop, $el);
                         var convertedValue = converterManager.convert(val, attrConverters);
-                        handler.handle.call($el, convertedValue, prop);
+                        handler.handle.call($el, convertedValue, prop, $el);
                     };
 
                     if ($.isPlainObject(data)) {

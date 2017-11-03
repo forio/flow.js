@@ -8,25 +8,25 @@ describe('Default Bind', function () {
         describe('Non-templated', function () {
             it('should replace innerhtml if target is blank', function () {
                 var $rootNode = $('<div> </div>');
-                bindHandler.handle.call($rootNode, 'Hello');
+                bindHandler.handle('Hello', 'bind', $rootNode);
                 $rootNode.html().should.equal('Hello');
             });
             it('should replace innerhtml if target has random text', function () {
                 var $rootNode = $('<div> Loading </div>');
-                bindHandler.handle.call($rootNode, 'Hello');
+                bindHandler.handle('Hello', 'bind', $rootNode);
                 $rootNode.html().should.equal('Hello');
             });
             it('should show the last item if given an array', function () {
                 it('should replace innerhtml if target has random text', function () {
                     var $rootNode = $('<div> Loading </div>');
-                    bindHandler.handle.call($rootNode, [1, 3, 5, 6]);
+                    bindHandler.handle([1, 3, 5, 6], 'bind', $rootNode);
                     $rootNode.html().should.equal('6');
                 });
             });
             it('should stringify objects if passed in', function () {
                 var $rootNode = $('<div> Loading </div>');
                 var data = { hello: 'world' };
-                bindHandler.handle.call($rootNode, data);
+                bindHandler.handle(data, 'bind', $rootNode);
                 $rootNode.html().should.equal(JSON.stringify(data));
             });
 
@@ -34,40 +34,40 @@ describe('Default Bind', function () {
         describe('Templated', function () {
             it('should show values for single items', function () {
                 var $rootNode = $('<div><%= value %> World</div>');
-                bindHandler.handle.call($rootNode, 'Hello');
+                bindHandler.handle('Hello', 'bind', $rootNode);
                 $rootNode.html().should.equal('Hello World');
             });
             it('should show templatize Objects', function () {
                 var $rootNode = $('<div><%= a %> <%= b %></div>');
-                bindHandler.handle.call($rootNode, { a: 'Hello', b: 'World' });
+                bindHandler.handle({ a: 'Hello', b: 'World' }, 'bind', $rootNode);
                 $rootNode.html().should.equal('Hello World');
             });
             it('should show handle variables with spaces', function () {
                 var $rootNode = $('<div><%= a %> <%= value["b c"] %></div>');
-                bindHandler.handle.call($rootNode, { a: 'Hello', 'b c': 'World' });
+                bindHandler.handle({ a: 'Hello', 'b c': 'World' }, 'bind', $rootNode);
                 $rootNode.html().should.equal('Hello World');
             });
             it('should show templatize Arrays', function () {
                 var $rootNode = $('<div><%= value[value.length - 1] %></div>');
-                bindHandler.handle.call($rootNode, ['Hello']);
+                bindHandler.handle(['Hello'], 'bind', $rootNode);
                 $rootNode.html().should.equal('Hello');
             });
             it('should show stringified Arrays', function () {
                 var $rootNode = $('<div><%= value %></div>');
-                bindHandler.handle.call($rootNode, ['Hello', 'there', 'world']);
+                bindHandler.handle(['Hello', 'there', 'world'], 'bind', $rootNode);
                 $rootNode.html().should.equal('Hello,there,world');
             });
             it('should treat items as js objects', function () {
                 var $rootNode = $('<div><%= words.join(",") %></div>');
-                bindHandler.handle.call($rootNode, { words: ['Hello', 'there', 'world'] });
-                $rootNode.html().should.equal('Hello,there,world');
+                bindHandler.handle({ words: ['Hello', 'there', 'world'] }, 'bind', $rootNode);
+                $rootNode.html().should.equal('Hello,there,world', 'bind', $rootNode);
             });
 
             it('should update templates when called multiple times', function () {
                 var $rootNode = $('<div><%= value %> World</div>');
-                bindHandler.handle.call($rootNode, 'Hello');
+                bindHandler.handle('Hello', 'bind', $rootNode);
                 $rootNode.html().should.equal('Hello World');
-                bindHandler.handle.call($rootNode, 'Mario');
+                bindHandler.handle('Mario', 'bind', $rootNode);
                 $rootNode.html().should.equal('Mario World');
             });
         });

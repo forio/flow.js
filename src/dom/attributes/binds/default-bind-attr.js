@@ -95,36 +95,44 @@ module.exports = {
 
     test: 'bind',
 
-    init: function () {
-        this.removeAttr([CHANGE_ATTR, INITIAL_CHANGE_ATTR, UPDATE_ATTR].join(' '));
+    /**
+     * @param {string} attr
+     * @param {string} attrVal
+     * @param {JQuery<HTMLElement>} $el
+     * @return {boolean}
+     */ 
+    init: function (attr, attrVal, $el) {
+        $el.removeAttr([CHANGE_ATTR, INITIAL_CHANGE_ATTR, UPDATE_ATTR].join(' '));
         return true;
     },
 
     /**
      * @param {string} attr
+     * @param {JQuery<HTMLElement>} $el
      * @return {void}
      */ 
-    unbind: function (attr) {
-        const el = this.get(0);
+    unbind: function (attr, $el) {
+        const el = $el.get(0);
         const bindTemplate = elTemplateMap.get(el);
         if (bindTemplate) {
-            this.html(bindTemplate);
+            $el.html(bindTemplate);
             elTemplateMap.delete(el);
         }
-        this.removeAttr([CHANGE_ATTR, INITIAL_CHANGE_ATTR, UPDATE_ATTR].join(' '));
+        $el.removeAttr([CHANGE_ATTR, INITIAL_CHANGE_ATTR, UPDATE_ATTR].join(' '));
     },
 
     /**
-    * @param {Array|string|number|Object} value
+    * @param {any} value
+    * @param {string} prop
+    * @param {JQuery<HTMLElement>} $el
     * @return {void}
     */ 
-    handle: function (value) {
-        const me = this;
-        const el = this.get(0);
+    handle: function (value, prop, $el) {
+        const el = $el.get(0);
         
         let valueToTemplate = $.extend({}, value);
         if (!$.isPlainObject(value)) {
-            const variableName = this.data('f-bind');//Hack because i don't have access to variable name here otherwise
+            const variableName = $el.data(`f-${prop}`);//Hack because i don't have access to variable name here otherwise
             valueToTemplate = { value: value };
             valueToTemplate[variableName] = value;
         } else {
@@ -133,9 +141,9 @@ module.exports = {
         const bindTemplate = elTemplateMap.get(el);
         if (bindTemplate) {
             const templated = template(bindTemplate)(valueToTemplate);
-            this.html(templated);
+            $el.html(templated);
         } else {
-            const oldHTML = me.html();
+            const oldHTML = $el.html();
             const cleanedHTML = oldHTML.replace(/&lt;/g, '<').replace(/&gt;/g, '>');
             const templated = template(cleanedHTML)(valueToTemplate);
             if (cleanedHTML === templated) { //templating did nothing
@@ -144,20 +152,20 @@ module.exports = {
                 }
                 value = ($.isPlainObject(value)) ? JSON.stringify(value) : value + '';
 
-                me.removeAttr(CHANGE_ATTR);
+                $el.removeAttr(CHANGE_ATTR);
                 if (cleanedHTML !== value) {
-                    me.html(value);
+                    $el.html(value);
                     if (el.hasAttribute(INITIAL_CHANGE_ATTR)) {
-                        me.removeAttr(INITIAL_CHANGE_ATTR).attr(UPDATE_ATTR, true);
+                        $el.removeAttr(INITIAL_CHANGE_ATTR).attr(UPDATE_ATTR, true);
                     } else {
-                        me.attr(INITIAL_CHANGE_ATTR, true);
+                        $el.attr(INITIAL_CHANGE_ATTR, true);
                     }
-                    setTimeout(()=> me.attr(CHANGE_ATTR, true), 0); //need this to trigger animation
+                    setTimeout(()=> $el.attr(CHANGE_ATTR, true), 0); //need this to trigger animation
                 }
 
             } else {
                 elTemplateMap.set(el, cleanedHTML);
-                this.html(templated);
+                $el.html(templated);
             }
         }
     }
