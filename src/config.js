@@ -34,8 +34,6 @@ module.exports = {
             templateId: 'repeat-template-id' //don't prefix by f or dom-manager unbind will kill it
         },
 
-        //Used by foreach attr handler to keep track of template after first evaluation
-        foreachTemplate: 'f-foreach-template',
         keyAs: 'f-foreach-key-as',
         valueAs: 'f-foreach-value-as',
     }

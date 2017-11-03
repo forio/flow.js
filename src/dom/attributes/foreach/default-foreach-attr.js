@@ -126,45 +126,50 @@ function refToMarkup(refKey) {
     return '<!--' + refKey + '-->';
 }
 
+const elTemplateMap = new WeakMap();
+
 module.exports = {
 
     test: 'foreach',
 
     target: '*',
 
-    unbind: function (attr) {
-        var template = this.data(config.attrs.foreachTemplate);
+    unbind: function (attr, $el) {
+        const el = $el.get(0);
+        const template = elTemplateMap.get(el);
         if (template) {
-            this.html(template);
-            this.removeData(config.attrs.foreachTemplate);
-            this.removeData(config.attrs.keyAs);
-            this.removeData(config.attrs.valueAs);
+            $el.html(template);
+            elTemplateMap.delete(el);
         }
+        $el.removeData(config.attrs.keyAs);
+        $el.removeData(config.attrs.valueAs);
     },
 
-    parse: function (attrVal) {
+    parse: function (attrVal, $el) {
         var inMatch = attrVal.match(/(.*) (?:in|of) (.*)/);
         if (inMatch) {
             var itMatch = inMatch[1].match(/\((.*),(.*)\)/);
             if (itMatch) {
-                this.data(config.attrs.keyAs, itMatch[1].trim());
-                this.data(config.attrs.valueAs, itMatch[2].trim());
+                $el.data(config.attrs.keyAs, itMatch[1].trim());
+                $el.data(config.attrs.valueAs, itMatch[2].trim());
             } else {
-                this.data(config.attrs.valueAs, inMatch[1].trim());
+                $el.data(config.attrs.valueAs, inMatch[1].trim());
             }
             attrVal = inMatch[2];
         }
         return attrVal;
     },
 
-    handle: function (value, prop) {
+    handle: function (value, prop, $el) {
         value = ($.isPlainObject(value) ? value : [].concat(value));
-        var loopTemplate = this.data(config.attrs.foreachTemplate);
+
+        const el = $el.get(0);
+        let loopTemplate = elTemplateMap.get(el);
         if (!loopTemplate) {
-            loopTemplate = this.html();
-            this.data(config.attrs.foreachTemplate, loopTemplate);
+            loopTemplate = $el.html();
+            elTemplateMap.set(el, loopTemplate);
         }
-        var $me = this.empty();
+        var $me = $el.empty();
         var cloop = loopTemplate.replace(/&lt;/g, '<').replace(/&gt;/g, '>');
 
         var defaultKey = $.isPlainObject(value) ? 'key' : 'index';
@@ -175,12 +180,12 @@ module.exports = {
         var valueRegex = new RegExp('\\b' + valueAttr + '\\b');
 
 
-        var closestKnownDataEl = this.closest('[data-current-index]');
+        var closestKnownDataEl = $el.closest('[data-current-index]');
         var knownData = {};
         if (closestKnownDataEl.length) {
             knownData = closestKnownDataEl.data('current-index');
         }
-        var closestParentWithMissing = this.closest('[data-missing-references]');
+        var closestParentWithMissing = $el.closest('[data-missing-references]');
         if (closestParentWithMissing.length) { //(grand)parent already stubbed out missing references
             var missing = closestParentWithMissing.data('missing-references');
             each(missing, function (replacement, template) {
@@ -206,7 +211,7 @@ module.exports = {
             }
             if (size(missingReferences)) {
                 //Attr, not data, to make jQ selector easy. No f- prefix to keep this from flow.
-                this.attr('data-missing-references', JSON.stringify(missingReferences));
+                $el.attr('data-missing-references', JSON.stringify(missingReferences));
             }
         }
 

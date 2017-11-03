@@ -222,7 +222,7 @@ module.exports = (function () {
                         //NOTE: do this within init?
                         if (handler && handler.parse) {
                             //Let the handler do any pre-processing of inputs necessary
-                            attrVal = handler.parse.call($el, attrVal);
+                            attrVal = handler.parse.call($el, attrVal, $el);
                         }
 
                         if (attrVal.indexOf('<%') !== -1) {
