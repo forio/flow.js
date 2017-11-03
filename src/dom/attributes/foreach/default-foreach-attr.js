@@ -152,9 +152,10 @@ module.exports = {
         $el.removeData(dataToRemove);
 
         const attrsToRemove = [MISSING_REFERENCE_ATTR, CURRENT_INDEX_ATTR];
-        $el.removeAttr(attrsToRemove.join(' ')); //TODO: This means unbinding only parent may mess up children?
+        $el.removeAttr(attrsToRemove.join(' '));
     },
 
+    //provide variable name from bound
     parse: function (attrVal, $el) {
         const inMatch = attrVal.match(/(.*) (?:in|of) (.*)/);
         if (inMatch) {
@@ -199,7 +200,7 @@ module.exports = {
                     cloop = cloop.replace(refToMarkup(replacement), template);
                 }
             });
-            //TODO: Remove attr from grandparent?
+            //don't remove attr here because siblings may need it
         } else {
             const missingReferences = {};
             const templateTagsUsed = cloop.match(/<%[=-]?([\s\S]+?)%>/g);
@@ -244,7 +245,6 @@ module.exports = {
                 const templatedLoop = templateFn(templateData);
                 isTemplated = templatedLoop !== cloop;
                 nodes = $(templatedLoop);
-                //TODO: Cleanup the extra attrs here?
             } catch (e) { //you don't have all the references you need;
                 nodes = $(cloop);
                 isTemplated = true;
