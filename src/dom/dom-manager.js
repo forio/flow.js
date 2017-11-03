@@ -113,7 +113,7 @@ module.exports = (function () {
         /**
          * Unbind the element; unsubscribe from all updates on the relevant channels.
          *
-         * @param {JQuery<HTMLElement>} element The element to remove from the data binding.
+         * @param {JQuery<HTMLElement> | HTMLElement} element The element to remove from the data binding.
          * @param {ChannelInstance} channel (Optional) The channel from which to unsubscribe. Defaults to the [variables channel](../channels/variables-channel/).
          * @returns {void}
          */
@@ -257,7 +257,7 @@ module.exports = (function () {
         /**
          * Bind all provided elements.
          *
-         * @param  {JQuery<HTMLElement>} elementsToBind (Optional) If not provided, binds all matching elements within default root provided at initialization.
+         * @param  {JQuery<HTMLElement> | HTMLElement[]} elementsToBind (Optional) If not provided, binds all matching elements within default root provided at initialization.
          * @returns {void}
          */
         bindAll: function (elementsToBind) {
@@ -276,7 +276,7 @@ module.exports = (function () {
         /**
          * Unbind provided elements.
          *
-         * @param  {JQuery<HTMLElement>} elementsToUnbind (Optional) If not provided, unbinds everything.
+         * @param  {JQuery<HTMLElement> | HTMLElement[]} elementsToUnbind (Optional) If not provided, unbinds everything.
          * @returns {void}
          */
         unbindAll: function (elementsToUnbind) {
