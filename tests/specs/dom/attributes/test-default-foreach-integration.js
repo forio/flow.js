@@ -1,4 +1,5 @@
 var domManager = require('src/dom/dom-manager');
+var CManager = require('src/channels/channel-manager').default;
 var utils = require('../../../testing-utils');
 
 describe('integration', function () {
@@ -10,7 +11,7 @@ describe('integration', function () {
                 <li data-stuff="<%=index%>"> <%= value %> </li>
             </ul>
         `;
-        const channel = utils.createDummyChannel();
+        const channel = new CManager();
         return utils.initWithNode(str, domManager, channel).then(function ($node) {
             return channel.publish({ somearray: targetData }).then(()=> {
                 var newChildren = $node.children();
@@ -38,21 +39,25 @@ describe('integration', function () {
                 <li data-stuff="<%=key%>"> <%= value %> </li>
             </ul>
         `;
-        return utils.initWithNode(str, domManager).then(function ($node) {
-            $node.trigger('update.f.model', { someobject: targetData });
+        const channel = utils.createDummyChannel();
+        return utils.initWithNode(str, domManager, channel).then(function ($node) {
+            return channel.publish({ someobject: targetData }).then(()=> {
+                var newChildren = $node.children();
+                var childrenCount = newChildren.length;
 
-            var newChildren = $node.children();
-            var childrenCount = newChildren.length;
+                newChildren.each(function () {
+                    var val = $(this).html().trim();
+                    var key = $(this).data('stuff');
 
-            newChildren.each(function () {
-                var val = $(this).html().trim();
-                var key = $(this).data('stuff');
+                    targetData[key].should.equal(+val);
+                });
 
-                targetData[key].should.equal(+val);
+                return channel.publish({ someobject: targetData }).then(()=> {
+                    $node.children().length.should.equal(childrenCount);
+                });
             });
 
-            $node.trigger('update.f.model', { someobject: targetData });
-            $node.children().length.should.equal(childrenCount);
+           
         });
     });
     it('should support inline functions in templates', function () {
@@ -64,18 +69,19 @@ describe('integration', function () {
                 <li> <%= (index === 0) ? "first" : value %> <%= value %></li>
             </ul>
         `;
-        return utils.initWithNode(str, domManager).then(function ($node) {
-            $node.trigger('update.f.model', { somearray: targetData });
-
-            var newChildren = $node.children();
-            var childrenCount = newChildren.length;
-            newChildren.each(function (index) {
-                var data = $(this).html().trim();
-                data.should.equal(outputdata[index] + ' ' + targetData[index]);
+        const channel = utils.createDummyChannel();
+        return utils.initWithNode(str, domManager, channel).then(function ($node) {
+            return channel.publish({ somearray: targetData }).then(()=> {
+                var newChildren = $node.children();
+                var childrenCount = newChildren.length;
+                newChildren.each(function (index) {
+                    var data = $(this).html().trim();
+                    data.should.equal(outputdata[index] + ' ' + targetData[index]);
+                });
+                return channel.publish({ somearray: targetData }).then(()=> {
+                    $node.children().length.should.equal(childrenCount);
+                });
             });
-
-            $node.trigger('update.f.model', { somearray: targetData });
-            $node.children().length.should.equal(childrenCount);
         });
     });
 
@@ -93,20 +99,22 @@ describe('integration', function () {
             var targetData = [5, 3, 6, 1];
             var targetData2 = [5, 3];
 
+            const channel = utils.createDummyChannel();
             return utils.initWithNode(`
                 <ul data-f-foreach="somearray">
                     <li data-f-foreach="somethingElse"> <span> </span> </li>
                 </ul>
-            `, domManager).then(function ($node) {
-                $node.trigger('update.f.model', { somearray: targetData });
-                $node.children().length.should.equal(targetData.length);
+            `, domManager, channel).then(function ($node) {
+                return channel.publish({ somearray: targetData }).then(()=> {
+                    $node.children().length.should.equal(targetData.length);
 
-                domManager.bindAll();
-                $node.find('li').trigger('update.f.model', { somethingElse: targetData2 });
-
-                var c = $node.children();
-                c.length.should.equal(targetData.length);
-                matchChildContents($node, targetData2);
+                    return channel.publish({ somethingElse: targetData2 }).then(()=> {
+                        var c = $node.children();
+                        c.length.should.equal(targetData.length);
+                        matchChildContents($node, targetData2);
+                    });
+                });
+               
             });
         });
         it('should handle cases where children get data before parent', ()=> {
@@ -121,6 +129,7 @@ describe('integration', function () {
                 </ul>
             `, domManager, channel).then(function ($node) {
                 return channel.publish({ somethingElse: targetData2 }).then(()=> {
+                    matchChildContents($node, targetData2);
                     return channel.publish({ somearray: targetData }).then(()=> {
                         var c = $node.children();
                         c.length.should.equal(targetData.length);
@@ -137,7 +146,7 @@ describe('integration', function () {
             var targetData = [1, 2];
             var targetData2 = [3, 4];
 
-            const channel = utils.createDummyChannel();
+            const channel = new CManager();
             return utils.initWithNode(`
                 <ul data-f-foreach="v1 in somearray">
                     <li data-f-foreach="v2 in somethingElse"> 
@@ -173,23 +182,21 @@ describe('integration', function () {
                     </li>
                 </ul>
             `;
-            return utils.initWithNode(html, domManager).then(function ($node) {
-                $node.trigger('update.f.model', { somearray: targetData });
-                
-                domManager.bindAll();
-                $node.find('li').trigger('update.f.model', { somethingElse: targetData2 });
-                
-                var op = ['smaller', 'smaller', 'greater', 'smaller'];
-                var c1 = $node.children();
-                (c1.length).should.equal(targetData.length);
+            const channel = utils.createDummyChannel();
+            return utils.initWithNode(html, domManager, channel).then(function ($node) {
+                return channel.publish({ somearray: targetData, somethingElse: targetData2 }).then(()=> {
+                    var op = ['smaller', 'smaller', 'greater', 'smaller'];
+                    var c1 = $node.children();
+                    (c1.length).should.equal(targetData.length);
 
-                var i = 0;
-                c1.each(function (index1, el) {
-                    var c2 = $(el).children();
-                    (c2.length).should.equal(targetData2.length);
-                    c2.each(function (index2, el2) {
-                        $(el2).text().trim().should.equal(op[i]);
-                        i++;
+                    var i = 0;
+                    c1.each(function (index1, el) {
+                        var c2 = $(el).children();
+                        (c2.length).should.equal(targetData2.length);
+                        c2.each(function (index2, el2) {
+                            $(el2).text().trim().should.equal(op[i]);
+                            i++;
+                        });
                     });
                 });
             });
@@ -199,26 +206,24 @@ describe('integration', function () {
             var targetData = [1, 2];
             var targetData2 = [3, 4];
 
+            const channel = utils.createDummyChannel();
             return utils.initWithNode(`
                 <ul data-f-foreach="v1 in somearray">
                     <li data-f-foreach="somethingElse">
                         <div> <%= v1 %> <%= value %> </div>
                     </li>
                 </ul>
-            `, domManager).then(function ($node) {
-                $node.trigger('update.f.model', { somearray: targetData });
-                
-                domManager.bindAll();
-                $node.find('li').trigger('update.f.model', { somethingElse: targetData2 });
+            `, domManager, channel).then(function ($node) {
+                return channel.publish({ somearray: targetData, somethingElse: targetData2 }).then(()=> {
+                    var c1 = $node.children();
+                    c1.length.should.equal(targetData.length);
+                    c1.each(function (index1, el) {
+                        var c2 = $(el).children();
+                        (c2.length).should.equal(targetData2.length);
 
-                var c1 = $node.children();
-                c1.length.should.equal(targetData.length);
-                c1.each(function (index1, el) {
-                    var c2 = $(el).children();
-                    (c2.length).should.equal(targetData2.length);
-
-                    c2.each(function (index2, el2) {
-                        $(el2).text().trim().should.equal(targetData[index1] + ' ' + targetData2[index2]);
+                        c2.each(function (index2, el2) {
+                            $(el2).text().trim().should.equal(targetData[index1] + ' ' + targetData2[index2]);
+                        });
                     });
                 });
             });
@@ -229,24 +234,33 @@ describe('integration', function () {
             var targetData2 = [3, 4];
             var targetData3 = [5, 6];
 
+            var channel = utils.createDummyChannel();
             return utils.initWithNode(`
-                <ul class="p" data-f-foreach="v1 in somearray">
-                    <li>
+                <ul data-f-foreach="v1 in somearray">
+                    <li class="p">
                         <ul class="ul1" data-f-foreach="v2 in somethingElse"> <li> <%= v1 %> <%= v2 %></li></ul>
                         <ul class="ul2" data-f-foreach="v3 in somethingElse2"> <li> <%= v1 %> <%= v3 %></li></ul>
                     </li>
                 </ul>
-            `, domManager).then(function ($node) {
-                $node.trigger('update.f.model', { somearray: targetData });
-                $node.find('.ul1').trigger('update.f.model', { somethingElse: targetData2 });
-                $node.find('.ul2').trigger('update.f.model', { somethingElse2: targetData3 });
+            `, domManager, channel).then(function ($node) {
+                return channel.publish({ 
+                    somearray: targetData, 
+                    somethingElse: targetData2,
+                    somethingElse2: targetData3,
+                }).then(()=> {
+                    expect($node.children().length).to.equal(targetData.length);
+                    $node.children().each(function (index1, el) {
+                        const $c1 = $(el).find('.ul1').children();
+                        expect($c1.length).to.equal(targetData2.length);
+                        $c1.each(function (index2, el2) {
+                            $(el2).html().trim().should.equal(targetData[index1] + ' ' + targetData2[index2]);
+                        });
 
-                $node.find('.p').each(function (index1, el) {
-                    $(el).find('ul').eq(0).each(function (index2, el2) {
-                        $(el2).html().trim().should.equal(targetData[index1] + ' ' + targetData2[index2]);
-                    });
-                    $(el).find('ul').eq(1).each(function (index2, el2) {
-                        $(el2).html().trim().should.equal(targetData[index1] + ' ' + targetData3[index2]);
+                        const $c2 = $(el).find('.ul2').children();
+                        expect($c2.length).to.equal(targetData3.length);
+                        $c2.each(function (index2, el2) {
+                            $(el2).html().trim().should.equal(targetData[index1] + ' ' + targetData3[index2]);
+                        });
                     });
                 });
             });
@@ -256,9 +270,10 @@ describe('integration', function () {
             var targetData2 = [3, 4];
             var targetData3 = [5, 6];
 
+            var channel = utils.createDummyChannel();
             return utils.initWithNode(`
-                <ul class="p" data-f-foreach="v1 in somearray"> 
-                    <li>
+                <ul data-f-foreach="v1 in somearray"> 
+                    <li class="p">
                         <ul class="ul1" data-f-foreach="v2 in somethingElse"> 
                             <li> <%= v1 %> <%= v2 %></li>
                         </ul>
@@ -267,17 +282,25 @@ describe('integration', function () {
                         </ul>
                     </li>
                 </ul>
-            `.trim(), domManager).then(function ($node) {
-                $node.trigger('update.f.model', { somearray: targetData });
-                
-                $node.find('.ul1').trigger('update.f.model', { somethingElse: targetData2 });
-                $node.find('.ul2').trigger('update.f.model', { somethingElse2: targetData3 });
-                $node.find('.p').each(function (index1, el) {
-                    $(el).find('ul').eq(0).each(function (index2, el2) {
-                        $(el2).html().trim().should.equal(targetData[index1] + ' ' + targetData2[index2]);
-                    });
-                    $(el).find('ul').eq(1).each(function (index2, el2) {
-                        $(el2).html().trim().should.equal(targetData[index1] + ' ' + targetData3[index2]);
+            `.trim(), domManager, channel).then(function ($node) {
+                return channel.publish({ 
+                    somearray: targetData, 
+                    somethingElse: targetData2,
+                    somethingElse2: targetData3,
+                }).then(()=> {
+                    expect($node.children().length).to.equal(targetData.length);
+                    $node.find('.p').each(function (index1, el) {
+                        const $c1 = $(el).find('.ul1').children();
+                        expect($c1.length).to.equal(targetData2.length);
+                        $c1.each(function (index2, el2) {
+                            $(el2).html().trim().should.equal(targetData[index1] + ' ' + targetData2[index2]);
+                        });
+
+                        const $c2 = $(el).find('.ul2').children();
+                        expect($c2.length).to.equal(targetData3.length);
+                        $c2.each(function (index2, el2) {
+                            $(el2).html().trim().should.equal(targetData[index1] + ' ' + targetData3[index2]);
+                        });
                     });
                 });
             });
