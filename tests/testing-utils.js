@@ -14,33 +14,37 @@ var utils = {
             const subsMap = {};
             const knownData = {};
 
-            function notifySubs(subs) {
-                const knownKeys = Object.keys(knownData);
+            function notifySubs(subs, data) {
+                const knownKeys = Object.keys(data);
                 if (subs && _.intersection(knownKeys, subs.variables).length === subs.variables.length) {
-                    const dataToSend = _.pick(knownData, subs.variables);
+                    const dataToSend = _.pick(data, subs.variables);
+                    // console.log('notify', dataToSend, subs, subsid);
                     subs.callback(dataToSend);
                 }
             }
             return {
                 publish: sinon.spy((data)=> {
+                    // console.log('Publishing', data);
                     $.extend(knownData, data);
                     Object.keys(subsMap).forEach((id)=> {
                         const subs = subsMap[id];
-                        notifySubs(subs);
+                        notifySubs(subs, data);
                     });
                     return $.Deferred().resolve(data).promise();
                 }),
                 subscribe: sinon.spy((variable, callback)=> {
+                    // console.log('subscribing', variable);
                     const subsid = 'subsid' + (i++);
                     const subs = {
                         variables: [].concat(variable),
                         callback: callback,
                     };
                     subsMap[subsid] = subs;
-                    notifySubs(subs);
+                    notifySubs(subs, knownData);
                     return subsid;
                 }),
                 unsubscribe: sinon.spy((subsid)=> {
+                    // console.log('unsubscribe', subsid, JSON.stringify(subsMap));
                     delete subsMap[subsid];
                 })
             };
