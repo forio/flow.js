@@ -127,9 +127,15 @@ module.exports = (function () {
             }
             this.private.matchedElements.delete(element);
 
+            const subscriptions = Object.keys(existingData).reduce((accum, attr)=> {
+                const subscriptions = existingData[attr].subscriptions;
+                accum = accum.concat(subscriptions);
+                return accum;
+            }, []);
+
             unbindAllNodeHandlers(domEl);
             unbindAllAttributes(domEl);
-            removeAllSubscriptions(existingData.subscriptions, channel);
+            removeAllSubscriptions(subscriptions, channel);
      
             _.each($el.data(), function (val, key) {
                 if (key.indexOf('f-') === 0 || key.match(/^f[A-Z]/)) {
@@ -167,6 +173,7 @@ module.exports = (function () {
             var channelConfig = domUtils.getChannelConfig(domEl);
 
             const attrVariableMap = {};
+            const me = this;
 
             // NOTE: looping through attributes instead of .data because .data automatically camelcases properties and make it hard to retrvieve. 
             // Also don't want to index dynamically added (by flow) data attrs
@@ -216,53 +223,36 @@ module.exports = (function () {
                         if (channelPrefix) {
                             variablesForAttr = variablesForAttr.map((v)=> `${channelPrefix}:${v}`);
                         }
-                        attrVariableMap[attr] = {
-                            prefix: channelPrefix,
-                            variables: variablesForAttr,
-                        };
+
+                        const shouldBatch = variablesForAttr.length > 1;
+                        const subsOptions = $.extend({ batch: shouldBatch }, channelConfig);
+                        const subsid = channel.subscribe(variablesForAttr, (data)=> {
+                            const toConvert = {};
+                            if (variablesForAttr.length === 1) { //If I'm only interested in 1 thing pass in value directly, else mke a map;
+                                toConvert[attr] = data[variablesForAttr[0]];
+                            } else {
+                                const dataForAttr = pick(data, variablesForAttr) || [];
+                                toConvert[attr] = Object.keys(dataForAttr).reduce((accum, key)=> {
+                                    const k = channelPrefix ? key.replace(channelPrefix + ':', '') : key;
+                                    accum[k] = dataForAttr[key];
+                                    return accum;
+                                }, {});
+                            }
+
+                            const boundChildren = $el.find(`:${config.prefix}`).get();
+                            if (boundChildren.length) {
+                                //Unbind children so loops etc pick the right template. 
+                                //Autobind will add it back later anyway
+                                me.unbindAll(boundChildren);
+                            }
+                            $el.trigger(config.events.convert, toConvert);
+                        }, subsOptions);
+
+                        attrVariableMap[attr] = { variables: variablesForAttr, subscriptions: subsid };
                     }
                 }
             });
-
-            const variablesForElement = uniq(Object.keys(attrVariableMap).reduce((accum, attrName)=> {
-                const val = attrVariableMap[attrName];
-                accum = accum.concat(val.variables || []);
-                return accum;
-            }, []));
-            const shouldBatch = variablesForElement.length > 1;
-            const subsOptions = $.extend({ batch: shouldBatch }, channelConfig);
-            const me = this;
-            const subsid = channel.subscribe(variablesForElement, function (data) {
-                const boundChildren = $el.find(`:${config.prefix}`).get();
-                if (boundChildren.length) {
-                    //Unbind children so loops etc pick the right template. 
-                    //Autobind will add it back later anyway
-                    me.unbindAll(boundChildren);
-                }
-
-                const toConvert = Object.keys(attrVariableMap).reduce((accum, attrName)=> {
-                    const prefix = attrVariableMap[attrName].prefix;
-                    const interestedTopics = attrVariableMap[attrName].variables;
-                    if (interestedTopics.length === 1) { //If I'm only interested in 1 thing pass in value directly, else mke a map;
-                        accum[attrName] = data[interestedTopics[0]];
-                        return accum;
-                    }
-
-                    const dataForAttr = pick(data, interestedTopics) || [];
-                    if (Object.keys(dataForAttr).length === interestedTopics.length) {
-                        accum[attrName] = Object.keys(dataForAttr).reduce((accum, key)=> {
-                            const k = prefix ? key.replace(prefix + ':', '') : key;
-                            accum[k] = dataForAttr[key];
-                            return accum;
-                        }, {});
-                    }
-                    return accum;
-                }, {});
-                $el.trigger(config.events.convert, toConvert);
-            }, subsOptions);
-
-            this.private.matchedElements.set(domEl, { attrs: attrVariableMap, subscriptions: subsid });
-
+            this.private.matchedElements.set(domEl, attrVariableMap);
         },
 
         /**
