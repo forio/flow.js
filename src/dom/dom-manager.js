@@ -9,7 +9,7 @@
 'use strict';
 
 const _ = require('lodash');
-const { isArray, includes, pick, without } = require('lodash');
+const { isArray, includes, pick, uniq } = require('lodash');
 
 module.exports = (function () {
     var config = require('../config');
@@ -68,7 +68,7 @@ module.exports = (function () {
 
     //Unbind utils
     function removeAllSubscriptions(subscriptions, channel) {
-        subscriptions.forEach(function (subs) {
+        [].concat(subscriptions).forEach(function (subs) {
             channel.unsubscribe(subs);
         });
     }
@@ -164,31 +164,19 @@ module.exports = (function () {
                 el: domEl
             });
 
-            const subscriptionsForElement = [];
-
-            var subscribe = function (subsChannel, varsToBind, $bindEl, options) {
-                if (!varsToBind || !varsToBind.length) {
-                    return false;
-                }
-
-                var subsid = subsChannel.subscribe(varsToBind, function (params) {
-                    $bindEl.trigger(config.events.channelDataReceived, params);
-                }, options);
-                return subsid;
-            };
-
-            var attrBindings = [];
-            var nonBatchableVariables = [];
             var channelConfig = domUtils.getChannelConfig(domEl);
 
-            //NOTE: looping through attributes instead of .data because .data automatically camelcases properties and make it hard to retrvieve. Also don't want to index dynamically added (by flow) data attrs
+            const attrVariableMap = {};
+
+            // NOTE: looping through attributes instead of .data because .data automatically camelcases properties and make it hard to retrvieve. 
+            // Also don't want to index dynamically added (by flow) data attrs
             $(domEl.attributes).each(function (index, nodeMap) {
                 var attr = nodeMap.nodeName;
                 var attrVal = nodeMap.value;
 
                 var channelPrefix = domUtils.getChannel($el, attr);
-                
                 var wantedPrefix = 'data-f-';
+
                 if (attr.indexOf(wantedPrefix) === 0) {
                     attr = attr.replace(wantedPrefix, '');
 
@@ -199,6 +187,8 @@ module.exports = (function () {
                     }
 
                     if (isBindableAttr) {
+                        let variablesForAttr = [];
+
                         //Convert pipes to converter attrs
                         var withConv = attrVal.split('|').map((v)=> v.trim());
                         if (withConv.length > 1) {
@@ -206,7 +196,6 @@ module.exports = (function () {
                             $el.data('f-convert-' + attr, withConv);
                         }
 
-                        var binding = { attr: attr };
                         var commaRegex = /,(?![^[]*])/;
 
                         //NOTE: do this within init?
@@ -219,36 +208,60 @@ module.exports = (function () {
                             //Assume it's templated for later use
 
                         } else if (attrVal.split(commaRegex).length > 1) {
-                            var varsToBind = attrVal.split(commaRegex).map((v)=> v.trim());
-                            if (channelPrefix) {
-                                varsToBind = varsToBind.map(function (v) {
-                                    return channelPrefix + ':' + v;
-                                });
-                            }
-                            const subsid = subscribe(channel, varsToBind, $el, $.extend({ batch: true }, channelConfig)); //TODO: Move batch defaults to subscription manager
-                            subscriptionsForElement.push(subsid);
-
-                            binding.topics = varsToBind;
+                            variablesForAttr = attrVal.split(commaRegex).map((v)=> v.trim());
                         } else {
-                            if (channelPrefix) {
-                                attrVal = channelPrefix + ':' + attrVal;
-                            }
-                            binding.topics = [attrVal];
-                            nonBatchableVariables.push(attrVal);
+                            variablesForAttr = [attrVal];
                         }
-                        attrBindings.push(binding);
+
+                        if (channelPrefix) {
+                            variablesForAttr = variablesForAttr.map((v)=> `${channelPrefix}:${v}`);
+                        }
+                        attrVariableMap[attr] = {
+                            prefix: channelPrefix,
+                            variables: variablesForAttr,
+                        };
                     }
                 }
             });
-            $el.data(config.attrs.bindingsList, attrBindings);
-            if (nonBatchableVariables.length) {
-                const subsid = subscribe(channel, nonBatchableVariables, $el, $.extend({ batch: false }, channelConfig));
-                subscriptionsForElement.push(subsid);
-            }
 
-            this.private.matchedElements.set(domEl, {
-                subscriptions: subscriptionsForElement
-            });
+            const variablesForElement = uniq(Object.keys(attrVariableMap).reduce((accum, attrName)=> {
+                const val = attrVariableMap[attrName];
+                accum = accum.concat(val.variables || []);
+                return accum;
+            }, []));
+            const shouldBatch = variablesForElement.length > 1;
+            const subsOptions = $.extend({ batch: shouldBatch }, channelConfig);
+            const me = this;
+            const subsid = channel.subscribe(variablesForElement, function (data) {
+                const boundChildren = $el.find(`:${config.prefix}`).get();
+                if (boundChildren.length) {
+                    //Unbind children so loops etc pick the right template. 
+                    //Autobind will add it back later anyway
+                    me.unbindAll(boundChildren);
+                }
+
+                const toConvert = Object.keys(attrVariableMap).reduce((accum, attrName)=> {
+                    const prefix = attrVariableMap[attrName].prefix;
+                    const interestedTopics = attrVariableMap[attrName].variables;
+                    if (interestedTopics.length === 1) { //If I'm only interested in 1 thing pass in value directly, else mke a map;
+                        accum[attrName] = data[interestedTopics[0]];
+                        return accum;
+                    }
+
+                    const dataForAttr = pick(data, interestedTopics) || [];
+                    if (Object.keys(dataForAttr).length === interestedTopics.length) {
+                        accum[attrName] = Object.keys(dataForAttr).reduce((accum, key)=> {
+                            const k = prefix ? key.replace(prefix + ':', '') : key;
+                            accum[k] = dataForAttr[key];
+                            return accum;
+                        }, {});
+                    }
+                    return accum;
+                }, {});
+                $el.trigger(config.events.convert, toConvert);
+            }, subsOptions);
+
+            this.private.matchedElements.set(domEl, { attrs: attrVariableMap, subscriptions: subsid });
 
         },
 
