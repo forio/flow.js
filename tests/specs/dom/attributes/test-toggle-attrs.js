@@ -11,15 +11,19 @@ module.exports = (function () {
                 });
             });
             it('should show node if condition is true', ()=> {
-                return utils.initWithNode('<div data-f-showif="stuff | greaterThan(10)"/></div>', domManager).then(function ($node) {
-                    $node.trigger('update.f.model', { stuff: 100 });
-                    $node.attr('style').should.equal('');
+                const channel = utils.createDummyChannel();
+                return utils.initWithNode('<div data-f-showif="stuff | greaterThan(10)"/></div>', domManager, channel).then(function ($node) {
+                    return channel.publish({ stuff: 100 }).then(()=> {
+                        $node.attr('style').should.equal('');
+                    });
                 });
             });
             it('should hide node if condition is false', ()=> {
-                return utils.initWithNode('<div data-f-showif="stuff | greaterThan(10)"></div>', domManager).then(function ($node) {
-                    $node.trigger('update.f.model', { stuff: 1 });
-                    $node.is(':visible').should.equal(false);
+                const channel = utils.createDummyChannel();
+                return utils.initWithNode('<div data-f-showif="stuff | greaterThan(10)"></div>', domManager, channel).then(function ($node) {
+                    return channel.publish({ stuff: 1 }).then(()=> {
+                        $node.is(':visible').should.equal(false);
+                    });
                 });
             });
         });
@@ -30,15 +34,19 @@ module.exports = (function () {
                 });
             });
             it('should show node if condition is true', ()=> {
-                return utils.initWithNode('<div data-f-hideif="stuff | greaterThan(10)"/></div>', domManager).then(function ($node) {
-                    $node.trigger('update.f.model', { stuff: 1 });
-                    $node.attr('style').should.equal('');
+                const channel = utils.createDummyChannel();
+                return utils.initWithNode('<div data-f-hideif="stuff | greaterThan(10)"/></div>', domManager, channel).then(function ($node) {
+                    return channel.publish({ stuff: 1 }).then(()=> {
+                        $node.attr('style').should.equal('');
+                    });
                 });
             });
             it('should hide node if condition is false', ()=> {
-                return utils.initWithNode('<div data-f-hideif="stuff | greaterThan(10)"></div>', domManager).then(function ($node) {
-                    $node.trigger('update.f.model', { stuff: 100 });
-                    $node.is(':visible').should.equal(false);
+                const channel = utils.createDummyChannel();
+                return utils.initWithNode('<div data-f-hideif="stuff | greaterThan(10)"></div>', domManager, channel).then(function ($node) {
+                    return channel.publish({ stuff: 100 }).then(()=> {
+                        $node.is(':visible').should.equal(false);
+                    });
                 });
             });
         });

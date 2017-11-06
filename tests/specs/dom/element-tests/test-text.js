@@ -24,11 +24,12 @@ describe(':text', function () {
     });
     describe('updaters', function () {
         it('should update itself with values passed in', function () {
-            return utils.initWithNode('<input type="text" data-f-bind="stuff" value="3"/>', domManager).then(function ($node) {
-                $node.trigger('update.f.model', { stuff: 5 });
-
-                var val = $node.val();
-                val.should.equal('5');
+            const channel = utils.createDummyChannel();
+            return utils.initWithNode('<input type="text" data-f-bind="stuff" value="3"/>', domManager, channel).then(function ($node) {
+                channel.publish({ stuff: 5 }).then(()=> {
+                    var val = $node.val();
+                    val.should.equal('5');
+                });
             });
         });
         //TODO: make it only take the last element of an array?

@@ -2,40 +2,49 @@ var domManager = require('src/dom/dom-manager');
 var utils = require('../../testing-utils');
 var config = require('config');
 
-describe('update.f.model', function () {
+describe('On Model updates', function () {
     it('should trigger f.convert with multiple attributes if provided an object with multiple keys', function () {
-        return utils.initWithNode('<input type="text" data-f-stuff="apple" data-f-other="orange"/>', domManager).then(function ($node) {
+        const channel = utils.createDummyChannel();
+        return utils.initWithNode('<input type="text" data-f-stuff="apple" data-f-other="orange"/>', domManager, channel).then(function ($node) {
             var spy = sinon.spy();
             $node.on('f.convert', spy);
 
-            $node.trigger('update.f.model', {
+            return channel.publish({
                 apple: 'sauce',
                 orange: 'pie'
-            });
-
-            spy.should.have.been.calledOnce;
-            spy.getCall(0).args[1].should.eql({
-                stuff: 'sauce',
-                other: 'pie'
+            }).then(()=> {
+                spy.should.have.been.calledTwice;
+                spy.getCall(0).args[1].should.eql({
+                    stuff: 'sauce',
+                });
+                spy.getCall(1).args[1].should.eql({
+                    other: 'pie',
+                });
             });
         });
     });
     it('should trigger f.convert with single attribute if provided an object with same keys', function () {
-        return utils.initWithNode('<input type="text" data-f-stuff="apple" data-f-other="apple"/>', domManager).then(function ($node) {
+        const channel = utils.createDummyChannel();
+        return utils.initWithNode('<input type="text" data-f-stuff="apple" data-f-other="apple"/>', domManager, channel).then(function ($node) {
             var spy = sinon.spy();
             $node.on('f.convert', spy);
 
-            $node.trigger('update.f.model', {
+            return channel.publish({
                 apple: 'sauce'
-            });
-            spy.getCall(0).args[1].should.eql({
-                stuff: 'sauce',
-                other: 'sauce'
+            }).then(()=> {
+                spy.should.have.been.calledTwice;
+                spy.getCall(0).args[1].should.eql({
+                    stuff: 'sauce',
+                });
+                spy.getCall(1).args[1].should.eql({
+                    other: 'sauce',
+                });
             });
         });
     });
     it('should trigger f.convert with an object if provided an object with multiple keys', function () {
-        return utils.initWithNode('<input type="text" data-f-stuff="apple, orange"/>', domManager).then(function ($node) {
+        const channel = utils.createDummyChannel();
+        return utils.initWithNode('<input type="text" data-f-stuff="apple, orange"/>', domManager, channel).then(function ($node) {
             var spy = sinon.spy();
             $node.on('f.convert', spy);
 
@@ -43,9 +52,10 @@ describe('update.f.model', function () {
                 apple: 'sauce',
                 orange: 'pie'
             };
-            $node.trigger('update.f.model', data);
-            spy.getCall(0).args[1].should.eql({
-                stuff: data
+            return channel.publish(data).then(()=> {
+                spy.getCall(0).args[1].should.eql({
+                    stuff: data
+                });
             });
         });
     });
@@ -143,7 +153,8 @@ describe('update.f.ui', function () {
         });
     });
     it('should trigger f.convert to convert values', function () {
-        return utils.initWithNode('<input type="text" data-f-bind="apple | $#,###.00"/>', domManager).then(function ($node) {
+        const channel = utils.createDummyChannel();
+        return utils.initWithNode('<input type="text" data-f-bind="apple | $#,###.00"/>', domManager, channel).then(function ($node) {
             var spy = sinon.spy();
             $node.on('f.convert', spy);
 

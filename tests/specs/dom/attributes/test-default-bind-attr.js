@@ -77,113 +77,129 @@ describe('Default Bind', function () {
         it('should output last values for arrays', function () {
             var targetData = { Price: [10, 30] };
 
-            return utils.initWithNode('<div data-f-bind="Price"> </div>', domManager).then(function ($node) {
-                $node.trigger('update.f.model', targetData);
-                $node.html().trim().should.equal('30');
+            const channel = utils.createDummyChannel();
+            return utils.initWithNode('<div data-f-bind="Price"> </div>', domManager, channel).then(function ($node) {
+                return channel.publish(targetData).then(()=> {
+                    $node.html().trim().should.equal('30');
+                });
             });
         });
 
         it('should convert values to strings', function () {
             var targetData = { Price: false };
-            return utils.initWithNode('<div data-f-bind="Price"> </div>', domManager).then(function ($node) {
-                $node.trigger('update.f.model', targetData);
-                $node.html().trim().should.equal('false');
+            const channel = utils.createDummyChannel();
+            return utils.initWithNode('<div data-f-bind="Price"> </div>', domManager, channel).then(function ($node) {
+                return channel.publish(targetData).then(()=> {
+                    $node.html().trim().should.equal('false');
+                });
             });
         });
         it('should templatize multiple-bound variables', function () {
             var targetData = { Price: '20', Sales: 30 };
 
-            return utils.initWithNode('<div data-f-bind="Price, Sales"> <%= Price %> <%= Sales %> </div>', domManager).then(function ($node) {
-                $node.trigger('update.f.model', targetData);
-                $node.html().trim().should.equal('20 30');
+            const channel = utils.createDummyChannel();
+            return utils.initWithNode('<div data-f-bind="Price, Sales"> <%= Price %> <%= Sales %> </div>', domManager, channel).then(function ($node) {
+                return channel.publish(targetData).then(()=> {
+                    $node.html().trim().should.equal('20 30');
+                });
             });
         });
         it('should templatize single variables', function () {
             var targetData = { Price: '20' };
 
-            return utils.initWithNode('<div data-f-bind="Price"> <%= Price %> </div>', domManager).then(function ($node) {
-                $node.trigger('update.f.model', targetData);
-                $node.html().trim().should.equal('20');
+            const channel = utils.createDummyChannel();
+            return utils.initWithNode('<div data-f-bind="Price"> <%= Price %> </div>', domManager, channel).then(function ($node) {
+                return channel.publish(targetData).then(()=> {
+                    $node.html().trim().should.equal('20');
+                });
             });
         });
         it('should allow templating by variable name for single items', function () {
             var targetData = { Price: '20', Sales: 30 };
 
-            return utils.initWithNode('<div data-f-bind="Price"> <%= value %> </div>', domManager).then(function ($node) {
-                $node.trigger('update.f.model', targetData);
-                $node.html().trim().should.equal('20');
+            const channel = utils.createDummyChannel();
+            return utils.initWithNode('<div data-f-bind="Price"> <%= value %> </div>', domManager, channel).then(function ($node) {
+                return channel.publish(targetData).then(()=> {
+                    $node.html().trim().should.equal('20');
+                });
             });
         });
 
         it('should template arrays in accordance with converters', function () {
             var targetData = { Price: [10, 30] };
 
-            return utils.initWithNode('<div data-f-bind="Price|last"> <%= value %> </div>', domManager).then(function ($node) {
-                $node.trigger('update.f.model', targetData);
-                $node.html().trim().should.equal('30');
+            const channel = utils.createDummyChannel();
+            return utils.initWithNode('<div data-f-bind="Price|last"> <%= value %> </div>', domManager, channel).then(function ($node) {
+                return channel.publish(targetData).then(()=> {
+                    $node.html().trim().should.equal('30');
+                });
             });
         });
         it('should template objects in accordance with converters', function () {
             var targetData = { Price: [10, 3000], Sales: [20, 1100] };
 
-            return utils.initWithNode('<div data-f-bind="Price, Sales | #,### |last"> <%= Price %> <%= Sales %> </div>', domManager).then(function ($node) {
-                $node.trigger('update.f.model', targetData);
-                $node.html().trim().should.equal('3,000 1,100');
+            const channel = utils.createDummyChannel();
+            return utils.initWithNode('<div data-f-bind="Price, Sales | #,### |last"> <%= Price %> <%= Sales %> </div>', domManager, channel).then(function ($node) {
+                return channel.publish(targetData).then(()=> {
+                    $node.html().trim().should.equal('3,000 1,100');
+                });
             });
         });
     });
 
     describe('Animation hooks', ()=> {
-        function verifyChangeValue(el, condition, callback) {
-            setTimeout(()=> {
-                expect(el.hasAttribute('data-change')).to.equal(condition);
-                callback();
-            }, 0);
+        function publishAndVerify(channel, data, el, condition) {
+            return channel.publish((data)=> {
+                const $d = $.Deferred();
+                setTimeout(()=> {
+                    expect(el.hasAttribute('data-change')).to.equal(condition);
+                    $d.resolve();
+                }, 0);
+                return $d.promise();
+            });
         }
         describe('without templates', ()=> {
-            it('should animate if value changed', (done)=> {
-                utils.initWithNode('<div data-f-bind="Price"></div>', domManager).then(function ($node) {
+            it('should animate if value changed', ()=> {
+                const channel = utils.createDummyChannel();
+                return utils.initWithNode('<div data-f-bind="Price"></div>', domManager, channel).then(function ($node) {
                     const el = $node.get(0);
                     expect(el.hasAttribute('data-change')).to.equal(false);
 
-                    $node.trigger('update.f.model', { Price: 30 });
-                    verifyChangeValue(el, true, done);
+                    return publishAndVerify(channel, { Price: 30 }, el, true);
                 });
             });
-            it('should not animate if initial value doesn\'t change', (done)=> {
-                utils.initWithNode('<div data-f-bind="Price">30</div>', domManager).then(function ($node) {
+            it('should not animate if initial value doesn\'t change', ()=> {
+                const channel = utils.createDummyChannel();
+                return utils.initWithNode('<div data-f-bind="Price">30</div>', domManager, channel).then(function ($node) {
                     const el = $node.get(0);
                     expect(el.hasAttribute('data-change')).to.equal(false);
 
-                    $node.trigger('update.f.model', { Price: 30 });
-                    verifyChangeValue(el, false, done);
+                    return publishAndVerify(channel, { Price: 30 }, el, true);
                 });
             });
-            it('should not animate if later value doesn\'t change', (done)=> {
-                utils.initWithNode('<div data-f-bind="Price">30</div>', domManager).then(function ($node) {
+            it('should not animate if later value doesn\'t change', ()=> {
+                const channel = utils.createDummyChannel();
+
+                utils.initWithNode('<div data-f-bind="Price">30</div>', domManager, channel).then(function ($node) {
                     const el = $node.get(0);
                     expect(el.hasAttribute('data-change')).to.equal(false);
 
-                    $node.trigger('update.f.model', { Price: 40 });
-                    verifyChangeValue(el, true, ()=> {
-                        $node.trigger('update.f.model', { Price: 40 });
-                        verifyChangeValue(el, false, ()=> {
-                            $node.trigger('update.f.model', { Price: 50 });
-                            verifyChangeValue(el, true, done);
+                    return publishAndVerify(channel, { Price: 40 }, el, true).then(()=> {
+                        return publishAndVerify(channel, { Price: 40 }, el, false).then(()=> {
+                            return publishAndVerify(channel, { Price: 50 }, el, false);
                         });
                     });
                 });
             });
         });
-        it('should not add change attr if templated', (done)=> {
-            utils.initWithNode('<div data-f-bind="Price"><%= value %></div>', domManager).then(function ($node) {
+        it('should not add change attr if templated', ()=> {
+            const channel = utils.createDummyChannel();
+            utils.initWithNode('<div data-f-bind="Price"><%= value %></div>', domManager, channel).then(function ($node) {
                 const el = $node.get(0);
                 expect(el.hasAttribute('data-change')).to.equal(false);
 
-                $node.trigger('update.f.model', { Price: 30 });
-                verifyChangeValue(el, false, ()=> {
-                    $node.trigger('update.f.model', { Price: 40 });
-                    verifyChangeValue(el, false, done);
+                return publishAndVerify(channel, { Price: 30 }, el, false).then(()=> {
+                    return publishAndVerify(channel, { Price: 40 }, el, false);
                 });
             });
         });

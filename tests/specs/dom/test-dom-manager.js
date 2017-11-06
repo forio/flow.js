@@ -80,6 +80,7 @@ describe('DOM Manager', function () {
             require('./attributes/test-positive-boolean-attr');
             require('./attributes/test-class-attr');
             require('./attributes/test-default-event-attribute');
+            require('./attributes/test-toggle-attrs');
 
             it('should allow handling custom attributes', function () {
                 var toggle = function (value) {
@@ -91,16 +92,17 @@ describe('DOM Manager', function () {
                 };
                 var toggleSpy = sinon.spy(toggle);
                 domManager.attributes.register('toggle', '*', toggleSpy);
-                return utils.initWithNode('<input type="text" data-f-toggle="shouldIHide" data-f-bind="stuff"/>', domManager).then(function ($node) {
-                    $node.trigger('update.f.model', { shouldIHide: 1 });
+                const channel = utils.createDummyChannel();
+                return utils.initWithNode('<input type="text" data-f-toggle="shouldIHide" data-f-bind="stuff"/>', domManager, channel).then(function ($node) {
+                    return channel.publish({ shouldIHide: 1 }).then(()=> {
+                        toggleSpy.should.have.been.called;
+                        toggleSpy.should.have.been.calledWith(1);
 
-                    toggleSpy.should.have.been.called;
-                    toggleSpy.should.have.been.calledWith(1);
-
-                    $node.css('display').should.equal('block');
-
-                    $node.trigger('update.f.model', { shouldIHide: 0 });
-                    $node.css('display').should.equal('none');
+                        $node.css('display').should.equal('block');
+                        return channel.publish({ shouldIHide: 0 }).then(()=> {
+                            $node.css('display').should.equal('none');
+                        });
+                    });
                 });
             });
         });
@@ -210,7 +212,7 @@ describe('DOM Manager', function () {
                     var keys = Object.keys($node.data());
 
                     var directTranslates = ['fConvertBind', 'fConvertOther', 'fOther', 'fBind'];
-                    var flowAdded = ['fAttrBindings'];
+                    var flowAdded = [];
                     var toMatch = [].concat(directTranslates).concat(flowAdded);
                     keys.sort().should.eql(toMatch.sort());
 
@@ -227,7 +229,7 @@ describe('DOM Manager', function () {
 
                     var notAddedByFlow = ['myStuff', 'fsomething'];
                     var directTranslates = ['fConvertBind', 'fConvertOther', 'fOther', 'fBind'];
-                    var flowAdded = ['fAttrBindings'];
+                    var flowAdded = [];
                     var toMatch = [].concat(directTranslates).concat(flowAdded).concat(notAddedByFlow);
                     keys.sort().should.eql(toMatch.sort());
 
@@ -240,19 +242,21 @@ describe('DOM Manager', function () {
         });
         describe('remove items generated through templates', ()=> {
             it('should remove templated bind items', ()=> {
+                const channel = utils.createDummyChannel();
                 var nodes = `
                     <div data-f-bind="a">Hello <%= value %>! <span> some child <%= a %></span</div>
                 `.trim();
-                return utils.initWithNode(nodes, domManager).then(($node)=> {
+                return utils.initWithNode(nodes, domManager, channel).then(($node)=> {
                     var originalHTML = $node.html();
 
-                    $node.trigger(config.events.channelDataReceived, { a: 'apple' });
-                    var newhtml = $node.html();
-                    expect(newhtml).to.equal('Hello apple! <span> some child apple</span>');
-                    
-                    domManager.unbindElement($node);
-                    
-                    expect($node.html()).to.equal(originalHTML);
+                    return channel.publish({ a: 'apple' }).then(()=> {
+                        var newhtml = $node.html();
+                        expect(newhtml).to.equal('Hello apple! <span> some child apple</span>');
+                        
+                        domManager.unbindElement($node);
+                        
+                        expect($node.html()).to.equal(originalHTML);
+                    });
                 });
             });
             it('should remove templated foreach items', ()=> {
@@ -261,16 +265,19 @@ describe('DOM Manager', function () {
                         <li>Love <%= value %></li>
                     </ul>
                 `.trim();
-                return utils.initWithNode(nodes, domManager).then(($node)=> {
+                const channel = utils.createDummyChannel();
+
+                return utils.initWithNode(nodes, domManager, channel).then(($node)=> {
                     var originalHTML = $node.html();
 
-                    $node.trigger(config.events.channelDataReceived, { fruits: ['apples', 'organges'] });
-                    expect($node.children().length).to.equal(2);
-                    
-                    domManager.unbindElement($node);
+                    return channel.publish({ fruits: ['apples', 'organges'] }).then(()=> {
+                        expect($node.children().length).to.equal(2);
+                        
+                        domManager.unbindElement($node);
 
-                    expect($node.children().length).to.equal(1);
-                    expect($node.html()).to.equal(originalHTML);
+                        expect($node.children().length).to.equal(1);
+                        expect($node.html()).to.equal(originalHTML);
+                    });
                 });
             });
             it('should restore untemplated foreach items', ()=> {
@@ -279,16 +286,18 @@ describe('DOM Manager', function () {
                         <li>Foo</li>
                     </ul>
                 `.trim();
-                return utils.initWithNode(nodes, domManager).then(($node)=> {
+                const channel = utils.createDummyChannel();
+                return utils.initWithNode(nodes, domManager, channel).then(($node)=> {
                     var originalHTML = $node.html();
 
-                    $node.trigger(config.events.channelDataReceived, { fruits: ['apples', 'organges'] });
-                    expect($node.children().length).to.equal(2);
-                    
-                    domManager.unbindElement($node);
+                    return channel.publish({ fruits: ['apples', 'organges'] }).then(()=> {
+                        expect($node.children().length).to.equal(2);
+                        
+                        domManager.unbindElement($node);
 
-                    expect($node.children().length).to.equal(1);
-                    expect($node.html()).to.equal(originalHTML);
+                        expect($node.children().length).to.equal(1);
+                        expect($node.html()).to.equal(originalHTML);
+                    });
                 });
             });
             it('should remove templated repeat items', ()=> {
@@ -297,16 +306,18 @@ describe('DOM Manager', function () {
                         <li data-f-repeat="fruits">Love <%= value %></li>
                     </ul>
                 `.trim();
-                return utils.initWithNode(nodes, domManager).then(($node)=> {
+                const channel = utils.createDummyChannel();
+                return utils.initWithNode(nodes, domManager, channel).then(($node)=> {
                     var originalHTML = $node.html();
 
-                    $node.find('li:first').trigger(config.events.channelDataReceived, { fruits: ['apples', 'organges'] });
-                    expect($node.children().length).to.equal(2);
-                    
-                    domManager.unbindElement($node.find('li:first'));
+                    return channel.publish({ fruits: ['apples', 'organges'] }).then(()=> {
+                        expect($node.children().length).to.equal(2);
+                        
+                        domManager.unbindElement($node.find('li:first'));
 
-                    expect($node.children().length).to.equal(1);
-                    expect($node.html()).to.equal(originalHTML);
+                        expect($node.children().length).to.equal(1);
+                        expect($node.html()).to.equal(originalHTML);
+                    });
                 });
             });
         });
