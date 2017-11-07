@@ -9,17 +9,20 @@
 'use strict';
 
 const _ = require('lodash');
-const { isArray, includes, pick, uniq } = require('lodash');
+const { getConvertersList, getChannel, getChannelConfig } = require('utils/dom');
+
+const { pick } = require('lodash');
+
+const config = require('../config');
+const parseUtils = require('utils/parse-utils');
+
+const converterManager = require('converters/converter-manager');
+const nodeManager = require('./nodes/node-manager');
+const attrManager = require('./attributes/attribute-manager');
+const autoUpdatePlugin = require('./plugins/auto-update-bindings');
 
 module.exports = (function () {
-    var config = require('../config');
-    var parseUtils = require('utils/parse-utils');
-    var domUtils = require('utils/dom');
 
-    var converterManager = require('converters/converter-manager');
-    var nodeManager = require('./nodes/node-manager');
-    var attrManager = require('./attributes/attribute-manager');
-    var autoUpdatePlugin = require('./plugins/auto-update-bindings');
 
     //Jquery selector to return everything which has a f- property set
     $.expr.pseudos[config.prefix] = function (el) {
@@ -215,12 +218,12 @@ module.exports = (function () {
                     variablesForAttr = [attrVal];
                 }
 
-                var channelPrefix = domUtils.getChannel($el, attr);
+                var channelPrefix = getChannel($el, attr);
                 if (channelPrefix) {
                     variablesForAttr = variablesForAttr.map((v)=> `${channelPrefix}:${v}`);
                 }
 
-                const channelConfig = domUtils.getChannelConfig(domEl);
+                const channelConfig = getChannelConfig(domEl);
                 const subsOptions = $.extend({ batch: true }, channelConfig);
                 const subsid = channel.subscribe(variablesForAttr, (data)=> {
                     const toConvert = {};
@@ -258,7 +261,7 @@ module.exports = (function () {
         bindAll: function (elementsToBind) {
             if (!elementsToBind) {
                 elementsToBind = getMatchingElements(this.options.root);
-            } else if (!isArray(elementsToBind)) {
+            } else if (!Array.isArray(elementsToBind)) {
                 elementsToBind = getMatchingElements(elementsToBind);
             }
 
@@ -281,7 +284,7 @@ module.exports = (function () {
                 this.private.matchedElements.forEach((val, key)=> {
                     elementsToUnbind.push(key);
                 });
-            } else if (!isArray(elementsToUnbind)) {
+            } else if (!Array.isArray(elementsToUnbind)) {
                 elementsToUnbind = getMatchingElements(elementsToUnbind);
             }
             $.each(elementsToUnbind, function (index, element) {
@@ -329,9 +332,9 @@ module.exports = (function () {
                     var toconvert = {};
                     $.each(data, function (variableName, value) {
                         _.each(bindings, function (binding) {
-                            var channelPrefix = domUtils.getChannel($el, binding.attr);
-                            var interestedTopics = binding.topics;
-                            if (includes(interestedTopics, variableName)) {
+                            var channelPrefix = getChannel($el, binding.attr);
+                            var interestedTopics = binding.topics || [];
+                            if (interestedTopics.indexOf(variableName) !== -1) {
                                 if (binding.topics.length > 1) {
                                     var matching = pick(data, interestedTopics);
                                     if (!channelPrefix) {
@@ -363,7 +366,7 @@ module.exports = (function () {
                     var parsedData = {}; //if not all subsequent listeners will get the modified data
 
                     var $el = $(evt.target);
-                    var attrConverters = domUtils.getConvertersList($el, 'bind'); //Only bind can trigger changes
+                    var attrConverters = getConvertersList($el, 'bind'); //Only bind can trigger changes
 
                     _.each(data, function (val, key) {
                         key = key.split('|')[0].trim(); //in case the pipe formatting syntax was used
@@ -417,7 +420,7 @@ module.exports = (function () {
 
                     var convert = function (val, prop) {
                         prop = prop.toLowerCase();
-                        var attrConverters = domUtils.getConvertersList($el, prop);
+                        var attrConverters = getConvertersList($el, prop);
 
                         var handler = attrManager.getHandler(prop, $el);
                         var convertedValue = converterManager.convert(val, attrConverters);
