@@ -9,9 +9,7 @@
 'use strict';
 
 const _ = require('lodash');
-const { getConvertersList, getChannel, getChannelConfig } = require('utils/dom-utils');
-const { parseConvertersFromAttributeValue, getConvertersForEl, parseVariablesFromAttributeValue } = require('dom/dom-manager/attribute-parser');
-
+const { getConvertersForEl, getChannelForAttribute, getChannelConfigForElement, parseTopicsFromAttributeValue } = require('dom/dom-manager/parsers');
 const { pick } = require('lodash');
 
 const config = require('../config');
@@ -23,8 +21,6 @@ const attrManager = require('./attributes/attribute-manager');
 const autoUpdatePlugin = require('./plugins/auto-update-bindings');
 
 module.exports = (function () {
-
-
     //Jquery selector to return everything which has a f- property set
     $.expr.pseudos[config.prefix] = function (el) {
         if (!el || !el.attributes) {
@@ -196,16 +192,16 @@ module.exports = (function () {
 
                 const converters = getConvertersForEl($el, attr);
              
-                let variables = parseVariablesFromAttributeValue(attrVal);
-                const channelPrefix = getChannel($el, attr);
+                let topics = parseTopicsFromAttributeValue(attrVal);
+                const channelPrefix = getChannelForAttribute($el, attr);
                 if (channelPrefix) {
-                    variables = variables.map((v)=> `${channelPrefix}:${v}`);
+                    topics = topics.map((v)=> `${channelPrefix}:${v}`);
                 }
-                const channelConfig = getChannelConfig(domEl);
+                const channelConfig = getChannelConfigForElement(domEl);
                 attrList[attr] = {
                     channelPrefix: channelPrefix,
                     channelConfig: channelConfig,
-                    variables: variables,
+                    topics: topics,
                     converters: converters,
                 };
             });
@@ -215,15 +211,15 @@ module.exports = (function () {
             const attrsWithSubscriptions = Object.keys(attrList).reduce((accum, name)=> {
                 const attr = attrList[name];
 
-                const { variables, channelPrefix, channelConfig } = attr;
+                const { topics, channelPrefix, channelConfig } = attr;
 
                 const subsOptions = $.extend({ batch: true }, channelConfig);
-                const subsid = channel.subscribe(variables, (data)=> {
+                const subsid = channel.subscribe(topics, (data)=> {
                     const toConvert = {};
-                    if (variables.length === 1) { //If I'm only interested in 1 thing pass in value directly, else mke a map;
-                        toConvert[name] = data[variables[0]];
+                    if (topics.length === 1) { //If I'm only interested in 1 thing pass in value directly, else mke a map;
+                        toConvert[name] = data[topics[0]];
                     } else {
-                        const dataForAttr = pick(data, variables) || {};
+                        const dataForAttr = pick(data, topics) || {};
                         toConvert[name] = Object.keys(dataForAttr).reduce((accum, key)=> {
                             const k = channelPrefix ? key.replace(channelPrefix + ':', '') : key;
                             accum[k] = dataForAttr[key];
