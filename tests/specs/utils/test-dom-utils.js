@@ -1,5 +1,5 @@
 import utils from '../../testing-utils';
-import { getChannelConfig } from 'utils/dom';
+import { getChannelConfig } from 'utils/dom-utils';
 
 describe('DOM utils', ()=> {
     describe('#getChannelConfig', ()=> {

@@ -9,7 +9,7 @@
 'use strict';
 
 const _ = require('lodash');
-const { getConvertersList, getChannel, getChannelConfig } = require('utils/dom');
+const { getConvertersList, getChannel, getChannelConfig } = require('utils/dom-utils');
 
 const { pick } = require('lodash');
 
