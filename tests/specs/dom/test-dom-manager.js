@@ -4,32 +4,32 @@ var config = require('src/config');
 
 describe('DOM Manager', function () {
     afterEach(function () {
-        domManager.private.matchedElements.clear();
+        domManager.matchedElements.clear();
     });
     describe('#initialize', function () {
         describe('Selectors', function () {
 
             it('should select nothing by default', function () {
                 return utils.initWithNode('<div></div>', domManager).then(function () {
-                    domManager.private.matchedElements.size.should.equal(0);
+                    domManager.matchedElements.size.should.equal(0);
                 });
             });
 
             it('should select single nodes', function () {
                 return utils.initWithNode('<input type="text" data-f-bind="stuff"/>', domManager).then(function ($node) {
-                    domManager.private.matchedElements.size.should.equal(1);
+                    domManager.matchedElements.size.should.equal(1);
                 });
             });
 
             it('should select nested nodes', function () {
                 return utils.initWithNode('<div data-f-bind="a"> <input type="text" data-f-bind="stuff"/> <span> nothing </span> </div>', domManager).then(function ($node) {
-                    domManager.private.matchedElements.size.should.equal(2);
+                    domManager.matchedElements.size.should.equal(2);
                 });
             });
 
             it('should select nested nodes with diff F attrs', function () {
                 return utils.initWithNode('<div data-f-a="a"> <input type="text" data-f-b="stuff"/> <span> nothing </span> </div>', domManager).then(function ($node) {
-                    domManager.private.matchedElements.size.should.equal(2);
+                    domManager.matchedElements.size.should.equal(2);
                 });
             });
         });
@@ -116,21 +116,21 @@ describe('DOM Manager', function () {
 
     describe('#bindElement', function () {
         it('should update list of added items if match', function () {
-            domManager.private.matchedElements.size.should.equal(0);
+            domManager.matchedElements.size.should.equal(0);
             domManager.bindElement($('<input type="text" data-f-bind="boo" />'));
-            domManager.private.matchedElements.size.should.equal(1);
+            domManager.matchedElements.size.should.equal(1);
         });
         it('should not update list of added items if match', function () {
-            domManager.private.matchedElements.size.should.equal(0);
+            domManager.matchedElements.size.should.equal(0);
             domManager.bindElement($('<input type="text" data-bind="boo" />'));
-            domManager.private.matchedElements.size.should.equal(0);
+            domManager.matchedElements.size.should.equal(0);
         });
         it('should not bind same item twice', function () {
             const $el = $('<input type="text" data-f-bind="boo" />');
             domManager.bindElement($el);
-            domManager.private.matchedElements.size.should.equal(1);
+            domManager.matchedElements.size.should.equal(1);
             domManager.bindElement($el);
-            domManager.private.matchedElements.size.should.equal(1);
+            domManager.matchedElements.size.should.equal(1);
         });
 
         describe('Subscriptions', ()=> {
@@ -193,9 +193,9 @@ describe('DOM Manager', function () {
             return utils.initWithNode('<div data-f-bind="a"> <input type="text" data-f-bind="boo" /> </div>', domManager).then(function ($node) {
                 var addedNode = $node.find(':text');
 
-                domManager.private.matchedElements.size.should.equal(2);
+                domManager.matchedElements.size.should.equal(2);
                 domManager.unbindElement(addedNode.get(0));
-                domManager.private.matchedElements.size.should.equal(1);
+                domManager.matchedElements.size.should.equal(1);
             });
         });
         describe('Remove added data items', function () {
@@ -346,23 +346,23 @@ describe('DOM Manager', function () {
         });
         it('should update list of added items', function () {
             return utils.initWithNode('<div data-f-bind="a"> <input type="text" data-f-bind="boo" /> </div>', domManager).then(function ($node) {
-                domManager.private.matchedElements.size.should.equal(2);
+                domManager.matchedElements.size.should.equal(2);
                 domManager.unbindAll();
-                domManager.private.matchedElements.size.should.equal(0);
+                domManager.matchedElements.size.should.equal(0);
             });
         });
         it('should allow unbinding specified array of elements', function () {
             return utils.initWithNode('<div data-f-bind="a"> <input type="text" data-f-bind="boo" />  <input type="text" data-f-bind="boos" /> </div>', domManager).then(function ($node) {
-                domManager.private.matchedElements.size.should.equal(3);
+                domManager.matchedElements.size.should.equal(3);
                 domManager.unbindAll($node.find(':text').get(0));
-                domManager.private.matchedElements.size.should.equal(2);
+                domManager.matchedElements.size.should.equal(2);
             });
         });
         it('should allow unbinding of children', function () {
             return utils.initWithNode('<div data-f-bind="a"> <input type="text" data-f-bind="boo" />  <input type="text" data-f-bind="boos" /> </div>', domManager).then(function ($node) {
-                domManager.private.matchedElements.size.should.equal(3);
+                domManager.matchedElements.size.should.equal(3);
                 domManager.unbindAll($node.get(0));
-                domManager.private.matchedElements.size.should.equal(0);
+                domManager.matchedElements.size.should.equal(0);
             });
         });
     });
@@ -405,30 +405,30 @@ describe('DOM Manager', function () {
 
         it('should update list of added items', function () {
             return utils.initWithNode('<div data-f-bind="a"> </div>', domManager).then(function ($node) {
-                domManager.private.matchedElements.size.should.equal(1);
+                domManager.matchedElements.size.should.equal(1);
 
                 $node.append('<input type="text" data-f-bind="boo" />');
                 domManager.bindAll();
-                domManager.private.matchedElements.size.should.equal(2);
+                domManager.matchedElements.size.should.equal(2);
             });
         });
 
         it('should allow providing list of elements to bind', function () {
             return utils.initWithNode('<div data-f-bind="a"> </div>', domManager).then(function ($node) {
-                domManager.private.matchedElements.size.should.equal(1);
+                domManager.matchedElements.size.should.equal(1);
 
                 $node.append('<input type="text" data-f-bind="boo" /> <input type="text" data-f-bind="boos" /> <input type="text" data-f-bind="booss" />');
                 domManager.bindAll($node.find(':text').get().slice(0, 2));
-                domManager.private.matchedElements.size.should.equal(3);
+                domManager.matchedElements.size.should.equal(3);
             });
         });
         it('should allow providing jquery selector', function () {
             return utils.initWithNode('<div data-f-bind="a"> </div>', domManager).then(function ($node) {
-                domManager.private.matchedElements.size.should.equal(1);
+                domManager.matchedElements.size.should.equal(1);
 
                 $node.append('<div> <input type="text" data-f-bind="boo" /> <input type="text" data-f-bind="boos" /> </div> <div> <input type="text" data-f-bind="booss" /> </div>');
                 domManager.bindAll($node.find('div').get(0));
-                domManager.private.matchedElements.size.should.equal(3);
+                domManager.matchedElements.size.should.equal(3);
             });
         });
     });

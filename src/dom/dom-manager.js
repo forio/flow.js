@@ -103,10 +103,8 @@ module.exports = (function () {
         nodes: nodeManager,
         attributes: attrManager,
         converters: converterManager,
-        //utils for testing
-        private: {
-            matchedElements: new Map()
-        },
+            
+        matchedElements: new Map(),
 
         /**
          * Unbind the element; unsubscribe from all updates on the relevant channels.
@@ -120,12 +118,12 @@ module.exports = (function () {
                 channel = this.options.channel;
             }
             const domEl = getElementOrError(element);
-            var $el = $(element);
-            const existingData = this.private.matchedElements.get(domEl);
+            const $el = $(element);
+            const existingData = this.matchedElements.get(domEl);
             if (!$el.is(':' + config.prefix) || !existingData) {
                 return;
             }
-            this.private.matchedElements.delete(element);
+            this.matchedElements.delete(element);
 
             const subscriptions = Object.keys(existingData).map((a)=> existingData[a].subscriptionId);
 
@@ -133,11 +131,9 @@ module.exports = (function () {
             unbindAllAttributes(domEl);
             removeAllSubscriptions(subscriptions, channel);
      
-            _.each($el.data(), function (val, key) {
+            Object.keys($el.data()).forEach(function (key) {
                 if (key.indexOf('f-') === 0 || key.match(/^f[A-Z]/)) {
                     $el.removeData(key);
-                    // var hyphenated = key.replace(/([A-Z])/g, '-$1').toLowerCase();
-                    // $el.removeData(hyphenated);
                 }
             });
         },
@@ -206,7 +202,7 @@ module.exports = (function () {
                 };
             });
             //Need this to be set before subscribing or callback maybe called before it's set
-            this.private.matchedElements.set(domEl, attrList);
+            this.matchedElements.set(domEl, attrList);
             
             const attrsWithSubscriptions = Object.keys(attrList).reduce((accum, name)=> {
                 const attr = attrList[name];
@@ -240,7 +236,7 @@ module.exports = (function () {
                 return accum;
             }, {});
 
-            this.private.matchedElements.set(domEl, attrsWithSubscriptions);
+            this.matchedElements.set(domEl, attrsWithSubscriptions);
         },
 
         /**
@@ -272,7 +268,7 @@ module.exports = (function () {
             var me = this;
             if (!elementsToUnbind) {
                 elementsToUnbind = [];
-                this.private.matchedElements.forEach((val, key)=> {
+                this.matchedElements.forEach((val, key)=> {
                     elementsToUnbind.push(key);
                 });
             } else if (!Array.isArray(elementsToUnbind)) {
@@ -321,7 +317,7 @@ module.exports = (function () {
                     var parsedData = {}; //if not all subsequent listeners will get the modified data
 
                     var $el = $(evt.target);
-                    const elMeta = me.private.matchedElements.get(evt.target);
+                    const elMeta = me.matchedElements.get(evt.target);
                     if (!elMeta) {
                         return;
                     }
@@ -365,7 +361,7 @@ module.exports = (function () {
                      
                     //FIXME: Needed for the 'gotopage' in interfacebuilder. Remove this once we add a window channel
                     promise.then(function (args) {
-                        _.each(filtered.converters, function (con) {
+                        filtered.converters.forEach(function (con) {
                             converterManager.convert(con.value, [con.name]);
                         });
                     });
@@ -377,7 +373,7 @@ module.exports = (function () {
                 $root.off(config.events.convert).on(config.events.convert, function (evt, data) {
                     var $el = $(evt.target);
 
-                    const elMeta = me.private.matchedElements.get(evt.target);
+                    const elMeta = me.matchedElements.get(evt.target);
                     if (!elMeta) {
                         return;
                     }
