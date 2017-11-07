@@ -9,7 +9,7 @@
 'use strict';
 
 const _ = require('lodash');
-const { getConvertersForEl, getChannelForAttribute, getChannelConfigForElement, parseTopicsFromAttributeValue } = require('dom/dom-manager/parsers');
+const { getConvertersForEl, getChannelForAttribute, getChannelConfigForElement, parseTopicsFromAttributeValue } = require('./dom-parse-helpers');
 const { pick } = require('lodash');
 
 const config = require('../config');
