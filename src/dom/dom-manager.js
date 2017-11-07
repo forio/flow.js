@@ -10,7 +10,7 @@
 
 const _ = require('lodash');
 const { getConvertersList, getChannel, getChannelConfig } = require('utils/dom-utils');
-const { parseConvertersFromAttributeValue, parseVariablesFromAttributeValue } = require('dom/dom-manager/attribute-parser');
+const { parseConvertersFromAttributeValue, getConvertersForEl, parseVariablesFromAttributeValue } = require('dom/dom-manager/attribute-parser');
 
 const { pick } = require('lodash');
 
@@ -173,18 +173,18 @@ module.exports = (function () {
             const me = this;
 
             const filterPrefix = `data-${config.prefix}-`;
-            const attrList = [];
+            const attrList = {};
             $(domEl.attributes).each(function (index, nodeMap) {
                 let attr = nodeMap.nodeName;
                 if (attr.indexOf(filterPrefix) !== 0) {
                     return;
                 } 
                 attr = attr.replace(filterPrefix, '');
+
                 let attrVal = nodeMap.value;
                 const handler = attrManager.getHandler(attr, $el);
                 if (handler && handler.parse) {
-                    //Parse value to return variable name
-                    attrVal = handler.parse(attrVal, $el);
+                    attrVal = handler.parse(attrVal, $el); //Parse value to return variable name
                 }
 
                 if (handler && handler.init) {
@@ -194,29 +194,29 @@ module.exports = (function () {
                     }
                 }
 
-                const converters = parseConvertersFromAttributeValue(attrVal);
-                if (converters.length) {
-                    $el.data('f-convert-' + attr, converters);
-                }
-
+                const converters = getConvertersForEl($el, attr);
+             
                 let variables = parseVariablesFromAttributeValue(attrVal);
                 const channelPrefix = getChannel($el, attr);
                 if (channelPrefix) {
                     variables = variables.map((v)=> `${channelPrefix}:${v}`);
                 }
-                attrList.push({
-                    name: attr,
+                const channelConfig = getChannelConfig(domEl);
+                attrList[attr] = {
                     channelPrefix: channelPrefix,
+                    channelConfig: channelConfig,
                     variables: variables,
                     converters: converters,
-                });
+                };
             });
+            //Need this to be set before subscribing or callback maybe called before it's set
+            this.private.matchedElements.set(domEl, attrList);
             
-            const attrsWithSubscriptions = attrList.reduce((accum, attr)=> {
-                const { name, channelPrefix } = attr;
-                let { variables } = attr;
+            const attrsWithSubscriptions = Object.keys(attrList).reduce((accum, name)=> {
+                const attr = attrList[name];
 
-                const channelConfig = getChannelConfig(domEl);
+                const { variables, channelPrefix, channelConfig } = attr;
+
                 const subsOptions = $.extend({ batch: true }, channelConfig);
                 const subsid = channel.subscribe(variables, (data)=> {
                     const toConvert = {};
@@ -325,8 +325,12 @@ module.exports = (function () {
                     var parsedData = {}; //if not all subsequent listeners will get the modified data
 
                     var $el = $(evt.target);
-                    var attrConverters = getConvertersList($el, 'bind'); //Only bind can trigger changes
+                    const elMeta = me.private.matchedElements.get(evt.target);
+                    if (!elMeta) {
+                        return;
+                    }
 
+                    const attrConverters = elMeta.bind.converters; //Only bind can trigger changes
                     _.each(data, function (val, key) {
                         key = key.split('|')[0].trim(); //in case the pipe formatting syntax was used
                         val = converterManager.parse(val, attrConverters);
@@ -377,9 +381,12 @@ module.exports = (function () {
                 $root.off(config.events.convert).on(config.events.convert, function (evt, data) {
                     var $el = $(evt.target);
 
+                    const elMeta = me.private.matchedElements.get(evt.target);
+                    if (!elMeta) {
+                        return;
+                    }
                     var convert = function (val, prop) {
-                        prop = prop.toLowerCase();
-                        var attrConverters = getConvertersList($el, prop);
+                        var attrConverters = elMeta[prop].converters;
 
                         var handler = attrManager.getHandler(prop, $el);
                         var convertedValue = converterManager.convert(val, attrConverters);

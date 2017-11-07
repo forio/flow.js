@@ -203,7 +203,7 @@ describe('DOM Manager', function () {
                 return utils.initWithNode('<div data-f-bind="a | ##" data-f-other=" b | %"> </div>', domManager).then(function ($node) {
                     var keys = Object.keys($node.data());
 
-                    var directTranslates = ['fConvertBind', 'fConvertOther', 'fOther', 'fBind'];
+                    var directTranslates = ['fOther', 'fBind'];
                     var flowAdded = [];
                     var toMatch = [].concat(directTranslates).concat(flowAdded);
                     keys.sort().should.eql(toMatch.sort());
@@ -220,7 +220,7 @@ describe('DOM Manager', function () {
                     var keys = Object.keys($node.data());
 
                     var notAddedByFlow = ['myStuff', 'fsomething'];
-                    var directTranslates = ['fConvertBind', 'fConvertOther', 'fOther', 'fBind'];
+                    var directTranslates = ['fOther', 'fBind'];
                     var flowAdded = [];
                     var toMatch = [].concat(directTranslates).concat(flowAdded).concat(notAddedByFlow);
                     keys.sort().should.eql(toMatch.sort());
