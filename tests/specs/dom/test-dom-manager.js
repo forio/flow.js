@@ -151,14 +151,6 @@ describe('DOM Manager', function () {
                     expect(channel.subscribe).to.have.been.calledOnce;
                     expect(channel.subscribe).to.have.been.calledWith(['a']);
                 });
-                it('should default to non-batch for single variable binds', ()=> {
-                    const el = $('<div data-f-bind="a"> </div>');
-                    domManager.bindElement(el, channel);
-
-                    var args = channel.subscribe.getCall(0).args;
-                    args[0].should.eql(['a']);
-                    args[2].should.eql({ batch: false }); //args[1] is callback fn
-                });
                 it('should default to batch for multi variable binds', ()=> {
                     const el = $('<div data-f-bind="a, b"> </div>');
                     domManager.bindElement(el, channel);
@@ -174,7 +166,7 @@ describe('DOM Manager', function () {
 
                     var args = channel.subscribe.getCall(0).args;
                     args[0].should.eql(['a']);
-                    args[2].should.eql({ batch: false, foo: 'bar' }); //args[1] is callback fn
+                    args[2].should.eql({ batch: true, foo: 'bar' }); //args[1] is callback fn
                 });
             });
         });

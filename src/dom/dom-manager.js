@@ -160,7 +160,7 @@ module.exports = (function () {
             // this.unbindElement(element); //unbind actually removes the data,and jquery doesn't refetch when .data() is called..
             const domEl = getElementOrError(element);
             var $el = $(domEl);
-            if (!$el.is(':' + config.prefix)) {
+            if (!$el.is(`:${config.prefix}`)) {
                 return;
             }
 
@@ -169,8 +169,6 @@ module.exports = (function () {
             new Handler.handle({
                 el: domEl
             });
-
-            var channelConfig = domUtils.getChannelConfig(domEl);
 
             const attrVariableMap = {};
             const me = this;
@@ -181,76 +179,72 @@ module.exports = (function () {
                 var attr = nodeMap.nodeName;
                 var attrVal = nodeMap.value;
 
-                var channelPrefix = domUtils.getChannel($el, attr);
-                var wantedPrefix = 'data-f-';
+                var wantedPrefix = `data-${config.prefix}-`;
+                if (attr.indexOf(wantedPrefix) !== 0) {
+                    return;
+                }
 
-                if (attr.indexOf(wantedPrefix) === 0) {
-                    attr = attr.replace(wantedPrefix, '');
-
-                    var handler = attrManager.getHandler(attr, $el);
-                    var isBindableAttr = true;
-                    if (handler && handler.init) {
-                        isBindableAttr = handler.init.call($el, attr, attrVal, $el);
-                    }
-
-                    if (isBindableAttr) {
-                        let variablesForAttr = [];
-
-                        //Convert pipes to converter attrs
-                        var withConv = attrVal.split('|').map((v)=> v.trim());
-                        if (withConv.length > 1) {
-                            attrVal = withConv.shift();
-                            $el.data('f-convert-' + attr, withConv);
-                        }
-
-                        var commaRegex = /,(?![^[]*])/;
-
-                        //NOTE: do this within init?
-                        if (handler && handler.parse) {
-                            //Let the handler do any pre-processing of inputs necessary
-                            attrVal = handler.parse.call($el, attrVal, $el);
-                        }
-
-                        if (attrVal.indexOf('<%') !== -1) {
-                            //Assume it's templated for later use
-
-                        } else if (attrVal.split(commaRegex).length > 1) {
-                            variablesForAttr = attrVal.split(commaRegex).map((v)=> v.trim());
-                        } else {
-                            variablesForAttr = [attrVal];
-                        }
-
-                        if (channelPrefix) {
-                            variablesForAttr = variablesForAttr.map((v)=> `${channelPrefix}:${v}`);
-                        }
-
-                        const shouldBatch = variablesForAttr.length > 1;
-                        const subsOptions = $.extend({ batch: shouldBatch }, channelConfig);
-                        const subsid = channel.subscribe(variablesForAttr, (data)=> {
-                            const toConvert = {};
-                            if (variablesForAttr.length === 1) { //If I'm only interested in 1 thing pass in value directly, else mke a map;
-                                toConvert[attr] = data[variablesForAttr[0]];
-                            } else {
-                                const dataForAttr = pick(data, variablesForAttr) || [];
-                                toConvert[attr] = Object.keys(dataForAttr).reduce((accum, key)=> {
-                                    const k = channelPrefix ? key.replace(channelPrefix + ':', '') : key;
-                                    accum[k] = dataForAttr[key];
-                                    return accum;
-                                }, {});
-                            }
-
-                            const boundChildren = $el.find(`:${config.prefix}`).get();
-                            if (boundChildren.length) {
-                                //Unbind children so loops etc pick the right template. 
-                                //Autobind will add it back later anyway
-                                me.unbindAll(boundChildren);
-                            }
-                            $el.trigger(config.events.convert, toConvert);
-                        }, subsOptions);
-
-                        attrVariableMap[attr] = { variables: variablesForAttr, subscriptions: subsid };
+                attr = attr.replace(wantedPrefix, '');
+                var handler = attrManager.getHandler(attr, $el);
+                if (handler && handler.init) {
+                    const isBindableAttr = handler.init.call($el, attr, attrVal, $el);
+                    if (!isBindableAttr) {
+                        return;
                     }
                 }
+
+                //Convert pipes to converter attrs
+                var withConv = attrVal.split('|').map((v)=> v.trim());
+                if (withConv.length > 1) {
+                    attrVal = withConv.shift();
+                    $el.data('f-convert-' + attr, withConv);
+                }
+
+                if (handler && handler.parse) {
+                    //Parse value to return variable name
+                    attrVal = handler.parse.call($el, attrVal, $el);
+                }
+
+                let variablesForAttr = [];
+                var commaRegex = /,(?![^[]*])/;
+                if (attrVal.indexOf('<%') !== -1) {
+                    //Assume it's templated for later use
+                } else if (attrVal.split(commaRegex).length > 1) {
+                    variablesForAttr = attrVal.split(commaRegex).map((v)=> v.trim());
+                } else {
+                    variablesForAttr = [attrVal];
+                }
+
+                var channelPrefix = domUtils.getChannel($el, attr);
+                if (channelPrefix) {
+                    variablesForAttr = variablesForAttr.map((v)=> `${channelPrefix}:${v}`);
+                }
+
+                const channelConfig = domUtils.getChannelConfig(domEl);
+                const subsOptions = $.extend({ batch: true }, channelConfig);
+                const subsid = channel.subscribe(variablesForAttr, (data)=> {
+                    const toConvert = {};
+                    if (variablesForAttr.length === 1) { //If I'm only interested in 1 thing pass in value directly, else mke a map;
+                        toConvert[attr] = data[variablesForAttr[0]];
+                    } else {
+                        const dataForAttr = pick(data, variablesForAttr) || [];
+                        toConvert[attr] = Object.keys(dataForAttr).reduce((accum, key)=> {
+                            const k = channelPrefix ? key.replace(channelPrefix + ':', '') : key;
+                            accum[k] = dataForAttr[key];
+                            return accum;
+                        }, {});
+                    }
+
+                    const boundChildren = $el.find(`:${config.prefix}`).get();
+                    if (boundChildren.length) {
+                        //Unbind children so loops etc pick the right template. 
+                        //Autobind will add it back later anyway
+                        me.unbindAll(boundChildren);
+                    }
+                    $el.trigger(config.events.convert, toConvert);
+                }, subsOptions);
+
+                attrVariableMap[attr] = { variables: variablesForAttr, subscriptions: subsid };
             });
             this.private.matchedElements.set(domEl, attrVariableMap);
         },
