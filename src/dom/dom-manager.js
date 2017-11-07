@@ -10,6 +10,7 @@
 
 const _ = require('lodash');
 const { getConvertersList, getChannel, getChannelConfig } = require('utils/dom-utils');
+const { parseConvertersFromAttributeValue, parseVariablesFromAttributeValue } = require('dom/dom-manager/attribute-parser');
 
 const { pick } = require('lodash');
 
@@ -130,11 +131,7 @@ module.exports = (function () {
             }
             this.private.matchedElements.delete(element);
 
-            const subscriptions = Object.keys(existingData).reduce((accum, attr)=> {
-                const subscriptions = existingData[attr].subscriptions;
-                accum = accum.concat(subscriptions);
-                return accum;
-            }, []);
+            const subscriptions = existingData.map((a)=> a.subscriptionId);
 
             unbindAllNodeHandlers(domEl);
             unbindAllAttributes(domEl);
@@ -173,22 +170,23 @@ module.exports = (function () {
                 el: domEl
             });
 
-            const attrVariableMap = {};
             const me = this;
 
-            // NOTE: looping through attributes instead of .data because .data automatically camelcases properties and make it hard to retrvieve. 
-            // Also don't want to index dynamically added (by flow) data attrs
+            const filterPrefix = `data-${config.prefix}-`;
+            const attrList = [];
             $(domEl.attributes).each(function (index, nodeMap) {
-                var attr = nodeMap.nodeName;
-                var attrVal = nodeMap.value;
-
-                var wantedPrefix = `data-${config.prefix}-`;
-                if (attr.indexOf(wantedPrefix) !== 0) {
+                let attr = nodeMap.nodeName;
+                if (attr.indexOf(filterPrefix) !== 0) {
                     return;
+                } 
+                attr = attr.replace(filterPrefix, '');
+                let attrVal = nodeMap.value;
+                const handler = attrManager.getHandler(attr, $el);
+                if (handler && handler.parse) {
+                    //Parse value to return variable name
+                    attrVal = handler.parse(attrVal, $el);
                 }
 
-                attr = attr.replace(wantedPrefix, '');
-                var handler = attrManager.getHandler(attr, $el);
                 if (handler && handler.init) {
                     const isBindableAttr = handler.init.call($el, attr, attrVal, $el);
                     if (!isBindableAttr) {
@@ -196,42 +194,37 @@ module.exports = (function () {
                     }
                 }
 
-                //Convert pipes to converter attrs
-                var withConv = attrVal.split('|').map((v)=> v.trim());
-                if (withConv.length > 1) {
-                    attrVal = withConv.shift();
-                    $el.data('f-convert-' + attr, withConv);
+                const converters = parseConvertersFromAttributeValue(attrVal);
+                if (converters.length) {
+                    $el.data('f-convert-' + attr, converters);
                 }
 
-                if (handler && handler.parse) {
-                    //Parse value to return variable name
-                    attrVal = handler.parse.call($el, attrVal, $el);
-                }
-
-                let variablesForAttr = [];
-                var commaRegex = /,(?![^[]*])/;
-                if (attrVal.indexOf('<%') !== -1) {
-                    //Assume it's templated for later use
-                } else if (attrVal.split(commaRegex).length > 1) {
-                    variablesForAttr = attrVal.split(commaRegex).map((v)=> v.trim());
-                } else {
-                    variablesForAttr = [attrVal];
-                }
-
-                var channelPrefix = getChannel($el, attr);
+                let variables = parseVariablesFromAttributeValue(attrVal);
+                const channelPrefix = getChannel($el, attr);
                 if (channelPrefix) {
-                    variablesForAttr = variablesForAttr.map((v)=> `${channelPrefix}:${v}`);
+                    variables = variables.map((v)=> `${channelPrefix}:${v}`);
                 }
+                attrList.push({
+                    name: attr,
+                    channelPrefix: channelPrefix,
+                    variables: variables,
+                    converters: converters,
+                });
+            });
+            
+            const attrsWithSubscriptions = attrList.map((attr)=> {
+                const { name, channelPrefix } = attr;
+                let { variables } = attr;
 
                 const channelConfig = getChannelConfig(domEl);
                 const subsOptions = $.extend({ batch: true }, channelConfig);
-                const subsid = channel.subscribe(variablesForAttr, (data)=> {
+                const subsid = channel.subscribe(variables, (data)=> {
                     const toConvert = {};
-                    if (variablesForAttr.length === 1) { //If I'm only interested in 1 thing pass in value directly, else mke a map;
-                        toConvert[attr] = data[variablesForAttr[0]];
+                    if (variables.length === 1) { //If I'm only interested in 1 thing pass in value directly, else mke a map;
+                        toConvert[name] = data[variables[0]];
                     } else {
-                        const dataForAttr = pick(data, variablesForAttr) || [];
-                        toConvert[attr] = Object.keys(dataForAttr).reduce((accum, key)=> {
+                        const dataForAttr = pick(data, variables) || {};
+                        toConvert[name] = Object.keys(dataForAttr).reduce((accum, key)=> {
                             const k = channelPrefix ? key.replace(channelPrefix + ':', '') : key;
                             accum[k] = dataForAttr[key];
                             return accum;
@@ -246,10 +239,10 @@ module.exports = (function () {
                     }
                     $el.trigger(config.events.convert, toConvert);
                 }, subsOptions);
-
-                attrVariableMap[attr] = { variables: variablesForAttr, subscriptions: subsid };
+                return (Object.assign({}, attr, { subscriptionId: subsid }));
             });
-            this.private.matchedElements.set(domEl, attrVariableMap);
+
+            this.private.matchedElements.set(domEl, attrsWithSubscriptions);
         },
 
         /**

@@ -10,6 +10,12 @@ export function match(matchExpr, matchValue, context) {
     }
 }
 
+/**
+ * 
+ * @param {JQuery<HTMLElement>} $el  
+ * @param {string} property 
+ * @returns {string}
+ */
 export function getChannel($el, property) {
     property = property.replace('data-f-', '');
     var channel = $el.data('f-channel-' + property);
@@ -24,43 +30,6 @@ export function getChannel($el, property) {
     }
     return channel;
 }
-
-function parseVariablesFromAttributeValue(attrVal) {
-    const commaRegex = /,(?![^[]*])/;
-    const variablesPart = attrVal.split('|')[0];
-    if (variablesPart.indexOf('<%') !== -1) { //Assume it's templated for later use
-        return;
-    } 
-    if (variablesPart.split(commaRegex).length > 1) {
-        return variablesPart.split(commaRegex).map((v)=> v.trim());
-    } 
-    return variablesPart.trim();
-}
-function parseConvertersFromAttributeValue(attrVal) {
-    const withConv = attrVal.split('|').map((v)=> v.trim());
-    if (withConv.length > 1) {
-        return withConv.slice(1);
-    }
-    return [];
-}
-
-
-export function parseAttributesWithPrefix(el, prefix) {
-    const attrList = [];
-    $(el.attributes).each(function (index, nodeMap) {
-        const attr = nodeMap.nodeName;
-        if (attr.indexOf(prefix) !== 0) {
-            return;
-        } 
-        attrList.push({
-            attr: attr,
-            variables: parseConvertersFromAttributeValue(attrVal),
-            converters: parseVariablesFromAttributeValue(attrVal),
-        });
-    });
-    return attrList;
-}
-
 
 /**
  * @param {HTMLElement} el
