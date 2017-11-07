@@ -9,9 +9,6 @@ module.exports = {
         //UI Change to publish to the channel.
         trigger: 'update.f.ui',
 
-        //Payload is of form {topic: value}. When triggered on a element dom-manager will trigger 'f.convert' on every attribute subscribed to that topic
-        channelDataReceived: 'update.f.model',
-
         //Trigger with payload '{attrToUpdate: value}', for e.g. { bind: 34 }. This will run this through all the converts and pass it to attr handler. Useful to by-pass getting this from the model directly.
         convert: 'f.convert',
 

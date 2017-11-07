@@ -318,42 +318,6 @@ module.exports = (function () {
             var me = this;
             var $root = $(defaults.root);
 
-            var attachChannelListener = function ($root) {
-                $root.off(config.events.channelDataReceived).on(config.events.channelDataReceived, function (evt, data) {
-                    var $el = $(evt.target);
-                    var bindings = $el.data(config.attrs.bindingsList);
-                    var toconvert = {};
-                    $.each(data, function (variableName, value) {
-                        _.each(bindings, function (binding) {
-                            var channelPrefix = getChannel($el, binding.attr);
-                            var interestedTopics = binding.topics || [];
-                            if (interestedTopics.indexOf(variableName) !== -1) {
-                                if (binding.topics.length > 1) {
-                                    var matching = pick(data, interestedTopics);
-                                    if (!channelPrefix) {
-                                        value = matching;
-                                    } else {
-                                        value = Object.keys(matching).reduce(function (accum, key) {
-                                            var k = key.replace(channelPrefix + ':', '');
-                                            accum[k] = matching[key]; 
-                                            return accum;
-                                        }, {});
-                                    }
-                                }
-                                toconvert[binding.attr] = value;
-                            }
-                        });
-                    });
-                    const boundChildren = $el.find(`:${config.prefix}`).get();
-                    if (boundChildren.length) {
-                        //Unbind children so loops etc pick the right template. 
-                        //Autobind will add it back later anyway
-                        me.unbindAll(boundChildren);
-                    }
-                    $el.trigger(config.events.convert, toconvert);
-                });
-            };
-
             var attachUIVariablesListener = function ($root) {
                 $root.off(config.events.trigger).on(config.events.trigger, function (evt, data) {
                     var parsedData = {}; //if not all subsequent listeners will get the modified data
@@ -432,7 +396,6 @@ module.exports = (function () {
             $(function () {
                 me.bindAll();
 
-                attachChannelListener($root);
                 attachUIVariablesListener($root);
                 attachUIOperationsListener($root);
                 attachConversionListner($root);
