@@ -66,7 +66,8 @@ module.exports = function (grunt) {
                 resolve: {
                     modules: [path.resolve('./src'), 'node_modules'],
                     alias: {
-                        src: path.resolve('./src')
+                        src: path.resolve('./src'),
+                        tests: path.resolve('./tests'),
                     }
                 }
             }
@@ -129,7 +130,8 @@ module.exports = function (grunt) {
                     resolve: {
                         modules: [path.resolve('./src'), 'node_modules'],
                         alias: {
-                            src: path.resolve('./src')
+                            src: path.resolve('./src'),
+                            tests: path.resolve('./tests'),
                         }
                     }
                 }
