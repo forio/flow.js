@@ -131,7 +131,7 @@ module.exports = (function () {
             }
             this.private.matchedElements.delete(element);
 
-            const subscriptions = existingData.map((a)=> a.subscriptionId);
+            const subscriptions = Object.keys(existingData).map((a)=> existingData[a].subscriptionId);
 
             unbindAllNodeHandlers(domEl);
             unbindAllAttributes(domEl);
@@ -212,7 +212,7 @@ module.exports = (function () {
                 });
             });
             
-            const attrsWithSubscriptions = attrList.map((attr)=> {
+            const attrsWithSubscriptions = attrList.reduce((accum, attr)=> {
                 const { name, channelPrefix } = attr;
                 let { variables } = attr;
 
@@ -239,8 +239,10 @@ module.exports = (function () {
                     }
                     $el.trigger(config.events.convert, toConvert);
                 }, subsOptions);
-                return (Object.assign({}, attr, { subscriptionId: subsid }));
-            });
+
+                accum[name] = Object.assign({}, attr, { subscriptionId: subsid });
+                return accum;
+            }, {});
 
             this.private.matchedElements.set(domEl, attrsWithSubscriptions);
         },
