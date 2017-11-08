@@ -37,7 +37,7 @@ describe('Default Event attribute', function () {
             $node.on(config.events.operate, spy);
             $node.trigger('click');
 
-            spy.getCall(0).args[1].should.eql({ operations: [{ name: 'stuff', value: [] }] });
+            spy.getCall(0).args[1].should.eql({ operations: [{ name: 'stuff', value: [] }], source: 'on-click' });
 
         });
 
@@ -51,6 +51,7 @@ describe('Default Event attribute', function () {
 
             spy.getCall(0).args[1].should.eql({
                 operations: [{ name: 'stuff', value: ['1'] }, { name: 'reset', value: ['0'] }],
+                source: 'on-click'
             });
 
         });

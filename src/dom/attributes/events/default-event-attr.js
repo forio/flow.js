@@ -33,12 +33,12 @@ module.exports = {
     },
 
     init: function (attr, value) {
-        attr = attr.replace('on-', '');
+        const eventName = attr.replace('on-', '');
         var me = this;
-        this.off(attr).on(attr, function (evt) {
+        this.off(eventName).on(eventName, function (evt) {
             evt.preventDefault();
             var listOfOperations = toOperationFormat(value);
-            me.trigger(config.events.operate, { operations: listOfOperations });
+            me.trigger(config.events.operate, { operations: listOfOperations, source: attr });
         });
         return false; //Don't bother binding on this attr. NOTE: Do readonly, true instead?;
     }

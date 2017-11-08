@@ -321,6 +321,10 @@ module.exports = (function () {
             const me = this;
             const $root = $(defaults.root);
 
+            const DEFAULT_OPERATIONS_PREFIX = 'operations:';
+            const DEFAULT_VARIABLES_PREFIX = 'variables:';
+
+            //TODO: Merge the two listeners and just have prefix by 'source';
             function attachUIVariablesListener($root) {
                 $root.off(config.events.trigger).on(config.events.trigger, function (evt, data) {
                     const elMeta = me.matchedElements.get(evt.target);
@@ -330,13 +334,14 @@ module.exports = (function () {
 
                     const $el = $(evt.target);
                     const parsedData = [];
-                    const { converters, channelPrefix } = elMeta.bind; //Only bind can trigger changes
+                    const { converters, channelPrefix } = elMeta.bind || {}; //Only bind can trigger changes
                     _.each(data, function (val, key) {
                         key = key.split('|')[0].trim(); //in case the pipe formatting syntax was used
                         const converted = converterManager.parse(val, converters);
                         const typed = parseUtils.toImplicitType(converted);
 
-                        if (key.indexOf(':') === -1 && channelPrefix) {
+                        const canPrefix = key.indexOf(':') === -1 || key.indexOf(DEFAULT_VARIABLES_PREFIX) === 0;
+                        if (canPrefix && channelPrefix) {
                             key = `${channelPrefix}:${key}`;
                         }
                         parsedData.push({ name: key, value: typed });
@@ -348,10 +353,16 @@ module.exports = (function () {
                 });
             }
 
-            const DEFAULT_OPERATIONS_PREFIX = 'operations:';
             function attachUIOperationsListener($root) {
                 $root.off(config.events.operate).on(config.events.operate, function (evt, data) {
-                    const filtered = ([].concat(data.operations || [])).reduce(function (accum, operation) {
+                    const elMeta = me.matchedElements.get(evt.target);
+                    if (!elMeta) {
+                        return;
+                    }
+                    const { operations, source } = data;
+                    const sourceMeta = elMeta[source] || {};
+
+                    const filtered = ([].concat(operations || [])).reduce(function (accum, operation) {
                         const val = operation.value ? [].concat(operation.value) : [];
                         operation.value = val.map(function (val) {
                             return parseUtils.toImplicitType($.trim(val));
@@ -361,8 +372,10 @@ module.exports = (function () {
                             accum.converters.push(operation);
                         } else {
                             if (operation.name.indexOf(':') === -1) {
-                                //TODO: Also look at f-channel?
                                 operation.name = `${DEFAULT_OPERATIONS_PREFIX}${operation.name}`;
+                            }
+                            if (operation.name.indexOf(DEFAULT_OPERATIONS_PREFIX) === 0 && sourceMeta.channelPrefix) {
+                                operation.name = `${sourceMeta.channelPrefix}:${operation.name}`;
                             }
                             accum.operations.push(operation);
                         }
