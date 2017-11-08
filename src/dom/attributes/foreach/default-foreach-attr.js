@@ -120,6 +120,7 @@
 const parseUtils = require('../../../utils/parse-utils');
 const config = require('../../../config');
 
+const { addChangeClassesToList } = require('utils/animation');
 const { uniqueId, each, template } = require('lodash');
 
 function refToMarkup(refKey) {
@@ -181,7 +182,6 @@ module.exports = {
             elTemplateMap.set(el, loopTemplate);
         }
         
-        $el.empty();
         let cloop = loopTemplate.replace(/&lt;/g, '<').replace(/&gt;/g, '>');
 
         const defaultKey = $.isPlainObject(value) ? 'key' : 'index';
@@ -200,7 +200,7 @@ module.exports = {
                     cloop = cloop.replace(refToMarkup(replacement), template);
                 }
             });
-            //don't remove attr here because siblings may need it
+            //don't remove MISSING_REFERENCE_ATTR here because siblings may need it
         } else {
             const missingReferences = {};
             const templateTagsUsed = cloop.match(/<%[=-]?([\s\S]+?)%>/g);
@@ -229,6 +229,7 @@ module.exports = {
             knownData = closestKnownDataEl.data(CURRENT_INDEX_KEY);
         }
         const templateFn = template(cloop);
+        const $dummyEl = $('<div></div>');
         each(value, function (dataval, datakey) {
             if (!dataval) {
                 dataval = dataval + ''; //convert undefineds to strings
@@ -260,7 +261,11 @@ module.exports = {
                     $newNode.html(dataval);
                 }
             });
-            $el.append(nodes);
+            $dummyEl.append(nodes);
         });
+        
+        const $newChildren = $dummyEl.children();
+        addChangeClassesToList($el.children(), $newChildren);
+        $el.empty().append($newChildren);
     }
 };
