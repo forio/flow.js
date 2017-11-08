@@ -1,6 +1,7 @@
 import { addChangeClassesToList, _findMostConsequtive } from '../animation';
+import { animation } from 'src/config';
 
-describe.only('Animation', ()=> {
+describe('Animation', ()=> {
     describe('#_findMostConsequtive', ()=> {
         it('should find most conseq trues', ()=> {
             expect(_findMostConsequtive([true, false, false, true, true], true)).to.equal(2);
@@ -28,61 +29,61 @@ describe.only('Animation', ()=> {
         return $parent;
     }
 
-    describe.only('addChangeClassesToList', ()=> {
-        describe('data-added', ()=> {
+    describe('addChangeClassesToList', ()=> {
+        describe(animation.addAttr, ()=> {
             it('should add new attr to new children if added at the end', ()=> {
                 const $current = makeList([1, 2]);
                 const $new = makeList([1, 2, 3]);
 
-                const $changed = addChangeClassesToList($current, $new);
-                verifyChildAttrValues($changed, 'data-added', [false, false, true]);
+                const $changed = addChangeClassesToList($current, $new, animation);
+                verifyChildAttrValues($changed, animation.addAttr, [false, false, true]);
             });
             it('should add new attr to new children if added at the beginning', ()=> {
                 const $current = makeList([1, 2]);
                 const $new = makeList([3, 1, 2]);
 
-                const $changed = addChangeClassesToList($current, $new);
-                verifyChildAttrValues($changed, 'data-added', [true, false, false]);
+                const $changed = addChangeClassesToList($current, $new, animation);
+                verifyChildAttrValues($changed, animation.addAttr, [true, false, false]);
             });
             it('should guess if last items are same', ()=> {
                 const $current = makeList([1, 2, 3]);
                 const $new = makeList([1, 1, 2, 2, 3]);
 
-                const $changed = addChangeClassesToList($current, $new);
-                verifyChildAttrValues($changed, 'data-added', [true, true, false, false, false]);
+                const $changed = addChangeClassesToList($current, $new, animation);
+                verifyChildAttrValues($changed, animation.addAttr, [true, true, false, false, false]);
             });
             describe('Removing items', ()=> {
                 it('should not add new classes', ()=> {
                     const $current = makeList([1, 2, 3]);
                     const $new = makeList([1, 1]);
 
-                    const $changed = addChangeClassesToList($current, $new);
-                    verifyChildAttrValues($changed, 'data-added', [false, false]);
+                    const $changed = addChangeClassesToList($current, $new, animation);
+                    verifyChildAttrValues($changed, animation.addAttr, [false, false]);
                 });
             });
         });
-        describe('data-updated', ()=> {
+        describe(animation.changeAttr, ()=> {
             it('should update if count is same', ()=> {
                 const $current = makeList([1, 2, 3]);
                 const $new = makeList([1, 1, 2]);
 
-                const $changed = addChangeClassesToList($current, $new);
-                verifyChildAttrValues($changed, 'data-updated', [false, true, true]);
+                const $changed = addChangeClassesToList($current, $new, animation);
+                verifyChildAttrValues($changed, animation.changeAttr, [false, true, true]);
             });
             it('should not add update class for new items', ()=> {
                 const $current = makeList([1, 2, 3]);
                 const $new = makeList([1, 1, 2, 4, 5]);
 
-                const $changed = addChangeClassesToList($current, $new);
-                verifyChildAttrValues($changed, 'data-updated', [false, true, true, false, false]);
+                const $changed = addChangeClassesToList($current, $new, animation);
+                verifyChildAttrValues($changed, animation.changeAttr, [false, true, true, false, false]);
             });
             describe('Removing items', ()=> {
                 it('should update existing items', ()=> {
                     const $current = makeList([1, 2, 3]);
                     const $new = makeList([1, 1]);
 
-                    const $changed = addChangeClassesToList($current, $new);
-                    verifyChildAttrValues($changed, 'data-updated', [false, true]);
+                    const $changed = addChangeClassesToList($current, $new, animation);
+                    verifyChildAttrValues($changed, animation.changeAttr, [false, true]);
                 });
             });
         });

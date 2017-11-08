@@ -264,7 +264,7 @@ module.exports = {
             $dummyEl.append(nodes);
         });
         
-        const $withAnimAttrs = addChangeClassesToList($el, $dummyEl);
+        const $withAnimAttrs = addChangeClassesToList($el, $dummyEl, config.animation);
         $el.empty().append($withAnimAttrs.children());
     }
 };

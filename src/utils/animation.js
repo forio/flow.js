@@ -38,13 +38,13 @@ function elementsToContents($el) {
  * Compares 2 lists and Adds add or update classes
  * @param {JQuery<HTMLElement>} $currentEl existing elements
  * @param {JQuery<HTMLElement>} $newEls   new elements
- * @param {{ addAttr: string, updateAttr: string}} [options]
+ * @param {{ addAttr: string, changeAttr: string}} [options]
  * @returns {JQuery<HTMLElement>} elements with updated attributes
  */
 export function addChangeClassesToList($currentEl, $newEls, options) {
     const defaults = {
-        addAttr: 'data-added',
-        updateAttr: 'data-updated'
+        addAttr: 'data-add',
+        changeAttr: 'data-update'
     };
     const opts = $.extend({}, defaults, options);
 
@@ -73,12 +73,12 @@ export function addChangeClassesToList($currentEl, $newEls, options) {
         const curr = currentcontents[i];
         if (curr === undefined) {
             $el.attr(opts.addAttr, true);
-            $el.removeAttr(opts.updateAttr);
+            $el.removeAttr(opts.changeAttr);
         } else if (curr !== $el.html().trim()) {
-            $el.attr(opts.updateAttr, true);
+            $el.attr(opts.changeAttr, true);
             $el.removeAttr(opts.addAttr);
         } else {
-            $el.removeAttr(`${opts.addAttr} ${opts.updateAttr}`);
+            $el.removeAttr(`${opts.addAttr} ${opts.changeAttr}`);
         }
     }
 

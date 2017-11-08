@@ -27,5 +27,10 @@ module.exports = {
 
         keyAs: 'f-foreach-key-as',
         valueAs: 'f-foreach-value-as',
+    },
+    animation: {
+        addAttr: 'data-add',
+        changeAttr: 'data-update',
+        initialChangeAttr: 'data-change-initial',
     }
 };
