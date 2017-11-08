@@ -326,30 +326,34 @@ module.exports = (function () {
 
             //TODO: Merge the two listeners and just have prefix by 'source';
             function attachUIVariablesListener($root) {
-                $root.off(config.events.trigger).on(config.events.trigger, function (evt, data) {
+                $root.off(config.events.trigger).on(config.events.trigger, function (evt, params) {
                     const elMeta = me.matchedElements.get(evt.target);
                     if (!elMeta) {
                         return;
                     }
 
+                    const { data, source, options } = params;
+                    const { converters, channelPrefix } = elMeta[source] || {};
                     const $el = $(evt.target);
-                    const parsedData = [];
-                    const { converters, channelPrefix } = elMeta.bind || {}; //Only bind can trigger changes
-                    _.each(data, function (val, key) {
-                        key = key.split('|')[0].trim(); //in case the pipe formatting syntax was used
-                        const converted = converterManager.parse(val, converters);
+
+                    const parsed = [];
+                    data.forEach((d)=> {
+                        const { value, name } = d;
+                        const converted = converterManager.parse(value, converters);
                         const typed = parseUtils.toImplicitType(converted);
 
+                        let key = name.split('|')[0].trim(); //in case the pipe formatting syntax was used
                         const canPrefix = key.indexOf(':') === -1 || key.indexOf(DEFAULT_VARIABLES_PREFIX) === 0;
                         if (canPrefix && channelPrefix) {
                             key = `${channelPrefix}:${key}`;
                         }
-                        parsedData.push({ name: key, value: typed });
+                        parsed.push({ name: key, value: typed });
 
-                        $el.trigger(config.events.convert, { bind: typed });
+                        const convertParams = {};
+                        convertParams[source] = typed;
+                        $el.trigger(config.events.convert, convertParams);
                     });
-
-                    channel.publish(parsedData);
+                    channel.publish(parsed, options);
                 });
             }
 

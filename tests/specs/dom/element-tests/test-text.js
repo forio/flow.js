@@ -18,7 +18,8 @@ describe(':text', function () {
                 $node.val(5);
                 $node.trigger('change');
 
-                spy.getCall(0).args[1].should.eql({ stuff: '5' });
+                const args = spy.getCall(0).args[1];
+                args.data.should.eql([{ name: 'stuff', value: '5' }]);
             });
         });
     });

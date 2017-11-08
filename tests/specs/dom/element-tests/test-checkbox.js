@@ -1,5 +1,6 @@
 var utils = require('../../../testing-utils');
 var domManager = require('src/dom/dom-manager');
+var config = require('src/config');
 
 describe(':checkbox', function () {
     describe('input handlers', function () {
@@ -17,10 +18,11 @@ describe(':checkbox', function () {
                 const channel = utils.createDummyChannel();
                 return utils.initWithNode('<input type="checkbox" data-f-bind="stuff"/>', domManager, channel).then(function ($node) {
                     var spy = sinon.spy();
-                    $node.on('update.f.ui', spy);
+                    $node.on(config.events.trigger, spy);
                     $node.prop('checked', true).trigger('change');
 
-                    spy.getCall(0).args[1].should.eql({ stuff: true });
+                    const args = spy.getCall(0).args[1];
+                    args.data.should.eql([{ name: 'stuff', value: true }]);
                 });
             });
 
@@ -28,10 +30,11 @@ describe(':checkbox', function () {
                 const channel = utils.createDummyChannel();
                 return utils.initWithNode('<input type="checkbox" data-f-bind="stuff" value="4"/>', domManager, channel).then(function ($node) {
                     var spy = sinon.spy();
-                    $node.on('update.f.ui', spy);
+                    $node.on(config.events.trigger, spy);
                     $node.prop('checked', true).trigger('change');
 
-                    spy.getCall(0).args[1].should.eql({ stuff: '4' });
+                    const args = spy.getCall(0).args[1];
+                    args.data.should.eql([{ name: 'stuff', value: '4' }]);
                 });
             });
         });
@@ -40,10 +43,11 @@ describe(':checkbox', function () {
                 const channel = utils.createDummyChannel();
                 return utils.initWithNode('<input type="checkbox" data-f-bind="stuff" checked/>', domManager, channel).then(function ($node) {
                     var spy = sinon.spy();
-                    $node.on('update.f.ui', spy);
+                    $node.on(config.events.trigger, spy);
 
                     $node.prop('checked', false).trigger('change');
-                    spy.getCall(0).args[1].should.eql({ stuff: false });
+                    const args = spy.getCall(0).args[1];
+                    args.data.should.eql([{ name: 'stuff', value: false }]);
                 });
             });
 
@@ -51,10 +55,12 @@ describe(':checkbox', function () {
                 const channel = utils.createDummyChannel();
                 return utils.initWithNode('<input type="checkbox" data-f-bind="stuff" data-f-off="5" checked/>', domManager, channel).then(function ($node) {
                     var spy = sinon.spy();
-                    $node.on('update.f.ui', spy);
+                    $node.on(config.events.trigger, spy);
 
                     $node.prop('checked', false).trigger('change');
-                    spy.getCall(0).args[1].should.eql({ stuff: 5 });
+
+                    const args = spy.getCall(0).args[1];
+                    args.data.should.eql([{ name: 'stuff', value: 5 }]);
                 });
             });
         });
