@@ -29,13 +29,27 @@ function fill(count, val) {
     return a;
 }
 
-export function addChangeClassesToList($curentEl, $newEls) {
-    let currentcontents = $curentEl.children().map((index, child)=> {
+function elementsToContents($el) {
+    return $el.children().map((index, child)=> {
         return $(child).html().trim();
     }).get();
-    const newContents = $newEls.children().map((index, child)=> {
-        return $(child).html().trim();
-    }).get();
+}
+/**
+ * Compares 2 lists and Adds add or update classes
+ * @param {JQuery<HTMLElement>} $currentEl existing elements
+ * @param {JQuery<HTMLElement>} $newEls   new elements
+ * @param {{ addAttr: string, updateAttr: string}} [options]
+ * @returns {JQuery<HTMLElement>} elements with updated attributes
+ */
+export function addChangeClassesToList($currentEl, $newEls, options) {
+    const defaults = {
+        addAttr: 'data-added',
+        updateAttr: 'data-updated'
+    };
+    const opts = $.extend({}, defaults, options);
+
+    let currentcontents = elementsToContents($currentEl);
+    const newContents = elementsToContents($newEls);
     const reversedContents = currentcontents;
 
     const $newChildren = $newEls.children();
@@ -58,13 +72,13 @@ export function addChangeClassesToList($curentEl, $newEls) {
         const $el = $newChildren.eq(i);
         const curr = currentcontents[i];
         if (curr === undefined) {
-            $el.attr('data-added', true);
-            $el.removeAttr('data-updated');
+            $el.attr(opts.addAttr, true);
+            $el.removeAttr(opts.updateAttr);
         } else if (curr !== $el.html().trim()) {
-            $el.attr('data-updated', true);
-            $el.removeAttr('data-added');
+            $el.attr(opts.updateAttr, true);
+            $el.removeAttr(opts.addAttr);
         } else {
-            $el.removeAttr('data-added data-updated');
+            $el.removeAttr(`${opts.addAttr} ${opts.updateAttr}`);
         }
     }
 
