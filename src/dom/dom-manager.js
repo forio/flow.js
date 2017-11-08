@@ -319,21 +319,25 @@ module.exports = (function () {
 
             function attachUIVariablesListener($root) {
                 $root.off(config.events.trigger).on(config.events.trigger, function (evt, data) {
-                    const parsedData = {}; //if not all subsequent listeners will get the modified data
-
-                    const $el = $(evt.target);
                     const elMeta = me.matchedElements.get(evt.target);
                     if (!elMeta) {
                         return;
                     }
 
-                    const attrConverters = elMeta.bind.converters; //Only bind can trigger changes
+                    const $el = $(evt.target);
+                    const parsedData = [];
+                    const { converters, channelPrefix } = elMeta.bind; //Only bind can trigger changes
                     _.each(data, function (val, key) {
                         key = key.split('|')[0].trim(); //in case the pipe formatting syntax was used
-                        val = converterManager.parse(val, attrConverters);
-                        parsedData[key] = parseUtils.toImplicitType(val);
+                        const converted = converterManager.parse(val, converters);
+                        const typed = parseUtils.toImplicitType(converted);
 
-                        $el.trigger(config.events.convert, { bind: val });
+                        if (key.indexOf(':') === -1 && channelPrefix) {
+                            key = `${channelPrefix}:${key}`;
+                        }
+                        parsedData.push({ name: key, value: typed });
+
+                        $el.trigger(config.events.convert, { bind: typed });
                     });
 
                     channel.publish(parsedData);

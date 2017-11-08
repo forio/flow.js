@@ -154,20 +154,20 @@ describe(config.events.operate, function () {
         channel = utils.createDummyChannel();
     });
     it('should call publish', function () {
-        return utils.initWithNode('<div></div>', domManager, channel).then(function ($node) {
+        return utils.initWithNode('<div data-f-bind="somethingrandom"></div>', domManager, channel).then(function ($node) {
             $node.trigger(config.events.operate, { operations: [{ name: 'stuff', value: [] }] });
             channel.publish.should.have.been.calledOnce;
         });
     });
     it('should pass the right parameters to publish', function () {
-        return utils.initWithNode('<div></div>', domManager, channel).then(function ($node) {
+        return utils.initWithNode('<div data-f-bind="somethingrandom"></div>', domManager, channel).then(function ($node) {
             var payload = { operations: [{ name: 'stuff', value: [] }] };
             $node.trigger(config.events.operate, payload);
             channel.publish.should.have.been.calledWith([{ name: 'operations:stuff', value: [] }]);
         });
     });
     it('should implicitly convert parameters to send to publish', function () {
-        return utils.initWithNode('<div></div>', domManager, channel).then(function ($node) {
+        return utils.initWithNode('<div data-f-bind="somethingrandom"></div>', domManager, channel).then(function ($node) {
             var payload = { operations: [{ name: 'stuff', value: ['1', 0] }] };
             $node.trigger(config.events.operate, payload);
             channel.publish.should.have.been.calledWith([{ name: 'operations:stuff', value: [1, 0] }]);
@@ -175,14 +175,14 @@ describe(config.events.operate, function () {
     });
     describe('Operations prefix', ()=> {
         it('should add operations prefix if not provided', ()=> {
-            return utils.initWithNode('<div></div>', domManager, channel).then(function ($node) {
+            return utils.initWithNode('<div data-f-bind="somethingrandom"></div>', domManager, channel).then(function ($node) {
                 var payload = { operations: [{ name: 'stuff', value: ['1', 0] }] };
                 $node.trigger(config.events.operate, payload);
                 channel.publish.should.have.been.calledWith([{ name: 'operations:stuff', value: [1, 0] }]);
             });
         });
         it('should not add operations prefix if provided', ()=> {
-            return utils.initWithNode('<div></div>', domManager, channel).then(function ($node) {
+            return utils.initWithNode('<div data-f-bind="somethingrandom"></div>', domManager, channel).then(function ($node) {
                 var payload = { operations: [{ name: 'variables:stuff', value: ['1', 0] }] };
                 $node.trigger(config.events.operate, payload);
                 channel.publish.should.have.been.calledWith([{ name: 'variables:stuff', value: [1, 0] }]);
@@ -217,11 +217,12 @@ describe(config.events.operate, function () {
     });
 });
 
-describe('update.f.ui', function () {
+//Publish to variables channel
+describe(config.events.trigger, function () {
     it('should call publish on the channel', function () {
         var channel = utils.createDummyChannel();
         return utils.initWithNode('<input type="text" data-f-bind="apple"/>', domManager, channel).then(function ($node) {
-            $node.trigger('update.f.ui', { apple: 2 });
+            $node.trigger(config.events.trigger, { apple: 2 });
             channel.publish.should.have.been.calledOnce;
         });
     });
@@ -229,16 +230,16 @@ describe('update.f.ui', function () {
         var channel = utils.createDummyChannel();
         return utils.initWithNode('<input type="text" data-f-bind="apple"/>', domManager, channel).then(function ($node) {
             var payload = { apple: 2 };
-            $node.trigger('update.f.ui', payload);
-            channel.publish.should.have.been.calledWith(payload);
+            $node.trigger(config.events.trigger, payload);
+            channel.publish.should.have.been.calledWith([{ name: 'apple', value: 2 }]);
         });
     });
     it('should implicitly convert parameters to send to tpublish', function () {
         var channel = utils.createDummyChannel();
         return utils.initWithNode('<input type="text" data-f-bind="apple"/>', domManager, channel).then(function ($node) {
             var payload = { apple: '2' };
-            $node.trigger('update.f.ui', payload);
-            channel.publish.should.have.been.calledWith({ apple: 2 });
+            $node.trigger(config.events.trigger, payload);
+            channel.publish.should.have.been.calledWith([{ name: 'apple', value: 2 }]);
         });
     });
 
@@ -246,8 +247,8 @@ describe('update.f.ui', function () {
         var channel = utils.createDummyChannel();
         return utils.initWithNode('<input type="text" data-f-bind="apple | $#,###.00"/>', domManager, channel).then(function ($node) {
             var payload = { apple: '$20,000.00' };
-            $node.trigger('update.f.ui', payload);
-            channel.publish.should.have.been.calledWith({ apple: 20000 });
+            $node.trigger(config.events.trigger, payload);
+            channel.publish.should.have.been.calledWith([{ name: 'apple', value: 20000 }]);
         });
     });
     it('should trigger f.convert to convert values', function () {
@@ -257,10 +258,50 @@ describe('update.f.ui', function () {
             $node.on('f.convert', spy);
 
             var payload = { apple: '20000' };
-            $node.trigger('update.f.ui', payload);
+            $node.trigger(config.events.trigger, payload);
 
-            spy.should.have.been.calledTwice;//once by the trigger, once by the publish
+            spy.should.have.been.calledOnce;
             spy.getCall(0).args[1].should.eql({ bind: 20000 });
+        });
+    });
+    describe('Channel prefix', ()=> {
+        var channel;
+        beforeEach(()=> {
+            channel = utils.createDummyChannel();
+        });
+        it('should be prefix-less by default', ()=> {
+            return utils.initWithNode('<input type="text" data-f-bind="somerandomthing"/>', domManager, channel).then(function ($node) {
+                const payload = { apple: '20000' };
+                $node.trigger(config.events.trigger, payload);
+
+                channel.publish.should.have.been.calledWith([{ name: 'apple', value: 20000 }]);
+            });
+        });
+        it('should add channel prefix if provided on element', ()=> {
+            return utils.initWithNode('<input type="text" data-f-bind="somerandomthing" data-f-channel="foo"/>', domManager, channel).then(function ($node) {
+                const payload = { apple: '20000' };
+                $node.trigger(config.events.trigger, payload);
+
+                channel.publish.should.have.been.calledWith([{ name: 'foo:apple', value: 20000 }]);
+            });
+        });
+        it('should add channel prefix if provided on parent', ()=> {
+            return utils.initWithNode(`
+                <div data-f-channel="foo">
+                    <input type="text" data-f-bind="somerandomthing"/>
+                </div>
+            `, domManager, channel).then(function ($node) {
+                const payload = { apple: '20000' };
+                $node.find('input').trigger(config.events.trigger, payload);
+                channel.publish.should.have.been.calledWith([{ name: 'foo:apple', value: 20000 }]);
+            });
+        });
+        it('should not add prefix if el already has one', ()=> {
+            return utils.initWithNode('<input type="text" data-f-bind="somerandomthing" data-f-channel="foo"/>', domManager, channel).then(function ($node) {
+                const payload = { 'bar:apple': '20000' };
+                $node.trigger(config.events.trigger, payload);
+                channel.publish.should.have.been.calledWith([{ name: 'bar:apple', value: 20000 }]);
+            });
         });
     });
 });
