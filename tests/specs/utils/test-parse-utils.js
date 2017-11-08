@@ -1,6 +1,6 @@
 'use strict';
 
-import { toImplicitType, toOperationFormat, splitNameArgs } from 'src/utils/parse-utils';
+import { toImplicitType, splitNameArgs } from 'src/utils/parse-utils';
 
 describe('parse utils', function () {
     describe('#toImplicitType', function () {

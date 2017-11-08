@@ -66,7 +66,8 @@ module.exports = function (grunt) {
                 resolve: {
                     modules: [path.resolve('./src'), 'node_modules'],
                     alias: {
-                        src: path.resolve('./src')
+                        src: path.resolve('./src'),
+                        tests: path.resolve('./tests'),
                     }
                 }
             }
@@ -102,7 +103,7 @@ module.exports = function (grunt) {
                 { src: 'src/**/*.js', watched: false, included: true, served: true },
             ]),
             options: {
-                browsers: ['PhantomJS'],
+                browsers: ['ChromeHeadless'],
                 logLevel: 'error',
                 preprocessors: {
                     'src/**/*.js': ['webpack'],
@@ -129,7 +130,8 @@ module.exports = function (grunt) {
                     resolve: {
                         modules: [path.resolve('./src'), 'node_modules'],
                         alias: {
-                            src: path.resolve('./src')
+                            src: path.resolve('./src'),
+                            tests: path.resolve('./tests'),
                         }
                     }
                 }

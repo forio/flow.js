@@ -34,7 +34,9 @@ describe(':radio', function () {
                     $node.on('update.f.ui', spy);
 
                     $node.prop('checked', true).trigger('change');
-                    spy.getCall(0).args[1].should.eql({ stuff: '8' });
+
+                    const args = spy.getCall(0).args[1];
+                    args.data.should.eql([{ name: 'stuff', value: '8' }]);
                 });
             });
         });
@@ -59,7 +61,8 @@ describe(':radio', function () {
                         $node.prop('checked', false);
                         $othernode.prop('checked', true).trigger('change');
 
-                        spy.getCall(0).args[1].should.eql({ stuff: '2' });
+                        const args = spy.getCall(0).args[1];
+                        args.data.should.eql([{ name: 'stuff', value: '2' }]);
                         spy.callCount.should.equal(1);
                     });
                 });
@@ -76,10 +79,10 @@ describe(':radio', function () {
             ].join('');
 
             return utils.initWithNode(nodes, domManager, channel).then(function ($nodes) {
-                $nodes.trigger('update.f.model', { stuff: '8' });
-
-                $nodes.filter('#x').prop('checked').should.equal(true);
-                $nodes.filter('#y').prop('checked').should.equal(false);
+                return channel.publish({ stuff: '8' }).then(()=> {
+                    $nodes.filter('#x').prop('checked').should.equal(true);
+                    $nodes.filter('#y').prop('checked').should.equal(false);
+                });
             });
         });
 
@@ -92,10 +95,10 @@ describe(':radio', function () {
             ].join('');
 
             return utils.initWithNode(nodes, domManager, channel).then(function ($nodes) {
-                $nodes.trigger('update.f.model', { stuff: [1, 2, 3, '8'] });
-
-                $nodes.filter('#x').prop('checked').should.equal(true);
-                $nodes.filter('#y').prop('checked').should.equal(false);
+                return channel.publish({ stuff: [1, 2, 3, '8'] }).then(()=> {
+                    $nodes.filter('#x').prop('checked').should.equal(true);
+                    $nodes.filter('#y').prop('checked').should.equal(false);
+                });
             });
         });
         it('should not select anything if it doesnt match', function () {
@@ -107,10 +110,10 @@ describe(':radio', function () {
             ].join('');
 
             return utils.initWithNode(nodes, domManager, channel).then(function ($nodes) {
-                $nodes.trigger('update.f.model', { stuff: true });
-
-                $nodes.filter('#x').prop('checked').should.equal(false);
-                $nodes.filter('#y').prop('checked').should.equal(false);
+                return channel.publish({ stuff: true }).then(()=> {
+                    $nodes.filter('#x').prop('checked').should.equal(false);
+                    $nodes.filter('#y').prop('checked').should.equal(false);
+                });
             });
         });
     });

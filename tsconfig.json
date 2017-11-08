@@ -3,6 +3,7 @@
         "baseUrl": "./src/",
         "noEmit": true,
         "allowJs": true,
+        "target": "es6",
         "checkJs": true,
         "suppressExcessPropertyErrors": true
     },

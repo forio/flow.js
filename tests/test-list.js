@@ -9,7 +9,6 @@ srcContext.keys().forEach(srcContext);
 
 require('./specs/utils/test-general-utils');
 require('./specs/utils/test-parse-utils');
-require('./specs/utils/test-dom-utils');
 require('./specs/dom/test-dom-manager'); //2.7
 require('./specs/converters/test-converter-manager');
 require('./specs/dom/attributes/test-attribute-manager');

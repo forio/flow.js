@@ -65,44 +65,54 @@ const { each, template } = require('lodash');
 const parseUtils = require('../../utils/parse-utils');
 const gutils = require('../../utils/general');
 const config = require('../../config').attrs;
+
+const { addChangeClassesToList } = require('utils/animation');
+
+const elTemplateMap = new WeakMap(); //<domel>: template
+
 module.exports = {
 
     test: 'repeat',
 
     target: '*',
 
-    unbind: function (attr) {
-        var id = this.data(config.repeat.templateId);
+    unbind: function (attr, $el) {
+        var id = $el.data(config.repeat.templateId);
         if (id) {
-            this.nextUntil(':not([data-' + id + '])').remove();
+            $el.nextUntil(':not([data-' + id + '])').remove();
             // this.removeAttr('data-' + config.repeat.templateId); //FIXME: Something about calling rebind multiple times in IB makes this happen without the removal
         }
-        var loopTemplate = this.data(config.repeat.template);
+
+        const el = $el.get(0);
+        const loopTemplate = elTemplateMap.get(el);
         if (loopTemplate) {
-            this.removeData(config.repeat.template);
-            this.replaceWith(loopTemplate);
+            elTemplateMap.delete(el);
+            $el.replaceWith(loopTemplate);
         }
     },
 
-    handle: function (value, prop) {
+    handle: function (value, prop, $el) {
         value = ($.isPlainObject(value) ? value : [].concat(value));
-        var loopTemplate = this.data(config.repeat.template);
-        var id = this.data(config.repeat.templateId);
+        var id = $el.data(config.repeat.templateId);
+        
+        const $oldEl = $el.parent().clone();
 
+        const el = $el.get(0);
+
+        let loopTemplate = elTemplateMap.get(el);
         if (!loopTemplate) {
-            loopTemplate = this.get(0).outerHTML;
-            this.data(config.repeat.template, loopTemplate);
+            loopTemplate = el.outerHTML;
+            elTemplateMap.set(el, loopTemplate);
         }
 
         if (id) {
-            this.nextUntil(':not([data-' + id + '])').remove();
+            $el.nextUntil(':not([data-' + id + '])').remove();
         } else {
             id = gutils.random('repeat-');
-            this.attr('data-' + config.repeat.templateId, id);
+            $el.attr('data-' + config.repeat.templateId, id);
         }
   
         var last;
-        var me = this;
         each(value, function (dataval, datakey) {
             var cloop = loopTemplate.replace(/&lt;/g, '<').replace(/&gt;/g, '>');
             var templatedLoop = template(cloop)({ value: dataval, key: datakey, index: datakey });
@@ -111,24 +121,28 @@ module.exports = {
             var hasData = (dataval !== null && dataval !== undefined);
 
             nodes.each(function (i, newNode) {
-                newNode = $(newNode).removeAttr('data-f-repeat').removeAttr('data-' + config.repeat.templateId);
-                each(newNode.data(), function (val, key) {
+                const $newNode = $(newNode);
+                $newNode.removeAttr('data-f-repeat').removeAttr('data-' + config.repeat.templateId);
+                each($newNode.data(), function (val, key) {
                     if (!last) {
-                        me.data(key, parseUtils.toImplicitType(val));
+                        $el.data(key, parseUtils.toImplicitType(val));
                     } else {
-                        newNode.data(key, parseUtils.toImplicitType(val));
+                        $newNode.data(key, parseUtils.toImplicitType(val));
                     }
                 });
-                newNode.attr('data-' + id, true);
-                if (!isTemplated && !newNode.children().length && hasData) {
-                    newNode.html(dataval + '');
+                $newNode.attr('data-' + id, true);
+                if (!isTemplated && !$newNode.children().length && hasData) {
+                    $newNode.html(dataval + '');
                 }
             });
             if (!last) {
-                last = me.html(nodes.html());
+                last = $el.html(nodes.html());
             } else {
                 last = nodes.insertAfter(last);
             }
         });
+
+        //FIXME: build up dom during the remove first and then compare
+        addChangeClassesToList($oldEl, $el.parent()); //probably won't work for sibling repeats
     }
 };

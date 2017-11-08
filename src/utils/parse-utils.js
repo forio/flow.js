@@ -57,7 +57,7 @@ function splitUnescapedCommas(str) {
     return op;
 }
 
-function toOperationFormat(value) {
+function toPublishableFormat(value) {
     var split = (value || '').split('|');
     var listOfOperations = split.map(function (value) {
         value = value.trim();
@@ -77,4 +77,4 @@ function splitNameArgs(value) {
     args = args.map(toImplicitType);
     return { name: fnName, args: args };
 }
-export { toImplicitType, toOperationFormat, splitNameArgs };
+export { toImplicitType, toPublishableFormat, splitNameArgs };

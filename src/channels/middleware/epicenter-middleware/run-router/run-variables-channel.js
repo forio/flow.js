@@ -56,7 +56,10 @@ export default function RunVariablesChannel($runServicePromise, notifier) {
             return $runServicePromise.then(function (runService) {
                 var toSave = arrayToObject(topics);
                 return runService.variables().save(toSave).then(function (response) {
-                    return objectToArray(response);
+                    const variables = Object.keys(toSave); 
+                    //Get the latest from the server because what you think you saved may not be what was saved
+                    //bool -> 1, scalar to array for time-based models etc
+                    return runService.variables().query(variables).then(objectToArray);
                 });
             });
         }

@@ -1,3 +1,24 @@
+Animations
+
+- Move to a plugin?
+    + Can listen to content changes via mutation observers?
+    + Implement shouldComponentUpdate?
+
+Multiplayer
+    Mirror mode {
+        nav: true,
+        focus: true
+            - Show circles of users on top. 
+                + Green dot if online
+                + Opacity if they're on your page
+                + Circle their avatar next to decision field if they're editing the same decision
+                + Hover over icon to see which page they're on
+                    * Parse dom to get label for hash
+                - Style with css variables for icon/text etc?
+    }
+
+
+---
 Multi runs
 
 Implement as an interpolator? <saved=true> will translate to "<runidlengthstr>,id:2342", which will then be caught by custom run manager

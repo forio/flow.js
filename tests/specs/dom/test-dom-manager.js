@@ -4,32 +4,32 @@ var config = require('src/config');
 
 describe('DOM Manager', function () {
     afterEach(function () {
-        domManager.private.matchedElements = [];
+        domManager.matchedElements.clear();
     });
     describe('#initialize', function () {
         describe('Selectors', function () {
 
             it('should select nothing by default', function () {
                 return utils.initWithNode('<div></div>', domManager).then(function () {
-                    domManager.private.matchedElements.length.should.equal(0);
+                    domManager.matchedElements.size.should.equal(0);
                 });
             });
 
             it('should select single nodes', function () {
                 return utils.initWithNode('<input type="text" data-f-bind="stuff"/>', domManager).then(function ($node) {
-                    domManager.private.matchedElements.length.should.equal(1);
+                    domManager.matchedElements.size.should.equal(1);
                 });
             });
 
             it('should select nested nodes', function () {
                 return utils.initWithNode('<div data-f-bind="a"> <input type="text" data-f-bind="stuff"/> <span> nothing </span> </div>', domManager).then(function ($node) {
-                    domManager.private.matchedElements.length.should.equal(2);
+                    domManager.matchedElements.size.should.equal(2);
                 });
             });
 
             it('should select nested nodes with diff F attrs', function () {
                 return utils.initWithNode('<div data-f-a="a"> <input type="text" data-f-b="stuff"/> <span> nothing </span> </div>', domManager).then(function ($node) {
-                    domManager.private.matchedElements.length.should.equal(2);
+                    domManager.matchedElements.size.should.equal(2);
                 });
             });
         });
@@ -80,6 +80,7 @@ describe('DOM Manager', function () {
             require('./attributes/test-positive-boolean-attr');
             require('./attributes/test-class-attr');
             require('./attributes/test-default-event-attribute');
+            require('./attributes/test-toggle-attrs');
 
             it('should allow handling custom attributes', function () {
                 var toggle = function (value) {
@@ -91,16 +92,17 @@ describe('DOM Manager', function () {
                 };
                 var toggleSpy = sinon.spy(toggle);
                 domManager.attributes.register('toggle', '*', toggleSpy);
-                return utils.initWithNode('<input type="text" data-f-toggle="shouldIHide" data-f-bind="stuff"/>', domManager).then(function ($node) {
-                    $node.trigger('update.f.model', { shouldIHide: 1 });
+                const channel = utils.createDummyChannel();
+                return utils.initWithNode('<input type="text" data-f-toggle="shouldIHide" data-f-bind="stuff"/>', domManager, channel).then(function ($node) {
+                    return channel.publish({ shouldIHide: 1 }).then(()=> {
+                        toggleSpy.should.have.been.called;
+                        toggleSpy.should.have.been.calledWith(1);
 
-                    toggleSpy.should.have.been.called;
-                    toggleSpy.should.have.been.calledWith(1);
-
-                    $node.css('display').should.equal('block');
-
-                    $node.trigger('update.f.model', { shouldIHide: 0 });
-                    $node.css('display').should.equal('none');
+                        $node.css('display').should.equal('block');
+                        return channel.publish({ shouldIHide: 0 }).then(()=> {
+                            $node.css('display').should.equal('none');
+                        });
+                    });
                 });
             });
         });
@@ -114,21 +116,21 @@ describe('DOM Manager', function () {
 
     describe('#bindElement', function () {
         it('should update list of added items if match', function () {
-            domManager.private.matchedElements.length.should.equal(0);
+            domManager.matchedElements.size.should.equal(0);
             domManager.bindElement($('<input type="text" data-f-bind="boo" />'));
-            domManager.private.matchedElements.length.should.equal(1);
+            domManager.matchedElements.size.should.equal(1);
         });
         it('should not update list of added items if match', function () {
-            domManager.private.matchedElements.length.should.equal(0);
+            domManager.matchedElements.size.should.equal(0);
             domManager.bindElement($('<input type="text" data-bind="boo" />'));
-            domManager.private.matchedElements.length.should.equal(0);
+            domManager.matchedElements.size.should.equal(0);
         });
         it('should not bind same item twice', function () {
             const $el = $('<input type="text" data-f-bind="boo" />');
             domManager.bindElement($el);
-            domManager.private.matchedElements.length.should.equal(1);
+            domManager.matchedElements.size.should.equal(1);
             domManager.bindElement($el);
-            domManager.private.matchedElements.length.should.equal(1);
+            domManager.matchedElements.size.should.equal(1);
         });
 
         describe('Subscriptions', ()=> {
@@ -136,7 +138,7 @@ describe('DOM Manager', function () {
             beforeEach(()=> {
                 channel = utils.createDummyChannel();
             });
-            describe('#bind', ()=> {
+            describe('default', ()=> {
                 it('should subscribe single elements', ()=> {
                     const el = $('<div data-f-bind="a"> </div>');
                     domManager.bindElement(el, channel);
@@ -148,22 +150,6 @@ describe('DOM Manager', function () {
                     domManager.bindElement(el, channel);
                     expect(channel.subscribe).to.have.been.calledOnce;
                     expect(channel.subscribe).to.have.been.calledWith(['a']);
-                });
-                it('add subscribption id to element', ()=> {
-                    const $el = $('<div data-f-bind="a"><input type="text" data-f-bind="boo" /></div>');
-                    const subsAttr = config.attrs.subscriptionId;
-                    expect($el.data(subsAttr)).to.not.exist;
-                    domManager.bindElement($el, channel);
-                    expect($el.data(subsAttr)).to.exist;
-                });
-
-                it('should default to non-batch for single variable binds', ()=> {
-                    const el = $('<div data-f-bind="a"> </div>');
-                    domManager.bindElement(el, channel);
-
-                    var args = channel.subscribe.getCall(0).args;
-                    args[0].should.eql(['a']);
-                    args[2].should.eql({ batch: false }); //args[1] is callback fn
                 });
                 it('should default to batch for multi variable binds', ()=> {
                     const el = $('<div data-f-bind="a, b"> </div>');
@@ -180,7 +166,80 @@ describe('DOM Manager', function () {
 
                     var args = channel.subscribe.getCall(0).args;
                     args[0].should.eql(['a']);
-                    args[2].should.eql({ batch: false, foo: 'bar' }); //args[1] is callback fn
+                    args[2].should.eql({ batch: true, foo: 'bar' }); //args[1] is callback fn
+                });
+            });
+            describe('Channel Prefix', ()=> {
+                describe('Prefix', ()=> {
+                    it('should add channel prefix if provided on itself', ()=> {
+                        const el = $('<div data-f-bind="a" data-f-channel="foo"> </div>');
+                        domManager.bindElement(el, channel);
+
+                        expect(channel.subscribe).to.have.been.calledOnce;
+                        expect(channel.subscribe).to.have.been.calledWith(['foo:a']);
+                    });
+                    it('should add channel prefix if defined on parent', ()=> {
+                        const el = $(`
+                            <div data-f-channel="foo">
+                                <div data-f-bind="a"></div>
+                            </div>
+                        `);
+
+                        domManager.bindElement($(el).find('div'), channel);
+
+                        expect(channel.subscribe).to.have.been.calledOnce;
+                        expect(channel.subscribe).to.have.been.calledWith(['foo:a']);
+                    });
+                    it('should apply to all attrs on element', ()=> {
+                        const el = $(`
+                            <div data-f-channel="foo">
+                                <div data-f-bind="a" data-f-foo="bar"></div>
+                            </div>
+                        `);
+
+                        domManager.bindElement($(el).find('div'), channel);
+
+                        expect(channel.subscribe).to.have.been.calledTwice;
+
+                        const args1 = channel.subscribe.getCall(0).args[0];
+                        expect(args1).to.eql(['foo:a']);
+
+                        const args2 = channel.subscribe.getCall(1).args[0];
+                        expect(args2).to.eql(['foo:bar']);
+                    });
+                    it('should not add a prefix if already defined', ()=> {
+                        const el = $(`
+                            <div data-f-channel="foo">
+                                <div data-f-bind="prefix:a" data-f-foo="bar"></div>
+                            </div>
+                        `);
+
+                        domManager.bindElement($(el).find('div'), channel);
+
+                        expect(channel.subscribe).to.have.been.calledTwice;
+
+                        const args1 = channel.subscribe.getCall(0).args[0];
+                        expect(args1).to.eql(['prefix:a']);
+
+                        const args2 = channel.subscribe.getCall(1).args[0];
+                        expect(args2).to.eql(['foo:bar']);
+                    });
+                });
+            });
+            describe('Channel options', ()=> {
+                it('should provide channeloptions for channels defined as attrs', ()=> {
+                    const el = $('<div data-f-bind="a" data-f-channel="foo" data-f-channel-a="1"> </div>');
+                    domManager.bindElement(el, channel);
+
+                    const opts = channel.subscribe.getCall(0).args[2];
+                    expect(opts.a).to.eql('1');
+                });
+                it('should provide channeloptions for inline channels', ()=> {
+                    const el = $('<div data-f-bind="a" data-f-channel-a="1"> </div>');
+                    domManager.bindElement(el, channel);
+
+                    const opts = channel.subscribe.getCall(0).args[2];
+                    expect(opts.a).to.eql('1');
                 });
             });
         });
@@ -207,9 +266,9 @@ describe('DOM Manager', function () {
             return utils.initWithNode('<div data-f-bind="a"> <input type="text" data-f-bind="boo" /> </div>', domManager).then(function ($node) {
                 var addedNode = $node.find(':text');
 
-                domManager.private.matchedElements.length.should.equal(2);
+                domManager.matchedElements.size.should.equal(2);
                 domManager.unbindElement(addedNode.get(0));
-                domManager.private.matchedElements.length.should.equal(1);
+                domManager.matchedElements.size.should.equal(1);
             });
         });
         describe('Remove added data items', function () {
@@ -217,8 +276,8 @@ describe('DOM Manager', function () {
                 return utils.initWithNode('<div data-f-bind="a | ##" data-f-other=" b | %"> </div>', domManager).then(function ($node) {
                     var keys = Object.keys($node.data());
 
-                    var directTranslates = ['fConvertBind', 'fConvertOther', 'fOther', 'fBind'];
-                    var flowAdded = ['subscriptionId', 'fAttrBindings'];
+                    var directTranslates = ['fOther', 'fBind'];
+                    var flowAdded = [];
                     var toMatch = [].concat(directTranslates).concat(flowAdded);
                     keys.sort().should.eql(toMatch.sort());
 
@@ -234,8 +293,8 @@ describe('DOM Manager', function () {
                     var keys = Object.keys($node.data());
 
                     var notAddedByFlow = ['myStuff', 'fsomething'];
-                    var directTranslates = ['fConvertBind', 'fConvertOther', 'fOther', 'fBind'];
-                    var flowAdded = ['subscriptionId', 'fAttrBindings'];
+                    var directTranslates = ['fOther', 'fBind'];
+                    var flowAdded = [];
                     var toMatch = [].concat(directTranslates).concat(flowAdded).concat(notAddedByFlow);
                     keys.sort().should.eql(toMatch.sort());
 
@@ -248,19 +307,21 @@ describe('DOM Manager', function () {
         });
         describe('remove items generated through templates', ()=> {
             it('should remove templated bind items', ()=> {
+                const channel = utils.createDummyChannel();
                 var nodes = `
                     <div data-f-bind="a">Hello <%= value %>! <span> some child <%= a %></span</div>
                 `.trim();
-                return utils.initWithNode(nodes, domManager).then(($node)=> {
+                return utils.initWithNode(nodes, domManager, channel).then(($node)=> {
                     var originalHTML = $node.html();
 
-                    $node.trigger(config.events.channelDataReceived, { a: 'apple' });
-                    var newhtml = $node.html();
-                    expect(newhtml).to.equal('Hello apple! <span> some child apple</span>');
-                    
-                    domManager.unbindElement($node);
-                    
-                    expect($node.html()).to.equal(originalHTML);
+                    return channel.publish({ a: 'apple' }).then(()=> {
+                        var newhtml = $node.html();
+                        expect(newhtml).to.equal('Hello apple! <span> some child apple</span>');
+                        
+                        domManager.unbindElement($node);
+                        
+                        expect($node.html()).to.equal(originalHTML);
+                    });
                 });
             });
             it('should remove templated foreach items', ()=> {
@@ -269,16 +330,19 @@ describe('DOM Manager', function () {
                         <li>Love <%= value %></li>
                     </ul>
                 `.trim();
-                return utils.initWithNode(nodes, domManager).then(($node)=> {
+                const channel = utils.createDummyChannel();
+
+                return utils.initWithNode(nodes, domManager, channel).then(($node)=> {
                     var originalHTML = $node.html();
 
-                    $node.trigger(config.events.channelDataReceived, { fruits: ['apples', 'organges'] });
-                    expect($node.children().length).to.equal(2);
-                    
-                    domManager.unbindElement($node);
+                    return channel.publish({ fruits: ['apples', 'organges'] }).then(()=> {
+                        expect($node.children().length).to.equal(2);
+                        
+                        domManager.unbindElement($node);
 
-                    expect($node.children().length).to.equal(1);
-                    expect($node.html()).to.equal(originalHTML);
+                        expect($node.children().length).to.equal(1);
+                        expect($node.html()).to.equal(originalHTML);
+                    });
                 });
             });
             it('should restore untemplated foreach items', ()=> {
@@ -287,16 +351,18 @@ describe('DOM Manager', function () {
                         <li>Foo</li>
                     </ul>
                 `.trim();
-                return utils.initWithNode(nodes, domManager).then(($node)=> {
+                const channel = utils.createDummyChannel();
+                return utils.initWithNode(nodes, domManager, channel).then(($node)=> {
                     var originalHTML = $node.html();
 
-                    $node.trigger(config.events.channelDataReceived, { fruits: ['apples', 'organges'] });
-                    expect($node.children().length).to.equal(2);
-                    
-                    domManager.unbindElement($node);
+                    return channel.publish({ fruits: ['apples', 'organges'] }).then(()=> {
+                        expect($node.children().length).to.equal(2);
+                        
+                        domManager.unbindElement($node);
 
-                    expect($node.children().length).to.equal(1);
-                    expect($node.html()).to.equal(originalHTML);
+                        expect($node.children().length).to.equal(1);
+                        expect($node.html()).to.equal(originalHTML);
+                    });
                 });
             });
             it('should remove templated repeat items', ()=> {
@@ -305,27 +371,31 @@ describe('DOM Manager', function () {
                         <li data-f-repeat="fruits">Love <%= value %></li>
                     </ul>
                 `.trim();
-                return utils.initWithNode(nodes, domManager).then(($node)=> {
+                const channel = utils.createDummyChannel();
+                return utils.initWithNode(nodes, domManager, channel).then(($node)=> {
                     var originalHTML = $node.html();
 
-                    $node.find('li:first').trigger(config.events.channelDataReceived, { fruits: ['apples', 'organges'] });
-                    expect($node.children().length).to.equal(2);
-                    
-                    domManager.unbindElement($node.find('li:first'));
+                    return channel.publish({ fruits: ['apples', 'organges'] }).then(()=> {
+                        expect($node.children().length).to.equal(2);
+                        
+                        domManager.unbindElement($node.find('li:first'));
 
-                    expect($node.children().length).to.equal(1);
-                    expect($node.html()).to.equal(originalHTML);
+                        expect($node.children().length).to.equal(1);
+                        expect($node.html()).to.equal(originalHTML);
+                    });
                 });
             });
         });
         describe('Subscriptions', ()=> {
             it('should call unsubscribe with subscriptionid', ()=> {
                 const channel = utils.createDummyChannel();
-                var node = utils.create(`<div data-f-bind="a" data-${config.attrs.subscriptionId}="goo" data-f-channel-foo="bar"> </div>`);
+                var node = utils.create('<div data-f-bind="a" data-f-channel-foo="bar"> </div>');
+                domManager.bindElement(node, channel);
                 domManager.unbindElement(node, channel);
+
                 channel.unsubscribe.should.have.been.calledOnce;
                 var args = channel.unsubscribe.getCall(0).args;
-                args[0].should.eql('goo');
+                expect(typeof args[0]).to.equal('string');
             });
         });
     });
@@ -349,23 +419,23 @@ describe('DOM Manager', function () {
         });
         it('should update list of added items', function () {
             return utils.initWithNode('<div data-f-bind="a"> <input type="text" data-f-bind="boo" /> </div>', domManager).then(function ($node) {
-                domManager.private.matchedElements.length.should.equal(2);
+                domManager.matchedElements.size.should.equal(2);
                 domManager.unbindAll();
-                domManager.private.matchedElements.length.should.equal(0);
+                domManager.matchedElements.size.should.equal(0);
             });
         });
         it('should allow unbinding specified array of elements', function () {
             return utils.initWithNode('<div data-f-bind="a"> <input type="text" data-f-bind="boo" />  <input type="text" data-f-bind="boos" /> </div>', domManager).then(function ($node) {
-                domManager.private.matchedElements.length.should.equal(3);
+                domManager.matchedElements.size.should.equal(3);
                 domManager.unbindAll($node.find(':text').get(0));
-                domManager.private.matchedElements.length.should.equal(2);
+                domManager.matchedElements.size.should.equal(2);
             });
         });
         it('should allow unbinding of children', function () {
             return utils.initWithNode('<div data-f-bind="a"> <input type="text" data-f-bind="boo" />  <input type="text" data-f-bind="boos" /> </div>', domManager).then(function ($node) {
-                domManager.private.matchedElements.length.should.equal(3);
+                domManager.matchedElements.size.should.equal(3);
                 domManager.unbindAll($node.get(0));
-                domManager.private.matchedElements.length.should.equal(0);
+                domManager.matchedElements.size.should.equal(0);
             });
         });
     });
@@ -408,30 +478,30 @@ describe('DOM Manager', function () {
 
         it('should update list of added items', function () {
             return utils.initWithNode('<div data-f-bind="a"> </div>', domManager).then(function ($node) {
-                domManager.private.matchedElements.length.should.equal(1);
+                domManager.matchedElements.size.should.equal(1);
 
                 $node.append('<input type="text" data-f-bind="boo" />');
                 domManager.bindAll();
-                domManager.private.matchedElements.length.should.equal(2);
+                domManager.matchedElements.size.should.equal(2);
             });
         });
 
         it('should allow providing list of elements to bind', function () {
             return utils.initWithNode('<div data-f-bind="a"> </div>', domManager).then(function ($node) {
-                domManager.private.matchedElements.length.should.equal(1);
+                domManager.matchedElements.size.should.equal(1);
 
                 $node.append('<input type="text" data-f-bind="boo" /> <input type="text" data-f-bind="boos" /> <input type="text" data-f-bind="booss" />');
                 domManager.bindAll($node.find(':text').get().slice(0, 2));
-                domManager.private.matchedElements.length.should.equal(3);
+                domManager.matchedElements.size.should.equal(3);
             });
         });
         it('should allow providing jquery selector', function () {
             return utils.initWithNode('<div data-f-bind="a"> </div>', domManager).then(function ($node) {
-                domManager.private.matchedElements.length.should.equal(1);
+                domManager.matchedElements.size.should.equal(1);
 
                 $node.append('<div> <input type="text" data-f-bind="boo" /> <input type="text" data-f-bind="boos" /> </div> <div> <input type="text" data-f-bind="booss" /> </div>');
                 domManager.bindAll($node.find('div').get(0));
-                domManager.private.matchedElements.length.should.equal(3);
+                domManager.matchedElements.size.should.equal(3);
             });
         });
     });

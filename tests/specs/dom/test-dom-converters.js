@@ -12,12 +12,13 @@ describe('converters', function () {
         describe('bind', function () {
             describe('convert', function () {
                 it('should convert values with single converters', function () {
-                    return utils.initWithNode('<input type="text" data-f-bind="apple | titleCase"/>', domManager).then(function ($node) {
-                        $node.trigger('update.f.model', {
+                    const channel = utils.createDummyChannel();
+                    return utils.initWithNode('<input type="text" data-f-bind="apple | titleCase"/>', domManager, channel).then(function ($node) {
+                        return channel.publish({
                             apple: 'sauce'
+                        }).then(()=> {
+                            $node.val().should.equal('Sauce');
                         });
-
-                        $node.val().should.equal('Sauce');
                     });
                 });
 
@@ -26,33 +27,38 @@ describe('converters', function () {
                         return val.split('').reverse().join('');
                     });
 
-                    return utils.initWithNode('<input type="text" data-f-bind="apple | titleCase | flip"/>', domManager).then(function ($node) {
-                        $node.trigger('update.f.model', {
+                    const channel = utils.createDummyChannel();
+                    return utils.initWithNode('<input type="text" data-f-bind="apple | titleCase | flip"/>', domManager, channel).then(function ($node) {
+                        return channel.publish({
                             apple: 'sauce'
+                        }).then(()=> {
+                            $node.val().should.equal('ecuaS');
                         });
-                        $node.val().should.equal('ecuaS');
                     });
                 });
 
                 describe('arrays', function () {
                     it('should convert arrays into values without converters', function () {
-                        return utils.initWithNode('<input type="text" data-f-bind="apple"/>', domManager).then(function ($node) {
-                            $node.trigger('update.f.model', {
+                        const channel = utils.createDummyChannel();
+                        return utils.initWithNode('<input type="text" data-f-bind="apple"/>', domManager, channel).then(function ($node) {
+                            return channel.publish({
                                 apple: [1, 2, 3]
+                            }).then(()=> {
+                                $node.val().should.equal('3');
                             });
-                            $node.val().should.equal('3');
                         });
                     });
 
                     it('should pass arrays into converters if defined', function () {
                         var spy = sinon.spy();
                         domManager.converters.register('spy', spy, true);
-                        return utils.initWithNode('<input type="text" data-f-bind="apple | spy"/>', domManager).then(function ($node) {
-                            $node.trigger('update.f.model', {
+                        const channel = utils.createDummyChannel();
+                        return utils.initWithNode('<input type="text" data-f-bind="apple | spy"/>', domManager, channel).then(function ($node) {
+                            return channel.publish({
                                 apple: [1, 2, 3]
+                            }).then(()=> {
+                                spy.should.have.been.calledWith([1, 2, 3]);
                             });
-
-                            spy.should.have.been.calledWith([1, 2, 3]);
                         });
                     });
                 });
@@ -62,9 +68,7 @@ describe('converters', function () {
                     var channel = utils.createDummyChannel();
                     return utils.initWithNode('<input type="text" data-f-bind="price | $#,### "/>', domManager, channel).then(function ($node) {
                         $node.val('2,345').trigger('change');
-                        channel.publish.should.have.been.calledWith({
-                            price: 2345
-                        });
+                        channel.publish.should.have.been.calledWith([{ name: 'price', value: 2345 }]);
                     });
                 });
                 it('should convert values with multiple converters', function () {
@@ -80,9 +84,7 @@ describe('converters', function () {
                     var channel = utils.createDummyChannel();
                     return utils.initWithNode('<input type="text" data-f-bind="price | $#,### | flip"/>', domManager, channel).then(function ($node) {
                         $node.val('$2,345').trigger('change');
-                        channel.publish.should.have.been.calledWith({
-                            price: 5432
-                        });
+                        channel.publish.should.have.been.calledWith([{ name: 'price', value: 5432 }]);
                     });
                 });
                 it('should respect order of converters', function () {
@@ -99,9 +101,7 @@ describe('converters', function () {
                     var channel = utils.createDummyChannel();
                     return utils.initWithNode('<input type="text" data-f-bind="price | flips | $#,### "/>', domManager, channel).then(function ($node) {
                         $node.val('$2,345').trigger('change');
-                        channel.publish.should.have.been.calledWith({
-                            price: 'abc'
-                        });
+                        channel.publish.should.have.been.calledWith([{ name: 'price', value: 'abc' }]);
                     });
                 });
 
@@ -116,44 +116,44 @@ describe('converters', function () {
                     var channel = utils.createDummyChannel();
                     return utils.initWithNode('<input type="text" data-f-bind="price | flip | $#,### "/>', domManager, channel).then(function ($node) {
                         $node.val('$2,345').trigger('change');
-                        channel.publish.should.have.been.calledWith({
-                            price: 2345
-                        });
+                        channel.publish.should.have.been.calledWith([{ name: 'price', value: 2345 }]);
                     });
                 });
             });
         });
         describe('other attributes', function () {
             it('should convert values with single converters', function () {
-                return utils.initWithNode('<input type="text" data-f-stuff="apple | titleCase"/>', domManager).then(function ($node) {
-                    $node.trigger('update.f.model', {
+                const channel = utils.createDummyChannel();
+                return utils.initWithNode('<input type="text" data-f-stuff="apple | titleCase"/>', domManager, channel).then(function ($node) {
+                    return channel.publish({
                         apple: 'sauce'
+                    }).then(()=> {
+                        $node.prop('stuff').should.equal('Sauce');
                     });
-
-                    $node.prop('stuff').should.equal('Sauce');
                 });
             });
             it('should convert values with multiple converters', function () {
-                return utils.initWithNode('<input type="text" data-f-stuff="apple | titleCase | flip"/>', domManager).then(function ($node) {
-                    $node.trigger('update.f.model', {
+                const channel = utils.createDummyChannel();
+                return utils.initWithNode('<input type="text" data-f-stuff="apple | titleCase | flip"/>', domManager, channel).then(function ($node) {
+                    return channel.publish({
                         apple: 'sauce'
+                    }).then(()=> {
+                        $node.prop('stuff').should.equal('ecuaS');
                     });
-
-                    $node.prop('stuff').should.equal('ecuaS');
                 });
-
             });
         });
     });
     describe('f-convert', function () {
         describe('convert', function () {
             it('should work if specified directly on the element', function () {
-                return utils.initWithNode('<input type="text" data-f-bind="apple" data-f-convert="titleCase | flip"/>', domManager).then(function ($node) {
-                    $node.trigger('update.f.model', {
+                const channel = utils.createDummyChannel();
+                return utils.initWithNode('<input type="text" data-f-bind="apple" data-f-convert="titleCase | flip"/>', domManager, channel).then(function ($node) {
+                    return channel.publish({
                         apple: 'sauce'
+                    }).then(()=> {
+                        $node.val().should.equal('ecuaS');
                     });
-
-                    $node.val().should.equal('ecuaS');
                 });
             });
             it('should work if specified on parent', function () {
@@ -165,14 +165,14 @@ describe('converters', function () {
                     '   <span> nothing </span>',
                     '</div>'
                 ];
-                return utils.initWithNode(nested.join(), domManager).then(function ($node) {
+                const channel = utils.createDummyChannel();
+                return utils.initWithNode(nested.join(), domManager, channel).then(function ($node) {
                     var $textNode = $node.find(':text');
-
-                    $textNode.trigger('update.f.model', {
+                    return channel.publish({
                         apple: 'sauce'
+                    }).then(()=> {
+                        $textNode.val().should.equal('ecuaS');
                     });
-
-                    $textNode.val().should.equal('ecuaS');
                 });
             });
             it('should allow local converters to override parent', function () {
@@ -184,14 +184,14 @@ describe('converters', function () {
                     '   <span> nothing </span>',
                     '</div>'
                 ];
-                return utils.initWithNode(nested.join(), domManager).then(function ($node) {
+                const channel = utils.createDummyChannel();
+                return utils.initWithNode(nested.join(), domManager, channel).then(function ($node) {
                     var $textNode = $node.find(':text');
-
-                    $textNode.trigger('update.f.model', {
+                    return channel.publish({
                         apple: 'sauce'
+                    }).then(()=> {
+                        $textNode.val().should.equal('ecuas');
                     });
-
-                    $textNode.val().should.equal('ecuas');
                 });
             });
         });
@@ -209,9 +209,7 @@ describe('converters', function () {
                 var channel = utils.createDummyChannel();
                 return utils.initWithNode('<input type="text" data-f-bind="price" data-f-convert="$#,### | flip"/>', domManager, channel).then(function ($node) {
                     $node.val('$2,345').trigger('change');
-                    channel.publish.should.have.been.calledWith({
-                        price: 5432
-                    });
+                    channel.publish.should.have.been.calledWith([{ name: 'price', value: 5432 }]);
                 });
             });
             it('should allow parse nested converters', function () {
@@ -228,9 +226,7 @@ describe('converters', function () {
                     var $textNode = $node.find(':text');
 
                     $textNode.val('$2,345').trigger('change');
-                    channel.publish.should.have.been.calledWith({
-                        price: 5432
-                    });
+                    channel.publish.should.have.been.calledWith([{ name: 'price', value: 5432 }]);
                 });
             });
         });

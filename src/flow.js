@@ -98,7 +98,7 @@ var Flow = {
         // var $root = $(options.dom.root);
 
         // var initialFn = $root.data('f-on-init');
-        // //TOOD: Should move this to DOM Manager and just prioritize on-inits
+        // //TOOD: Should move this to as oninit to runstrategy
         // if (initialFn) {
         //     var listOfOperations = _.invoke(initialFn.split('|'), 'trim');
         //     listOfOperations = listOfOperations.map(function (value) {

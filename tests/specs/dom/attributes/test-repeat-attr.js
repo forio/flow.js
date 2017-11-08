@@ -9,7 +9,7 @@ describe('Repeat', function () {
             it('should clone children for arrays', function () {
                 var $rootNode = $('<ul> <li> </li> </ul>');
 
-                repeatHandler.handle.call($rootNode.find('li:first'), [1, 2, 3, 4]);
+                repeatHandler.handle([1, 2, 3, 4], 'repeat', $rootNode.find('li:first'));
                 var newChildren = $rootNode.children();
                 newChildren.length.should.equal(4);
             });
@@ -17,7 +17,7 @@ describe('Repeat', function () {
                 var $rootNode = $('<ul> <li> </li> </ul>');
 
                 var data = [0, 1, 2, 3, 4];
-                repeatHandler.handle.call($rootNode.find('li:first'), data);
+                repeatHandler.handle(data, 'repeat', $rootNode.find('li:first'));
                 var newChildren = $rootNode.children();
 
                 for (var i = 0; i < data.length; i++) {
@@ -28,7 +28,7 @@ describe('Repeat', function () {
                 var $rootNode = $('<ul> <li>stuff</li> </ul>');
 
                 var data = [0, 1, 2, 3, 4];
-                repeatHandler.handle.call($rootNode.find('li:first'), data);
+                repeatHandler.handle(data, 'repeat', $rootNode.find('li:first'));
                 var newChildren = $rootNode.children();
 
                 for (var i = 0; i < data.length; i++) {
@@ -39,7 +39,7 @@ describe('Repeat', function () {
                 var $rootNode = $('<ul> <li>stuff</li> </ul>');
 
                 var data = [undefined, undefined, undefined];
-                repeatHandler.handle.call($rootNode.find('li:first'), data);
+                repeatHandler.handle(data, 'repeat', $rootNode.find('li:first'));
                 var newChildren = $rootNode.children();
 
                 for (var i = 0; i < data.length; i++) {
@@ -49,7 +49,7 @@ describe('Repeat', function () {
             it('should treat single values as arrays with 1 iteam', function () {
                 var $rootNode = $('<ul> <li> </li> </ul>');
 
-                repeatHandler.handle.call($rootNode.find('li:first'), 3);
+                repeatHandler.handle(3, 'repeat', $rootNode.find('li:first'));
                 var newChildren = $rootNode.children();
                 newChildren.length.should.equal(1);
 
@@ -60,7 +60,7 @@ describe('Repeat', function () {
             it('should clone children for objects', function () {
                 var $rootNode = $('<ul> <li> </li> </ul>');
 
-                repeatHandler.handle.call($rootNode.find('li:first'), { a: 3, b: 4, d: 6 });
+                repeatHandler.handle({ a: 3, b: 4, d: 6 }, 'repeat', $rootNode.find('li:first'));
                 var newChildren = $rootNode.children();
                 newChildren.length.should.equal(3);
             });
@@ -69,20 +69,20 @@ describe('Repeat', function () {
             it('should not grow exponentially when called multiple times', function () {
                 var $rootNode = $('<ul> <li> </li> </ul>');
 
-                repeatHandler.handle.call($rootNode.find('li:first'), [1, 2, 3, 4]);
+                repeatHandler.handle([1, 2, 3, 4], 'repeat', $rootNode.find('li:first'));
                 var newChildren = $rootNode.children();
                 newChildren.length.should.equal(4);
 
-                repeatHandler.handle.call($rootNode.find('li:first'), [1, 2, 3, 4, 5]);
+                repeatHandler.handle([1, 2, 3, 4, 5], 'repeat', $rootNode.find('li:first'));
                 newChildren = $rootNode.children();
                 newChildren.length.should.equal(5);
             });
             it('should replace older values with new ones', function () {
                 var $rootNode = $('<ul> <li data-stuff="<%=index%>"> <%= value %> </li> </ul>');
 
-                repeatHandler.handle.call($rootNode.find('li:first'), [1, 2, 3, 4]);
+                repeatHandler.handle([1, 2, 3, 4], 'repeat', $rootNode.find('li:first'));
                 var targetData = [5, 3, 6, 1];
-                repeatHandler.handle.call($rootNode.find('li:first'), targetData);
+                repeatHandler.handle(targetData, 'repeat', $rootNode.find('li:first'));
 
                 var newChildren = $rootNode.children();
                 newChildren.each(function (index) {
@@ -101,7 +101,7 @@ describe('Repeat', function () {
                     var $rootNode = $('<ul> <li data-stuff="<%=value%>"> </li> </ul>');
                     var targetData = [5, 3, 6, 1];
 
-                    repeatHandler.handle.call($rootNode.find('li:first'), targetData);
+                    repeatHandler.handle(targetData, 'repeat', $rootNode.find('li:first'));
                     var newChildren = $rootNode.children();
                     newChildren.each(function (index) {
                         var data = $(this).data('stuff');
@@ -113,7 +113,7 @@ describe('Repeat', function () {
                     var targetData = [5, 3, 6, 1];
                     var outputdata = ['first', 3, 6, 1];
 
-                    repeatHandler.handle.call($rootNode.find('li:first'), targetData);
+                    repeatHandler.handle(targetData, 'repeat', $rootNode.find('li:first'));
                     var newChildren = $rootNode.children();
                     newChildren.each(function (index) {
                         var data = $(this).html().trim();
@@ -121,11 +121,13 @@ describe('Repeat', function () {
                     });
                 });
                 it('should support block conditions in inline templates', function () {
-                    var $rootNode = $('<ul> <li> <% if (index === 0) { %> <%= value %> <% } %> </li> </ul>');
+                    var $rootNode = $(`
+                        <ul> <li> <% if (index === 0) { %> <%= value %> <% } %> </li> </ul>
+                    `);
                     var targetData = [5, 3, 6, 1];
                     var outputdata = [5, '', '', ''];
 
-                    repeatHandler.handle.call($rootNode.find('li:first'), targetData);
+                    repeatHandler.handle(targetData, 'repeat', $rootNode.find('li:first'));
                     var newChildren = $rootNode.children();
                     newChildren.each(function (index) {
                         var data = $(this).html().trim();
@@ -133,10 +135,14 @@ describe('Repeat', function () {
                     });
                 });
                 it('should support block conditions in templates with multi children', function () {
-                    var $rootNode = $('<ul> <li> <% if (index === 0) { %> <span> HI </span> <% } %>  <span> <%= value %> </span> </li> </ul>');
+                    var $rootNode = $(`
+                        <ul>
+                            <li> <% if (index === 0) { %> <span> HI </span> <% } %>  <span> <%= value %> </span> </li>
+                        </ul>
+                    `);
                     var targetData = [5, 3, 6, 1];
 
-                    repeatHandler.handle.call($rootNode.find('li:first'), targetData);
+                    repeatHandler.handle(targetData, 'repeat', $rootNode.find('li:first'));
                     var newChildren = $rootNode.children();
                     newChildren.each(function (index, el) {
                         if (index === 0) {
@@ -147,10 +153,15 @@ describe('Repeat', function () {
                     });
                 });
                 it('should support block conditions in templates with top-level children', function () {
-                    var $rootNode = $('<ul> <% if (index === 0) { %> <li> HI </li> <% } %>  <li> <%= value %> </li> </ul>');
+                    var $rootNode = $(`
+                        <ul> 
+                            <% if (index === 0) { %> <li> HI </li> <% } %>
+                            <li> <%= value %> </li> 
+                        </ul>
+                    `);
                     var targetData = [5, 3, 6, 1];
 
-                    repeatHandler.handle.call($rootNode.find('li:first'), targetData);
+                    repeatHandler.handle(targetData, 'repeat', $rootNode.find('li:first'));
                     $rootNode.children().length.should.equal(targetData.length + 1);
                 });
 
@@ -159,7 +170,7 @@ describe('Repeat', function () {
                     var $rootNode = $('<ul> <li data-stuff="<%=index%>"> <%= value %> </li> </ul>');
                     var targetData = [5, 3, 6, 1];
 
-                    repeatHandler.handle.call($rootNode.find('li:first'), targetData);
+                    repeatHandler.handle(targetData, 'repeat', $rootNode.find('li:first'));
                     var newChildren = $rootNode.children();
                     newChildren.each(function (index) {
                         var data = $(this).html().trim();
@@ -175,7 +186,7 @@ describe('Repeat', function () {
                     var $rootNode = $('<ul> <li data-stuff="<%=key%>"> <%= value %> </li> </ul>');
                     var targetData = { a: 3, b: 4 };
 
-                    repeatHandler.handle.call($rootNode.find('li:first'), targetData);
+                    repeatHandler.handle(targetData, 'repeat', $rootNode.find('li:first'));
                     var newChildren = $rootNode.children();
                     newChildren.each(function () {
                         var val = $(this).html().trim();
@@ -191,8 +202,8 @@ describe('Repeat', function () {
         it('should not affect siblings on first render', function () {
             var $rootNode = $('<ul> <li class="first"> </li> <li class="second"> </li> </ul>');
 
-            repeatHandler.handle.call($rootNode.find('li.first'), [1, 2, 3, 4]);
-            repeatHandler.handle.call($rootNode.find('li.second'), ['a', 'b', 'c', 'd']);
+            repeatHandler.handle([1, 2, 3, 4], 'repeat', $rootNode.find('li.first'));
+            repeatHandler.handle(['a', 'b', 'c', 'd'], 'repeat', $rootNode.find('li.second'));
             var newChildren = $rootNode.children();
             newChildren.length.should.equal(8);
         });
@@ -200,13 +211,13 @@ describe('Repeat', function () {
         it('should not affect siblings on update', function () {
             var $rootNode = $('<ul> <li class="first"> </li> <li class="second"> </li> </ul>');
 
-            repeatHandler.handle.call($rootNode.find('li.first'), [1, 2, 3, 4]);
-            repeatHandler.handle.call($rootNode.find('li.second'), ['a', 'b', 'c', 'd']);
+            repeatHandler.handle([1, 2, 3, 4], 'repeat', $rootNode.find('li.first'));
+            repeatHandler.handle(['a', 'b', 'c', 'd'], 'repeat', $rootNode.find('li.second'));
             var newChildren = $rootNode.children();
             newChildren.length.should.equal(8);
 
             var opdata = [1, 2, 3, 4, 5, 6, 'a', 'b', 'c', 'd'];
-            repeatHandler.handle.call($rootNode.find('li.first'), [1, 2, 3, 4, 5, 6]);
+            repeatHandler.handle([1, 2, 3, 4, 5, 6], 'repeat', $rootNode.find('li.first'));
             newChildren = $rootNode.children();
             newChildren.each(function (index) {
                 var data = $(this).html().trim();
@@ -219,8 +230,8 @@ describe('Repeat', function () {
         it('should not affect children', function () {
             var $rootNode = $('<ul> <li class="first"> <div class="second"> </div> </li> </ul>');
 
-            repeatHandler.handle.call($rootNode.find('.first'), [1, 2, 3, 4]);
-            repeatHandler.handle.call($rootNode.find('.second'), ['a', 'b', 'c', 'd']);
+            repeatHandler.handle([1, 2, 3, 4], 'repeat', $rootNode.find('.first'));
+            repeatHandler.handle(['a', 'b', 'c', 'd'], 'repeat', $rootNode.find('.second'));
             var newChildren = $rootNode.children();
             newChildren.length.should.equal(4);
             $rootNode.find('.second').length.should.equal(4 * 4);
@@ -235,8 +246,7 @@ describe('Repeat', function () {
             '</ul>';
 
             var $rootNode = $(html);
-            repeatHandler.unbind.call($rootNode.find('li:first'));
-
+            repeatHandler.unbind('repeat', $rootNode.find('li:first'));
             $rootNode.children().length.should.equal(3);
         });
     });
@@ -244,74 +254,95 @@ describe('Repeat', function () {
         it('should loop through children for elems with repeat=variableArray', function () {
             var targetData = [5, 3, 6, 1];
 
-            return utils.initWithNode('<ul> <li data-f-repeat="somearray" data-stuff="<%=index%>"> <%= value %> </li> </ul>', domManager).then(function ($node) {
-                $node.find('li:first').trigger('update.f.model', { somearray: targetData });
+            const channel = utils.createDummyChannel();
+            return utils.initWithNode(`
+                <ul> 
+                    <li data-f-repeat="somearray" data-stuff="<%=index%>"> <%= value %> </li> 
+                </ul>
+            `, domManager, channel).then(function ($node) {
+                return channel.publish({
+                    somearray: targetData 
+                }).then(()=> {
+                    var newChildren = $node.children();
+                    var childrenCount = newChildren.length;
 
-                var newChildren = $node.children();
-                var childrenCount = newChildren.length;
+                    newChildren.each(function (index) {
+                        var data = $(this).html().trim();
+                        data.should.equal(targetData[index] + '');
 
-                newChildren.each(function (index) {
-                    var data = $(this).html().trim();
-                    data.should.equal(targetData[index] + '');
-
-                    var indexVal = $(this).data('stuff');
-                    indexVal.should.equal(index);
+                        var indexVal = $(this).data('stuff');
+                        indexVal.should.equal(index);
+                    });
+                    return channel.publish({ somearray: targetData }).then(()=> {
+                        $node.children().length.should.equal(childrenCount);
+                    });
                 });
-
-                $node.find('li:first').trigger('update.f.model', { somearray: targetData });
-                $node.children().length.should.equal(childrenCount);
             });
         });
         it('should clean-up explicitly dirty nodes', function () {
             var targetData = [1, 2];
-            var html = '<ul> <li data-f-repeat="somearray" data-repeat-template-id="repeat-1"></li>' +
-                '<li data-repeat-1="true"></li><li data-repeat-1="true"></li>' +
-                '<li data-repeat-2="true"></li><li data-repeat-4="true"></li>' +
-            '</ul>';
-            return utils.initWithNode(html, domManager).then(function ($node) {
-                $node.find('li:first').trigger('update.f.model', { somearray: targetData });
-                $node.children().length.should.equal(4);
+            var html = `
+                <ul> 
+                    <li data-f-repeat="somearray" data-repeat-template-id="repeat-1"></li>
+                    <li data-repeat-1="true"></li><li data-repeat-1="true"></li>
+                    <li data-repeat-2="true"></li><li data-repeat-4="true"></li>
+                </ul>
+            `;
+            const channel = utils.createDummyChannel();
+            return utils.initWithNode(html, domManager, channel).then(function ($node) {
+                return channel.publish({ somearray: targetData }).then(()=> {
+                    $node.children().length.should.equal(4);
+                });
             });
         });
 
         it('should loop through children for elems with repeat=variableObject', function () {
             var targetData = { a: 3, b: 4 };
 
-            return utils.initWithNode('<ul> <li data-f-repeat="someobject" data-stuff="<%=index%>"> <%= value %> </li> </ul>', domManager).then(function ($node) {
-                $node.find('li:first').trigger('update.f.model', { someobject: targetData });
+            const channel = utils.createDummyChannel();
+            return utils.initWithNode(`
+                <ul> 
+                    <li data-f-repeat="someobject" data-stuff="<%=index%>"> <%= value %> </li> 
+                </ul>
+            `, domManager, channel).then(function ($node) {
+                return channel.publish({ someobject: targetData }).then(()=> {
+                    var newChildren = $node.children();
+                    var childrenCount = newChildren.length;
 
-                var newChildren = $node.children();
-                var childrenCount = newChildren.length;
+                    newChildren.each(function () {
+                        var val = $(this).html().trim();
+                        var key = $(this).data('stuff');
 
-                newChildren.each(function () {
-                    var val = $(this).html().trim();
-                    var key = $(this).data('stuff');
-
-                    targetData[key].should.equal(+val);
+                        targetData[key].should.equal(+val);
+                    });
+                    return channel.publish({ someobject: targetData }).then(()=> {
+                        $node.children().length.should.equal(childrenCount);
+                    });
                 });
-
-                $node.find('li:first').trigger('update.f.model', { someobject: targetData });
-                $node.children().length.should.equal(childrenCount);
             });
         });
         it('should support nested repeats', function () {
             var targetData = [5, 3, 6, 1];
             var targetData2 = ['a', 'b', 'c'];
 
-            return utils.initWithNode('<ul> <li data-f-repeat="somearray"> <div class="children" data-f-repeat="somethingElse"> </div> </li> </ul>', domManager).then(function ($node) {
-                $node.find('li:first').trigger('update.f.model', { somearray: targetData });
-
-                domManager.bindAll();
-
-                $node.find('div').trigger('update.f.model', { somethingElse: targetData2 });
-
-                var newChildren = $node.children();
-                newChildren.length.should.equal(targetData.length);
-                newChildren.each(function (index, el) {
-                    $(el).children().length.should.equal(targetData2.length);
-                    $(el).children().each(function (i2) {
-                        var data = $(this).html().trim();
-                        data.should.equal(targetData2[i2]);
+            const channel = utils.createDummyChannel();
+            return utils.initWithNode(`
+                <ul> 
+                    <li data-f-repeat="somearray"> <div class="children" data-f-repeat="somethingElse"> </div> </li>
+                </ul>
+            `, domManager, channel).then(function ($node) {
+                return channel.publish({
+                    somearray: targetData,
+                    somethingElse: targetData2,
+                }).then(()=> {
+                    var newChildren = $node.children();
+                    newChildren.length.should.equal(targetData.length);
+                    newChildren.each(function (index, el) {
+                        $(el).children().length.should.equal(targetData2.length);
+                        $(el).children().each(function (i2) {
+                            var data = $(this).html().trim();
+                            data.should.equal(targetData2[i2]);
+                        });
                     });
                 });
             });

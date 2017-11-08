@@ -1,22 +1,50 @@
 <html>
 
 <head>
+    <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css">
     <script src="/node_modules/jquery/dist/jquery.min.js"></script>
     <script src="/node_modules/lodash/lodash.js"></script>
     <script src="/node_modules/epicenter-js/dist/epicenter.min.js"></script>
     <script src="/dist/flow-edge.js"></script>
+    <style>
+        @keyframes fadein {
+            0% {
+                opacity: 0;
+            }
+            100% {
+                opacity: 1;
+            }
+        }
+        @keyframes highlightred {
+            0% {
+                background: red; /* lovely yellow colour */
+            }
+            100% {
+                background: none;
+            }
+        }
+        @keyframes highlight {
+            0% {
+                background: #ffff99; /* lovely yellow colour */
+            }
+            100% {
+                background: none;
+            }
+        }
+
+        [data-change]:not([data-change-initial]), [data-updated] {
+                 animation: highlight 1s;
+         }
+        [data-added] {
+            animation: highlightred 1s;
+        }
+    </style>
 </head>
 
 <body>
-    <div data-f-bind="Time"></div>
-    <div data-f-bind="STEP"></div>
-<<<<<<< HEAD
-
-    <div data-f-bind="Time | lessThan(2016, isLess, isGreater)"></div> 
-
-    Price
+<!--     Price
     <div data-f-bind="Price"></div>
-
+ -->
 
     Price[step]
     <div data-f-bind="Price[<STEP>]"></div>
@@ -25,11 +53,50 @@
     <h6>Outputs</h6>
     Price
     <input type="text" id="txtPrice" data-f-bind="Price" /> Price[0]
-    <input type="text" id="txtPrice" data-f-bind="Price[0]" /> Price[STEP]
+    <input type="text" id="txtPrice" data-f-bind="Price[0]" /> Price[<STEP>]
         <input type="text" id="txtPrice" data-f-bind="Price[<STEP>]" />
 
         <button data-f-on-click="step">Step</button>
         <button data-f-on-click="reset">Reset</button>
+
+    Foreach
+    <div class="row">
+        <div class="col-xs-6">
+            <h6>Add to top</h6>
+            <table>
+                <tbody data-f-foreach="Price">
+                    <tr>
+                        <td><%= value %></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="col-xs-6">
+            <h6>Add to bottom</h6>
+           <!--  <table>
+                <tbody data-f-foreach="Price | reverse">
+                    <tr>
+                        <td><%= value %></td>
+                    </tr>
+                </tbody>
+            </table> -->
+        </div>
+    </div>
+   
+    Repeat
+    <div class="row">
+        <div class="col-xs-6">
+            <table>
+                <tbody>
+                    <tr>
+                        <td data-f-repeat="Price"></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="col-xs-6"></div>
+    </div>
+
         <script>
             Flow.initialize({
                 channel: {
@@ -39,37 +106,6 @@
                             project: 'glasses',
                             model: 'gglasses.vmf',
                         }
-=======
-
-    Price
-    <div data-f-bind="Price"></div>
-
-
-    Price[step]
-    <div data-f-bind="Price[<STEP>]"></div>
-
-
-    <h6>Outputs</h6>
-    Price
-    <input type="text" id="txtPrice" data-f-bind="Price" />
-
-    Price[0]
-    <input type="text" id="txtPrice" data-f-bind="Price[0]" />
-
-    Price[<STEP>]
-    <input type="text" id="txtPrice" data-f-bind="Price[<STEP>]" />
-
-    <button data-f-on-click="step">Step</button>
-    <button data-f-on-click="reset">Reset</button>
-    <script>
-        Flow.initialize({
-            channel: {
-                defaults: {
-                    run: {
-                        account: 'jaimedp',
-                        project: 'glasses',
-                        model: 'gglasses.vmf',
->>>>>>> parent of bbc4a49... review props vs attrs
                     }
                 }
             });

@@ -9,9 +9,6 @@ module.exports = {
         //UI Change to publish to the channel.
         trigger: 'update.f.ui',
 
-        //Payload is of form {topic: value}. When triggered on a element dom-manager will trigger 'f.convert' on every attribute subscribed to that topic
-        channelDataReceived: 'update.f.model',
-
         //Trigger with payload '{attrToUpdate: value}', for e.g. { bind: 34 }. This will run this through all the converts and pass it to attr handler. Useful to by-pass getting this from the model directly.
         convert: 'f.convert',
 
@@ -20,27 +17,20 @@ module.exports = {
     },
 
     attrs: {
-        //Array with shape [{ attr: attribute, topics:[list of topics attribute is listening to]}]
-        bindingsList: 'f-attr-bindings',
-
-        //Subscription id returned by the channel. Used to ubsubscribe later
-        subscriptionId: 'subscription-id',
-
         //Used by the classes attr handler to keep track of which classes were added by itself
         classesAdded: 'f-added-classes',
 
         //Used by repeat attr handler to keep track of template after first evaluation
         repeat: {
-            template: 'repeat-template', //don't prefix by f or dom-manager unbind will kill it
-            templateId: 'repeat-template-id'
+            templateId: 'repeat-template-id' //don't prefix by f or dom-manager unbind will kill it
         },
 
-        //Used by foreach attr handler to keep track of template after first evaluation
-        foreachTemplate: 'f-foreach-template',
         keyAs: 'f-foreach-key-as',
         valueAs: 'f-foreach-value-as',
-
-        //Used by bind attr handler to keep track of template after first evaluation
-        bindTemplate: 'f-bind-template'
+    },
+    animation: {
+        addAttr: 'data-add',
+        changeAttr: 'data-update',
+        initialChangeAttr: 'data-change-initial',
     }
 };

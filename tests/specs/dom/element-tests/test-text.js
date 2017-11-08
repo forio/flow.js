@@ -18,17 +18,19 @@ describe(':text', function () {
                 $node.val(5);
                 $node.trigger('change');
 
-                spy.getCall(0).args[1].should.eql({ stuff: '5' });
+                const args = spy.getCall(0).args[1];
+                args.data.should.eql([{ name: 'stuff', value: '5' }]);
             });
         });
     });
     describe('updaters', function () {
         it('should update itself with values passed in', function () {
-            return utils.initWithNode('<input type="text" data-f-bind="stuff" value="3"/>', domManager).then(function ($node) {
-                $node.trigger('update.f.model', { stuff: 5 });
-
-                var val = $node.val();
-                val.should.equal('5');
+            const channel = utils.createDummyChannel();
+            return utils.initWithNode('<input type="text" data-f-bind="stuff" value="3"/>', domManager, channel).then(function ($node) {
+                channel.publish({ stuff: 5 }).then(()=> {
+                    var val = $node.val();
+                    val.should.equal('5');
+                });
             });
         });
         //TODO: make it only take the last element of an array?

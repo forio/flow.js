@@ -120,11 +120,20 @@
 const parseUtils = require('../../../utils/parse-utils');
 const config = require('../../../config');
 
-const { uniqueId, each, size, template } = require('lodash');
+const { addChangeClassesToList } = require('utils/animation');
+const { uniqueId, each, template } = require('lodash');
 
 function refToMarkup(refKey) {
     return '<!--' + refKey + '-->';
 }
+
+const elTemplateMap = new WeakMap();
+
+const MISSING_REFERENCES_KEY = 'missing-references';
+const MISSING_REFERENCE_ATTR = `data-${MISSING_REFERENCES_KEY}`;
+
+const CURRENT_INDEX_KEY = 'current-index';
+const CURRENT_INDEX_ATTR = `data-${CURRENT_INDEX_KEY}`;
 
 module.exports = {
 
@@ -132,118 +141,130 @@ module.exports = {
 
     target: '*',
 
-    unbind: function (attr) {
-        var template = this.data(config.attrs.foreachTemplate);
+    unbind: function (attr, $el) {
+        const el = $el.get(0);
+        const template = elTemplateMap.get(el);
         if (template) {
-            this.html(template);
-            this.removeData(config.attrs.foreachTemplate);
-            this.removeData(config.attrs.keyAs);
-            this.removeData(config.attrs.valueAs);
+            $el.html(template);
+            elTemplateMap.delete(el);
         }
+
+        const dataToRemove = [config.attrs.keyAs, config.attrs.valueAs, MISSING_REFERENCES_KEY];
+        $el.removeData(dataToRemove);
+
+        const attrsToRemove = [MISSING_REFERENCE_ATTR, CURRENT_INDEX_ATTR];
+        $el.removeAttr(attrsToRemove.join(' '));
     },
 
-    parse: function (attrVal) {
-        var inMatch = attrVal.match(/(.*) (?:in|of) (.*)/);
+    //provide variable name from bound
+    parse: function (attrVal, $el) {
+        const inMatch = attrVal.match(/(.*) (?:in|of) (.*)/);
         if (inMatch) {
-            var itMatch = inMatch[1].match(/\((.*),(.*)\)/);
+            const itMatch = inMatch[1].match(/\((.*),(.*)\)/);
             if (itMatch) {
-                this.data(config.attrs.keyAs, itMatch[1].trim());
-                this.data(config.attrs.valueAs, itMatch[2].trim());
+                $el.data(config.attrs.keyAs, itMatch[1].trim());
+                $el.data(config.attrs.valueAs, itMatch[2].trim());
             } else {
-                this.data(config.attrs.valueAs, inMatch[1].trim());
+                $el.data(config.attrs.valueAs, inMatch[1].trim());
             }
             attrVal = inMatch[2];
         }
         return attrVal;
     },
 
-    handle: function (value, prop) {
+    handle: function (value, prop, $el) {
         value = ($.isPlainObject(value) ? value : [].concat(value));
-        var loopTemplate = this.data(config.attrs.foreachTemplate);
+
+        const el = $el.get(0);
+        let loopTemplate = elTemplateMap.get(el);
         if (!loopTemplate) {
-            loopTemplate = this.html();
-            this.data(config.attrs.foreachTemplate, loopTemplate);
+            loopTemplate = $el.html();
+            elTemplateMap.set(el, loopTemplate);
         }
-        var $me = this.empty();
-        var cloop = loopTemplate.replace(/&lt;/g, '<').replace(/&gt;/g, '>');
-
-        var defaultKey = $.isPlainObject(value) ? 'key' : 'index';
-        var keyAttr = $me.data(config.attrs.keyAs) || defaultKey;
-        var valueAttr = $me.data(config.attrs.valueAs) || 'value';
         
-        var keyRegex = new RegExp('\\b' + keyAttr + '\\b');
-        var valueRegex = new RegExp('\\b' + valueAttr + '\\b');
+        let cloop = loopTemplate.replace(/&lt;/g, '<').replace(/&gt;/g, '>');
 
+        const defaultKey = $.isPlainObject(value) ? 'key' : 'index';
+        const keyAttr = $el.data(config.attrs.keyAs) || defaultKey;
+        const valueAttr = $el.data(config.attrs.valueAs) || 'value';
+        
+        const keyRegex = new RegExp('\\b' + keyAttr + '\\b');
+        const valueRegex = new RegExp('\\b' + valueAttr + '\\b');
 
-        var closestKnownDataEl = this.closest('[data-current-index]');
-        var knownData = {};
-        if (closestKnownDataEl.length) {
-            knownData = closestKnownDataEl.data('current-index');
-        }
-        var closestParentWithMissing = this.closest('[data-missing-references]');
+        //This needs to handle nested loops so you may not have all the data you need
+        const closestParentWithMissing = $el.closest(`[${MISSING_REFERENCE_ATTR}]`);
         if (closestParentWithMissing.length) { //(grand)parent already stubbed out missing references
-            var missing = closestParentWithMissing.data('missing-references');
+            const missing = closestParentWithMissing.data(MISSING_REFERENCES_KEY);
             each(missing, function (replacement, template) {
                 if (keyRegex.test(template) || valueRegex.test(template)) {
                     cloop = cloop.replace(refToMarkup(replacement), template);
                 }
             });
+            //don't remove MISSING_REFERENCE_ATTR here because siblings may need it
         } else {
-            var missingReferences = {};
-            var templateTagsUsed = cloop.match(/<%[=-]?([\s\S]+?)%>/g);
+            const missingReferences = {};
+            const templateTagsUsed = cloop.match(/<%[=-]?([\s\S]+?)%>/g);
             if (templateTagsUsed) {
                 templateTagsUsed.forEach(function (tag) {
                     if (tag.match(/\w+/) && !keyRegex.test(tag) && !valueRegex.test(tag)) {
-                        var refKey = missingReferences[tag];
+                        let refKey = missingReferences[tag];
                         if (!refKey) {
                             refKey = uniqueId('no-ref');
                             missingReferences[tag] = refKey;
                         }
-                        var r = new RegExp(tag, 'g');
+                        const r = new RegExp(tag, 'g');
                         cloop = cloop.replace(r, refToMarkup(refKey));
                     }
                 });
             }
-            if (size(missingReferences)) {
+            if (Object.keys(missingReferences).length) {
                 //Attr, not data, to make jQ selector easy. No f- prefix to keep this from flow.
-                this.attr('data-missing-references', JSON.stringify(missingReferences));
+                $el.attr(MISSING_REFERENCE_ATTR, JSON.stringify(missingReferences));
             }
         }
 
-        var templateFn = template(cloop);
+        const closestKnownDataEl = $el.closest(`[${CURRENT_INDEX_ATTR}]`);
+        let knownData = {};
+        if (closestKnownDataEl.length) {
+            knownData = closestKnownDataEl.data(CURRENT_INDEX_KEY);
+        }
+        const templateFn = template(cloop);
+        const $dummyEl = $('<div></div>');
         each(value, function (dataval, datakey) {
             if (!dataval) {
-                dataval = dataval + '';
+                dataval = dataval + ''; //convert undefineds to strings
             }
-            var templateData = {};
+            const templateData = {};
             templateData[keyAttr] = datakey;
             templateData[valueAttr] = dataval;
             
             $.extend(templateData, knownData);
 
-            var nodes;
-            var isTemplated;
+            let nodes;
+            let isTemplated;
             try {
-                var templatedLoop = templateFn(templateData);
+                const templatedLoop = templateFn(templateData);
                 isTemplated = templatedLoop !== cloop;
                 nodes = $(templatedLoop);
             } catch (e) { //you don't have all the references you need;
                 nodes = $(cloop);
                 isTemplated = true;
-                $(nodes).attr('data-current-index', JSON.stringify(templateData));
+                $(nodes).attr(CURRENT_INDEX_ATTR, JSON.stringify(templateData));
             }
 
             nodes.each(function (i, newNode) {
-                newNode = $(newNode);
-                each(newNode.data(), function (val, key) {
-                    newNode.data(key, parseUtils.toImplicitType(val));
+                const $newNode = $(newNode);
+                each($newNode.data(), function (val, key) {
+                    $newNode.data(key, parseUtils.toImplicitType(val));
                 });
-                if (!isTemplated && !newNode.html().trim()) {
-                    newNode.html(dataval);
+                if (!isTemplated && !$newNode.html().trim()) {
+                    $newNode.html(dataval);
                 }
             });
-            $me.append(nodes);
-            
+            $dummyEl.append(nodes);
         });
+        
+        const $withAnimAttrs = addChangeClassesToList($el, $dummyEl, config.animation);
+        $el.empty().append($withAnimAttrs.children());
     }
 };
