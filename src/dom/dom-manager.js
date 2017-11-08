@@ -354,15 +354,15 @@ module.exports = (function () {
             }
 
             function attachUIOperationsListener($root) {
-                $root.off(config.events.operate).on(config.events.operate, function (evt, data) {
+                $root.off(config.events.operate).on(config.events.operate, function (evt, params) {
                     const elMeta = me.matchedElements.get(evt.target);
                     if (!elMeta) {
                         return;
                     }
-                    const { operations, source } = data;
+                    const { data, source, options } = params;
                     const sourceMeta = elMeta[source] || {};
 
-                    const filtered = ([].concat(operations || [])).reduce(function (accum, operation) {
+                    const filtered = ([].concat(data || [])).reduce(function (accum, operation) {
                         const val = operation.value ? [].concat(operation.value) : [];
                         operation.value = val.map(function (val) {
                             return parseUtils.toImplicitType($.trim(val));
@@ -383,7 +383,7 @@ module.exports = (function () {
                     }, { operations: [], converters: [] });
 
                     const promise = (filtered.operations.length) ?
-                        channel.publish(filtered.operations, data.options) :
+                        channel.publish(filtered.operations, options) :
                         $.Deferred().resolve().promise();
                      
                     //FIXME: Needed for the 'gotopage' in interfacebuilder. Remove this once we add a window channel

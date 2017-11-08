@@ -155,20 +155,20 @@ describe(config.events.operate, function () {
     });
     it('should call publish', function () {
         return utils.initWithNode('<div data-f-on-click="somethingrandom"></div>', domManager, channel).then(function ($node) {
-            $node.trigger(config.events.operate, { operations: [{ name: 'stuff', value: [] }], source: 'on-click' });
+            $node.trigger(config.events.operate, { data: [{ name: 'stuff', value: [] }], source: 'on-click' });
             channel.publish.should.have.been.calledOnce;
         });
     });
     it('should pass the right parameters to publish', function () {
         return utils.initWithNode('<div data-f-on-click="somethingrandom"></div>', domManager, channel).then(function ($node) {
-            var payload = { operations: [{ name: 'stuff', value: [] }], source: 'on-click' };
+            var payload = { data: [{ name: 'stuff', value: [] }], source: 'on-click' };
             $node.trigger(config.events.operate, payload);
             channel.publish.should.have.been.calledWith([{ name: 'operations:stuff', value: [] }]);
         });
     });
     it('should implicitly convert parameters to send to publish', function () {
         return utils.initWithNode('<div data-f-on-click="somethingrandom"></div>', domManager, channel).then(function ($node) {
-            var payload = { operations: [{ name: 'stuff', value: ['1', 0] }], source: 'on-click' };
+            var payload = { data: [{ name: 'stuff', value: ['1', 0] }], source: 'on-click' };
             $node.trigger(config.events.operate, payload);
             channel.publish.should.have.been.calledWith([{ name: 'operations:stuff', value: [1, 0] }]);
         });
@@ -176,14 +176,14 @@ describe(config.events.operate, function () {
     describe('Operations prefix', ()=> {
         it('should add operations prefix if not provided', ()=> {
             return utils.initWithNode('<div data-f-on-click="somethingrandom"></div>', domManager, channel).then(function ($node) {
-                var payload = { operations: [{ name: 'stuff', value: ['1', 0] }], source: 'on-click' };
+                var payload = { data: [{ name: 'stuff', value: ['1', 0] }], source: 'on-click' };
                 $node.trigger(config.events.operate, payload);
                 channel.publish.should.have.been.calledWith([{ name: 'operations:stuff', value: [1, 0] }]);
             });
         });
         it('should not add operations prefix if provided', ()=> {
             return utils.initWithNode('<div data-f-on-click="somethingrandom"></div>', domManager, channel).then(function ($node) {
-                var payload = { operations: [{ name: 'variables:stuff', value: ['1', 0] }], source: 'on-click' };
+                var payload = { data: [{ name: 'variables:stuff', value: ['1', 0] }], source: 'on-click' };
                 $node.trigger(config.events.operate, payload);
                 channel.publish.should.have.been.calledWith([{ name: 'variables:stuff', value: [1, 0] }]);
             });
@@ -191,7 +191,7 @@ describe(config.events.operate, function () {
         describe('Channel Prefix', ()=> {
             it('should add channel prefix if provided on element', ()=> {
                 return utils.initWithNode('<div data-f-on-click="somethingrandom" data-f-channel="foo"></div>', domManager, channel).then(function ($node) {
-                    var payload = { operations: [{ name: 'stuff', value: ['1', 0] }], source: 'on-click' };
+                    var payload = { data: [{ name: 'stuff', value: ['1', 0] }], source: 'on-click' };
                     $node.trigger(config.events.operate, payload);
                     channel.publish.should.have.been.calledWith([{ name: 'foo:operations:stuff', value: [1, 0] }]);
                 });
@@ -202,14 +202,14 @@ describe(config.events.operate, function () {
                         <div data-f-on-click="somethingrandom"></div>
                     </div>
                 `, domManager, channel).then(function ($node) {
-                    var payload = { operations: [{ name: 'stuff', value: ['1', 0] }], source: 'on-click' };
+                    var payload = { data: [{ name: 'stuff', value: ['1', 0] }], source: 'on-click' };
                     $node.find('div').trigger(config.events.operate, payload);
                     channel.publish.should.have.been.calledWith([{ name: 'foo:operations:stuff', value: [1, 0] }]);
                 });
             });
             it('should not add prefix if el already has one', ()=> {
                 return utils.initWithNode('<div data-f-on-click="somethingrandom"></div>', domManager, channel).then(function ($node) {
-                    var payload = { operations: [{ name: 'bar:stuff', value: ['1', 0] }], source: 'on-click' };
+                    var payload = { data: [{ name: 'bar:stuff', value: ['1', 0] }], source: 'on-click' };
                     $node.trigger(config.events.operate, payload);
                     channel.publish.should.have.been.calledWith([{ name: 'bar:stuff', value: [1, 0] }]);
                 });
