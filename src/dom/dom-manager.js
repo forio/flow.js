@@ -340,6 +340,7 @@ module.exports = (function () {
                 });
             }
 
+            const DEFAULT_OPERATIONS_PREFIX = 'operations:';
             function attachUIOperationsListener($root) {
                 $root.off(config.events.operate).on(config.events.operate, function (evt, data) {
                     const filtered = ([].concat(data.operations || [])).reduce(function (accum, operation) {
@@ -351,9 +352,9 @@ module.exports = (function () {
                         if (isConverter) {
                             accum.converters.push(operation);
                         } else {
-                            //TODO: Add a test for this
                             if (operation.name.indexOf(':') === -1) {
-                                operation.name = 'operations:' + operation.name;
+                                //TODO: Also look at f-channel?
+                                operation.name = `${DEFAULT_OPERATIONS_PREFIX}${operation.name}`;
                             }
                             accum.operations.push(operation);
                         }

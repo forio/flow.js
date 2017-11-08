@@ -2,7 +2,7 @@ var domManager = require('src/dom/dom-manager');
 var utils = require('../../testing-utils');
 var config = require('config');
 
-describe('On Model updates', function () {
+describe('On Variable updates', function () {
     it('should trigger f.convert with multiple attributes if provided an object with multiple keys', function () {
         const channel = utils.createDummyChannel();
         return utils.initWithNode('<input type="text" data-f-stuff="apple" data-f-other="orange"/>', domManager, channel).then(function ($node) {
@@ -149,28 +149,71 @@ describe('f.convert', function () {
 });
 
 describe(config.events.operate, function () {
+    var channel;
+    beforeEach(()=> {
+        channel = utils.createDummyChannel();
+    });
     it('should call publish', function () {
-        var channel = utils.createDummyChannel();
-        return utils.initWithNode('<button data-f-on-click="reset"> Click </button>', domManager, channel).then(function ($node) {
+        return utils.initWithNode('<div></div>', domManager, channel).then(function ($node) {
             $node.trigger(config.events.operate, { operations: [{ name: 'stuff', value: [] }] });
             channel.publish.should.have.been.calledOnce;
         });
     });
     it('should pass the right parameters to publish', function () {
-        var channel = utils.createDummyChannel();
-        return utils.initWithNode('<button data-f-on-click="reset"> Click </button>', domManager, channel).then(function ($node) {
+        return utils.initWithNode('<div></div>', domManager, channel).then(function ($node) {
             var payload = { operations: [{ name: 'stuff', value: [] }] };
             $node.trigger(config.events.operate, payload);
             channel.publish.should.have.been.calledWith([{ name: 'operations:stuff', value: [] }]);
         });
     });
     it('should implicitly convert parameters to send to publish', function () {
-        var channel = utils.createDummyChannel();
-        return utils.initWithNode('<button data-f-on-click="reset"> Click </button>', domManager, channel).then(function ($node) {
+        return utils.initWithNode('<div></div>', domManager, channel).then(function ($node) {
             var payload = { operations: [{ name: 'stuff', value: ['1', 0] }] };
             $node.trigger(config.events.operate, payload);
             channel.publish.should.have.been.calledWith([{ name: 'operations:stuff', value: [1, 0] }]);
         });
+    });
+    describe('Operations prefix', ()=> {
+        it('should add operations prefix if not provided', ()=> {
+            return utils.initWithNode('<div></div>', domManager, channel).then(function ($node) {
+                var payload = { operations: [{ name: 'stuff', value: ['1', 0] }] };
+                $node.trigger(config.events.operate, payload);
+                channel.publish.should.have.been.calledWith([{ name: 'operations:stuff', value: [1, 0] }]);
+            });
+        });
+        it('should not add operations prefix if provided', ()=> {
+            return utils.initWithNode('<div></div>', domManager, channel).then(function ($node) {
+                var payload = { operations: [{ name: 'variables:stuff', value: ['1', 0] }] };
+                $node.trigger(config.events.operate, payload);
+                channel.publish.should.have.been.calledWith([{ name: 'variables:stuff', value: [1, 0] }]);
+            });
+        });
+        // it.only('should add channel prefix if provided on element', ()=> {
+        //     return utils.initWithNode('<button data-f-on-click="reset" data-f-channel="foo"> Click </button>', domManager, channel).then(function ($node) {
+        //         var payload = { operations: [{ name: 'stuff', value: ['1', 0] }] };
+        //         $node.trigger(config.events.operate, payload);
+        //         channel.publish.should.have.been.calledWith([{ name: 'foo:stuff', value: [1, 0] }]);
+        //     });
+        // });
+        // it('should add channel prefix if provided on parent', ()=> {
+        //     return utils.initWithNode(`
+        //         <div data-f-channel="foo>
+        //             <button data-f-on-click="reset" data-f-channel="foo"> Click </button>
+        //         </div>
+        //     `, domManager, channel).then(function ($node) {
+        //         var payload = { operations: [{ name: 'stuff', value: ['1', 0] }] };
+        //         $node.find('button').trigger(config.events.operate, payload);
+        //         channel.publish.should.have.been.calledWith([{ name: 'foo:stuff', value: [1, 0] }]);
+        //     });
+        // });
+        // it('should not add prefix if el already has one', ()=> {
+        //     return utils.initWithNode('<button data-f-on-click="bar:reset" data-f-channel="foo"> Click </button>', domManager, channel).then(function ($node) {
+        //         var payload = { operations: [{ name: 'stuff', value: ['1', 0] }] };
+        //         $node.trigger(config.events.operate, payload);
+        //         channel.publish.should.have.been.calledWith([{ name: 'bar:stuff', value: [1, 0] }]);
+        //     });
+        // });
+
     });
 });
 
