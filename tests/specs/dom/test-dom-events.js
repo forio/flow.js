@@ -59,6 +59,61 @@ describe('On Model updates', function () {
             });
         });
     });
+    describe('De-prefix variables', ()=> {
+        it('should leave single vars as-is', ()=> {
+            const channel = utils.createDummyChannel();
+            return utils.initWithNode('<input type="text" data-f-stuff="c1:apple"/>', domManager, channel).then(function ($node) {
+                var spy = sinon.spy();
+                $node.on('f.convert', spy);
+
+                var data = {
+                    'c1:apple': 'sauce',
+                };
+                return channel.publish(data).then(()=> {
+                    spy.getCall(0).args[1].should.eql({
+                        stuff: 'sauce'
+                    });
+                });
+            });
+        });
+        it('should deprefix multivariables if channel provided externally', ()=> {
+            const channel = utils.createDummyChannel();
+            return utils.initWithNode('<input type="text" data-f-stuff="apple,bread" data-f-channel="c1" />', domManager, channel).then(function ($node) {
+                var spy = sinon.spy();
+                $node.on('f.convert', spy);
+
+                var data = {
+                    'c1:apple': 'sauce',
+                    'c1:bread': 'pudding',
+                };
+                return channel.publish(data).then(()=> {
+                    spy.getCall(0).args[1].should.eql({
+                        stuff: {
+                            apple: 'sauce',
+                            bread: 'pudding'
+                        }
+                    });
+                });
+            });
+        });
+        it('should not deprefix multivariables if channel provided inline', ()=> {
+            const channel = utils.createDummyChannel();
+            return utils.initWithNode('<input type="text" data-f-stuff="c1:apple,c1:bread" />', domManager, channel).then(function ($node) {
+                var spy = sinon.spy();
+                $node.on('f.convert', spy);
+
+                var data = {
+                    'c1:apple': 'sauce',
+                    'c1:bread': 'pudding',
+                };
+                return channel.publish(data).then(()=> {
+                    spy.getCall(0).args[1].should.eql({
+                        stuff: data
+                    });
+                });
+            });
+        });
+    });
 });
 describe('f.convert', function () {
     it('should work if triggered with objects', function () {

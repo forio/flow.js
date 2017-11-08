@@ -138,7 +138,7 @@ describe('DOM Manager', function () {
             beforeEach(()=> {
                 channel = utils.createDummyChannel();
             });
-            describe('#bind', ()=> {
+            describe('default', ()=> {
                 it('should subscribe single elements', ()=> {
                     const el = $('<div data-f-bind="a"> </div>');
                     domManager.bindElement(el, channel);
@@ -167,6 +167,79 @@ describe('DOM Manager', function () {
                     var args = channel.subscribe.getCall(0).args;
                     args[0].should.eql(['a']);
                     args[2].should.eql({ batch: true, foo: 'bar' }); //args[1] is callback fn
+                });
+            });
+            describe('Channel Prefix', ()=> {
+                describe('Prefix', ()=> {
+                    it('should add channel prefix if provided on itself', ()=> {
+                        const el = $('<div data-f-bind="a" data-f-channel="foo"> </div>');
+                        domManager.bindElement(el, channel);
+
+                        expect(channel.subscribe).to.have.been.calledOnce;
+                        expect(channel.subscribe).to.have.been.calledWith(['foo:a']);
+                    });
+                    it('should add channel prefix if defined on parent', ()=> {
+                        const el = $(`
+                            <div data-f-channel="foo">
+                                <div data-f-bind="a"></div>
+                            </div>
+                        `);
+
+                        domManager.bindElement($(el).find('div'), channel);
+
+                        expect(channel.subscribe).to.have.been.calledOnce;
+                        expect(channel.subscribe).to.have.been.calledWith(['foo:a']);
+                    });
+                    it('should apply to all attrs on element', ()=> {
+                        const el = $(`
+                            <div data-f-channel="foo">
+                                <div data-f-bind="a" data-f-foo="bar"></div>
+                            </div>
+                        `);
+
+                        domManager.bindElement($(el).find('div'), channel);
+
+                        expect(channel.subscribe).to.have.been.calledTwice;
+
+                        const args1 = channel.subscribe.getCall(0).args[0];
+                        expect(args1).to.eql(['foo:a']);
+
+                        const args2 = channel.subscribe.getCall(1).args[0];
+                        expect(args2).to.eql(['foo:bar']);
+                    });
+                    it('should not add a prefix if already defined', ()=> {
+                        const el = $(`
+                            <div data-f-channel="foo">
+                                <div data-f-bind="prefix:a" data-f-foo="bar"></div>
+                            </div>
+                        `);
+
+                        domManager.bindElement($(el).find('div'), channel);
+
+                        expect(channel.subscribe).to.have.been.calledTwice;
+
+                        const args1 = channel.subscribe.getCall(0).args[0];
+                        expect(args1).to.eql(['prefix:a']);
+
+                        const args2 = channel.subscribe.getCall(1).args[0];
+                        expect(args2).to.eql(['foo:bar']);
+                    });
+                });
+            });
+            describe('Channel options', ()=> {
+                it('should provide channeloptions for channels defined as attrs', ()=> {
+                    const el = $('<div data-f-bind="a" data-f-channel="foo" data-f-channel-a="1"> </div>');
+                    domManager.bindElement(el, channel);
+
+                    const opts = channel.subscribe.getCall(0).args[2];
+                    expect(opts.a).to.eql('1');
+                });
+                it('should provide channeloptions for inline channels', ()=> {
+                    const el = $('<div data-f-bind="a" data-f-channel-a="1"> </div>');
+                    domManager.bindElement(el, channel);
+
+                    const opts = channel.subscribe.getCall(0).args[2];
+                    expect(opts.a).to.eql('1');
                 });
             });
         });
