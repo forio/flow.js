@@ -2,7 +2,7 @@
  * 
  * @param {JQuery<HTMLElement>} $el  
  * @param {string} attr 
- * @returns {string | undefined}
+ * @returns {string|undefined}
  */
 export function getChannelForAttribute($el, attr) {
     attr = attr.replace('data-f-', '');
@@ -24,6 +24,7 @@ export function getChannelForAttribute($el, attr) {
  * @return {Object}
  */ 
 export function getChannelConfigForElement(el) {
+    //TODO: Should this look at parents too?
     const attrs = el.attributes;
     const config = {};
     for (let i = 0; i < attrs.length; i++) {

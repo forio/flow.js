@@ -26,8 +26,8 @@ module.exports = (function () {
         if (!el || !el.attributes) {
             return false;
         }
-        for (var i = 0; i < el.attributes.length; i++) {
-            var attr = el.attributes[i].nodeName;
+        for (let i = 0; i < el.attributes.length; i++) {
+            const attr = el.attributes[i].nodeName;
             if (attr.indexOf('data-' + config.prefix) === 0) {
                 return true;
             }
@@ -43,14 +43,14 @@ module.exports = (function () {
      * @param {JQuery<HTMLElement>} root
      * @return {JQuery<HTMLElement>}
      */ 
-    var getMatchingElements = function (root) {
-        var $root = $(root);
-        var matchedElements = $root.find(':' + config.prefix);
+    function getMatchingElements(root) {
+        const $root = $(root);
+        let matchedElements = $root.find(':' + config.prefix);
         if ($root.is(':' + config.prefix)) {
             matchedElements = matchedElements.add($root);
         }
         return matchedElements;
-    };
+    }
 
     /**
      * @param {JQuery<HTMLElement> | HTMLElement} element
@@ -58,7 +58,7 @@ module.exports = (function () {
      * @return {HTMLElement}
      */ 
     function getElementOrError(element, context) {
-        var el = (element instanceof $) ? element.get(0) : element;
+        const el = (element instanceof $) ? element.get(0) : element;
         if (!el || !el.nodeName) {
             console.error(context, 'Expected to get DOM Element, got ', element);
             throw new Error(context + ': Expected to get DOM Element, got' + (typeof element));
@@ -75,11 +75,11 @@ module.exports = (function () {
     function unbindAllAttributes(domEl) {
         const $el = $(domEl);
         $(domEl.attributes).each(function (index, nodeMap) {
-            var attr = nodeMap.nodeName;
-            var wantedPrefix = 'data-f-';
+            let attr = nodeMap.nodeName;
+            const wantedPrefix = 'data-f-';
             if (attr.indexOf(wantedPrefix) === 0) {
                 attr = attr.replace(wantedPrefix, '');
-                var handler = attrManager.getHandler(attr, $el);
+                const handler = attrManager.getHandler(attr, $el);
                 if (handler.unbind) {
                     handler.unbind.call($el, attr, $el);
                 }
@@ -89,8 +89,8 @@ module.exports = (function () {
     function unbindAllNodeHandlers(domEl) {
         const $el = $(domEl);
         //FIXME: have to readd events to be able to remove them. Ugly
-        var Handler = nodeManager.getHandler($el);
-        var h = new Handler.handle({
+        const Handler = nodeManager.getHandler($el);
+        const h = new Handler.handle({
             el: domEl
         });
         if (h.removeEvents) {
@@ -98,7 +98,7 @@ module.exports = (function () {
         }
     }
 
-    var publicAPI = {
+    const publicAPI = {
 
         nodes: nodeManager,
         attributes: attrManager,
@@ -151,13 +151,13 @@ module.exports = (function () {
             }
             // this.unbindElement(element); //unbind actually removes the data,and jquery doesn't refetch when .data() is called..
             const domEl = getElementOrError(element);
-            var $el = $(domEl);
+            const $el = $(domEl);
             if (!$el.is(`:${config.prefix}`)) {
                 return;
             }
 
             //Send to node manager to handle ui changes
-            var Handler = nodeManager.getHandler($el);
+            const Handler = nodeManager.getHandler($el);
             new Handler.handle({
                 el: domEl
             });
@@ -252,7 +252,7 @@ module.exports = (function () {
                 elementsToBind = getMatchingElements(elementsToBind);
             }
 
-            var me = this;
+            const me = this;
             //parse through dom and find everything with matching attributes
             $.each(elementsToBind, function (index, element) {
                 me.bindElement(element, me.options.channel);
@@ -265,7 +265,7 @@ module.exports = (function () {
          * @returns {void}
          */
         unbindAll: function (elementsToUnbind) {
-            var me = this;
+            const me = this;
             if (!elementsToUnbind) {
                 elementsToUnbind = [];
                 this.matchedElements.forEach((val, key)=> {
@@ -289,7 +289,7 @@ module.exports = (function () {
          * @returns {Promise}
          */
         initialize: function (options) {
-            var defaults = {
+            const defaults = {
                 /**
                  * Root of the element for flow.js to manage from.
                  * @type {String} jQuery selector
@@ -305,18 +305,18 @@ module.exports = (function () {
             };
             $.extend(defaults, options);
 
-            var channel = defaults.channel;
+            const channel = defaults.channel;
 
             this.options = defaults;
 
-            var me = this;
-            var $root = $(defaults.root);
+            const me = this;
+            const $root = $(defaults.root);
 
-            var attachUIVariablesListener = function ($root) {
+            function attachUIVariablesListener($root) {
                 $root.off(config.events.trigger).on(config.events.trigger, function (evt, data) {
-                    var parsedData = {}; //if not all subsequent listeners will get the modified data
+                    const parsedData = {}; //if not all subsequent listeners will get the modified data
 
-                    var $el = $(evt.target);
+                    const $el = $(evt.target);
                     const elMeta = me.matchedElements.get(evt.target);
                     if (!elMeta) {
                         return;
@@ -333,16 +333,16 @@ module.exports = (function () {
 
                     channel.publish(parsedData);
                 });
-            };
+            }
 
-            var attachUIOperationsListener = function ($root) {
+            function attachUIOperationsListener($root) {
                 $root.off(config.events.operate).on(config.events.operate, function (evt, data) {
-                    var filtered = ([].concat(data.operations || [])).reduce(function (accum, operation) {
-                        var val = operation.value ? [].concat(operation.value) : [];
+                    const filtered = ([].concat(data.operations || [])).reduce(function (accum, operation) {
+                        const val = operation.value ? [].concat(operation.value) : [];
                         operation.value = val.map(function (val) {
                             return parseUtils.toImplicitType($.trim(val));
                         });
-                        var isConverter = converterManager.getConverter(operation.name);
+                        const isConverter = converterManager.getConverter(operation.name);
                         if (isConverter) {
                             accum.converters.push(operation);
                         } else {
@@ -355,7 +355,7 @@ module.exports = (function () {
                         return accum;
                     }, { operations: [], converters: [] });
 
-                    var promise = (filtered.operations.length) ?
+                    const promise = (filtered.operations.length) ?
                         channel.publish(filtered.operations, data.options) :
                         $.Deferred().resolve().promise();
                      
@@ -366,24 +366,24 @@ module.exports = (function () {
                         });
                     });
                 });
-            };
+            }
 
-            var attachConversionListner = function ($root) {
+            function attachConversionListner($root) {
                 // data = {proptoupdate: value} || just a value (assumes 'bind' if so)
                 $root.off(config.events.convert).on(config.events.convert, function (evt, data) {
-                    var $el = $(evt.target);
+                    const $el = $(evt.target);
 
                     const elMeta = me.matchedElements.get(evt.target);
                     if (!elMeta) {
                         return;
                     }
-                    var convert = function (val, prop) {
-                        var attrConverters = elMeta[prop].converters;
+                    function convert(val, prop) {
+                        const attrConverters = elMeta[prop].converters;
 
-                        var handler = attrManager.getHandler(prop, $el);
-                        var convertedValue = converterManager.convert(val, attrConverters);
+                        const handler = attrManager.getHandler(prop, $el);
+                        const convertedValue = converterManager.convert(val, attrConverters);
                         handler.handle.call($el, convertedValue, prop, $el);
-                    };
+                    }
 
                     if ($.isPlainObject(data)) {
                         _.each(data, convert);
@@ -391,9 +391,9 @@ module.exports = (function () {
                         convert(data, 'bind');
                     }
                 });
-            };
+            }
             
-            var promise = $.Deferred();
+            const promise = $.Deferred();
             $(function () {
                 me.bindAll();
 

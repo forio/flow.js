@@ -3,15 +3,11 @@ function convertersToArray(conv) {
     return conv.split('|').map((v)=> v.trim());
 }
 
-/**
- * @param {string} attrVal 
- * @returns {string[]} converters
- */
 function getConvertersFromAttr($el, attribute) {
     const attrVal = $el.attr(`data-f-${attribute}`);
     const withConv = convertersToArray(attrVal);
     if (withConv.length > 1) {
-        return withConv.slice(1);
+        return withConv.slice(1); //First item will be the topic
     }
     return [];
 }
@@ -20,6 +16,11 @@ function findConvertersForEl($el) {
     return convertersToArray(conv);
 }
 
+/**
+ * @param {JQuery<HTMLElement>} $el  
+ * @param {string} attribute 
+ * @returns {string[]} converters
+ */
 export function getConvertersForEl($el, attribute) {
     const convertersAsPipes = getConvertersFromAttr($el, attribute);
     if (convertersAsPipes.length) {
