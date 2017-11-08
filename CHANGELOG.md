@@ -1,3 +1,7 @@
+- Change in options format
+- Change in publish/subscribe
+- Change in on-init behavior
+
 <a name="0.12.0"></a>
 ## 0.12.0 (2017-05-18)
 
