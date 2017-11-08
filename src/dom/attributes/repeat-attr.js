@@ -66,6 +66,8 @@ const parseUtils = require('../../utils/parse-utils');
 const gutils = require('../../utils/general');
 const config = require('../../config').attrs;
 
+const { addChangeClassesToList } = require('utils/animation');
+
 const elTemplateMap = new WeakMap(); //<domel>: template
 
 module.exports = {
@@ -93,6 +95,8 @@ module.exports = {
         value = ($.isPlainObject(value) ? value : [].concat(value));
         var id = $el.data(config.repeat.templateId);
         
+        const $oldEl = $el.parent().clone();
+
         const el = $el.get(0);
 
         let loopTemplate = elTemplateMap.get(el);
@@ -137,5 +141,8 @@ module.exports = {
                 last = nodes.insertAfter(last);
             }
         });
+
+        //FIXME: build up dom during the remove first and then compare
+        addChangeClassesToList($oldEl, $el.parent()); //probably won't work for sibling repeats
     }
 };
