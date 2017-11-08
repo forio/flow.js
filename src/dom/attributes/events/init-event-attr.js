@@ -15,26 +15,4 @@
  *
  */
 
-'use strict';
-
-var config = require('config');
-var toOperationFormat = require('utils/parse-utils').toOperationFormat;
-
-module.exports = {
-
-    target: '*',
-
-    test: function (attr, $node) {
-        return (attr.indexOf('on-init') === 0);
-    },
-
-    init: function (attr, value) {
-        attr = attr.replace('on-init', '');
-        var me = this;
-        $(function () {
-            var listOfOperations = toOperationFormat(value);
-            me.trigger(config.events.operate, { operations: listOfOperations, options: { readOnly: false } });
-        });
-        return false; //Don't bother binding on this attr. NOTE: Do readonly, true instead?;
-    }
-};
+//Not used anymore, just here for the docs

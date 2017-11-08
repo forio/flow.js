@@ -33,10 +33,13 @@ describe('select', function () {
                 $node.on('update.f.ui', spy);
 
                 $node.val(1).trigger('change');
-                spy.getCall(0).args[1].should.eql({ stuff: '1' });
+
+                const args = spy.getCall(0).args[1];
+                args.data.should.eql([{ name: 'stuff', value: '1' }]);
 
                 $node.val('B').trigger('change');
-                spy.getCall(1).args[1].should.eql({ stuff: 'B' });
+                const args2 = spy.getCall(1).args[1];
+                args2.data.should.eql([{ name: 'stuff', value: 'B' }]);
             });
         });
     });

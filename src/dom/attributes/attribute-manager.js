@@ -44,7 +44,6 @@ const { isString, isFunction, isRegExp, filter, each } = require('lodash');
 
 var defaultHandlers = [
     require('./no-op-attr'),
-    // require('./events/init-event-attr'),
     require('./events/default-event-attr'),
     require('./foreach/default-foreach-attr'),
     require('./binds/checkbox-radio-bind-attr'),

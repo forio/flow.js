@@ -68,9 +68,7 @@ describe('converters', function () {
                     var channel = utils.createDummyChannel();
                     return utils.initWithNode('<input type="text" data-f-bind="price | $#,### "/>', domManager, channel).then(function ($node) {
                         $node.val('2,345').trigger('change');
-                        channel.publish.should.have.been.calledWith({
-                            price: 2345
-                        });
+                        channel.publish.should.have.been.calledWith([{ name: 'price', value: 2345 }]);
                     });
                 });
                 it('should convert values with multiple converters', function () {
@@ -86,9 +84,7 @@ describe('converters', function () {
                     var channel = utils.createDummyChannel();
                     return utils.initWithNode('<input type="text" data-f-bind="price | $#,### | flip"/>', domManager, channel).then(function ($node) {
                         $node.val('$2,345').trigger('change');
-                        channel.publish.should.have.been.calledWith({
-                            price: 5432
-                        });
+                        channel.publish.should.have.been.calledWith([{ name: 'price', value: 5432 }]);
                     });
                 });
                 it('should respect order of converters', function () {
@@ -105,9 +101,7 @@ describe('converters', function () {
                     var channel = utils.createDummyChannel();
                     return utils.initWithNode('<input type="text" data-f-bind="price | flips | $#,### "/>', domManager, channel).then(function ($node) {
                         $node.val('$2,345').trigger('change');
-                        channel.publish.should.have.been.calledWith({
-                            price: 'abc'
-                        });
+                        channel.publish.should.have.been.calledWith([{ name: 'price', value: 'abc' }]);
                     });
                 });
 
@@ -122,9 +116,7 @@ describe('converters', function () {
                     var channel = utils.createDummyChannel();
                     return utils.initWithNode('<input type="text" data-f-bind="price | flip | $#,### "/>', domManager, channel).then(function ($node) {
                         $node.val('$2,345').trigger('change');
-                        channel.publish.should.have.been.calledWith({
-                            price: 2345
-                        });
+                        channel.publish.should.have.been.calledWith([{ name: 'price', value: 2345 }]);
                     });
                 });
             });
@@ -217,9 +209,7 @@ describe('converters', function () {
                 var channel = utils.createDummyChannel();
                 return utils.initWithNode('<input type="text" data-f-bind="price" data-f-convert="$#,### | flip"/>', domManager, channel).then(function ($node) {
                     $node.val('$2,345').trigger('change');
-                    channel.publish.should.have.been.calledWith({
-                        price: 5432
-                    });
+                    channel.publish.should.have.been.calledWith([{ name: 'price', value: 5432 }]);
                 });
             });
             it('should allow parse nested converters', function () {
@@ -236,9 +226,7 @@ describe('converters', function () {
                     var $textNode = $node.find(':text');
 
                     $textNode.val('$2,345').trigger('change');
-                    channel.publish.should.have.been.calledWith({
-                        price: 5432
-                    });
+                    channel.publish.should.have.been.calledWith([{ name: 'price', value: 5432 }]);
                 });
             });
         });

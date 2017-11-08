@@ -1,6 +1,6 @@
 'use strict';
-var config = require('../../config');
-var BaseView = require('./default-node');
+const config = require('../../config');
+const BaseView = require('./default-node');
 
 module.exports = BaseView.extend({
     propertyHandlers: [],
@@ -15,17 +15,15 @@ module.exports = BaseView.extend({
     },
 
     initialize: function () {
-        var me = this;
-        var propName = this.$el.data(config.binderAttr);
+        const me = this;
+        const propName = this.$el.data(config.binderAttr);
 
         if (propName) {
             this.$el.off(this.uiChangeEvent).on(this.uiChangeEvent, function () {
-                var val = me.getUIValue();
+                const val = me.getUIValue();
 
-                var params = {};
-                params[propName] = val;
-
-                me.$el.trigger(config.events.trigger, params);
+                const payload = [{ name: propName, value: val }];
+                me.$el.trigger(config.events.trigger, { data: payload, source: 'bind' });
             });
         }
         BaseView.prototype.initialize.apply(this, arguments);

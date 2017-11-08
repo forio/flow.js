@@ -9,25 +9,25 @@
 'use strict';
 
 const _ = require('lodash');
-const { isArray, includes, pick, uniq } = require('lodash');
+const { getConvertersForEl, getChannelForAttribute, getChannelConfigForElement, parseTopicsFromAttributeValue } = require('./dom-parse-helpers');
+const { pick } = require('lodash');
+
+const config = require('../config');
+const parseUtils = require('utils/parse-utils');
+
+const converterManager = require('converters/converter-manager');
+const nodeManager = require('./nodes/node-manager');
+const attrManager = require('./attributes/attribute-manager');
+const autoUpdatePlugin = require('./plugins/auto-update-bindings');
 
 module.exports = (function () {
-    var config = require('../config');
-    var parseUtils = require('utils/parse-utils');
-    var domUtils = require('utils/dom');
-
-    var converterManager = require('converters/converter-manager');
-    var nodeManager = require('./nodes/node-manager');
-    var attrManager = require('./attributes/attribute-manager');
-    var autoUpdatePlugin = require('./plugins/auto-update-bindings');
-
     //Jquery selector to return everything which has a f- property set
     $.expr.pseudos[config.prefix] = function (el) {
         if (!el || !el.attributes) {
             return false;
         }
-        for (var i = 0; i < el.attributes.length; i++) {
-            var attr = el.attributes[i].nodeName;
+        for (let i = 0; i < el.attributes.length; i++) {
+            const attr = el.attributes[i].nodeName;
             if (attr.indexOf('data-' + config.prefix) === 0) {
                 return true;
             }
@@ -43,14 +43,14 @@ module.exports = (function () {
      * @param {JQuery<HTMLElement>} root
      * @return {JQuery<HTMLElement>}
      */ 
-    var getMatchingElements = function (root) {
-        var $root = $(root);
-        var matchedElements = $root.find(':' + config.prefix);
+    function getMatchingElements(root) {
+        const $root = $(root);
+        let matchedElements = $root.find(':' + config.prefix);
         if ($root.is(':' + config.prefix)) {
             matchedElements = matchedElements.add($root);
         }
         return matchedElements;
-    };
+    }
 
     /**
      * @param {JQuery<HTMLElement> | HTMLElement} element
@@ -58,7 +58,7 @@ module.exports = (function () {
      * @return {HTMLElement}
      */ 
     function getElementOrError(element, context) {
-        var el = (element instanceof $) ? element.get(0) : element;
+        const el = (element instanceof $) ? element.get(0) : element;
         if (!el || !el.nodeName) {
             console.error(context, 'Expected to get DOM Element, got ', element);
             throw new Error(context + ': Expected to get DOM Element, got' + (typeof element));
@@ -75,11 +75,11 @@ module.exports = (function () {
     function unbindAllAttributes(domEl) {
         const $el = $(domEl);
         $(domEl.attributes).each(function (index, nodeMap) {
-            var attr = nodeMap.nodeName;
-            var wantedPrefix = 'data-f-';
+            let attr = nodeMap.nodeName;
+            const wantedPrefix = 'data-f-';
             if (attr.indexOf(wantedPrefix) === 0) {
                 attr = attr.replace(wantedPrefix, '');
-                var handler = attrManager.getHandler(attr, $el);
+                const handler = attrManager.getHandler(attr, $el);
                 if (handler.unbind) {
                     handler.unbind.call($el, attr, $el);
                 }
@@ -89,8 +89,8 @@ module.exports = (function () {
     function unbindAllNodeHandlers(domEl) {
         const $el = $(domEl);
         //FIXME: have to readd events to be able to remove them. Ugly
-        var Handler = nodeManager.getHandler($el);
-        var h = new Handler.handle({
+        const Handler = nodeManager.getHandler($el);
+        const h = new Handler.handle({
             el: domEl
         });
         if (h.removeEvents) {
@@ -98,15 +98,13 @@ module.exports = (function () {
         }
     }
 
-    var publicAPI = {
+    const publicAPI = {
 
         nodes: nodeManager,
         attributes: attrManager,
         converters: converterManager,
-        //utils for testing
-        private: {
-            matchedElements: new Map()
-        },
+            
+        matchedElements: new Map(),
 
         /**
          * Unbind the element; unsubscribe from all updates on the relevant channels.
@@ -120,16 +118,16 @@ module.exports = (function () {
                 channel = this.options.channel;
             }
             const domEl = getElementOrError(element);
-            var $el = $(element);
-            const existingData = this.private.matchedElements.get(domEl);
+            const $el = $(element);
+            const existingData = this.matchedElements.get(domEl);
             if (!$el.is(':' + config.prefix) || !existingData) {
                 return;
             }
-            this.private.matchedElements.delete(element);
+            this.matchedElements.delete(element);
 
-            const subscriptions = Object.keys(existingData).reduce((accum, attr)=> {
-                const subscriptions = existingData[attr].subscriptions;
-                accum = accum.concat(subscriptions);
+            const subscriptions = Object.keys(existingData).reduce((accum, a)=> {
+                const subsid = existingData[a].subscriptionId;
+                if (subsid) accum.push(subsid);
                 return accum;
             }, []);
 
@@ -137,11 +135,9 @@ module.exports = (function () {
             unbindAllAttributes(domEl);
             removeAllSubscriptions(subscriptions, channel);
      
-            _.each($el.data(), function (val, key) {
+            Object.keys($el.data()).forEach(function (key) {
                 if (key.indexOf('f-') === 0 || key.match(/^f[A-Z]/)) {
                     $el.removeData(key);
-                    // var hyphenated = key.replace(/([A-Z])/g, '-$1').toLowerCase();
-                    // $el.removeData(hyphenated);
                 }
             });
         },
@@ -159,77 +155,78 @@ module.exports = (function () {
             }
             // this.unbindElement(element); //unbind actually removes the data,and jquery doesn't refetch when .data() is called..
             const domEl = getElementOrError(element);
-            var $el = $(domEl);
+            const $el = $(domEl);
             if (!$el.is(`:${config.prefix}`)) {
                 return;
             }
 
             //Send to node manager to handle ui changes
-            var Handler = nodeManager.getHandler($el);
+            const Handler = nodeManager.getHandler($el);
             new Handler.handle({
                 el: domEl
             });
 
-            const attrVariableMap = {};
             const me = this;
 
-            // NOTE: looping through attributes instead of .data because .data automatically camelcases properties and make it hard to retrvieve. 
-            // Also don't want to index dynamically added (by flow) data attrs
+            const filterPrefix = `data-${config.prefix}-`;
+            const attrList = {};
             $(domEl.attributes).each(function (index, nodeMap) {
-                var attr = nodeMap.nodeName;
-                var attrVal = nodeMap.value;
-
-                var wantedPrefix = `data-${config.prefix}-`;
-                if (attr.indexOf(wantedPrefix) !== 0) {
+                let attr = nodeMap.nodeName;
+                if (attr.indexOf(filterPrefix) !== 0) {
                     return;
-                }
+                } 
+                attr = attr.replace(filterPrefix, '');
 
-                attr = attr.replace(wantedPrefix, '');
-                var handler = attrManager.getHandler(attr, $el);
-                if (handler && handler.init) {
-                    const isBindableAttr = handler.init.call($el, attr, attrVal, $el);
-                    if (!isBindableAttr) {
-                        return;
-                    }
-                }
-
-                //Convert pipes to converter attrs
-                var withConv = attrVal.split('|').map((v)=> v.trim());
-                if (withConv.length > 1) {
-                    attrVal = withConv.shift();
-                    $el.data('f-convert-' + attr, withConv);
-                }
-
+                let attrVal = nodeMap.value;
+                const handler = attrManager.getHandler(attr, $el);
                 if (handler && handler.parse) {
-                    //Parse value to return variable name
-                    attrVal = handler.parse.call($el, attrVal, $el);
+                    attrVal = handler.parse(attrVal, $el); //Parse value to return variable name
                 }
+                
+                const initVal = handler && handler.init && handler.init.call($el, attr, attrVal, $el);
+                const isBindable = initVal !== false;
 
-                let variablesForAttr = [];
-                var commaRegex = /,(?![^[]*])/;
-                if (attrVal.indexOf('<%') !== -1) {
-                    //Assume it's templated for later use
-                } else if (attrVal.split(commaRegex).length > 1) {
-                    variablesForAttr = attrVal.split(commaRegex).map((v)=> v.trim());
-                } else {
-                    variablesForAttr = [attrVal];
-                }
-
-                var channelPrefix = domUtils.getChannel($el, attr);
+                const converters = getConvertersForEl($el, attr);
+             
+                let topics = parseTopicsFromAttributeValue(attrVal);
+                const channelPrefix = getChannelForAttribute($el, attr);
                 if (channelPrefix) {
-                    variablesForAttr = variablesForAttr.map((v)=> `${channelPrefix}:${v}`);
+                    topics = topics.map((v)=> {
+                        const hasChannelDefined = v.indexOf(':') !== -1;
+                        return hasChannelDefined ? v : `${channelPrefix}:${v}`;
+                    });
+                }
+                const channelConfig = getChannelConfigForElement(domEl);
+                attrList[attr] = {
+                    isBindable: isBindable,
+                    channelPrefix: channelPrefix,
+                    channelConfig: channelConfig,
+                    topics: topics,
+                    converters: converters,
+                };
+            });
+            //Need this to be set before subscribing or callback maybe called before it's set
+            this.matchedElements.set(domEl, attrList);
+            
+            const attrsWithSubscriptions = Object.keys(attrList).reduce((accum, name)=> {
+                const attr = attrList[name];
+                const { topics, channelPrefix, channelConfig, isBindable } = attr;
+                if (!isBindable) {
+                    accum[name] = attr;
+                    return accum;
                 }
 
-                const channelConfig = domUtils.getChannelConfig(domEl);
                 const subsOptions = $.extend({ batch: true }, channelConfig);
-                const subsid = channel.subscribe(variablesForAttr, (data)=> {
+                const subsid = channel.subscribe(topics, (data)=> {
                     const toConvert = {};
-                    if (variablesForAttr.length === 1) { //If I'm only interested in 1 thing pass in value directly, else mke a map;
-                        toConvert[attr] = data[variablesForAttr[0]];
+                    if (topics.length === 1) { //If I'm only interested in 1 thing pass in value directly, else mke a map;
+                        toConvert[name] = data[topics[0]];
                     } else {
-                        const dataForAttr = pick(data, variablesForAttr) || [];
-                        toConvert[attr] = Object.keys(dataForAttr).reduce((accum, key)=> {
-                            const k = channelPrefix ? key.replace(channelPrefix + ':', '') : key;
+                        const dataForAttr = pick(data, topics) || {};
+                        toConvert[name] = Object.keys(dataForAttr).reduce((accum, key)=> {
+                            //If this was through a 'hidden' channel attr return what was bound
+                            const toReplace = new RegExp(`^${channelPrefix}:`);
+                            const k = channelPrefix ? key.replace(toReplace, '') : key;
                             accum[k] = dataForAttr[key];
                             return accum;
                         }, {});
@@ -244,9 +241,11 @@ module.exports = (function () {
                     $el.trigger(config.events.convert, toConvert);
                 }, subsOptions);
 
-                attrVariableMap[attr] = { variables: variablesForAttr, subscriptions: subsid };
-            });
-            this.private.matchedElements.set(domEl, attrVariableMap);
+                accum[name] = Object.assign({}, attr, { subscriptionId: subsid });
+                return accum;
+            }, {});
+
+            this.matchedElements.set(domEl, attrsWithSubscriptions);
         },
 
         /**
@@ -258,11 +257,11 @@ module.exports = (function () {
         bindAll: function (elementsToBind) {
             if (!elementsToBind) {
                 elementsToBind = getMatchingElements(this.options.root);
-            } else if (!isArray(elementsToBind)) {
+            } else if (!Array.isArray(elementsToBind)) {
                 elementsToBind = getMatchingElements(elementsToBind);
             }
 
-            var me = this;
+            const me = this;
             //parse through dom and find everything with matching attributes
             $.each(elementsToBind, function (index, element) {
                 me.bindElement(element, me.options.channel);
@@ -275,13 +274,13 @@ module.exports = (function () {
          * @returns {void}
          */
         unbindAll: function (elementsToUnbind) {
-            var me = this;
+            const me = this;
             if (!elementsToUnbind) {
                 elementsToUnbind = [];
-                this.private.matchedElements.forEach((val, key)=> {
+                this.matchedElements.forEach((val, key)=> {
                     elementsToUnbind.push(key);
                 });
-            } else if (!isArray(elementsToUnbind)) {
+            } else if (!Array.isArray(elementsToUnbind)) {
                 elementsToUnbind = getMatchingElements(elementsToUnbind);
             }
             $.each(elementsToUnbind, function (index, element) {
@@ -299,7 +298,7 @@ module.exports = (function () {
          * @returns {Promise}
          */
         initialize: function (options) {
-            var defaults = {
+            const defaults = {
                 /**
                  * Root of the element for flow.js to manage from.
                  * @type {String} jQuery selector
@@ -315,114 +314,108 @@ module.exports = (function () {
             };
             $.extend(defaults, options);
 
-            var channel = defaults.channel;
+            const channel = defaults.channel;
 
             this.options = defaults;
 
-            var me = this;
-            var $root = $(defaults.root);
+            const me = this;
+            const $root = $(defaults.root);
 
-            var attachChannelListener = function ($root) {
-                $root.off(config.events.channelDataReceived).on(config.events.channelDataReceived, function (evt, data) {
-                    var $el = $(evt.target);
-                    var bindings = $el.data(config.attrs.bindingsList);
-                    var toconvert = {};
-                    $.each(data, function (variableName, value) {
-                        _.each(bindings, function (binding) {
-                            var channelPrefix = domUtils.getChannel($el, binding.attr);
-                            var interestedTopics = binding.topics;
-                            if (includes(interestedTopics, variableName)) {
-                                if (binding.topics.length > 1) {
-                                    var matching = pick(data, interestedTopics);
-                                    if (!channelPrefix) {
-                                        value = matching;
-                                    } else {
-                                        value = Object.keys(matching).reduce(function (accum, key) {
-                                            var k = key.replace(channelPrefix + ':', '');
-                                            accum[k] = matching[key]; 
-                                            return accum;
-                                        }, {});
-                                    }
-                                }
-                                toconvert[binding.attr] = value;
-                            }
-                        });
-                    });
-                    const boundChildren = $el.find(`:${config.prefix}`).get();
-                    if (boundChildren.length) {
-                        //Unbind children so loops etc pick the right template. 
-                        //Autobind will add it back later anyway
-                        me.unbindAll(boundChildren);
+            const DEFAULT_OPERATIONS_PREFIX = 'operations:';
+            const DEFAULT_VARIABLES_PREFIX = 'variables:';
+
+            //TODO: Merge the two listeners and just have prefix by 'source';
+            //TODO: ONce it's merged, support && for multiple operations and | to pipe to converters
+            function attachUIVariablesListener($root) {
+                $root.off(config.events.trigger).on(config.events.trigger, function (evt, params) {
+                    const elMeta = me.matchedElements.get(evt.target);
+                    if (!elMeta) {
+                        return;
                     }
-                    $el.trigger(config.events.convert, toconvert);
-                });
-            };
 
-            var attachUIVariablesListener = function ($root) {
-                $root.off(config.events.trigger).on(config.events.trigger, function (evt, data) {
-                    var parsedData = {}; //if not all subsequent listeners will get the modified data
+                    const { data, source, options } = params;
+                    const { converters, channelPrefix } = elMeta[source] || {};
+                    const $el = $(evt.target);
 
-                    var $el = $(evt.target);
-                    var attrConverters = domUtils.getConvertersList($el, 'bind'); //Only bind can trigger changes
+                    const parsed = [];
+                    data.forEach((d)=> {
+                        const { value, name } = d;
+                        const converted = converterManager.parse(value, converters);
+                        const typed = parseUtils.toImplicitType(converted);
 
-                    _.each(data, function (val, key) {
-                        key = key.split('|')[0].trim(); //in case the pipe formatting syntax was used
-                        val = converterManager.parse(val, attrConverters);
-                        parsedData[key] = parseUtils.toImplicitType(val);
+                        let key = name.split('|')[0].trim(); //in case the pipe formatting syntax was used
+                        const canPrefix = key.indexOf(':') === -1 || key.indexOf(DEFAULT_VARIABLES_PREFIX) === 0;
+                        if (canPrefix && channelPrefix) {
+                            key = `${channelPrefix}:${key}`;
+                        }
+                        parsed.push({ name: key, value: typed });
 
-                        $el.trigger(config.events.convert, { bind: val });
+                        const convertParams = {};
+                        convertParams[source] = typed;
+                        $el.trigger(config.events.convert, convertParams);
                     });
-
-                    channel.publish(parsedData);
+                    channel.publish(parsed, options);
                 });
-            };
+            }
 
-            var attachUIOperationsListener = function ($root) {
-                $root.off(config.events.operate).on(config.events.operate, function (evt, data) {
-                    var filtered = ([].concat(data.operations || [])).reduce(function (accum, operation) {
-                        var val = operation.value ? [].concat(operation.value) : [];
+            function attachUIOperationsListener($root) {
+                $root.off(config.events.operate).on(config.events.operate, function (evt, params) {
+                    const elMeta = me.matchedElements.get(evt.target);
+                    if (!elMeta) {
+                        return;
+                    }
+                    const { data, source, options } = params;
+                    const sourceMeta = elMeta[source] || {};
+
+                    const filtered = ([].concat(data || [])).reduce(function (accum, operation) {
+                        const val = operation.value ? [].concat(operation.value) : [];
                         operation.value = val.map(function (val) {
                             return parseUtils.toImplicitType($.trim(val));
                         });
-                        var isConverter = converterManager.getConverter(operation.name);
+                        const isConverter = converterManager.getConverter(operation.name);
                         if (isConverter) {
                             accum.converters.push(operation);
                         } else {
-                            //TODO: Add a test for this
                             if (operation.name.indexOf(':') === -1) {
-                                operation.name = 'operations:' + operation.name;
+                                operation.name = `${DEFAULT_OPERATIONS_PREFIX}${operation.name}`;
+                            }
+                            if (operation.name.indexOf(DEFAULT_OPERATIONS_PREFIX) === 0 && sourceMeta.channelPrefix) {
+                                operation.name = `${sourceMeta.channelPrefix}:${operation.name}`;
                             }
                             accum.operations.push(operation);
                         }
                         return accum;
                     }, { operations: [], converters: [] });
 
-                    var promise = (filtered.operations.length) ?
-                        channel.publish(filtered.operations, data.options) :
+                    const promise = (filtered.operations.length) ?
+                        channel.publish(filtered.operations, options) :
                         $.Deferred().resolve().promise();
                      
                     //FIXME: Needed for the 'gotopage' in interfacebuilder. Remove this once we add a window channel
                     promise.then(function (args) {
-                        _.each(filtered.converters, function (con) {
+                        filtered.converters.forEach(function (con) {
                             converterManager.convert(con.value, [con.name]);
                         });
                     });
                 });
-            };
+            }
 
-            var attachConversionListner = function ($root) {
+            function attachConversionListner($root) {
                 // data = {proptoupdate: value} || just a value (assumes 'bind' if so)
                 $root.off(config.events.convert).on(config.events.convert, function (evt, data) {
-                    var $el = $(evt.target);
+                    const $el = $(evt.target);
 
-                    var convert = function (val, prop) {
-                        prop = prop.toLowerCase();
-                        var attrConverters = domUtils.getConvertersList($el, prop);
+                    const elMeta = me.matchedElements.get(evt.target);
+                    if (!elMeta) {
+                        return;
+                    }
+                    function convert(val, prop) {
+                        const attrConverters = elMeta[prop].converters;
 
-                        var handler = attrManager.getHandler(prop, $el);
-                        var convertedValue = converterManager.convert(val, attrConverters);
+                        const handler = attrManager.getHandler(prop, $el);
+                        const convertedValue = converterManager.convert(val, attrConverters);
                         handler.handle.call($el, convertedValue, prop, $el);
-                    };
+                    }
 
                     if ($.isPlainObject(data)) {
                         _.each(data, convert);
@@ -430,13 +423,12 @@ module.exports = (function () {
                         convert(data, 'bind');
                     }
                 });
-            };
+            }
             
-            var promise = $.Deferred();
+            const promise = $.Deferred();
             $(function () {
                 me.bindAll();
 
-                attachChannelListener($root);
                 attachUIVariablesListener($root);
                 attachUIOperationsListener($root);
                 attachConversionListner($root);

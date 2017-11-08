@@ -34,7 +34,9 @@ describe(':radio', function () {
                     $node.on('update.f.ui', spy);
 
                     $node.prop('checked', true).trigger('change');
-                    spy.getCall(0).args[1].should.eql({ stuff: '8' });
+
+                    const args = spy.getCall(0).args[1];
+                    args.data.should.eql([{ name: 'stuff', value: '8' }]);
                 });
             });
         });
@@ -59,7 +61,8 @@ describe(':radio', function () {
                         $node.prop('checked', false);
                         $othernode.prop('checked', true).trigger('change');
 
-                        spy.getCall(0).args[1].should.eql({ stuff: '2' });
+                        const args = spy.getCall(0).args[1];
+                        args.data.should.eql([{ name: 'stuff', value: '2' }]);
                         spy.callCount.should.equal(1);
                     });
                 });
