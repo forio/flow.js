@@ -125,7 +125,11 @@ module.exports = (function () {
             }
             this.matchedElements.delete(element);
 
-            const subscriptions = Object.keys(existingData).map((a)=> existingData[a].subscriptionId);
+            const subscriptions = Object.keys(existingData).reduce((accum, a)=> {
+                const subsid = existingData[a].subscriptionId;
+                if (subsid) accum.push(subsid);
+                return accum;
+            }, []);
 
             unbindAllNodeHandlers(domEl);
             unbindAllAttributes(domEl);
@@ -178,13 +182,9 @@ module.exports = (function () {
                 if (handler && handler.parse) {
                     attrVal = handler.parse(attrVal, $el); //Parse value to return variable name
                 }
-
-                if (handler && handler.init) {
-                    const isBindableAttr = handler.init.call($el, attr, attrVal, $el);
-                    if (!isBindableAttr) {
-                        return;
-                    }
-                }
+                
+                const initVal = handler && handler.init && handler.init.call($el, attr, attrVal, $el);
+                const isBindable = initVal !== false;
 
                 const converters = getConvertersForEl($el, attr);
              
@@ -198,6 +198,7 @@ module.exports = (function () {
                 }
                 const channelConfig = getChannelConfigForElement(domEl);
                 attrList[attr] = {
+                    isBindable: isBindable,
                     channelPrefix: channelPrefix,
                     channelConfig: channelConfig,
                     topics: topics,
@@ -209,8 +210,11 @@ module.exports = (function () {
             
             const attrsWithSubscriptions = Object.keys(attrList).reduce((accum, name)=> {
                 const attr = attrList[name];
-
-                const { topics, channelPrefix, channelConfig } = attr;
+                const { topics, channelPrefix, channelConfig, isBindable } = attr;
+                if (!isBindable) {
+                    accum[name] = attr;
+                    return accum;
+                }
 
                 const subsOptions = $.extend({ batch: true }, channelConfig);
                 const subsid = channel.subscribe(topics, (data)=> {
