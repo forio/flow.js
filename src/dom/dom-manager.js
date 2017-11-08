@@ -325,6 +325,7 @@ module.exports = (function () {
             const DEFAULT_VARIABLES_PREFIX = 'variables:';
 
             //TODO: Merge the two listeners and just have prefix by 'source';
+            //TODO: ONce it's merged, support && for multiple operations and | to pipe to converters
             function attachUIVariablesListener($root) {
                 $root.off(config.events.trigger).on(config.events.trigger, function (evt, params) {
                     const elMeta = me.matchedElements.get(evt.target);
