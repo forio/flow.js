@@ -7,6 +7,28 @@ import { withPrefix, prefix, defaultPrefix } from 'channels/middleware/utils';
 
 import _ from 'lodash';
 
+export const VARIABLES_PREFIX = 'variables:';
+export const META_PREFIX = 'meta:';
+export const OPERATIONS_PREFIX = 'operations:';
+
+/**
+ * 
+ * @param {Publishable[]} result 
+ * @param {string[]} ignoreOperations 
+ * @returns {boolean}
+ */
+export function _shouldFetch(result, ignoreOperations) {
+    const filtered = (result || []).filter((r)=> {
+        const name = r.name || '';
+        const isIgnored = (ignoreOperations || []).indexOf(name.replace(OPERATIONS_PREFIX, '')) !== -1;
+        const isVariable = name.indexOf(VARIABLES_PREFIX) === 0;
+        const isOperation = name.indexOf(OPERATIONS_PREFIX) === 0;
+
+        return isVariable || (isOperation && !isIgnored);
+    });
+    return filtered.length > 0;
+}
+
 export default function RunRouter(config, notifier) {
     const defaults = {
         serviceOptions: {},
@@ -41,10 +63,6 @@ export default function RunRouter(config, notifier) {
         const rs = new window.F.service.Run(serviceOptions);
         $initialProm = $.Deferred().resolve(rs).promise();
     }
-
-    const VARIABLES_PREFIX = 'variables:';
-    const META_PREFIX = 'meta:';
-    const OPERATIONS_PREFIX = 'operations:';
 
     const operationNotifier = withPrefix(notifier, OPERATIONS_PREFIX);
     const variableNotifier = withPrefix(notifier, [VARIABLES_PREFIX, '']);
@@ -101,16 +119,9 @@ export default function RunRouter(config, notifier) {
     const runRouter = router(handlers);
     const oldhandler = runRouter.publishHandler;
     runRouter.publishHandler = function () {
-        const ignoreOperation = ['reset']; //don't fetch on reset since subscribed variables will be obsolete anyway
         const prom = oldhandler.apply(router, arguments);
         return prom.then(function (result) { //all the silencing will be taken care of by the router
-            const shouldFetch = !!_.find(result, (r)=> {
-                const isVariable = r.name.indexOf(VARIABLES_PREFIX) === 0;
-                const isOperation = r.name.indexOf(OPERATIONS_PREFIX) === 0;
-                const isIgnoredOperation = !!_.find(ignoreOperation, (opnName)=> r.name.indexOf(opnName) !== -1);
-
-                return isVariable || (isOperation && !isIgnoredOperation);
-            });
+            const shouldFetch = _shouldFetch(result, ['reset']);
             if (shouldFetch) {
                 variableschannel.fetch();
             }
