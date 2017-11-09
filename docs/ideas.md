@@ -14,8 +14,6 @@ Multiplayer
 
     - List users in world
     - Filter by online users
-    - listen on run channel for changes to run
-        - no run channel, need to listen to world channel
 
     - create world channel?
         world:users
@@ -37,6 +35,26 @@ Multiplayer
         user:<userid>:isonline
 
         defaults to '<currentuserid>', can also be <userid>
+
+presence list
+```html
+<ul data-f-foreach="user in world:users | reject('isMe')">
+    <li data-f-class="world:users:<% user.id %>:isOnline | ifTrue('online')"><%= user.name %></li>
+</ul>
+```
+
+```html
+<ul data-f-foreach="user in group:users | reject('isFacilitator')">
+    <li data-f-class="user:<% user.id %>:isOnline | ifTrue('online')"><%= user.name %></li>
+</ul>
+```
+
+To know if someone is online
+- Need to get initial list to track
+    -  either from group or by world
+- Listen on either group channel or world channel for online/offline notifications
+    ? Why not always the group channel?
+
 
 ---
 Multi runs

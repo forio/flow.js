@@ -121,13 +121,12 @@ export default function router(handlers) {
             return passthroughPublishInterceptors(myHandlers, data, options);
         },
 
-        // Ignoring till ready to implement
         addRoute: function (handler) {
             if (!handler || !handler.match) {
                 throw Error('Handler does not have a valid `match` property');
             }
             handler.id = _.uniqueId('routehandler-');
-            myHandlers.push(handler);
+            myHandlers.unshift(handler);
             return handler.id;
         },
         removeRoute: function (routeid) {
