@@ -5,7 +5,7 @@ module.exports = function (grunt) {
     grunt.config.set('watch', {
         source: {
             files: ['src/**/*.js', '!src/**/test-*.js'],
-            tasks: ['karma:testList', 'webpack:edge']
+            tasks: ['webpack:edge', 'karma:testList']
         },
         stylesAddons: {
             files: ['src/add-ons/**/*.scss'],
