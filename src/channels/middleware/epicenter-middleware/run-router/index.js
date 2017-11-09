@@ -46,9 +46,38 @@ export default function RunRouter(config, notifier) {
     const META_PREFIX = 'meta:';
     const OPERATIONS_PREFIX = 'operations:';
 
+    const operationNotifier = withPrefix(notifier, OPERATIONS_PREFIX);
+    const variableNotifier = withPrefix(notifier, [VARIABLES_PREFIX, '']);
+
     const metaChannel = new MetaChannel($initialProm, withPrefix(notifier, META_PREFIX));
-    const operationsChannel = new OperationsChannel($initialProm, withPrefix(notifier, OPERATIONS_PREFIX));
-    const variableschannel = new VariablesChannel($initialProm, withPrefix(notifier, [VARIABLES_PREFIX, '']));
+    const operationsChannel = new OperationsChannel($initialProm, operationNotifier);
+    const variableschannel = new VariablesChannel($initialProm, variableNotifier);
+
+    let variableSubsid;
+    $initialProm.then((rs)=> {
+        if (rs.channel && !variableSubsid) {
+            //FIXME: Exclude silenced -- let notify take care of this?
+            variableSubsid = rs.channel.subscribe('variables', (data, meta)=> {
+                //Compare userids
+                //Send to notify
+                variableschannel.notify(data, meta);
+                console.log('variables', data, meta);
+            });
+            let operationsubsid = rs.channel.subscribe('operation', (data, meta)=> {
+                console.log('operation', data, meta);
+                operationsChannel.notify(data, meta);
+            });
+            let resetsubsid = rs.channel.subscribe('reset', (data, meta)=> {
+                // treat reset as an operation/
+                console.log('reset operation', data, meta);
+            });
+            rs.channel.subscribe('', (data, meta)=> {
+                console.log('everything', data, meta);
+            });
+
+            //attach world handlers
+        }
+    });
 
     const handlers = [
         $.extend({}, metaChannel, { 
@@ -73,6 +102,7 @@ export default function RunRouter(config, notifier) {
 
     const runRouter = router(handlers, notifier);
     const oldhandler = runRouter.publishHandler;
+    //FIXME: Channel notifications don't go through this, so probably need to hook on notify instead
     runRouter.publishHandler = function () {
         const ignoreOperation = ['reset']; //don't fetch on reset since subscribed variables will be obsolete anyway
         const prom = oldhandler.apply(router, arguments);

@@ -52,6 +52,12 @@ export default function RunVariablesChannel($runServicePromise, notifier) {
                 return fetchFn(runService, debounceInterval)(topics).then(notifier);
             });
         },
+        notify: function (variableObj) {
+            return $runServicePromise.then(function (runService) {
+                const variables = Object.keys(variableObj); 
+                return runService.variables().query(variables).then(objectToArray).then(notifier);
+            });
+        },
         publishHandler: function (topics, options) {
             return $runServicePromise.then(function (runService) {
                 var toSave = arrayToObject(topics);

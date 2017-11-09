@@ -1,0 +1,106 @@
+<html>
+
+<head>
+    <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css">
+    <script src="/node_modules/jquery/dist/jquery.min.js"></script>
+    <script src="/node_modules/lodash/lodash.js"></script>
+    <script src="//forio.com/tools/js-libs/2.3.0/epicenter-multiplayer-dependencies.js"></script>
+
+    <script src="http://local.forio.com:8084/dist/epicenter-edge.js"></script>
+    <!-- <script src="/node_modules/epicenter-js/dist/epicenter.min.js"></script> -->
+    <script src="/dist/flow-edge.js"></script>
+    <style>
+    @keyframes fadein {
+        0% {
+            opacity: 0;
+        }
+        100% {
+            opacity: 1;
+        }
+    }
+
+    @keyframes highlightred {
+        0% {
+            background: red;
+            /* lovely yellow colour */
+        }
+        100% {
+            background: none;
+        }
+    }
+
+    @keyframes highlight {
+        0% {
+            background: #ffff99;
+            /* lovely yellow colour */
+        }
+        100% {
+            background: none;
+        }
+    }
+
+    [data-change]:not([data-change-initial]),
+    [data-updated] {
+        animation: highlight 1s;
+    }
+
+    [data-added] {
+        animation: highlightred 1s;
+    }
+
+    </style>
+</head>
+
+<body>
+    <!--     Price
+    <div data-f-bind="Price"></div>
+ -->
+    <div>
+        <h6>Price</h6>
+        <div data-f-bind="Price"></div>
+        <input type="text" data-f-bind="Price" />
+    </div>
+    <button data-f-on-click="step">Step</button>
+    <button data-f-on-click="reset">Reset</button>
+    Foreach
+    <div class="row">
+        <div class="col-xs-6">
+            <h6>Add to top</h6>
+            <table>
+                <tbody data-f-foreach="Price">
+                    <tr>
+                        <td>
+                            <%= value %>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="col-xs-6">
+            <h6>Add to bottom</h6>
+            <!--  <table>
+                <tbody data-f-foreach="Price | reverse">
+                    <tr>
+                        <td><%= value %></td>
+                    </tr>
+                </tbody>
+            </table> -->
+        </div>
+    </div>
+    <script type="text/javascript">
+        Flow.initialize({
+            channel: {
+                defaults: {
+                    strategy: 'multiplayer',
+                    run: {
+                        account: 'team-naren',
+                        project: 'multiplayer-test',
+                        model: 'gglasses.vmf',
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+
+</html>

@@ -1,8 +1,3 @@
-Animations
-
-- Move to a plugin?
-    + Can listen to content changes via mutation observers?
-    + Implement shouldComponentUpdate?
 
 Multiplayer
     Mirror mode {
@@ -17,6 +12,15 @@ Multiplayer
                 - Style with css variables for icon/text etc?
     }
 
+    - List users in world
+    - Filter by online users
+    - listen on run channel for changes to run
+        - no run channel, need to listen to world channel
+
+    - create world channel?
+        world:users
+        world:role
+        world:variables:price
 
 ---
 Multi runs
