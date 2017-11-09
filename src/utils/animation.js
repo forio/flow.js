@@ -62,7 +62,7 @@ export function addChangeClassesToList($currentEl, $newEls, options) {
     const placeHoldersCount = newContents.length - currentcontents.length;
     const placeHolders = fill(placeHoldersCount, undefined);
 
-    if (beginningMatches < endMatches) {
+    if (beginningMatches <= endMatches) {
         currentcontents = currentcontents.concat(placeHolders);
     } else {
         currentcontents = placeHolders.concat(currentcontents);
