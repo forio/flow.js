@@ -69,17 +69,17 @@ export function mapWithPrefix(dataArray, prefix) {
 /**
  * 
  * @param {Function} callback 
- * @param {string[]} prefixList
+ * @param {string|string[]} prefixList
  * @return {Function}
  */
 export function withPrefix(callback, prefixList) {
-    prefixList = [].concat(prefixList);
+    const arr = [].concat(prefixList);
 
     /**
      * @param {Publishable[]} data
      */
     return function (data) {
-        prefixList.forEach(function (prefix) {
+        arr.forEach(function (prefix) {
             var mapped = mapWithPrefix(data, prefix);
             callback(mapped);
         });

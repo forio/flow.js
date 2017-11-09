@@ -22,6 +22,22 @@ Multiplayer
         world:role
         world:variables:price
 
+        foreach: 
+            world:users
+            world:<userid>:role
+            world:<userid>:isOnline
+            world:me:role
+    - user:channel
+        user:isLoggedin
+        user:Name
+        <if multipler, gets extra props>
+        user:role
+        user:isOnline
+        user:<userid>:role
+        user:<userid>:isonline
+
+        defaults to '<currentuserid>', can also be <userid>
+
 ---
 Multi runs
 

@@ -4,8 +4,10 @@
         "noEmit": true,
         "allowJs": true,
         "target": "es6",
+        "allowSyntheticDefaultImports": true,
         "checkJs": true,
-        "suppressExcessPropertyErrors": true
+        "suppressExcessPropertyErrors": true,
+        "moduleResolution": "node"
     },
     "typeAcquisition": {
         "enable": true

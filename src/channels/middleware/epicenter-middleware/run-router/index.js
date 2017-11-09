@@ -98,7 +98,7 @@ export default function RunRouter(config, notifier) {
 
     // router.addRoute(prefix('meta:'), metaChannel, opts.channelOptions.meta);
 
-    const runRouter = router(handlers, notifier);
+    const runRouter = router(handlers);
     const oldhandler = runRouter.publishHandler;
     runRouter.publishHandler = function () {
         const ignoreOperation = ['reset']; //don't fetch on reset since subscribed variables will be obsolete anyway
