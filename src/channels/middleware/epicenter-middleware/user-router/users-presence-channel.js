@@ -1,7 +1,3 @@
-import { debounceAndMerge } from 'utils/general';
-import { objectToArray, arrayToObject } from 'channels/channel-utils';
-import { uniqueId, uniq } from 'lodash';
-
 const F = window.F;
 
 export default function UsersPresenceChannel(userListPromise, notifier) {

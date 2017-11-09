@@ -22,7 +22,13 @@ export function stripSuffixDelimiter(text) {
  */
 export function prefix(prefix) {
     return function matchPrefix(topic) {
-        return (topic.indexOf(prefix) === 0) ? prefix : false;
+        const hasPrefix = topic.indexOf(prefix) === 0;
+        if (hasPrefix) return prefix;
+
+        const isOnlyPrefix = prefix.replace(/:/g, '') === topic;
+        if (isOnlyPrefix) return topic;
+
+        return false;
     };
 }
 
@@ -62,7 +68,8 @@ export function regex(regex) {
 export function mapWithPrefix(dataArray, prefix) {
     if (!prefix) return dataArray;
     return (dataArray || []).map(function (datapt) {
-        return $.extend(true, {}, datapt, { name: prefix + datapt.name });
+        const name = (prefix + datapt.name).replace(/:$/, ''); //replace trailing delimiters
+        return $.extend(true, {}, datapt, { name: name });
     });
 }
 

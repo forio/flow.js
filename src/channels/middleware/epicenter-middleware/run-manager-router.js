@@ -48,7 +48,7 @@ export default function (config, notifier) {
         const userListPromise = getRunPromise.then((run)=> {
             return run.world && run.world.users;
         });
-        const presenceChannel = new UsersChannel(userListPromise, withPrefix(notifier, ['users:', '']));
+        const presenceChannel = new UsersChannel(userListPromise, withPrefix(notifier, 'users:'));
         const presenceHandler = $.extend(presenceChannel, { 
             match: prefix('users:'),
             name: 'world users',
