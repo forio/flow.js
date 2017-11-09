@@ -1,5 +1,10 @@
-export default function RunOperationsChannel($runServicePromise) {
+export default function RunOperationsChannel($runServicePromise, notifier) {
     return {
+        notify: function (operationsResponse) {
+            const parsed = [{ name: operationsResponse.name, value: operationsResponse.result }];
+            return notifier(parsed);
+        },
+
         publishHandler: function (topics, options) {
             return $runServicePromise.then(function (runService) {
                 var toSave = topics.map(function (topic) {
