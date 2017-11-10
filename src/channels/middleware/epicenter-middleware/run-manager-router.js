@@ -1,5 +1,5 @@
 import RunChannel from './run-router';
-import UsersChannel from './user-router/users-presence-channel';
+import WorldUsersChannel from './world-users-channel';
 
 import { withPrefix, defaultPrefix, prefix } from 'channels/middleware/utils';
 import router from 'channels/channel-router';
@@ -45,10 +45,10 @@ export default function (config, notifier) {
         runRouteHandler
     ];
     if (isMultiplayer) {
-        const userListPromise = getRunPromise.then((run)=> {
-            return run.world && run.world.users;
+        const worldPromise = getRunPromise.then((run)=> {
+            return run.world;
         });
-        const presenceChannel = new UsersChannel(userListPromise, withPrefix(notifier, 'users:'));
+        const presenceChannel = new WorldUsersChannel(worldPromise, withPrefix(notifier, 'users:'));
         const presenceHandler = $.extend(presenceChannel, { 
             match: prefix('users:'),
             name: 'world users',

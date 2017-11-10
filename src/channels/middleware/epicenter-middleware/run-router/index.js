@@ -78,6 +78,7 @@ export default function RunRouter(config, notifier) {
             
             const subscribeOpts = { includeMine: false };
             //FIXME: Exclude silenced -- let notify take care of this?
+            //FIXME: Provide subscription fn to individual channels and let them handle it
             rs.channel.subscribe('variables', (data, meta)=> {
                 variableschannel.notify(data, meta);
             }, subscribeOpts);

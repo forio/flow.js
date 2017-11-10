@@ -90,7 +90,7 @@
 
     <h4>Users</h4>
     <ul data-f-foreach="u in users">
-        <li><%= u.userName %> </li>
+        <li><%= u.userName %>  <%= u.isOnline %> </li>
     </ul>
     <script type="text/javascript">
         Flow.initialize({

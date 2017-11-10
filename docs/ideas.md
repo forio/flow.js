@@ -38,9 +38,12 @@ Multiplayer
 
 presence list
 ```html
-<ul data-f-foreach="user in world:users | reject('isMe')">
-    <li data-f-class="world:users:<% user.id %>:isOnline | ifTrue('online')"><%= user.name %></li>
+<ul data-f-foreach="user in users | reject('isMe')">
+    <li data-f-class="users:<% user.id %>:isOnline | ifTrue('online')"><%= user.name %></li>
 </ul>
+
+Make the users channel aware of if it's a multiplayer game or not.
+
 ```
 
 ```html
