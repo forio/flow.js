@@ -10,44 +10,43 @@
     <!-- <script src="/node_modules/epicenter-js/dist/epicenter.min.js"></script> -->
     <script src="/dist/flow-edge.js"></script>
     <style>
-    @keyframes fadein {
-        0% {
-            opacity: 0;
+        @keyframes fadein {
+            0% {
+                opacity: 0;
+            }
+            100% {
+                opacity: 1;
+            }
         }
-        100% {
-            opacity: 1;
+        
+        @keyframes highlightred {
+            0% {
+                background: red;
+                /* lovely yellow colour */
+            }
+            100% {
+                background: none;
+            }
         }
-    }
-
-    @keyframes highlightred {
-        0% {
-            background: red;
-            /* lovely yellow colour */
+        
+        @keyframes highlight {
+            0% {
+                background: #ffff99;
+                /* lovely yellow colour */
+            }
+            100% {
+                background: none;
+            }
         }
-        100% {
-            background: none;
+        
+        [data-change]:not([data-change-initial]),
+        [data-updated] {
+            animation: highlight 1s;
         }
-    }
-
-    @keyframes highlight {
-        0% {
-            background: #ffff99;
-            /* lovely yellow colour */
+        
+        [data-added] {
+            animation: highlightred 1s;
         }
-        100% {
-            background: none;
-        }
-    }
-
-    [data-change]:not([data-change-initial]),
-    [data-updated] {
-        animation: highlight 1s;
-    }
-
-    [data-added] {
-        animation: highlightred 1s;
-    }
-
     </style>
 </head>
 
@@ -57,7 +56,9 @@
  -->
 
     <h1 data-f-bind="user:userId"></h1>
-    <div>
+    <h2 data-f-bind="user:role"></h2>
+    <h4 data-f-bind="user:userName"></h4>
+    <!-- <div>
         <h6>Price</h6>
         <div data-f-bind="Price"></div>
         <input type="text" data-f-bind="Price" />
@@ -86,14 +87,17 @@
                         <td><%= value %></td>
                     </tr>
                 </tbody>
-            </table> -->
-        </div>
+            </table> 
+    </div>
     </div>
 
     <h4>Users</h4>
     <ul data-f-foreach="u in users">
-        <li><%= u.userName %>  <%= u.isOnline %> </li>
-    </ul>
+        <li>
+            <%= u.userName %>
+                <%= u.isOnline %>
+        </li>
+    </ul> -->
     <script type="text/javascript">
         Flow.initialize({
             channel: {

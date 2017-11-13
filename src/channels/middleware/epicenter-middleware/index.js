@@ -4,7 +4,7 @@ import CustomRunRouter from './custom-run-router';
 
 import RunsRouter from './runs-router';
 
-import UserRouter from './user-router/current-user-channel';
+// import UserRouter from './user-router/current-user-channel';
 
 import { regex, withPrefix, prefix as prefixMatch, defaultPrefix } from 'channels/middleware/utils';
 
@@ -31,7 +31,7 @@ export default function (config, notifier, channelManagerContext) {
     var customRunChannel = new CustomRunRouter(customRunChannelOpts, notifier);
     var runsChannel = new RunsRouter(customRunChannelOpts, withPrefix(notifier, 'runs'), channelManagerContext);
 
-    var userChannel = new UserRouter(getOptions(opts, 'runManager').run, withPrefix(notifier, 'user:'), channelManagerContext);
+    // var userChannel = new UserRouter(getOptions(opts, 'runManager').run, withPrefix(notifier, 'user:'), channelManagerContext);
     
     /** @type {Handler[]} **/
     var handlers = [
@@ -45,10 +45,10 @@ export default function (config, notifier, channelManagerContext) {
             match: prefixMatch('runs:'),
             options: customRunChannelOpts.channelOptions,
         }),  
-        $.extend({}, userChannel, {
-            name: 'User Channel',
-            match: prefixMatch('user:'),
-        })
+        // $.extend({}, userChannel, {
+        //     name: 'User Channel',
+        //     match: prefixMatch('user:'),
+        // })
     ];
     var exposable = {};
 

@@ -1,4 +1,7 @@
 
+User role
+- Create World Manager channel parallel to run and scenario manager
+
 Multiplayer
     Mirror mode {
         nav: true,

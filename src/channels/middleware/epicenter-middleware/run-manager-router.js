@@ -1,5 +1,6 @@
 import RunChannel from './run-router';
 import WorldUsersChannel from './world-users-channel';
+import WorldCurrentUserChannel from './world-current-user-channel';
 
 import { withPrefix, defaultPrefix, prefix } from 'channels/middleware/utils';
 import router from 'channels/channel-router';
@@ -54,6 +55,13 @@ export default function (config, notifier) {
             name: 'world users',
         });
         handlers.unshift(presenceHandler);
+        
+        const userChannel = new WorldCurrentUserChannel(worldPromise, withPrefix(notifier, 'user:'));
+        const userHandler = $.extend(userChannel, {
+            match: prefix('user:'),
+            name: 'current user',
+        });
+        handlers.unshift(userHandler);
     }
 
     const runMangerRouter = router(handlers);
