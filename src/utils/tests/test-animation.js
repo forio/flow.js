@@ -1,4 +1,4 @@
-import { addChangeClassesToList, _findMostConsequtive } from '../animation';
+import { addChangeClassesToList, addContentAndAnimate, _findMostConsequtive } from '../animation';
 import { animation } from 'src/config';
 
 describe('Animation', ()=> {
@@ -124,6 +124,32 @@ describe('Animation', ()=> {
                 });
             });
             
+        });
+    });
+    describe('#addContentAndAnimate', ()=> {
+        function verifyAttr($el, attrs, values, callback) {
+            setTimeout(()=> { //animation itself is only added on next tick
+                attrs.forEach((attr, index)=> {
+                    expect($el.get(0).hasAttribute(attr)).to.equal(values[index]);
+                });
+                callback();
+            }, 0);
+        }
+
+        it('should not add classes if not changed', (done)=> {
+            const $el = $('<div>1</div>');
+            addContentAndAnimate($el, 1, false, animation);
+            verifyAttr($el, [animation.changeAttr, animation.initialAttr], [false, false], done);
+        });
+        it('should add initial class if set to true', (done)=> {
+            const $el = $('<div>1</div>');
+            addContentAndAnimate($el, 2, true, animation);
+            verifyAttr($el, [animation.changeAttr, animation.initialAttr], [true, true], done);
+        });
+        it('should not add initial class if set to false', (done)=> {
+            const $el = $('<div>1</div>');
+            addContentAndAnimate($el, 2, false, animation);
+            verifyAttr($el, [animation.changeAttr, animation.initialAttr], [true, false], done);
         });
     });
 });

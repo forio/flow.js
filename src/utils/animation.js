@@ -102,7 +102,7 @@ export function addContentAndAnimate($el, newValue, isInitial, options) {
     const current = $el.html().trim();
 
     $el.removeAttr(`${opts.changeAttr} ${opts.initialAttr}`);
-    if (current === newValue.trim()) {
+    if (current === `${newValue}`.trim()) {
         return $el;
     }
 
