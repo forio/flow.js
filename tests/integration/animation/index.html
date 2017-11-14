@@ -2,41 +2,28 @@
 
 <head>
     <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css">
+    <link rel="stylesheet"
+     href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.5.2/animate.min.css">
     <script src="/node_modules/jquery/dist/jquery.min.js"></script>
     <script src="/node_modules/lodash/lodash.js"></script>
     <script src="/node_modules/epicenter-js/dist/epicenter.min.js"></script>
     <script src="/dist/flow-edge.js"></script>
     <style>
-        @keyframes fadein {
-            0% {
-                opacity: 0;
-            }
-            100% {
-                opacity: 1;
-            }
-        }
-        @keyframes highlightred {
-            0% {
-                background: red; /* lovely yellow colour */
-            }
-            100% {
-                background: none;
-            }
-        }
         @keyframes highlight {
             0% {
-                background: #ffff99; /* lovely yellow colour */
+                background: #ffff99;
             }
             100% {
                 background: none;
             }
         }
 
+
         [data-change]:not([data-change-initial]), [data-update] {
-                 animation: highlight 1s;
+             animation: highlight 1s;
          }
         [data-add] {
-            animation: highlightred 1s;
+            animation: fadeInUpBig 1s;
         }
     </style>
 </head>
@@ -46,6 +33,7 @@
     <label for="txtPrice">Price</label>
     <input type="text" id="txtPrice" data-f-bind="Price" />
 
+    <div data-f-bind="Price"></div>
     <button class="btn btn-primary" data-f-on-click="step">Step</button>
     <button class="btn" data-f-on-click="reset">Reset</button>
 

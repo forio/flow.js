@@ -69,6 +69,7 @@ const config = require('../../config').attrs;
 const { addChangeClassesToList } = require('utils/animation');
 
 const elTemplateMap = new WeakMap(); //<domel>: template
+const elAnimatedMap = new WeakMap(); //TODO: Can probably get rid of this if we make subscribe a promise and distinguish between initial value
 
 module.exports = {
 
@@ -84,6 +85,8 @@ module.exports = {
         }
 
         const el = $el.get(0);
+        elAnimatedMap.delete(el);
+
         const loopTemplate = elTemplateMap.get(el);
         if (loopTemplate) {
             elTemplateMap.delete(el);
@@ -143,6 +146,9 @@ module.exports = {
         });
 
         const $newEls = $el.nextUntil(`:not('[data-${id}]')`);
-        addChangeClassesToList($dummyOldDiv.children(), $newEls);
+        const isInitialAnim = !elAnimatedMap.get(el);
+        addChangeClassesToList($dummyOldDiv.children(), $newEls, isInitialAnim);
+
+        elAnimatedMap.set(el, true);
     }
 };

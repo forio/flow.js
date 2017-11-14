@@ -128,6 +128,7 @@ function refToMarkup(refKey) {
 }
 
 const elTemplateMap = new WeakMap();
+const elAnimatedMap = new WeakMap(); //TODO: Can probably get rid of this if we make subscribe a promise and distinguish between initial value
 
 const MISSING_REFERENCES_KEY = 'missing-references';
 const MISSING_REFERENCE_ATTR = `data-${MISSING_REFERENCES_KEY}`;
@@ -143,6 +144,8 @@ module.exports = {
 
     unbind: function (attr, $el) {
         const el = $el.get(0);
+        elAnimatedMap.delete(el);
+        
         const template = elTemplateMap.get(el);
         if (template) {
             $el.html(template);
@@ -264,7 +267,10 @@ module.exports = {
             $dummyEl.append(nodes);
         });
         
-        const $withAnimAttrs = addChangeClassesToList($el.children(), $dummyEl.children(), config.animation);
+        const isInitialAnim = !elAnimatedMap.get(el);
+        const $withAnimAttrs = addChangeClassesToList($el.children(), $dummyEl.children(), isInitialAnim);
         $el.empty().append($withAnimAttrs);
+
+        elAnimatedMap.set(el, true);
     }
 };

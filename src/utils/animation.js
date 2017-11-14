@@ -45,10 +45,11 @@ const defaults = {
  * Compares 2 lists and Adds add or update classes
  * @param {JQuery<HTMLElement>} $currentEls existing elements
  * @param {JQuery<HTMLElement>} $newEls   new elements
+ * @param {Boolean} isInitial check if this is initial data or it's updating
  * @param {{ addAttr: string, changeAttr: string}} [options]
  * @returns {JQuery<HTMLElement>} elements with updated attributes
  */
-export function addChangeClassesToList($currentEls, $newEls, options) {
+export function addChangeClassesToList($currentEls, $newEls, isInitial, options) {
     const opts = $.extend({}, defaults, options);
 
     let currentcontents = elementsToContents($currentEls);
@@ -74,11 +75,13 @@ export function addChangeClassesToList($currentEls, $newEls, options) {
     for (let i = 0; i < newContents.length; i++) {
         const $el = $newEls.eq(i);
         const curr = currentcontents[i];
+        $el.removeAttr(opts.initialAttr);
+
         if (curr === undefined) {
-            $el.attr(opts.addAttr, true);
+            $el.attr(isInitial ? opts.initialAttr : opts.addAttr, true);
             $el.removeAttr(opts.changeAttr);
         } else if (curr !== $el.html().trim()) {
-            $el.attr(opts.changeAttr, true);
+            $el.attr(isInitial ? opts.initialAttr : opts.changeAttr, true);
             $el.removeAttr(opts.addAttr);
         } else {
             $el.removeAttr(`${opts.addAttr} ${opts.changeAttr}`);

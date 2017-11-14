@@ -35,21 +35,21 @@ describe('Animation', ()=> {
                 const $current = makeList([1, 2]);
                 const $new = makeList([1, 2, 3]);
 
-                const $changed = addChangeClassesToList($current, $new, animation);
+                const $changed = addChangeClassesToList($current, $new, false, animation);
                 verifyChildAttrValues($changed, animation.addAttr, [false, false, true]);
             });
             it('should add new attr to new children if added at the beginning', ()=> {
                 const $current = makeList([1, 2]);
                 const $new = makeList([3, 1, 2]);
 
-                const $changed = addChangeClassesToList($current, $new, animation);
+                const $changed = addChangeClassesToList($current, $new, false, animation);
                 verifyChildAttrValues($changed, animation.addAttr, [true, false, false]);
             });
             it('should guess if last items are same', ()=> {
                 const $current = makeList([1, 2, 3]);
                 const $new = makeList([1, 1, 2, 2, 3]);
 
-                const $changed = addChangeClassesToList($current, $new, animation);
+                const $changed = addChangeClassesToList($current, $new, false, animation);
                 verifyChildAttrValues($changed, animation.addAttr, [true, true, false, false, false]);
             });
             describe('Removing items', ()=> {
@@ -57,9 +57,17 @@ describe('Animation', ()=> {
                     const $current = makeList([1, 2, 3]);
                     const $new = makeList([1, 1]);
 
-                    const $changed = addChangeClassesToList($current, $new, animation);
+                    const $changed = addChangeClassesToList($current, $new, false, animation);
                     verifyChildAttrValues($changed, animation.addAttr, [false, false]);
                 });
+            });
+            it('should only add initial classes if called with initial', ()=> {
+                const $current = makeList([1, 2]);
+                const $new = makeList([3, 1, 2]);
+
+                const $changed = addChangeClassesToList($current, $new, true, animation);
+                verifyChildAttrValues($changed, animation.addAttr, [false, false, false]);
+                verifyChildAttrValues($changed, animation.initialAttr, [true, false, false]);
             });
         });
         describe(animation.changeAttr, ()=> {
@@ -67,14 +75,14 @@ describe('Animation', ()=> {
                 const $current = makeList([1, 2, 3]);
                 const $new = makeList([1, 1, 2]);
 
-                const $changed = addChangeClassesToList($current, $new, animation);
+                const $changed = addChangeClassesToList($current, $new, false, animation);
                 verifyChildAttrValues($changed, animation.changeAttr, [false, true, true]);
             });
             it('should not add update class for new items', ()=> {
                 const $current = makeList([1, 2, 3]);
                 const $new = makeList([1, 1, 2, 4, 5]);
 
-                const $changed = addChangeClassesToList($current, $new, animation);
+                const $changed = addChangeClassesToList($current, $new, false, animation);
                 verifyChildAttrValues($changed, animation.changeAttr, [false, true, true, false, false]);
             });
             describe('Removing items', ()=> {
@@ -82,9 +90,17 @@ describe('Animation', ()=> {
                     const $current = makeList([1, 2, 3]);
                     const $new = makeList([1, 1]);
 
-                    const $changed = addChangeClassesToList($current, $new, animation);
+                    const $changed = addChangeClassesToList($current, $new, false, animation);
                     verifyChildAttrValues($changed, animation.changeAttr, [false, true]);
                 });
+            });
+            it('should only add initialAttr initially', ()=> {
+                const $current = makeList([1, 2, 3]);
+                const $new = makeList([1, 1, 2, 4, 5]);
+
+                const $changed = addChangeClassesToList($current, $new, true, animation);
+                verifyChildAttrValues($changed, animation.changeAttr, [false, false, false, false, false]);
+                verifyChildAttrValues($changed, animation.initialAttr, [false, true, true, true, true]); //2 for added, 2 for initial
             });
         });
     });
