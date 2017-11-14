@@ -134,7 +134,10 @@ module.exports = (function () {
             unbindAllNodeHandlers(domEl);
             unbindAllAttributes(domEl);
             removeAllSubscriptions(subscriptions, channel);
-     
+            
+            const animAttrs = Object.keys(config.animation).join(' ');
+            $el.removeAttr(animAttrs);
+
             Object.keys($el.data()).forEach(function (key) {
                 if (key.indexOf('f-') === 0 || key.match(/^f[A-Z]/)) {
                     $el.removeData(key);
