@@ -3,10 +3,7 @@ const _ = require('lodash');
 var list = [];
 
 var supported = [
-    'values', 'keys', 'compact', 'difference',
-    'union',
-    'uniq', 'without',
-    'xor', 'zip'
+    'values', 'keys', 'compact', 'uniq'
 ];
 supported.forEach(function (fn) {
     var item = {
