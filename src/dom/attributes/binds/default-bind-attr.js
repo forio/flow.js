@@ -82,12 +82,10 @@
 
 'use strict';
 const { template } = require('lodash');
-
-const CHANGE_ATTR = 'data-change';
-const INITIAL_CHANGE_ATTR = 'data-change-initial';
-const UPDATE_ATTR = 'data-change-update';
+const { addContentAndAnimate } = require('utils/animation');
 
 const elTemplateMap = new WeakMap(); //<dom-element>: template
+const elAnimatedMap = new WeakMap(); //TODO: Can probably get rid of this if we make subscribe a promise and distinguish between initial value
 
 module.exports = {
 
@@ -97,28 +95,18 @@ module.exports = {
 
     /**
      * @param {string} attr
-     * @param {string} attrVal
-     * @param {JQuery<HTMLElement>} $el
-     * @return {boolean}
-     */ 
-    init: function (attr, attrVal, $el) {
-        $el.removeAttr([CHANGE_ATTR, INITIAL_CHANGE_ATTR, UPDATE_ATTR].join(' '));
-        return true;
-    },
-
-    /**
-     * @param {string} attr
      * @param {JQuery<HTMLElement>} $el
      * @return {void}
      */ 
     unbind: function (attr, $el) {
         const el = $el.get(0);
+        elAnimatedMap.delete(el);
+
         const bindTemplate = elTemplateMap.get(el);
         if (bindTemplate) {
             $el.html(bindTemplate);
             elTemplateMap.delete(el);
         }
-        $el.removeAttr([CHANGE_ATTR, INITIAL_CHANGE_ATTR, UPDATE_ATTR].join(' '));
     },
 
     /**
@@ -132,7 +120,7 @@ module.exports = {
         
         let valueToTemplate = $.extend({}, value);
         if (!$.isPlainObject(value)) {
-            const variableName = $el.data(`f-${prop}`);//Hack because i don't have access to variable name here otherwise
+            const variableName = $el.data(`f-${prop}`);
             valueToTemplate = { value: value };
             valueToTemplate[variableName] = value;
         } else {
@@ -152,21 +140,13 @@ module.exports = {
                 }
                 value = ($.isPlainObject(value)) ? JSON.stringify(value) : value + '';
 
-                $el.removeAttr(CHANGE_ATTR);
-                if (cleanedHTML !== value) {
-                    $el.html(value);
-                    if (el.hasAttribute(INITIAL_CHANGE_ATTR)) {
-                        $el.removeAttr(INITIAL_CHANGE_ATTR).attr(UPDATE_ATTR, true);
-                    } else {
-                        $el.attr(INITIAL_CHANGE_ATTR, true);
-                    }
-                    setTimeout(()=> $el.attr(CHANGE_ATTR, true), 0); //need this to trigger animation
-                }
-
+                addContentAndAnimate($el, value, !elAnimatedMap.has(el));
             } else {
                 elTemplateMap.set(el, cleanedHTML);
                 $el.html(templated);
             }
         }
+
+        elAnimatedMap.set(el, true);
     }
 };

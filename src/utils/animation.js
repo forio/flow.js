@@ -34,6 +34,13 @@ function elementsToContents($els) {
         return $(child).html().trim();
     }).get();
 }
+
+const defaults = {
+    addAttr: 'data-add',
+    changeAttr: 'data-update',
+    initialAttr: 'data-initial',
+};
+
 /**
  * Compares 2 lists and Adds add or update classes
  * @param {JQuery<HTMLElement>} $currentEls existing elements
@@ -42,10 +49,6 @@ function elementsToContents($els) {
  * @returns {JQuery<HTMLElement>} elements with updated attributes
  */
 export function addChangeClassesToList($currentEls, $newEls, options) {
-    const defaults = {
-        addAttr: 'data-add',
-        changeAttr: 'data-update'
-    };
     const opts = $.extend({}, defaults, options);
 
     let currentcontents = elementsToContents($currentEls);
@@ -83,4 +86,18 @@ export function addChangeClassesToList($currentEls, $newEls, options) {
     }
 
     return $newEls;
+}
+
+export function addContentAndAnimate($el, newValue, isInitial, options) {
+    const opts = $.extend({}, defaults, options);
+    const current = $el.html().trim();
+    const attrToAdd = isInitial ? opts.initialAttr : opts.changeAttr;
+
+    $el.removeAttr(`${opts.changeAttr} ${opts.initialAttr}`);
+    if (current === newValue.trim()) {
+        return $el;
+    }
+
+    $el.html(newValue);
+    setTimeout(()=> $el.attr(attrToAdd, true), 0); //need this to trigger animation
 }
