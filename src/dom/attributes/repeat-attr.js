@@ -95,8 +95,6 @@ module.exports = {
         value = ($.isPlainObject(value) ? value : [].concat(value));
         var id = $el.data(config.repeat.templateId);
         
-        const $oldEl = $el.parent().clone();
-
         const el = $el.get(0);
 
         let loopTemplate = elTemplateMap.get(el);
@@ -105,8 +103,10 @@ module.exports = {
             elTemplateMap.set(el, loopTemplate);
         }
 
+        let $dummyOldDiv = $('<div></div>');
         if (id) {
-            $el.nextUntil(':not([data-' + id + '])').remove();
+            const $removed = $el.nextUntil(':not([data-' + id + '])').remove();
+            $dummyOldDiv.append($removed);
         } else {
             id = gutils.random('repeat-');
             $el.attr('data-' + config.repeat.templateId, id);
@@ -142,7 +142,7 @@ module.exports = {
             }
         });
 
-        //FIXME: build up dom during the remove first and then compare
-        addChangeClassesToList($oldEl, $el.parent()); //probably won't work for sibling repeats
+        const $newEls = $el.nextUntil(`:not('[data-${id}]')`);
+        addChangeClassesToList($dummyOldDiv.children(), $newEls);
     }
 };

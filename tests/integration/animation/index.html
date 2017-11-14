@@ -41,29 +41,20 @@
     </style>
 </head>
 
-<body>
-<!--     Price
-    <div data-f-bind="Price"></div>
- -->
+<body class="container">
 
-    Price[step]
-    <div data-f-bind="Price[<STEP>]"></div>
+    <label for="txtPrice">Price</label>
+    <input type="text" id="txtPrice" data-f-bind="Price" />
+
+    <button class="btn btn-primary" data-f-on-click="step">Step</button>
+    <button class="btn" data-f-on-click="reset">Reset</button>
 
 
-    <h6>Outputs</h6>
-    Price
-    <input type="text" id="txtPrice" data-f-bind="Price" /> Price[0]
-    <input type="text" id="txtPrice" data-f-bind="Price[0]" /> Price[<STEP>]
-        <input type="text" id="txtPrice" data-f-bind="Price[<STEP>]" />
-
-        <button data-f-on-click="step">Step</button>
-        <button data-f-on-click="reset">Reset</button>
-
-    Foreach
+    <h4>Foreach</h4>
     <div class="row">
         <div class="col-xs-6">
             <h6>Add to top</h6>
-            <table>
+            <table class="table">
                 <tbody data-f-foreach="Price">
                     <tr>
                         <td><%= value %></td>
@@ -72,23 +63,24 @@
             </table>
         </div>
         <div class="col-xs-6">
-            <h6>Add to bottom</h6>
-           <!--  <table>
+            <h6>Add to bottom (Price | reverse)</h6>
+            <table class="table">
                 <tbody data-f-foreach="Price | reverse">
                     <tr>
                         <td><%= value %></td>
                     </tr>
                 </tbody>
-            </table> -->
+            </table>
         </div>
     </div>
    
-    Repeat
+    <h4>Sibling Repeat</h4>
     <div class="row">
         <div class="col-xs-6">
-            <table>
+            <table class="table">
                 <tbody>
                     <tr>
+                        <th>Costs</th>
                         <td data-f-repeat="Costs"></td>
                         <th>Revenue</th>
                         <td data-f-repeat="Revenue"></td>
