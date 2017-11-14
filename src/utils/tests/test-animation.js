@@ -13,10 +13,10 @@ describe('Animation', ()=> {
             expect(_findMostConsequtive([false, true, false, true, false], true)).to.equal(1);
         });
     });
-    function verifyChildAttrValues($el, attr, values) {
-        expect($el.children().length).to.equal(values.length);
+    function verifyChildAttrValues($els, attr, values) {
+        expect($els.length).to.equal(values.length);
 
-        $el.children().each((index, child)=> {
+        $els.each((index, child)=> {
             const matchVal = values[index];
             expect(child.hasAttribute(attr)).to.equal(matchVal);
         });
@@ -26,7 +26,7 @@ describe('Animation', ()=> {
         data.forEach((d)=> {
             $parent.append(`<li>${d}</li>`);
         });
-        return $parent;
+        return $parent.children();
     }
 
     describe('addChangeClassesToList', ()=> {

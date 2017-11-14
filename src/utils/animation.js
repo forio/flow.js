@@ -29,30 +29,30 @@ function fill(count, val) {
     return a;
 }
 
-function elementsToContents($el) {
-    return $el.children().map((index, child)=> {
+function elementsToContents($els) {
+    return $els.map((index, child)=> {
         return $(child).html().trim();
     }).get();
 }
 /**
  * Compares 2 lists and Adds add or update classes
- * @param {JQuery<HTMLElement>} $currentEl existing elements
+ * @param {JQuery<HTMLElement>} $currentEls existing elements
  * @param {JQuery<HTMLElement>} $newEls   new elements
  * @param {{ addAttr: string, changeAttr: string}} [options]
  * @returns {JQuery<HTMLElement>} elements with updated attributes
  */
-export function addChangeClassesToList($currentEl, $newEls, options) {
+export function addChangeClassesToList($currentEls, $newEls, options) {
     const defaults = {
         addAttr: 'data-add',
         changeAttr: 'data-update'
     };
     const opts = $.extend({}, defaults, options);
 
-    let currentcontents = elementsToContents($currentEl);
+    let currentcontents = elementsToContents($currentEls);
     const newContents = elementsToContents($newEls);
     const reversedContents = currentcontents;
 
-    const $newChildren = $newEls.children();
+    //Guess if data was added to end or beginning of array
     const diffFromEnd = buildDiffArray(currentcontents, newContents);
     const diffFromBeginning = buildDiffArray(reversedContents.slice().reverse(), newContents.slice().reverse());
 
@@ -69,7 +69,7 @@ export function addChangeClassesToList($currentEl, $newEls, options) {
     }
 
     for (let i = 0; i < newContents.length; i++) {
-        const $el = $newChildren.eq(i);
+        const $el = $newEls.eq(i);
         const curr = currentcontents[i];
         if (curr === undefined) {
             $el.attr(opts.addAttr, true);
