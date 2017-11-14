@@ -61,14 +61,25 @@ describe('Animation', ()=> {
                     verifyChildAttrValues($changed, animation.addAttr, [false, false]);
                 });
             });
-            it('should only add initial classes if called with initial', ()=> {
-                const $current = makeList([1, 2]);
-                const $new = makeList([3, 1, 2]);
+            describe('initial attrs', ()=> {
+                it('should add initial classes if called with initial', ()=> {
+                    const $current = makeList([1, 2]);
+                    const $new = makeList([3, 1, 2]);
 
-                const $changed = addChangeClassesToList($current, $new, true, animation);
-                verifyChildAttrValues($changed, animation.addAttr, [false, false, false]);
-                verifyChildAttrValues($changed, animation.initialAttr, [true, false, false]);
+                    const $changed = addChangeClassesToList($current, $new, true, animation);
+                    verifyChildAttrValues($changed, animation.addAttr, [true, false, false]);
+                    verifyChildAttrValues($changed, animation.initialAttr, [true, false, false]);
+                });
+                it('should not add initial classes if not called with initial', ()=> {
+                    const $current = makeList([1, 2]);
+                    const $new = makeList([3, 1, 2]);
+
+                    const $changed = addChangeClassesToList($current, $new, false, animation);
+                    verifyChildAttrValues($changed, animation.addAttr, [true, false, false]);
+                    verifyChildAttrValues($changed, animation.initialAttr, [false, false, false]);
+                });
             });
+           
         });
         describe(animation.changeAttr, ()=> {
             it('should update if count is same', ()=> {
@@ -94,14 +105,25 @@ describe('Animation', ()=> {
                     verifyChildAttrValues($changed, animation.changeAttr, [false, true]);
                 });
             });
-            it('should only add initialAttr initially', ()=> {
-                const $current = makeList([1, 2, 3]);
-                const $new = makeList([1, 1, 2, 4, 5]);
+            describe('initial attrs', ()=> {
+                it('should add initialAttr if flag passed in', ()=> {
+                    const $current = makeList([1, 2, 3]);
+                    const $new = makeList([1, 1, 2, 4, 5]);
 
-                const $changed = addChangeClassesToList($current, $new, true, animation);
-                verifyChildAttrValues($changed, animation.changeAttr, [false, false, false, false, false]);
-                verifyChildAttrValues($changed, animation.initialAttr, [false, true, true, true, true]); //2 for added, 2 for initial
+                    const $changed = addChangeClassesToList($current, $new, true, animation);
+                    verifyChildAttrValues($changed, animation.changeAttr, [false, true, true, false, false]);
+                    verifyChildAttrValues($changed, animation.initialAttr, [false, true, true, true, true]); //2 for added, 2 for initial
+                });
+                it('should not add initialAttr if flag not passed in', ()=> {
+                    const $current = makeList([1, 2, 3]);
+                    const $new = makeList([1, 1, 2, 4, 5]);
+
+                    const $changed = addChangeClassesToList($current, $new, false, animation);
+                    verifyChildAttrValues($changed, animation.changeAttr, [false, true, true, false, false]);
+                    verifyChildAttrValues($changed, animation.initialAttr, [false, false, false, false, false]);
+                });
             });
+            
         });
     });
 });

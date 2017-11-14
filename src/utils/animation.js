@@ -78,10 +78,16 @@ export function addChangeClassesToList($currentEls, $newEls, isInitial, options)
         $el.removeAttr(opts.initialAttr);
 
         if (curr === undefined) {
-            $el.attr(isInitial ? opts.initialAttr : opts.addAttr, true);
+            $el.attr({
+                [opts.addAttr]: true,
+                [opts.initialAttr]: isInitial || null
+            });
             $el.removeAttr(opts.changeAttr);
         } else if (curr !== $el.html().trim()) {
-            $el.attr(isInitial ? opts.initialAttr : opts.changeAttr, true);
+            $el.attr({
+                [opts.changeAttr]: true,
+                [opts.initialAttr]: isInitial || null
+            });
             $el.removeAttr(opts.addAttr);
         } else {
             $el.removeAttr(`${opts.addAttr} ${opts.changeAttr}`);
@@ -94,7 +100,6 @@ export function addChangeClassesToList($currentEls, $newEls, isInitial, options)
 export function addContentAndAnimate($el, newValue, isInitial, options) {
     const opts = $.extend({}, defaults, options);
     const current = $el.html().trim();
-    const attrToAdd = isInitial ? opts.initialAttr : opts.changeAttr;
 
     $el.removeAttr(`${opts.changeAttr} ${opts.initialAttr}`);
     if (current === newValue.trim()) {
@@ -102,5 +107,8 @@ export function addContentAndAnimate($el, newValue, isInitial, options) {
     }
 
     $el.html(newValue);
-    setTimeout(()=> $el.attr(attrToAdd, true), 0); //need this to trigger animation
+    setTimeout(()=> $el.attr({
+        [opts.changeAttr]: true,
+        [opts.initialAttr]: isInitial || null //jquery removes if set to null
+    }, true), 0); //need this to trigger animation
 }
