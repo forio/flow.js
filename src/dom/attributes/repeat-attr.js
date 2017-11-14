@@ -64,7 +64,9 @@
 const { each, template } = require('lodash');
 const parseUtils = require('../../utils/parse-utils');
 const gutils = require('../../utils/general');
-const config = require('../../config').attrs;
+const config = require('../../config');
+
+const templateIdAttr = config.attrs.repeat.templateId;
 
 const { addChangeClassesToList } = require('utils/animation');
 
@@ -78,10 +80,10 @@ module.exports = {
     target: '*',
 
     unbind: function (attr, $el) {
-        var id = $el.data(config.repeat.templateId);
+        var id = $el.data(templateIdAttr);
         if (id) {
             $el.nextUntil(':not([data-' + id + '])').remove();
-            // this.removeAttr('data-' + config.repeat.templateId); //FIXME: Something about calling rebind multiple times in IB makes this happen without the removal
+            // this.removeAttr('data-' + templateIdAttr); //FIXME: Something about calling rebind multiple times in IB makes this happen without the removal
         }
 
         const el = $el.get(0);
@@ -96,7 +98,7 @@ module.exports = {
 
     handle: function (value, prop, $el) {
         value = ($.isPlainObject(value) ? value : [].concat(value));
-        var id = $el.data(config.repeat.templateId);
+        var id = $el.data(templateIdAttr);
         
         const el = $el.get(0);
 
@@ -112,7 +114,7 @@ module.exports = {
             $dummyOldDiv.append($removed);
         } else {
             id = gutils.random('repeat-');
-            $el.attr('data-' + config.repeat.templateId, id);
+            $el.attr('data-' + templateIdAttr, id);
         }
   
         var last;
@@ -125,7 +127,7 @@ module.exports = {
 
             nodes.each(function (i, newNode) {
                 const $newNode = $(newNode);
-                $newNode.removeAttr('data-f-repeat').removeAttr('data-' + config.repeat.templateId);
+                $newNode.removeAttr('data-f-repeat').removeAttr('data-' + templateIdAttr);
                 each($newNode.data(), function (val, key) {
                     if (!last) {
                         $el.data(key, parseUtils.toImplicitType(val));
@@ -147,7 +149,7 @@ module.exports = {
 
         const $newEls = $el.nextUntil(`:not('[data-${id}]')`);
         const isInitialAnim = !elAnimatedMap.get(el);
-        addChangeClassesToList($dummyOldDiv.children(), $newEls, isInitialAnim);
+        addChangeClassesToList($dummyOldDiv.children(), $newEls, isInitialAnim, config.animation);
 
         elAnimatedMap.set(el, true);
     }

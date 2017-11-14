@@ -268,7 +268,7 @@ module.exports = {
         });
         
         const isInitialAnim = !elAnimatedMap.get(el);
-        const $withAnimAttrs = addChangeClassesToList($el.children(), $dummyEl.children(), isInitialAnim);
+        const $withAnimAttrs = addChangeClassesToList($el.children(), $dummyEl.children(), isInitialAnim, config.animation);
         $el.empty().append($withAnimAttrs);
 
         elAnimatedMap.set(el, true);

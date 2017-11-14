@@ -19,24 +19,25 @@
         }
 
 
-        [data-change]:not([data-change-initial]), [data-update] {
+        [data-change-initial] {
+            animation: fadeIn 1s;
+        }
+        [data-change]:not([data-change-initial]) {
              animation: highlight 1s;
          }
-        [data-add] {
+        [data-add]:not([data-change-initial]) {
             animation: fadeInUpBig 1s;
         }
     </style>
 </head>
 
 <body class="container">
-
     <label for="txtPrice">Price</label>
     <input type="text" id="txtPrice" data-f-bind="Price" />
 
     <div data-f-bind="Price"></div>
     <button class="btn btn-primary" data-f-on-click="step">Step</button>
     <button class="btn" data-f-on-click="reset">Reset</button>
-
 
     <h4>Foreach</h4>
     <div class="row">
