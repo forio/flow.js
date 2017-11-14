@@ -17,7 +17,6 @@ const _ = require('lodash');
 var list = [
     {
         alias: 'list',
-        acceptList: true,
         /**
          * Convert the input into an array. Concatenates all elements of the input.
          *
@@ -30,7 +29,6 @@ var list = [
     },
     {
         alias: 'last',
-        acceptList: true,
         /**
          * Select only the last element of the array.
          *
@@ -50,7 +48,6 @@ var list = [
     },
     {
         alias: 'reverse',
-        acceptList: true,
         /**
          * Reverse the array.
          *
@@ -71,7 +68,6 @@ var list = [
     },
     {
         alias: 'first',
-        acceptList: true,
         /**
          * Select only the first element of the array.
          *
@@ -91,7 +87,6 @@ var list = [
     },
     {
         alias: 'previous',
-        acceptList: true,
         /**
          * Select only the previous (second to last) element of the array.
          *
@@ -120,5 +115,6 @@ list.forEach(function (item) {
         return oldfn(val);
     };
     item.convert = newfn;
+    item.acceptList = true;
 });
 module.exports = list;

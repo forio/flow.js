@@ -10,7 +10,7 @@
  */
 
 const _ = require('lodash');
-const { isFunction, isString, isRegExp, find, isArray, mapValues } = require('lodash');
+const { isFunction, isString, isRegExp, find, mapValues } = require('lodash');
 const { splitNameArgs } = require('../utils/parse-utils');
 
 var normalize = function (alias, converter, acceptList) {
@@ -145,7 +145,7 @@ var converterManager = {
         };
         var convert = function (converter, value, converterName) {
             var converted;
-            if (isArray(value) && converter.acceptList !== true) {
+            if (Array.isArray(value) && converter.acceptList !== true) {
                 converted = convertArray(converter, value, converterName);
             } else {
                 converted = converter.convert(value, converterName);
@@ -206,10 +206,11 @@ var defaultconverters = [
     require('./numberformat-converter'),
     require('./number-compare-converters'),
     require('./bool-conditional-converters'),
+    require('./collection-converters')
 ];
 
 defaultconverters.reverse().forEach(function (converter) {
-    if (isArray(converter)) {
+    if (Array.isArray(converter)) {
         converter.forEach(function (c) {
             converterManager.register(c);
         });

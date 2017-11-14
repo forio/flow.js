@@ -10,50 +10,46 @@
     <!-- <script src="/node_modules/epicenter-js/dist/epicenter.min.js"></script> -->
     <script src="/dist/flow-edge.js"></script>
     <style>
-        @keyframes fadein {
-            0% {
-                opacity: 0;
-            }
-            100% {
-                opacity: 1;
-            }
+        .user {
+          margin: 4em 1em;
+          position: relative;
+          display: inline-block;
+          
+          background: yellow;
+          width: 40px;
+          height: 40px;
+          border-radius: 60%;
+          
         }
-        
-        @keyframes highlightred {
-            0% {
-                background: red;
-                /* lovely yellow colour */
-            }
-            100% {
-                background: none;
-            }
+        .user:after {
+            content: '';
+            position: absolute;
+            right: -.3rem;
+            bottom: 0rem;
+            width: 16px;
+            height: 16px;
+            border-radius: 60%;
+            border: 6px solid #fff;
         }
-        
-        @keyframes highlight {
-            0% {
-                background: #ffff99;
-                /* lovely yellow colour */
-            }
-            100% {
-                background: none;
-            }
+
+        .user.online:after {
+            background: -webkit-linear-gradient(top, #71c100, #518d44);
         }
-        
-        [data-change]:not([data-change-initial]),
-        [data-updated] {
-            animation: highlight 1s;
-        }
-        
-        [data-added] {
-            animation: highlightred 1s;
+        .user.offline:after {
+            background: -webkit-linear-gradient(top, red, #cc0000);
         }
     </style>
 </head>
 
-<body>
-    <!--     Price
-    <div data-f-bind="Price"></div>
- -->
+<body class="container">
+
+    <div class="chat-bar">
+        <ul data-f-foreach="u in users | except(isMe)">
+            <li class="user <%= u.isOnline ? 'online' : 'offline' %>">
+                <%= u.userName %>
+            </li>
+        </ul>
+    </div>
 
     <h1 data-f-bind="user:userId"></h1>
     <h2 data-f-bind="user:role"></h2>
@@ -92,12 +88,7 @@
     </div>
 
     <h4>Users</h4>
-    <ul data-f-foreach="u in users">
-        <li>
-            <%= u.userName %>
-                <%= u.isOnline %>
-        </li>
-    </ul>
+    
     <script type="text/javascript">
         Flow.initialize({
             channel: {
