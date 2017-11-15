@@ -19,7 +19,9 @@ export default function (config, notifier) {
     const isMultiplayer = rmOptions && rmOptions.strategy === 'multiplayer';
 
     
-    const getRunPromise = rm.getRun();
+    const getRunPromise = rm.getRun().catch((err)=> {
+        console.error('Run manager get run error', err);
+    });
     const $creationPromise = getRunPromise.then((run)=> {
         if (run.world && !rm.run.getChannel) {
             const channelManager = new F.manager.ChannelManager();
@@ -27,7 +29,7 @@ export default function (config, notifier) {
 
             worldChannel.subscribe('reset', (run)=> {
                 rm.run.updateConfig({ filter: run.id });
-            }, { includeMine: false });
+            }, this, { includeMine: false });
             rm.run.channel = worldChannel;
         }
         return rm.run;
