@@ -29,9 +29,16 @@ function fill(count, val) {
     return a;
 }
 
+function elToContents(el) {
+    //ignore data attributes for comparison
+    return el.outerHTML
+        .replace(/\s?data-[a-zA-Z]*=['"][a-zA-Z0-9]*['"]/g, '')
+        .replace(/\s\s/g, ' ').trim();
+}
+
 function elementsToContents($els) {
     return $els.map((index, child)=> {
-        return $(child).html().trim();
+        return elToContents(child);
     }).get();
 }
 
@@ -77,13 +84,14 @@ export function addChangeClassesToList($currentEls, $newEls, isInitial, options)
         const curr = currentcontents[i];
         $el.removeAttr(opts.initialAttr);
 
+        const contents = elToContents($el.get(0));
         if (curr === undefined) {
             $el.attr({
                 [opts.addAttr]: true,
                 [opts.initialAttr]: isInitial || null
             });
             $el.removeAttr(opts.changeAttr);
-        } else if (curr !== $el.html().trim()) {
+        } else if (curr !== contents) {
             $el.attr({
                 [opts.changeAttr]: true,
                 [opts.initialAttr]: isInitial || null

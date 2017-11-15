@@ -96,6 +96,65 @@ describe('Animation', ()=> {
                 const $changed = addChangeClassesToList($current, $new, false, animation);
                 verifyChildAttrValues($changed, animation.changeAttr, [false, true, true, false, false]);
             });
+            describe('Outer html', ()=> {
+                it('should update if innerhtml is same but outer html changes', ()=> {
+                    const $current = $(`
+                        <ul>
+                            <li class="offline">u1</li>
+                            <li class="offline">u2</li>
+                            <li class="offline">u3</li>
+                        </ul>
+                    `).children();
+                    const $new = $(`
+                        <ul>
+                            <li class="online">u1</li>
+                            <li class="offline">u2</li>
+                            <li class="online">u3</li>
+                        </ul>
+                    `).children();
+                    const $changed = addChangeClassesToList($current, $new, false, animation);
+                    verifyChildAttrValues($changed, animation.changeAttr, [true, false, true]);
+
+                });
+                it('should remove existing update classes', ()=> {
+                    const $current = $(`
+                        <ul>
+                            <li ${animation.changeAttr}="true" class="offline">u1</li>
+                            <li ${animation.changeAttr}="true" class="offline">u2</li>
+                            <li class="offline">u3</li>
+                        </ul>
+                    `).children();
+                    const $new = $(`
+                        <ul>
+                            <li class="online">u1</li>
+                            <li class="offline">u2</li>
+                            <li class="online">u3</li>
+                        </ul>
+                    `).children();
+                    const $changed = addChangeClassesToList($current, $new, false, animation);
+                    verifyChildAttrValues($changed, animation.changeAttr, [true, false, true]);
+                });
+                it('should ignore change in data attribues', ()=> {
+                    const $current = $(`
+                        <ul>
+                            <li class="offline">u1</li>
+                            <li class="offline">u2</li>
+                            <li data-x="Y" class="offline">u3</li>
+                        </ul>
+                    `).children();
+                    const $new = $(`
+                        <ul>
+                            <li data-foo="bar" class="offline">u1</li>
+                            <li class="offline">u2</li>
+                            <li class="offline">u3</li>
+                        </ul>
+                    `).children();
+                    const $changed = addChangeClassesToList($current, $new, false, animation);
+                    verifyChildAttrValues($changed, animation.changeAttr, [false, false, false]);
+
+                });
+            });
+            
             describe('Removing items', ()=> {
                 it('should update existing items', ()=> {
                     const $current = makeList([1, 2, 3]);
