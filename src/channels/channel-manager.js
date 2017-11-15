@@ -49,6 +49,17 @@ function makeSubs(topics, callback, options) {
 var cacheBySubsId = {};
 var sentDataBySubsId = {};
 
+function copy(data) {
+    if (Array.isArray(data)) {
+        return data.map((d)=> copy(d));
+    } else if ($.isPlainObject(data)) {
+        return Object.keys(data).reduce((accum, key)=> {
+            accum[key] = copy(data[key]);
+            return accum;
+        }, {});
+    }
+    return data;
+}
 /**
 * @param {Subscription} subscription 
 * @param {*} data
@@ -56,7 +67,7 @@ var sentDataBySubsId = {};
 function callbackIfChanged(subscription, data) {
     var id = subscription.id;
     if (!isEqual(sentDataBySubsId[id], data)) {
-        sentDataBySubsId[id] = data;
+        sentDataBySubsId[id] = copy(data);
         subscription.callback(data, { id: id });
     }
 }
