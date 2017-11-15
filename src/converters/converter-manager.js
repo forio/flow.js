@@ -202,6 +202,7 @@ var defaultconverters = [
     require('./number-converter'),
     require('./string-converter'),
     require('./array-converter'),
+    require('./general-util-converters'),
     require('./underscore-utils-converter'),
     require('./numberformat-converter'),
     require('./number-compare-converters'),
