@@ -31,6 +31,6 @@ module.exports = {
     animation: {
         addAttr: 'data-add',
         changeAttr: 'data-update',
-        initialAttr: 'data-change-initial',
+        initialAttr: 'data-initial',
     }
 };

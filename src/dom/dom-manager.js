@@ -234,13 +234,6 @@ module.exports = (function () {
                             return accum;
                         }, {});
                     }
-
-                    const boundChildren = $el.find(`:${config.prefix}`).get();
-                    if (boundChildren.length) {
-                        //Unbind children so loops etc pick the right template. 
-                        //Autobind will add it back later anyway
-                        me.unbindAll(boundChildren);
-                    }
                     $el.trigger(config.events.convert, toConvert);
                 }, subsOptions);
 
