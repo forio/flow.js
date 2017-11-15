@@ -83,6 +83,7 @@
 'use strict';
 const { template } = require('lodash');
 const { addContentAndAnimate } = require('utils/animation');
+const config = require('../../../config');
 
 const elTemplateMap = new WeakMap(); //<dom-element>: template
 const elAnimatedMap = new WeakMap(); //TODO: Can probably get rid of this if we make subscribe a promise and distinguish between initial value
@@ -147,6 +148,6 @@ module.exports = {
             }
         }
 
-        elAnimatedMap.set(el, true);
+        elAnimatedMap.set(el, true, config.animation);
     }
 };
