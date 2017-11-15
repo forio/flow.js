@@ -25,15 +25,15 @@ module.exports = {
 
     target: '*',
 
-    init: function () {
-        this.hide(); //hide by default; if not this shows text until data is fetched
+    init: function (attr, value, $el) {
+        $el.hide(); //hide by default; if not this shows text until data is fetched
         return true;
     },
 
-    handle: function (value, prop) {
+    handle: function (value, prop, $el) {
         if (isArray(value)) {
             value = value[value.length - 1];
         }
-        return value === true ? this.show() : this.hide();
+        return (value && `${value}`.trim()) ? $el.show() : $el.hide();
     }
 };
