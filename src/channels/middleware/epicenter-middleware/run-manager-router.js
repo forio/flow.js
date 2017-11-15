@@ -21,6 +21,7 @@ export default function (config, notifier) {
     
     const getRunPromise = rm.getRun().catch((err)=> {
         console.error('Run manager get run error', err);
+        throw err;
     });
     const $creationPromise = getRunPromise.then((run)=> {
         if (run.world && !rm.run.getChannel) {
