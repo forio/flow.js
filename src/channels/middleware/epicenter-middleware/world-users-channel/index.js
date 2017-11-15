@@ -44,7 +44,7 @@ export default function WorldUsersChanngel(worldPromise, notifier) {
                     const channelManager = new F.manager.ChannelManager();
                     const worldChannel = channelManager.getWorldChannel(world);
 
-                    worldChannel.subscribe('presence', (user, meta)=> {
+                    subsid = worldChannel.subscribe('presence', (user, meta)=> {
                         console.log('presence', user, meta);
                         const userid = user.id;
                         store.mark(userid, user.isOnline);
