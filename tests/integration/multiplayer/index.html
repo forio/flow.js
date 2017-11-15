@@ -9,51 +9,23 @@
     <script src="http://local.forio.com:8084/dist/epicenter-edge.js"></script>
     <!-- <script src="/node_modules/epicenter-js/dist/epicenter.min.js"></script> -->
     <script src="/dist/flow-edge.js"></script>
-    <style>
-        .user {
-          margin: 4em 1em;
-          position: relative;
-          display: inline-block;
-          
-          background: yellow;
-          width: 40px;
-          height: 40px;
-          border-radius: 60%;
-          
-        }
-        .user:after {
-            content: '';
-            position: absolute;
-            right: -.3rem;
-            bottom: 0rem;
-            width: 16px;
-            height: 16px;
-            border-radius: 60%;
-            border: 6px solid #fff;
-        }
-
-        .user.online:after {
-            background: -webkit-linear-gradient(top, #71c100, #518d44);
-        }
-        .user.offline:after {
-            background: -webkit-linear-gradient(top, red, #cc0000);
-        }
-    </style>
 </head>
 
 <body class="container">
 
     <div class="chat-bar">
         <ul data-f-foreach="u in users | except(isMe)">
-            <li class="user <%= u.isOnline ? 'online' : 'offline' %>">
-                <%= u.userName %>
+            <li title="<%= u.userName %>" class="user <%= u.isOnline ? 'online' : 'offline' %>">
+                <img src="https://api.adorable.io/avatars/40/<%= u.role %>.png" alt="">
             </li>
         </ul>
     </div>
 
-    <h1 data-f-bind="user:userId"></h1>
-    <h2 data-f-bind="user:role"></h2>
-    <h4 data-f-bind="user:userName"></h4>
+    <div class="content">
+        <h6>My Role</h6>
+        <h2 data-f-bind="user:role"></h2>
+        <h4 data-f-bind="user:userName"></h4>
+    </div>
     <div>
         <h6>Price</h6>
         <div data-f-bind="Price"></div>

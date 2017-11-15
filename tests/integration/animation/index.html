@@ -2,8 +2,9 @@
 
 <head>
     <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css">
-    <link rel="stylesheet"
-     href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.5.2/animate.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.5.2/animate.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/magic/1.1.0/magic.css">
+
     <script src="/node_modules/jquery/dist/jquery.min.js"></script>
     <script src="/node_modules/lodash/lodash.js"></script>
     <script src="/node_modules/epicenter-js/dist/epicenter.min.js"></script>
@@ -22,10 +23,10 @@
         [data-change-initial] {
             animation: fadeIn 1s;
         }
-        [data-change]:not([data-change-initial]) {
-            animation: highlight 1s;
+        [data-update]:not([data-initial]) {
+            animation: tinUpIn 1s;
          }
-        [data-add]:not([data-change-initial]) {
+        [data-add]:not([data-initial]) {
             animation: fadeInUpBig 1s;
         }
     </style>
