@@ -81,14 +81,15 @@ export default function RunRouter(config, notifier) {
             //FIXME: Provide subscription fn to individual channels and let them handle it
             rs.channel.subscribe('variables', (data, meta)=> {
                 variableschannel.notify(data, meta);
-            }, subscribeOpts);
+            }, this, subscribeOpts);
             rs.channel.subscribe('operation', (data, meta)=> {
                 operationsChannel.notify(data, meta);
                 variableschannel.fetch();
-            }, subscribeOpts);
+            }, this, subscribeOpts);
+            //
             rs.channel.subscribe('reset', (data, meta)=> {
                 operationsChannel.notify({ name: 'reset', result: data }, meta);
-            }, subscribeOpts);
+            }, this, subscribeOpts);
 
             rs.channel.subscribe('', (data, meta)=> {
                 console.log('everything', data, meta);
