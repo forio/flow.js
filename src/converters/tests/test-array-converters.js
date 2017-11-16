@@ -65,15 +65,18 @@ describe('#Array converters', ()=> {
             cm.convert([1, 2, 3], 'reverse').should.eql([3, 2, 1]);
         });
     });
-    describe('#pickEvery', ()=> {
+    describe.only('#pickEvery', ()=> {
         it('should pick every nth element provided', ()=> {
             cm.convert([1, 2, 3, 4], 'pickEvery(2)').should.eql([2, 4]);
+            cm.convert([1, 2, 3, 4, 5, 6, 7], 'pickEvery(3)').should.eql([3, 6]);
+            cm.convert([0, 1, 2, 3, 4, 5, 6, 7, 8, 9], 'pickEvery(5)').should.eql([4, 9]);
         });
         it('should allow picking the start index', ()=> {
             cm.convert([1, 2, 3, 4], 'pickEvery(2, 1)').should.eql([2, 4]);
             cm.convert([1, 2, 3, 4], 'pickEvery(2, 0)').should.eql([1, 3]);
             cm.convert([1, 2, 3, 4], 'pickEvery(2, 7)').should.eql([]);
             cm.convert([1, 2, 3, 4], 'pickEvery(1, 3)').should.eql([4]);
+            cm.convert([0, 1, 2, 3, 4, 5, 6, 7, 8, 9], 'pickEvery(5, 0)').should.eql([0, 5]);
         });
         it('should allow objects', ()=> {
             cm.convert({ a: [1, 2, 3, 4], b: [4, 5, 6, 7] }, 'pickEvery(2)').should.eql({ a: [2, 4], b: [5, 7] });

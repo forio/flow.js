@@ -86,12 +86,36 @@ const list = {
         return (val.length <= 1) ? val[0] : val[val.length - 2];
     },
 
-    size: (val)=> [].concat(val).length,
+    /**
+     * Returns length of array
+     *
+     * **Example**
+     * Total Items: <h6 data-f-bind="items | size"></h6>
+     * 
+     * @param  {any[]} src array
+     * @return {number}     length of array
+     */
+    size: (src)=> [].concat(src).length,
 
-    pickEvery: function (n, startIndex, val, matched) {
+    /**
+     * Select every nth item from array
+     *
+     * **Example**
+     * <!-- select every 10th item starting from itself
+     * <ul data-f-foreach="Time | pickEvery(10)"><li></li></ul>
+     * <!-- select every 10th item starting from the fifth
+     * <ul data-f-foreach="Time | pickEvery(10, 5)"><li></li></ul>
+     * 
+     * @param  {number} n          nth item to select
+     * @param  {number} [startIndex] index to start from
+     * @param  {any[]} [val]        source array
+     * @return {any[]}            shortened array
+     */
+    pickEvery: function (n, startIndex, val) {
         if (arguments.length === 3) { //eslint-disable-line
+            //last item is match string
             val = startIndex;
-            startIndex = 1;
+            startIndex = n - 1;
         }
         val = [].concat(val);
         val = val.slice(startIndex);
