@@ -14,107 +14,112 @@
 
 const _ = require('lodash');
 
-var list = [
-    {
-        alias: 'list',
-        /**
-         * Convert the input into an array. Concatenates all elements of the input.
-         *
-         * @param {*} val value to convert to Array
-         * @return {array} value converted to array
-         */
-        convert: function (val) {
-            return [].concat(val);
-        }
-    },
-    {
-        alias: 'last',
-        /**
-         * Select only the last element of the array.
-         *
-         * **Example**
-         *
-         *      <div>
-         *          In the current year, we have <span data-f-bind="Sales | last"></span> in sales.
-         *      </div>
-         *
-         * @param {array} val The array model variable.
-         * @return {*} last element of array
-         */
-        convert: function (val) {
-            val = [].concat(val);
-            return val[val.length - 1];
-        }
-    },
-    {
-        alias: 'reverse',
-        /**
-         * Reverse the array.
-         *
-         * **Example**
-         *
-         *      <p>Show the history of our sales, starting with the last (most recent):</p>
-         *      <ul data-f-foreach="Sales | reverse">
-         *          <li></li>
-         *      </ul>
-         *
-         * @param {array} val The array model variable.
-         * @returns {array} reversed array
-         */
-        convert: function (val) {
-            val = [].concat(val);
-            return val.reverse();
-        }
-    },
-    {
-        alias: 'first',
-        /**
-         * Select only the first element of the array.
-         *
-         * **Example**
-         *
-         *      <div>
-         *          Our initial investment was <span data-f-bind="Capital | first"></span>.
-         *      </div>
-         *
-         * @param {array} val The array model variable.
-         * @returns {*} first element of array
-         */
-        convert: function (val) {
-            val = [].concat(val);
-            return val[0];
-        }
-    },
-    {
-        alias: 'previous',
-        /**
-         * Select only the previous (second to last) element of the array.
-         *
-         * **Example**
-         *
-         *      <div>
-         *          Last year we had <span data-f-bind="Sales | previous"></span> in sales.
-         *      </div>
-         *
-         * @param {array} val The array model variable.
-         * @returns {*} previous (second to last) element of the array.
-         */
-        convert: function (val) {
-            val = [].concat(val);
-            return (val.length <= 1) ? val[0] : val[val.length - 2];
-        }
-    }
-];
+const list = {
+    /**
+     * Convert the input into an array. 
+     *
+     * @param {Array} val The array model variable.
+     * @returns {Array}
+     */
+    list: (val)=> [].concat(val),
 
-list.forEach(function (item) {
-    var oldfn = item.convert;
-    var newfn = function (val) {
-        if ($.isPlainObject(val)) {
-            return _.mapValues(val, oldfn);
+    /**
+     * Reverse the array.
+     *
+     * **Example**
+     *
+     *      <p>Show the history of our sales, starting with the last (most recent):</p>
+     *      <ul data-f-foreach="Sales | reverse">
+     *          <li></li>
+     *      </ul>
+     *
+     * @param {Array} val The array model variable.
+     * @returns {Array} the reversed array
+     */
+    reverse: (val)=> ([].concat(val)).reverse(),
+
+    /**
+     * Select only the last element of the array.
+     *
+     * **Example**
+     *
+     *      <div>
+     *          In the current year, we have <span data-f-bind="Sales | last"></span> in sales.
+     *      </div>
+     *
+     * @param {Array} val The array model variable.
+     * @returns {Any} last element of array
+     */
+    last: (val)=> {
+        val = [].concat(val);
+        return val[val.length - 1];
+    },
+
+    /**
+     * Select only the first element of the array.
+     *
+     * **Example**
+     *
+     *      <div>
+     *          Our initial investment was <span data-f-bind="Capital | first"></span>.
+     *      </div>
+     *
+     * @param {Array} val The array model variable.
+     * @returns {Any} first element of the array
+     */
+    first: (val)=> ([].concat(val))[0], 
+
+    /**
+     * Select only the previous (second to last) element of the array.
+     *
+     * **Example**
+     *
+     *      <div>
+     *          Last year we had <span data-f-bind="Sales | previous"></span> in sales.
+     *      </div>
+     *
+     * @param {Array} val The array model variable.
+     * @returns {Any} the previous (second to last) element of the array.
+     */
+    previous: (val)=> {
+        val = [].concat(val);
+        return (val.length <= 1) ? val[0] : val[val.length - 2];
+    },
+
+    pickEvery: function (n, startIndex, val, matched) {
+        if (arguments.length === 3) { //eslint-disable-line
+            val = startIndex;
+            startIndex = 1;
         }
-        return oldfn(val);
+        val = [].concat(val);
+        val = val.slice(startIndex);
+        return val.filter((item, index)=> {
+            return (index % n) === 0;
+        });
+    } 
+};
+
+const mapped = Object.keys(list).map(function (alias) {
+    const fn = list[alias];
+    const newfn = function () {
+        const args = _.toArray(arguments);
+        const indexOfActualValue = args.length - 2; //last item is the matchstring
+        const val = args[indexOfActualValue];
+        if ($.isPlainObject(val)) {
+            return Object.keys(val).reduce((accum, key)=> {
+                const arr = val[key];
+                const newArgs = args.slice();
+                newArgs[indexOfActualValue] = arr;
+                accum[key] = fn.apply(fn, newArgs);
+                return accum;
+            }, {});
+        }
+        return fn.apply(fn, arguments);
     };
-    item.convert = newfn;
-    item.acceptList = true;
+    return {
+        alias: alias,
+        acceptList: true,
+        convert: newfn,
+    };
 });
-module.exports = list;
+module.exports = mapped;
