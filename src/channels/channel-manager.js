@@ -1,5 +1,3 @@
-'use strict';
-
 import $ from 'jquery';
 import { normalizeParamOptions } from './channel-utils';
 import { uniqueId, isFunction, intersection, includes, uniq, isEqual } from 'lodash';

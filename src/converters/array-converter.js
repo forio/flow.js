@@ -86,6 +86,8 @@ const list = {
         return (val.length <= 1) ? val[0] : val[val.length - 2];
     },
 
+    size: (val)=> [].concat(val).length,
+
     pickEvery: function (n, startIndex, val, matched) {
         if (arguments.length === 3) { //eslint-disable-line
             val = startIndex;
@@ -96,7 +98,7 @@ const list = {
         return val.filter((item, index)=> {
             return (index % n) === 0;
         });
-    } 
+    },
 };
 
 const mapped = Object.keys(list).map(function (alias) {

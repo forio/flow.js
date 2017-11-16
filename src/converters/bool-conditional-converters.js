@@ -19,8 +19,6 @@
  *
  */
 
-'use strict';
-
 function parseArgs(trueVal, falseVal, input, matchString) {
     var toReturn = { trueVal: true, falseVal: false };
     switch (arguments.length) {

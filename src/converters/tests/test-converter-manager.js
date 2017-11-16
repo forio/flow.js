@@ -1,4 +1,4 @@
-var cm = require('src/converters/converter-manager.js');
+var cm = require('../converter-manager.js');
 
 describe('Converter Manager', function () {
     describe('#register', function () {
@@ -107,22 +107,17 @@ describe('Converter Manager', function () {
 
     describe('#replace', function () {
         it('should replace existing string converters with new ones', function () {
-            var conv = cm.getConverter('s');
-            conv.convert(1).should.equal('1');
+            const originalConv = cm.getConverter('s');
+            originalConv.convert(1).should.equal('1');
 
             cm.replace('s', function () {
                 return 'applesauce';
             });
 
-            conv = cm.getConverter('s');
-            conv.convert(1).should.equal('applesauce');
-        });
-    });
+            const newconv = cm.getConverter('s');
+            newconv.convert(1).should.equal('applesauce');
 
-    describe('default converters', function () {
-        require('./test-string-converters');
-        require('./test-array-converters');
-        require('./test-numberformat-converters');
-        require('./test-underscore-converters');
+            cm.replace('s', originalConv);
+        });
     });
 });

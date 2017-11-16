@@ -1,23 +1,34 @@
 const _ = require('lodash');
 
 const list = {
-    except: function (keyToReject, val) {
-        return _.reject([].concat(val), keyToReject);
+    except: function (valueToReject, val) {
+        return _.reject([].concat(val), valueToReject);
     },
-    filter: function (key, val) {
-        return _.filter([].concat(val), key);
+    filter: function (value, val) {
+        return _.filter([].concat(val), value);
     },
-    any: function (key, val) {
-        return _.some([].concat(val), key);
+    /**
+     * Checks if array contains *any* truthy value
+     *
+     * ** Example **
+     * <button data-f-disabled="users | any(isOnline) | not">Get Started</button>
+     * <button data-f-disabled="users | any({ isOnline: false })">Get Started</button>
+     * 
+     * @param  {string|object} value value to check for
+     * @param  {object[]} source The arrayed model variable
+     * @return {boolean}     True if match found in array
+     */
+    any: function (value, source) {
+        return _.some([].concat(source), value);
     },
-    all: function (key, val) {
-        return _.every([].concat(val), key);
+    every: function (value, source) {
+        return _.every([].concat(source), value);
     },
-    find: function (key, val) {
-        return _.find([].concat(val), key);
+    find: function (value, source) {
+        return _.find([].concat(source), value);
     },
 };
-const converters = Object.keys(list).map((name)=> {
+const converters = Object.values(list).map((name)=> {
     return {
         alias: name,
         acceptList: true,

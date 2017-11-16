@@ -1,3 +1,88 @@
+<!doctype html>
+<html>
+<head>
+    <link rel="stylesheet" href="http://forio.com/tools/contour/0.9.91/contour.min.css">
+    <style>
+        .chart {
+            float:left;
+            width: 450px;
+        }
+
+        .label-text {
+            font-family: monospace;
+            font-size: 12px;
+        }
+
+        .tooltip-sensor {
+        }
+
+        .line-marker {
+            stroke: #999;
+        }
+
+        .point-marker .text {
+            fill: #222;
+            stroke: none;
+            font-family: monospace;
+        }
+
+        .point-marker .outside {
+        }
+
+        .point-marker .inside {
+            fill-opacity: 0;
+            stroke: #fff;
+            stroke-width: 1.5px;
+        }
+
+        .series .area {
+            opacity: 0.55
+        }
+    </style>
+</head>
+<body>
+    <h3>Data Legends</h3>
+    <div id="chart1" class="chart"></div>
+
+    <script src="http://d3js.org/d3.v3.min.js" charset="utf-8"></script>
+    <script src="http://cdnjs.cloudflare.com/ajax/libs/lodash.js/2.4.1/lodash.js"></script>
+    <script src="http://forio.com/tools/contour/0.9.91/contour.js"></script>
+    <script src="multi-tooltip.js"></script>
+    <script>
+
+        var data = [{
+            name: 'First Series',
+            data: [1,2,3,4,5,6]
+        },{
+            name: 'Second Series',
+            data: [6,5,4,3,2,1]
+
+        },{
+            name: 'Third Series',
+            data: [5,4,2,5,7,4]
+        }];
+
+        var chart = new Contour({
+            el: '#chart1',
+            chart: {
+                gridlines: 'horizontal'
+            },
+            line: {
+                stacked: true,
+                marker: {
+                    enable: false
+                }
+            }
+        })
+        .cartesian()
+        .area(data)
+        .line(data, {stacked: true})
+        .multiTooltip(data)
+        .render();
+
+    </script>
+</body>
+</html>
 <html>
 
 <head>
