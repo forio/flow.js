@@ -47,9 +47,20 @@ module.exports = {
      * @param {Any} value
      * @return {Boolean}
      */
-    toBool: function (value) {
-        return !!value;
-    },
+    toBool: (value)=> !!value,
+
+    /**
+     * Converts values to boolean and negates.
+     *
+     * **Example**
+     *
+     *      <!-- disables input if isGameInProgress is false -->
+     *      <input type="text" data-f-disabled="isGameInProgress | not" />
+     * 
+     * @param {Any} value
+     * @return {Boolean}
+     */
+    not: (value)=> !value,
 
     /**
      * Convert the input to a new value (for example, some text), based on whether it is true or false.

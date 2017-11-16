@@ -19,12 +19,11 @@
             }
         }
 
-
-        [data-change-initial] {
+        [data-initial] {
             animation: fadeIn 1s;
         }
         [data-update]:not([data-initial]) {
-            animation: tinUpIn 1s;
+            animation: highlight 1s;
          }
         [data-add]:not([data-initial]) {
             animation: fadeInUpBig 1s;
