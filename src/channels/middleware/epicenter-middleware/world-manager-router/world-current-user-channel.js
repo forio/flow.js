@@ -7,21 +7,17 @@ export default function WorldUsersChanngel(worldPromise, notifier) {
 
     const am = new F.manager.AuthManager();
     const store = am.getCurrentUserSessionInfo();
+    const channelManager = new F.manager.ChannelManager();
 
-    worldPromise.then((world)=> {
-       
-    });
-    
     return { 
-        unsubscribeHandler: function (userid) {
-            // delete subscribedUsers[userid];
-            // if (!Object.keys(subscribedUsers).length) {
-            //     notificationsChannel.unsubscribe(subsid);
-            //     subsid = null;
-            // }
+        unsubscribeHandler: function (unsubscribedTopics, remainingTopics) {
+            if (!remainingTopics.length && subsid) {
+                subsid = null;
+                // channelManager.unsubscribe(subsid);
+            }
         },
         subscribeHandler: function (userFields) {
-            worldPromise.then((world)=> {
+            return worldPromise.then((world)=> {
                 const session = am.getCurrentUserSessionInfo();
                 const myUser = _.find(world.users, (user)=> {
                     return user.userId === session.userId;
@@ -37,7 +33,6 @@ export default function WorldUsersChanngel(worldPromise, notifier) {
                 notifier(toNotify);
                 
                 if (!subsid) {
-                    const channelManager = new F.manager.ChannelManager();
                     const worldChannel = channelManager.getWorldChannel(world);
                     subsid = worldChannel.subscribe('roles', (user, meta)=> {
                         console.log('Roles notification', user, meta);

@@ -15,8 +15,8 @@ export default function WorldUsersChanngel(worldPromise, notifier) {
             return store.users;
         }
     };
+    const channelManager = new F.manager.ChannelManager();
 
-    // const p = new F.service.presence();
     const parsedUsersPromise = worldPromise.then((world)=> {
         const am = new F.manager.AuthManager();
         const session = am.getCurrentUserSessionInfo();
@@ -31,21 +31,18 @@ export default function WorldUsersChanngel(worldPromise, notifier) {
     });
     
     return { 
-        unsubscribeHandler: function (userid) {
-            // delete subscribedUsers[userid];
-            // if (!Object.keys(subscribedUsers).length) {
-            //     notificationsChannel.unsubscribe(subsid);
-            //     subsid = null;
-            // }
+        unsubscribeHandler: function (knownTopics, remainingTopics) {
+            if (!remainingTopics.length && subsid) {
+                subsid = null;
+                // channelManager.unsubscribe(subsid);
+            }
         },
         subscribeHandler: function (userids) {
             if (!subsid) {
                 worldPromise.then((world)=> {
-                    const channelManager = new F.manager.ChannelManager();
                     const worldChannel = channelManager.getWorldChannel(world);
-
                     subsid = worldChannel.subscribe('presence', (user, meta)=> {
-                        console.log('presence', user, meta);
+                        // console.log('presence', user, meta);
                         const userid = user.id;
                         store.mark(userid, user.isOnline);
 
