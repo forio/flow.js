@@ -5,7 +5,7 @@ function getConverter(name) {
     return conv.convert;
 }
 
-describe.only('Collection Converters', ()=> {
+describe('Collection Converters', ()=> {
     describe('#any', ()=> {
         const any = getConverter('any');
         const src = [{ name: 'John', isOnline: false }, { name: 'Wayne', isOnline: true }];

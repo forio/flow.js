@@ -18,8 +18,8 @@ const list = {
     /**
      * Convert the input into an array. 
      *
-     * @param {Array} val The array model variable.
-     * @returns {Array}
+     * @param {any[]} val The array model variable.
+     * @returns {any[]}
      */
     list: (val)=> [].concat(val),
 
@@ -33,8 +33,8 @@ const list = {
      *          <li></li>
      *      </ul>
      *
-     * @param {Array} val The array model variable.
-     * @returns {Array} the reversed array
+     * @param {any[]} val The array model variable.
+     * @returns {any[]} the reversed array
      */
     reverse: (val)=> ([].concat(val)).reverse(),
 
@@ -47,8 +47,8 @@ const list = {
      *          In the current year, we have <span data-f-bind="Sales | last"></span> in sales.
      *      </div>
      *
-     * @param {Array} val The array model variable.
-     * @returns {Any} last element of array
+     * @param {any[]} val The array model variable.
+     * @returns {any} last element of array
      */
     last: (val)=> {
         val = [].concat(val);
@@ -64,8 +64,8 @@ const list = {
      *          Our initial investment was <span data-f-bind="Capital | first"></span>.
      *      </div>
      *
-     * @param {Array} val The array model variable.
-     * @returns {Any} first element of the array
+     * @param {any[]} val The array model variable.
+     * @returns {any} first element of the array
      */
     first: (val)=> ([].concat(val))[0], 
 
@@ -78,8 +78,8 @@ const list = {
      *          Last year we had <span data-f-bind="Sales | previous"></span> in sales.
      *      </div>
      *
-     * @param {Array} val The array model variable.
-     * @returns {Any} the previous (second to last) element of the array.
+     * @param {any[]} val The array model variable.
+     * @returns {any} the previous (second to last) element of the array.
      */
     previous: (val)=> {
         val = [].concat(val);

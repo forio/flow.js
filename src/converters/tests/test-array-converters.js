@@ -65,7 +65,7 @@ describe('#Array converters', ()=> {
             cm.convert([1, 2, 3], 'reverse').should.eql([3, 2, 1]);
         });
     });
-    describe.only('#pickEvery', ()=> {
+    describe('#pickEvery', ()=> {
         it('should pick every nth element provided', ()=> {
             cm.convert([1, 2, 3, 4], 'pickEvery(2)').should.eql([2, 4]);
             cm.convert([1, 2, 3, 4, 5, 6, 7], 'pickEvery(3)').should.eql([3, 6]);

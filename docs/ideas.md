@@ -15,9 +15,6 @@ Multiplayer
                 - Style with css variables for icon/text etc?
     }
 
-    - List users in world
-    - Filter by online users
-
     - create world channel?
         world:users
         world:role
@@ -55,9 +52,6 @@ Make the users channel aware of if it's a multiplayer game or not.
 </ul>
 ```
 
-To know if someone is online
-- Need to get initial list to track
-    -  either from group or by world
 - Listen on either group channel or world channel for online/offline notifications
     ? Why not always the group channel?
 
