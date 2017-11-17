@@ -11,10 +11,15 @@ export default function WorldUsersChanngel(worldPromise, notifier) {
 
     return { 
         unsubscribeHandler: function (unsubscribedTopics, remainingTopics) {
-            if (!remainingTopics.length && subsid) {
-                subsid = null;
-                // channelManager.unsubscribe(subsid);
+            if (remainingTopics.length || !subsid) {
+                return;
             }
+
+            worldPromise.then((world)=> {
+                const worldChannel = channelManager.getWorldChannel(world);
+                worldChannel.unsubscribe(subsid);
+            });
+            subsid = null;
         },
         subscribeHandler: function (userFields) {
             return worldPromise.then((world)=> {
@@ -32,10 +37,11 @@ export default function WorldUsersChanngel(worldPromise, notifier) {
                 }, []);
                 notifier(toNotify);
                 
+                //TODO: Also subscribe to presence?
                 if (!subsid) {
                     const worldChannel = channelManager.getWorldChannel(world);
                     subsid = worldChannel.subscribe('roles', (user, meta)=> {
-                        console.log('Roles notification', user, meta);
+                        // console.log('Roles notification', user, meta);
                         if (user.userId === store.userId && user.role !== store.role) {
                             store.role = user.role;
                             notifier([{ name: 'role', value: user.role }]);

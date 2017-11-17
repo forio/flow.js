@@ -32,10 +32,16 @@ export default function WorldUsersChanngel(worldPromise, notifier) {
     
     return { 
         unsubscribeHandler: function (knownTopics, remainingTopics) {
-            if (!remainingTopics.length && subsid) {
-                subsid = null;
-                // channelManager.unsubscribe(subsid);
+            if (remainingTopics.length || !subsid) {
+                return;
             }
+
+            worldPromise.then((world)=> {
+                const worldChannel = channelManager.getWorldChannel(world);
+                worldChannel.unsubscribe(subsid);
+                subsid = null;
+            });
+
         },
         subscribeHandler: function (userids) {
             if (!subsid) {
