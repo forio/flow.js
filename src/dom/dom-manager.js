@@ -169,8 +169,6 @@ module.exports = (function () {
                 el: domEl
             });
 
-            const me = this;
-
             const filterPrefix = `data-${config.prefix}-`;
             const attrList = {};
             $(domEl.attributes).each(function (index, nodeMap) {

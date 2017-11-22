@@ -1,5 +1,5 @@
 import _ from 'lodash';
-import { objectToArray, arrayToObject } from 'channels/channel-utils';
+import { objectToArray } from 'channels/channel-utils';
 
 const F = window.F;
 
@@ -37,7 +37,7 @@ export default function (options, notifier) {
         publishHandler: function (topics, options, prefix) {
             //login, logout are only operations supported
             const $def = $.Deferred();
-            const res = topics.forEach((topic)=> {
+            topics.forEach((topic)=> {
                 const handler = supportedActions[topic.name];
                 if (handler) {
                     handler(topic.value);
