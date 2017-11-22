@@ -35,7 +35,6 @@ export default function WorldUsersChanngel(worldPromise, notifier) {
             if (remainingTopics.length || !subsid) {
                 return;
             }
-
             worldPromise.then((world)=> {
                 const worldChannel = channelManager.getWorldChannel(world);
                 worldChannel.unsubscribe(subsid);
@@ -60,6 +59,20 @@ export default function WorldUsersChanngel(worldPromise, notifier) {
             return parsedUsersPromise.then((users)=> {
                 return notifier([{ name: '', value: users }]);
             });
+        },
+        publishHandler: function (topics, options) {
+            const ps = new F.service.Presence();
+            topics.forEach((topic)=> {
+                const split = topic.name.split(':');
+                if (split[1]) {
+                    if (split[1] === 'markOnline') {
+                        ps.markOnline(split[0]);
+                    } else if (split[1] === 'markOffline') {
+                        ps.markOffline(split[0]);
+                    }
+                }
+            });
+            return topics;
         }
     };
 }
