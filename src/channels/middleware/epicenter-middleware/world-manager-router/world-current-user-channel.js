@@ -6,7 +6,10 @@ export default function WorldUsersChanngel(worldPromise, notifier) {
     let subsid;
 
     const am = new F.manager.AuthManager();
-    const store = am.getCurrentUserSessionInfo();
+    const store = $.extend(true, {
+        isMe: true,
+        isOnline: true,
+    }, am.getCurrentUserSessionInfo());
     const channelManager = new F.manager.ChannelManager();
 
     return { 
