@@ -1,5 +1,5 @@
-var utils = require('../../../testing-utils');
-var domManager = require('src/dom/dom-manager');
+import { initWithNode, createDummyChannel, spyOnNode } from 'tests/testing-utils';
+import domManager from 'src/dom/dom-manager';
 
 describe('select', function () {
     describe('input handlers', function () {
@@ -10,9 +10,9 @@ describe('select', function () {
                 '<option value="2"> B </option>',
                 '</select>'
             ].join('');
-            const channel = utils.createDummyChannel();
-            return utils.initWithNode(nodes, domManager, channel).then(function ($node) {
-                var spy = utils.spyOnNode($node);
+            const channel = createDummyChannel();
+            return initWithNode(nodes, domManager, channel).then(function ($node) {
+                var spy = spyOnNode($node);
                 $node.trigger('change');
                 spy.should.have.been.calledOnce;
             });
@@ -20,7 +20,7 @@ describe('select', function () {
 
 
         it('should pass the right value on change', function () {
-            var channel = utils.createDummyChannel();
+            var channel = createDummyChannel();
 
             var nodes = [
                 '<select data-f-bind="stuff">',
@@ -28,7 +28,7 @@ describe('select', function () {
                 '<option value="B"> B </option>',
                 '</select>'
             ].join('');
-            return utils.initWithNode(nodes, domManager, channel).then(function ($node) {
+            return initWithNode(nodes, domManager, channel).then(function ($node) {
                 var spy = sinon.spy();
                 $node.on('update.f.ui', spy);
 
@@ -51,8 +51,8 @@ describe('select', function () {
                 '<option value="2"> B </option>',
                 '</select>'
             ].join('');
-            const channel = utils.createDummyChannel();
-            return utils.initWithNode(nodes, domManager, channel).then(function ($node) {
+            const channel = createDummyChannel();
+            return initWithNode(nodes, domManager, channel).then(function ($node) {
                 return channel.publish({ stuff: 1 }).then(()=> {
                     $node.val().should.equal('1');
                 });
@@ -66,8 +66,8 @@ describe('select', function () {
                 '<option value="2" selected> B </option>',
                 '</select>'
             ].join('');
-            const channel = utils.createDummyChannel();
-            return utils.initWithNode(nodes, domManager, channel).then(function ($node) {
+            const channel = createDummyChannel();
+            return initWithNode(nodes, domManager, channel).then(function ($node) {
                 return channel.publish({ stuff: true }).then(()=> {
                     expect($node.val()).to.not.exist;
                 });

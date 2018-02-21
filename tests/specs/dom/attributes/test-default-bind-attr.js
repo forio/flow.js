@@ -1,7 +1,6 @@
-var domManager = require('src/dom/dom-manager');
-var utils = require('../../../testing-utils');
-
-var bindHandler = require('src/dom/attributes/binds/default-bind-attr');
+import { initWithNode, createDummyChannel } from 'tests/testing-utils';
+import domManager from 'src/dom/dom-manager';
+import bindHandler from 'src/dom/attributes/binds/default-bind-attr';
 
 describe('Default Bind', function () {
     describe('#handle', function () {
@@ -77,8 +76,8 @@ describe('Default Bind', function () {
         it('should output last values for arrays', function () {
             var targetData = { Price: [10, 30] };
 
-            const channel = utils.createDummyChannel();
-            return utils.initWithNode('<div data-f-bind="Price"> </div>', domManager, channel).then(function ($node) {
+            const channel = createDummyChannel();
+            return initWithNode('<div data-f-bind="Price"> </div>', domManager, channel).then(function ($node) {
                 return channel.publish(targetData).then(()=> {
                     $node.html().trim().should.equal('30');
                 });
@@ -87,8 +86,8 @@ describe('Default Bind', function () {
 
         it('should convert values to strings', function () {
             var targetData = { Price: false };
-            const channel = utils.createDummyChannel();
-            return utils.initWithNode('<div data-f-bind="Price"> </div>', domManager, channel).then(function ($node) {
+            const channel = createDummyChannel();
+            return initWithNode('<div data-f-bind="Price"> </div>', domManager, channel).then(function ($node) {
                 return channel.publish(targetData).then(()=> {
                     $node.html().trim().should.equal('false');
                 });
@@ -97,8 +96,8 @@ describe('Default Bind', function () {
         it('should templatize multiple-bound variables', function () {
             var targetData = { Price: '20', Sales: 30 };
 
-            const channel = utils.createDummyChannel();
-            return utils.initWithNode('<div data-f-bind="Price, Sales"> <%= Price %> <%= Sales %> </div>', domManager, channel).then(function ($node) {
+            const channel = createDummyChannel();
+            return initWithNode('<div data-f-bind="Price, Sales"> <%= Price %> <%= Sales %> </div>', domManager, channel).then(function ($node) {
                 return channel.publish(targetData).then(()=> {
                     $node.html().trim().should.equal('20 30');
                 });
@@ -107,8 +106,8 @@ describe('Default Bind', function () {
         it('should templatize single variables', function () {
             var targetData = { Price: '20' };
 
-            const channel = utils.createDummyChannel();
-            return utils.initWithNode('<div data-f-bind="Price"> <%= Price %> </div>', domManager, channel).then(function ($node) {
+            const channel = createDummyChannel();
+            return initWithNode('<div data-f-bind="Price"> <%= Price %> </div>', domManager, channel).then(function ($node) {
                 return channel.publish(targetData).then(()=> {
                     $node.html().trim().should.equal('20');
                 });
@@ -117,8 +116,8 @@ describe('Default Bind', function () {
         it('should allow templating by variable name for single items', function () {
             var targetData = { Price: '20', Sales: 30 };
 
-            const channel = utils.createDummyChannel();
-            return utils.initWithNode('<div data-f-bind="Price"> <%= value %> </div>', domManager, channel).then(function ($node) {
+            const channel = createDummyChannel();
+            return initWithNode('<div data-f-bind="Price"> <%= value %> </div>', domManager, channel).then(function ($node) {
                 return channel.publish(targetData).then(()=> {
                     $node.html().trim().should.equal('20');
                 });
@@ -128,8 +127,8 @@ describe('Default Bind', function () {
         it('should template arrays in accordance with converters', function () {
             var targetData = { Price: [10, 30] };
 
-            const channel = utils.createDummyChannel();
-            return utils.initWithNode('<div data-f-bind="Price|last"> <%= value %> </div>', domManager, channel).then(function ($node) {
+            const channel = createDummyChannel();
+            return initWithNode('<div data-f-bind="Price|last"> <%= value %> </div>', domManager, channel).then(function ($node) {
                 return channel.publish(targetData).then(()=> {
                     $node.html().trim().should.equal('30');
                 });
@@ -138,8 +137,8 @@ describe('Default Bind', function () {
         it('should template objects in accordance with converters', function () {
             var targetData = { Price: [10, 3000], Sales: [20, 1100] };
 
-            const channel = utils.createDummyChannel();
-            return utils.initWithNode('<div data-f-bind="Price, Sales | #,### |last"> <%= Price %> <%= Sales %> </div>', domManager, channel).then(function ($node) {
+            const channel = createDummyChannel();
+            return initWithNode('<div data-f-bind="Price, Sales | #,### |last"> <%= Price %> <%= Sales %> </div>', domManager, channel).then(function ($node) {
                 return channel.publish(targetData).then(()=> {
                     $node.html().trim().should.equal('3,000 1,100');
                 });
@@ -160,8 +159,8 @@ describe('Default Bind', function () {
         }
         describe('without templates', ()=> {
             it('should animate if value changed', ()=> {
-                const channel = utils.createDummyChannel();
-                return utils.initWithNode('<div data-f-bind="Price"></div>', domManager, channel).then(function ($node) {
+                const channel = createDummyChannel();
+                return initWithNode('<div data-f-bind="Price"></div>', domManager, channel).then(function ($node) {
                     const el = $node.get(0);
                     expect(el.hasAttribute('data-change')).to.equal(false);
 
@@ -169,8 +168,8 @@ describe('Default Bind', function () {
                 });
             });
             it('should not animate if initial value doesn\'t change', ()=> {
-                const channel = utils.createDummyChannel();
-                return utils.initWithNode('<div data-f-bind="Price">30</div>', domManager, channel).then(function ($node) {
+                const channel = createDummyChannel();
+                return initWithNode('<div data-f-bind="Price">30</div>', domManager, channel).then(function ($node) {
                     const el = $node.get(0);
                     expect(el.hasAttribute('data-change')).to.equal(false);
 
@@ -178,9 +177,9 @@ describe('Default Bind', function () {
                 });
             });
             it('should not animate if later value doesn\'t change', ()=> {
-                const channel = utils.createDummyChannel();
+                const channel = createDummyChannel();
 
-                utils.initWithNode('<div data-f-bind="Price">30</div>', domManager, channel).then(function ($node) {
+                initWithNode('<div data-f-bind="Price">30</div>', domManager, channel).then(function ($node) {
                     const el = $node.get(0);
                     expect(el.hasAttribute('data-change')).to.equal(false);
 
@@ -193,8 +192,8 @@ describe('Default Bind', function () {
             });
         });
         it('should not add change attr if templated', ()=> {
-            const channel = utils.createDummyChannel();
-            utils.initWithNode('<div data-f-bind="Price"><%= value %></div>', domManager, channel).then(function ($node) {
+            const channel = createDummyChannel();
+            initWithNode('<div data-f-bind="Price"><%= value %></div>', domManager, channel).then(function ($node) {
                 const el = $node.get(0);
                 expect(el.hasAttribute('data-change')).to.equal(false);
 
