@@ -55,5 +55,17 @@ export function getConvertersForEl($el, attribute) {
         return [];
     }
    
-    return getAllConverters($el, attribute);
+    const converters = getAllConverters($el, attribute);
+    const resolvedConverters = converters.reduce((accum, val)=> {
+        if (val === 'inherit') {
+            const $parentEl = $el.parents('[data-f-convert]').eq(0);
+            const parentConv = getConvertersForEl($parentEl, attribute);
+            accum = accum.concat(parentConv);
+        } else {
+            accum = accum.concat(val);
+        }
+        return accum;
+    }, []);
+
+    return resolvedConverters;
 }

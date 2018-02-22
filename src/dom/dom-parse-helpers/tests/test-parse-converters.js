@@ -10,7 +10,11 @@ describe('#getConvertersForEl', ()=> {
         const config = getConvertersForEl(node, 'bind');
         expect(config).to.eql([]);
     });
-
+    it('should allow inline converters to override attr converters', ()=> {
+        const node = makeEl('<div data-f-bind="Price | foo" data-f-convert="bar"></div>');
+        const config = getConvertersForEl(node, 'bind');
+        expect(config).to.eql(['foo']);
+    });
     describe('inline converters', ()=> {
         it('should return items in convert attr', ()=> {
             const node = makeEl('<div data-f-bind="Price | foo"></div>');
@@ -69,5 +73,33 @@ describe('#getConvertersForEl', ()=> {
             expect(config).to.eql(['bar', 'foo']);
         });
     });
-    
+    describe('Inherit', ()=> {
+        it('should ignore if nothing to inherit from', ()=> {
+            const node = makeEl('<div data-f-convert="foo | inherit | bar"></div>');
+            const config = getConvertersForEl(node, 'bind');
+            expect(config).to.eql(['foo', 'bar']);
+        });
+        it('should inherit from parent if available', ()=> {
+            const node = makeEl(`
+                <div data-f-convert="bar">
+                    <span data-f-convert="foo | inherit | gaz"></span>
+                </div>
+            `).find('span');
+            const config = getConvertersForEl(node, 'bind');
+            expect(config).to.eql(['foo', 'bar', 'gaz']);
+        });
+        it('should handle nested inherits', ()=> {
+            const node = makeEl(`
+            <div data-f-convert="bar">
+                <div>
+                    <div data-f-convert="blah | inherit">
+                        <span data-f-convert="foo | inherit | gaz"></span>
+                    </div>
+                </div>
+            </div>
+        `).find('span');
+            const config = getConvertersForEl(node, 'bind');
+            expect(config).to.eql(['foo', 'blah', 'bar', 'gaz']);
+        });
+    });
 });

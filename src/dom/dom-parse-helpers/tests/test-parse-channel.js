@@ -1,5 +1,6 @@
 import { create } from 'tests/testing-utils';
 import { getChannelConfigForElement } from '../parse-channel';
+import { expect } from 'chai';
 
 describe('Parse Channel', ()=> {
     describe('#getChannelConfigForElement', ()=> {
