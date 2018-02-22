@@ -14,35 +14,65 @@ describe('#Array converters', ()=> {
     });
 
     describe('#last', ()=> {
-        it('should return the last item in array with multiple items', ()=> {
-            cm.convert([1, 2, 3], 'last').should.equal(3);
+        describe('with no params', ()=> {
+            it('should return the last item in array with multiple items', ()=> {
+                const op = cm.convert([1, 2, 3], 'last');
+                op.should.equal(3);
+            });
+            it('should return the only item in array with single items', ()=> {
+                cm.convert([1], 'last').should.equal(1);
+            });
+            it('should nothing for empty arrays', ()=> {
+                expect(cm.convert([], 'last')).to.not.exist;
+                expect(cm.convert(null, 'last')).to.not.exist;
+            });
+            it('should convert objects', ()=> {
+                cm.convert({ a: [1, 2], b: [2, 4] }, 'last').should.eql({ a: 2, b: 4 });
+            });
         });
-        it('should return the only item in array with single items', ()=> {
-            cm.convert([1], 'last').should.equal(1);
-        });
-        it('should nothing for empty arrays', ()=> {
-            expect(cm.convert([], 'last')).to.not.exist;
-            expect(cm.convert(null, 'last')).to.not.exist;
-        });
-        it('should convert objects', ()=> {
-            cm.convert({ a: [1, 2], b: [2, 4] }, 'last').should.eql({ a: 2, b: 4 });
+        describe('with limit', ()=> {
+            it('should return the last item in array with multiple items', ()=> {
+                const op = cm.convert([1, 2, 3], 'last(2)');
+                op.should.eql([2, 3]);
+            });
+            it('should nothing for empty arrays', ()=> {
+                expect(cm.convert([], 'last(2)')).to.not.exist;
+            });
+            it('should convert objects', ()=> {
+                cm.convert({ a: [1, 2, 2], b: [2, 4, 5] }, 'last(2)').should.eql({ a: [2, 2], b: [4, 5] });
+            });
         });
     });
 
     describe('#first', ()=> {
-        it('should return the first item in array with multiple items', ()=> {
-            cm.convert([1, 2, 3], 'first').should.equal(1);
+        describe('with no params', ()=> {
+            it('should return the first item in array with multiple items', ()=> {
+                cm.convert([1, 2, 3], 'first').should.equal(1);
+            });
+            it('should return the only item in array with single items', ()=> {
+                cm.convert([1], 'first').should.equal(1);
+            });
+            it('should nothing for empty arrays', ()=> {
+                expect(cm.convert([], 'first')).to.not.exist;
+                expect(cm.convert(null, 'first')).to.not.exist;
+            });
+            it('should convert objects', ()=> {
+                cm.convert({ a: [1, 2], b: [2, 4] }, 'first').should.eql({ a: 1, b: 2 });
+            });
         });
-        it('should return the only item in array with single items', ()=> {
-            cm.convert([1], 'first').should.equal(1);
+        describe('with limit', ()=> {
+            it('should return the last item in array with multiple items', ()=> {
+                const op = cm.convert([1, 2, 3], 'first(2)');
+                op.should.eql([1, 2]);
+            });
+            it('should nothing for empty arrays', ()=> {
+                expect(cm.convert([], 'first(2)')).to.not.exist;
+            });
+            it('should convert objects', ()=> {
+                cm.convert({ a: [1, 2, 2], b: [2, 4, 5] }, 'first(2)').should.eql({ a: [1, 2], b: [2, 4] });
+            });
         });
-        it('should nothing for empty arrays', ()=> {
-            expect(cm.convert([], 'first')).to.not.exist;
-            expect(cm.convert(null, 'first')).to.not.exist;
-        });
-        it('should convert objects', ()=> {
-            cm.convert({ a: [1, 2], b: [2, 4] }, 'first').should.eql({ a: 1, b: 2 });
-        });
+        
     });
 
     describe('#previous', ()=> {

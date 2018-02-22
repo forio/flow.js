@@ -14,6 +14,26 @@
 
 const _ = require('lodash');
 
+function parseLimitArgs(starting, limit, val) {
+    let toRet = {};
+    if (arguments.length === 3) { //eslint-disable-line
+        toRet = {
+            input: limit,
+            limit: starting
+        };
+    } else if (arguments.length === 2) {
+        toRet = {
+            input: starting
+        };
+    } else {
+        console.error('Too many arguments passed to last', arguments);
+        throw new Error('Too many arguments passed to last');
+    }
+
+    toRet.input = [].concat(toRet.input);
+    return toRet;
+}
+
 const list = {
     /**
      * Convert the input into an array. 
@@ -47,12 +67,17 @@ const list = {
      *          In the current year, we have <span data-f-bind="Sales | last"></span> in sales.
      *      </div>
      *
+     * @param {number} n number of items to get
      * @param {any[]} val The array model variable.
      * @returns {any} last element of array
      */
-    last: (val)=> {
-        val = [].concat(val);
-        return val[val.length - 1];
+    last: function (n, val) {
+        const parsed = parseLimitArgs.apply(null, arguments);
+        const stripped = parsed.input.slice(-(parsed.limit || 1));
+        if (stripped.length <= 1) {
+            return stripped[0];
+        }
+        return stripped;
     },
 
     /**
@@ -64,10 +89,18 @@ const list = {
      *          Our initial investment was <span data-f-bind="Capital | first"></span>.
      *      </div>
      *
+     * @param {number} n number of items to get
      * @param {any[]} val The array model variable.
      * @returns {any} first element of the array
      */
-    first: (val)=> ([].concat(val))[0], 
+    first: function (n, val) {
+        const parsed = parseLimitArgs.apply(null, arguments);
+        const stripped = parsed.input.slice(0, (parsed.limit || 1));
+        if (stripped.length <= 1) {
+            return stripped[0];
+        }
+        return stripped;
+    },
 
     /**
      * Select only the previous (second to last) element of the array.
