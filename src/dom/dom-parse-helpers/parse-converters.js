@@ -1,8 +1,17 @@
+/**
+ * @param {string} conv 
+ * @returns {string[]}
+ */
 function convertersToArray(conv) {
     if (!conv || !conv.trim()) return [];
     return conv.split('|').map((v)=> v.trim());
 }
 
+/**
+ * @param {JQuery<HTMLElement>} $el
+ * @param {string} attribute 
+ * @returns {string[]}
+ */
 function getConvertersFromAttr($el, attribute) {
     const attrVal = $el.attr(`data-f-${attribute}`);
     const withConv = convertersToArray(attrVal);
@@ -22,24 +31,29 @@ function findConvertersForEl($el) {
  * @returns {string[]} converters
  */
 export function getConvertersForEl($el, attribute) {
-    const convertersAsPipes = getConvertersFromAttr($el, attribute);
-    if (convertersAsPipes.length) {
-        return convertersAsPipes;
-    }
 
-    const whiteListedGenericAttributes = ['bind', 'foreach', 'repeat'];
-    if (whiteListedGenericAttributes.indexOf(attribute) === -1) {
+    function getAllConverters($el, attribute) {
+        const convertersAsPipes = getConvertersFromAttr($el, attribute);
+        if (convertersAsPipes.length) {
+            return convertersAsPipes;
+        }
+
+        const whiteListedGenericAttributes = ['bind', 'foreach', 'repeat'];
+        if (whiteListedGenericAttributes.indexOf(attribute) === -1) {
+            return [];
+        }
+
+        const convertersOnElement = findConvertersForEl($el);
+        if (convertersOnElement.length) {
+            return convertersOnElement;
+        }
+
+        const $parentEl = $el.closest('[data-f-convert]');
+        if ($parentEl) {
+            return findConvertersForEl($parentEl);
+        }
         return [];
     }
-
-    const convertersOnElement = findConvertersForEl($el);
-    if (convertersOnElement.length) {
-        return convertersOnElement;
-    }
-
-    const $parentEl = $el.closest('[data-f-convert]');
-    if ($parentEl) {
-        return findConvertersForEl($parentEl);
-    }
-    return [];
+   
+    return getAllConverters($el, attribute);
 }
