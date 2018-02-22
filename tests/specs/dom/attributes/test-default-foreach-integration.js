@@ -1,6 +1,6 @@
-var domManager = require('src/dom/dom-manager');
-var CManager = require('src/channels/channel-manager').default;
-var utils = require('../../../testing-utils');
+import { initWithNode, createDummyChannel } from 'tests/testing-utils';
+import domManager from 'src/dom/dom-manager';
+import CManager from 'src/channels/channel-manager';
 
 describe('integration', function () {
     it('should loop through children for elems with foreach=variableArray', function () {
@@ -12,7 +12,7 @@ describe('integration', function () {
             </ul>
         `;
         const channel = new CManager();
-        return utils.initWithNode(str, domManager, channel).then(function ($node) {
+        return initWithNode(str, domManager, channel).then(function ($node) {
             return channel.publish({ somearray: targetData }).then(()=> {
                 var newChildren = $node.children();
                 var childrenCount = newChildren.length;
@@ -39,8 +39,8 @@ describe('integration', function () {
                 <li data-stuff="<%=key%>"> <%= value %> </li>
             </ul>
         `;
-        const channel = utils.createDummyChannel();
-        return utils.initWithNode(str, domManager, channel).then(function ($node) {
+        const channel = createDummyChannel();
+        return initWithNode(str, domManager, channel).then(function ($node) {
             return channel.publish({ someobject: targetData }).then(()=> {
                 var newChildren = $node.children();
                 var childrenCount = newChildren.length;
@@ -69,8 +69,8 @@ describe('integration', function () {
                 <li> <%= (index === 0) ? "first" : value %> <%= value %></li>
             </ul>
         `;
-        const channel = utils.createDummyChannel();
-        return utils.initWithNode(str, domManager, channel).then(function ($node) {
+        const channel = createDummyChannel();
+        return initWithNode(str, domManager, channel).then(function ($node) {
             return channel.publish({ somearray: targetData }).then(()=> {
                 var newChildren = $node.children();
                 var childrenCount = newChildren.length;
@@ -99,8 +99,8 @@ describe('integration', function () {
             var targetData = [5, 3, 6, 1];
             var targetData2 = [5, 3];
 
-            const channel = utils.createDummyChannel();
-            return utils.initWithNode(`
+            const channel = createDummyChannel();
+            return initWithNode(`
                 <ul data-f-foreach="somearray">
                     <li data-f-foreach="somethingElse"> <span> </span> </li>
                 </ul>
@@ -122,8 +122,8 @@ describe('integration', function () {
             var targetData2 = [5, 3];
             var targetData3 = [1, 2, 4];
 
-            const channel = utils.createDummyChannel();
-            return utils.initWithNode(`
+            const channel = createDummyChannel();
+            return initWithNode(`
                 <ul data-f-foreach="somearray">
                     <li data-f-foreach="somethingElse"> <span> </span> </li>
                 </ul>
@@ -147,7 +147,7 @@ describe('integration', function () {
             var targetData2 = [3, 4];
 
             const channel = new CManager();
-            return utils.initWithNode(`
+            return initWithNode(`
                 <ul data-f-foreach="v1 in somearray">
                     <li data-f-foreach="v2 in somethingElse"> 
                         <div> <%= v1 %> <%= v2 %> </div>
@@ -182,8 +182,8 @@ describe('integration', function () {
                     </li>
                 </ul>
             `;
-            const channel = utils.createDummyChannel();
-            return utils.initWithNode(html, domManager, channel).then(function ($node) {
+            const channel = createDummyChannel();
+            return initWithNode(html, domManager, channel).then(function ($node) {
                 return channel.publish({ somearray: targetData, somethingElse: targetData2 }).then(()=> {
                     var op = ['smaller', 'smaller', 'greater', 'smaller'];
                     var c1 = $node.children();
@@ -206,8 +206,8 @@ describe('integration', function () {
             var targetData = [1, 2];
             var targetData2 = [3, 4];
 
-            const channel = utils.createDummyChannel();
-            return utils.initWithNode(`
+            const channel = createDummyChannel();
+            return initWithNode(`
                 <ul data-f-foreach="v1 in somearray">
                     <li data-f-foreach="somethingElse">
                         <div> <%= v1 %> <%= value %> </div>
@@ -234,8 +234,8 @@ describe('integration', function () {
             var targetData2 = [3, 4];
             var targetData3 = [5, 6];
 
-            var channel = utils.createDummyChannel();
-            return utils.initWithNode(`
+            var channel = createDummyChannel();
+            return initWithNode(`
                 <ul data-f-foreach="v1 in somearray">
                     <li class="p">
                         <ul class="ul1" data-f-foreach="v2 in somethingElse"> <li> <%= v1 %> <%= v2 %></li></ul>
@@ -270,8 +270,8 @@ describe('integration', function () {
             var targetData2 = [3, 4];
             var targetData3 = [5, 6];
 
-            var channel = utils.createDummyChannel();
-            return utils.initWithNode(`
+            var channel = createDummyChannel();
+            return initWithNode(`
                 <ul data-f-foreach="v1 in somearray"> 
                     <li class="p">
                         <ul class="ul1" data-f-foreach="v2 in somethingElse"> 
