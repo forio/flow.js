@@ -37,6 +37,7 @@ describe('Number format Converter', ()=> {
     describe('#convert', ()=> {
         it('should convert strings to formatted strings', ()=> {
             cm.convert('1000000', '$#,###.00').should.equal('$1,000,000.00');
+            cm.convert('1000000', '$#,###').should.equal('$1,000,000');
         });
         it('should convert numbers to formatted strings', ()=> {
             cm.convert(1000000, '$#,###.00').should.equal('$1,000,000.00');

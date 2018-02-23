@@ -90,16 +90,27 @@ describe('#getConvertersForEl', ()=> {
         });
         it('should handle nested inherits', ()=> {
             const node = makeEl(`
-            <div data-f-convert="bar">
-                <div>
-                    <div data-f-convert="blah | inherit">
-                        <span data-f-convert="foo | inherit | gaz"></span>
+                <div data-f-convert="bar">
+                    <div>
+                        <div data-f-convert="blah | inherit">
+                            <span data-f-convert="foo | inherit | gaz"></span>
+                        </div>
                     </div>
                 </div>
-            </div>
-        `).find('span');
+            `).find('span');
             const config = getConvertersForEl(node, 'bind');
             expect(config).to.eql(['foo', 'blah', 'bar', 'gaz']);
+        });
+        it('should handle nested inherits with plain leaf nodes', ()=> {
+            const node = makeEl(`
+                <table data-f-convert="pickEvery(1)">
+                    <tr data-f-convert="$#,###.00| inherit">
+                        <td data-f-repeat="Price"></td>
+                    </tr>
+                </table>
+            `);
+            const config = getConvertersForEl(node.find('td'), 'bind');
+            expect(config).to.eql(['$#,###.00', 'pickEvery(1)']);
         });
     });
 });

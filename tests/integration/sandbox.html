@@ -42,62 +42,11 @@
 </head>
 
 <body>
-<!--     Price
-    <div data-f-bind="Price"></div>
- -->
-
-    Price[step]
-    <div data-f-bind="Price[<STEP>]"></div>
-
-
-    <h6>Outputs</h6>
-    Price
-    <input type="text" id="txtPrice" data-f-bind="Price" /> Price[0]
-    <input type="text" id="txtPrice" data-f-bind="Price[0]" /> Price[<STEP>]
-        <input type="text" id="txtPrice" data-f-bind="Price[<STEP>]" />
-
-        <button data-f-on-click="step">Step</button>
-        <button data-f-on-click="reset">Reset</button>
-
-    Foreach
-    <div class="row">
-        <div class="col-xs-6">
-            <h6>Add to top</h6>
-            <table>
-                <tbody data-f-foreach="Price">
-                    <tr>
-                        <td><%= value %></td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
-        <div class="col-xs-6">
-            <h6>Add to bottom</h6>
-           <!--  <table>
-                <tbody data-f-foreach="Price | reverse">
-                    <tr>
-                        <td><%= value %></td>
-                    </tr>
-                </tbody>
-            </table> -->
-        </div>
-    </div>
-   
-    Repeat
-    <div class="row">
-        <div class="col-xs-6">
-            <table>
-                <tbody>
-                    <tr>
-                        <td data-f-repeat="Costs"></td>
-                        <th>Revenue</th>
-                        <td data-f-repeat="Revenue"></td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
-        <div class="col-xs-6"></div>
-    </div>
+    <table data-f-convert="pickEvery(1)">
+        <tr data-f-convert="$#,###.00| inherit">
+            <td data-f-repeat="Price">?</td>
+        </tr>
+    </table>
 
         <script>
             Flow.initialize({

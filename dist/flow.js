@@ -83,7 +83,7 @@ var Flow =
 /******/ 	__webpack_require__.p = "";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 12);
+/******/ 	return __webpack_require__(__webpack_require__.s = 13);
 /******/ })
 /************************************************************************/
 /******/ ([
@@ -109,9 +109,6 @@ module.exports = {
         //UI Change to publish to the channel.
         trigger: 'update.f.ui',
 
-        //Payload is of form {topic: value}. When triggered on a element dom-manager will trigger 'f.convert' on every attribute subscribed to that topic
-        channelDataReceived: 'update.f.model',
-
         //Trigger with payload '{attrToUpdate: value}', for e.g. { bind: 34 }. This will run this through all the converts and pass it to attr handler. Useful to by-pass getting this from the model directly.
         convert: 'f.convert',
 
@@ -120,28 +117,21 @@ module.exports = {
     },
 
     attrs: {
-        //Array with shape [{ attr: attribute, topics:[list of topics attribute is listening to]}]
-        bindingsList: 'f-attr-bindings',
-
-        //Subscription id returned by the channel. Used to ubsubscribe later
-        subscriptionId: 'subscription-id',
-
         //Used by the classes attr handler to keep track of which classes were added by itself
         classesAdded: 'f-added-classes',
 
         //Used by repeat attr handler to keep track of template after first evaluation
         repeat: {
-            template: 'repeat-template', //don't prefix by f or dom-manager unbind will kill it
-            templateId: 'repeat-template-id'
+            templateId: 'repeat-template-id' //don't prefix by f or dom-manager unbind will kill it
         },
 
-        //Used by foreach attr handler to keep track of template after first evaluation
-        foreachTemplate: 'f-foreach-template',
         keyAs: 'f-foreach-key-as',
-        valueAs: 'f-foreach-value-as',
-
-        //Used by bind attr handler to keep track of template after first evaluation
-        bindTemplate: 'f-bind-template'
+        valueAs: 'f-foreach-value-as'
+    },
+    animation: {
+        addAttr: 'data-add',
+        changeAttr: 'data-update',
+        initialAttr: 'data-initial'
     }
 };
 
@@ -150,9 +140,137 @@ module.exports = {
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
+/* harmony export (immutable) */ __webpack_exports__["g"] = stripSuffixDelimiter;
+/* harmony export (immutable) */ __webpack_exports__["d"] = prefix;
+/* harmony export (immutable) */ __webpack_exports__["a"] = defaultPrefix;
+/* harmony export (immutable) */ __webpack_exports__["e"] = regex;
+/* harmony export (immutable) */ __webpack_exports__["c"] = mapWithPrefix;
+/* harmony export (immutable) */ __webpack_exports__["i"] = withPrefix;
+/* harmony export (immutable) */ __webpack_exports__["h"] = unprefix;
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__silencable__ = __webpack_require__(52);
+/* harmony reexport (binding) */ __webpack_require__.d(__webpack_exports__, "f", function() { return __WEBPACK_IMPORTED_MODULE_0__silencable__["a"]; });
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__exclude_read_only__ = __webpack_require__(53);
+/* harmony reexport (binding) */ __webpack_require__.d(__webpack_exports__, "b", function() { return __WEBPACK_IMPORTED_MODULE_1__exclude_read_only__["a"]; });
+var CHANNEL_DELIMITER = ':';
+
+
+
+
+/**
+ * 
+ * @param {string} text
+ * @return {string}
+ */
+function stripSuffixDelimiter(text) {
+    if (text && text.indexOf(CHANNEL_DELIMITER) === text.length - 1) {
+        text = text.replace(CHANNEL_DELIMITER, '');
+    }
+    return text;
+}
+
+/**
+ * 
+ * @param {string} prefix
+ * @returns {matchFunction}
+ */
+function prefix(prefix) {
+    return function matchPrefix(topic) {
+        var hasPrefix = topic.indexOf(prefix) === 0;
+        if (hasPrefix) return prefix;
+
+        var isOnlyPrefix = prefix.replace(/:/g, '') === topic;
+        if (isOnlyPrefix) return topic;
+
+        return false;
+    };
+}
+
+/**
+* 
+* @param {string} prefix
+* @returns {matchFunction}
+*/
+function defaultPrefix(prefix) {
+    return function matchPrefix(topic) {
+        return prefix;
+    };
+}
+
+/**
+ * 
+ * @param {string} regex
+ * @returns {matchFunction}
+ */
+function regex(regex) {
+    var toMatch = new RegExp('^' + regex + CHANNEL_DELIMITER);
+    return function matchRegex(topic) {
+        var match = topic.match(toMatch);
+        if (match && match.length) {
+            return match[0];
+        }
+        return false;
+    };
+}
+
+/**
+ * 
+ * @param {Publishable[]} dataArray 
+ * @param {string} prefix 
+ * @return {Publishable[]} array with name prefixed
+ */
+function mapWithPrefix(dataArray, prefix) {
+    if (!prefix) return dataArray;
+    return (dataArray || []).map(function (datapt) {
+        var name = (prefix + datapt.name).replace(/:$/, ''); //replace trailing delimiters
+        return $.extend(true, {}, datapt, { name: name });
+    });
+}
+
+/**
+ * 
+ * @param {Function} callback 
+ * @param {string|string[]} prefixList
+ * @return {Function}
+ */
+function withPrefix(callback, prefixList) {
+    var arr = [].concat(prefixList);
+
+    /**
+     * @param {Publishable[]} data
+     */
+    return function (data) {
+        arr.forEach(function (prefix) {
+            var mapped = mapWithPrefix(data, prefix);
+            callback(mapped);
+        });
+    };
+}
+
+/**
+ * 
+ * @param {Publishable[]} list 
+ * @param {string} prefix
+ * @return {Publishable[]} Item with prefix removed
+ */
+function unprefix(list, prefix) {
+    if (!prefix) return list;
+    var unprefixed = list.map(function (item) {
+        if (item.name) {
+            return $.extend(true, {}, item, { name: item.name.replace(prefix, '') });
+        }
+        return item.replace(prefix, '');
+    });
+    return unprefixed;
+}
+
+/***/ }),
+/* 3 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
 Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "toImplicitType", function() { return toImplicitType; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "toOperationFormat", function() { return toOperationFormat; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "toPublishableFormat", function() { return toPublishableFormat; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "splitNameArgs", function() { return splitNameArgs; });
 
 
@@ -214,7 +332,7 @@ function splitUnescapedCommas(str) {
     return op;
 }
 
-function toOperationFormat(value) {
+function toPublishableFormat(value) {
     var split = (value || '').split('|');
     var listOfOperations = split.map(function (value) {
         value = value.trim();
@@ -237,7 +355,7 @@ function splitNameArgs(value) {
 
 
 /***/ }),
-/* 3 */
+/* 4 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -374,127 +492,6 @@ function groupSequentiallyByHandlers(data, handlers) {
 }
 
 /***/ }),
-/* 4 */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-/* harmony export (immutable) */ __webpack_exports__["g"] = stripSuffixDelimiter;
-/* harmony export (immutable) */ __webpack_exports__["d"] = prefix;
-/* harmony export (immutable) */ __webpack_exports__["a"] = defaultPrefix;
-/* harmony export (immutable) */ __webpack_exports__["e"] = regex;
-/* harmony export (immutable) */ __webpack_exports__["c"] = mapWithPrefix;
-/* harmony export (immutable) */ __webpack_exports__["i"] = withPrefix;
-/* harmony export (immutable) */ __webpack_exports__["h"] = unprefix;
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__silencable__ = __webpack_require__(47);
-/* harmony reexport (binding) */ __webpack_require__.d(__webpack_exports__, "f", function() { return __WEBPACK_IMPORTED_MODULE_0__silencable__["a"]; });
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__exclude_read_only__ = __webpack_require__(48);
-/* harmony reexport (binding) */ __webpack_require__.d(__webpack_exports__, "b", function() { return __WEBPACK_IMPORTED_MODULE_1__exclude_read_only__["a"]; });
-var CHANNEL_DELIMITER = ':';
-
-
-
-
-/**
- * 
- * @param {string} text
- * @return {string}
- */
-function stripSuffixDelimiter(text) {
-    if (text && text.indexOf(CHANNEL_DELIMITER) === text.length - 1) {
-        text = text.replace(CHANNEL_DELIMITER, '');
-    }
-    return text;
-}
-
-/**
- * 
- * @param {string} prefix
- * @returns {matchFunction}
- */
-function prefix(prefix) {
-    return function matchPrefix(topic) {
-        return topic.indexOf(prefix) === 0 ? prefix : false;
-    };
-}
-
-/**
-* 
-* @param {string} prefix
-* @returns {matchFunction}
-*/
-function defaultPrefix(prefix) {
-    return function matchPrefix(topic) {
-        return prefix;
-    };
-}
-
-/**
- * 
- * @param {string} regex
- * @returns {matchFunction}
- */
-function regex(regex) {
-    var toMatch = new RegExp('^' + regex + CHANNEL_DELIMITER);
-    return function matchRegex(topic) {
-        var match = topic.match(toMatch);
-        if (match && match.length) {
-            return match[0];
-        }
-        return false;
-    };
-}
-
-/**
- * 
- * @param {Publishable[]} dataArray 
- * @param {string} prefix 
- * @return {Publishable[]} array with name prefixed
- */
-function mapWithPrefix(dataArray, prefix) {
-    if (!prefix) return dataArray;
-    return (dataArray || []).map(function (datapt) {
-        return $.extend(true, {}, datapt, { name: prefix + datapt.name });
-    });
-}
-
-/**
- * 
- * @param {Function} callback 
- * @param {string[]} prefixList
- * @return {Function}
- */
-function withPrefix(callback, prefixList) {
-    prefixList = [].concat(prefixList);
-
-    /**
-     * @param {Publishable[]} data
-     */
-    return function (data) {
-        prefixList.forEach(function (prefix) {
-            var mapped = mapWithPrefix(data, prefix);
-            callback(mapped);
-        });
-    };
-}
-
-/**
- * 
- * @param {Publishable[]} list 
- * @param {string} prefix
- * @return {Publishable[]} Item with prefix removed
- */
-function unprefix(list, prefix) {
-    if (!prefix) return list;
-    var unprefixed = list.map(function (item) {
-        if (item.name) {
-            return $.extend(true, {}, item, { name: item.name.replace(prefix, '') });
-        }
-        return item.replace(prefix, '');
-    });
-    return unprefixed;
-}
-
-/***/ }),
 /* 5 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
@@ -503,8 +500,8 @@ function unprefix(list, prefix) {
 /* unused harmony export notifyUnsubscribeHandlers */
 /* unused harmony export passthroughPublishInterceptors */
 /* harmony export (immutable) */ __webpack_exports__["a"] = router;
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_channels_channel_utils__ = __webpack_require__(3);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_channels_middleware_utils__ = __webpack_require__(4);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_channels_channel_utils__ = __webpack_require__(4);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_channels_middleware_utils__ = __webpack_require__(2);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_lodash__ = __webpack_require__(0);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_lodash___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_2_lodash__);
 
@@ -630,13 +627,12 @@ function router(handlers) {
             return passthroughPublishInterceptors(myHandlers, data, options);
         },
 
-        // Ignoring till ready to implement
         addRoute: function (handler) {
             if (!handler || !handler.match) {
                 throw Error('Handler does not have a valid `match` property');
             }
             handler.id = __WEBPACK_IMPORTED_MODULE_2_lodash___default.a.uniqueId('routehandler-');
-            myHandlers.push(handler);
+            myHandlers.unshift(handler);
             return handler.id;
         },
         removeRoute: function (routeid) {
@@ -649,6 +645,289 @@ function router(handlers) {
 
 /***/ }),
 /* 6 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* unused harmony export VARIABLES_PREFIX */
+/* unused harmony export META_PREFIX */
+/* unused harmony export OPERATIONS_PREFIX */
+/* unused harmony export _shouldFetch */
+/* harmony export (immutable) */ __webpack_exports__["a"] = RunRouter;
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__run_meta_channel__ = __webpack_require__(49);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__run_variables_channel__ = __webpack_require__(50);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__run_operations_channel__ = __webpack_require__(51);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3_channels_channel_router__ = __webpack_require__(5);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4_channels_middleware_utils__ = __webpack_require__(2);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5_lodash__ = __webpack_require__(0);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5_lodash___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_5_lodash__);
+
+
+
+
+
+
+
+
+
+var VARIABLES_PREFIX = 'variables:';
+var META_PREFIX = 'meta:';
+var OPERATIONS_PREFIX = 'operations:';
+
+/**
+ * 
+ * @param {Publishable[]} result 
+ * @param {string[]} ignoreOperations 
+ * @returns {boolean}
+ */
+function _shouldFetch(result, ignoreOperations) {
+    var filtered = (result || []).filter(function (r) {
+        var name = r.name || '';
+        var isIgnored = (ignoreOperations || []).indexOf(name.replace(OPERATIONS_PREFIX, '')) !== -1;
+        var isVariable = name.indexOf(VARIABLES_PREFIX) === 0;
+        var isOperation = name.indexOf(OPERATIONS_PREFIX) === 0;
+
+        return isVariable || isOperation && !isIgnored;
+    });
+    return filtered.length > 0;
+}
+
+function RunRouter(config, notifier) {
+    var _this = this;
+
+    var defaults = {
+        serviceOptions: {},
+        channelOptions: {
+            variables: {
+                autoFetch: true,
+                debounce: 200,
+                silent: false,
+                readOnly: false
+            },
+            operations: {
+                readOnly: false,
+                silent: false
+            },
+            meta: {
+                silent: false,
+                autoFetch: true,
+                readOnly: ['id', 'created', 'account', 'project', 'model', 'lastModified']
+            }
+        }
+    };
+    var opts = $.extend(true, {}, defaults, config);
+
+    var serviceOptions = __WEBPACK_IMPORTED_MODULE_5_lodash___default.a.result(opts, 'serviceOptions');
+
+    var $initialProm = null;
+    if (serviceOptions instanceof window.F.service.Run) {
+        $initialProm = $.Deferred().resolve(serviceOptions).promise();
+    } else if (serviceOptions.then) {
+        $initialProm = serviceOptions;
+    } else {
+        var rs = new window.F.service.Run(serviceOptions);
+        $initialProm = $.Deferred().resolve(rs).promise();
+    }
+
+    var operationNotifier = Object(__WEBPACK_IMPORTED_MODULE_4_channels_middleware_utils__["i" /* withPrefix */])(notifier, OPERATIONS_PREFIX);
+    var variableNotifier = Object(__WEBPACK_IMPORTED_MODULE_4_channels_middleware_utils__["i" /* withPrefix */])(notifier, [VARIABLES_PREFIX, '']);
+
+    var metaChannel = new __WEBPACK_IMPORTED_MODULE_0__run_meta_channel__["a" /* default */]($initialProm, Object(__WEBPACK_IMPORTED_MODULE_4_channels_middleware_utils__["i" /* withPrefix */])(notifier, META_PREFIX));
+    var operationsChannel = new __WEBPACK_IMPORTED_MODULE_2__run_operations_channel__["a" /* default */]($initialProm, operationNotifier);
+    var variableschannel = new __WEBPACK_IMPORTED_MODULE_1__run_variables_channel__["a" /* default */]($initialProm, variableNotifier);
+
+    var subscribed = false;
+    $initialProm.then(function (rs) {
+        if (rs.channel && !subscribed) {
+            subscribed = true;
+
+            var subscribeOpts = { includeMine: false };
+            //FIXME: Exclude silenced -- let notify take care of this?
+            //FIXME: Provide subscription fn to individual channels and let them handle it
+            rs.channel.subscribe('variables', function (data, meta) {
+                variableschannel.notify(data, meta);
+                variableschannel.fetch();
+            }, _this, subscribeOpts);
+            rs.channel.subscribe('operation', function (data, meta) {
+                operationsChannel.notify(data, meta);
+                variableschannel.fetch();
+            }, _this, subscribeOpts);
+            //
+            rs.channel.subscribe('reset', function (data, meta) {
+                operationsChannel.notify({ name: 'reset', result: data }, meta);
+            }, _this, subscribeOpts);
+
+            rs.channel.subscribe('', function (data, meta) {
+                console.log('everything', data, meta);
+            });
+        }
+    });
+
+    var handlers = [$.extend({}, metaChannel, {
+        name: 'meta',
+        match: Object(__WEBPACK_IMPORTED_MODULE_4_channels_middleware_utils__["d" /* prefix */])(META_PREFIX),
+        options: opts.channelOptions.meta
+    }), $.extend({}, operationsChannel, {
+        name: 'operations',
+        match: Object(__WEBPACK_IMPORTED_MODULE_4_channels_middleware_utils__["d" /* prefix */])(OPERATIONS_PREFIX),
+        options: opts.channelOptions.operations
+    }), $.extend({}, variableschannel, {
+        isDefault: true,
+        name: 'variables',
+        match: Object(__WEBPACK_IMPORTED_MODULE_4_channels_middleware_utils__["a" /* defaultPrefix */])(VARIABLES_PREFIX),
+        options: opts.channelOptions.variables
+    })];
+
+    // router.addRoute(prefix('meta:'), metaChannel, opts.channelOptions.meta);
+
+    var runRouter = Object(__WEBPACK_IMPORTED_MODULE_3_channels_channel_router__["a" /* default */])(handlers);
+    var oldhandler = runRouter.publishHandler;
+    runRouter.publishHandler = function () {
+        var prom = oldhandler.apply(__WEBPACK_IMPORTED_MODULE_3_channels_channel_router__["a" /* default */], arguments);
+        return prom.then(function (result) {
+            //all the silencing will be taken care of by the router
+            var shouldFetch = _shouldFetch(result, ['reset']);
+            if (shouldFetch) {
+                variableschannel.fetch();
+            }
+            return result;
+        });
+    };
+    return runRouter;
+}
+
+/***/ }),
+/* 7 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
+/* harmony export (immutable) */ __webpack_exports__["_findMostConsequtive"] = _findMostConsequtive;
+/* harmony export (immutable) */ __webpack_exports__["addChangeClassesToList"] = addChangeClassesToList;
+/* harmony export (immutable) */ __webpack_exports__["addContentAndAnimate"] = addContentAndAnimate;
+function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+
+function _findMostConsequtive(arr, match) {
+    var reduced = arr.reduce(function (accum, val) {
+        if (val === match) {
+            if (accum.prev === match) {
+                accum.count = accum.count + 1;
+            } else {
+                accum.count = 1;
+            }
+        }
+        accum.maxCount = Math.max(accum.maxCount, accum.count);
+        accum.prev = val;
+        return accum;
+    }, { prev: null, count: 0, maxCount: 0 });
+    return reduced.maxCount;
+}
+
+function buildDiffArray(currentcontents, newContents) {
+    return newContents.map(function (contents, index) {
+        var isSame = contents === currentcontents[index];
+        return isSame;
+    });
+}
+
+function fill(count, val) {
+    var a = [];
+    for (var i = 0; i < count; i++) {
+        a.push(val);
+    }
+    return a;
+}
+
+function elToContents(el) {
+    //ignore data attributes for comparison
+    return el.outerHTML.replace(/\s?data-[a-zA-Z]*=['"][a-zA-Z0-9]*['"]/g, '').replace(/\s\s/g, ' ').trim();
+}
+
+function elementsToContents($els) {
+    return $els.map(function (index, child) {
+        return elToContents(child);
+    }).get();
+}
+
+var defaults = {
+    addAttr: 'data-add',
+    changeAttr: 'data-update',
+    initialAttr: 'data-initial'
+};
+
+/**
+ * Compares 2 lists and Adds add or update classes
+ * @param {JQuery<HTMLElement>} $currentEls existing elements
+ * @param {JQuery<HTMLElement>} $newEls   new elements
+ * @param {Boolean} isInitial check if this is initial data or it's updating
+ * @param {{ addAttr: string, changeAttr: string}} [options]
+ * @returns {JQuery<HTMLElement>} elements with updated attributes
+ */
+function addChangeClassesToList($currentEls, $newEls, isInitial, options) {
+    var opts = $.extend({}, defaults, options);
+
+    var currentcontents = elementsToContents($currentEls);
+    var newContents = elementsToContents($newEls);
+    var reversedContents = currentcontents;
+
+    //Guess if data was added to end or beginning of array
+    var diffFromEnd = buildDiffArray(currentcontents, newContents);
+    var diffFromBeginning = buildDiffArray(reversedContents.slice().reverse(), newContents.slice().reverse());
+
+    var endMatches = _findMostConsequtive(diffFromEnd, true);
+    var beginningMatches = _findMostConsequtive(diffFromBeginning, true);
+
+    var placeHoldersCount = newContents.length - currentcontents.length;
+    var placeHolders = fill(placeHoldersCount, undefined);
+
+    if (beginningMatches <= endMatches) {
+        currentcontents = currentcontents.concat(placeHolders);
+    } else {
+        currentcontents = placeHolders.concat(currentcontents);
+    }
+
+    for (var i = 0; i < newContents.length; i++) {
+        var $el = $newEls.eq(i);
+        var curr = currentcontents[i];
+        $el.removeAttr(opts.initialAttr);
+
+        var contents = elToContents($el.get(0));
+        if (curr === undefined) {
+            var _$el$attr;
+
+            $el.attr((_$el$attr = {}, _defineProperty(_$el$attr, opts.addAttr, true), _defineProperty(_$el$attr, opts.initialAttr, isInitial || null), _$el$attr));
+            $el.removeAttr(opts.changeAttr);
+        } else if (curr !== contents) {
+            var _$el$attr2;
+
+            $el.attr((_$el$attr2 = {}, _defineProperty(_$el$attr2, opts.changeAttr, true), _defineProperty(_$el$attr2, opts.initialAttr, isInitial || null), _$el$attr2));
+            $el.removeAttr(opts.addAttr);
+        } else {
+            $el.removeAttr(opts.addAttr + ' ' + opts.changeAttr);
+        }
+    }
+
+    return $newEls;
+}
+
+function addContentAndAnimate($el, newValue, isInitial, options) {
+    var opts = $.extend({}, defaults, options);
+    var current = $el.html().trim();
+
+    $el.removeAttr(opts.changeAttr + ' ' + opts.initialAttr);
+    if (current === ('' + newValue).trim()) {
+        return $el;
+    }
+
+    $el.html(newValue);
+    setTimeout(function () {
+        var _$el$attr3;
+
+        return $el.attr((_$el$attr3 = {}, _defineProperty(_$el$attr3, opts.changeAttr, true), _defineProperty(_$el$attr3, opts.initialAttr, isInitial || null), _$el$attr3), true);
+    }, 0); //need this to trigger animation
+}
+
+/***/ }),
+/* 8 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var _require = __webpack_require__(0),
@@ -727,121 +1006,14 @@ module.exports = {
 };
 
 /***/ }),
-/* 7 */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-/* harmony export (immutable) */ __webpack_exports__["a"] = RunRouter;
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__run_meta_channel__ = __webpack_require__(44);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__run_variables_channel__ = __webpack_require__(45);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__run_operations_channel__ = __webpack_require__(46);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3_channels_channel_router__ = __webpack_require__(5);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4_channels_middleware_utils__ = __webpack_require__(4);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5_lodash__ = __webpack_require__(0);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5_lodash___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_5_lodash__);
-
-
-
-
-
-
-
-
-
-function RunRouter(config, notifier) {
-    var defaults = {
-        serviceOptions: {},
-        channelOptions: {
-            variables: {
-                autoFetch: true,
-                debounce: 200,
-                silent: false,
-                readOnly: false
-            },
-            operations: {
-                readOnly: false,
-                silent: false
-            },
-            meta: {
-                silent: false,
-                autoFetch: true,
-                readOnly: ['id', 'created', 'account', 'project', 'model', 'lastModified']
-            }
-        }
-    };
-    var opts = $.extend(true, {}, defaults, config);
-
-    var serviceOptions = __WEBPACK_IMPORTED_MODULE_5_lodash___default.a.result(opts, 'serviceOptions');
-
-    var $initialProm = null;
-    if (serviceOptions instanceof window.F.service.Run) {
-        $initialProm = $.Deferred().resolve(serviceOptions).promise();
-    } else if (serviceOptions.then) {
-        $initialProm = serviceOptions;
-    } else {
-        var rs = new window.F.service.Run(serviceOptions);
-        $initialProm = $.Deferred().resolve(rs).promise();
-    }
-
-    var VARIABLES_PREFIX = 'variables:';
-    var META_PREFIX = 'meta:';
-    var OPERATIONS_PREFIX = 'operations:';
-
-    var metaChannel = new __WEBPACK_IMPORTED_MODULE_0__run_meta_channel__["a" /* default */]($initialProm, Object(__WEBPACK_IMPORTED_MODULE_4_channels_middleware_utils__["i" /* withPrefix */])(notifier, META_PREFIX));
-    var operationsChannel = new __WEBPACK_IMPORTED_MODULE_2__run_operations_channel__["a" /* default */]($initialProm, Object(__WEBPACK_IMPORTED_MODULE_4_channels_middleware_utils__["i" /* withPrefix */])(notifier, OPERATIONS_PREFIX));
-    var variableschannel = new __WEBPACK_IMPORTED_MODULE_1__run_variables_channel__["a" /* default */]($initialProm, Object(__WEBPACK_IMPORTED_MODULE_4_channels_middleware_utils__["i" /* withPrefix */])(notifier, [VARIABLES_PREFIX, '']));
-
-    var handlers = [$.extend({}, metaChannel, {
-        name: 'meta',
-        match: Object(__WEBPACK_IMPORTED_MODULE_4_channels_middleware_utils__["d" /* prefix */])(META_PREFIX),
-        options: opts.channelOptions.meta
-    }), $.extend({}, operationsChannel, {
-        name: 'operations',
-        match: Object(__WEBPACK_IMPORTED_MODULE_4_channels_middleware_utils__["d" /* prefix */])(OPERATIONS_PREFIX),
-        options: opts.channelOptions.operations
-    }), $.extend({}, variableschannel, {
-        isDefault: true,
-        name: 'variables',
-        match: Object(__WEBPACK_IMPORTED_MODULE_4_channels_middleware_utils__["a" /* defaultPrefix */])(VARIABLES_PREFIX),
-        options: opts.channelOptions.variables
-    })];
-
-    // router.addRoute(prefix('meta:'), metaChannel, opts.channelOptions.meta);
-
-    var runRouter = Object(__WEBPACK_IMPORTED_MODULE_3_channels_channel_router__["a" /* default */])(handlers, notifier);
-    var oldhandler = runRouter.publishHandler;
-    runRouter.publishHandler = function () {
-        var ignoreOperation = ['reset']; //don't fetch on reset since subscribed variables will be obsolete anyway
-        var prom = oldhandler.apply(__WEBPACK_IMPORTED_MODULE_3_channels_channel_router__["a" /* default */], arguments);
-        return prom.then(function (result) {
-            //all the silencing will be taken care of by the router
-            var shouldFetch = !!__WEBPACK_IMPORTED_MODULE_5_lodash___default.a.find(result, function (r) {
-                var isVariable = r.name.indexOf(VARIABLES_PREFIX) === 0;
-                var isOperation = r.name.indexOf(OPERATIONS_PREFIX) === 0;
-                var isIgnoredOperation = !!__WEBPACK_IMPORTED_MODULE_5_lodash___default.a.find(ignoreOperation, function (opnName) {
-                    return r.name.indexOf(opnName) !== -1;
-                });
-
-                return isVariable || isOperation && !isIgnoredOperation;
-            });
-            if (shouldFetch) {
-                variableschannel.fetch();
-            }
-            return result;
-        });
-    };
-    return runRouter;
-}
-
-/***/ }),
-/* 8 */
+/* 9 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 
 var config = __webpack_require__(1);
-var BaseView = __webpack_require__(9);
+var BaseView = __webpack_require__(10);
 
 module.exports = BaseView.extend({
     propertyHandlers: [],
@@ -863,10 +1035,8 @@ module.exports = BaseView.extend({
             this.$el.off(this.uiChangeEvent).on(this.uiChangeEvent, function () {
                 var val = me.getUIValue();
 
-                var params = {};
-                params[propName] = val;
-
-                me.$el.trigger(config.events.trigger, params);
+                var payload = [{ name: propName, value: val }];
+                me.$el.trigger(config.events.trigger, { data: payload, source: 'bind' });
             });
         }
         BaseView.prototype.initialize.apply(this, arguments);
@@ -874,13 +1044,13 @@ module.exports = BaseView.extend({
 }, { selector: 'input, select' });
 
 /***/ }),
-/* 9 */
+/* 10 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 
-var BaseView = __webpack_require__(10);
+var BaseView = __webpack_require__(11);
 
 module.exports = BaseView.extend({
     propertyHandlers: [],
@@ -889,7 +1059,7 @@ module.exports = BaseView.extend({
 }, { selector: '*' });
 
 /***/ }),
-/* 10 */
+/* 11 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var _require = __webpack_require__(0),
@@ -949,7 +1119,7 @@ View.extend = extendView;
 module.exports = View;
 
 /***/ }),
-/* 11 */
+/* 12 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -987,10 +1157,9 @@ function interpolateWithValues(topic, data) {
 }
 
 /***/ }),
-/* 12 */
+/* 13 */
 /***/ (function(module, exports, __webpack_require__) {
 
-"use strict";
 /**
  * ## Flow.js Initialization
  *
@@ -1056,13 +1225,10 @@ function interpolateWithValues(topic, data) {
  *
  */
 
+var domManager = __webpack_require__(14);
+var BaseView = __webpack_require__(11);
 
-
-var domManager = __webpack_require__(13);
-var BaseView = __webpack_require__(10);
-
-var ChannelManager = __webpack_require__(40).default;
-// var parseUtils = require('utils/parse-utils');
+var ChannelManager = __webpack_require__(45).default;
 
 var Flow = {
     dom: domManager,
@@ -1088,27 +1254,6 @@ var Flow = {
         };
 
         var options = $.extend(true, {}, defaults, config);
-        // var $root = $(options.dom.root);
-
-        // var initialFn = $root.data('f-on-init');
-        // //TOOD: Should move this to DOM Manager and just prioritize on-inits
-        // if (initialFn) {
-        //     var listOfOperations = _.invoke(initialFn.split('|'), 'trim');
-        //     listOfOperations = listOfOperations.map(function (value) {
-        //         var fnName = value.split('(')[0];
-        //         var params = value.substring(value.indexOf('(') + 1, value.indexOf(')'));
-        //         var args = ($.trim(params) !== '') ? params.split(',') : [];
-        //         args = args.map(function (a) {
-        //             return parseUtils.toImplicitType(a.trim());
-        //         });
-        //         var toReturn = {};
-        //         toReturn[fnName] = args;
-        //         return toReturn;
-        //     });
-
-        //     //TODO: Make a channel configuration factory which gets the initial info
-        //     options.channel.options.runManager.defaults.initialOperation = listOfOperations;
-        // }
 
         if (config && config.channel && config.channel instanceof ChannelManager) {
             this.channel = config.channel;
@@ -1134,7 +1279,7 @@ if (true) Flow.version = "0.11.0"; //eslint-disable-line no-undef
 module.exports = Flow;
 
 /***/ }),
-/* 13 */
+/* 14 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -1150,22 +1295,24 @@ module.exports = Flow;
 
 var _ = __webpack_require__(0);
 
-var _require = __webpack_require__(0),
-    isArray = _require.isArray,
-    includes = _require.includes,
-    pick = _require.pick,
-    without = _require.without;
+var _require = __webpack_require__(15),
+    getConvertersForEl = _require.getConvertersForEl,
+    getChannelForAttribute = _require.getChannelForAttribute,
+    getChannelConfigForElement = _require.getChannelConfigForElement,
+    parseTopicsFromAttributeValue = _require.parseTopicsFromAttributeValue;
+
+var _require2 = __webpack_require__(0),
+    pick = _require2.pick;
+
+var config = __webpack_require__(1);
+var parseUtils = __webpack_require__(3);
+
+var converterManager = __webpack_require__(19);
+var nodeManager = __webpack_require__(28);
+var attrManager = __webpack_require__(30);
+var autoUpdatePlugin = __webpack_require__(44);
 
 module.exports = function () {
-    var config = __webpack_require__(1);
-    var parseUtils = __webpack_require__(2);
-    var domUtils = __webpack_require__(14);
-
-    var converterManager = __webpack_require__(15);
-    var nodeManager = __webpack_require__(23);
-    var attrManager = __webpack_require__(25);
-    var autoUpdatePlugin = __webpack_require__(39);
-
     //Jquery selector to return everything which has a f- property set
     $.expr.pseudos[config.prefix] = function (el) {
         if (!el || !el.attributes) {
@@ -1188,14 +1335,14 @@ module.exports = function () {
      * @param {JQuery<HTMLElement>} root
      * @return {JQuery<HTMLElement>}
      */
-    var getMatchingElements = function (root) {
+    function getMatchingElements(root) {
         var $root = $(root);
         var matchedElements = $root.find(':' + config.prefix);
         if ($root.is(':' + config.prefix)) {
             matchedElements = matchedElements.add($root);
         }
         return matchedElements;
-    };
+    }
 
     /**
      * @param {JQuery<HTMLElement> | HTMLElement} element
@@ -1212,12 +1359,10 @@ module.exports = function () {
     }
 
     //Unbind utils
-    function removeAllSubscriptions($el, channel) {
-        var subsid = $el.data(config.attrs.subscriptionId) || [];
-        [].concat(subsid).forEach(function (subs) {
+    function removeAllSubscriptions(subscriptions, channel) {
+        [].concat(subscriptions).forEach(function (subs) {
             channel.unsubscribe(subs);
         });
-        $el.removeAttr('data-' + config.attrs.subscriptionId).removeData(config.attrs.subscriptionId);
     }
     function unbindAllAttributes(domEl) {
         var $el = $(domEl);
@@ -1228,7 +1373,7 @@ module.exports = function () {
                 attr = attr.replace(wantedPrefix, '');
                 var handler = attrManager.getHandler(attr, $el);
                 if (handler.unbind) {
-                    handler.unbind.call($el, attr);
+                    handler.unbind.call($el, attr, $el);
                 }
             }
         });
@@ -1250,15 +1395,13 @@ module.exports = function () {
         nodes: nodeManager,
         attributes: attrManager,
         converters: converterManager,
-        //utils for testing
-        private: {
-            matchedElements: []
-        },
+
+        matchedElements: new Map(),
 
         /**
          * Unbind the element; unsubscribe from all updates on the relevant channels.
          *
-         * @param {JQuery<HTMLElement>} element The element to remove from the data binding.
+         * @param {JQuery<HTMLElement> | HTMLElement} element The element to remove from the data binding.
          * @param {ChannelInstance} channel (Optional) The channel from which to unsubscribe. Defaults to the [variables channel](../channels/variables-channel/).
          * @returns {void}
          */
@@ -1268,24 +1411,30 @@ module.exports = function () {
             }
             var domEl = getElementOrError(element);
             var $el = $(element);
-            if (!$el.is(':' + config.prefix)) {
+            var existingData = this.matchedElements.get(domEl);
+            if (!$el.is(':' + config.prefix) || !existingData) {
                 return;
             }
-            this.private.matchedElements = without(this.private.matchedElements, element);
+            this.matchedElements.delete(element);
+
+            var subscriptions = Object.keys(existingData).reduce(function (accum, a) {
+                var subsid = existingData[a].subscriptionId;
+                if (subsid) accum.push(subsid);
+                return accum;
+            }, []);
 
             unbindAllNodeHandlers(domEl);
             unbindAllAttributes(domEl);
-            removeAllSubscriptions($el, channel);
+            removeAllSubscriptions(subscriptions, channel);
 
-            _.each($el.data(), function (val, key) {
+            var animAttrs = Object.keys(config.animation).join(' ');
+            $el.removeAttr(animAttrs);
+
+            Object.keys($el.data()).forEach(function (key) {
                 if (key.indexOf('f-') === 0 || key.match(/^f[A-Z]/)) {
                     $el.removeData(key);
-                    // var hyphenated = key.replace(/([A-Z])/g, '-$1').toLowerCase();
-                    // $el.removeData(hyphenated);
                 }
             });
-
-            return this;
         },
 
         /**
@@ -1306,113 +1455,100 @@ module.exports = function () {
                 return;
             }
 
-            if (!includes(this.private.matchedElements, domEl)) {
-                this.private.matchedElements.push(domEl);
-            }
-
-            var subsDataSuffix = config.attrs.subscriptionId;
-            var subsAttr = 'data-' + config.attrs.subscriptionId;
-            $el.removeAttr(subsAttr).removeData(subsDataSuffix);
-
             //Send to node manager to handle ui changes
             var Handler = nodeManager.getHandler($el);
             new Handler.handle({
                 el: domEl
             });
 
-            var subscribe = function (subsChannel, varsToBind, $bindEl, options) {
-                if (!varsToBind || !varsToBind.length) {
-                    return false;
-                }
-
-                var subsid = subsChannel.subscribe(varsToBind, function (params) {
-                    $bindEl.trigger(config.events.channelDataReceived, params);
-                }, options);
-                var newsubs = ($el.data(subsDataSuffix) || []).concat(subsid);
-                $el.attr(subsAttr, JSON.stringify(newsubs)).data(subsDataSuffix, newsubs);
-            };
-
-            var attrBindings = [];
-            var nonBatchableVariables = [];
-            var channelConfig = domUtils.getChannelConfig(domEl);
-
-            //NOTE: looping through attributes instead of .data because .data automatically camelcases properties and make it hard to retrvieve. Also don't want to index dynamically added (by flow) data attrs
+            var filterPrefix = 'data-' + config.prefix + '-';
+            var attrList = {};
             $(domEl.attributes).each(function (index, nodeMap) {
                 var attr = nodeMap.nodeName;
-                var attrVal = nodeMap.value;
-
-                var channelPrefix = domUtils.getChannel($el, attr);
-
-                var wantedPrefix = 'data-f-';
-                if (attr.indexOf(wantedPrefix) === 0) {
-                    attr = attr.replace(wantedPrefix, '');
-
-                    var handler = attrManager.getHandler(attr, $el);
-                    var isBindableAttr = true;
-                    if (handler && handler.init) {
-                        isBindableAttr = handler.init.call($el, attr, attrVal);
-                    }
-
-                    if (isBindableAttr) {
-                        //Convert pipes to converter attrs
-                        var withConv = attrVal.split('|').map(function (v) {
-                            return v.trim();
-                        });
-                        if (withConv.length > 1) {
-                            attrVal = withConv.shift();
-                            $el.data('f-convert-' + attr, withConv);
-                        }
-
-                        var binding = { attr: attr };
-                        var commaRegex = /,(?![^[]*])/;
-
-                        //NOTE: do this within init?
-                        if (handler && handler.parse) {
-                            //Let the handler do any pre-processing of inputs necessary
-                            attrVal = handler.parse.call($el, attrVal);
-                        }
-
-                        if (attrVal.indexOf('<%') !== -1) {
-                            //Assume it's templated for later use
-
-                        } else if (attrVal.split(commaRegex).length > 1) {
-                            var varsToBind = attrVal.split(commaRegex).map(function (v) {
-                                return v.trim();
-                            });
-                            if (channelPrefix) {
-                                varsToBind = varsToBind.map(function (v) {
-                                    return channelPrefix + ':' + v;
-                                });
-                            }
-                            subscribe(channel, varsToBind, $el, $.extend({ batch: true }, channelConfig)); //TODO: Move batch defaults to subscription manager
-                            binding.topics = varsToBind;
-                        } else {
-                            if (channelPrefix) {
-                                attrVal = channelPrefix + ':' + attrVal;
-                            }
-                            binding.topics = [attrVal];
-                            nonBatchableVariables.push(attrVal);
-                        }
-                        attrBindings.push(binding);
-                    }
+                if (attr.indexOf(filterPrefix) !== 0) {
+                    return;
                 }
+                attr = attr.replace(filterPrefix, '');
+
+                var attrVal = nodeMap.value;
+                var handler = attrManager.getHandler(attr, $el);
+                if (handler && handler.parse) {
+                    attrVal = handler.parse(attrVal, $el); //Parse value to return variable name
+                }
+
+                var initVal = handler && handler.init && handler.init.call($el, attr, attrVal, $el);
+                var isBindable = initVal !== false;
+
+                var converters = getConvertersForEl($el, attr);
+
+                var topics = parseTopicsFromAttributeValue(attrVal);
+                var channelPrefix = getChannelForAttribute($el, attr);
+                if (channelPrefix) {
+                    topics = topics.map(function (v) {
+                        var hasChannelDefined = v.indexOf(':') !== -1;
+                        return hasChannelDefined ? v : channelPrefix + ':' + v;
+                    });
+                }
+                var channelConfig = getChannelConfigForElement(domEl);
+                attrList[attr] = {
+                    isBindable: isBindable,
+                    channelPrefix: channelPrefix,
+                    channelConfig: channelConfig,
+                    topics: topics,
+                    converters: converters
+                };
             });
-            $el.data(config.attrs.bindingsList, attrBindings);
-            if (nonBatchableVariables.length) {
-                subscribe(channel, nonBatchableVariables, $el, $.extend({ batch: false }, channelConfig));
-            }
+            //Need this to be set before subscribing or callback maybe called before it's set
+            this.matchedElements.set(domEl, attrList);
+
+            var attrsWithSubscriptions = Object.keys(attrList).reduce(function (accum, name) {
+                var attr = attrList[name];
+                var topics = attr.topics,
+                    channelPrefix = attr.channelPrefix,
+                    channelConfig = attr.channelConfig,
+                    isBindable = attr.isBindable;
+
+                if (!isBindable) {
+                    accum[name] = attr;
+                    return accum;
+                }
+
+                var subsOptions = $.extend({ batch: true }, channelConfig);
+                var subsid = channel.subscribe(topics, function (data) {
+                    var toConvert = {};
+                    if (topics.length === 1) {
+                        //If I'm only interested in 1 thing pass in value directly, else mke a map;
+                        toConvert[name] = data[topics[0]];
+                    } else {
+                        var dataForAttr = pick(data, topics) || {};
+                        toConvert[name] = Object.keys(dataForAttr).reduce(function (accum, key) {
+                            //If this was through a 'hidden' channel attr return what was bound
+                            var toReplace = new RegExp('^' + channelPrefix + ':');
+                            var k = channelPrefix ? key.replace(toReplace, '') : key;
+                            accum[k] = dataForAttr[key];
+                            return accum;
+                        }, {});
+                    }
+                    $el.trigger(config.events.convert, toConvert);
+                }, subsOptions);
+
+                accum[name] = Object.assign({}, attr, { subscriptionId: subsid });
+                return accum;
+            }, {});
+
+            this.matchedElements.set(domEl, attrsWithSubscriptions);
         },
 
         /**
          * Bind all provided elements.
          *
-         * @param  {JQuery<HTMLElement>} elementsToBind (Optional) If not provided, binds all matching elements within default root provided at initialization.
+         * @param  {JQuery<HTMLElement> | HTMLElement[]} [elementsToBind] (Optional) If not provided, binds all matching elements within default root provided at initialization.
          * @returns {void}
          */
         bindAll: function (elementsToBind) {
             if (!elementsToBind) {
                 elementsToBind = getMatchingElements(this.options.root);
-            } else if (!isArray(elementsToBind)) {
+            } else if (!Array.isArray(elementsToBind)) {
                 elementsToBind = getMatchingElements(elementsToBind);
             }
 
@@ -1425,14 +1561,17 @@ module.exports = function () {
         /**
          * Unbind provided elements.
          *
-         * @param  {JQuery<HTMLElement>} elementsToUnbind (Optional) If not provided, unbinds everything.
+         * @param  {JQuery<HTMLElement> | HTMLElement[]} [elementsToUnbind] (Optional) If not provided, unbinds everything.
          * @returns {void}
          */
         unbindAll: function (elementsToUnbind) {
             var me = this;
             if (!elementsToUnbind) {
-                elementsToUnbind = this.private.matchedElements;
-            } else if (!isArray(elementsToUnbind)) {
+                elementsToUnbind = [];
+                this.matchedElements.forEach(function (val, key) {
+                    elementsToUnbind.push(key);
+                });
+            } else if (!Array.isArray(elementsToUnbind)) {
                 elementsToUnbind = getMatchingElements(elementsToUnbind);
             }
             $.each(elementsToUnbind, function (index, element) {
@@ -1473,58 +1612,64 @@ module.exports = function () {
             var me = this;
             var $root = $(defaults.root);
 
-            var attachChannelListener = function ($root) {
-                $root.off(config.events.channelDataReceived).on(config.events.channelDataReceived, function (evt, data) {
-                    var $el = $(evt.target);
-                    var bindings = $el.data(config.attrs.bindingsList);
-                    var toconvert = {};
-                    $.each(data, function (variableName, value) {
-                        _.each(bindings, function (binding) {
-                            var channelPrefix = domUtils.getChannel($el, binding.attr);
-                            var interestedTopics = binding.topics;
-                            if (includes(interestedTopics, variableName)) {
-                                if (binding.topics.length > 1) {
-                                    var matching = pick(data, interestedTopics);
-                                    if (!channelPrefix) {
-                                        value = matching;
-                                    } else {
-                                        value = Object.keys(matching).reduce(function (accum, key) {
-                                            var k = key.replace(channelPrefix + ':', '');
-                                            accum[k] = matching[key];
-                                            return accum;
-                                        }, {});
-                                    }
-                                }
-                                toconvert[binding.attr] = value;
-                            }
-                        });
-                    });
-                    $el.trigger(config.events.convert, toconvert);
-                });
-            };
+            var DEFAULT_OPERATIONS_PREFIX = 'operations:';
+            var DEFAULT_VARIABLES_PREFIX = 'variables:';
 
-            var attachUIVariablesListener = function ($root) {
-                $root.off(config.events.trigger).on(config.events.trigger, function (evt, data) {
-                    var parsedData = {}; //if not all subsequent listeners will get the modified data
+            //TODO: Merge the two listeners and just have prefix by 'source';
+            //TODO: ONce it's merged, support && for multiple operations and | to pipe to converters
+            function attachUIVariablesListener($root) {
+                $root.off(config.events.trigger).on(config.events.trigger, function (evt, params) {
+                    var elMeta = me.matchedElements.get(evt.target);
+                    if (!elMeta) {
+                        return;
+                    }
+
+                    var data = params.data,
+                        source = params.source,
+                        options = params.options;
+
+                    var _ref = elMeta[source] || {},
+                        converters = _ref.converters,
+                        channelPrefix = _ref.channelPrefix;
 
                     var $el = $(evt.target);
-                    var attrConverters = domUtils.getConvertersList($el, 'bind');
 
-                    _.each(data, function (val, key) {
-                        key = key.split('|')[0].trim(); //in case the pipe formatting syntax was used
-                        val = converterManager.parse(val, attrConverters);
-                        parsedData[key] = parseUtils.toImplicitType(val);
+                    var parsed = [];
+                    data.forEach(function (d) {
+                        var value = d.value,
+                            name = d.name;
 
-                        $el.trigger(config.events.convert, { bind: val });
+                        var converted = converterManager.parse(value, converters);
+                        var typed = parseUtils.toImplicitType(converted);
+
+                        var key = name.split('|')[0].trim(); //in case the pipe formatting syntax was used
+                        var canPrefix = key.indexOf(':') === -1 || key.indexOf(DEFAULT_VARIABLES_PREFIX) === 0;
+                        if (canPrefix && channelPrefix) {
+                            key = channelPrefix + ':' + key;
+                        }
+                        parsed.push({ name: key, value: typed });
+
+                        var convertParams = {};
+                        convertParams[source] = typed;
+                        $el.trigger(config.events.convert, convertParams);
                     });
-
-                    channel.publish(parsedData);
+                    channel.publish(parsed, options);
                 });
-            };
+            }
 
-            var attachUIOperationsListener = function ($root) {
-                $root.off(config.events.operate).on(config.events.operate, function (evt, data) {
-                    var filtered = [].concat(data.operations || []).reduce(function (accum, operation) {
+            function attachUIOperationsListener($root) {
+                $root.off(config.events.operate).on(config.events.operate, function (evt, params) {
+                    var elMeta = me.matchedElements.get(evt.target);
+                    if (!elMeta) {
+                        return;
+                    }
+                    var data = params.data,
+                        source = params.source,
+                        options = params.options;
+
+                    var sourceMeta = elMeta[source] || {};
+
+                    var filtered = [].concat(data || []).reduce(function (accum, operation) {
                         var val = operation.value ? [].concat(operation.value) : [];
                         operation.value = val.map(function (val) {
                             return parseUtils.toImplicitType($.trim(val));
@@ -1533,39 +1678,44 @@ module.exports = function () {
                         if (isConverter) {
                             accum.converters.push(operation);
                         } else {
-                            //TODO: Add a test for this
                             if (operation.name.indexOf(':') === -1) {
-                                operation.name = 'operations:' + operation.name;
+                                operation.name = '' + DEFAULT_OPERATIONS_PREFIX + operation.name;
+                            }
+                            if (operation.name.indexOf(DEFAULT_OPERATIONS_PREFIX) === 0 && sourceMeta.channelPrefix) {
+                                operation.name = sourceMeta.channelPrefix + ':' + operation.name;
                             }
                             accum.operations.push(operation);
                         }
                         return accum;
                     }, { operations: [], converters: [] });
 
-                    var promise = filtered.operations.length ? channel.publish(filtered.operations, data.options) : $.Deferred().resolve().promise();
+                    var promise = filtered.operations.length ? channel.publish(filtered.operations, options) : $.Deferred().resolve().promise();
 
                     //FIXME: Needed for the 'gotopage' in interfacebuilder. Remove this once we add a window channel
                     promise.then(function (args) {
-                        _.each(filtered.converters, function (con) {
+                        filtered.converters.forEach(function (con) {
                             converterManager.convert(con.value, [con.name]);
                         });
                     });
                 });
-            };
+            }
 
-            var attachConversionListner = function ($root) {
+            function attachConversionListner($root) {
                 // data = {proptoupdate: value} || just a value (assumes 'bind' if so)
                 $root.off(config.events.convert).on(config.events.convert, function (evt, data) {
                     var $el = $(evt.target);
 
-                    var convert = function (val, prop) {
-                        prop = prop.toLowerCase();
-                        var attrConverters = domUtils.getConvertersList($el, prop);
+                    var elMeta = me.matchedElements.get(evt.target);
+                    if (!elMeta) {
+                        return;
+                    }
+                    function convert(val, prop) {
+                        var attrConverters = elMeta[prop].converters;
 
                         var handler = attrManager.getHandler(prop, $el);
                         var convertedValue = converterManager.convert(val, attrConverters);
-                        handler.handle.call($el, convertedValue, prop);
-                    };
+                        handler.handle.call($el, convertedValue, prop, $el);
+                    }
 
                     if ($.isPlainObject(data)) {
                         _.each(data, convert);
@@ -1573,13 +1723,12 @@ module.exports = function () {
                         convert(data, 'bind');
                     }
                 });
-            };
+            }
 
             var promise = $.Deferred();
             $(function () {
                 me.bindAll();
 
-                attachChannelListener($root);
                 attachUIVariablesListener($root);
                 attachUIOperationsListener($root);
                 attachConversionListner($root);
@@ -1600,82 +1749,177 @@ module.exports = function () {
 }();
 
 /***/ }),
-/* 14 */
-/***/ (function(module, exports, __webpack_require__) {
+/* 15 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
 
-var _require = __webpack_require__(0),
-    isString = _require.isString,
-    isFunction = _require.isFunction,
-    isRegExp = _require.isRegExp;
+"use strict";
+Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__parse_converters__ = __webpack_require__(16);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__parse_channel__ = __webpack_require__(17);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__parse_topics__ = __webpack_require__(18);
+/* harmony reexport (binding) */ __webpack_require__.d(__webpack_exports__, "getConvertersForEl", function() { return __WEBPACK_IMPORTED_MODULE_0__parse_converters__["a"]; });
+/* harmony reexport (binding) */ __webpack_require__.d(__webpack_exports__, "getChannelForAttribute", function() { return __WEBPACK_IMPORTED_MODULE_1__parse_channel__["b"]; });
+/* harmony reexport (binding) */ __webpack_require__.d(__webpack_exports__, "getChannelConfigForElement", function() { return __WEBPACK_IMPORTED_MODULE_1__parse_channel__["a"]; });
+/* harmony reexport (binding) */ __webpack_require__.d(__webpack_exports__, "parseTopicsFromAttributeValue", function() { return __WEBPACK_IMPORTED_MODULE_2__parse_topics__["a"]; });
 
-module.exports = {
 
-    match: function (matchExpr, matchValue, context) {
-        if (isString(matchExpr)) {
-            return matchExpr === '*' || matchExpr.toLowerCase() === matchValue.toLowerCase();
-        } else if (isFunction(matchExpr)) {
-            return matchExpr(matchValue, context);
-        } else if (isRegExp(matchExpr)) {
-            return matchValue.match(matchExpr);
-        }
-    },
 
-    getChannel: function ($el, property) {
-        property = property.replace('data-f-', '');
-        var channel = $el.data('f-channel-' + property);
-        if (channel === undefined) {
-            channel = $el.attr('data-f-channel'); //.data shows value cached by jquery
-            if (channel === undefined) {
-                var $parentEl = $el.closest('[data-f-channel]');
-                if ($parentEl) {
-                    channel = $parentEl.attr('data-f-channel');
-                }
-            }
-        }
-        return channel;
-    },
 
-    /**
-     * @param {HTMLElement} el
-     * @return {Object}
-     */
-    getChannelConfig: function (el) {
-        var attrs = el.attributes;
-        var config = {};
-        for (var i = 0; i < attrs.length; i++) {
-            var attrib = el.attributes[i];
-            if (attrib.specified && attrib.name.indexOf('data-f-channel-') === 0) {
-                var key = attrib.name.replace('data-f-channel-', '');
-                config[key] = attrib.value;
-            }
-        }
-        return config;
-    },
 
-    getConvertersList: function ($el, property) {
-        var attrConverters = $el.data('f-convert-' + property);
-        //FIXME: figure out how not to hard-code names here
-        if (!attrConverters && (property === 'bind' || property === 'foreach' || property === 'repeat')) {
-            attrConverters = $el.attr('data-f-convert'); //.data shows value cached by jquery
-            if (!attrConverters) {
-                var $parentEl = $el.closest('[data-f-convert]');
-                if ($parentEl) {
-                    attrConverters = $parentEl.attr('data-f-convert');
-                }
-            }
-            if (attrConverters) {
-                attrConverters = attrConverters.split('|').map(function (v) {
-                    return v.trim();
-                });
-            }
-        }
-
-        return attrConverters;
-    }
-};
 
 /***/ }),
-/* 15 */
+/* 16 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* harmony export (immutable) */ __webpack_exports__["a"] = getConvertersForEl;
+/**
+ * @param {string} conv 
+ * @returns {string[]}
+ */
+function convertersToArray(conv) {
+    if (!conv || !conv.trim()) return [];
+    return conv.split('|').map(function (v) {
+        return v.trim();
+    });
+}
+
+/**
+ * @param {JQuery<HTMLElement>} $el
+ * @param {string} attribute 
+ * @returns {string[]}
+ */
+function getConvertersFromAttr($el, attribute) {
+    var attrVal = $el.attr('data-f-' + attribute);
+    var withConv = convertersToArray(attrVal);
+    if (withConv.length > 1) {
+        return withConv.slice(1); //First item will be the topic
+    }
+    return [];
+}
+function findConvertersForEl($el) {
+    var conv = $el.attr('data-f-convert'); //.data shows value cached by jquery
+    return convertersToArray(conv);
+}
+
+/**
+ * @param {JQuery<HTMLElement>} $el  
+ * @param {string} attribute 
+ * @returns {string[]} converters
+ */
+function getConvertersForEl($el, attribute) {
+
+    function getAllConverters($el, attribute) {
+        var convertersAsPipes = getConvertersFromAttr($el, attribute);
+        if (convertersAsPipes.length) {
+            return convertersAsPipes;
+        }
+
+        var whiteListedGenericAttributes = ['bind', 'foreach', 'repeat'];
+        if (whiteListedGenericAttributes.indexOf(attribute) === -1) {
+            return [];
+        }
+
+        var convertersOnElement = findConvertersForEl($el);
+        if (convertersOnElement.length) {
+            return convertersOnElement;
+        }
+
+        var $parentEl = $el.closest('[data-f-convert]');
+        if ($parentEl) {
+            return findConvertersForEl($parentEl);
+        }
+        return [];
+    }
+
+    var converters = getAllConverters($el, attribute);
+    var resolvedConverters = converters.reduce(function (accum, val) {
+        if (val === 'inherit') {
+            var $parentEl = $el.parents('[data-f-convert]').eq(0);
+            var parentConv = getConvertersForEl($parentEl, attribute);
+            accum = accum.concat(parentConv);
+        } else {
+            accum = accum.concat(val);
+        }
+        return accum;
+    }, []);
+
+    return resolvedConverters;
+}
+
+/***/ }),
+/* 17 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* harmony export (immutable) */ __webpack_exports__["b"] = getChannelForAttribute;
+/* harmony export (immutable) */ __webpack_exports__["a"] = getChannelConfigForElement;
+/**
+ * 
+ * @param {JQuery<HTMLElement>} $el  
+ * @param {string} attr 
+ * @returns {string|undefined}
+ */
+function getChannelForAttribute($el, attr) {
+    attr = attr.replace('data-f-', '');
+    var channel = $el.data('f-channel-' + attr);
+    if (channel === undefined) {
+        channel = $el.attr('data-f-channel'); //.data shows value cached by jquery
+    }
+    if (channel === undefined) {
+        var $parentEl = $el.closest('[data-f-channel]');
+        if ($parentEl) {
+            channel = $parentEl.attr('data-f-channel');
+        }
+    }
+    return channel;
+}
+
+/**
+ * @param {HTMLElement} el
+ * @return {Object}
+ */
+function getChannelConfigForElement(el) {
+    //TODO: Should this look at parents too?
+    var attrs = el.attributes;
+    var config = {};
+    for (var i = 0; i < attrs.length; i++) {
+        var attrib = el.attributes[i];
+        if (attrib.specified && attrib.name.indexOf('data-f-channel-') === 0) {
+            var key = attrib.name.replace('data-f-channel-', '');
+            config[key] = attrib.value;
+        }
+    }
+    return config;
+}
+
+/***/ }),
+/* 18 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* harmony export (immutable) */ __webpack_exports__["a"] = parseTopicsFromAttributeValue;
+/**
+ * @param {string} attrVal 
+ * @returns {string[]} variables
+ */
+function parseTopicsFromAttributeValue(attrVal) {
+    var commaRegex = /,(?![^[]*])/;
+    var topicsPart = attrVal.split('|')[0];
+    if (topicsPart.indexOf('<%') !== -1) {
+        //Assume it's templated for later use
+        return;
+    }
+    if (topicsPart.split(commaRegex).length > 1) {
+        return topicsPart.split(commaRegex).map(function (v) {
+            return v.trim();
+        });
+    }
+    return [topicsPart.trim()];
+}
+
+/***/ }),
+/* 19 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /**
@@ -1696,10 +1940,9 @@ var _require = __webpack_require__(0),
     isString = _require.isString,
     isRegExp = _require.isRegExp,
     find = _require.find,
-    isArray = _require.isArray,
     mapValues = _require.mapValues;
 
-var _require2 = __webpack_require__(2),
+var _require2 = __webpack_require__(3),
     splitNameArgs = _require2.splitNameArgs;
 
 var normalize = function (alias, converter, acceptList) {
@@ -1836,7 +2079,7 @@ var converterManager = {
         };
         var convert = function (converter, value, converterName) {
             var converted;
-            if (isArray(value) && converter.acceptList !== true) {
+            if (Array.isArray(value) && converter.acceptList !== true) {
                 converted = convertArray(converter, value, converterName);
             } else {
                 converted = converter.convert(value, converterName);
@@ -1890,10 +2133,10 @@ var converterManager = {
 };
 
 //Bootstrap
-var defaultconverters = [__webpack_require__(16), __webpack_require__(17), __webpack_require__(18), __webpack_require__(19), __webpack_require__(20), __webpack_require__(21), __webpack_require__(22)];
+var defaultconverters = [__webpack_require__(20), __webpack_require__(21), __webpack_require__(22), __webpack_require__(23), __webpack_require__(24), __webpack_require__(25), __webpack_require__(26), __webpack_require__(27)];
 
 defaultconverters.reverse().forEach(function (converter) {
-    if (isArray(converter)) {
+    if (Array.isArray(converter)) {
         converter.forEach(function (c) {
             converterManager.register(c);
         });
@@ -1905,7 +2148,7 @@ defaultconverters.reverse().forEach(function (converter) {
 module.exports = converterManager;
 
 /***/ }),
-/* 16 */
+/* 20 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -1944,7 +2187,7 @@ module.exports = {
 };
 
 /***/ }),
-/* 17 */
+/* 21 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -2038,7 +2281,7 @@ module.exports = {
 };
 
 /***/ }),
-/* 18 */
+/* 22 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /**
@@ -2057,40 +2300,38 @@ module.exports = {
 
 var _ = __webpack_require__(0);
 
-var list = [{
-    alias: 'list',
-    acceptList: true,
+function parseLimitArgs(starting, limit, val) {
+    var toRet = {};
+    if (arguments.length === 3) {
+        //eslint-disable-line
+        toRet = {
+            input: limit,
+            limit: starting
+        };
+    } else if (arguments.length === 2) {
+        toRet = {
+            input: starting
+        };
+    } else {
+        console.error('Too many arguments passed to last', arguments);
+        throw new Error('Too many arguments passed to last');
+    }
+
+    toRet.input = [].concat(toRet.input);
+    return toRet;
+}
+
+var list = {
     /**
-     * Convert the input into an array. Concatenates all elements of the input.
+     * Convert the input into an array. 
      *
-     * @param {*} val value to convert to Array
-     * @return {array} value converted to array
+     * @param {any[]} val The array model variable.
+     * @returns {any[]}
      */
-    convert: function (val) {
+    list: function (val) {
         return [].concat(val);
-    }
-}, {
-    alias: 'last',
-    acceptList: true,
-    /**
-     * Select only the last element of the array.
-     *
-     * **Example**
-     *
-     *      <div>
-     *          In the current year, we have <span data-f-bind="Sales | last"></span> in sales.
-     *      </div>
-     *
-     * @param {array} val The array model variable.
-     * @return {*} last element of array
-     */
-    convert: function (val) {
-        val = [].concat(val);
-        return val[val.length - 1];
-    }
-}, {
-    alias: 'reverse',
-    acceptList: true,
+    },
+
     /**
      * Reverse the array.
      *
@@ -2101,16 +2342,35 @@ var list = [{
      *          <li></li>
      *      </ul>
      *
-     * @param {array} val The array model variable.
-     * @returns {array} reversed array
+     * @param {any[]} val The array model variable.
+     * @returns {any[]} the reversed array
      */
-    convert: function (val) {
-        val = [].concat(val);
-        return val.reverse();
-    }
-}, {
-    alias: 'first',
-    acceptList: true,
+    reverse: function (val) {
+        return [].concat(val).reverse();
+    },
+
+    /**
+     * Select only the last element of the array.
+     *
+     * **Example**
+     *
+     *      <div>
+     *          In the current year, we have <span data-f-bind="Sales | last"></span> in sales.
+     *      </div>
+     *
+     * @param {number} n number of items to get
+     * @param {any[]} val The array model variable.
+     * @returns {any} last element of array
+     */
+    last: function (n, val) {
+        var parsed = parseLimitArgs.apply(null, arguments);
+        var stripped = parsed.input.slice(-(parsed.limit || 1));
+        if (stripped.length <= 1) {
+            return stripped[0];
+        }
+        return stripped;
+    },
+
     /**
      * Select only the first element of the array.
      *
@@ -2120,16 +2380,19 @@ var list = [{
      *          Our initial investment was <span data-f-bind="Capital | first"></span>.
      *      </div>
      *
-     * @param {array} val The array model variable.
-     * @returns {*} first element of array
+     * @param {number} n number of items to get
+     * @param {any[]} val The array model variable.
+     * @returns {any} first element of the array
      */
-    convert: function (val) {
-        val = [].concat(val);
-        return val[0];
-    }
-}, {
-    alias: 'previous',
-    acceptList: true,
+    first: function (n, val) {
+        var parsed = parseLimitArgs.apply(null, arguments);
+        var stripped = parsed.input.slice(0, parsed.limit || 1);
+        if (stripped.length <= 1) {
+            return stripped[0];
+        }
+        return stripped;
+    },
+
     /**
      * Select only the previous (second to last) element of the array.
      *
@@ -2139,53 +2402,113 @@ var list = [{
      *          Last year we had <span data-f-bind="Sales | previous"></span> in sales.
      *      </div>
      *
-     * @param {array} val The array model variable.
-     * @returns {*} previous (second to last) element of the array.
+     * @param {any[]} val The array model variable.
+     * @returns {any} the previous (second to last) element of the array.
      */
-    convert: function (val) {
+    previous: function (val) {
         val = [].concat(val);
         return val.length <= 1 ? val[0] : val[val.length - 2];
+    },
+
+    /**
+     * Returns length of array
+     *
+     * **Example**
+     * Total Items: <h6 data-f-bind="items | size"></h6>
+     * 
+     * @param  {any[]} src array
+     * @return {number}     length of array
+     */
+    size: function (src) {
+        return [].concat(src).length;
+    },
+
+    /**
+     * Select every nth item from array
+     *
+     * **Example**
+     * <!-- select every 10th item starting from itself
+     * <ul data-f-foreach="Time | pickEvery(10)"><li></li></ul>
+     * <!-- select every 10th item starting from the fifth
+     * <ul data-f-foreach="Time | pickEvery(10, 5)"><li></li></ul>
+     * 
+     * @param  {number} n          nth item to select
+     * @param  {number} [startIndex] index to start from
+     * @param  {any[]} [val]        source array
+     * @return {any[]}            shortened array
+     */
+    pickEvery: function (n, startIndex, val) {
+        if (arguments.length === 3) {
+            //eslint-disable-line
+            //last item is match string
+            val = startIndex;
+            startIndex = n - 1;
+        }
+        val = [].concat(val);
+        val = val.slice(startIndex);
+        return val.filter(function (item, index) {
+            return index % n === 0;
+        });
+    }
+};
+
+var mapped = Object.keys(list).map(function (alias) {
+    var fn = list[alias];
+    var newfn = function () {
+        var args = _.toArray(arguments);
+        var indexOfActualValue = args.length - 2; //last item is the matchstring
+        var val = args[indexOfActualValue];
+        if ($.isPlainObject(val)) {
+            return Object.keys(val).reduce(function (accum, key) {
+                var arr = val[key];
+                var newArgs = args.slice();
+                newArgs[indexOfActualValue] = arr;
+                accum[key] = fn.apply(fn, newArgs);
+                return accum;
+            }, {});
+        }
+        return fn.apply(fn, arguments);
+    };
+    return {
+        alias: alias,
+        acceptList: true,
+        convert: newfn
+    };
+});
+module.exports = mapped;
+
+/***/ }),
+/* 23 */
+/***/ (function(module, exports) {
+
+function parseArgs(toCompare, trueVal, falseVal, valueToCompare, matchString) {
+    var toReturn = { trueVal: true, falseVal: false };
+    switch (arguments.length) {
+        case 5:
+            //eslint-disable-line
+            return $.extend(toReturn, { trueVal: trueVal, falseVal: falseVal, input: valueToCompare });
+        case 4:
+            //eslint-disable-line
+            return $.extend(toReturn, { trueVal: trueVal, input: falseVal });
+        case 3:
+            //eslint-disable-line
+            return $.extend(toReturn, { input: trueVal });
+        default:
+            return toReturn;
+    }
+}
+
+module.exports = [{
+    alias: 'is',
+    acceptList: true,
+    convert: function (toCompare) {
+        var args = parseArgs.apply(null, arguments);
+        return args.input === toCompare ? args.trueVal : args.falseVal;
     }
 }];
 
-list.forEach(function (item) {
-    var oldfn = item.convert;
-    var newfn = function (val) {
-        if ($.isPlainObject(val)) {
-            return _.mapValues(val, oldfn);
-        }
-        return oldfn(val);
-    };
-    item.convert = newfn;
-});
-module.exports = list;
-
 /***/ }),
-/* 19 */
-/***/ (function(module, exports, __webpack_require__) {
-
-var _ = __webpack_require__(0);
-
-var list = [];
-
-var supported = ['values', 'keys', 'compact', 'difference', 'union', 'uniq', 'without', 'xor', 'zip'];
-supported.forEach(function (fn) {
-    var item = {
-        alias: fn,
-        acceptList: true,
-        convert: function (val) {
-            if ($.isPlainObject(val)) {
-                return _.mapValues(val, _[fn]);
-            }
-            return _[fn](val);
-        }
-    };
-    list.push(item);
-});
-module.exports = list;
-
-/***/ }),
-/* 20 */
+/* 24 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /**
@@ -2525,7 +2848,7 @@ module.exports = {
 };
 
 /***/ }),
-/* 21 */
+/* 25 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -2703,10 +3026,9 @@ module.exports = {
 };
 
 /***/ }),
-/* 22 */
-/***/ (function(module, exports, __webpack_require__) {
+/* 26 */
+/***/ (function(module, exports) {
 
-"use strict";
 /**
  * ## Boolean Conditional Converters
  *
@@ -2727,8 +3049,6 @@ module.exports = {
  *      <span data-f-bind="sampleVar | toBool"></span>
  *
  */
-
-
 
 function parseArgs(trueVal, falseVal, input, matchString) {
     var toReturn = { trueVal: true, falseVal: false };
@@ -2760,6 +3080,21 @@ module.exports = {
      */
     toBool: function (value) {
         return !!value;
+    },
+
+    /**
+     * Converts values to boolean and negates.
+     *
+     * **Example**
+     *
+     *      <!-- disables input if isGameInProgress is false -->
+     *      <input type="text" data-f-disabled="isGameInProgress | not" />
+     * 
+     * @param {Any} value
+     * @return {Boolean}
+     */
+    not: function (value) {
+        return !value;
     },
 
     /**
@@ -2803,7 +3138,107 @@ module.exports = {
 };
 
 /***/ }),
-/* 23 */
+/* 27 */
+/***/ (function(module, exports, __webpack_require__) {
+
+var _ = __webpack_require__(0);
+
+var list = {
+    /**
+     * Returns all values in array matching argument
+     *
+     * ** Example **
+     * <!-- list online users -->
+     * <ul data-f-foreach="users | filter(isOnline)"><li></li></button>
+     * 
+     * @param  {string|number|boolean} valueToFilterBy value to reject
+     * @param  {any[]} source The arrayed model variable
+     * @return {any[]}     filtered lsit
+     */
+    filter: function (valueToFilterBy, source) {
+        source = [].concat(source);
+        if ($.isPlainObject(source[0])) {
+            return _.filter(source, valueToFilterBy);
+        }
+        return source.filter(function (v) {
+            return v === valueToFilterBy;
+        });
+    },
+
+    /**
+     * Returns all values in array excluding match
+     *
+     * ** Example **
+     * <!-- list offline users -->
+     * <ul data-f-foreach="users | except(isOnline)"><li></li></button>
+     * 
+     * @param  {string|number|boolean} valueToReject value to reject
+     * @param  {any[]} source The arrayed model variable
+     * @return {any[]}     filtered lsit
+     */
+    except: function (valueToReject, source) {
+        source = [].concat(source);
+        if ($.isPlainObject(source[0])) {
+            return _.reject(source, valueToReject);
+        }
+        return source.filter(function (v) {
+            return v !== valueToReject;
+        });
+    },
+
+    /**
+     * Checks if array contains *any* item passing the test
+     *
+     * ** Example **
+     * <!-- hides button if any of the users are not online -->
+     * <button data-f-hideif="users | any(isOnline) | not">Get Started</button>
+     * <button data-f-hideif="users | any({ isOnline: false })">Get Started</button>
+     * 
+     * @param  {string|object} value value to check for
+     * @param  {any[]} source The arrayed model variable
+     * @return {boolean}     True if match found in array
+     */
+    any: function (value, source) {
+        source = [].concat(source);
+        if ($.isPlainObject(source[0])) {
+            return _.some(source, value);
+        }
+        return source.indexOf(value) !== -1;
+    },
+
+    /**
+     * Checks if *every* item in the array passes the test
+     *
+     * ** Example **
+     * <!-- shows button if any of the users are not online -->
+     * <button data-f-showif="users | every(isOnline)">Get Started</button>
+     * 
+     * @param  {string|object} value value to check for
+     * @param  {any[]} source The arrayed model variable
+     * @return {boolean}     True if match found in array
+     */
+    every: function (value, source) {
+        source = [].concat(source);
+        if ($.isPlainObject(source[0])) {
+            return _.every(source, value);
+        }
+        return source.filter(function (v) {
+            return v === value;
+        }).length === source.length;
+    }
+};
+var converters = Object.keys(list).map(function (name) {
+    return {
+        alias: name,
+        acceptList: true,
+        convert: list[name]
+    };
+});
+
+module.exports = converters;
+
+/***/ }),
+/* 28 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var _ = __webpack_require__(0);
@@ -2887,7 +3322,7 @@ var nodeManager = {
 };
 
 //bootstraps
-var defaultHandlers = [__webpack_require__(24), __webpack_require__(8), __webpack_require__(9)];
+var defaultHandlers = [__webpack_require__(29), __webpack_require__(9), __webpack_require__(10)];
 defaultHandlers.reverse().forEach(function (handler) {
     nodeManager.register(handler.selector, handler);
 });
@@ -2895,13 +3330,13 @@ defaultHandlers.reverse().forEach(function (handler) {
 module.exports = nodeManager;
 
 /***/ }),
-/* 24 */
+/* 29 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 
-var BaseView = __webpack_require__(8);
+var BaseView = __webpack_require__(9);
 
 module.exports = BaseView.extend({
 
@@ -2922,7 +3357,7 @@ module.exports = BaseView.extend({
 }, { selector: ':checkbox,:radio' });
 
 /***/ }),
-/* 25 */
+/* 30 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /**
@@ -2974,9 +3409,7 @@ var _require = __webpack_require__(0),
     filter = _require.filter,
     each = _require.each;
 
-var defaultHandlers = [__webpack_require__(26),
-// require('./events/init-event-attr'),
-__webpack_require__(27), __webpack_require__(28), __webpack_require__(29), __webpack_require__(30), __webpack_require__(31), __webpack_require__(32), __webpack_require__(33), __webpack_require__(34), __webpack_require__(35), __webpack_require__(36), __webpack_require__(37), __webpack_require__(38)];
+var defaultHandlers = [__webpack_require__(31), __webpack_require__(32), __webpack_require__(33), __webpack_require__(34), __webpack_require__(35), __webpack_require__(36), __webpack_require__(37), __webpack_require__(38), __webpack_require__(39), __webpack_require__(40), __webpack_require__(41), __webpack_require__(42), __webpack_require__(43)];
 
 /**
  * @typedef AttributeHandler
@@ -3090,7 +3523,7 @@ module.exports = {
 };
 
 /***/ }),
-/* 26 */
+/* 31 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -3109,7 +3542,7 @@ module.exports = {
 
     target: '*',
 
-    test: /^(?:model|convert|channel)/i,
+    test: /^(?:model|convert|channel|on-init)/i,
 
     handle: $.noop,
 
@@ -3119,7 +3552,7 @@ module.exports = {
 };
 
 /***/ }),
-/* 27 */
+/* 32 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -3143,7 +3576,7 @@ module.exports = {
 
 
 var config = __webpack_require__(1);
-var toOperationFormat = __webpack_require__(2).toOperationFormat;
+var toPublishableFormat = __webpack_require__(3).toPublishableFormat;
 
 module.exports = {
 
@@ -3154,23 +3587,24 @@ module.exports = {
     },
 
     unbind: function (attr) {
-        attr = attr.replace('on-', '');
-        this.off(attr);
+        var eventName = attr.replace('on-', '');
+        this.off(eventName);
     },
 
     init: function (attr, value) {
-        attr = attr.replace('on-', '');
+        var eventName = attr.replace('on-', '');
         var me = this;
-        this.off(attr).on(attr, function () {
-            var listOfOperations = toOperationFormat(value);
-            me.trigger(config.events.operate, { operations: listOfOperations });
+        this.off(eventName).on(eventName, function (evt) {
+            evt.preventDefault();
+            var listOfOperations = toPublishableFormat(value);
+            me.trigger(config.events.operate, { data: listOfOperations, source: attr });
         });
         return false; //Don't bother binding on this attr. NOTE: Do readonly, true instead?;
     }
 };
 
 /***/ }),
-/* 28 */
+/* 33 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /**
@@ -3292,18 +3726,29 @@ module.exports = {
  *
  * * The `data-f-foreach` attribute is [similar to the `data-f-repeat` attribute](../../repeat-attr/), so you may want to review the examples there as well.
  */
-var parseUtils = __webpack_require__(2);
+var parseUtils = __webpack_require__(3);
 var config = __webpack_require__(1);
 
-var _require = __webpack_require__(0),
-    uniqueId = _require.uniqueId,
-    each = _require.each,
-    size = _require.size,
-    template = _require.template;
+var _require = __webpack_require__(7),
+    addChangeClassesToList = _require.addChangeClassesToList;
+
+var _require2 = __webpack_require__(0),
+    uniqueId = _require2.uniqueId,
+    each = _require2.each,
+    template = _require2.template;
 
 function refToMarkup(refKey) {
     return '<!--' + refKey + '-->';
 }
+
+var elTemplateMap = new WeakMap();
+var elAnimatedMap = new WeakMap(); //TODO: Can probably get rid of this if we make subscribe a promise and distinguish between initial value
+
+var MISSING_REFERENCES_KEY = 'missing-references';
+var MISSING_REFERENCE_ATTR = 'data-' + MISSING_REFERENCES_KEY;
+
+var CURRENT_INDEX_KEY = 'current-index';
+var CURRENT_INDEX_ATTR = 'data-' + CURRENT_INDEX_KEY;
 
 module.exports = {
 
@@ -3311,62 +3756,69 @@ module.exports = {
 
     target: '*',
 
-    unbind: function (attr) {
-        var template = this.data(config.attrs.foreachTemplate);
+    unbind: function (attr, $el) {
+        var el = $el.get(0);
+        elAnimatedMap.delete(el);
+
+        var template = elTemplateMap.get(el);
         if (template) {
-            this.html(template);
-            this.removeData(config.attrs.foreachTemplate);
-            this.removeData(config.attrs.keyAs);
-            this.removeData(config.attrs.valueAs);
+            $el.html(template);
+            elTemplateMap.delete(el);
         }
+
+        var dataToRemove = [config.attrs.keyAs, config.attrs.valueAs, MISSING_REFERENCES_KEY];
+        $el.removeData(dataToRemove);
+
+        var attrsToRemove = [MISSING_REFERENCE_ATTR, CURRENT_INDEX_ATTR];
+        $el.removeAttr(attrsToRemove.join(' '));
     },
 
-    parse: function (attrVal) {
+    //provide variable name from bound
+    parse: function (attrVal, $el) {
         var inMatch = attrVal.match(/(.*) (?:in|of) (.*)/);
         if (inMatch) {
             var itMatch = inMatch[1].match(/\((.*),(.*)\)/);
             if (itMatch) {
-                this.data(config.attrs.keyAs, itMatch[1].trim());
-                this.data(config.attrs.valueAs, itMatch[2].trim());
+                $el.data(config.attrs.keyAs, itMatch[1].trim());
+                $el.data(config.attrs.valueAs, itMatch[2].trim());
             } else {
-                this.data(config.attrs.valueAs, inMatch[1].trim());
+                $el.data(config.attrs.valueAs, inMatch[1].trim());
             }
             attrVal = inMatch[2];
         }
         return attrVal;
     },
 
-    handle: function (value, prop) {
+    handle: function (value, prop, $el) {
         value = $.isPlainObject(value) ? value : [].concat(value);
-        var loopTemplate = this.data(config.attrs.foreachTemplate);
+
+        var el = $el.get(0);
+        var loopTemplate = elTemplateMap.get(el);
         if (!loopTemplate) {
-            loopTemplate = this.html();
-            this.data(config.attrs.foreachTemplate, loopTemplate);
+            loopTemplate = $el.html();
+            elTemplateMap.set(el, loopTemplate);
         }
-        var $me = this.empty();
+
         var cloop = loopTemplate.replace(/&lt;/g, '<').replace(/&gt;/g, '>');
 
         var defaultKey = $.isPlainObject(value) ? 'key' : 'index';
-        var keyAttr = $me.data(config.attrs.keyAs) || defaultKey;
-        var valueAttr = $me.data(config.attrs.valueAs) || 'value';
+        var keyAttr = $el.data(config.attrs.keyAs) || defaultKey;
+        var valueAttr = $el.data(config.attrs.valueAs) || 'value';
 
         var keyRegex = new RegExp('\\b' + keyAttr + '\\b');
         var valueRegex = new RegExp('\\b' + valueAttr + '\\b');
 
-        var closestKnownDataEl = this.closest('[data-current-index]');
-        var knownData = {};
-        if (closestKnownDataEl.length) {
-            knownData = closestKnownDataEl.data('current-index');
-        }
-        var closestParentWithMissing = this.closest('[data-missing-references]');
+        //This needs to handle nested loops so you may not have all the data you need
+        var closestParentWithMissing = $el.closest('[' + MISSING_REFERENCE_ATTR + ']');
         if (closestParentWithMissing.length) {
             //(grand)parent already stubbed out missing references
-            var missing = closestParentWithMissing.data('missing-references');
+            var missing = closestParentWithMissing.data(MISSING_REFERENCES_KEY);
             each(missing, function (replacement, template) {
                 if (keyRegex.test(template) || valueRegex.test(template)) {
                     cloop = cloop.replace(refToMarkup(replacement), template);
                 }
             });
+            //don't remove MISSING_REFERENCE_ATTR here because siblings may need it
         } else {
             var missingReferences = {};
             var templateTagsUsed = cloop.match(/<%[=-]?([\s\S]+?)%>/g);
@@ -3383,16 +3835,22 @@ module.exports = {
                     }
                 });
             }
-            if (size(missingReferences)) {
+            if (Object.keys(missingReferences).length) {
                 //Attr, not data, to make jQ selector easy. No f- prefix to keep this from flow.
-                this.attr('data-missing-references', JSON.stringify(missingReferences));
+                $el.attr(MISSING_REFERENCE_ATTR, JSON.stringify(missingReferences));
             }
         }
 
+        var closestKnownDataEl = $el.closest('[' + CURRENT_INDEX_ATTR + ']');
+        var knownData = {};
+        if (closestKnownDataEl.length) {
+            knownData = closestKnownDataEl.data(CURRENT_INDEX_KEY);
+        }
         var templateFn = template(cloop);
+        var $dummyEl = $('<div></div>');
         each(value, function (dataval, datakey) {
             if (!dataval) {
-                dataval = dataval + '';
+                dataval = dataval + ''; //convert undefineds to strings
             }
             var templateData = {};
             templateData[keyAttr] = datakey;
@@ -3400,8 +3858,8 @@ module.exports = {
 
             $.extend(templateData, knownData);
 
-            var nodes;
-            var isTemplated;
+            var nodes = void 0;
+            var isTemplated = void 0;
             try {
                 var templatedLoop = templateFn(templateData);
                 isTemplated = templatedLoop !== cloop;
@@ -3410,25 +3868,31 @@ module.exports = {
                 //you don't have all the references you need;
                 nodes = $(cloop);
                 isTemplated = true;
-                $(nodes).attr('data-current-index', JSON.stringify(templateData));
+                $(nodes).attr(CURRENT_INDEX_ATTR, JSON.stringify(templateData));
             }
 
             nodes.each(function (i, newNode) {
-                newNode = $(newNode);
-                each(newNode.data(), function (val, key) {
-                    newNode.data(key, parseUtils.toImplicitType(val));
+                var $newNode = $(newNode);
+                each($newNode.data(), function (val, key) {
+                    $newNode.data(key, parseUtils.toImplicitType(val));
                 });
-                if (!isTemplated && !newNode.html().trim()) {
-                    newNode.html(dataval);
+                if (!isTemplated && !$newNode.html().trim()) {
+                    $newNode.html(dataval);
                 }
             });
-            $me.append(nodes);
+            $dummyEl.append(nodes);
         });
+
+        var isInitialAnim = !elAnimatedMap.get(el);
+        var $withAnimAttrs = addChangeClassesToList($el.children(), $dummyEl.children(), isInitialAnim, config.animation);
+        $el.empty().append($withAnimAttrs);
+
+        elAnimatedMap.set(el, true);
     }
 };
 
 /***/ }),
-/* 29 */
+/* 34 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /**
@@ -3473,7 +3937,7 @@ module.exports = {
 };
 
 /***/ }),
-/* 30 */
+/* 35 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /**
@@ -3516,7 +3980,7 @@ module.exports = {
 };
 
 /***/ }),
-/* 31 */
+/* 36 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /**
@@ -3594,7 +4058,7 @@ module.exports = {
 };
 
 /***/ }),
-/* 32 */
+/* 37 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /**
@@ -3664,47 +4128,63 @@ var _require = __webpack_require__(0),
     each = _require.each,
     template = _require.template;
 
-var parseUtils = __webpack_require__(2);
-var gutils = __webpack_require__(6);
-var config = __webpack_require__(1).attrs;
+var parseUtils = __webpack_require__(3);
+var gutils = __webpack_require__(8);
+var config = __webpack_require__(1);
+
+var templateIdAttr = config.attrs.repeat.templateId;
+
+var _require2 = __webpack_require__(7),
+    addChangeClassesToList = _require2.addChangeClassesToList;
+
+var elTemplateMap = new WeakMap(); //<domel>: template
+var elAnimatedMap = new WeakMap(); //TODO: Can probably get rid of this if we make subscribe a promise and distinguish between initial value
+
 module.exports = {
 
     test: 'repeat',
 
     target: '*',
 
-    unbind: function (attr) {
-        var id = this.data(config.repeat.templateId);
+    unbind: function (attr, $el) {
+        var id = $el.data(templateIdAttr);
         if (id) {
-            this.nextUntil(':not([data-' + id + '])').remove();
-            // this.removeAttr('data-' + config.repeat.templateId); //FIXME: Something about calling rebind multiple times in IB makes this happen without the removal
+            $el.nextUntil(':not([data-' + id + '])').remove();
+            // this.removeAttr('data-' + templateIdAttr); //FIXME: Something about calling rebind multiple times in IB makes this happen without the removal
         }
-        var loopTemplate = this.data(config.repeat.template);
+
+        var el = $el.get(0);
+        elAnimatedMap.delete(el);
+
+        var loopTemplate = elTemplateMap.get(el);
         if (loopTemplate) {
-            this.removeData(config.repeat.template);
-            this.replaceWith(loopTemplate);
+            elTemplateMap.delete(el);
+            $el.replaceWith(loopTemplate);
         }
     },
 
-    handle: function (value, prop) {
+    handle: function (value, prop, $el) {
         value = $.isPlainObject(value) ? value : [].concat(value);
-        var loopTemplate = this.data(config.repeat.template);
-        var id = this.data(config.repeat.templateId);
+        var id = $el.data(templateIdAttr);
 
+        var el = $el.get(0);
+
+        var loopTemplate = elTemplateMap.get(el);
         if (!loopTemplate) {
-            loopTemplate = this.get(0).outerHTML;
-            this.data(config.repeat.template, loopTemplate);
+            loopTemplate = el.outerHTML;
+            elTemplateMap.set(el, loopTemplate);
         }
 
+        var $dummyOldDiv = $('<div></div>');
         if (id) {
-            this.nextUntil(':not([data-' + id + '])').remove();
+            var $removed = $el.nextUntil(':not([data-' + id + '])').remove();
+            $dummyOldDiv.append($removed);
         } else {
             id = gutils.random('repeat-');
-            this.attr('data-' + config.repeat.templateId, id);
+            $el.attr('data-' + templateIdAttr, id);
         }
 
         var last;
-        var me = this;
         each(value, function (dataval, datakey) {
             var cloop = loopTemplate.replace(/&lt;/g, '<').replace(/&gt;/g, '>');
             var templatedLoop = template(cloop)({ value: dataval, key: datakey, index: datakey });
@@ -3713,30 +4193,37 @@ module.exports = {
             var hasData = dataval !== null && dataval !== undefined;
 
             nodes.each(function (i, newNode) {
-                newNode = $(newNode).removeAttr('data-f-repeat').removeAttr('data-' + config.repeat.templateId);
-                each(newNode.data(), function (val, key) {
+                var $newNode = $(newNode);
+                $newNode.removeAttr('data-f-repeat').removeAttr('data-' + templateIdAttr);
+                each($newNode.data(), function (val, key) {
                     if (!last) {
-                        me.data(key, parseUtils.toImplicitType(val));
+                        $el.data(key, parseUtils.toImplicitType(val));
                     } else {
-                        newNode.data(key, parseUtils.toImplicitType(val));
+                        $newNode.data(key, parseUtils.toImplicitType(val));
                     }
                 });
-                newNode.attr('data-' + id, true);
-                if (!isTemplated && !newNode.children().length && hasData) {
-                    newNode.html(dataval + '');
+                $newNode.attr('data-' + id, true);
+                if (!isTemplated && !$newNode.children().length && hasData) {
+                    $newNode.html(dataval + '');
                 }
             });
             if (!last) {
-                last = me.html(nodes.html());
+                last = $el.html(nodes.html());
             } else {
                 last = nodes.insertAfter(last);
             }
         });
+
+        var $newEls = $el.nextUntil(':not(\'[data-' + id + ']\')');
+        var isInitialAnim = !elAnimatedMap.get(el);
+        addChangeClassesToList($dummyOldDiv.children(), $newEls, isInitialAnim, config.animation);
+
+        elAnimatedMap.set(el, true);
     }
 };
 
 /***/ }),
-/* 33 */
+/* 38 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /**
@@ -3778,7 +4265,7 @@ module.exports = {
 };
 
 /***/ }),
-/* 34 */
+/* 39 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /**
@@ -3820,7 +4307,7 @@ module.exports = {
 };
 
 /***/ }),
-/* 35 */
+/* 40 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /**
@@ -3851,21 +4338,21 @@ module.exports = {
 
     target: '*',
 
-    init: function () {
-        this.hide(); //hide by default; if not this shows text until data is fetched
+    init: function (attr, value, $el) {
+        $el.hide(); //hide by default; if not this shows text until data is fetched
         return true;
     },
 
-    handle: function (value, prop) {
+    handle: function (value, prop, $el) {
         if (isArray(value)) {
             value = value[value.length - 1];
         }
-        return value === true ? this.show() : this.hide();
+        return value && ('' + value).trim() ? $el.show() : $el.hide();
     }
 };
 
 /***/ }),
-/* 36 */
+/* 41 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /**
@@ -3896,20 +4383,24 @@ module.exports = {
 
     target: '*',
 
-    init: function () {
-        this.hide(); //hide by default; if not this shows text until data is fetched
+    init: function (attr, value, $el) {
+        $el.hide(); //hide by default; if not this shows text until data is fetched
         return true;
     },
-    handle: function (value, prop) {
+    handle: function (value, prop, $el) {
         if (isArray(value)) {
             value = value[value.length - 1];
         }
-        return value === true ? this.hide() : this.show();
+        if (value && ('' + value).trim()) {
+            $el.hide();
+        } else {
+            $el.show();
+        }
     }
 };
 
 /***/ }),
-/* 37 */
+/* 42 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -3997,11 +4488,16 @@ module.exports = {
 
 
 
+var _require = __webpack_require__(0),
+    template = _require.template;
+
+var _require2 = __webpack_require__(7),
+    addContentAndAnimate = _require2.addContentAndAnimate;
+
 var config = __webpack_require__(1);
 
-var _require = __webpack_require__(0),
-    template = _require.template,
-    isArray = _require.isArray;
+var elTemplateMap = new WeakMap(); //<dom-element>: template
+var elAnimatedMap = new WeakMap(); //TODO: Can probably get rid of this if we make subscribe a promise and distinguish between initial value
 
 module.exports = {
 
@@ -4011,61 +4507,72 @@ module.exports = {
 
     /**
      * @param {string} attr
+     * @param {JQuery<HTMLElement>} $el
      * @return {void}
      */
-    unbind: function (attr) {
-        var template = this.data(config.attrs.bindTemplate);
-        if (template) {
-            this.html(template);
+    unbind: function (attr, $el) {
+        var el = $el.get(0);
+        elAnimatedMap.delete(el);
+
+        var bindTemplate = elTemplateMap.get(el);
+        if (bindTemplate) {
+            $el.html(bindTemplate);
+            elTemplateMap.delete(el);
         }
     },
 
     /**
-    * @param {Array|string|number|Object} value
+    * @param {any} value
+    * @param {string} prop
+    * @param {JQuery<HTMLElement>} $el
     * @return {void}
     */
-    handle: function (value) {
-        var templated;
+    handle: function (value, prop, $el) {
+        var el = $el.get(0);
+
         var valueToTemplate = $.extend({}, value);
         if (!$.isPlainObject(value)) {
-            var variableName = this.data('f-bind'); //Hack because i don't have access to variable name here otherwise
+            var variableName = $el.data('f-' + prop);
             valueToTemplate = { value: value };
             valueToTemplate[variableName] = value;
         } else {
             valueToTemplate.value = value; //If the key has 'weird' characters like '<>' hard to get at with a template otherwise
         }
-        var bindTemplate = this.data(config.attrs.bindTemplate);
+        var bindTemplate = elTemplateMap.get(el);
         if (bindTemplate) {
-            templated = template(bindTemplate)(valueToTemplate);
-            this.html(templated);
+            var templated = template(bindTemplate)(valueToTemplate);
+            $el.html(templated);
         } else {
-            var oldHTML = this.html();
+            var oldHTML = $el.html();
             var cleanedHTML = oldHTML.replace(/&lt;/g, '<').replace(/&gt;/g, '>');
-            templated = template(cleanedHTML)(valueToTemplate);
-            if (cleanedHTML === templated) {
+            var _templated = template(cleanedHTML)(valueToTemplate);
+            if (cleanedHTML === _templated) {
                 //templating did nothing
-                if (isArray(value)) {
+                if (Array.isArray(value)) {
                     value = value[value.length - 1];
                 }
                 value = $.isPlainObject(value) ? JSON.stringify(value) : value + '';
-                this.html(value);
+
+                addContentAndAnimate($el, value, !elAnimatedMap.has(el));
             } else {
-                this.data(config.attrs.bindTemplate, cleanedHTML);
-                this.html(templated);
+                elTemplateMap.set(el, cleanedHTML);
+                $el.html(_templated);
             }
         }
+
+        elAnimatedMap.set(el, true, config.animation);
     }
 };
 
 /***/ }),
-/* 38 */
+/* 43 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 /**
  * ## Default Attribute Handling: Read-only Binding
  *
- * Flow.js uses the HTML5 convention of prepending data- to any custom HTML attribute. Flow.js also adds `f` for easy identification of Flow.js. For example, Flow.js provides several custom attributes and attribute handlers -- including [data-f-bind](../binds/default-bind-attr), [data-f-foreach](../foreach/default-foreach-attr/), [data-f-on-init](../events/init-event-attr/), etc. You can also [add your own attribute handlers](../attribute-manager/).
+ * Flow.js uses the HTML5 convention of prepending data- to any custom HTML attribute. Flow.js also adds `f` for easy identification of Flow.js. For example, Flow.js provides several custom attributes and attribute handlers -- including [data-f-bind](../binds/default-bind-attr), [data-f-foreach](../foreach/default-foreach-attr/), etc. You can also [add your own attribute handlers](../attribute-manager/).
  *
  * The default behavior for handling a known attribute is to use the value of the model variable as the value of the attribute. (There are exceptions for some [boolean attributes](../boolean-attr/).)
  *
@@ -4105,7 +4612,7 @@ module.exports = {
 };
 
 /***/ }),
-/* 39 */
+/* 44 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -4157,16 +4664,16 @@ module.exports = function (target, domManager) {
 };
 
 /***/ }),
-/* 40 */
+/* 45 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 /* harmony export (immutable) */ __webpack_exports__["default"] = ChannelManager;
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__middleware_json_parse_middleware__ = __webpack_require__(41);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__middleware_epicenter_middleware__ = __webpack_require__(42);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__channel_manager__ = __webpack_require__(53);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__channel_manager_enhancements__ = __webpack_require__(55);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__middleware_json_parse_middleware__ = __webpack_require__(46);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__middleware_epicenter_middleware__ = __webpack_require__(47);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__channel_manager__ = __webpack_require__(61);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__channel_manager_enhancements__ = __webpack_require__(63);
 
 
 
@@ -4183,12 +4690,12 @@ function ChannelManager(opts) {
 }
 
 /***/ }),
-/* 41 */
+/* 46 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 /* harmony export (immutable) */ __webpack_exports__["a"] = JSONMiddleware;
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_utils_parse_utils__ = __webpack_require__(2);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_utils_parse_utils__ = __webpack_require__(3);
 
 
 function JSONMiddleware(config, notifier) {
@@ -4222,21 +4729,25 @@ function JSONMiddleware(config, notifier) {
 }
 
 /***/ }),
-/* 42 */
+/* 47 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__run_manager_router__ = __webpack_require__(43);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__scenario_manager_router__ = __webpack_require__(49);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__custom_run_router__ = __webpack_require__(50);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__runs_router__ = __webpack_require__(52);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4_channels_middleware_utils__ = __webpack_require__(4);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5_channels_channel_router__ = __webpack_require__(5);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__run_manager_router__ = __webpack_require__(48);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__scenario_manager_router__ = __webpack_require__(54);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__custom_run_router__ = __webpack_require__(55);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__world_manager_router__ = __webpack_require__(57);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__runs_router__ = __webpack_require__(60);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5_channels_middleware_utils__ = __webpack_require__(2);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_6_channels_channel_router__ = __webpack_require__(5);
 
 
 
 
 
+
+
+// import UserRouter from './user-router/current-user-channel';
 
 
 
@@ -4252,6 +4763,7 @@ function getOptions(opts, key) {
 
 var SCENARIO_PREFIX = 'sm:';
 var RUN_PREFIX = 'rm:';
+var WORLD_PREFIX = 'world:';
 
 var sampleRunidLength = '000001593dd81950d4ee4f3df14841769a0b'.length;
 var runidRegex = '(?:.{' + sampleRunidLength + '})';
@@ -4261,16 +4773,18 @@ var runidRegex = '(?:.{' + sampleRunidLength + '})';
 
     var customRunChannelOpts = getOptions(opts, 'runid');
     var customRunChannel = new __WEBPACK_IMPORTED_MODULE_2__custom_run_router__["a" /* default */](customRunChannelOpts, notifier);
-    var runsChannel = new __WEBPACK_IMPORTED_MODULE_3__runs_router__["a" /* default */](customRunChannelOpts, Object(__WEBPACK_IMPORTED_MODULE_4_channels_middleware_utils__["i" /* withPrefix */])(notifier, 'runs'), channelManagerContext);
+    var runsChannel = new __WEBPACK_IMPORTED_MODULE_4__runs_router__["a" /* default */](customRunChannelOpts, Object(__WEBPACK_IMPORTED_MODULE_5_channels_middleware_utils__["i" /* withPrefix */])(notifier, 'runs'), channelManagerContext);
+
+    // var userChannel = new UserRouter(getOptions(opts, 'runManager').run, withPrefix(notifier, 'user:'), channelManagerContext);
 
     /** @type {Handler[]} **/
     var handlers = [$.extend({}, customRunChannel, {
         name: 'customRun',
-        match: Object(__WEBPACK_IMPORTED_MODULE_4_channels_middleware_utils__["e" /* regex */])(runidRegex),
+        match: Object(__WEBPACK_IMPORTED_MODULE_5_channels_middleware_utils__["e" /* regex */])(runidRegex),
         options: customRunChannelOpts.channelOptions
     }), $.extend({}, runsChannel, {
         name: 'archiveRuns',
-        match: Object(__WEBPACK_IMPORTED_MODULE_4_channels_middleware_utils__["d" /* prefix */])('runs'),
+        match: Object(__WEBPACK_IMPORTED_MODULE_5_channels_middleware_utils__["d" /* prefix */])('runs:'),
         options: customRunChannelOpts.channelOptions
     })];
     var exposable = {};
@@ -4278,18 +4792,28 @@ var runidRegex = '(?:.{' + sampleRunidLength + '})';
     var runManagerOpts = getOptions(opts, 'runManager');
     if (opts.runManager || !opts.scenarioManager && runManagerOpts.serviceOptions.run) {
         var rm;
+        var isMultiplayer = runManagerOpts.serviceOptions.strategy === 'multiplayer';
         if (opts.scenarioManager) {
-            rm = new __WEBPACK_IMPORTED_MODULE_0__run_manager_router__["a" /* default */](runManagerOpts, Object(__WEBPACK_IMPORTED_MODULE_4_channels_middleware_utils__["i" /* withPrefix */])(notifier, RUN_PREFIX));
+            rm = new __WEBPACK_IMPORTED_MODULE_0__run_manager_router__["a" /* default */](runManagerOpts, Object(__WEBPACK_IMPORTED_MODULE_5_channels_middleware_utils__["i" /* withPrefix */])(notifier, RUN_PREFIX));
             handlers.push($.extend({}, rm, {
                 name: 'run',
-                match: Object(__WEBPACK_IMPORTED_MODULE_4_channels_middleware_utils__["d" /* prefix */])(RUN_PREFIX),
+                match: Object(__WEBPACK_IMPORTED_MODULE_5_channels_middleware_utils__["d" /* prefix */])(RUN_PREFIX), //if both scenario manager and run manager are being used, require a prefix
+                options: runManagerOpts.channelOptions
+            }));
+        } else if (isMultiplayer) {
+            //Ignore case where both scenario manager and multiplayer are being used
+            rm = new __WEBPACK_IMPORTED_MODULE_3__world_manager_router__["a" /* default */](runManagerOpts, Object(__WEBPACK_IMPORTED_MODULE_5_channels_middleware_utils__["i" /* withPrefix */])(notifier, [WORLD_PREFIX, '']));
+            handlers.push($.extend({}, rm, {
+                name: 'World run',
+                match: Object(__WEBPACK_IMPORTED_MODULE_5_channels_middleware_utils__["a" /* defaultPrefix */])(WORLD_PREFIX),
+                isDefault: true,
                 options: runManagerOpts.channelOptions
             }));
         } else {
-            rm = new __WEBPACK_IMPORTED_MODULE_0__run_manager_router__["a" /* default */](runManagerOpts, Object(__WEBPACK_IMPORTED_MODULE_4_channels_middleware_utils__["i" /* withPrefix */])(notifier, [RUN_PREFIX, '']));
+            rm = new __WEBPACK_IMPORTED_MODULE_0__run_manager_router__["a" /* default */](runManagerOpts, Object(__WEBPACK_IMPORTED_MODULE_5_channels_middleware_utils__["i" /* withPrefix */])(notifier, [RUN_PREFIX, '']));
             handlers.push($.extend({}, rm, {
                 name: 'run',
-                match: Object(__WEBPACK_IMPORTED_MODULE_4_channels_middleware_utils__["a" /* defaultPrefix */])(RUN_PREFIX),
+                match: Object(__WEBPACK_IMPORTED_MODULE_5_channels_middleware_utils__["a" /* defaultPrefix */])(RUN_PREFIX),
                 isDefault: true,
                 options: runManagerOpts.channelOptions
             }));
@@ -4300,10 +4824,10 @@ var runidRegex = '(?:.{' + sampleRunidLength + '})';
 
     if (opts.scenarioManager) {
         var scenarioManagerOpts = getOptions(opts, 'scenarioManager');
-        var sm = new __WEBPACK_IMPORTED_MODULE_1__scenario_manager_router__["a" /* default */](scenarioManagerOpts, Object(__WEBPACK_IMPORTED_MODULE_4_channels_middleware_utils__["i" /* withPrefix */])(notifier, [SCENARIO_PREFIX, '']));
+        var sm = new __WEBPACK_IMPORTED_MODULE_1__scenario_manager_router__["a" /* default */](scenarioManagerOpts, Object(__WEBPACK_IMPORTED_MODULE_5_channels_middleware_utils__["i" /* withPrefix */])(notifier, [SCENARIO_PREFIX, '']));
         handlers.push($.extend({}, sm, {
             name: 'scenario',
-            match: Object(__WEBPACK_IMPORTED_MODULE_4_channels_middleware_utils__["a" /* defaultPrefix */])(SCENARIO_PREFIX),
+            match: Object(__WEBPACK_IMPORTED_MODULE_5_channels_middleware_utils__["a" /* defaultPrefix */])(SCENARIO_PREFIX),
             options: scenarioManagerOpts.channelOptions,
             isDefault: true
         }));
@@ -4311,24 +4835,30 @@ var runidRegex = '(?:.{' + sampleRunidLength + '})';
         $.extend(exposable, sm.expose);
     }
 
-    var epicenterRouter = Object(__WEBPACK_IMPORTED_MODULE_5_channels_channel_router__["a" /* default */])(handlers, notifier);
+    var epicenterRouter = Object(__WEBPACK_IMPORTED_MODULE_6_channels_channel_router__["a" /* default */])(handlers, notifier);
     epicenterRouter.expose = exposable;
 
     return epicenterRouter;
 });
 
 /***/ }),
-/* 43 */
+/* 48 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__run_router__ = __webpack_require__(7);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_channels_middleware_utils__ = __webpack_require__(4);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__run_router__ = __webpack_require__(6);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_channels_middleware_utils__ = __webpack_require__(2);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_channels_channel_router__ = __webpack_require__(5);
 
 
 
 
+
+var _window = window,
+    F = _window.F;
+
+
+var RUN_PREFIX = 'current:';
 
 /* harmony default export */ __webpack_exports__["a"] = (function (config, notifier) {
     var defaults = {
@@ -4337,31 +4867,36 @@ var runidRegex = '(?:.{' + sampleRunidLength + '})';
     };
     var opts = $.extend(true, {}, defaults, config);
 
-    var rm = new window.F.manager.RunManager(opts.serviceOptions);
-    var $creationPromise = rm.getRun().then(function () {
+    var rmOptions = opts.serviceOptions;
+    var rm = new F.manager.RunManager(rmOptions);
+
+    var $creationPromise = rm.getRun().then(function (run) {
         return rm.run;
     });
     var currentChannelOpts = $.extend(true, { serviceOptions: $creationPromise }, opts.defaults, opts.current);
-    var currentRunChannel = new __WEBPACK_IMPORTED_MODULE_0__run_router__["a" /* default */](currentChannelOpts, Object(__WEBPACK_IMPORTED_MODULE_1_channels_middleware_utils__["i" /* withPrefix */])(notifier, ['current:', '']));
+    var currentRunChannel = new __WEBPACK_IMPORTED_MODULE_0__run_router__["a" /* default */](currentChannelOpts, Object(__WEBPACK_IMPORTED_MODULE_1_channels_middleware_utils__["i" /* withPrefix */])(notifier, [RUN_PREFIX, '']));
 
-    var handlers = [$.extend(currentRunChannel, {
-        match: Object(__WEBPACK_IMPORTED_MODULE_1_channels_middleware_utils__["a" /* defaultPrefix */])('current:'),
+    var runRouteHandler = $.extend(currentRunChannel, {
+        match: Object(__WEBPACK_IMPORTED_MODULE_1_channels_middleware_utils__["a" /* defaultPrefix */])(RUN_PREFIX), //TODO: Just remove prefix?
+        name: 'Current Run',
         isDefault: true,
         options: currentChannelOpts.channelOptions
-    })];
+    });
+    var handlers = [runRouteHandler];
 
-    var runMangerRouter = Object(__WEBPACK_IMPORTED_MODULE_2_channels_channel_router__["a" /* default */])(handlers, notifier);
+    var runMangerRouter = Object(__WEBPACK_IMPORTED_MODULE_2_channels_channel_router__["a" /* default */])(handlers);
     runMangerRouter.expose = { runManager: rm };
+
     return runMangerRouter;
 });
 
 /***/ }),
-/* 44 */
+/* 49 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 /* harmony export (immutable) */ __webpack_exports__["a"] = RunMetaChannel;
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_channels_channel_utils__ = __webpack_require__(3);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_channels_channel_utils__ = __webpack_require__(4);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_lodash__ = __webpack_require__(0);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_lodash___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1_lodash__);
 
@@ -4413,14 +4948,14 @@ function RunMetaChannel($runServicePromise, notifier) {
 }
 
 /***/ }),
-/* 45 */
+/* 50 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 /* harmony export (immutable) */ __webpack_exports__["a"] = RunVariablesChannel;
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_utils_general__ = __webpack_require__(6);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_utils_general__ = __webpack_require__(8);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_utils_general___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_utils_general__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_channels_channel_utils__ = __webpack_require__(3);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_channels_channel_utils__ = __webpack_require__(4);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_lodash__ = __webpack_require__(0);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_lodash___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_2_lodash__);
 
@@ -4478,11 +5013,22 @@ function RunVariablesChannel($runServicePromise, notifier) {
                 return fetchFn(runService, debounceInterval)(topics).then(notifier);
             });
         },
+        notify: function (variableObj) {
+            return $runServicePromise.then(function (runService) {
+                var variables = Object.keys(variableObj);
+                return runService.variables().query(variables).then(__WEBPACK_IMPORTED_MODULE_1_channels_channel_utils__["e" /* objectToArray */]).then(notifier);
+            });
+        },
         publishHandler: function (topics, options) {
             return $runServicePromise.then(function (runService) {
                 var toSave = Object(__WEBPACK_IMPORTED_MODULE_1_channels_channel_utils__["a" /* arrayToObject */])(topics);
                 return runService.variables().save(toSave).then(function (response) {
-                    return Object(__WEBPACK_IMPORTED_MODULE_1_channels_channel_utils__["e" /* objectToArray */])(response);
+                    var variables = Object.keys(toSave);
+                    //Get the latest from the server because what you think you saved may not be what was saved
+                    //bool -> 1, scalar to array for time-based models etc
+                    //FIXME: This causes dupe requests, one here and one after fetch by the run-variables channel
+                    //FIXME: Other publish can't do anything till this is done, so debouncing won't help. Only way out is caching
+                    return runService.variables().query(variables).then(__WEBPACK_IMPORTED_MODULE_1_channels_channel_utils__["e" /* objectToArray */]);
                 });
             });
         }
@@ -4490,13 +5036,18 @@ function RunVariablesChannel($runServicePromise, notifier) {
 }
 
 /***/ }),
-/* 46 */
+/* 51 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 /* harmony export (immutable) */ __webpack_exports__["a"] = RunOperationsChannel;
-function RunOperationsChannel($runServicePromise) {
+function RunOperationsChannel($runServicePromise, notifier) {
     return {
+        notify: function (operationsResponse) {
+            var parsed = [{ name: operationsResponse.name, value: operationsResponse.result }];
+            return notifier(parsed);
+        },
+
         publishHandler: function (topics, options) {
             return $runServicePromise.then(function (runService) {
                 var toSave = topics.map(function (topic) {
@@ -4514,7 +5065,7 @@ function RunOperationsChannel($runServicePromise) {
 }
 
 /***/ }),
-/* 47 */
+/* 52 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -4544,7 +5095,7 @@ function silencable(published, silentOptions) {
 }
 
 /***/ }),
-/* 48 */
+/* 53 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -4586,12 +5137,12 @@ function excludeReadOnly(publishable, readOnlyOptions) {
 }
 
 /***/ }),
-/* 49 */
+/* 54 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__run_router__ = __webpack_require__(7);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_channels_middleware_utils__ = __webpack_require__(4);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__run_router__ = __webpack_require__(6);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_channels_middleware_utils__ = __webpack_require__(2);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_channels_channel_router__ = __webpack_require__(5);
 
 
@@ -4647,12 +5198,12 @@ function excludeReadOnly(publishable, readOnlyOptions) {
 });
 
 /***/ }),
-/* 50 */
+/* 55 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__run_router_factory__ = __webpack_require__(51);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_channels_middleware_utils__ = __webpack_require__(4);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__run_router_factory__ = __webpack_require__(56);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_channels_middleware_utils__ = __webpack_require__(2);
 
 
 
@@ -4679,11 +5230,11 @@ function excludeReadOnly(publishable, readOnlyOptions) {
 });
 
 /***/ }),
-/* 51 */
+/* 56 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__run_router__ = __webpack_require__(7);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__run_router__ = __webpack_require__(6);
 
 var knownRunIDServiceChannels = {};
 
@@ -4698,12 +5249,251 @@ var knownRunIDServiceChannels = {};
 });
 
 /***/ }),
-/* 52 */
+/* 57 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__world_users_channel__ = __webpack_require__(58);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__world_current_user_channel__ = __webpack_require__(59);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_channels_middleware_utils__ = __webpack_require__(2);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__run_router__ = __webpack_require__(6);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4_channels_channel_router__ = __webpack_require__(5);
+
+
+
+
+
+
+
+var _window = window,
+    F = _window.F;
+
+//TODO: Add custom worldid channel as well
+//
+
+/* harmony default export */ __webpack_exports__["a"] = (function (config, notifier) {
+    var _this = this;
+
+    var defaults = {
+        serviceOptions: {},
+        channelOptions: {}
+    };
+    var opts = $.extend(true, {}, defaults, config);
+
+    var rmOptions = opts.serviceOptions;
+    var rm = new F.manager.RunManager(rmOptions);
+
+    var getRunPromise = rm.getRun().catch(function (err) {
+        console.error('Run manager get run error', err);
+        throw err;
+    });
+    var $runPromise = getRunPromise.then(function (run) {
+        if (!run.world) {
+            console.error('No world found in run. Make sure you\'re using EpicenterJS version > 2.4');
+            throw new Error('Could not find world');
+        }
+        if (rm.run.getChannel) {
+            return rm.run;
+        }
+
+        var channelManager = new F.manager.ChannelManager();
+        var worldChannel = channelManager.getWorldChannel(run.world);
+
+        worldChannel.subscribe('reset', function (run) {
+            rm.run.updateConfig({ filter: run.id });
+        }, _this, { includeMine: false });
+        rm.run.channel = worldChannel;
+        return rm.run;
+    });
+    var currentChannelOpts = $.extend(true, { serviceOptions: $runPromise }, opts.defaults, opts.current);
+    var currentRunChannel = new __WEBPACK_IMPORTED_MODULE_3__run_router__["a" /* default */](currentChannelOpts, Object(__WEBPACK_IMPORTED_MODULE_2_channels_middleware_utils__["i" /* withPrefix */])(notifier, ['run:', '']));
+
+    var runRouteHandler = $.extend(currentRunChannel, {
+        match: Object(__WEBPACK_IMPORTED_MODULE_2_channels_middleware_utils__["a" /* defaultPrefix */])('run:'),
+        name: 'World Run',
+        isDefault: true,
+        options: currentChannelOpts.channelOptions
+    });
+    var handlers = [runRouteHandler];
+    var worldPromise = getRunPromise.then(function (run) {
+        return run.world;
+    });
+    var presenceChannel = new __WEBPACK_IMPORTED_MODULE_0__world_users_channel__["a" /* default */](worldPromise, Object(__WEBPACK_IMPORTED_MODULE_2_channels_middleware_utils__["i" /* withPrefix */])(notifier, 'users:'));
+    var presenceHandler = $.extend(presenceChannel, {
+        match: Object(__WEBPACK_IMPORTED_MODULE_2_channels_middleware_utils__["d" /* prefix */])('users:'),
+        name: 'world users'
+    });
+    handlers.unshift(presenceHandler);
+
+    var userChannel = new __WEBPACK_IMPORTED_MODULE_1__world_current_user_channel__["a" /* default */](worldPromise, Object(__WEBPACK_IMPORTED_MODULE_2_channels_middleware_utils__["i" /* withPrefix */])(notifier, 'user:'));
+    var userHandler = $.extend(userChannel, {
+        match: Object(__WEBPACK_IMPORTED_MODULE_2_channels_middleware_utils__["d" /* prefix */])('user:'),
+        name: 'current user'
+    });
+    handlers.unshift(userHandler);
+
+    var runMangerRouter = Object(__WEBPACK_IMPORTED_MODULE_4_channels_channel_router__["a" /* default */])(handlers);
+    runMangerRouter.expose = { runManager: rm };
+
+    return runMangerRouter;
+});
+
+/***/ }),
+/* 58 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* harmony export (immutable) */ __webpack_exports__["a"] = WorldUsersChanngel;
+var F = window.F;
+
+function WorldUsersChanngel(worldPromise, notifier) {
+    var subsid = void 0;
+
+    var store = {
+        users: [],
+        mark: function (userid, isOnline) {
+            store.users = store.users.map(function (u) {
+                if (u.userId === userid) {
+                    u.isOnline = isOnline;
+                }
+                return u;
+            });
+            return store.users;
+        }
+    };
+    var channelManager = new F.manager.ChannelManager();
+
+    var parsedUsersPromise = worldPromise.then(function (world) {
+        var am = new F.manager.AuthManager();
+        var session = am.getCurrentUserSessionInfo();
+        var parsed = world.users.map(function (u) {
+            u.name = u.lastName;
+            u.isMe = u.userId === session.userId;
+            u.isOnline = u.isMe; //Assume i'm the only online one by default
+            return u;
+        });
+        store.users = parsed;
+        return parsed;
+    });
+
+    return {
+        unsubscribeHandler: function (knownTopics, remainingTopics) {
+            if (remainingTopics.length || !subsid) {
+                return;
+            }
+            worldPromise.then(function (world) {
+                var worldChannel = channelManager.getWorldChannel(world);
+                worldChannel.unsubscribe(subsid);
+                subsid = null;
+            });
+        },
+        subscribeHandler: function (userids) {
+            if (!subsid) {
+                worldPromise.then(function (world) {
+                    var worldChannel = channelManager.getWorldChannel(world);
+                    subsid = worldChannel.subscribe('presence', function (user, meta) {
+                        // console.log('presence', user, meta);
+                        var userid = user.id;
+                        store.mark(userid, user.isOnline);
+
+                        return notifier([{ name: '', value: store.users }]);
+                    }, { includeMine: false });
+                });
+            }
+            return parsedUsersPromise.then(function (users) {
+                return notifier([{ name: '', value: users }]);
+            });
+        },
+        publishHandler: function (topics, options) {
+            var ps = new F.service.Presence();
+            topics.forEach(function (topic) {
+                var split = topic.name.split(':');
+                if (split[1]) {
+                    if (split[1] === 'markOnline') {
+                        ps.markOnline(split[0]);
+                    } else if (split[1] === 'markOffline') {
+                        ps.markOffline(split[0]);
+                    }
+                }
+            });
+            return topics;
+        }
+    };
+}
+
+/***/ }),
+/* 59 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* harmony export (immutable) */ __webpack_exports__["a"] = WorldUsersChanngel;
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_lodash__ = __webpack_require__(0);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_lodash___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_lodash__);
+
+
+var F = window.F;
+
+function WorldUsersChanngel(worldPromise, notifier) {
+    var subsid = void 0;
+
+    var am = new F.manager.AuthManager();
+    var store = $.extend(true, {
+        isMe: true,
+        isOnline: true
+    }, am.getCurrentUserSessionInfo());
+    var channelManager = new F.manager.ChannelManager();
+
+    return {
+        unsubscribeHandler: function (unsubscribedTopics, remainingTopics) {
+            if (remainingTopics.length || !subsid) {
+                return;
+            }
+
+            worldPromise.then(function (world) {
+                var worldChannel = channelManager.getWorldChannel(world);
+                worldChannel.unsubscribe(subsid);
+            });
+            subsid = null;
+        },
+        subscribeHandler: function (userFields) {
+            return worldPromise.then(function (world) {
+                var session = am.getCurrentUserSessionInfo();
+                var myUser = __WEBPACK_IMPORTED_MODULE_0_lodash___default.a.find(world.users, function (user) {
+                    return user.userId === session.userId;
+                });
+                $.extend(store, myUser);
+
+                var toNotify = userFields.reduce(function (accum, field) {
+                    if (store[field] !== undefined) {
+                        accum.push({ name: field, value: store[field] });
+                    }
+                    return accum;
+                }, []);
+                notifier(toNotify);
+
+                //TODO: Also subscribe to presence?
+                if (!subsid) {
+                    var worldChannel = channelManager.getWorldChannel(world);
+                    subsid = worldChannel.subscribe('roles', function (user, meta) {
+                        // console.log('Roles notification', user, meta);
+                        if (user.userId === store.userId && user.role !== store.role) {
+                            store.role = user.role;
+                            notifier([{ name: 'role', value: user.role }]);
+                        }
+                    });
+                }
+            });
+        }
+    };
+}
+
+/***/ }),
+/* 60 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 /* harmony export (immutable) */ __webpack_exports__["a"] = RunsRouter;
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_utils_general__ = __webpack_require__(6);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_utils_general__ = __webpack_require__(8);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_utils_general___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_utils_general__);
 var _slicedToArray = function () { function sliceIterator(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"]) _i["return"](); } finally { if (_d) throw _e; } } return _arr; } return function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { return sliceIterator(arr, i); } else { throw new TypeError("Invalid attempt to destructure non-iterable instance"); } }; }();
 
@@ -4787,17 +5577,15 @@ function RunsRouter(options, notifier, channelManagerContext) {
 }
 
 /***/ }),
-/* 53 */
+/* 61 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_jquery__ = __webpack_require__(54);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_jquery__ = __webpack_require__(62);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_jquery___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_jquery__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__channel_utils__ = __webpack_require__(3);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__channel_utils__ = __webpack_require__(4);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_lodash__ = __webpack_require__(0);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_lodash___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_2_lodash__);
-
-
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -4851,6 +5639,19 @@ function makeSubs(topics, callback, options) {
 var cacheBySubsId = {};
 var sentDataBySubsId = {};
 
+function copy(data) {
+    if (Array.isArray(data)) {
+        return data.map(function (d) {
+            return copy(d);
+        });
+    } else if (__WEBPACK_IMPORTED_MODULE_0_jquery___default.a.isPlainObject(data)) {
+        return Object.keys(data).reduce(function (accum, key) {
+            accum[key] = copy(data[key]);
+            return accum;
+        }, {});
+    }
+    return data;
+}
 /**
 * @param {Subscription} subscription 
 * @param {*} data
@@ -4858,7 +5659,7 @@ var sentDataBySubsId = {};
 function callbackIfChanged(subscription, data) {
     var id = subscription.id;
     if (!Object(__WEBPACK_IMPORTED_MODULE_2_lodash__["isEqual"])(sentDataBySubsId[id], data)) {
-        sentDataBySubsId[id] = data;
+        sentDataBySubsId[id] = copy(data);
         subscription.callback(data, { id: id });
     }
 }
@@ -4945,7 +5746,7 @@ var ChannelManager = function () {
         key: 'notify',
         value: function notify(topic, value, options) {
             var normalized = Object(__WEBPACK_IMPORTED_MODULE_1__channel_utils__["d" /* normalizeParamOptions */])(topic, value, options);
-            // console.log('notify', normalized);
+            // console.log('notify', normalized.params);
             return this.subscriptions.forEach(function (subs) {
                 var fn = subs.batch ? checkAndNotifyBatch : checkAndNotify;
                 fn(normalized.params, subs);
@@ -5030,31 +5831,31 @@ var ChannelManager = function () {
 /* harmony default export */ __webpack_exports__["a"] = (ChannelManager);
 
 /***/ }),
-/* 54 */
+/* 62 */
 /***/ (function(module, exports) {
 
 module.exports = jQuery;
 
 /***/ }),
-/* 55 */
+/* 63 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__interpolatable__ = __webpack_require__(56);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__interpolatable__ = __webpack_require__(64);
 /* harmony reexport (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return __WEBPACK_IMPORTED_MODULE_0__interpolatable__["a"]; });
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__with_middleware__ = __webpack_require__(59);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__with_middleware__ = __webpack_require__(67);
 /* harmony reexport (binding) */ __webpack_require__.d(__webpack_exports__, "b", function() { return __WEBPACK_IMPORTED_MODULE_1__with_middleware__["a"]; });
 
 
 
 /***/ }),
-/* 56 */
+/* 64 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 /* harmony export (immutable) */ __webpack_exports__["a"] = interpolatable;
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__subscribe_interpolator__ = __webpack_require__(57);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__publish_interpolator__ = __webpack_require__(58);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__subscribe_interpolator__ = __webpack_require__(65);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__publish_interpolator__ = __webpack_require__(66);
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
 var _get = function get(object, property, receiver) { if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { return get(parent, property, receiver); } } else if ("value" in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } };
@@ -5127,7 +5928,7 @@ function interpolatable(ChannelManager) {
 }
 
 /***/ }),
-/* 57 */
+/* 65 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -5135,7 +5936,7 @@ function interpolatable(ChannelManager) {
 /* unused harmony export interpolateWithDependencies */
 /* unused harmony export mergeInterpolatedTopicsWithData */
 /* harmony export (immutable) */ __webpack_exports__["a"] = subscribeInterpolator;
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__interpolatable_utils__ = __webpack_require__(11);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__interpolatable_utils__ = __webpack_require__(12);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_lodash__ = __webpack_require__(0);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_lodash___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1_lodash__);
 
@@ -5213,15 +6014,15 @@ function subscribeInterpolator(subscribeFn, onDependencyChange) {
 }
 
 /***/ }),
-/* 58 */
+/* 66 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 /* unused harmony export getDependencies */
 /* unused harmony export interpolateWithDependencies */
 /* harmony export (immutable) */ __webpack_exports__["a"] = publishInterpolator;
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__interpolatable_utils__ = __webpack_require__(11);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_channels_channel_utils__ = __webpack_require__(3);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__interpolatable_utils__ = __webpack_require__(12);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_channels_channel_utils__ = __webpack_require__(4);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_lodash__ = __webpack_require__(0);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_lodash___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_2_lodash__);
 
@@ -5281,13 +6082,13 @@ function publishInterpolator(publishFunction, fetchFn) {
 }
 
 /***/ }),
-/* 59 */
+/* 67 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 /* harmony export (immutable) */ __webpack_exports__["a"] = withMiddleware;
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__middleware_manager__ = __webpack_require__(60);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__channel_utils__ = __webpack_require__(3);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__middleware_manager__ = __webpack_require__(68);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__channel_utils__ = __webpack_require__(4);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_lodash__ = __webpack_require__(0);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_lodash___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_2_lodash__);
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
@@ -5428,7 +6229,7 @@ function withMiddleware(ChannelManager) {
 }
 
 /***/ }),
-/* 60 */
+/* 68 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";

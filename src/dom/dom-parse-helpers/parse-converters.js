@@ -31,7 +31,6 @@ function findConvertersForEl($el) {
  * @returns {string[]} converters
  */
 export function getConvertersForEl($el, attribute) {
-
     function getAllConverters($el, attribute) {
         const convertersAsPipes = getConvertersFromAttr($el, attribute);
         if (convertersAsPipes.length) {
@@ -48,17 +47,13 @@ export function getConvertersForEl($el, attribute) {
             return convertersOnElement;
         }
 
-        const $parentEl = $el.closest('[data-f-convert]');
-        if ($parentEl) {
-            return findConvertersForEl($parentEl);
-        }
         return [];
     }
    
     const converters = getAllConverters($el, attribute);
+    const $parentEl = $el.parents('[data-f-convert]').eq(0);
     const resolvedConverters = converters.reduce((accum, val)=> {
         if (val === 'inherit') {
-            const $parentEl = $el.parents('[data-f-convert]').eq(0);
             const parentConv = getConvertersForEl($parentEl, attribute);
             accum = accum.concat(parentConv);
         } else {
@@ -67,5 +62,8 @@ export function getConvertersForEl($el, attribute) {
         return accum;
     }, []);
 
+    if (!resolvedConverters.length && $parentEl.length) {
+        return getConvertersForEl($parentEl, attribute);
+    }
     return resolvedConverters;
 }
