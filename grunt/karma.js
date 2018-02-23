@@ -83,7 +83,7 @@ module.exports = function (grunt) {
             }
         },
         debugMode: {
-            browsers: ['Chrome'],
+            browsers: ['Chrome_with_devtools'],
             singleRun: false,
             files: fileDeps.concat([
                 { src: 'tests/test-list.js', watched: true, included: true, served: true },
@@ -92,7 +92,13 @@ module.exports = function (grunt) {
                 preprocessors: {
                     'tests/test-list.js': ['webpack'],
                 }
-            }
+            },
+            customLaunchers: {
+                Chrome_with_devtools: {
+                    base: 'Chrome',
+                    flags: ['--auto-open-devtools-for-tabs', '--start-maximized']
+                }
+            },
         },
         singleTest: {
             files: fileDeps

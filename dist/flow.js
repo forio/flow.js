@@ -1808,7 +1808,6 @@ function findConvertersForEl($el) {
  * @returns {string[]} converters
  */
 function getConvertersForEl($el, attribute) {
-
     function getAllConverters($el, attribute) {
         var convertersAsPipes = getConvertersFromAttr($el, attribute);
         if (convertersAsPipes.length) {
@@ -1825,17 +1824,13 @@ function getConvertersForEl($el, attribute) {
             return convertersOnElement;
         }
 
-        var $parentEl = $el.closest('[data-f-convert]');
-        if ($parentEl) {
-            return findConvertersForEl($parentEl);
-        }
         return [];
     }
 
     var converters = getAllConverters($el, attribute);
+    var $parentEl = $el.parents('[data-f-convert]').eq(0);
     var resolvedConverters = converters.reduce(function (accum, val) {
         if (val === 'inherit') {
-            var $parentEl = $el.parents('[data-f-convert]').eq(0);
             var parentConv = getConvertersForEl($parentEl, attribute);
             accum = accum.concat(parentConv);
         } else {
@@ -1844,6 +1839,9 @@ function getConvertersForEl($el, attribute) {
         return accum;
     }, []);
 
+    if (!resolvedConverters.length && $parentEl.length) {
+        return getConvertersForEl($parentEl, attribute);
+    }
     return resolvedConverters;
 }
 
