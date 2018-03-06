@@ -1,5 +1,3 @@
-'use strict';
-
 function toImplicitType(data) {
     var objRegex = /^(?:\{.*\})$/;
     var arrRegex = /^(?:\[.*])$/;

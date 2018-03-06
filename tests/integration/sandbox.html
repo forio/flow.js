@@ -42,12 +42,14 @@
 </head>
 
 <body>
-    <table data-f-convert="pickEvery(1)">
+<!--     <table data-f-convert="pickEvery(1)">
         <tr data-f-convert="$#,###.00| inherit">
             <td data-f-repeat="Price">?</td>
         </tr>
-    </table>
-
+    </table> -->
+        <ul data-f-foreach="[1,2,3]">
+            <li><%= value %></li>
+        </ul>
         <script>
             Flow.initialize({
                 channel: {
