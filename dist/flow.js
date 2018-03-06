@@ -147,9 +147,9 @@ module.exports = {
 /* harmony export (immutable) */ __webpack_exports__["c"] = mapWithPrefix;
 /* harmony export (immutable) */ __webpack_exports__["i"] = withPrefix;
 /* harmony export (immutable) */ __webpack_exports__["h"] = unprefix;
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__silencable__ = __webpack_require__(52);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__silencable__ = __webpack_require__(51);
 /* harmony reexport (binding) */ __webpack_require__.d(__webpack_exports__, "f", function() { return __WEBPACK_IMPORTED_MODULE_0__silencable__["a"]; });
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__exclude_read_only__ = __webpack_require__(53);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__exclude_read_only__ = __webpack_require__(52);
 /* harmony reexport (binding) */ __webpack_require__.d(__webpack_exports__, "b", function() { return __WEBPACK_IMPORTED_MODULE_1__exclude_read_only__["a"]; });
 var CHANNEL_DELIMITER = ':';
 
@@ -272,8 +272,6 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "toImplicitType", function() { return toImplicitType; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "toPublishableFormat", function() { return toPublishableFormat; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "splitNameArgs", function() { return splitNameArgs; });
-
-
 function toImplicitType(data) {
     var objRegex = /^(?:\{.*\})$/;
     var arrRegex = /^(?:\[.*])$/;
@@ -653,9 +651,9 @@ function router(handlers) {
 /* unused harmony export OPERATIONS_PREFIX */
 /* unused harmony export _shouldFetch */
 /* harmony export (immutable) */ __webpack_exports__["a"] = RunRouter;
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__run_meta_channel__ = __webpack_require__(49);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__run_variables_channel__ = __webpack_require__(50);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__run_operations_channel__ = __webpack_require__(51);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__run_meta_channel__ = __webpack_require__(48);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__run_variables_channel__ = __webpack_require__(49);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__run_operations_channel__ = __webpack_require__(50);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_3_channels_channel_router__ = __webpack_require__(5);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_4_channels_middleware_utils__ = __webpack_require__(2);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_5_lodash__ = __webpack_require__(0);
@@ -1482,21 +1480,23 @@ module.exports = function () {
                 var converters = getConvertersForEl($el, attr);
 
                 var topics = parseTopicsFromAttributeValue(attrVal);
-                var channelPrefix = getChannelForAttribute($el, attr);
-                if (channelPrefix) {
-                    topics = topics.map(function (v) {
-                        var hasChannelDefined = v.indexOf(':') !== -1;
-                        return hasChannelDefined ? v : channelPrefix + ':' + v;
-                    });
+                if (topics && topics.length) {
+                    var channelPrefix = getChannelForAttribute($el, attr);
+                    if (channelPrefix) {
+                        topics = topics.map(function (v) {
+                            var hasChannelDefined = v.indexOf(':') !== -1;
+                            return hasChannelDefined ? v : channelPrefix + ':' + v;
+                        });
+                    }
+                    var channelConfig = getChannelConfigForElement(domEl);
+                    attrList[attr] = {
+                        isBindable: isBindable,
+                        channelPrefix: channelPrefix,
+                        channelConfig: channelConfig,
+                        topics: topics,
+                        converters: converters
+                    };
                 }
-                var channelConfig = getChannelConfigForElement(domEl);
-                attrList[attr] = {
-                    isBindable: isBindable,
-                    channelPrefix: channelPrefix,
-                    channelConfig: channelConfig,
-                    topics: topics,
-                    converters: converters
-                };
             });
             //Need this to be set before subscribing or callback maybe called before it's set
             this.matchedElements.set(domEl, attrList);
@@ -4668,21 +4668,20 @@ module.exports = function (target, domManager) {
 "use strict";
 Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 /* harmony export (immutable) */ __webpack_exports__["default"] = ChannelManager;
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__middleware_json_parse_middleware__ = __webpack_require__(46);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__middleware_epicenter_middleware__ = __webpack_require__(47);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__channel_manager__ = __webpack_require__(61);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__channel_manager_enhancements__ = __webpack_require__(63);
-
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__middleware_epicenter_middleware__ = __webpack_require__(46);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__channel_manager__ = __webpack_require__(61);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__channel_manager_enhancements__ = __webpack_require__(63);
+// import JSONParseMiddleware from './middleware/json-parse-middleware';
 
 
 
 
 
 //Moving  epicenter-centric glue here so channel-manager can be tested in isolation
-var InterpolatableChannelManagerWithMiddleware = Object(__WEBPACK_IMPORTED_MODULE_3__channel_manager_enhancements__["a" /* interpolatable */])(Object(__WEBPACK_IMPORTED_MODULE_3__channel_manager_enhancements__["b" /* withMiddleware */])(__WEBPACK_IMPORTED_MODULE_2__channel_manager__["a" /* default */]));
+var InterpolatableChannelManagerWithMiddleware = Object(__WEBPACK_IMPORTED_MODULE_2__channel_manager_enhancements__["a" /* interpolatable */])(Object(__WEBPACK_IMPORTED_MODULE_2__channel_manager_enhancements__["b" /* withMiddleware */])(__WEBPACK_IMPORTED_MODULE_1__channel_manager__["a" /* default */]));
 function ChannelManager(opts) {
     var cm = new InterpolatableChannelManagerWithMiddleware($.extend(true, {}, {
-        middlewares: [__WEBPACK_IMPORTED_MODULE_0__middleware_json_parse_middleware__["a" /* default */], __WEBPACK_IMPORTED_MODULE_1__middleware_epicenter_middleware__["a" /* default */]]
+        middlewares: [__WEBPACK_IMPORTED_MODULE_0__middleware_epicenter_middleware__["a" /* default */]]
     }, opts));
     return cm;
 }
@@ -4692,52 +4691,15 @@ function ChannelManager(opts) {
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* harmony export (immutable) */ __webpack_exports__["a"] = JSONMiddleware;
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_utils_parse_utils__ = __webpack_require__(3);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__run_manager_router__ = __webpack_require__(47);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__scenario_manager_router__ = __webpack_require__(53);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__custom_run_router__ = __webpack_require__(54);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__world_manager_router__ = __webpack_require__(56);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__runs_router__ = __webpack_require__(59);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__json_router__ = __webpack_require__(60);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_6_channels_middleware_utils__ = __webpack_require__(2);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_7_channels_channel_router__ = __webpack_require__(5);
 
-
-function JSONMiddleware(config, notifier) {
-    return {
-        /**
-         * Subscribe to string literals
-         * @param  {string[]} topics
-         * @return {string[]}        topics excluding parsed
-         */
-        subscribeHandler: function (topics) {
-            var sorted = [].concat(topics).reduce(function (acc, topic) {
-                var parsed = Object(__WEBPACK_IMPORTED_MODULE_0_utils_parse_utils__["toImplicitType"])(topic);
-                if (typeof parsed === 'string') {
-                    acc.rest.push(topic);
-                } else {
-                    acc.claimed.push({
-                        name: topic,
-                        value: parsed
-                    });
-                }
-                return acc;
-            }, { claimed: [], rest: [] });
-
-            if (sorted.claimed.length) {
-                notifier(sorted.claimed);
-            }
-
-            return sorted.rest;
-        }
-    };
-}
-
-/***/ }),
-/* 47 */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__run_manager_router__ = __webpack_require__(48);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__scenario_manager_router__ = __webpack_require__(54);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__custom_run_router__ = __webpack_require__(55);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__world_manager_router__ = __webpack_require__(57);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__runs_router__ = __webpack_require__(60);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5_channels_middleware_utils__ = __webpack_require__(2);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_6_channels_channel_router__ = __webpack_require__(5);
 
 
 
@@ -4771,18 +4733,21 @@ var runidRegex = '(?:.{' + sampleRunidLength + '})';
 
     var customRunChannelOpts = getOptions(opts, 'runid');
     var customRunChannel = new __WEBPACK_IMPORTED_MODULE_2__custom_run_router__["a" /* default */](customRunChannelOpts, notifier);
-    var runsChannel = new __WEBPACK_IMPORTED_MODULE_4__runs_router__["a" /* default */](customRunChannelOpts, Object(__WEBPACK_IMPORTED_MODULE_5_channels_middleware_utils__["i" /* withPrefix */])(notifier, 'runs'), channelManagerContext);
-
+    var runsChannel = new __WEBPACK_IMPORTED_MODULE_4__runs_router__["a" /* default */](customRunChannelOpts, Object(__WEBPACK_IMPORTED_MODULE_6_channels_middleware_utils__["i" /* withPrefix */])(notifier, 'runs'), channelManagerContext);
+    var jsonChannel = new __WEBPACK_IMPORTED_MODULE_5__json_router__["a" /* default */](opts, notifier);
     // var userChannel = new UserRouter(getOptions(opts, 'runManager').run, withPrefix(notifier, 'user:'), channelManagerContext);
 
     /** @type {Handler[]} **/
-    var handlers = [$.extend({}, customRunChannel, {
+    var handlers = [$.extend({}, jsonChannel, {
+        name: 'json',
+        match: __WEBPACK_IMPORTED_MODULE_5__json_router__["b" /* match */]
+    }), $.extend({}, customRunChannel, {
         name: 'customRun',
-        match: Object(__WEBPACK_IMPORTED_MODULE_5_channels_middleware_utils__["e" /* regex */])(runidRegex),
+        match: Object(__WEBPACK_IMPORTED_MODULE_6_channels_middleware_utils__["e" /* regex */])(runidRegex),
         options: customRunChannelOpts.channelOptions
     }), $.extend({}, runsChannel, {
         name: 'archiveRuns',
-        match: Object(__WEBPACK_IMPORTED_MODULE_5_channels_middleware_utils__["d" /* prefix */])('runs:'),
+        match: Object(__WEBPACK_IMPORTED_MODULE_6_channels_middleware_utils__["d" /* prefix */])('runs:'),
         options: customRunChannelOpts.channelOptions
     })];
     var exposable = {};
@@ -4792,26 +4757,26 @@ var runidRegex = '(?:.{' + sampleRunidLength + '})';
         var rm;
         var isMultiplayer = runManagerOpts.serviceOptions.strategy === 'multiplayer';
         if (opts.scenarioManager) {
-            rm = new __WEBPACK_IMPORTED_MODULE_0__run_manager_router__["a" /* default */](runManagerOpts, Object(__WEBPACK_IMPORTED_MODULE_5_channels_middleware_utils__["i" /* withPrefix */])(notifier, RUN_PREFIX));
+            rm = new __WEBPACK_IMPORTED_MODULE_0__run_manager_router__["a" /* default */](runManagerOpts, Object(__WEBPACK_IMPORTED_MODULE_6_channels_middleware_utils__["i" /* withPrefix */])(notifier, RUN_PREFIX));
             handlers.push($.extend({}, rm, {
                 name: 'run',
-                match: Object(__WEBPACK_IMPORTED_MODULE_5_channels_middleware_utils__["d" /* prefix */])(RUN_PREFIX), //if both scenario manager and run manager are being used, require a prefix
+                match: Object(__WEBPACK_IMPORTED_MODULE_6_channels_middleware_utils__["d" /* prefix */])(RUN_PREFIX), //if both scenario manager and run manager are being used, require a prefix
                 options: runManagerOpts.channelOptions
             }));
         } else if (isMultiplayer) {
             //Ignore case where both scenario manager and multiplayer are being used
-            rm = new __WEBPACK_IMPORTED_MODULE_3__world_manager_router__["a" /* default */](runManagerOpts, Object(__WEBPACK_IMPORTED_MODULE_5_channels_middleware_utils__["i" /* withPrefix */])(notifier, [WORLD_PREFIX, '']));
+            rm = new __WEBPACK_IMPORTED_MODULE_3__world_manager_router__["a" /* default */](runManagerOpts, Object(__WEBPACK_IMPORTED_MODULE_6_channels_middleware_utils__["i" /* withPrefix */])(notifier, [WORLD_PREFIX, '']));
             handlers.push($.extend({}, rm, {
                 name: 'World run',
-                match: Object(__WEBPACK_IMPORTED_MODULE_5_channels_middleware_utils__["a" /* defaultPrefix */])(WORLD_PREFIX),
+                match: Object(__WEBPACK_IMPORTED_MODULE_6_channels_middleware_utils__["a" /* defaultPrefix */])(WORLD_PREFIX),
                 isDefault: true,
                 options: runManagerOpts.channelOptions
             }));
         } else {
-            rm = new __WEBPACK_IMPORTED_MODULE_0__run_manager_router__["a" /* default */](runManagerOpts, Object(__WEBPACK_IMPORTED_MODULE_5_channels_middleware_utils__["i" /* withPrefix */])(notifier, [RUN_PREFIX, '']));
+            rm = new __WEBPACK_IMPORTED_MODULE_0__run_manager_router__["a" /* default */](runManagerOpts, Object(__WEBPACK_IMPORTED_MODULE_6_channels_middleware_utils__["i" /* withPrefix */])(notifier, [RUN_PREFIX, '']));
             handlers.push($.extend({}, rm, {
                 name: 'run',
-                match: Object(__WEBPACK_IMPORTED_MODULE_5_channels_middleware_utils__["a" /* defaultPrefix */])(RUN_PREFIX),
+                match: Object(__WEBPACK_IMPORTED_MODULE_6_channels_middleware_utils__["a" /* defaultPrefix */])(RUN_PREFIX),
                 isDefault: true,
                 options: runManagerOpts.channelOptions
             }));
@@ -4822,10 +4787,10 @@ var runidRegex = '(?:.{' + sampleRunidLength + '})';
 
     if (opts.scenarioManager) {
         var scenarioManagerOpts = getOptions(opts, 'scenarioManager');
-        var sm = new __WEBPACK_IMPORTED_MODULE_1__scenario_manager_router__["a" /* default */](scenarioManagerOpts, Object(__WEBPACK_IMPORTED_MODULE_5_channels_middleware_utils__["i" /* withPrefix */])(notifier, [SCENARIO_PREFIX, '']));
+        var sm = new __WEBPACK_IMPORTED_MODULE_1__scenario_manager_router__["a" /* default */](scenarioManagerOpts, Object(__WEBPACK_IMPORTED_MODULE_6_channels_middleware_utils__["i" /* withPrefix */])(notifier, [SCENARIO_PREFIX, '']));
         handlers.push($.extend({}, sm, {
             name: 'scenario',
-            match: Object(__WEBPACK_IMPORTED_MODULE_5_channels_middleware_utils__["a" /* defaultPrefix */])(SCENARIO_PREFIX),
+            match: Object(__WEBPACK_IMPORTED_MODULE_6_channels_middleware_utils__["a" /* defaultPrefix */])(SCENARIO_PREFIX),
             options: scenarioManagerOpts.channelOptions,
             isDefault: true
         }));
@@ -4833,14 +4798,14 @@ var runidRegex = '(?:.{' + sampleRunidLength + '})';
         $.extend(exposable, sm.expose);
     }
 
-    var epicenterRouter = Object(__WEBPACK_IMPORTED_MODULE_6_channels_channel_router__["a" /* default */])(handlers, notifier);
+    var epicenterRouter = Object(__WEBPACK_IMPORTED_MODULE_7_channels_channel_router__["a" /* default */])(handlers, notifier);
     epicenterRouter.expose = exposable;
 
     return epicenterRouter;
 });
 
 /***/ }),
-/* 48 */
+/* 47 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -4889,7 +4854,7 @@ var RUN_PREFIX = 'current:';
 });
 
 /***/ }),
-/* 49 */
+/* 48 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -4946,7 +4911,7 @@ function RunMetaChannel($runServicePromise, notifier) {
 }
 
 /***/ }),
-/* 50 */
+/* 49 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -5034,7 +4999,7 @@ function RunVariablesChannel($runServicePromise, notifier) {
 }
 
 /***/ }),
-/* 51 */
+/* 50 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -5063,7 +5028,7 @@ function RunOperationsChannel($runServicePromise, notifier) {
 }
 
 /***/ }),
-/* 52 */
+/* 51 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -5093,7 +5058,7 @@ function silencable(published, silentOptions) {
 }
 
 /***/ }),
-/* 53 */
+/* 52 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -5135,7 +5100,7 @@ function excludeReadOnly(publishable, readOnlyOptions) {
 }
 
 /***/ }),
-/* 54 */
+/* 53 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -5196,11 +5161,11 @@ function excludeReadOnly(publishable, readOnlyOptions) {
 });
 
 /***/ }),
-/* 55 */
+/* 54 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__run_router_factory__ = __webpack_require__(56);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__run_router_factory__ = __webpack_require__(55);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_channels_middleware_utils__ = __webpack_require__(2);
 
 
@@ -5228,7 +5193,7 @@ function excludeReadOnly(publishable, readOnlyOptions) {
 });
 
 /***/ }),
-/* 56 */
+/* 55 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -5247,12 +5212,12 @@ var knownRunIDServiceChannels = {};
 });
 
 /***/ }),
-/* 57 */
+/* 56 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__world_users_channel__ = __webpack_require__(58);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__world_current_user_channel__ = __webpack_require__(59);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__world_users_channel__ = __webpack_require__(57);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__world_current_user_channel__ = __webpack_require__(58);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_channels_middleware_utils__ = __webpack_require__(2);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__run_router__ = __webpack_require__(6);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_4_channels_channel_router__ = __webpack_require__(5);
@@ -5337,7 +5302,7 @@ var _window = window,
 });
 
 /***/ }),
-/* 58 */
+/* 57 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -5420,7 +5385,7 @@ function WorldUsersChanngel(worldPromise, notifier) {
 }
 
 /***/ }),
-/* 59 */
+/* 58 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -5486,7 +5451,7 @@ function WorldUsersChanngel(worldPromise, notifier) {
 }
 
 /***/ }),
-/* 60 */
+/* 59 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -5570,6 +5535,37 @@ function RunsRouter(options, notifier, channelManagerContext) {
                 topicParamMap[topic] = subsMap;
                 return runs;
             });
+        }
+    };
+}
+
+/***/ }),
+/* 60 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* harmony export (immutable) */ __webpack_exports__["b"] = match;
+/* harmony export (immutable) */ __webpack_exports__["a"] = JSONRouter;
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_utils_parse_utils__ = __webpack_require__(3);
+
+
+function match(topic) {
+    var parsed = Object(__WEBPACK_IMPORTED_MODULE_0_utils_parse_utils__["toImplicitType"])(topic);
+    return typeof parsed !== 'string';
+}
+
+function JSONRouter(config, notifier) {
+    return {
+        subscribeHandler: function (topics, options, prefix) {
+            var parsed = topics.map(function (t) {
+                return {
+                    name: t,
+                    value: Object(__WEBPACK_IMPORTED_MODULE_0_utils_parse_utils__["toImplicitType"])(t)
+                };
+            });
+            setTimeout(function () {
+                notifier(parsed);
+            }, 0);
         }
     };
 }

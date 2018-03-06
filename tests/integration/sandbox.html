@@ -3,9 +3,13 @@
 <head>
     <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css">
     <script src="/node_modules/jquery/dist/jquery.min.js"></script>
-    <script src="/node_modules/lodash/lodash.js"></script>
     <script src="/node_modules/epicenter-js/dist/epicenter.min.js"></script>
+
+    <script src="/node_modules/lodash/lodash.js"></script>
     <script src="/dist/flow-edge.js"></script>
+   <!--  
+    <script src="//cdnjs.cloudflare.com/ajax/libs/lodash.js/2.4.1/lodash.js"></script>
+    <script src="https://forio.com/tools/js-libs/flow/0.12.0/flow.min.js"></script> -->
     <style>
         @keyframes fadein {
             0% {
@@ -42,13 +46,38 @@
 </head>
 
 <body>
+        <button data-f-on-click="step">Step</button>
+        <button data-f-on-click="reset">reset</button>
 <!--     <table data-f-convert="pickEvery(1)">
         <tr data-f-convert="$#,###.00| inherit">
             <td data-f-repeat="Price">?</td>
         </tr>
     </table> -->
-        <ul data-f-foreach="[1,2,3]">
+
+
+  <!--       <ul data-f-foreach="[1,2,3]">
             <li><%= value %></li>
+        </ul> -->
+
+        <h6>Nested multi-foreach</h6>
+        <ul data-f-foreach="price in Price">
+            <li>
+                Price index: <%= index %>
+                <ol data-f-foreach="sales in Sales">
+                    <li>Sales: <%= sales %></li>
+                </ol>
+            </li>
+        </ul>
+
+        <h6>Nested foreach + bind</h6>
+        <ul data-f-foreach="price in Price">
+            <li>
+                Price index: <%= index %>
+                <div data-f-bind="Sales">
+                    <span>Hello</span>
+                    <%= value %>
+                </div>
+            </li>
         </ul>
         <script>
             Flow.initialize({

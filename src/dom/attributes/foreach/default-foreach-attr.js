@@ -130,9 +130,6 @@ function refToMarkup(refKey) {
 const elTemplateMap = new WeakMap();
 const elAnimatedMap = new WeakMap(); //TODO: Can probably get rid of this if we make subscribe a promise and distinguish between initial value
 
-const MISSING_REFERENCES_KEY = 'missing-references';
-const MISSING_REFERENCE_ATTR = `data-${MISSING_REFERENCES_KEY}`;
-
 const CURRENT_INDEX_KEY = 'current-index';
 const CURRENT_INDEX_ATTR = `data-${CURRENT_INDEX_KEY}`;
 
@@ -152,10 +149,10 @@ module.exports = {
             elTemplateMap.delete(el);
         }
 
-        const dataToRemove = [config.attrs.keyAs, config.attrs.valueAs, MISSING_REFERENCES_KEY];
+        const dataToRemove = [config.attrs.keyAs, config.attrs.valueAs];
         $el.removeData(dataToRemove);
 
-        const attrsToRemove = [MISSING_REFERENCE_ATTR, CURRENT_INDEX_ATTR];
+        const attrsToRemove = [CURRENT_INDEX_ATTR];
         $el.removeAttr(attrsToRemove.join(' '));
     },
 
@@ -193,37 +190,29 @@ module.exports = {
         
         const keyRegex = new RegExp('\\b' + keyAttr + '\\b');
         const valueRegex = new RegExp('\\b' + valueAttr + '\\b');
+        
+        // Go through matching template tags and make a list of references you don't know about
+        //  -- replace with a comment ref id, or lodash will break on missing references
+        // Try templating data with what you know
+        //  -- if success, nothing to do
+        //  -- if fail, store your data and wait for someone else to take it and template
+        // 
+        
+        const missingReferences = {};
 
-        //This needs to handle nested loops so you may not have all the data you need
-        const closestParentWithMissing = $el.closest(`[${MISSING_REFERENCE_ATTR}]`);
-        if (closestParentWithMissing.length) { //(grand)parent already stubbed out missing references
-            const missing = closestParentWithMissing.data(MISSING_REFERENCES_KEY);
-            each(missing, function (replacement, template) {
-                if (keyRegex.test(template) || valueRegex.test(template)) {
-                    cloop = cloop.replace(refToMarkup(replacement), template);
+        const templateTagsUsed = cloop.match(/<%[=-]?([\s\S]+?)%>/g);
+        if (templateTagsUsed) {
+            templateTagsUsed.forEach(function (tag) {
+                if (tag.match(/\w+/) && !keyRegex.test(tag) && !valueRegex.test(tag)) {
+                    let refKey = missingReferences[tag];
+                    if (!refKey) {
+                        refKey = uniqueId('no-ref');
+                        missingReferences[tag] = refKey;
+                    }
+                    const r = new RegExp(tag, 'g');
+                    cloop = cloop.replace(r, refToMarkup(refKey));
                 }
             });
-            //don't remove MISSING_REFERENCE_ATTR here because siblings may need it
-        } else {
-            const missingReferences = {};
-            const templateTagsUsed = cloop.match(/<%[=-]?([\s\S]+?)%>/g);
-            if (templateTagsUsed) {
-                templateTagsUsed.forEach(function (tag) {
-                    if (tag.match(/\w+/) && !keyRegex.test(tag) && !valueRegex.test(tag)) {
-                        let refKey = missingReferences[tag];
-                        if (!refKey) {
-                            refKey = uniqueId('no-ref');
-                            missingReferences[tag] = refKey;
-                        }
-                        const r = new RegExp(tag, 'g');
-                        cloop = cloop.replace(r, refToMarkup(refKey));
-                    }
-                });
-            }
-            if (Object.keys(missingReferences).length) {
-                //Attr, not data, to make jQ selector easy. No f- prefix to keep this from flow.
-                $el.attr(MISSING_REFERENCE_ATTR, JSON.stringify(missingReferences));
-            }
         }
 
         const closestKnownDataEl = $el.closest(`[${CURRENT_INDEX_ATTR}]`);
@@ -246,7 +235,13 @@ module.exports = {
             let nodes;
             let isTemplated;
             try {
-                const templatedLoop = templateFn(templateData);
+                let templatedLoop = templateFn(templateData);
+                Object.keys(missingReferences).forEach((originalTemplateVal)=> {
+                    const commentRef = missingReferences[originalTemplateVal];
+                    const r = new RegExp(refToMarkup(commentRef), 'g');
+                    templatedLoop = templatedLoop.replace(r, originalTemplateVal);
+                });
+                // console.log(templatedLoop, missingReferences);
                 isTemplated = templatedLoop !== cloop;
                 nodes = $(templatedLoop);
             } catch (e) { //you don't have all the references you need;
