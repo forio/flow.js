@@ -82,7 +82,7 @@ describe('parse utils', function () {
         });
         it('should support equals format', ()=> {
             const op = toPublishableFormat('foo=bar');
-            expect(op).to.eql([{ name: 'foo', value: ['bar'] }]);
+            expect(op).to.eql([{ name: 'foo', value: 'bar' }]);
         });
     });
 });

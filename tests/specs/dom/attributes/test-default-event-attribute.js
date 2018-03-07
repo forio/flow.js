@@ -47,7 +47,7 @@ describe('Default Event attribute', function () {
             $node.on(config.events.operate, spy);
             $node.trigger('click');
 
-            spy.getCall(0).args[1].should.eql({ data: [{ name: 'somevariable', value: ['1'] }], source: 'on-click' });
+            spy.getCall(0).args[1].should.eql({ data: [{ name: 'somevariable', value: '1' }], source: 'on-click' });
         });
 
         it('should pass parameters in the right order for multiples', function () {
@@ -59,7 +59,7 @@ describe('Default Event attribute', function () {
             $node.trigger('click');
 
             spy.getCall(0).args[1].should.eql({
-                data: [{ name: 'stuff', value: ['1'] }, { name: 'foo', value: ['bar'] }, { name: 'reset', value: ['0'] }],
+                data: [{ name: 'stuff', value: ['1'] }, { name: 'foo', value: 'bar' }, { name: 'reset', value: ['0'] }],
                 source: 'on-click'
             });
         });

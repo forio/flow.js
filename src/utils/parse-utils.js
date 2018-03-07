@@ -72,7 +72,7 @@ function toPublishableFormat(value) {
     const listOfOperations = split.map(function (value) {
         if (value && value.indexOf('=') !== -1) {
             const split = value.split('=');
-            return { name: split[0].trim(), value: [split[1].trim()] };
+            return { name: split[0].trim(), value: split[1].trim() };
         }
         const parsed = splitNameArgs(value);
         return { name: parsed.name, value: parsed.args };

@@ -364,10 +364,15 @@ module.exports = (function () {
                     const sourceMeta = elMeta[source] || {};
 
                     const filtered = ([].concat(data || [])).reduce(function (accum, operation) {
-                        const val = operation.value ? [].concat(operation.value) : [];
-                        operation.value = val.map(function (val) {
-                            return parseUtils.toImplicitType($.trim(val));
-                        });
+                        const val = operation.value;
+                        if (Array.isArray(val)) {
+                            operation.value = val.map(function (val) {
+                                return parseUtils.toImplicitType(val);
+                            });
+                        } else {
+                            operation.value = parseUtils.toImplicitType(val);
+                        }
+
                         const isConverter = converterManager.getConverter(operation.name);
                         if (isConverter) {
                             accum.converters.push(operation);
