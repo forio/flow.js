@@ -11,7 +11,7 @@
 
 const _ = require('lodash');
 const { isFunction, isString, isRegExp, find, mapValues } = require('lodash');
-const { splitNameArgs } = require('../utils/parse-utils');
+const { splitNameArgs, toImplicitType } = require('../utils/parse-utils');
 
 var normalize = function (alias, converter, acceptList) {
     var ret = [];
@@ -112,6 +112,8 @@ var converterManager = {
 
     getConverter: function (alias) {
         var norm = splitNameArgs(alias);
+        norm.args = norm.args.map(toImplicitType);
+
         var conv = find(this.list, function (converter) {
             return matchConverter(norm.name, converter);
         });

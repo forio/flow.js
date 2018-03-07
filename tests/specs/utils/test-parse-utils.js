@@ -1,6 +1,7 @@
 'use strict';
 
-import { toImplicitType, splitNameArgs } from 'src/utils/parse-utils';
+import { toImplicitType, splitNameArgs, toPublishableFormat } from 'src/utils/parse-utils';
+import { expect } from 'chai';
 
 describe('parse utils', function () {
     describe('#toImplicitType', function () {
@@ -51,20 +52,33 @@ describe('parse utils', function () {
 
     describe('#splitNameArgs', ()=> {
         it('splits fn calls with single params', ()=> {
-            splitNameArgs('abc(1)').should.eql({ name: 'abc', args: [1] });
+            splitNameArgs('abc(1)').should.eql({ name: 'abc', args: ['1'] });
             splitNameArgs('abc(def)').should.eql({ name: 'abc', args: ['def'] });
         });
         it('splits fn calls with multiple params', ()=> {
-            splitNameArgs('abc(1, def)').should.eql({ name: 'abc', args: [1, 'def'] });
-            splitNameArgs('abc(1,     def)').should.eql({ name: 'abc', args: [1, 'def'] });
+            splitNameArgs('abc(1, def)').should.eql({ name: 'abc', args: ['1', 'def'] });
+            splitNameArgs('abc(1,     def)').should.eql({ name: 'abc', args: ['1', 'def'] });
         });
         it('parses fncalls with no params', ()=> {
             splitNameArgs('abc()').should.eql({ name: 'abc', args: [] });
             splitNameArgs('abc').should.eql({ name: 'abc', args: [] });
         });
         it('should allow escaped strings as args', ()=> {
-            splitNameArgs('abc(1, d\\,ef)').should.eql({ name: 'abc', args: [1, 'd,ef'] });
-
+            splitNameArgs('abc(1, d\\,ef)').should.eql({ name: 'abc', args: ['1', 'd,ef'] });
+        });
+    });
+    describe('#toPublishableFormat', ()=> {
+        it('should extracts single name value from operations-format', ()=> {
+            const op = toPublishableFormat('add(2,3)');
+            expect(op).to.eql([{ name: 'add', value: ['2', '3'] }]);
+        });
+        it('should allow names without params', ()=> {
+            const op = toPublishableFormat('add');
+            expect(op).to.eql([{ name: 'add', value: [] }]);
+        });
+        it('should allow pipe seperated inpus', ()=> {
+            const op = toPublishableFormat('add | subtract(2, 3)');
+            expect(op).to.eql([{ name: 'add', value: [] }, { name: 'subtract', value: ['2', '3'] }]);
         });
     });
 });
