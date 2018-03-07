@@ -80,5 +80,9 @@ describe('parse utils', function () {
             const op = toPublishableFormat('add | subtract(2, 3)');
             expect(op).to.eql([{ name: 'add', value: [] }, { name: 'subtract', value: ['2', '3'] }]);
         });
+        it('should support equals format', ()=> {
+            const op = toPublishableFormat('foo=bar');
+            expect(op).to.eql([{ name: 'foo', value: ['bar'] }]);
+        });
     });
 });

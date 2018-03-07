@@ -38,22 +38,30 @@ describe('Default Event attribute', function () {
             $node.trigger('click');
 
             spy.getCall(0).args[1].should.eql({ data: [{ name: 'stuff', value: [] }], source: 'on-click' });
+        });
+        it('should support name = value format', function () {
+            var $node = $('<button data-f-on-click="somevariable = 1"> Click </button>');
+            defaultEventAttr.init.call($node, 'on-click', 'somevariable = 1');
 
+            var spy = sinon.spy();
+            $node.on(config.events.operate, spy);
+            $node.trigger('click');
+
+            spy.getCall(0).args[1].should.eql({ data: [{ name: 'somevariable', value: ['1'] }], source: 'on-click' });
         });
 
         it('should pass parameters in the right order for multiples', function () {
             var $node = $('<button data-f-on-click="stuff"> Click </button>');
-            defaultEventAttr.init.call($node, 'on-click', 'stuff(1)| reset(0)');
+            defaultEventAttr.init.call($node, 'on-click', 'stuff(1)| foo=bar | reset(0)');
 
             var spy = sinon.spy();
             $node.on(config.events.operate, spy);
             $node.trigger('click');
 
             spy.getCall(0).args[1].should.eql({
-                data: [{ name: 'stuff', value: ['1'] }, { name: 'reset', value: ['0'] }],
+                data: [{ name: 'stuff', value: ['1'] }, { name: 'foo', value: ['bar'] }, { name: 'reset', value: ['0'] }],
                 source: 'on-click'
             });
-
         });
     });
 
