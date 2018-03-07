@@ -1,6 +1,37 @@
 const cm = require('src/converters/converter-manager.js');
-
+const numberConverter = require('../numberformat-converter');
 describe('Number format Converter', ()=> {
+    describe('#alias', ()=> {
+        const validZeros = ['0', '00', '00.00', '0,000', '0,000.0'];
+        const validHashes = ['#', '##', '##.##', '#,###', '#,###.#'];
+        const percents = ['%', '0%', '0.00%', '#,###%', '#,###.#%'];
+        const shortFormats = ['s0', 's0.0', 's#,##'];
+        const validCurrencies = ['$#,###', '€0.0'];
+
+        const totalValid = [].concat(validZeros, validHashes, percents, shortFormats, validCurrencies);
+
+        it('should match known formats', ()=> {
+            totalValid.forEach((v)=> {
+                numberConverter.alias(v).should.equal(true);
+            });
+        });
+        it('should not match invalid formats', ()=> {
+            const invalid = ['apples', '0apples#', 's0goo', 'a'];
+            invalid.forEach((v)=> {
+                numberConverter.alias(v).should.equal(false);
+            });
+        });
+        it('should match formats with prefixes', ()=> {
+            totalValid.forEach((v)=> {
+                numberConverter.alias(`$ ${v}`).should.equal(true);
+            });
+        });
+        it('should match formats with prefixes and suffixes', ()=> {
+            totalValid.forEach((v)=> {
+                numberConverter.alias(`$ ${v} apples`).should.equal(true);
+            });
+        });
+    });
     describe('#parse', ()=> {
         it('should convert plain strings to numbers', ()=> {
             cm.parse('1', '$###.00').should.equal(1);

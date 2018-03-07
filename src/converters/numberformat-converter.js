@@ -63,10 +63,51 @@
  */
 
 const { isArray, isString, isNumber } = require('lodash');
+
+function isAllowedLeading(str) { 
+    const validPrefixes = ['₹', '$', '£', '¥', '±', '’', '¢', '€'];
+    return validPrefixes.indexOf(str.trim()) !== -1;
+}
+
 module.exports = {
     alias: function (name) {
-        //TODO: Fancy regex to match number formats here
-        return (name.indexOf('#') !== -1 || name.indexOf('0') !== -1);
+        function checkValMatch(v) {
+            const validStandalone = ['#', '0', '%'];
+            if (v.length === 1) {
+                return validStandalone.indexOf(v) !== -1;
+            }
+
+            const validFirstChars = ['s', '#', '0', '.'];
+            const validLastChars = ['%', '#', '0'];
+
+            const isValidFirstChar = validFirstChars.indexOf(v.charAt(0)) !== -1 || isAllowedLeading(v.charAt(0));
+            const isValidLastChar = validLastChars.indexOf(v.charAt(v.length - 1)) !== -1;
+
+            if (v.length === 2) {
+                return isValidFirstChar && isValidLastChar;
+            }
+            
+            const validRemainingChars = ['#', '0', '.', ','];
+            const areRemainingCharactersValid = v.substr(1, v.length - 2).split('').reduce((accum, char)=> {
+                const isMatch = validRemainingChars.indexOf(char) !== -1;
+                if (!isMatch) {
+                    accum = false;
+                }
+                return accum;
+            }, true);
+
+            return isValidFirstChar && isValidLastChar && areRemainingCharactersValid;
+        }
+
+        const parts = name.split(' ');
+        if (parts.length === 3) {
+            return checkValMatch(parts[1]); //prefix and suffix
+        } else if (parts.length === 1) {
+            return checkValMatch(parts[0]); //just the number
+        } else if (parts.length === 2) {
+            return checkValMatch(parts[0]) || checkValMatch(parts[1]); //either prefix or suffix
+        }
+        return false;
     },
 
     parse: function (val) {
@@ -188,29 +229,6 @@ module.exports = {
             return (fixesTXT.length > 1) ? fixesTXT[1].toString() : '';
         }
 
-        function isCurrency(string) { // eslint-disable-line
-            var s = $.trim(string);
-
-            if (s === '$' ||
-                s === 'â‚¬' ||
-                s === 'Â¥' ||
-                s === 'Â£' ||
-                s === 'â‚¡' ||
-                s === 'â‚±' ||
-                s === 'KÄ?' ||
-                s === 'kr' ||
-                s === 'Â¢' ||
-                s === 'â‚ª' ||
-                s === 'Æ’' ||
-                s === 'â‚©' ||
-                s === 'â‚«') {
-
-                return true;
-            }
-
-            return false;
-        }
-
         function format (number, formatTXT) { // eslint-disable-line
             if (isArray(number)) {
                 number = number[number.length - 1];
@@ -228,7 +246,16 @@ module.exports = {
             }
 
             //var formatTXT;
-            formatTXT = formatTXT.replace('&euro;', 'â‚¬');
+            const entityCodeMapping = {
+                '&euro;': '€',
+                '&dollar;': '$',
+                '&cent;': '¢',
+                '&pound;': '£',
+                '&yen;': '¥',
+            };
+            Object.keys(entityCodeMapping).forEach((code)=> {
+                formatTXT = formatTXT.replace(code, entityCodeMapping[code]);
+            });
 
             // Divide +/- Number Format
             var formats = formatTXT.split(';');
@@ -284,12 +311,12 @@ module.exports = {
                 if (!isNaN(Number(rightOfPrefix)) && rightOfPrefix.indexOf('.') === -1) {
                     var limitDigits = Number(rightOfPrefix);
                     if (number < Math.pow(10, limitDigits)) {
-                        if (isCurrency(leadingText)) {
+                        if (isAllowedLeading(leadingText)) {
                             return sign + leadingText + getDigits(number, Number(rightOfPrefix)) + scales[valScale];
                         } else {
                             return leadingText + sign + getDigits(number, Number(rightOfPrefix)) + scales[valScale];
                         }
-                    } else if (isCurrency(leadingText)) {
+                    } else if (isAllowedLeading(leadingText)) {
                         return sign + leadingText + Math.round(number) + scales[valScale];
                     } else {
                         return leadingText + sign + Math.round(number) + scales[valScale];
@@ -301,7 +328,7 @@ module.exports = {
                     formatTXT = formatTXT.substr(0, formatTXT.length - SUFFIX.length);
 
                     var valWithoutLeading = format(((sign === '') ? 1 : -1) * number, formatTXT) + scales[valScale] + SUFFIX;
-                    if (isCurrency(leadingText) && sign !== '') {
+                    if (isAllowedLeading(leadingText) && sign !== '') {
                         valWithoutLeading = valWithoutLeading.substr(sign.length);
                         return sign + leadingText + valWithoutLeading;
                     }
