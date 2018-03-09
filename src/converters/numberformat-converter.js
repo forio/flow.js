@@ -62,7 +62,7 @@
  *
  */
 
-const { isArray, isString, isNumber } = require('lodash');
+const { isString, isNumber } = require('lodash');
 
 function isAllowedLeading(str) { 
     const validPrefixes = ['₹', '$', '£', '¥', '±', '’', '¢', '€'];
@@ -70,7 +70,15 @@ function isAllowedLeading(str) {
 }
 
 module.exports = {
+    /**
+     * @param {string} name
+     * @returns {boolean}
+     */
     alias: function (name) {
+        /**
+         * @param {string} v
+         * @returns {boolean}
+         */
         function checkValMatch(v) {
             const validStandalone = ['#', '0', '%'];
             if (v.length === 1) {
@@ -110,6 +118,10 @@ module.exports = {
         return false;
     },
 
+    /**
+     * @param {string} val
+     * @returns {number}
+     */
     parse: function (val) {
         val += '';
         var isNegative = val.charAt(0) === '-';
@@ -126,7 +138,7 @@ module.exports = {
             suffix = results[2].toLowerCase();
         }
 
-        /*eslint no-magic-numbers: 0*/
+        /*eslint no-magic-numbers: 0 complexity: 0 */
         switch (suffix) {
             case '%':
                 number = number / 100;
@@ -230,7 +242,7 @@ module.exports = {
         }
 
         function format (number, formatTXT) { // eslint-disable-line
-            if (isArray(number)) {
+            if (Array.isArray(number)) {
                 number = number[number.length - 1];
             }
             if (!isString(number) && !isNumber(number)) {

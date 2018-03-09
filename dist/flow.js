@@ -312,7 +312,7 @@ function toImplicitType(data) {
 
 function splitUnescapedCommas(str) {
     var regex = /(\\.|[^,])+/g;
-    var m;
+    var m = void 0;
 
     var op = [];
     while ((m = regex.exec(str)) !== null) {
@@ -330,26 +330,33 @@ function splitUnescapedCommas(str) {
     return op;
 }
 
+function splitNameArgs(value) {
+    value = value.trim();
+    var fnName = value.split('(')[0];
+    var params = value.substring(value.indexOf('(') + 1, value.indexOf(')'));
+    var args = splitUnescapedCommas(params).map(function (p) {
+        return p.trim();
+    });
+    return { name: fnName, args: args };
+}
+
+/**
+ * @param  {string} value
+ * @return {{ name: string, value: string[]}[]}       [description]
+ */
 function toPublishableFormat(value) {
     var split = (value || '').split('|');
     var listOfOperations = split.map(function (value) {
-        value = value.trim();
-        var fnName = value.split('(')[0];
-        var params = value.substring(value.indexOf('(') + 1, value.indexOf(')'));
-        var args = params.trim() !== '' ? params.split(',') : [];
-
-        return { name: fnName, value: args };
+        if (value && value.indexOf('=') !== -1) {
+            var _split = value.split('=');
+            return { name: _split[0].trim(), value: _split[1].trim() };
+        }
+        var parsed = splitNameArgs(value);
+        return { name: parsed.name, value: parsed.args };
     });
     return listOfOperations;
 }
 
-function splitNameArgs(value) {
-    var fnName = value.split('(')[0];
-    var params = value.substring(value.indexOf('(') + 1, value.indexOf(')'));
-    var args = splitUnescapedCommas(params);
-    args = args.map(toImplicitType);
-    return { name: fnName, args: args };
-}
 
 
 /***/ }),
@@ -1670,10 +1677,15 @@ module.exports = function () {
                     var sourceMeta = elMeta[source] || {};
 
                     var filtered = [].concat(data || []).reduce(function (accum, operation) {
-                        var val = operation.value ? [].concat(operation.value) : [];
-                        operation.value = val.map(function (val) {
-                            return parseUtils.toImplicitType($.trim(val));
-                        });
+                        var val = operation.value;
+                        if (Array.isArray(val)) {
+                            operation.value = val.map(function (val) {
+                                return parseUtils.toImplicitType(val);
+                            });
+                        } else {
+                            operation.value = parseUtils.toImplicitType(val);
+                        }
+
                         var isConverter = converterManager.getConverter(operation.name);
                         if (isConverter) {
                             accum.converters.push(operation);
@@ -1941,7 +1953,8 @@ var _require = __webpack_require__(0),
     mapValues = _require.mapValues;
 
 var _require2 = __webpack_require__(3),
-    splitNameArgs = _require2.splitNameArgs;
+    splitNameArgs = _require2.splitNameArgs,
+    toImplicitType = _require2.toImplicitType;
 
 var normalize = function (alias, converter, acceptList) {
     var ret = [];
@@ -2042,6 +2055,8 @@ var converterManager = {
 
     getConverter: function (alias) {
         var norm = splitNameArgs(alias);
+        norm.args = norm.args.map(toImplicitType);
+
         var conv = find(this.list, function (converter) {
             return matchConverter(norm.name, converter);
         });
@@ -2578,10 +2593,50 @@ var _require = __webpack_require__(0),
     isString = _require.isString,
     isNumber = _require.isNumber;
 
+function isAllowedLeading(str) {
+    var validPrefixes = ['₹', '$', '£', '¥', '±', '’', '¢', '€'];
+    return validPrefixes.indexOf(str.trim()) !== -1;
+}
+
 module.exports = {
     alias: function (name) {
-        //TODO: Fancy regex to match number formats here
-        return name.indexOf('#') !== -1 || name.indexOf('0') !== -1;
+        function checkValMatch(v) {
+            var validStandalone = ['#', '0', '%'];
+            if (v.length === 1) {
+                return validStandalone.indexOf(v) !== -1;
+            }
+
+            var validFirstChars = ['s', '#', '0', '.'];
+            var validLastChars = ['%', '#', '0'];
+
+            var isValidFirstChar = validFirstChars.indexOf(v.charAt(0)) !== -1 || isAllowedLeading(v.charAt(0));
+            var isValidLastChar = validLastChars.indexOf(v.charAt(v.length - 1)) !== -1;
+
+            if (v.length === 2) {
+                return isValidFirstChar && isValidLastChar;
+            }
+
+            var validRemainingChars = ['#', '0', '.', ','];
+            var areRemainingCharactersValid = v.substr(1, v.length - 2).split('').reduce(function (accum, char) {
+                var isMatch = validRemainingChars.indexOf(char) !== -1;
+                if (!isMatch) {
+                    accum = false;
+                }
+                return accum;
+            }, true);
+
+            return isValidFirstChar && isValidLastChar && areRemainingCharactersValid;
+        }
+
+        var parts = name.split(' ');
+        if (parts.length === 3) {
+            return checkValMatch(parts[1]); //prefix and suffix
+        } else if (parts.length === 1) {
+            return checkValMatch(parts[0]); //just the number
+        } else if (parts.length === 2) {
+            return checkValMatch(parts[0]) || checkValMatch(parts[1]); //either prefix or suffix
+        }
+        return false;
     },
 
     parse: function (val) {
@@ -2702,18 +2757,6 @@ module.exports = {
             return fixesTXT.length > 1 ? fixesTXT[1].toString() : '';
         }
 
-        function isCurrency(string) {
-            // eslint-disable-line
-            var s = $.trim(string);
-
-            if (s === '$' || s === 'â‚¬' || s === 'Â¥' || s === 'Â£' || s === 'â‚¡' || s === 'â‚±' || s === 'KÄ?' || s === 'kr' || s === 'Â¢' || s === 'â‚ª' || s === 'Æ’' || s === 'â‚©' || s === 'â‚«') {
-
-                return true;
-            }
-
-            return false;
-        }
-
         function format(number, formatTXT) {
             // eslint-disable-line
             if (isArray(number)) {
@@ -2732,7 +2775,16 @@ module.exports = {
             }
 
             //var formatTXT;
-            formatTXT = formatTXT.replace('&euro;', 'â‚¬');
+            var entityCodeMapping = {
+                '&euro;': '€',
+                '&dollar;': '$',
+                '&cent;': '¢',
+                '&pound;': '£',
+                '&yen;': '¥'
+            };
+            Object.keys(entityCodeMapping).forEach(function (code) {
+                formatTXT = formatTXT.replace(code, entityCodeMapping[code]);
+            });
 
             // Divide +/- Number Format
             var formats = formatTXT.split(';');
@@ -2787,12 +2839,12 @@ module.exports = {
                 if (!isNaN(Number(rightOfPrefix)) && rightOfPrefix.indexOf('.') === -1) {
                     var limitDigits = Number(rightOfPrefix);
                     if (number < Math.pow(10, limitDigits)) {
-                        if (isCurrency(leadingText)) {
+                        if (isAllowedLeading(leadingText)) {
                             return sign + leadingText + getDigits(number, Number(rightOfPrefix)) + scales[valScale];
                         } else {
                             return leadingText + sign + getDigits(number, Number(rightOfPrefix)) + scales[valScale];
                         }
-                    } else if (isCurrency(leadingText)) {
+                    } else if (isAllowedLeading(leadingText)) {
                         return sign + leadingText + Math.round(number) + scales[valScale];
                     } else {
                         return leadingText + sign + Math.round(number) + scales[valScale];
@@ -2804,7 +2856,7 @@ module.exports = {
                     formatTXT = formatTXT.substr(0, formatTXT.length - SUFFIX.length);
 
                     var valWithoutLeading = format((sign === '' ? 1 : -1) * number, formatTXT) + scales[valScale] + SUFFIX;
-                    if (isCurrency(leadingText) && sign !== '') {
+                    if (isAllowedLeading(leadingText) && sign !== '') {
                         valWithoutLeading = valWithoutLeading.substr(sign.length);
                         return sign + leadingText + valWithoutLeading;
                     }
@@ -3742,9 +3794,6 @@ function refToMarkup(refKey) {
 var elTemplateMap = new WeakMap();
 var elAnimatedMap = new WeakMap(); //TODO: Can probably get rid of this if we make subscribe a promise and distinguish between initial value
 
-var MISSING_REFERENCES_KEY = 'missing-references';
-var MISSING_REFERENCE_ATTR = 'data-' + MISSING_REFERENCES_KEY;
-
 var CURRENT_INDEX_KEY = 'current-index';
 var CURRENT_INDEX_ATTR = 'data-' + CURRENT_INDEX_KEY;
 
@@ -3764,10 +3813,10 @@ module.exports = {
             elTemplateMap.delete(el);
         }
 
-        var dataToRemove = [config.attrs.keyAs, config.attrs.valueAs, MISSING_REFERENCES_KEY];
+        var dataToRemove = [config.attrs.keyAs, config.attrs.valueAs];
         $el.removeData(dataToRemove);
 
-        var attrsToRemove = [MISSING_REFERENCE_ATTR, CURRENT_INDEX_ATTR];
+        var attrsToRemove = [CURRENT_INDEX_ATTR];
         $el.removeAttr(attrsToRemove.join(' '));
     },
 
@@ -3806,37 +3855,28 @@ module.exports = {
         var keyRegex = new RegExp('\\b' + keyAttr + '\\b');
         var valueRegex = new RegExp('\\b' + valueAttr + '\\b');
 
-        //This needs to handle nested loops so you may not have all the data you need
-        var closestParentWithMissing = $el.closest('[' + MISSING_REFERENCE_ATTR + ']');
-        if (closestParentWithMissing.length) {
-            //(grand)parent already stubbed out missing references
-            var missing = closestParentWithMissing.data(MISSING_REFERENCES_KEY);
-            each(missing, function (replacement, template) {
-                if (keyRegex.test(template) || valueRegex.test(template)) {
-                    cloop = cloop.replace(refToMarkup(replacement), template);
+        // Go through matching template tags and make a list of references you don't know about
+        //  -- replace with a comment ref id, or lodash will break on missing references
+        // Try templating data with what you know
+        //  -- if success, nothing to do
+        //  -- if fail, store your data and wait for someone else to take it and template
+        // 
+
+        var missingReferences = {};
+
+        var templateTagsUsed = cloop.match(/<%[=-]?([\s\S]+?)%>/g);
+        if (templateTagsUsed) {
+            templateTagsUsed.forEach(function (tag) {
+                if (tag.match(/\w+/) && !keyRegex.test(tag) && !valueRegex.test(tag)) {
+                    var refKey = missingReferences[tag];
+                    if (!refKey) {
+                        refKey = uniqueId('no-ref');
+                        missingReferences[tag] = refKey;
+                    }
+                    var r = new RegExp(tag, 'g');
+                    cloop = cloop.replace(r, refToMarkup(refKey));
                 }
             });
-            //don't remove MISSING_REFERENCE_ATTR here because siblings may need it
-        } else {
-            var missingReferences = {};
-            var templateTagsUsed = cloop.match(/<%[=-]?([\s\S]+?)%>/g);
-            if (templateTagsUsed) {
-                templateTagsUsed.forEach(function (tag) {
-                    if (tag.match(/\w+/) && !keyRegex.test(tag) && !valueRegex.test(tag)) {
-                        var refKey = missingReferences[tag];
-                        if (!refKey) {
-                            refKey = uniqueId('no-ref');
-                            missingReferences[tag] = refKey;
-                        }
-                        var r = new RegExp(tag, 'g');
-                        cloop = cloop.replace(r, refToMarkup(refKey));
-                    }
-                });
-            }
-            if (Object.keys(missingReferences).length) {
-                //Attr, not data, to make jQ selector easy. No f- prefix to keep this from flow.
-                $el.attr(MISSING_REFERENCE_ATTR, JSON.stringify(missingReferences));
-            }
         }
 
         var closestKnownDataEl = $el.closest('[' + CURRENT_INDEX_ATTR + ']');
@@ -3860,6 +3900,12 @@ module.exports = {
             var isTemplated = void 0;
             try {
                 var templatedLoop = templateFn(templateData);
+                Object.keys(missingReferences).forEach(function (originalTemplateVal) {
+                    var commentRef = missingReferences[originalTemplateVal];
+                    var r = new RegExp(refToMarkup(commentRef), 'g');
+                    templatedLoop = templatedLoop.replace(r, originalTemplateVal);
+                });
+                // console.log(templatedLoop, missingReferences);
                 isTemplated = templatedLoop !== cloop;
                 nodes = $(templatedLoop);
             } catch (e) {

@@ -241,7 +241,6 @@ module.exports = {
                     const r = new RegExp(refToMarkup(commentRef), 'g');
                     templatedLoop = templatedLoop.replace(r, originalTemplateVal);
                 });
-                // console.log(templatedLoop, missingReferences);
                 isTemplated = templatedLoop !== cloop;
                 nodes = $(templatedLoop);
             } catch (e) { //you don't have all the references you need;
