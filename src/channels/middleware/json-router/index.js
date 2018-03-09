@@ -10,15 +10,21 @@ export default function JSONRouter(config, notifier) {
         match: match,
         name: 'JSON Route',
         subscribeHandler: function (topics, options, prefix) {
-            const parsed = topics.map((t)=> {
-                return {
-                    name: t,
-                    value: toImplicitType(t)
-                };
-            });
+            const parsed = topics.reduce((accum, t)=> {
+                if (match(t)) {
+                    accum.claimed.push({
+                        name: t,
+                        value: toImplicitType(t)
+                    });
+                } else {
+                    accum.rest.push(t);
+                }
+                return accum;
+            }, { claimed: [], rest: [] });
             setTimeout(()=> {
-                notifier(parsed);
+                notifier(parsed.claimed);
             }, 0);
+            return parsed.rest;
         }
     };
 }

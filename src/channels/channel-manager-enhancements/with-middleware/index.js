@@ -54,19 +54,21 @@ export default function withMiddleware(ChannelManager) {
             return prom;
         }
         /**
-         * Allow intercepting and excluding topics from subscription
+         * Allow intercepting and excluding topics from by subsequent middlewares
          * @param  {string | string[]}   topics
          * @param  {Function} cb
          * @param  {Object}   options
          * @return {string}           subscription id
          */
         subscribe(topics, cb, options) {
-            var subscribeMiddlewares = this.middlewares.filter('subscribe');
-            var newTopics = [].concat(topics);
+            const subsid = super.subscribe(topics, cb, options);
+            const subscribeMiddlewares = this.middlewares.filter('subscribe');
+            //Subscription needs to happen first, or if you skip topics they'll never be subscribed, so you can't notify
+            let newTopics = [].concat(topics);
             subscribeMiddlewares.forEach(function (middleware) {
                 newTopics = middleware(newTopics, options) || newTopics;
             });
-            return super.subscribe(newTopics, cb, options);
+            return subsid;
         }
 
         /**
