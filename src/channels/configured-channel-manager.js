@@ -1,7 +1,7 @@
 import DefaultChannelManager from './channel-manager';
 
-import EpicenterRoutes from './middleware/epicenter-middleware';
-import JSONRoutes from './middleware/epicenter-middleware/json-router';
+import EpicenterRoutes from './middleware/epicenter-router';
+import JSONRoutes from './middleware/json-router';
 
 import { interpolatable, withMiddleware } from './channel-manager-enhancements';
 

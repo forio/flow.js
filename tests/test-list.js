@@ -17,10 +17,8 @@ require('./specs/dom/attributes/test-default-foreach-attr');
 require('./specs/dom/attributes/test-repeat-attr');
 require('./specs/dom/attributes/test-default-bind-attr');
 
-require('./specs/channels/test-channel-manager'); //0.6secons
-require('./specs/channels/middleware/test-run-meta-channel');
-require('./specs/channels/test-channel-util');
-require('./specs/channels/test-channel-router'); //1.1 secs..
+// require('./specs/channels/test-channel-manager'); //0.6secons
+// require('./specs/channels/test-channel-router'); //1.1 secs..
 // require('./specs/test-flow'); Needs more work with testing timers
 
 
