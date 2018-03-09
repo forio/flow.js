@@ -5,7 +5,6 @@ import WorldManagerRouter from './world-manager-router';
 
 import RunsRouter from './runs-router';
 
-import { match as JSONMatch, default as JSONRouter } from './json-router';
 // import UserRouter from './user-router/current-user-channel';
 
 import { regex, withPrefix, prefix as prefixMatch, defaultPrefix } from 'channels/middleware/utils';
@@ -33,15 +32,10 @@ export default function (config, notifier, channelManagerContext) {
     var customRunChannelOpts = getOptions(opts, 'runid');
     var customRunChannel = new CustomRunRouter(customRunChannelOpts, notifier);
     var runsChannel = new RunsRouter(customRunChannelOpts, withPrefix(notifier, 'runs'), channelManagerContext);
-    var jsonChannel = new JSONRouter(opts, notifier);
     // var userChannel = new UserRouter(getOptions(opts, 'runManager').run, withPrefix(notifier, 'user:'), channelManagerContext);
     
     /** @type {Handler[]} **/
     var handlers = [
-        $.extend({}, jsonChannel, {
-            name: 'json',
-            match: JSONMatch,
-        }),
         $.extend({}, customRunChannel, { 
             name: 'customRun',
             match: regex(runidRegex),

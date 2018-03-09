@@ -7,6 +7,8 @@ export function match(topic) {
 
 export default function JSONRouter(config, notifier) {
     return {
+        match: match,
+        name: 'JSON Route',
         subscribeHandler: function (topics, options, prefix) {
             const parsed = topics.map((t)=> {
                 return {
