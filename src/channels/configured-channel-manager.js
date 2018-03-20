@@ -2,6 +2,7 @@ import DefaultChannelManager from './channel-manager';
 
 import EpicenterRoutes from './middleware/epicenter-router';
 import JSONRoutes from './middleware/json-router';
+import DefaultRoutes from './middleware/default-router';
 
 import { interpolatable, withMiddleware } from './channel-manager-enhancements';
 
@@ -9,7 +10,7 @@ import { interpolatable, withMiddleware } from './channel-manager-enhancements';
 var InterpolatableChannelManagerWithMiddleware = interpolatable(withMiddleware(DefaultChannelManager));
 export default function ChannelManager(opts) {
     var cm = new InterpolatableChannelManagerWithMiddleware($.extend(true, {}, {
-        middlewares: [JSONRoutes, EpicenterRoutes]
+        middlewares: [DefaultRoutes, JSONRoutes, EpicenterRoutes]
     }, opts));
     return cm;
 }
