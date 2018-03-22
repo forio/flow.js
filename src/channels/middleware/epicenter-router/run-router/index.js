@@ -92,9 +92,9 @@ export default function RunRouter(config, notifier) {
                 operationsChannel.notify({ name: 'reset', result: data }, meta);
             }, this, subscribeOpts);
 
-            rs.channel.subscribe('', (data, meta)=> {
-                console.log('everything', data, meta);
-            });
+            // rs.channel.subscribe('', (data, meta)=> {
+            //     console.log('everything', data, meta);
+            // });
         }
     });
 

@@ -61,7 +61,7 @@
 
         <div data-f-bind="foo"></div>
 
-        <!-- <h6>Nested multi-foreach</h6>
+        <h6>Nested multi-foreach</h6>
         <ul data-f-foreach="price in Price">
             <li>
                 Price index: <%= index %>
@@ -71,7 +71,7 @@
             </li>
         </ul>
 
-        <h6>Nested foreach + bind</h6>
+<!--         <h6>Nested foreach + bind</h6>
         <ul data-f-foreach="price in Price">
             <li>
                 Price index: <%= index %>
@@ -82,24 +82,11 @@
             </li>
         </ul> -->
         <script>
-            var defaultRoutes = function(options, notifier) {
-                return {
-                    match: (t)=> t === 'foo',
-                    subscribeHandler: (topics)=> {
-                        const handledtopics = topics.reduce((accum, t)=> {
-                            if (t === 'foo') {
-                                accum.claimed.push(t);
-                            } else {
-                                accum.rest.push(t);
-                            }
-                            return accum;
-                        }, { claimed: [], rest: [] });
-                        setTimeout(()=> {
-                            notifier([{ name: 'foo', value: 'bar' }]);
-                        }, 0);
-                        return handledtopics.rest;
-                    }
-                };
+            var defaultRoutes = {
+                match: 'foo',
+                subscribeHandler: ()=> {
+                    return 'bar';
+                }
             };
 
             Flow.initialize({
