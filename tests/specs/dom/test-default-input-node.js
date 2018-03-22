@@ -87,6 +87,11 @@ describe('Input node', function () {
             var claimed = $(node).is(NodeClass.selector);
             claimed.should.be.true;
         });
+        it('should claim textareas', function () {
+            var node = make('<textarea data-f-bind="stuff"></textarea>');
+            var claimed = $(node).is(NodeClass.selector);
+            claimed.should.be.true;
+        });
         it('should not claim divs', function () {
             var node = make('<div> stuff </div>');
             var claimed = $(node).is(NodeClass.selector);
@@ -99,6 +104,12 @@ describe('Input node', function () {
             var nv = makeView('<input type="text" value="5" data-f-bind="stuff"/>');
             var val = nv.getUIValue();
             val.should.equal('5');
+        });
+        it('should get value of textareas with line breaks', ()=> {
+            var textStr = 'foo\nbar\r\nsdfsd';
+            var nv = makeView(`<textarea data-f-bind="stuff">${textStr}</textarea>`);
+            var val = nv.getUIValue();
+            val.should.equal('foo\nbar\nsdfsd'); //jquery strips out /rs, which okay because /ns are stored anyway
         });
     });
 });

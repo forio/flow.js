@@ -26,13 +26,15 @@ describe('Node Manager', function () {
     });
 
     describe('#replace', function () {
+        //FIXME: Handlers here have to match exactly whats specified while creating it, it should really break it apart into individual ones
+        //Don't really have a valid usecase for replace yet, so leaving as-is
         it('should replace existing string converters with new ones', function () {
-            var conv = nm.getHandler('input, select');
+            var conv = nm.getHandler('input, select, textarea');
             should.not.exist(conv.apple);
 
-            nm.replace('input, select', { apple: 'sauce', handle: $.noop });
+            nm.replace('input, select, textarea', { apple: 'sauce', handle: $.noop });
 
-            conv = nm.getHandler('input, select');
+            conv = nm.getHandler('input, select, textarea');
             conv.apple.should.equal('sauce');
         });
     });
