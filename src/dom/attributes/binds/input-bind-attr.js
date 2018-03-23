@@ -17,10 +17,8 @@
  * 		</select>
  *
  */
-const { isArray } = require('lodash');
-
 module.exports = {
-    target: 'input, select',
+    target: 'input, select, textarea',
 
     test: 'bind',
 
@@ -29,7 +27,9 @@ module.exports = {
     * @return {void}
     */ 
     handle: function (value) {
-        if (isArray(value)) {
+        if (value === undefined) {
+            value = '';
+        } else if (Array.isArray(value)) {
             value = value[value.length - 1];
         }
         this.val(value);
