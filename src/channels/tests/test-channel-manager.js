@@ -1,4 +1,4 @@
-import ChannelManager from 'src/channels/channel-manager';
+import ChannelManager from '../channel-manager';
 
 function noop() {}
 describe('Subscription Manager', ()=> {

@@ -55,9 +55,11 @@
     </table> -->
 
 
-  <!--       <ul data-f-foreach="[1,2,3]">
+        <ul data-f-foreach="[1,2,3]">
             <li><%= value %></li>
-        </ul> -->
+        </ul>
+
+        <div data-f-bind="foo"></div>
 
         <h6>Nested multi-foreach</h6>
         <ul data-f-foreach="price in Price">
@@ -69,7 +71,7 @@
             </li>
         </ul>
 
-        <h6>Nested foreach + bind</h6>
+<!--         <h6>Nested foreach + bind</h6>
         <ul data-f-foreach="price in Price">
             <li>
                 Price index: <%= index %>
@@ -78,8 +80,15 @@
                     <%= value %>
                 </div>
             </li>
-        </ul>
+        </ul> -->
         <script>
+            var defaultRoutes = {
+                match: 'foo',
+                subscribeHandler: ()=> {
+                    return 'bar';
+                }
+            };
+
             Flow.initialize({
                 channel: {
                     defaults: {
@@ -88,7 +97,8 @@
                             project: 'glasses',
                             model: 'gglasses.vmf',
                         }
-                    }
+                    },
+                    routes: [defaultRoutes]
                 }
             });
         </script>

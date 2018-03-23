@@ -1,4 +1,4 @@
-import Channel from 'src/channels/middleware/epicenter-middleware/run-router/run-meta-channel';
+import Channel from '../run-meta-channel';
 
 describe('Run Meta channel', ()=> {
     describe('#subscribeHandler', ()=> {

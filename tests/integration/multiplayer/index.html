@@ -47,40 +47,6 @@
     <script src="http://d3js.org/d3.v3.min.js" charset="utf-8"></script>
     <script src="http://cdnjs.cloudflare.com/ajax/libs/lodash.js/2.4.1/lodash.js"></script>
     <script src="http://forio.com/tools/contour/0.9.91/contour.js"></script>
-    <script src="multi-tooltip.js"></script>
-    <script>
-
-        var data = [{
-            name: 'First Series',
-            data: [1,2,3,4,5,6]
-        },{
-            name: 'Second Series',
-            data: [6,5,4,3,2,1]
-
-        },{
-            name: 'Third Series',
-            data: [5,4,2,5,7,4]
-        }];
-
-        var chart = new Contour({
-            el: '#chart1',
-            chart: {
-                gridlines: 'horizontal'
-            },
-            line: {
-                stacked: true,
-                marker: {
-                    enable: false
-                }
-            }
-        })
-        .cartesian()
-        .area(data)
-        .line(data, {stacked: true})
-        .multiTooltip(data)
-        .render();
-
-    </script>
 </body>
 </html>
 <html>
@@ -107,46 +73,48 @@
     </div>
 
     <div class="content">
-        <h6>My Role</h6>
-        <h2 data-f-bind="user:role"></h2>
-        <h4 data-f-bind="user:userName"></h4>
+        <table class="table">
+            <tbody>
+                
+            </tbody>
+        </table>
     </div>
-    <div>
-        <h6>Price</h6>
-        <div data-f-bind="Price"></div>
-        <input type="text" data-f-bind="Price" />
-    </div>
+
     <button data-f-on-click="step">Step</button>
     <button data-f-on-click="reset">Reset</button>
-    Foreach
-    <div class="row">
-        <div class="col-xs-6">
-            <h6>Add to top</h6>
-            <table>
-                <tbody data-f-foreach="Price">
-                    <tr>
-                        <td>
-                            <%= value %>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
-        <div class="col-xs-6">
-            <h6>Add to bottom</h6>
-             <table>
-                <tbody data-f-foreach="Price | reverse">
-                    <tr>
-                        <td><%= value %></td>
-                    </tr>
-                </tbody>
-            </table> 
-    </div>
-    </div>
 
     <h4>Users</h4>
     
     <script type="text/javascript">
+        const userChannel = ['user', 'user:role', 'user:UserName'];
+        const varChannel = ['P1_Price_Decision', '<user:role>_Price_Decision'];
+
+        const toTest = {
+            'User Channel': userChannel,
+            'Variables Channel': varChannel,
+        };
+
+        const tbody = Object.keys(toTest).map((title)=> {
+            const binds = toTest[title];
+            const boundHTML = binds.map((b)=> {
+                return `
+                    <tr>
+                        <td><code>${b.replace('<', '&lt;').replace('>', '&gt;')}</code></td>
+                        <td data-f-bind="${b}"></td>
+                        <td><input type="text" data-f-bind="${b}" /></td>
+                    </tr>
+                `;
+            }).join('');
+            const html = `
+                <tr>
+                    <th>${title}</th>
+                </tr>
+                ${boundHTML}
+            `
+            return html;
+        });
+        $('.table tbody').html(tbody.join(''));
+
         Flow.initialize({
             channel: {
                 defaults: {
@@ -154,9 +122,13 @@
                     run: {
                         account: 'team-naren',
                         project: 'multiplayer-test',
-                        model: 'gglasses.vmf',
+                        model: 'bikes-multiplayer.xlsx',
                     }
-                }
+                },
+                routes: [{
+                    match: 'user:role',
+                    subscribeHandler: ()=> 'P2'
+                }]
             }
         });
     </script>

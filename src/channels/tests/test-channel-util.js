@@ -1,4 +1,4 @@
-import * as utils from 'src/channels/channel-utils';
+import * as utils from '../channel-utils';
 
 describe('Channel Utils', ()=> {
     describe('#normalizeParamOptions', ()=> {
@@ -87,6 +87,16 @@ describe('Channel Utils', ()=> {
             var op = groupByHandlers(data, handlers);
             expect(op.length).to.eql(1);
             expect(op[0].data).to.eql(['ball']);
+        });
+        it('should only match one handler at a time', ()=> {
+            var handlers = [
+                { match: (v)=> v.indexOf('a') === 0 ? 'foo' : false },
+                { match: (v)=> v.indexOf('aa') === 0 ? 'bar' : false },
+            ];
+            var data = ['aaa'];
+            var op = groupByHandlers(data, handlers);
+            expect(op.length).to.eql(1);
+            expect(op[0].matched).to.eql('foo');
         });
         it('should return empty if not matches found', ()=> {
             var handlers = [

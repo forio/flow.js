@@ -1,4 +1,4 @@
-import { match } from '../json-router/index';
+import { match } from '../index';
 
 describe('JSON Router', ()=> {
     describe('#match', ()=> {

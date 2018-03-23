@@ -5,9 +5,7 @@ export default function RunMetaChannel($runServicePromise, notifier) {
 
     function mergeAndSend(runMeta, requestedTopics) {
         var toSend = ([].concat(requestedTopics)).reduce(function (accum, meta) {
-            if (runMeta[meta] !== undefined) {
-                accum.push({ name: meta, value: runMeta[meta] });
-            }
+            accum.push({ name: meta, value: runMeta[meta] });
             return accum;
         }, []);
         return notifier(toSend);
