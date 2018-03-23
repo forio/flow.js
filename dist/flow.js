@@ -140,6 +140,102 @@ module.exports = {
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
+Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "toImplicitType", function() { return toImplicitType; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "toPublishableFormat", function() { return toPublishableFormat; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "splitNameArgs", function() { return splitNameArgs; });
+function toImplicitType(data) {
+    var objRegex = /^(?:\{.*\})$/;
+    var arrRegex = /^(?:\[.*])$/;
+
+    var converted = data;
+    if (typeof data === 'string') {
+        converted = data.trim();
+
+        if (converted === 'true') {
+            converted = true;
+        } else if (converted === 'false') {
+            converted = false;
+        } else if (converted === 'null') {
+            converted = null;
+        } else if (converted === 'undefined') {
+            converted = '';
+        } else if (converted.charAt(0) === '\'' || converted.charAt(0) === '"') {
+            converted = converted.substring(1, converted.length - 1);
+        } else if ($.isNumeric(converted)) {
+            converted = +converted;
+        } else if (arrRegex.test(converted)) {
+            var bracketReplaced = converted.replace(/[[\]]/g, '');
+            if (!bracketReplaced) return [];
+            var parsed = bracketReplaced.split(/,(?![^[]*])/).map(function (val) {
+                return toImplicitType(val);
+            });
+            return parsed;
+        } else if (objRegex.test(converted)) {
+            try {
+                converted = JSON.parse(converted);
+            } catch (e) {
+                console.error('toImplicitType: couldn\'t convert', converted);
+            }
+        }
+    }
+    return converted;
+}
+
+function splitUnescapedCommas(str) {
+    var regex = /(\\.|[^,])+/g;
+    var m = void 0;
+
+    var op = [];
+    while ((m = regex.exec(str)) !== null) {
+        //eslint-disable-line
+        // This is necessary to avoid infinite loops with zero-width matches
+        if (m.index === regex.lastIndex) {
+            regex.lastIndex++;
+        }
+        m.forEach(function (match, groupIndex) {
+            if (groupIndex === 0) {
+                op.push(match.replace('\\', ''));
+            }
+        });
+    }
+    return op;
+}
+
+function splitNameArgs(value) {
+    value = value.trim();
+    var fnName = value.split('(')[0];
+    var params = value.substring(value.indexOf('(') + 1, value.indexOf(')'));
+    var args = splitUnescapedCommas(params).map(function (p) {
+        return p.trim();
+    });
+    return { name: fnName, args: args };
+}
+
+/**
+ * @param  {string} value
+ * @return {{ name: string, value: string[]}[]}       [description]
+ */
+function toPublishableFormat(value) {
+    var split = (value || '').split('|');
+    var listOfOperations = split.map(function (value) {
+        if (value && value.indexOf('=') !== -1) {
+            var _split = value.split('=');
+            return { name: _split[0].trim(), value: _split[1].trim() };
+        }
+        var parsed = splitNameArgs(value);
+        return { name: parsed.name, value: parsed.args };
+    });
+    return listOfOperations;
+}
+
+
+
+/***/ }),
+/* 3 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
 /* harmony export (immutable) */ __webpack_exports__["g"] = stripSuffixDelimiter;
 /* harmony export (immutable) */ __webpack_exports__["d"] = prefix;
 /* harmony export (immutable) */ __webpack_exports__["a"] = defaultPrefix;
@@ -147,9 +243,9 @@ module.exports = {
 /* harmony export (immutable) */ __webpack_exports__["c"] = mapWithPrefix;
 /* harmony export (immutable) */ __webpack_exports__["i"] = withPrefix;
 /* harmony export (immutable) */ __webpack_exports__["h"] = unprefix;
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__silencable__ = __webpack_require__(51);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__silencable__ = __webpack_require__(53);
 /* harmony reexport (binding) */ __webpack_require__.d(__webpack_exports__, "f", function() { return __WEBPACK_IMPORTED_MODULE_0__silencable__["a"]; });
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__exclude_read_only__ = __webpack_require__(52);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__exclude_read_only__ = __webpack_require__(54);
 /* harmony reexport (binding) */ __webpack_require__.d(__webpack_exports__, "b", function() { return __WEBPACK_IMPORTED_MODULE_1__exclude_read_only__["a"]; });
 var CHANNEL_DELIMITER = ':';
 
@@ -262,102 +358,6 @@ function unprefix(list, prefix) {
     });
     return unprefixed;
 }
-
-/***/ }),
-/* 3 */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "toImplicitType", function() { return toImplicitType; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "toPublishableFormat", function() { return toPublishableFormat; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "splitNameArgs", function() { return splitNameArgs; });
-function toImplicitType(data) {
-    var objRegex = /^(?:\{.*\})$/;
-    var arrRegex = /^(?:\[.*])$/;
-
-    var converted = data;
-    if (typeof data === 'string') {
-        converted = data.trim();
-
-        if (converted === 'true') {
-            converted = true;
-        } else if (converted === 'false') {
-            converted = false;
-        } else if (converted === 'null') {
-            converted = null;
-        } else if (converted === 'undefined') {
-            converted = '';
-        } else if (converted.charAt(0) === '\'' || converted.charAt(0) === '"') {
-            converted = converted.substring(1, converted.length - 1);
-        } else if ($.isNumeric(converted)) {
-            converted = +converted;
-        } else if (arrRegex.test(converted)) {
-            var bracketReplaced = converted.replace(/[[\]]/g, '');
-            if (!bracketReplaced) return [];
-            var parsed = bracketReplaced.split(/,(?![^[]*])/).map(function (val) {
-                return toImplicitType(val);
-            });
-            return parsed;
-        } else if (objRegex.test(converted)) {
-            try {
-                converted = JSON.parse(converted);
-            } catch (e) {
-                console.error('toImplicitType: couldn\'t convert', converted);
-            }
-        }
-    }
-    return converted;
-}
-
-function splitUnescapedCommas(str) {
-    var regex = /(\\.|[^,])+/g;
-    var m = void 0;
-
-    var op = [];
-    while ((m = regex.exec(str)) !== null) {
-        //eslint-disable-line
-        // This is necessary to avoid infinite loops with zero-width matches
-        if (m.index === regex.lastIndex) {
-            regex.lastIndex++;
-        }
-        m.forEach(function (match, groupIndex) {
-            if (groupIndex === 0) {
-                op.push(match.replace('\\', ''));
-            }
-        });
-    }
-    return op;
-}
-
-function splitNameArgs(value) {
-    value = value.trim();
-    var fnName = value.split('(')[0];
-    var params = value.substring(value.indexOf('(') + 1, value.indexOf(')'));
-    var args = splitUnescapedCommas(params).map(function (p) {
-        return p.trim();
-    });
-    return { name: fnName, args: args };
-}
-
-/**
- * @param  {string} value
- * @return {{ name: string, value: string[]}[]}       [description]
- */
-function toPublishableFormat(value) {
-    var split = (value || '').split('|');
-    var listOfOperations = split.map(function (value) {
-        if (value && value.indexOf('=') !== -1) {
-            var _split = value.split('=');
-            return { name: _split[0].trim(), value: _split[1].trim() };
-        }
-        var parsed = splitNameArgs(value);
-        return { name: parsed.name, value: parsed.args };
-    });
-    return listOfOperations;
-}
-
-
 
 /***/ }),
 /* 4 */
@@ -506,7 +506,7 @@ function groupSequentiallyByHandlers(data, handlers) {
 /* unused harmony export passthroughPublishInterceptors */
 /* harmony export (immutable) */ __webpack_exports__["a"] = router;
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_channels_channel_utils__ = __webpack_require__(4);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_channels_middleware_utils__ = __webpack_require__(2);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_channels_middleware_utils__ = __webpack_require__(3);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_lodash__ = __webpack_require__(0);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_lodash___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_2_lodash__);
 
@@ -658,11 +658,11 @@ function router(handlers) {
 /* unused harmony export OPERATIONS_PREFIX */
 /* unused harmony export _shouldFetch */
 /* harmony export (immutable) */ __webpack_exports__["a"] = RunRouter;
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__run_meta_channel__ = __webpack_require__(48);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__run_variables_channel__ = __webpack_require__(49);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__run_operations_channel__ = __webpack_require__(50);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__run_meta_channel__ = __webpack_require__(50);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__run_variables_channel__ = __webpack_require__(51);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__run_operations_channel__ = __webpack_require__(52);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_3_channels_channel_router__ = __webpack_require__(5);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4_channels_middleware_utils__ = __webpack_require__(2);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4_channels_middleware_utils__ = __webpack_require__(3);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_5_lodash__ = __webpack_require__(0);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_5_lodash___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_5_lodash__);
 
@@ -761,9 +761,9 @@ function RunRouter(config, notifier) {
                 operationsChannel.notify({ name: 'reset', result: data }, meta);
             }, _this, subscribeOpts);
 
-            rs.channel.subscribe('', function (data, meta) {
-                console.log('everything', data, meta);
-            });
+            // rs.channel.subscribe('', (data, meta)=> {
+            //     console.log('everything', data, meta);
+            // });
         }
     });
 
@@ -1046,7 +1046,7 @@ module.exports = BaseView.extend({
         }
         BaseView.prototype.initialize.apply(this, arguments);
     }
-}, { selector: 'input, select' });
+}, { selector: 'input, select, textarea' });
 
 /***/ }),
 /* 10 */
@@ -1310,7 +1310,7 @@ var _require2 = __webpack_require__(0),
     pick = _require2.pick;
 
 var config = __webpack_require__(1);
-var parseUtils = __webpack_require__(3);
+var parseUtils = __webpack_require__(2);
 
 var converterManager = __webpack_require__(19);
 var nodeManager = __webpack_require__(28);
@@ -1952,7 +1952,7 @@ var _require = __webpack_require__(0),
     find = _require.find,
     mapValues = _require.mapValues;
 
-var _require2 = __webpack_require__(3),
+var _require2 = __webpack_require__(2),
     splitNameArgs = _require2.splitNameArgs,
     toImplicitType = _require2.toImplicitType;
 
@@ -2589,7 +2589,6 @@ module.exports = [{
  */
 
 var _require = __webpack_require__(0),
-    isArray = _require.isArray,
     isString = _require.isString,
     isNumber = _require.isNumber;
 
@@ -2599,7 +2598,15 @@ function isAllowedLeading(str) {
 }
 
 module.exports = {
+    /**
+     * @param {string} name
+     * @returns {boolean}
+     */
     alias: function (name) {
+        /**
+         * @param {string} v
+         * @returns {boolean}
+         */
         function checkValMatch(v) {
             var validStandalone = ['#', '0', '%'];
             if (v.length === 1) {
@@ -2639,6 +2646,10 @@ module.exports = {
         return false;
     },
 
+    /**
+     * @param {string} val
+     * @returns {number}
+     */
     parse: function (val) {
         val += '';
         var isNegative = val.charAt(0) === '-';
@@ -2655,7 +2666,7 @@ module.exports = {
             suffix = results[2].toLowerCase();
         }
 
-        /*eslint no-magic-numbers: 0*/
+        /*eslint no-magic-numbers: 0 complexity: 0 */
         switch (suffix) {
             case '%':
                 number = number / 100;
@@ -2759,7 +2770,7 @@ module.exports = {
 
         function format(number, formatTXT) {
             // eslint-disable-line
-            if (isArray(number)) {
+            if (Array.isArray(number)) {
                 number = number[number.length - 1];
             }
             if (!isString(number) && !isNumber(number)) {
@@ -3626,7 +3637,7 @@ module.exports = {
 
 
 var config = __webpack_require__(1);
-var toPublishableFormat = __webpack_require__(3).toPublishableFormat;
+var toPublishableFormat = __webpack_require__(2).toPublishableFormat;
 
 module.exports = {
 
@@ -3776,7 +3787,7 @@ module.exports = {
  *
  * * The `data-f-foreach` attribute is [similar to the `data-f-repeat` attribute](../../repeat-attr/), so you may want to review the examples there as well.
  */
-var parseUtils = __webpack_require__(3);
+var parseUtils = __webpack_require__(2);
 var config = __webpack_require__(1);
 
 var _require = __webpack_require__(7),
@@ -3905,7 +3916,6 @@ module.exports = {
                     var r = new RegExp(refToMarkup(commentRef), 'g');
                     templatedLoop = templatedLoop.replace(r, originalTemplateVal);
                 });
-                // console.log(templatedLoop, missingReferences);
                 isTemplated = templatedLoop !== cloop;
                 nodes = $(templatedLoop);
             } catch (e) {
@@ -4007,7 +4017,7 @@ var _require = __webpack_require__(0),
     isArray = _require.isArray;
 
 module.exports = {
-    target: 'input, select',
+    target: 'input, select, textarea',
 
     test: 'bind',
 
@@ -4016,6 +4026,9 @@ module.exports = {
     * @return {void}
     */
     handle: function (value) {
+        if (value === null || value === undefined) {
+            value = '';
+        }
         if (isArray(value)) {
             value = value[value.length - 1];
         }
@@ -4172,7 +4185,7 @@ var _require = __webpack_require__(0),
     each = _require.each,
     template = _require.template;
 
-var parseUtils = __webpack_require__(3);
+var parseUtils = __webpack_require__(2);
 var gutils = __webpack_require__(8);
 var config = __webpack_require__(1);
 
@@ -4714,20 +4727,24 @@ module.exports = function (target, domManager) {
 "use strict";
 Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 /* harmony export (immutable) */ __webpack_exports__["default"] = ChannelManager;
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__middleware_epicenter_middleware__ = __webpack_require__(46);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__channel_manager__ = __webpack_require__(61);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__channel_manager_enhancements__ = __webpack_require__(63);
-// import JSONParseMiddleware from './middleware/json-parse-middleware';
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__channel_manager__ = __webpack_require__(46);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__middleware_epicenter_router__ = __webpack_require__(48);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__middleware_json_router__ = __webpack_require__(62);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__middleware_default_router__ = __webpack_require__(63);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__channel_manager_enhancements__ = __webpack_require__(64);
 
 
 
 
 
-//Moving  epicenter-centric glue here so channel-manager can be tested in isolation
-var InterpolatableChannelManagerWithMiddleware = Object(__WEBPACK_IMPORTED_MODULE_2__channel_manager_enhancements__["a" /* interpolatable */])(Object(__WEBPACK_IMPORTED_MODULE_2__channel_manager_enhancements__["b" /* withMiddleware */])(__WEBPACK_IMPORTED_MODULE_1__channel_manager__["a" /* default */]));
+
+
+
+//Moving  connecting glue here so channel-manager can be tested in isolation
+var InterpolatableChannelManagerWithMiddleware = Object(__WEBPACK_IMPORTED_MODULE_4__channel_manager_enhancements__["a" /* interpolatable */])(Object(__WEBPACK_IMPORTED_MODULE_4__channel_manager_enhancements__["b" /* withMiddleware */])(__WEBPACK_IMPORTED_MODULE_0__channel_manager__["a" /* default */]));
 function ChannelManager(opts) {
     var cm = new InterpolatableChannelManagerWithMiddleware($.extend(true, {}, {
-        middlewares: [__WEBPACK_IMPORTED_MODULE_0__middleware_epicenter_middleware__["a" /* default */]]
+        middlewares: [__WEBPACK_IMPORTED_MODULE_3__middleware_default_router__["a" /* default */], __WEBPACK_IMPORTED_MODULE_2__middleware_json_router__["a" /* default */], __WEBPACK_IMPORTED_MODULE_1__middleware_epicenter_router__["a" /* default */]]
     }, opts));
     return cm;
 }
@@ -4737,891 +4754,7 @@ function ChannelManager(opts) {
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__run_manager_router__ = __webpack_require__(47);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__scenario_manager_router__ = __webpack_require__(53);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__custom_run_router__ = __webpack_require__(54);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__world_manager_router__ = __webpack_require__(56);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__runs_router__ = __webpack_require__(59);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__json_router__ = __webpack_require__(60);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_6_channels_middleware_utils__ = __webpack_require__(2);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_7_channels_channel_router__ = __webpack_require__(5);
-
-
-
-
-
-
-
-
-// import UserRouter from './user-router/current-user-channel';
-
-
-
-
-
-function getOptions(opts, key) {
-    var serviceOptions = $.extend(true, {}, opts.defaults, opts[key]);
-    var channelOptions = $.extend(true, {}, serviceOptions.channelOptions);
-    delete serviceOptions.channelOptions;
-
-    return { serviceOptions: serviceOptions, channelOptions: channelOptions };
-}
-
-var SCENARIO_PREFIX = 'sm:';
-var RUN_PREFIX = 'rm:';
-var WORLD_PREFIX = 'world:';
-
-var sampleRunidLength = '000001593dd81950d4ee4f3df14841769a0b'.length;
-var runidRegex = '(?:.{' + sampleRunidLength + '})';
-
-/* harmony default export */ __webpack_exports__["a"] = (function (config, notifier, channelManagerContext) {
-    var opts = $.extend(true, {}, config);
-
-    var customRunChannelOpts = getOptions(opts, 'runid');
-    var customRunChannel = new __WEBPACK_IMPORTED_MODULE_2__custom_run_router__["a" /* default */](customRunChannelOpts, notifier);
-    var runsChannel = new __WEBPACK_IMPORTED_MODULE_4__runs_router__["a" /* default */](customRunChannelOpts, Object(__WEBPACK_IMPORTED_MODULE_6_channels_middleware_utils__["i" /* withPrefix */])(notifier, 'runs'), channelManagerContext);
-    var jsonChannel = new __WEBPACK_IMPORTED_MODULE_5__json_router__["a" /* default */](opts, notifier);
-    // var userChannel = new UserRouter(getOptions(opts, 'runManager').run, withPrefix(notifier, 'user:'), channelManagerContext);
-
-    /** @type {Handler[]} **/
-    var handlers = [$.extend({}, jsonChannel, {
-        name: 'json',
-        match: __WEBPACK_IMPORTED_MODULE_5__json_router__["b" /* match */]
-    }), $.extend({}, customRunChannel, {
-        name: 'customRun',
-        match: Object(__WEBPACK_IMPORTED_MODULE_6_channels_middleware_utils__["e" /* regex */])(runidRegex),
-        options: customRunChannelOpts.channelOptions
-    }), $.extend({}, runsChannel, {
-        name: 'archiveRuns',
-        match: Object(__WEBPACK_IMPORTED_MODULE_6_channels_middleware_utils__["d" /* prefix */])('runs:'),
-        options: customRunChannelOpts.channelOptions
-    })];
-    var exposable = {};
-
-    var runManagerOpts = getOptions(opts, 'runManager');
-    if (opts.runManager || !opts.scenarioManager && runManagerOpts.serviceOptions.run) {
-        var rm;
-        var isMultiplayer = runManagerOpts.serviceOptions.strategy === 'multiplayer';
-        if (opts.scenarioManager) {
-            rm = new __WEBPACK_IMPORTED_MODULE_0__run_manager_router__["a" /* default */](runManagerOpts, Object(__WEBPACK_IMPORTED_MODULE_6_channels_middleware_utils__["i" /* withPrefix */])(notifier, RUN_PREFIX));
-            handlers.push($.extend({}, rm, {
-                name: 'run',
-                match: Object(__WEBPACK_IMPORTED_MODULE_6_channels_middleware_utils__["d" /* prefix */])(RUN_PREFIX), //if both scenario manager and run manager are being used, require a prefix
-                options: runManagerOpts.channelOptions
-            }));
-        } else if (isMultiplayer) {
-            //Ignore case where both scenario manager and multiplayer are being used
-            rm = new __WEBPACK_IMPORTED_MODULE_3__world_manager_router__["a" /* default */](runManagerOpts, Object(__WEBPACK_IMPORTED_MODULE_6_channels_middleware_utils__["i" /* withPrefix */])(notifier, [WORLD_PREFIX, '']));
-            handlers.push($.extend({}, rm, {
-                name: 'World run',
-                match: Object(__WEBPACK_IMPORTED_MODULE_6_channels_middleware_utils__["a" /* defaultPrefix */])(WORLD_PREFIX),
-                isDefault: true,
-                options: runManagerOpts.channelOptions
-            }));
-        } else {
-            rm = new __WEBPACK_IMPORTED_MODULE_0__run_manager_router__["a" /* default */](runManagerOpts, Object(__WEBPACK_IMPORTED_MODULE_6_channels_middleware_utils__["i" /* withPrefix */])(notifier, [RUN_PREFIX, '']));
-            handlers.push($.extend({}, rm, {
-                name: 'run',
-                match: Object(__WEBPACK_IMPORTED_MODULE_6_channels_middleware_utils__["a" /* defaultPrefix */])(RUN_PREFIX),
-                isDefault: true,
-                options: runManagerOpts.channelOptions
-            }));
-        }
-
-        $.extend(exposable, rm.expose);
-    }
-
-    if (opts.scenarioManager) {
-        var scenarioManagerOpts = getOptions(opts, 'scenarioManager');
-        var sm = new __WEBPACK_IMPORTED_MODULE_1__scenario_manager_router__["a" /* default */](scenarioManagerOpts, Object(__WEBPACK_IMPORTED_MODULE_6_channels_middleware_utils__["i" /* withPrefix */])(notifier, [SCENARIO_PREFIX, '']));
-        handlers.push($.extend({}, sm, {
-            name: 'scenario',
-            match: Object(__WEBPACK_IMPORTED_MODULE_6_channels_middleware_utils__["a" /* defaultPrefix */])(SCENARIO_PREFIX),
-            options: scenarioManagerOpts.channelOptions,
-            isDefault: true
-        }));
-
-        $.extend(exposable, sm.expose);
-    }
-
-    var epicenterRouter = Object(__WEBPACK_IMPORTED_MODULE_7_channels_channel_router__["a" /* default */])(handlers, notifier);
-    epicenterRouter.expose = exposable;
-
-    return epicenterRouter;
-});
-
-/***/ }),
-/* 47 */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__run_router__ = __webpack_require__(6);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_channels_middleware_utils__ = __webpack_require__(2);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_channels_channel_router__ = __webpack_require__(5);
-
-
-
-
-
-var _window = window,
-    F = _window.F;
-
-
-var RUN_PREFIX = 'current:';
-
-/* harmony default export */ __webpack_exports__["a"] = (function (config, notifier) {
-    var defaults = {
-        serviceOptions: {},
-        channelOptions: {}
-    };
-    var opts = $.extend(true, {}, defaults, config);
-
-    var rmOptions = opts.serviceOptions;
-    var rm = new F.manager.RunManager(rmOptions);
-
-    var $creationPromise = rm.getRun().then(function (run) {
-        return rm.run;
-    });
-    var currentChannelOpts = $.extend(true, { serviceOptions: $creationPromise }, opts.defaults, opts.current);
-    var currentRunChannel = new __WEBPACK_IMPORTED_MODULE_0__run_router__["a" /* default */](currentChannelOpts, Object(__WEBPACK_IMPORTED_MODULE_1_channels_middleware_utils__["i" /* withPrefix */])(notifier, [RUN_PREFIX, '']));
-
-    var runRouteHandler = $.extend(currentRunChannel, {
-        match: Object(__WEBPACK_IMPORTED_MODULE_1_channels_middleware_utils__["a" /* defaultPrefix */])(RUN_PREFIX), //TODO: Just remove prefix?
-        name: 'Current Run',
-        isDefault: true,
-        options: currentChannelOpts.channelOptions
-    });
-    var handlers = [runRouteHandler];
-
-    var runMangerRouter = Object(__WEBPACK_IMPORTED_MODULE_2_channels_channel_router__["a" /* default */])(handlers);
-    runMangerRouter.expose = { runManager: rm };
-
-    return runMangerRouter;
-});
-
-/***/ }),
-/* 48 */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-/* harmony export (immutable) */ __webpack_exports__["a"] = RunMetaChannel;
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_channels_channel_utils__ = __webpack_require__(4);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_lodash__ = __webpack_require__(0);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_lodash___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1_lodash__);
-
-
-
-function RunMetaChannel($runServicePromise, notifier) {
-
-    function mergeAndSend(runMeta, requestedTopics) {
-        var toSend = [].concat(requestedTopics).reduce(function (accum, meta) {
-            if (runMeta[meta] !== undefined) {
-                accum.push({ name: meta, value: runMeta[meta] });
-            }
-            return accum;
-        }, []);
-        return notifier(toSend);
-    }
-    return {
-        subscribeHandler: function (topics, options) {
-            topics = [].concat(topics);
-            return $runServicePromise.then(function (runService) {
-                var cachedValues = Object(__WEBPACK_IMPORTED_MODULE_1_lodash__["intersection"])(Object.keys(runService.runMeta || {}), topics);
-                if (options.autoFetch === false) {
-                    return $.Deferred().resolve({}).promise();
-                } else if (cachedValues.length === topics.length) {
-                    //FIXME: Add 'updated time' to meta, and fetch if that's < debounce interval -- use the custom debounce fn with the custom merge (debounce save as well?)
-                    //Make run service factory return patched run-service?
-                    return $.Deferred().resolve(mergeAndSend(runService.runMeta, topics)).promise();
-                }if (!runService.loadPromise) {
-                    runService.loadPromise = runService.load().then(function (data) {
-                        runService.runMeta = data;
-                        return data;
-                    });
-                }
-                return runService.loadPromise.then(function (data) {
-                    mergeAndSend(data, topics);
-                });
-            });
-        },
-        publishHandler: function (topics, options) {
-            return $runServicePromise.then(function (runService) {
-                var toSave = Object(__WEBPACK_IMPORTED_MODULE_0_channels_channel_utils__["a" /* arrayToObject */])(topics);
-                return runService.save(toSave).then(function (res) {
-                    runService.runMeta = $.extend({}, true, runService.runMeta, res);
-                    return Object(__WEBPACK_IMPORTED_MODULE_0_channels_channel_utils__["e" /* objectToArray */])(res);
-                });
-            });
-        }
-    };
-}
-
-/***/ }),
-/* 49 */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-/* harmony export (immutable) */ __webpack_exports__["a"] = RunVariablesChannel;
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_utils_general__ = __webpack_require__(8);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_utils_general___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_utils_general__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_channels_channel_utils__ = __webpack_require__(4);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_lodash__ = __webpack_require__(0);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_lodash___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_2_lodash__);
-
-
-
-
-function RunVariablesChannel($runServicePromise, notifier) {
-
-    var id = Object(__WEBPACK_IMPORTED_MODULE_2_lodash__["uniqueId"])('variable-channel');
-
-    var fetchFn = function (runService, debounceInterval) {
-        if (!runService.debouncedFetchers) {
-            runService.debouncedFetchers = {};
-        }
-        if (!runService.debouncedFetchers[id]) {
-            runService.debouncedFetchers[id] = Object(__WEBPACK_IMPORTED_MODULE_0_utils_general__["debounceAndMerge"])(function (variables) {
-                if (!variables || !variables.length) {
-                    return $.Deferred().resolve([]).promise();
-                }
-                return runService.variables().query(variables).then(__WEBPACK_IMPORTED_MODULE_1_channels_channel_utils__["e" /* objectToArray */]);
-            }, debounceInterval, [function mergeVariables(accum, newval) {
-                if (!accum) {
-                    accum = [];
-                }
-                return Object(__WEBPACK_IMPORTED_MODULE_2_lodash__["uniq"])(accum.concat(newval)).filter(function (v) {
-                    return !!(v && v.trim());
-                });
-            }]);
-        }
-        return runService.debouncedFetchers[id];
-    };
-
-    var knownTopics = [];
-    return {
-        fetch: function () {
-            return $runServicePromise.then(function (runService) {
-                return fetchFn(runService, 0)(knownTopics).then(notifier);
-            });
-        },
-
-        unsubscribeHandler: function (unsubscribedTopics, remainingTopics) {
-            knownTopics = remainingTopics;
-        },
-        subscribeHandler: function (topics, options) {
-            var isAutoFetchEnabled = options.autoFetch;
-            var debounceInterval = options.debounce;
-
-            return $runServicePromise.then(function (runService) {
-                knownTopics = Object(__WEBPACK_IMPORTED_MODULE_2_lodash__["uniq"])(knownTopics.concat(topics));
-                if (!knownTopics.length) {
-                    return $.Deferred().resolve([]).promise();
-                } else if (!isAutoFetchEnabled) {
-                    return $.Deferred().resolve(topics).promise();
-                }
-                return fetchFn(runService, debounceInterval)(topics).then(notifier);
-            });
-        },
-        notify: function (variableObj) {
-            return $runServicePromise.then(function (runService) {
-                var variables = Object.keys(variableObj);
-                return runService.variables().query(variables).then(__WEBPACK_IMPORTED_MODULE_1_channels_channel_utils__["e" /* objectToArray */]).then(notifier);
-            });
-        },
-        publishHandler: function (topics, options) {
-            return $runServicePromise.then(function (runService) {
-                var toSave = Object(__WEBPACK_IMPORTED_MODULE_1_channels_channel_utils__["a" /* arrayToObject */])(topics);
-                return runService.variables().save(toSave).then(function (response) {
-                    var variables = Object.keys(toSave);
-                    //Get the latest from the server because what you think you saved may not be what was saved
-                    //bool -> 1, scalar to array for time-based models etc
-                    //FIXME: This causes dupe requests, one here and one after fetch by the run-variables channel
-                    //FIXME: Other publish can't do anything till this is done, so debouncing won't help. Only way out is caching
-                    return runService.variables().query(variables).then(__WEBPACK_IMPORTED_MODULE_1_channels_channel_utils__["e" /* objectToArray */]);
-                });
-            });
-        }
-    };
-}
-
-/***/ }),
-/* 50 */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-/* harmony export (immutable) */ __webpack_exports__["a"] = RunOperationsChannel;
-function RunOperationsChannel($runServicePromise, notifier) {
-    return {
-        notify: function (operationsResponse) {
-            var parsed = [{ name: operationsResponse.name, value: operationsResponse.result }];
-            return notifier(parsed);
-        },
-
-        publishHandler: function (topics, options) {
-            return $runServicePromise.then(function (runService) {
-                var toSave = topics.map(function (topic) {
-                    return { name: topic.name, params: topic.value };
-                });
-                return runService.serial(toSave).then(function (result) {
-                    var toReturn = result.map(function (response, index) {
-                        return { name: topics[index].name, value: response };
-                    });
-                    return toReturn;
-                });
-            });
-        }
-    };
-}
-
-/***/ }),
-/* 51 */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-/* harmony export (immutable) */ __webpack_exports__["a"] = silencable;
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_lodash__ = __webpack_require__(0);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_lodash___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_lodash__);
-
-
-/**
- * @param {Publishable[]} published 
- * @param {boolean|String[]|{except: String[]}} [silentOptions]
- * @return {Publishable[]} filtered list
- */
-function silencable(published, silentOptions) {
-    if (silentOptions === true || !published) {
-        return [];
-    } else if (Object(__WEBPACK_IMPORTED_MODULE_0_lodash__["isArray"])(silentOptions)) {
-        return published.filter(function (data) {
-            return !Object(__WEBPACK_IMPORTED_MODULE_0_lodash__["includes"])(silentOptions, data.name);
-        });
-    } else if (silentOptions && silentOptions.except) {
-        return published.filter(function (data) {
-            return Object(__WEBPACK_IMPORTED_MODULE_0_lodash__["includes"])(silentOptions.except || [], data.name);
-        });
-    }
-    return published;
-}
-
-/***/ }),
-/* 52 */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-/* harmony export (immutable) */ __webpack_exports__["a"] = excludeReadOnly;
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_lodash__ = __webpack_require__(0);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_lodash___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_lodash__);
-
-
-/**
- * 
- * @param {Publishable[]} publishable 
- * @param {boolean|string[]|Function} readOnlyOptions 
- * @return {Publishable[]} filtered list
- */
-function excludeReadOnly(publishable, readOnlyOptions) {
-    if (Object(__WEBPACK_IMPORTED_MODULE_0_lodash__["isFunction"])(readOnlyOptions)) {
-        readOnlyOptions = readOnlyOptions();
-    }
-    if (readOnlyOptions === true) {
-        console.error('Tried to publish to a readonly channel', publishable);
-        return [];
-    } else if (Object(__WEBPACK_IMPORTED_MODULE_0_lodash__["isArray"])(readOnlyOptions)) {
-        var split = publishable.reduce(function (accum, data) {
-            var isReadonly = Object(__WEBPACK_IMPORTED_MODULE_0_lodash__["includes"])(readOnlyOptions, data.name);
-            if (isReadonly) {
-                accum.readOnly.push(data);
-            } else {
-                accum.remaining.push(data);
-            }
-            return accum;
-        }, { readOnly: [], remaining: [] });
-
-        if (split.readOnly.length) {
-            console.error('Ignoring readonly publishes', split.readOnly);
-        }
-        return split.remaining;
-    }
-    return publishable;
-}
-
-/***/ }),
-/* 53 */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__run_router__ = __webpack_require__(6);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_channels_middleware_utils__ = __webpack_require__(2);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_channels_channel_router__ = __webpack_require__(5);
-
-
-
-
-/* harmony default export */ __webpack_exports__["a"] = (function (config, notifier) {
-    var defaults = {
-        serviceOptions: {},
-        channelOptions: {}
-    };
-    var opts = $.extend(true, {}, defaults, config);
-
-    var sm = new window.F.manager.ScenarioManager(opts.serviceOptions);
-
-    var baselinePromise = sm.baseline.getRun().then(function () {
-        return sm.baseline.run;
-    });
-    var baselineOptions = $.extend(true, {
-        serviceOptions: baselinePromise,
-        channelOptions: {
-            meta: {
-                readOnly: true
-            },
-            variables: {
-                readOnly: true
-            }
-        }
-    }, opts.defaults, opts.baseline);
-    var currentRunPromise = sm.current.getRun().then(function () {
-        return sm.current.run;
-    });
-
-    var runOptions = $.extend(true, {
-        serviceOptions: currentRunPromise
-    }, opts.defaults, opts.current);
-
-    var baselineChannel = new __WEBPACK_IMPORTED_MODULE_0__run_router__["a" /* default */](baselineOptions, Object(__WEBPACK_IMPORTED_MODULE_1_channels_middleware_utils__["i" /* withPrefix */])(notifier, 'baseline:'));
-    var currentRunChannel = new __WEBPACK_IMPORTED_MODULE_0__run_router__["a" /* default */](runOptions, Object(__WEBPACK_IMPORTED_MODULE_1_channels_middleware_utils__["i" /* withPrefix */])(notifier, ['current:', '']));
-    var handlers = [$.extend(baselineChannel, {
-        name: 'baseline',
-        match: Object(__WEBPACK_IMPORTED_MODULE_1_channels_middleware_utils__["d" /* prefix */])('baseline:'),
-        options: baselineOptions.channelOptions
-    }), $.extend(currentRunChannel, {
-        isDefault: true,
-        name: 'current',
-        match: Object(__WEBPACK_IMPORTED_MODULE_1_channels_middleware_utils__["a" /* defaultPrefix */])('current:'),
-        options: runOptions.channelOptions
-    })];
-
-    var scenarioManagerRouter = Object(__WEBPACK_IMPORTED_MODULE_2_channels_channel_router__["a" /* default */])(handlers, notifier);
-    scenarioManagerRouter.expose = { scenarioManager: sm };
-    return scenarioManagerRouter;
-});
-
-/***/ }),
-/* 54 */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__run_router_factory__ = __webpack_require__(55);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_channels_middleware_utils__ = __webpack_require__(2);
-
-
-
-/* harmony default export */ __webpack_exports__["a"] = (function (options, notifier) {
-    if (!options) options = {};
-
-    var opts = {};
-    opts.serviceOptions = options.serviceOptions && options.serviceOptions.run ? options.serviceOptions.run : {};
-    opts.channelOptions = options.channelOptions;
-
-    return {
-        subscribeHandler: function (topics, options, prefix) {
-            var runid = Object(__WEBPACK_IMPORTED_MODULE_1_channels_middleware_utils__["g" /* stripSuffixDelimiter */])(prefix);
-            //FIXME: Should i merge options here?
-            var channel = Object(__WEBPACK_IMPORTED_MODULE_0__run_router_factory__["a" /* default */])(runid, opts, Object(__WEBPACK_IMPORTED_MODULE_1_channels_middleware_utils__["i" /* withPrefix */])(notifier, prefix));
-            return channel.subscribeHandler(topics, options, prefix);
-        },
-        publishHandler: function (topics, options, prefix) {
-            var runid = Object(__WEBPACK_IMPORTED_MODULE_1_channels_middleware_utils__["g" /* stripSuffixDelimiter */])(prefix);
-            var channel = Object(__WEBPACK_IMPORTED_MODULE_0__run_router_factory__["a" /* default */])(runid, opts, Object(__WEBPACK_IMPORTED_MODULE_1_channels_middleware_utils__["i" /* withPrefix */])(notifier, prefix));
-            return channel.publishHandler(topics);
-        }
-    };
-});
-
-/***/ }),
-/* 55 */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__run_router__ = __webpack_require__(6);
-
-var knownRunIDServiceChannels = {};
-
-/* harmony default export */ __webpack_exports__["a"] = (function (runid, options, notifier) {
-    var runChannel = knownRunIDServiceChannels[runid];
-    if (!runChannel) {
-        var runOptions = $.extend(true, {}, options, { serviceOptions: { id: runid } });
-        runChannel = new __WEBPACK_IMPORTED_MODULE_0__run_router__["a" /* default */](runOptions, notifier);
-        knownRunIDServiceChannels[runid] = runChannel;
-    }
-    return runChannel;
-});
-
-/***/ }),
-/* 56 */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__world_users_channel__ = __webpack_require__(57);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__world_current_user_channel__ = __webpack_require__(58);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_channels_middleware_utils__ = __webpack_require__(2);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__run_router__ = __webpack_require__(6);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4_channels_channel_router__ = __webpack_require__(5);
-
-
-
-
-
-
-
-var _window = window,
-    F = _window.F;
-
-//TODO: Add custom worldid channel as well
-//
-
-/* harmony default export */ __webpack_exports__["a"] = (function (config, notifier) {
-    var _this = this;
-
-    var defaults = {
-        serviceOptions: {},
-        channelOptions: {}
-    };
-    var opts = $.extend(true, {}, defaults, config);
-
-    var rmOptions = opts.serviceOptions;
-    var rm = new F.manager.RunManager(rmOptions);
-
-    var getRunPromise = rm.getRun().catch(function (err) {
-        console.error('Run manager get run error', err);
-        throw err;
-    });
-    var $runPromise = getRunPromise.then(function (run) {
-        if (!run.world) {
-            console.error('No world found in run. Make sure you\'re using EpicenterJS version > 2.4');
-            throw new Error('Could not find world');
-        }
-        if (rm.run.getChannel) {
-            return rm.run;
-        }
-
-        var channelManager = new F.manager.ChannelManager();
-        var worldChannel = channelManager.getWorldChannel(run.world);
-
-        worldChannel.subscribe('reset', function (run) {
-            rm.run.updateConfig({ filter: run.id });
-        }, _this, { includeMine: false });
-        rm.run.channel = worldChannel;
-        return rm.run;
-    });
-    var currentChannelOpts = $.extend(true, { serviceOptions: $runPromise }, opts.defaults, opts.current);
-    var currentRunChannel = new __WEBPACK_IMPORTED_MODULE_3__run_router__["a" /* default */](currentChannelOpts, Object(__WEBPACK_IMPORTED_MODULE_2_channels_middleware_utils__["i" /* withPrefix */])(notifier, ['run:', '']));
-
-    var runRouteHandler = $.extend(currentRunChannel, {
-        match: Object(__WEBPACK_IMPORTED_MODULE_2_channels_middleware_utils__["a" /* defaultPrefix */])('run:'),
-        name: 'World Run',
-        isDefault: true,
-        options: currentChannelOpts.channelOptions
-    });
-    var handlers = [runRouteHandler];
-    var worldPromise = getRunPromise.then(function (run) {
-        return run.world;
-    });
-    var presenceChannel = new __WEBPACK_IMPORTED_MODULE_0__world_users_channel__["a" /* default */](worldPromise, Object(__WEBPACK_IMPORTED_MODULE_2_channels_middleware_utils__["i" /* withPrefix */])(notifier, 'users:'));
-    var presenceHandler = $.extend(presenceChannel, {
-        match: Object(__WEBPACK_IMPORTED_MODULE_2_channels_middleware_utils__["d" /* prefix */])('users:'),
-        name: 'world users'
-    });
-    handlers.unshift(presenceHandler);
-
-    var userChannel = new __WEBPACK_IMPORTED_MODULE_1__world_current_user_channel__["a" /* default */](worldPromise, Object(__WEBPACK_IMPORTED_MODULE_2_channels_middleware_utils__["i" /* withPrefix */])(notifier, 'user:'));
-    var userHandler = $.extend(userChannel, {
-        match: Object(__WEBPACK_IMPORTED_MODULE_2_channels_middleware_utils__["d" /* prefix */])('user:'),
-        name: 'current user'
-    });
-    handlers.unshift(userHandler);
-
-    var runMangerRouter = Object(__WEBPACK_IMPORTED_MODULE_4_channels_channel_router__["a" /* default */])(handlers);
-    runMangerRouter.expose = { runManager: rm };
-
-    return runMangerRouter;
-});
-
-/***/ }),
-/* 57 */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-/* harmony export (immutable) */ __webpack_exports__["a"] = WorldUsersChanngel;
-var F = window.F;
-
-function WorldUsersChanngel(worldPromise, notifier) {
-    var subsid = void 0;
-
-    var store = {
-        users: [],
-        mark: function (userid, isOnline) {
-            store.users = store.users.map(function (u) {
-                if (u.userId === userid) {
-                    u.isOnline = isOnline;
-                }
-                return u;
-            });
-            return store.users;
-        }
-    };
-    var channelManager = new F.manager.ChannelManager();
-
-    var parsedUsersPromise = worldPromise.then(function (world) {
-        var am = new F.manager.AuthManager();
-        var session = am.getCurrentUserSessionInfo();
-        var parsed = world.users.map(function (u) {
-            u.name = u.lastName;
-            u.isMe = u.userId === session.userId;
-            u.isOnline = u.isMe; //Assume i'm the only online one by default
-            return u;
-        });
-        store.users = parsed;
-        return parsed;
-    });
-
-    return {
-        unsubscribeHandler: function (knownTopics, remainingTopics) {
-            if (remainingTopics.length || !subsid) {
-                return;
-            }
-            worldPromise.then(function (world) {
-                var worldChannel = channelManager.getWorldChannel(world);
-                worldChannel.unsubscribe(subsid);
-                subsid = null;
-            });
-        },
-        subscribeHandler: function (userids) {
-            if (!subsid) {
-                worldPromise.then(function (world) {
-                    var worldChannel = channelManager.getWorldChannel(world);
-                    subsid = worldChannel.subscribe('presence', function (user, meta) {
-                        // console.log('presence', user, meta);
-                        var userid = user.id;
-                        store.mark(userid, user.isOnline);
-
-                        return notifier([{ name: '', value: store.users }]);
-                    }, { includeMine: false });
-                });
-            }
-            return parsedUsersPromise.then(function (users) {
-                return notifier([{ name: '', value: users }]);
-            });
-        },
-        publishHandler: function (topics, options) {
-            var ps = new F.service.Presence();
-            topics.forEach(function (topic) {
-                var split = topic.name.split(':');
-                if (split[1]) {
-                    if (split[1] === 'markOnline') {
-                        ps.markOnline(split[0]);
-                    } else if (split[1] === 'markOffline') {
-                        ps.markOffline(split[0]);
-                    }
-                }
-            });
-            return topics;
-        }
-    };
-}
-
-/***/ }),
-/* 58 */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-/* harmony export (immutable) */ __webpack_exports__["a"] = WorldUsersChanngel;
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_lodash__ = __webpack_require__(0);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_lodash___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_lodash__);
-
-
-var F = window.F;
-
-function WorldUsersChanngel(worldPromise, notifier) {
-    var subsid = void 0;
-
-    var am = new F.manager.AuthManager();
-    var store = $.extend(true, {
-        isMe: true,
-        isOnline: true
-    }, am.getCurrentUserSessionInfo());
-    var channelManager = new F.manager.ChannelManager();
-
-    return {
-        unsubscribeHandler: function (unsubscribedTopics, remainingTopics) {
-            if (remainingTopics.length || !subsid) {
-                return;
-            }
-
-            worldPromise.then(function (world) {
-                var worldChannel = channelManager.getWorldChannel(world);
-                worldChannel.unsubscribe(subsid);
-            });
-            subsid = null;
-        },
-        subscribeHandler: function (userFields) {
-            return worldPromise.then(function (world) {
-                var session = am.getCurrentUserSessionInfo();
-                var myUser = __WEBPACK_IMPORTED_MODULE_0_lodash___default.a.find(world.users, function (user) {
-                    return user.userId === session.userId;
-                });
-                $.extend(store, myUser);
-
-                var toNotify = userFields.reduce(function (accum, field) {
-                    if (store[field] !== undefined) {
-                        accum.push({ name: field, value: store[field] });
-                    }
-                    return accum;
-                }, []);
-                notifier(toNotify);
-
-                //TODO: Also subscribe to presence?
-                if (!subsid) {
-                    var worldChannel = channelManager.getWorldChannel(world);
-                    subsid = worldChannel.subscribe('roles', function (user, meta) {
-                        // console.log('Roles notification', user, meta);
-                        if (user.userId === store.userId && user.role !== store.role) {
-                            store.role = user.role;
-                            notifier([{ name: 'role', value: user.role }]);
-                        }
-                    });
-                }
-            });
-        }
-    };
-}
-
-/***/ }),
-/* 59 */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-/* harmony export (immutable) */ __webpack_exports__["a"] = RunsRouter;
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_utils_general__ = __webpack_require__(8);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_utils_general___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_utils_general__);
-var _slicedToArray = function () { function sliceIterator(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"]) _i["return"](); } finally { if (_d) throw _e; } } return _arr; } return function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { return sliceIterator(arr, i); } else { throw new TypeError("Invalid attempt to destructure non-iterable instance"); } }; }();
-
-
-var _window = window,
-    F = _window.F;
-
-
-function RunsRouter(options, notifier, channelManagerContext) {
-    var runService = new F.service.Run(options.serviceOptions.run);
-
-    var topicParamMap = {};
-
-    function extractFiltersFromTopic(topicString) {
-        var filters = topicString.replace('(', '').replace(')', '');
-        var filterParam = filters.split(';').reduce(function (accum, filter) {
-            var _filter$split = filter.split('='),
-                _filter$split2 = _slicedToArray(_filter$split, 2),
-                key = _filter$split2[0],
-                val = _filter$split2[1];
-
-            if (val) {
-                val = true;
-            }
-            accum[key] = val;
-            return accum;
-        }, {});
-        return filterParam;
-    }
-
-    function fetch(topic, variables) {
-        var filters = extractFiltersFromTopic(topic);
-        return runService.query(filters, { include: variables }).then(function (runs) {
-            notifier([{ name: topic, value: runs }]);
-
-            // if (topicParamMap[topic]) {
-            //     Object.keys(topicParamMap[topic]).forEach((runid)=> {
-            //         channelManagerContext.unsubscribe(topicParamMap[topic][runid]);
-            //     });
-            // }
-
-            return runs;
-        });
-    }
-
-    return {
-        fetch: fetch,
-
-        unsubscribeHandler: function (unsubscribedTopics, remainingTopics) {
-            console.log('unsubs');
-            // knownTopics = remainingTopics;
-        },
-        subscribeHandler: function (topics, options) {
-            var topic = [].concat(topics)[0];
-
-            var filters = extractFiltersFromTopic(topic);
-            var variables = options && options.include;
-
-            var debounceInterval = 300;
-            var debouncedFetch = Object(__WEBPACK_IMPORTED_MODULE_0_utils_general__["debounceAndMerge"])(fetch, debounceInterval, function (accum, newval) {
-                return newval;
-            });
-            return fetch(topic, variables).then(function (runs) {
-                var subsMap = {};
-                //TODO: Provide this meta information to runs-factory so it doesn't trigger a fetch to get meta for each run
-                runs.forEach(function (run) {
-                    var subscriptions = Object.keys(filters).map(function (filter) {
-                        return run.id + ':meta:' + filter;
-                    });
-                    var subsid = channelManagerContext.subscribe(subscriptions, function () {
-                        debouncedFetch(topic, variables);
-                    }, { batch: false, autoFetch: false, cache: false });
-                    subsMap[run.id] = subsid;
-                });
-
-                topicParamMap[topic] = subsMap;
-                return runs;
-            });
-        }
-    };
-}
-
-/***/ }),
-/* 60 */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-/* harmony export (immutable) */ __webpack_exports__["b"] = match;
-/* harmony export (immutable) */ __webpack_exports__["a"] = JSONRouter;
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_utils_parse_utils__ = __webpack_require__(3);
-
-
-function match(topic) {
-    var parsed = Object(__WEBPACK_IMPORTED_MODULE_0_utils_parse_utils__["toImplicitType"])(topic);
-    return typeof parsed !== 'string';
-}
-
-function JSONRouter(config, notifier) {
-    return {
-        subscribeHandler: function (topics, options, prefix) {
-            var parsed = topics.map(function (t) {
-                return {
-                    name: t,
-                    value: Object(__WEBPACK_IMPORTED_MODULE_0_utils_parse_utils__["toImplicitType"])(t)
-                };
-            });
-            setTimeout(function () {
-                notifier(parsed);
-            }, 0);
-        }
-    };
-}
-
-/***/ }),
-/* 61 */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_jquery__ = __webpack_require__(62);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_jquery__ = __webpack_require__(47);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_jquery___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_jquery__);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__channel_utils__ = __webpack_require__(4);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_lodash__ = __webpack_require__(0);
@@ -5871,31 +5004,986 @@ var ChannelManager = function () {
 /* harmony default export */ __webpack_exports__["a"] = (ChannelManager);
 
 /***/ }),
-/* 62 */
+/* 47 */
 /***/ (function(module, exports) {
 
 module.exports = jQuery;
+
+/***/ }),
+/* 48 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__run_manager_router__ = __webpack_require__(49);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__scenario_manager_router__ = __webpack_require__(55);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__custom_run_router__ = __webpack_require__(56);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__world_manager_router__ = __webpack_require__(58);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__runs_router__ = __webpack_require__(61);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5_channels_middleware_utils__ = __webpack_require__(3);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_6_channels_channel_router__ = __webpack_require__(5);
+
+
+
+
+
+
+
+// import UserRouter from './user-router/current-user-channel';
+
+
+
+
+
+function getOptions(opts, key) {
+    var serviceOptions = $.extend(true, {}, opts.defaults, opts[key]);
+    var channelOptions = $.extend(true, {}, serviceOptions.channelOptions);
+    delete serviceOptions.channelOptions;
+
+    return { serviceOptions: serviceOptions, channelOptions: channelOptions };
+}
+
+var SCENARIO_PREFIX = 'sm:';
+var RUN_PREFIX = 'rm:';
+var WORLD_PREFIX = 'world:';
+
+var sampleRunidLength = '000001593dd81950d4ee4f3df14841769a0b'.length;
+var runidRegex = '(?:.{' + sampleRunidLength + '})';
+
+/* harmony default export */ __webpack_exports__["a"] = (function (config, notifier, channelManagerContext) {
+    var opts = $.extend(true, {}, config);
+
+    var customRunChannelOpts = getOptions(opts, 'runid');
+    var customRunChannel = new __WEBPACK_IMPORTED_MODULE_2__custom_run_router__["a" /* default */](customRunChannelOpts, notifier);
+    var runsChannel = new __WEBPACK_IMPORTED_MODULE_4__runs_router__["a" /* default */](customRunChannelOpts, Object(__WEBPACK_IMPORTED_MODULE_5_channels_middleware_utils__["i" /* withPrefix */])(notifier, 'runs'), channelManagerContext);
+    // var userChannel = new UserRouter(getOptions(opts, 'runManager').run, withPrefix(notifier, 'user:'), channelManagerContext);
+
+    /** @type {Handler[]} **/
+    var handlers = [$.extend({}, customRunChannel, {
+        name: 'customRun',
+        match: Object(__WEBPACK_IMPORTED_MODULE_5_channels_middleware_utils__["e" /* regex */])(runidRegex),
+        options: customRunChannelOpts.channelOptions
+    }), $.extend({}, runsChannel, {
+        name: 'archiveRuns',
+        match: Object(__WEBPACK_IMPORTED_MODULE_5_channels_middleware_utils__["d" /* prefix */])('runs:'),
+        options: customRunChannelOpts.channelOptions
+    })];
+    var exposable = {};
+
+    var runManagerOpts = getOptions(opts, 'runManager');
+    if (opts.runManager || !opts.scenarioManager && runManagerOpts.serviceOptions.run) {
+        var rm;
+        var isMultiplayer = runManagerOpts.serviceOptions.strategy === 'multiplayer';
+        if (opts.scenarioManager) {
+            rm = new __WEBPACK_IMPORTED_MODULE_0__run_manager_router__["a" /* default */](runManagerOpts, Object(__WEBPACK_IMPORTED_MODULE_5_channels_middleware_utils__["i" /* withPrefix */])(notifier, RUN_PREFIX));
+            handlers.push($.extend({}, rm, {
+                name: 'run',
+                match: Object(__WEBPACK_IMPORTED_MODULE_5_channels_middleware_utils__["d" /* prefix */])(RUN_PREFIX), //if both scenario manager and run manager are being used, require a prefix
+                options: runManagerOpts.channelOptions
+            }));
+        } else if (isMultiplayer) {
+            //Ignore case where both scenario manager and multiplayer are being used
+            rm = new __WEBPACK_IMPORTED_MODULE_3__world_manager_router__["a" /* default */](runManagerOpts, Object(__WEBPACK_IMPORTED_MODULE_5_channels_middleware_utils__["i" /* withPrefix */])(notifier, [WORLD_PREFIX, '']));
+            handlers.push($.extend({}, rm, {
+                name: 'World run',
+                match: Object(__WEBPACK_IMPORTED_MODULE_5_channels_middleware_utils__["a" /* defaultPrefix */])(WORLD_PREFIX),
+                isDefault: true,
+                options: runManagerOpts.channelOptions
+            }));
+        } else {
+            rm = new __WEBPACK_IMPORTED_MODULE_0__run_manager_router__["a" /* default */](runManagerOpts, Object(__WEBPACK_IMPORTED_MODULE_5_channels_middleware_utils__["i" /* withPrefix */])(notifier, [RUN_PREFIX, '']));
+            handlers.push($.extend({}, rm, {
+                name: 'run',
+                match: Object(__WEBPACK_IMPORTED_MODULE_5_channels_middleware_utils__["a" /* defaultPrefix */])(RUN_PREFIX),
+                isDefault: true,
+                options: runManagerOpts.channelOptions
+            }));
+        }
+
+        $.extend(exposable, rm.expose);
+    }
+
+    if (opts.scenarioManager) {
+        var scenarioManagerOpts = getOptions(opts, 'scenarioManager');
+        var sm = new __WEBPACK_IMPORTED_MODULE_1__scenario_manager_router__["a" /* default */](scenarioManagerOpts, Object(__WEBPACK_IMPORTED_MODULE_5_channels_middleware_utils__["i" /* withPrefix */])(notifier, [SCENARIO_PREFIX, '']));
+        handlers.push($.extend({}, sm, {
+            name: 'scenario',
+            match: Object(__WEBPACK_IMPORTED_MODULE_5_channels_middleware_utils__["a" /* defaultPrefix */])(SCENARIO_PREFIX),
+            options: scenarioManagerOpts.channelOptions,
+            isDefault: true
+        }));
+
+        $.extend(exposable, sm.expose);
+    }
+
+    var epicenterRouter = Object(__WEBPACK_IMPORTED_MODULE_6_channels_channel_router__["a" /* default */])(handlers, notifier);
+    epicenterRouter.expose = exposable;
+
+    return epicenterRouter;
+});
+
+/***/ }),
+/* 49 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__run_router__ = __webpack_require__(6);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_channels_middleware_utils__ = __webpack_require__(3);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_channels_channel_router__ = __webpack_require__(5);
+
+
+
+
+
+var _window = window,
+    F = _window.F;
+
+
+var RUN_PREFIX = 'current:';
+
+/* harmony default export */ __webpack_exports__["a"] = (function (config, notifier) {
+    var defaults = {
+        serviceOptions: {},
+        channelOptions: {}
+    };
+    var opts = $.extend(true, {}, defaults, config);
+
+    var rmOptions = opts.serviceOptions;
+    var rm = new F.manager.RunManager(rmOptions);
+
+    var $creationPromise = rm.getRun().then(function (run) {
+        return rm.run;
+    });
+    var currentChannelOpts = $.extend(true, { serviceOptions: $creationPromise }, opts.defaults, opts.current);
+    var currentRunChannel = new __WEBPACK_IMPORTED_MODULE_0__run_router__["a" /* default */](currentChannelOpts, Object(__WEBPACK_IMPORTED_MODULE_1_channels_middleware_utils__["i" /* withPrefix */])(notifier, [RUN_PREFIX, '']));
+
+    var runRouteHandler = $.extend(currentRunChannel, {
+        match: Object(__WEBPACK_IMPORTED_MODULE_1_channels_middleware_utils__["a" /* defaultPrefix */])(RUN_PREFIX), //TODO: Just remove prefix?
+        name: 'Current Run',
+        isDefault: true,
+        options: currentChannelOpts.channelOptions
+    });
+    var handlers = [runRouteHandler];
+
+    var runMangerRouter = Object(__WEBPACK_IMPORTED_MODULE_2_channels_channel_router__["a" /* default */])(handlers);
+    runMangerRouter.expose = { runManager: rm };
+
+    return runMangerRouter;
+});
+
+/***/ }),
+/* 50 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* harmony export (immutable) */ __webpack_exports__["a"] = RunMetaChannel;
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_channels_channel_utils__ = __webpack_require__(4);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_lodash__ = __webpack_require__(0);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_lodash___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1_lodash__);
+
+
+
+function RunMetaChannel($runServicePromise, notifier) {
+
+    function mergeAndSend(runMeta, requestedTopics) {
+        var toSend = [].concat(requestedTopics).reduce(function (accum, meta) {
+            accum.push({ name: meta, value: runMeta[meta] });
+            return accum;
+        }, []);
+        return notifier(toSend);
+    }
+    return {
+        subscribeHandler: function (topics, options) {
+            topics = [].concat(topics);
+            return $runServicePromise.then(function (runService) {
+                var cachedValues = Object(__WEBPACK_IMPORTED_MODULE_1_lodash__["intersection"])(Object.keys(runService.runMeta || {}), topics);
+                if (options.autoFetch === false) {
+                    return $.Deferred().resolve({}).promise();
+                } else if (cachedValues.length === topics.length) {
+                    //FIXME: Add 'updated time' to meta, and fetch if that's < debounce interval -- use the custom debounce fn with the custom merge (debounce save as well?)
+                    //Make run service factory return patched run-service?
+                    return $.Deferred().resolve(mergeAndSend(runService.runMeta, topics)).promise();
+                }if (!runService.loadPromise) {
+                    runService.loadPromise = runService.load().then(function (data) {
+                        runService.runMeta = data;
+                        return data;
+                    });
+                }
+                return runService.loadPromise.then(function (data) {
+                    mergeAndSend(data, topics);
+                });
+            });
+        },
+        publishHandler: function (topics, options) {
+            return $runServicePromise.then(function (runService) {
+                var toSave = Object(__WEBPACK_IMPORTED_MODULE_0_channels_channel_utils__["a" /* arrayToObject */])(topics);
+                return runService.save(toSave).then(function (res) {
+                    runService.runMeta = $.extend({}, true, runService.runMeta, res);
+                    return Object(__WEBPACK_IMPORTED_MODULE_0_channels_channel_utils__["e" /* objectToArray */])(res);
+                });
+            });
+        }
+    };
+}
+
+/***/ }),
+/* 51 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* harmony export (immutable) */ __webpack_exports__["a"] = RunVariablesChannel;
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_utils_general__ = __webpack_require__(8);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_utils_general___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_utils_general__);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_channels_channel_utils__ = __webpack_require__(4);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_lodash__ = __webpack_require__(0);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_lodash___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_2_lodash__);
+
+
+
+
+function RunVariablesChannel($runServicePromise, notifier) {
+
+    var id = Object(__WEBPACK_IMPORTED_MODULE_2_lodash__["uniqueId"])('variable-channel');
+
+    var fetchFn = function (runService, debounceInterval) {
+        if (!runService.debouncedFetchers) {
+            runService.debouncedFetchers = {};
+        }
+        if (!runService.debouncedFetchers[id]) {
+            runService.debouncedFetchers[id] = Object(__WEBPACK_IMPORTED_MODULE_0_utils_general__["debounceAndMerge"])(function (variables) {
+                if (!variables || !variables.length) {
+                    return $.Deferred().resolve([]).promise();
+                }
+                return runService.variables().query(variables).then(__WEBPACK_IMPORTED_MODULE_1_channels_channel_utils__["e" /* objectToArray */]);
+            }, debounceInterval, [function mergeVariables(accum, newval) {
+                if (!accum) {
+                    accum = [];
+                }
+                return Object(__WEBPACK_IMPORTED_MODULE_2_lodash__["uniq"])(accum.concat(newval)).filter(function (v) {
+                    return !!(v && v.trim());
+                });
+            }]);
+        }
+        return runService.debouncedFetchers[id];
+    };
+
+    var knownTopics = [];
+    return {
+        fetch: function () {
+            return $runServicePromise.then(function (runService) {
+                return fetchFn(runService, 0)(knownTopics).then(notifier);
+            });
+        },
+
+        unsubscribeHandler: function (unsubscribedTopics, remainingTopics) {
+            knownTopics = remainingTopics;
+        },
+        subscribeHandler: function (topics, options) {
+            var isAutoFetchEnabled = options.autoFetch;
+            var debounceInterval = options.debounce;
+
+            return $runServicePromise.then(function (runService) {
+                knownTopics = Object(__WEBPACK_IMPORTED_MODULE_2_lodash__["uniq"])(knownTopics.concat(topics));
+                if (!knownTopics.length) {
+                    return $.Deferred().resolve([]).promise();
+                } else if (!isAutoFetchEnabled) {
+                    return $.Deferred().resolve(topics).promise();
+                }
+                return fetchFn(runService, debounceInterval)(topics).then(notifier);
+            });
+        },
+        notify: function (variableObj) {
+            return $runServicePromise.then(function (runService) {
+                var variables = Object.keys(variableObj);
+                return runService.variables().query(variables).then(__WEBPACK_IMPORTED_MODULE_1_channels_channel_utils__["e" /* objectToArray */]).then(notifier);
+            });
+        },
+        publishHandler: function (topics, options) {
+            return $runServicePromise.then(function (runService) {
+                var toSave = Object(__WEBPACK_IMPORTED_MODULE_1_channels_channel_utils__["a" /* arrayToObject */])(topics);
+                return runService.variables().save(toSave).then(function (response) {
+                    var variables = Object.keys(toSave);
+                    //Get the latest from the server because what you think you saved may not be what was saved
+                    //bool -> 1, scalar to array for time-based models etc
+                    //FIXME: This causes dupe requests, one here and one after fetch by the run-variables channel
+                    //FIXME: Other publish can't do anything till this is done, so debouncing won't help. Only way out is caching
+                    return runService.variables().query(variables).then(__WEBPACK_IMPORTED_MODULE_1_channels_channel_utils__["e" /* objectToArray */]);
+                });
+            });
+        }
+    };
+}
+
+/***/ }),
+/* 52 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* harmony export (immutable) */ __webpack_exports__["a"] = RunOperationsChannel;
+function RunOperationsChannel($runServicePromise, notifier) {
+    return {
+        notify: function (operationsResponse) {
+            var parsed = [{ name: operationsResponse.name, value: operationsResponse.result }];
+            return notifier(parsed);
+        },
+
+        publishHandler: function (topics, options) {
+            return $runServicePromise.then(function (runService) {
+                var toSave = topics.map(function (topic) {
+                    return { name: topic.name, params: topic.value };
+                });
+                return runService.serial(toSave).then(function (result) {
+                    var toReturn = result.map(function (response, index) {
+                        return { name: topics[index].name, value: response };
+                    });
+                    return toReturn;
+                });
+            });
+        }
+    };
+}
+
+/***/ }),
+/* 53 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* harmony export (immutable) */ __webpack_exports__["a"] = silencable;
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_lodash__ = __webpack_require__(0);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_lodash___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_lodash__);
+
+
+/**
+ * @param {Publishable[]} published 
+ * @param {boolean|String[]|{except: String[]}} [silentOptions]
+ * @return {Publishable[]} filtered list
+ */
+function silencable(published, silentOptions) {
+    if (silentOptions === true || !published) {
+        return [];
+    } else if (Object(__WEBPACK_IMPORTED_MODULE_0_lodash__["isArray"])(silentOptions)) {
+        return published.filter(function (data) {
+            return !Object(__WEBPACK_IMPORTED_MODULE_0_lodash__["includes"])(silentOptions, data.name);
+        });
+    } else if (silentOptions && silentOptions.except) {
+        return published.filter(function (data) {
+            return Object(__WEBPACK_IMPORTED_MODULE_0_lodash__["includes"])(silentOptions.except || [], data.name);
+        });
+    }
+    return published;
+}
+
+/***/ }),
+/* 54 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* harmony export (immutable) */ __webpack_exports__["a"] = excludeReadOnly;
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_lodash__ = __webpack_require__(0);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_lodash___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_lodash__);
+
+
+/**
+ * 
+ * @param {Publishable[]} publishable 
+ * @param {boolean|string[]|Function} readOnlyOptions 
+ * @return {Publishable[]} filtered list
+ */
+function excludeReadOnly(publishable, readOnlyOptions) {
+    if (Object(__WEBPACK_IMPORTED_MODULE_0_lodash__["isFunction"])(readOnlyOptions)) {
+        readOnlyOptions = readOnlyOptions();
+    }
+    if (readOnlyOptions === true) {
+        console.error('Tried to publish to a readonly channel', publishable);
+        return [];
+    } else if (Object(__WEBPACK_IMPORTED_MODULE_0_lodash__["isArray"])(readOnlyOptions)) {
+        var split = publishable.reduce(function (accum, data) {
+            var isReadonly = Object(__WEBPACK_IMPORTED_MODULE_0_lodash__["includes"])(readOnlyOptions, data.name);
+            if (isReadonly) {
+                accum.readOnly.push(data);
+            } else {
+                accum.remaining.push(data);
+            }
+            return accum;
+        }, { readOnly: [], remaining: [] });
+
+        if (split.readOnly.length) {
+            console.error('Ignoring readonly publishes', split.readOnly);
+        }
+        return split.remaining;
+    }
+    return publishable;
+}
+
+/***/ }),
+/* 55 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__run_router__ = __webpack_require__(6);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_channels_middleware_utils__ = __webpack_require__(3);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_channels_channel_router__ = __webpack_require__(5);
+
+
+
+
+/* harmony default export */ __webpack_exports__["a"] = (function (config, notifier) {
+    var defaults = {
+        serviceOptions: {},
+        channelOptions: {}
+    };
+    var opts = $.extend(true, {}, defaults, config);
+
+    var sm = new window.F.manager.ScenarioManager(opts.serviceOptions);
+
+    var baselinePromise = sm.baseline.getRun().then(function () {
+        return sm.baseline.run;
+    });
+    var baselineOptions = $.extend(true, {
+        serviceOptions: baselinePromise,
+        channelOptions: {
+            meta: {
+                readOnly: true
+            },
+            variables: {
+                readOnly: true
+            }
+        }
+    }, opts.defaults, opts.baseline);
+    var currentRunPromise = sm.current.getRun().then(function () {
+        return sm.current.run;
+    });
+
+    var runOptions = $.extend(true, {
+        serviceOptions: currentRunPromise
+    }, opts.defaults, opts.current);
+
+    var baselineChannel = new __WEBPACK_IMPORTED_MODULE_0__run_router__["a" /* default */](baselineOptions, Object(__WEBPACK_IMPORTED_MODULE_1_channels_middleware_utils__["i" /* withPrefix */])(notifier, 'baseline:'));
+    var currentRunChannel = new __WEBPACK_IMPORTED_MODULE_0__run_router__["a" /* default */](runOptions, Object(__WEBPACK_IMPORTED_MODULE_1_channels_middleware_utils__["i" /* withPrefix */])(notifier, ['current:', '']));
+    var handlers = [$.extend(baselineChannel, {
+        name: 'baseline',
+        match: Object(__WEBPACK_IMPORTED_MODULE_1_channels_middleware_utils__["d" /* prefix */])('baseline:'),
+        options: baselineOptions.channelOptions
+    }), $.extend(currentRunChannel, {
+        isDefault: true,
+        name: 'current',
+        match: Object(__WEBPACK_IMPORTED_MODULE_1_channels_middleware_utils__["a" /* defaultPrefix */])('current:'),
+        options: runOptions.channelOptions
+    })];
+
+    var scenarioManagerRouter = Object(__WEBPACK_IMPORTED_MODULE_2_channels_channel_router__["a" /* default */])(handlers, notifier);
+    scenarioManagerRouter.expose = { scenarioManager: sm };
+    return scenarioManagerRouter;
+});
+
+/***/ }),
+/* 56 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__run_router_factory__ = __webpack_require__(57);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_channels_middleware_utils__ = __webpack_require__(3);
+
+
+
+/* harmony default export */ __webpack_exports__["a"] = (function (options, notifier) {
+    if (!options) options = {};
+
+    var opts = {};
+    opts.serviceOptions = options.serviceOptions && options.serviceOptions.run ? options.serviceOptions.run : {};
+    opts.channelOptions = options.channelOptions;
+
+    return {
+        subscribeHandler: function (topics, options, prefix) {
+            var runid = Object(__WEBPACK_IMPORTED_MODULE_1_channels_middleware_utils__["g" /* stripSuffixDelimiter */])(prefix);
+            //FIXME: Should i merge options here?
+            var channel = Object(__WEBPACK_IMPORTED_MODULE_0__run_router_factory__["a" /* default */])(runid, opts, Object(__WEBPACK_IMPORTED_MODULE_1_channels_middleware_utils__["i" /* withPrefix */])(notifier, prefix));
+            return channel.subscribeHandler(topics, options, prefix);
+        },
+        publishHandler: function (topics, options, prefix) {
+            var runid = Object(__WEBPACK_IMPORTED_MODULE_1_channels_middleware_utils__["g" /* stripSuffixDelimiter */])(prefix);
+            var channel = Object(__WEBPACK_IMPORTED_MODULE_0__run_router_factory__["a" /* default */])(runid, opts, Object(__WEBPACK_IMPORTED_MODULE_1_channels_middleware_utils__["i" /* withPrefix */])(notifier, prefix));
+            return channel.publishHandler(topics);
+        }
+    };
+});
+
+/***/ }),
+/* 57 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__run_router__ = __webpack_require__(6);
+
+var knownRunIDServiceChannels = {};
+
+/* harmony default export */ __webpack_exports__["a"] = (function (runid, options, notifier) {
+    var runChannel = knownRunIDServiceChannels[runid];
+    if (!runChannel) {
+        var runOptions = $.extend(true, {}, options, { serviceOptions: { id: runid } });
+        runChannel = new __WEBPACK_IMPORTED_MODULE_0__run_router__["a" /* default */](runOptions, notifier);
+        knownRunIDServiceChannels[runid] = runChannel;
+    }
+    return runChannel;
+});
+
+/***/ }),
+/* 58 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__world_users_channel__ = __webpack_require__(59);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__world_current_user_channel__ = __webpack_require__(60);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_channels_middleware_utils__ = __webpack_require__(3);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__run_router__ = __webpack_require__(6);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4_channels_channel_router__ = __webpack_require__(5);
+
+
+
+
+
+
+
+var _window = window,
+    F = _window.F;
+
+//TODO: Add custom worldid channel as well
+//
+
+/* harmony default export */ __webpack_exports__["a"] = (function (config, notifier) {
+    var _this = this;
+
+    var defaults = {
+        serviceOptions: {},
+        channelOptions: {}
+    };
+    var opts = $.extend(true, {}, defaults, config);
+
+    var rmOptions = opts.serviceOptions;
+    var rm = new F.manager.RunManager(rmOptions);
+
+    var getRunPromise = rm.getRun().catch(function (err) {
+        console.error('Run manager get run error', err);
+        throw err;
+    });
+    var $runPromise = getRunPromise.then(function (run) {
+        if (!run.world) {
+            console.error('No world found in run. Make sure you\'re using EpicenterJS version > 2.4');
+            throw new Error('Could not find world');
+        }
+        if (rm.run.getChannel) {
+            return rm.run;
+        }
+
+        var channelManager = new F.manager.ChannelManager();
+        var worldChannel = channelManager.getWorldChannel(run.world);
+
+        worldChannel.subscribe('reset', function (run) {
+            rm.run.updateConfig({ filter: run.id });
+        }, _this, { includeMine: false });
+        rm.run.channel = worldChannel;
+        return rm.run;
+    });
+    var currentChannelOpts = $.extend(true, { serviceOptions: $runPromise }, opts.defaults, opts.current);
+    var currentRunChannel = new __WEBPACK_IMPORTED_MODULE_3__run_router__["a" /* default */](currentChannelOpts, Object(__WEBPACK_IMPORTED_MODULE_2_channels_middleware_utils__["i" /* withPrefix */])(notifier, ['run:', '']));
+
+    var runRouteHandler = $.extend(currentRunChannel, {
+        match: Object(__WEBPACK_IMPORTED_MODULE_2_channels_middleware_utils__["a" /* defaultPrefix */])('run:'),
+        name: 'World Run',
+        isDefault: true,
+        options: currentChannelOpts.channelOptions
+    });
+    var handlers = [runRouteHandler];
+    var worldPromise = getRunPromise.then(function (run) {
+        return run.world;
+    });
+    var presenceChannel = new __WEBPACK_IMPORTED_MODULE_0__world_users_channel__["a" /* default */](worldPromise, Object(__WEBPACK_IMPORTED_MODULE_2_channels_middleware_utils__["i" /* withPrefix */])(notifier, 'users:'));
+    var presenceHandler = $.extend(presenceChannel, {
+        match: Object(__WEBPACK_IMPORTED_MODULE_2_channels_middleware_utils__["d" /* prefix */])('users:'),
+        name: 'world users'
+    });
+    handlers.unshift(presenceHandler);
+
+    var userChannel = new __WEBPACK_IMPORTED_MODULE_1__world_current_user_channel__["a" /* default */](worldPromise, Object(__WEBPACK_IMPORTED_MODULE_2_channels_middleware_utils__["i" /* withPrefix */])(notifier, 'user:'));
+    var userHandler = $.extend(userChannel, {
+        match: Object(__WEBPACK_IMPORTED_MODULE_2_channels_middleware_utils__["d" /* prefix */])('user:'),
+        name: 'current user'
+    });
+    handlers.unshift(userHandler);
+
+    var runMangerRouter = Object(__WEBPACK_IMPORTED_MODULE_4_channels_channel_router__["a" /* default */])(handlers);
+    runMangerRouter.expose = { runManager: rm };
+
+    return runMangerRouter;
+});
+
+/***/ }),
+/* 59 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* harmony export (immutable) */ __webpack_exports__["a"] = WorldUsersChanngel;
+var F = window.F;
+
+function WorldUsersChanngel(worldPromise, notifier) {
+    var subsid = void 0;
+
+    var store = {
+        users: [],
+        mark: function (userid, isOnline) {
+            store.users = store.users.map(function (u) {
+                if (u.userId === userid) {
+                    u.isOnline = isOnline;
+                }
+                return u;
+            });
+            return store.users;
+        }
+    };
+    var channelManager = new F.manager.ChannelManager();
+
+    var parsedUsersPromise = worldPromise.then(function (world) {
+        var am = new F.manager.AuthManager();
+        var session = am.getCurrentUserSessionInfo();
+        var parsed = world.users.map(function (u) {
+            u.name = u.lastName;
+            u.isMe = u.userId === session.userId;
+            u.isOnline = u.isMe; //Assume i'm the only online one by default
+            return u;
+        });
+        store.users = parsed;
+        return parsed;
+    });
+
+    return {
+        unsubscribeHandler: function (knownTopics, remainingTopics) {
+            if (remainingTopics.length || !subsid) {
+                return;
+            }
+            worldPromise.then(function (world) {
+                var worldChannel = channelManager.getWorldChannel(world);
+                worldChannel.unsubscribe(subsid);
+                subsid = null;
+            });
+        },
+        subscribeHandler: function (userids) {
+            if (!subsid) {
+                worldPromise.then(function (world) {
+                    var worldChannel = channelManager.getWorldChannel(world);
+                    subsid = worldChannel.subscribe('presence', function (user, meta) {
+                        // console.log('presence', user, meta);
+                        var userid = user.id;
+                        store.mark(userid, user.isOnline);
+
+                        return notifier([{ name: '', value: store.users }]);
+                    }, { includeMine: false });
+                });
+            }
+            return parsedUsersPromise.then(function (users) {
+                return notifier([{ name: '', value: users }]);
+            });
+        },
+        publishHandler: function (topics, options) {
+            var ps = new F.service.Presence();
+            topics.forEach(function (topic) {
+                var split = topic.name.split(':');
+                if (split[1]) {
+                    if (split[1] === 'markOnline') {
+                        ps.markOnline(split[0]);
+                    } else if (split[1] === 'markOffline') {
+                        ps.markOffline(split[0]);
+                    }
+                }
+            });
+            return topics;
+        }
+    };
+}
+
+/***/ }),
+/* 60 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* harmony export (immutable) */ __webpack_exports__["a"] = WorldUsersChanngel;
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_lodash__ = __webpack_require__(0);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_lodash___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_lodash__);
+
+
+var F = window.F;
+
+function WorldUsersChanngel(worldPromise, notifier) {
+    var subsid = void 0;
+
+    var am = new F.manager.AuthManager();
+    var store = $.extend(true, {
+        isMe: true,
+        isOnline: true
+    }, am.getCurrentUserSessionInfo());
+    var channelManager = new F.manager.ChannelManager();
+
+    return {
+        unsubscribeHandler: function (unsubscribedTopics, remainingTopics) {
+            if (remainingTopics.length || !subsid) {
+                return;
+            }
+
+            worldPromise.then(function (world) {
+                var worldChannel = channelManager.getWorldChannel(world);
+                worldChannel.unsubscribe(subsid);
+            });
+            subsid = null;
+        },
+        subscribeHandler: function (userFields) {
+            return worldPromise.then(function (world) {
+                var session = am.getCurrentUserSessionInfo();
+                var myUser = __WEBPACK_IMPORTED_MODULE_0_lodash___default.a.find(world.users, function (user) {
+                    return user.userId === session.userId;
+                });
+                $.extend(store, myUser);
+
+                var toNotify = userFields.reduce(function (accum, field) {
+                    if (store[field] !== undefined) {
+                        accum.push({ name: field, value: store[field] });
+                    }
+                    return accum;
+                }, []);
+                notifier(toNotify);
+
+                //TODO: Also subscribe to presence?
+                if (!subsid) {
+                    var worldChannel = channelManager.getWorldChannel(world);
+                    subsid = worldChannel.subscribe('roles', function (user, meta) {
+                        // console.log('Roles notification', user, meta);
+                        if (user.userId === store.userId && user.role !== store.role) {
+                            store.role = user.role;
+                            notifier([{ name: 'role', value: user.role }]);
+                        }
+                    });
+                }
+            });
+        }
+    };
+}
+
+/***/ }),
+/* 61 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* harmony export (immutable) */ __webpack_exports__["a"] = RunsRouter;
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_utils_general__ = __webpack_require__(8);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_utils_general___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_utils_general__);
+var _slicedToArray = function () { function sliceIterator(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"]) _i["return"](); } finally { if (_d) throw _e; } } return _arr; } return function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { return sliceIterator(arr, i); } else { throw new TypeError("Invalid attempt to destructure non-iterable instance"); } }; }();
+
+
+var _window = window,
+    F = _window.F;
+
+
+function RunsRouter(options, notifier, channelManagerContext) {
+    var runService = new F.service.Run(options.serviceOptions.run);
+
+    var topicParamMap = {};
+
+    function extractFiltersFromTopic(topicString) {
+        var filters = topicString.replace('(', '').replace(')', '');
+        var filterParam = filters.split(';').reduce(function (accum, filter) {
+            var _filter$split = filter.split('='),
+                _filter$split2 = _slicedToArray(_filter$split, 2),
+                key = _filter$split2[0],
+                val = _filter$split2[1];
+
+            if (val) {
+                val = true;
+            }
+            accum[key] = val;
+            return accum;
+        }, {});
+        return filterParam;
+    }
+
+    function fetch(topic, variables) {
+        var filters = extractFiltersFromTopic(topic);
+        return runService.query(filters, { include: variables }).then(function (runs) {
+            notifier([{ name: topic, value: runs }]);
+
+            // if (topicParamMap[topic]) {
+            //     Object.keys(topicParamMap[topic]).forEach((runid)=> {
+            //         channelManagerContext.unsubscribe(topicParamMap[topic][runid]);
+            //     });
+            // }
+
+            return runs;
+        });
+    }
+
+    return {
+        fetch: fetch,
+
+        unsubscribeHandler: function (unsubscribedTopics, remainingTopics) {
+            console.log('unsubs');
+            // knownTopics = remainingTopics;
+        },
+        subscribeHandler: function (topics, options) {
+            var topic = [].concat(topics)[0];
+
+            var filters = extractFiltersFromTopic(topic);
+            var variables = options && options.include;
+
+            var debounceInterval = 300;
+            var debouncedFetch = Object(__WEBPACK_IMPORTED_MODULE_0_utils_general__["debounceAndMerge"])(fetch, debounceInterval, function (accum, newval) {
+                return newval;
+            });
+            return fetch(topic, variables).then(function (runs) {
+                var subsMap = {};
+                //TODO: Provide this meta information to runs-factory so it doesn't trigger a fetch to get meta for each run
+                runs.forEach(function (run) {
+                    var subscriptions = Object.keys(filters).map(function (filter) {
+                        return run.id + ':meta:' + filter;
+                    });
+                    var subsid = channelManagerContext.subscribe(subscriptions, function () {
+                        debouncedFetch(topic, variables);
+                    }, { batch: false, autoFetch: false, cache: false });
+                    subsMap[run.id] = subsid;
+                });
+
+                topicParamMap[topic] = subsMap;
+                return runs;
+            });
+        }
+    };
+}
+
+/***/ }),
+/* 62 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* unused harmony export match */
+/* harmony export (immutable) */ __webpack_exports__["a"] = JSONRouter;
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_utils_parse_utils__ = __webpack_require__(2);
+
+
+function match(topic) {
+    var parsed = Object(__WEBPACK_IMPORTED_MODULE_0_utils_parse_utils__["toImplicitType"])(topic);
+    return typeof parsed !== 'string';
+}
+
+function JSONRouter(config, notifier) {
+    return {
+        match: match,
+        name: 'JSON Route',
+        subscribeHandler: function (topics, options, prefix) {
+            var parsed = topics.reduce(function (accum, t) {
+                if (match(t)) {
+                    accum.claimed.push({
+                        name: t,
+                        value: Object(__WEBPACK_IMPORTED_MODULE_0_utils_parse_utils__["toImplicitType"])(t)
+                    });
+                } else {
+                    accum.rest.push(t);
+                }
+                return accum;
+            }, { claimed: [], rest: [] });
+            setTimeout(function () {
+                notifier(parsed.claimed);
+            }, 0);
+            return parsed.rest;
+        }
+    };
+}
 
 /***/ }),
 /* 63 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__interpolatable__ = __webpack_require__(64);
-/* harmony reexport (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return __WEBPACK_IMPORTED_MODULE_0__interpolatable__["a"]; });
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__with_middleware__ = __webpack_require__(67);
-/* harmony reexport (binding) */ __webpack_require__.d(__webpack_exports__, "b", function() { return __WEBPACK_IMPORTED_MODULE_1__with_middleware__["a"]; });
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__channel_router__ = __webpack_require__(5);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_utils_parse_utils__ = __webpack_require__(2);
 
 
+
+/* harmony default export */ __webpack_exports__["a"] = (function (config, notifier, channelManagerContext) {
+    var options = $.extend(true, {}, {
+        routes: []
+    }, config);
+
+    var routes = options.routes.map(function (r) {
+        var router = typeof r === 'function' ? new r(config, notifier) : r;
+        var oldSubsHandler = router.subscribeHandler;
+
+        if (typeof router.match === 'string') {
+            var oldMatch = router.match;
+            router.match = function (t) {
+                return t === oldMatch;
+            };
+        }
+
+        router.subscribeHandler = function (topics) {
+            var parsed = topics.reduce(function (accum, t) {
+                if (router.match(t)) {
+                    accum.claimed.push({
+                        name: t,
+                        value: oldSubsHandler(t)
+                    });
+                } else {
+                    accum.rest.push(t);
+                }
+                return accum;
+            }, { claimed: [], rest: [] });
+            setTimeout(function () {
+                if (parsed.claimed.length) {
+                    notifier(parsed.claimed);
+                }
+            }, 0);
+            return parsed.rest;
+        };
+        return router;
+    });
+    var defaultRouter = Object(__WEBPACK_IMPORTED_MODULE_0__channel_router__["a" /* default */])(routes, notifier);
+    var oldHandler = defaultRouter.subscribeHandler;
+    defaultRouter.subscribeHandler = function (topics, options) {
+        var parsed = topics.reduce(function (accum, topic) {
+            routes.forEach(function (route) {
+                if (route.match(topic)) {
+                    accum.claimed.push(topic);
+                } else {
+                    accum.rest.push(topic);
+                }
+            });
+            return accum;
+        }, { claimed: [], rest: [] });
+        if (parsed.claimed.length) {
+            oldHandler(parsed.claimed);
+            return parsed.rest;
+        }
+        return topics;
+    };
+
+    defaultRouter.expose = { router: defaultRouter };
+    return defaultRouter;
+});
 
 /***/ }),
 /* 64 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__interpolatable__ = __webpack_require__(65);
+/* harmony reexport (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return __WEBPACK_IMPORTED_MODULE_0__interpolatable__["a"]; });
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__with_middleware__ = __webpack_require__(68);
+/* harmony reexport (binding) */ __webpack_require__.d(__webpack_exports__, "b", function() { return __WEBPACK_IMPORTED_MODULE_1__with_middleware__["a"]; });
+
+
+
+/***/ }),
+/* 65 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
 /* harmony export (immutable) */ __webpack_exports__["a"] = interpolatable;
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__subscribe_interpolator__ = __webpack_require__(65);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__publish_interpolator__ = __webpack_require__(66);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__subscribe_interpolator__ = __webpack_require__(66);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__publish_interpolator__ = __webpack_require__(67);
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
 var _get = function get(object, property, receiver) { if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { return get(parent, property, receiver); } } else if ("value" in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } };
@@ -5968,7 +6056,7 @@ function interpolatable(ChannelManager) {
 }
 
 /***/ }),
-/* 65 */
+/* 66 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -6054,7 +6142,7 @@ function subscribeInterpolator(subscribeFn, onDependencyChange) {
 }
 
 /***/ }),
-/* 66 */
+/* 67 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -6122,12 +6210,12 @@ function publishInterpolator(publishFunction, fetchFn) {
 }
 
 /***/ }),
-/* 67 */
+/* 68 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 /* harmony export (immutable) */ __webpack_exports__["a"] = withMiddleware;
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__middleware_manager__ = __webpack_require__(68);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__middleware_manager__ = __webpack_require__(69);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__channel_utils__ = __webpack_require__(4);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_lodash__ = __webpack_require__(0);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_lodash___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_2_lodash__);
@@ -6209,7 +6297,7 @@ function withMiddleware(ChannelManager) {
                 return prom;
             }
             /**
-             * Allow intercepting and excluding topics from subscription
+             * Allow intercepting and excluding topics from by subsequent middlewares
              * @param  {string | string[]}   topics
              * @param  {Function} cb
              * @param  {Object}   options
@@ -6219,12 +6307,14 @@ function withMiddleware(ChannelManager) {
         }, {
             key: 'subscribe',
             value: function subscribe(topics, cb, options) {
+                var subsid = _get(ChannelWithMiddleware.prototype.__proto__ || Object.getPrototypeOf(ChannelWithMiddleware.prototype), 'subscribe', this).call(this, topics, cb, options);
                 var subscribeMiddlewares = this.middlewares.filter('subscribe');
+                //Subscription needs to happen first, or if you skip topics they'll never be subscribed, so you can't notify
                 var newTopics = [].concat(topics);
                 subscribeMiddlewares.forEach(function (middleware) {
                     newTopics = middleware(newTopics, options) || newTopics;
                 });
-                return _get(ChannelWithMiddleware.prototype.__proto__ || Object.getPrototypeOf(ChannelWithMiddleware.prototype), 'subscribe', this).call(this, newTopics, cb, options);
+                return subsid;
             }
 
             /**
@@ -6269,7 +6359,7 @@ function withMiddleware(ChannelManager) {
 }
 
 /***/ }),
-/* 68 */
+/* 69 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";

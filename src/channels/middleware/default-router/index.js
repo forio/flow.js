@@ -1,6 +1,7 @@
 import router from '../../channel-router';
 import { toImplicitType } from 'utils/parse-utils';
 
+//FIXME: This doesn't handle add-route
 export default function (config, notifier, channelManagerContext) {
     const options = $.extend(true, {}, {
         routes: [],
@@ -53,7 +54,7 @@ export default function (config, notifier, channelManagerContext) {
             oldHandler(parsed.claimed);
             return parsed.rest;
         }
-       return topics;
+        return topics;
     };
 
     defaultRouter.expose = { router: defaultRouter };
