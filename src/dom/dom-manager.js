@@ -284,6 +284,8 @@ module.exports = (function () {
             });
         },
 
+        plugins: {},
+
         /**
          * Initialize the DOM Manager to work with a particular HTML element and all elements within that root. Data bindings between individual HTML elements and the model variables specified in the attributes will happen via the channel.
          *
@@ -429,14 +431,12 @@ module.exports = (function () {
             const promise = $.Deferred();
             $(function () {
                 me.bindAll();
-
+            
                 attachUIVariablesListener($root);
                 attachUIOperationsListener($root);
                 attachConversionListner($root);
 
-                if (me.options.autoBind) {
-                    autoUpdatePlugin($root.get(0), me);
-                }
+                me.plugins.autoBind = autoUpdatePlugin($root.get(0), me, me.options.autoBind);
                 
                 promise.resolve($root);
                 $root.trigger('f.domready');

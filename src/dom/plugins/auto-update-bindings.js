@@ -6,7 +6,7 @@
  * @param  {Object} domManager [description]
  * @return {void}
  */
-module.exports = function (target, domManager) {
+module.exports = function (target, domManager, isEnabled) {
     if (typeof MutationObserver === 'undefined') {
         return;
     }
@@ -41,6 +41,20 @@ module.exports = function (target, domManager) {
         subtree: true,
         characterData: false
     };
-    observer.observe(target, mutconfig);
-    // observer.disconnect();
+
+    var publicApi = {
+        enable: function () {
+            observer.observe(target, mutconfig);
+        },
+        disable: function () {
+            observer.disconnect();
+        }
+    };
+
+    if (isEnabled) {
+        publicApi.enable();
+    }
+
+    return publicApi;
+    // 
 };

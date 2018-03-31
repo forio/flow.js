@@ -1586,6 +1586,8 @@ module.exports = function () {
             });
         },
 
+        plugins: {},
+
         /**
          * Initialize the DOM Manager to work with a particular HTML element and all elements within that root. Data bindings between individual HTML elements and the model variables specified in the attributes will happen via the channel.
          *
@@ -1745,9 +1747,7 @@ module.exports = function () {
                 attachUIOperationsListener($root);
                 attachConversionListner($root);
 
-                if (me.options.autoBind) {
-                    autoUpdatePlugin($root.get(0), me);
-                }
+                me.plugins.autoBind = autoUpdatePlugin($root.get(0), me, me.options.autoBind);
 
                 promise.resolve($root);
                 $root.trigger('f.domready');
@@ -3992,7 +3992,7 @@ module.exports = {
 
 /***/ }),
 /* 35 */
-/***/ (function(module, exports, __webpack_require__) {
+/***/ (function(module, exports) {
 
 /**
  * ## Inputs and Selects
@@ -4013,9 +4013,6 @@ module.exports = {
  * 		</select>
  *
  */
-var _require = __webpack_require__(0),
-    isArray = _require.isArray;
-
 module.exports = {
     target: 'input, select, textarea',
 
@@ -4026,10 +4023,9 @@ module.exports = {
     * @return {void}
     */
     handle: function (value) {
-        if (value === null || value === undefined) {
+        if (value === undefined) {
             value = '';
-        }
-        if (isArray(value)) {
+        } else if (Array.isArray(value)) {
             value = value[value.length - 1];
         }
         this.val(value);
@@ -4682,7 +4678,7 @@ module.exports = {
  * @return {void}
  */
 
-module.exports = function (target, domManager) {
+module.exports = function (target, domManager, isEnabled) {
     if (typeof MutationObserver === 'undefined') {
         return;
     }
@@ -4716,8 +4712,22 @@ module.exports = function (target, domManager) {
         subtree: true,
         characterData: false
     };
-    observer.observe(target, mutconfig);
-    // observer.disconnect();
+
+    var publicApi = {
+        enable: function () {
+            observer.observe(target, mutconfig);
+        },
+        disable: function () {
+            observer.disconnect();
+        }
+    };
+
+    if (isEnabled) {
+        publicApi.enable();
+    }
+
+    return publicApi;
+    // 
 };
 
 /***/ }),
@@ -5903,6 +5913,7 @@ function JSONRouter(config, notifier) {
 
 
 
+//FIXME: This doesn't handle add-route
 /* harmony default export */ __webpack_exports__["a"] = (function (config, notifier, channelManagerContext) {
     var options = $.extend(true, {}, {
         routes: []
