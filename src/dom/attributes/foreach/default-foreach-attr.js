@@ -123,15 +123,16 @@ const config = require('../../../config');
 const { addChangeClassesToList } = require('utils/animation');
 const { uniqueId, each, template } = require('lodash');
 
+const { getKnownDataForEl, updateKnownDataForEl, removeKnownData, 
+    findMissingReferences, stubMissingReferences, addBackMissingReferences,
+} = require('../attr-template-utils');
+
 function refToMarkup(refKey) {
     return '<!--' + refKey + '-->';
 }
 
 const elTemplateMap = new WeakMap();
 const elAnimatedMap = new WeakMap(); //TODO: Can probably get rid of this if we make subscribe a promise and distinguish between initial value
-
-const CURRENT_INDEX_KEY = 'current-index';
-const CURRENT_INDEX_ATTR = `data-${CURRENT_INDEX_KEY}`;
 
 module.exports = {
 
@@ -152,8 +153,7 @@ module.exports = {
         const dataToRemove = [config.attrs.keyAs, config.attrs.valueAs];
         $el.removeData(dataToRemove);
 
-        const attrsToRemove = [CURRENT_INDEX_ATTR];
-        $el.removeAttr(attrsToRemove.join(' '));
+        removeKnownData($el);
     },
 
     //provide variable name from bound
@@ -182,14 +182,9 @@ module.exports = {
             elTemplateMap.set(el, loopTemplate);
         }
         
-        let cloop = loopTemplate.replace(/&lt;/g, '<').replace(/&gt;/g, '>');
-
         const defaultKey = $.isPlainObject(value) ? 'key' : 'index';
         const keyAttr = $el.data(config.attrs.keyAs) || defaultKey;
         const valueAttr = $el.data(config.attrs.valueAs) || 'value';
-        
-        const keyRegex = new RegExp('\\b' + keyAttr + '\\b');
-        const valueRegex = new RegExp('\\b' + valueAttr + '\\b');
         
         // Go through matching template tags and make a list of references you don't know about
         //  -- replace with a comment ref id, or lodash will break on missing references
@@ -197,33 +192,16 @@ module.exports = {
         //  -- if success, nothing to do
         //  -- if fail, store your data and wait for someone else to take it and template
         // 
-        
-        const missingReferences = {};
+        let cloop = loopTemplate.replace(/&lt;/g, '<').replace(/&gt;/g, '>');
+        const missingReferences = findMissingReferences(cloop, [keyAttr, valueAttr]);
+        cloop = stubMissingReferences(cloop, missingReferences);
 
-        const templateTagsUsed = cloop.match(/<%[=-]?([\s\S]+?)%>/g);
-        if (templateTagsUsed) {
-            templateTagsUsed.forEach(function (tag) {
-                if (tag.match(/\w+/) && !keyRegex.test(tag) && !valueRegex.test(tag)) {
-                    let refKey = missingReferences[tag];
-                    if (!refKey) {
-                        refKey = uniqueId('no-ref');
-                        missingReferences[tag] = refKey;
-                    }
-                    const r = new RegExp(tag, 'g');
-                    cloop = cloop.replace(r, refToMarkup(refKey));
-                }
-            });
-        }
+        const knownData = getKnownDataForEl($el);
 
-        const closestKnownDataEl = $el.closest(`[${CURRENT_INDEX_ATTR}]`);
-        let knownData = {};
-        if (closestKnownDataEl.length) {
-            knownData = closestKnownDataEl.data(CURRENT_INDEX_KEY);
-        }
         const templateFn = template(cloop);
         const $dummyEl = $('<div></div>');
         each(value, function (dataval, datakey) {
-            if (!dataval) {
+            if (dataval === undefined || dataval === null) {
                 dataval = dataval + ''; //convert undefineds to strings
             }
             const templateData = {};
@@ -236,17 +214,13 @@ module.exports = {
             let isTemplated;
             try {
                 let templatedLoop = templateFn(templateData);
-                Object.keys(missingReferences).forEach((originalTemplateVal)=> {
-                    const commentRef = missingReferences[originalTemplateVal];
-                    const r = new RegExp(refToMarkup(commentRef), 'g');
-                    templatedLoop = templatedLoop.replace(r, originalTemplateVal);
-                });
+                templatedLoop = addBackMissingReferences(templatedLoop, missingReferences);
                 isTemplated = templatedLoop !== cloop;
                 nodes = $(templatedLoop);
             } catch (e) { //you don't have all the references you need;
                 nodes = $(cloop);
                 isTemplated = true;
-                $(nodes).attr(CURRENT_INDEX_ATTR, JSON.stringify(templateData));
+                updateKnownDataForEl($(nodes), templateData);
             }
 
             nodes.each(function (i, newNode) {

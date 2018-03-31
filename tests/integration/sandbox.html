@@ -71,7 +71,17 @@
             </li>
         </ul>
 
-<!--         <h6>Nested foreach + bind</h6>
+<!--         <div class="col-xs-12" id="f-content" data-f-bind="Price, Revenue">
+            <table class="table">
+                <tbody data-f-foreach="p in [<%= Price %>]">
+                    <tr>
+                        <th><%= p %></th>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+ -->
+        <h6>Nested foreach + bind</h6>
         <ul data-f-foreach="price in Price">
             <li>
                 Price index: <%= index %>
@@ -80,7 +90,7 @@
                     <%= value %>
                 </div>
             </li>
-        </ul> -->
+        </ul>
         <script>
             var defaultRoutes = {
                 match: 'foo',
