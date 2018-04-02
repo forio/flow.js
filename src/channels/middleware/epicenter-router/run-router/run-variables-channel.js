@@ -1,9 +1,9 @@
 import { debounceAndMerge } from 'utils/general';
-import { objectToArray, publishableToObject } from 'channels/channel-utils';
+import { objectToPublishable, publishableToObject } from 'channels/channel-utils';
 import { uniqueId, uniq } from 'lodash';
 
 /**
- * @param {number[]} subs 
+ * @param {number[]} subscripts 
  * @returns {number[][]}
  */
 export function groupByContigousArrayItems(subscripts) {
@@ -103,7 +103,7 @@ export default function RunVariablesChannel($runServicePromise, notifier) {
                 if (!variables || !variables.length) {
                     return $.Deferred().resolve([]).promise();
                 }
-                return optimizedFetch(runService, variables).then(objectToArray);
+                return optimizedFetch(runService, variables).then(objectToPublishable);
             }, debounceInterval, [function mergeVariables(accum, newval) {
                 if (!accum) {
                     accum = [];
@@ -143,7 +143,7 @@ export default function RunVariablesChannel($runServicePromise, notifier) {
         notify: function (variableObj) {
             return $runServicePromise.then(function (runService) {
                 const variables = Object.keys(variableObj); 
-                return runService.variables().query(variables).then(objectToArray).then(notifier);
+                return runService.variables().query(variables).then(objectToPublishable).then(notifier);
             });
         },
         publishHandler: function (topics, options) {
@@ -155,7 +155,7 @@ export default function RunVariablesChannel($runServicePromise, notifier) {
                     //bool -> 1, scalar to array for time-based models etc
                     //FIXME: This causes dupe requests, one here and one after fetch by the run-variables channel
                     //FIXME: Other publish can't do anything till this is done, so debouncing won't help. Only way out is caching
-                    return runService.variables().query(variables).then(objectToArray);
+                    return runService.variables().query(variables).then(objectToPublishable);
                 });
             });
         }

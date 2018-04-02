@@ -18,10 +18,10 @@ export function findBestHandler(topic, handlers) {
 
 /**
  * 
- * @param {Object} obj
+ * @param {object} obj
  * @return {Publishable[]}
  */
-export function objectToArray(obj) {
+export function objectToPublishable(obj) {
     var mapped = Object.keys(obj || {}).map(function (t) {
         return { name: t, value: obj[t] };
     });
@@ -60,7 +60,7 @@ export function normalizeParamOptions(topic, publishValue, options) {
         return { params: [], options: {} };
     }
     if ($.isPlainObject(topic)) {
-        return { params: objectToArray(topic), options: publishValue };
+        return { params: objectToPublishable(topic), options: publishValue };
     }
     if ($.isArray(topic)) {
         return { params: topic, options: publishValue };
