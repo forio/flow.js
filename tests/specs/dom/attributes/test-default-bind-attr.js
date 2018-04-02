@@ -69,6 +69,16 @@ describe('Default Bind', function () {
                 bindHandler.handle('Mario', 'bind', $rootNode);
                 $rootNode.html().should.equal('Mario World');
             });
+
+            it('should ignore items it doesn\'t know', ()=> {
+                var $rootNode = $(`
+                    <div><%= value %> World<span><%= foo %></span></div>
+                `);
+                bindHandler.handle('Hello', 'bind', $rootNode);
+                $rootNode.html().trim().should.equal(`
+                    Hello World<span>&lt;%= foo %&gt;</span>
+                `.trim());
+            });
         });
     });
 
@@ -100,6 +110,21 @@ describe('Default Bind', function () {
             return initWithNode('<div data-f-bind="Price, Sales"> <%= Price %> <%= Sales %> </div>', domManager, channel).then(function ($node) {
                 return channel.publish(targetData).then(()=> {
                     $node.html().trim().should.equal('20 30');
+                });
+            });
+        });
+        it('should allow combining templated values', ()=> {
+            var targetData = { Price: 20, Sales: 30 };
+
+            const channel = createDummyChannel();
+            return initWithNode(`
+                    <div data-f-bind="Price"> 
+                        <%= Price %> 
+                        <div data-f-bind="Sales"><%= Sales + Price %></div>
+                    </div>
+                `, domManager, channel).then(function ($node) {
+                return channel.publish(targetData).then(()=> {
+                    $node.find('div').html().trim().should.equal('50');
                 });
             });
         });
