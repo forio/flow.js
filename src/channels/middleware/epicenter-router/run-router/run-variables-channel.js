@@ -33,7 +33,8 @@ export function groupByContigousArrayItems(subscripts) {
     return grouped.soFar;
 }
 
-export function optimizedFetch(runService, variables) {
+//FIXME: this doesn' do multiple subs
+export function groupVariableBySubscripts(variables) {
     const groupedBySubscripts = variables.reduce((accum, v)=> {
         const subscriptMatches = v.match(/\[\s*([^)]+?)\s*\]/);
         const vname = v.split('[')[0];
@@ -41,40 +42,47 @@ export function optimizedFetch(runService, variables) {
             const subscripts = subscriptMatches[1].split(/\s*,\s*/).map((subscript)=> {
                 return parseInt(subscript.trim(), 10);
             });
-            accum[vname] = subscripts;
+            accum[vname] = (accum[vname] || []).concat(subscripts);
+        } else {
+            accum[vname] = [];
         }
         return accum;
     }, {});
+    return groupedBySubscripts;
+}
+
+export function optimizedFetch(runService, variables) {
+    const groupedBySubscripts = groupVariableBySubscripts(variables);
 
     const reducedVariables = variables.reduce((accum, v)=> {
         const vname = v.split('[')[0];
         const subs = groupedBySubscripts[vname];
-        if (!groupedBySubscripts[vname]) {
+        if (!groupedBySubscripts[vname].length) {
             accum.regular.push(vname);
-        } else if (subs.length > 1) {
-            accum.regular.push(v);
         } else {
             const sortedSubs = subs.sort((a, b)=> {
                 return a - b;
             });
-            const groupedSubs = groupSubs(sortedSubs);
+            const groupedSubs = groupByContigousArrayItems(sortedSubs);
             groupedSubs.forEach((grouping)=> {
-                accum.grouped[`${vname}[${grouping}]`] = sortedSubs;
+                const subs = grouping.length === 1 ? grouping[0] : `${grouping[0]}..${grouping[grouping.length - 1]}`;
+                accum.grouped[`${vname}[${subs}]`] = grouping;
             });
         }
         return accum;
     }, { regular: [], grouped: {} });
 
-    const toFetch = [].concat(reducedVariables.regular, reducedVariables.grouped);
+    const toFetch = [].concat(reducedVariables.regular, Object.keys(reducedVariables.grouped));
     return runService.variables().query(toFetch).then((values)=> {
         const deparsed = Object.keys(values).reduce((accum, vname)=> {
-            const originalSubs = reducedVariables.grouped[vname];
-            if (!originalSubs) {
+            const groupedSubs = reducedVariables.grouped[vname];
+            if (!groupedSubs) {
                 accum[vname] = values[vname];
             } else {
-                originalSubs.forEach(()=> {
-
-                })
+                groupedSubs.forEach((subscript, index)=> {
+                    const v = vname.split('[')[0];
+                    accum[`${v}[${subscript}]`] = values[vname][index];
+                });
             }
             return accum;
         }, {});
@@ -95,7 +103,7 @@ export default function RunVariablesChannel($runServicePromise, notifier) {
                 if (!variables || !variables.length) {
                     return $.Deferred().resolve([]).promise();
                 }
-                return runService.variables().query(variables).then(objectToArray);
+                return optimizedFetch(runService, variables).then(objectToArray);
             }, debounceInterval, [function mergeVariables(accum, newval) {
                 if (!accum) {
                     accum = [];
