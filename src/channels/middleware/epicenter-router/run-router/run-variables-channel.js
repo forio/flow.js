@@ -2,6 +2,70 @@ import { debounceAndMerge } from 'utils/general';
 import { objectToArray, arrayToObject } from 'channels/channel-utils';
 import { uniqueId, uniq } from 'lodash';
 
+/**
+ * @param {number[]} subs 
+ * @returns {Array}
+ */
+export function groupSubs(subs) {
+    const grouped = subs.reduce((accum, sub, index)=> {
+        if (index === 0) {
+            accum.starting = sub;
+        } else if ((accum.last + 1) !== sub) {
+            //end last chain
+            if (accum.starting === accum.last) {
+                accum.soFar.push(`${accum.starting}`);
+            } else {
+                accum.soFar.push(`${accum.starting}..${accum.last}`);
+            }
+
+            if (index === subs.length - 1) {
+                accum.soFar.push(`${sub}`);
+            } else {
+                accum.starting = sub;
+            }
+        } else if (index === subs.length - 1) {
+            accum.soFar.push(`${accum.starting}..${sub}`);
+        }
+        accum.last = sub;
+        return accum;
+
+    }, { soFar: [], starting: null, last: null });
+    return grouped.soFar;
+}
+
+export function optimizedFetch(variables) {
+    const groupedBySubscripts = variables.reduce((accum, v)=> {
+        const subscriptMatches = v.match(/\[\s*([^)]+?)\s*\]/);
+        const vname = v.split('[')[0];
+        if (subscriptMatches && subscriptMatches[1]) {
+            const subscripts = subscriptMatches[1].split(/\s*,\s*/).map((subscript)=> {
+                return parseInt(subscript.trim(), 10);
+            });
+            accum[vname] = subscripts;
+        }
+        return accum;
+    }, {});
+
+    const reducedVariables = variables.reduce((accum, v)=> {
+        const vname = v.split('[')[0];
+        const subs = groupedBySubscripts[vname];
+        if (!groupedBySubscripts[vname]) {
+            accum.push(vname);
+        } else {
+            const sortedSubs = subs.sort((a, b)=> {
+                return a - b;
+            });
+            const groupedSubs = sortedSubs.reduce((accum, subs, index)=> {
+                
+            }, []);
+        }
+    }, []);
+    /**
+     * 
+     */
+
+}
+
 export default function RunVariablesChannel($runServicePromise, notifier) {
 
     var id = uniqueId('variable-channel');
