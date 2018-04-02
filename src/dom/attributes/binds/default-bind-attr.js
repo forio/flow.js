@@ -87,11 +87,34 @@ const config = require('../../../config');
 
 const { getKnownDataForEl, updateKnownDataForEl, removeKnownData, 
     findMissingReferences, stubMissingReferences, addBackMissingReferences,
+    isTemplated,
 } = require('../attr-template-utils');
 
 
 const elTemplateMap = new WeakMap(); //<dom-element>: template
 const elAnimatedMap = new WeakMap(); //TODO: Can probably get rid of this if we make subscribe a promise and distinguish between initial value
+
+function translateDataToInsertable(value) {
+    if (Array.isArray(value)) {
+        value = value[value.length - 1];
+    }
+    value = ($.isPlainObject(value)) ? JSON.stringify(value) : value + '';
+    return value;
+}
+function translateDataToTemplatable(value, additionalKey) {
+    let templateData = {};
+    if (!$.isPlainObject(value)) {
+        templateData = { value: value };
+        if (additionalKey) {
+            templateData[additionalKey] = value;
+        }
+    } else {
+        templateData = $.extend({}, value, {
+            value: value, //If the key has 'weird' characters like '<>' hard to get at with a template otherwise
+        });
+    }
+    return templateData;
+}
 
 module.exports = {
 
@@ -125,52 +148,39 @@ module.exports = {
     handle: function (value, prop, $el) {
         const el = $el.get(0);
         
-        let templateData;
-        if (!$.isPlainObject(value)) {
-            const variableName = $el.data(`f-${prop}`);
-            templateData = { value: value };
-            templateData[variableName] = value;
-        } else {
-            templateData = $.extend({}, value, {
-                value: value, //If the key has 'weird' characters like '<>' hard to get at with a template otherwise
-            });
-        }
-
         let bindTemplate = elTemplateMap.get(el);
         if (!bindTemplate) {
             bindTemplate = $el.html().replace(/&lt;/g, '<').replace(/&gt;/g, '>');
             elTemplateMap.set(el, bindTemplate);
         }
 
-        const missingReferences = findMissingReferences(bindTemplate, Object.keys(templateData));
-        bindTemplate = stubMissingReferences(bindTemplate, missingReferences);
+        function getContentHTML(bindTemplate, value) {
+            if (!isTemplated(bindTemplate)) {
+                return translateDataToInsertable(value);
+            } 
 
-        const knownData = getKnownDataForEl($el);
-        $.extend(templateData, knownData);
+            let templateData = translateDataToTemplatable(value, $el.data(`f-${prop}`));
+            const knownData = getKnownDataForEl($el);
+            $.extend(templateData, knownData);
 
-        const templateFn = template(bindTemplate);
-        let isTemplated = false;
+            const missingReferences = findMissingReferences(bindTemplate, Object.keys(templateData));
+            bindTemplate = stubMissingReferences(bindTemplate, missingReferences);
 
-        let templatedHTML;
-        try {
-            templatedHTML = templateFn(templateData);
-            templatedHTML = addBackMissingReferences(templatedHTML, missingReferences);
-            isTemplated = templatedHTML !== bindTemplate;
-        } catch (e) { //you don't have all the references you need;
-            isTemplated = true;
-            updateKnownDataForEl($el, templateData);
-        }
-
-        if (isTemplated) {
-            addContentAndAnimate($el, templatedHTML, !elAnimatedMap.has(el));
-        } else {
-            if (Array.isArray(value)) {
-                value = value[value.length - 1];
+            const templateFn = template(bindTemplate);
+            let templatedHTML;
+            try {
+                templatedHTML = templateFn(templateData);
+                templatedHTML = addBackMissingReferences(templatedHTML, missingReferences);
+            } catch (e) { //you don't have all the references you need;
+                updateKnownDataForEl($el, templateData);
             }
-            value = ($.isPlainObject(value)) ? JSON.stringify(value) : value + '';
-            addContentAndAnimate($el, value, !elAnimatedMap.has(el));
+
+            return templatedHTML;
         }
 
+
+        const contents = getContentHTML(bindTemplate, value);
+        addContentAndAnimate($el, contents, !elAnimatedMap.has(el));
         elAnimatedMap.set(el, true, config.animation);
     }
 };
