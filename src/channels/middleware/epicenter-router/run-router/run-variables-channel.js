@@ -4,36 +4,36 @@ import { uniqueId, uniq } from 'lodash';
 
 /**
  * @param {number[]} subs 
- * @returns {Array}
+ * @returns {number[][]}
  */
-export function groupSubs(subs) {
-    const grouped = subs.reduce((accum, sub, index)=> {
+export function groupByContigousArrayItems(subscripts) {
+    const grouped = subscripts.reduce((accum, thisSub, index)=> {
         if (index === 0) {
-            accum.starting = sub;
-        } else if ((accum.last + 1) !== sub) {
-            //end last chain
-            if (accum.starting === accum.last) {
-                accum.soFar.push(`${accum.starting}`);
-            } else {
-                accum.soFar.push(`${accum.starting}..${accum.last}`);
-            }
+            accum.last = [thisSub];
+            return accum;
+        } 
+        
+        const last = accum.last[accum.last.length - 1];
+        if ((last + 1) !== thisSub) {
+            accum.soFar.push(accum.last);
+            accum.last = [thisSub];
 
-            if (index === subs.length - 1) {
-                accum.soFar.push(`${sub}`);
-            } else {
-                accum.starting = sub;
+            if (index === subscripts.length - 1) {
+                accum.soFar.push([thisSub]);
             }
-        } else if (index === subs.length - 1) {
-            accum.soFar.push(`${accum.starting}..${sub}`);
+        } else {
+            accum.last.push(thisSub);
+            if (index === subscripts.length - 1) {
+                accum.soFar.push(accum.last);
+            }
         }
-        accum.last = sub;
         return accum;
 
-    }, { soFar: [], starting: null, last: null });
+    }, { soFar: [], last: [] });
     return grouped.soFar;
 }
 
-export function optimizedFetch(variables) {
+export function optimizedFetch(runService, variables) {
     const groupedBySubscripts = variables.reduce((accum, v)=> {
         const subscriptMatches = v.match(/\[\s*([^)]+?)\s*\]/);
         const vname = v.split('[')[0];
@@ -50,20 +50,36 @@ export function optimizedFetch(variables) {
         const vname = v.split('[')[0];
         const subs = groupedBySubscripts[vname];
         if (!groupedBySubscripts[vname]) {
-            accum.push(vname);
+            accum.regular.push(vname);
+        } else if (subs.length > 1) {
+            accum.regular.push(v);
         } else {
             const sortedSubs = subs.sort((a, b)=> {
                 return a - b;
             });
-            const groupedSubs = sortedSubs.reduce((accum, subs, index)=> {
-                
-            }, []);
+            const groupedSubs = groupSubs(sortedSubs);
+            groupedSubs.forEach((grouping)=> {
+                accum.grouped[`${vname}[${grouping}]`] = sortedSubs;
+            });
         }
-    }, []);
-    /**
-     * 
-     */
+        return accum;
+    }, { regular: [], grouped: {} });
 
+    const toFetch = [].concat(reducedVariables.regular, reducedVariables.grouped);
+    return runService.variables().query(toFetch).then((values)=> {
+        const deparsed = Object.keys(values).reduce((accum, vname)=> {
+            const originalSubs = reducedVariables.grouped[vname];
+            if (!originalSubs) {
+                accum[vname] = values[vname];
+            } else {
+                originalSubs.forEach(()=> {
+
+                })
+            }
+            return accum;
+        }, {});
+        return deparsed; 
+    });
 }
 
 export default function RunVariablesChannel($runServicePromise, notifier) {
