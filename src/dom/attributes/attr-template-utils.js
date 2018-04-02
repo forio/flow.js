@@ -23,8 +23,12 @@ export function removeKnownData($el) {
 export function getTemplateTags(template) {
     template = template.replace(/&lt;/g, '<').replace(/&gt;/g, '>');
     const templateTagsUsed = template.match(/<%[=-]?([\s\S]+?)%>/g);
-    return templateTagsUsed;
+    return templateTagsUsed || [];
 }
+export function isTemplated(template) {
+    return getTemplateTags(template).length > 0;
+}
+
 
 export function findMissingReferences(template, knownDataKeys) {
     function isKnownTag(tag, knownTags) {
