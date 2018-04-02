@@ -101,12 +101,12 @@ function translateDataToInsertable(value) {
     value = ($.isPlainObject(value)) ? JSON.stringify(value) : value + '';
     return value;
 }
-function translateDataToTemplatable(value, additionalKey) {
+function translateDataToTemplatable(value, alias) {
     let templateData = {};
     if (!$.isPlainObject(value)) {
         templateData = { value: value };
-        if (additionalKey) {
-            templateData[additionalKey] = value;
+        if (alias) {
+            templateData[alias] = value;
         }
     } else {
         templateData = $.extend({}, value, {
@@ -146,16 +146,8 @@ module.exports = {
     * @return {void}
     */ 
     handle: function (value, prop, $el) {
-        const el = $el.get(0);
-        
-        let bindTemplate = elTemplateMap.get(el);
-        if (!bindTemplate) {
-            bindTemplate = $el.html().replace(/&lt;/g, '<').replace(/&gt;/g, '>');
-            elTemplateMap.set(el, bindTemplate);
-        }
-
-        function getContentHTML(bindTemplate, value) {
-            if (!isTemplated(bindTemplate)) {
+        function getNewContent(currentContents, value) {
+            if (!isTemplated(currentContents)) {
                 return translateDataToInsertable(value);
             } 
 
@@ -163,23 +155,28 @@ module.exports = {
             const knownData = getKnownDataForEl($el);
             $.extend(templateData, knownData);
 
-            const missingReferences = findMissingReferences(bindTemplate, Object.keys(templateData));
-            bindTemplate = stubMissingReferences(bindTemplate, missingReferences);
+            const missingReferences = findMissingReferences(currentContents, Object.keys(templateData));
+            const stubbedTemplate = stubMissingReferences(currentContents, missingReferences);
 
-            const templateFn = template(bindTemplate);
-            let templatedHTML;
+            const templateFn = template(stubbedTemplate);
             try {
-                templatedHTML = templateFn(templateData);
-                templatedHTML = addBackMissingReferences(templatedHTML, missingReferences);
+                const templatedHTML = templateFn(templateData);
+                const templatedWithReferences = addBackMissingReferences(templatedHTML, missingReferences);
+                return templatedWithReferences;
             } catch (e) { //you don't have all the references you need;
                 updateKnownDataForEl($el, templateData);
+                return currentContents;
             }
-
-            return templatedHTML;
         }
 
+        const el = $el.get(0);
+        let originalContents = elTemplateMap.get(el);
+        if (!originalContents) {
+            originalContents = $el.html().replace(/&lt;/g, '<').replace(/&gt;/g, '>');
+            elTemplateMap.set(el, originalContents);
+        }
 
-        const contents = getContentHTML(bindTemplate, value);
+        const contents = getNewContent(originalContents, value);
         addContentAndAnimate($el, contents, !elAnimatedMap.has(el));
         elAnimatedMap.set(el, true, config.animation);
     }
