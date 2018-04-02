@@ -1,5 +1,5 @@
 import { debounceAndMerge } from 'utils/general';
-import { objectToArray, arrayToObject } from 'channels/channel-utils';
+import { objectToArray, publishableToObject } from 'channels/channel-utils';
 import { uniqueId, uniq } from 'lodash';
 
 /**
@@ -148,7 +148,7 @@ export default function RunVariablesChannel($runServicePromise, notifier) {
         },
         publishHandler: function (topics, options) {
             return $runServicePromise.then(function (runService) {
-                var toSave = arrayToObject(topics);
+                var toSave = publishableToObject(topics);
                 return runService.variables().save(toSave).then(function (response) {
                     const variables = Object.keys(toSave); 
                     //Get the latest from the server because what you think you saved may not be what was saved

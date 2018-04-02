@@ -31,13 +31,14 @@ export function objectToArray(obj) {
 /**
  * Converts arrays of the form [{ name: '', value: ''}] to {[name]: value}
  * @param {Publishable[]} arr
- * @returns {Object}
+ * @param {object} [mergeWith]
+ * @returns {object}
  */
-export function arrayToObject(arr) {
+export function publishableToObject(arr, mergeWith) {
     var result = (arr || []).reduce(function (accum, topic) {
         accum[topic.name] = topic.value;
         return accum;
-    }, {});
+    }, $.extend(true, {}, mergeWith));
     return result;
 }
 
