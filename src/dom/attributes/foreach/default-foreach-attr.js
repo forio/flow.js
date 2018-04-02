@@ -178,7 +178,7 @@ module.exports = {
         const el = $el.get(0);
         let loopTemplate = elTemplateMap.get(el);
         if (!loopTemplate) {
-            loopTemplate = $el.html();
+            loopTemplate = $el.html().replace(/&lt;/g, '<').replace(/&gt;/g, '>');
             elTemplateMap.set(el, loopTemplate);
         }
         
@@ -192,13 +192,12 @@ module.exports = {
         //  -- if success, nothing to do
         //  -- if fail, store your data and wait for someone else to take it and template
         // 
-        let cloop = loopTemplate.replace(/&lt;/g, '<').replace(/&gt;/g, '>');
-        const missingReferences = findMissingReferences(cloop, [keyAttr, valueAttr]);
-        cloop = stubMissingReferences(cloop, missingReferences);
+        const missingReferences = findMissingReferences(loopTemplate, [keyAttr, valueAttr]);
+        loopTemplate = stubMissingReferences(loopTemplate, missingReferences);
 
         const knownData = getKnownDataForEl($el);
 
-        const templateFn = template(cloop);
+        const templateFn = template(loopTemplate);
         const $dummyEl = $('<div></div>');
         each(value, function (dataval, datakey) {
             if (dataval === undefined || dataval === null) {
@@ -215,10 +214,10 @@ module.exports = {
             try {
                 let templatedLoop = templateFn(templateData);
                 templatedLoop = addBackMissingReferences(templatedLoop, missingReferences);
-                isTemplated = templatedLoop !== cloop;
+                isTemplated = templatedLoop !== loopTemplate;
                 nodes = $(templatedLoop);
             } catch (e) { //you don't have all the references you need;
-                nodes = $(cloop);
+                nodes = $(loopTemplate);
                 isTemplated = true;
                 updateKnownDataForEl($(nodes), templateData);
             }

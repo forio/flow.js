@@ -85,6 +85,11 @@ const { template } = require('lodash');
 const { addContentAndAnimate } = require('utils/animation');
 const config = require('../../../config');
 
+const { getKnownDataForEl, updateKnownDataForEl, removeKnownData, 
+    findMissingReferences, stubMissingReferences, addBackMissingReferences,
+} = require('../attr-template-utils');
+
+
 const elTemplateMap = new WeakMap(); //<dom-element>: template
 const elAnimatedMap = new WeakMap(); //TODO: Can probably get rid of this if we make subscribe a promise and distinguish between initial value
 
@@ -108,6 +113,7 @@ module.exports = {
             $el.html(bindTemplate);
             elTemplateMap.delete(el);
         }
+        removeKnownData($el);
     },
 
     /**
@@ -119,33 +125,50 @@ module.exports = {
     handle: function (value, prop, $el) {
         const el = $el.get(0);
         
-        let valueToTemplate = $.extend({}, value);
+        let templateData;
         if (!$.isPlainObject(value)) {
             const variableName = $el.data(`f-${prop}`);
-            valueToTemplate = { value: value };
-            valueToTemplate[variableName] = value;
+            templateData = { value: value };
+            templateData[variableName] = value;
         } else {
-            valueToTemplate.value = value; //If the key has 'weird' characters like '<>' hard to get at with a template otherwise
+            templateData = $.extend({}, value, {
+                value: value, //If the key has 'weird' characters like '<>' hard to get at with a template otherwise
+            });
         }
-        const bindTemplate = elTemplateMap.get(el);
-        if (bindTemplate) {
-            const templated = template(bindTemplate)(valueToTemplate);
-            $el.html(templated);
-        } else {
-            const oldHTML = $el.html();
-            const cleanedHTML = oldHTML.replace(/&lt;/g, '<').replace(/&gt;/g, '>');
-            const templated = template(cleanedHTML)(valueToTemplate);
-            if (cleanedHTML === templated) { //templating did nothing
-                if (Array.isArray(value)) {
-                    value = value[value.length - 1];
-                }
-                value = ($.isPlainObject(value)) ? JSON.stringify(value) : value + '';
 
-                addContentAndAnimate($el, value, !elAnimatedMap.has(el));
-            } else {
-                elTemplateMap.set(el, cleanedHTML);
-                $el.html(templated);
+        let bindTemplate = elTemplateMap.get(el);
+        if (!bindTemplate) {
+            bindTemplate = $el.html().replace(/&lt;/g, '<').replace(/&gt;/g, '>');
+            elTemplateMap.set(el, bindTemplate);
+        }
+
+        const missingReferences = findMissingReferences(bindTemplate, Object.keys(templateData));
+        bindTemplate = stubMissingReferences(bindTemplate, missingReferences);
+
+        const knownData = getKnownDataForEl($el);
+        $.extend(templateData, knownData);
+
+        const templateFn = template(bindTemplate);
+        let isTemplated = false;
+
+        let templatedHTML;
+        try {
+            templatedHTML = templateFn(templateData);
+            templatedHTML = addBackMissingReferences(templatedHTML, missingReferences);
+            isTemplated = templatedHTML !== bindTemplate;
+        } catch (e) { //you don't have all the references you need;
+            isTemplated = true;
+            updateKnownDataForEl($el, templateData);
+        }
+
+        if (isTemplated) {
+            addContentAndAnimate($el, templatedHTML, !elAnimatedMap.has(el));
+        } else {
+            if (Array.isArray(value)) {
+                value = value[value.length - 1];
             }
+            value = ($.isPlainObject(value)) ? JSON.stringify(value) : value + '';
+            addContentAndAnimate($el, value, !elAnimatedMap.has(el));
         }
 
         elAnimatedMap.set(el, true, config.animation);

@@ -20,6 +20,12 @@ export function removeKnownData($el) {
     $el.removeAttr(CURRENT_INDEX_ATTR);
 }
 
+export function getTemplateTags(template) {
+    template = template.replace(/&lt;/g, '<').replace(/&gt;/g, '>');
+    const templateTagsUsed = template.match(/<%[=-]?([\s\S]+?)%>/g);
+    return templateTagsUsed;
+}
+
 export function findMissingReferences(template, knownDataKeys) {
     function isKnownTag(tag, knownTags) {
         const match = knownDataKeys.find((key)=> {
@@ -31,7 +37,7 @@ export function findMissingReferences(template, knownDataKeys) {
 
     template = template.replace(/&lt;/g, '<').replace(/&gt;/g, '>');
     const missingReferences = {};
-    const templateTagsUsed = template.match(/<%[=-]?([\s\S]+?)%>/g);
+    const templateTagsUsed = getTemplateTags(template);
     if (templateTagsUsed) {
         templateTagsUsed.forEach(function (tag) {
             if (tag.match(/\w+/) && !isKnownTag(tag, knownDataKeys)) {
