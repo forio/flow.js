@@ -1,5 +1,5 @@
 import $ from 'jquery';
-import { normalizeParamOptions } from './channel-utils';
+import { normalizeParamOptions, publishableToObject } from './channel-utils';
 import { uniqueId, isFunction, intersection, includes, uniq, isEqual } from 'lodash';
 /**
  * 
@@ -76,10 +76,7 @@ function callbackIfChanged(subscription, data) {
 */
 function checkAndNotifyBatch(topics, subscription) {
     var cached = cacheBySubsId[subscription.id] || {};
-    var merged = topics.reduce(function (accum, topic) {
-        accum[topic.name] = topic.value;
-        return accum;
-    }, $.extend({}, true, cached));
+    var merged = $.extend(true, {}, cached, publishableToObject(topics));
     var matchingTopics = intersection(Object.keys(merged), subscription.topics);
     if (matchingTopics.length > 0) {
         var toSend = subscription.topics.reduce(function (accum, topic) {
