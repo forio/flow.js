@@ -121,15 +121,11 @@ const parseUtils = require('../../../utils/parse-utils');
 const config = require('../../../config');
 
 const { addChangeClassesToList } = require('utils/animation');
-const { uniqueId, each, template } = require('lodash');
+const { each, template } = require('lodash');
 
 const { getKnownDataForEl, updateKnownDataForEl, removeKnownData, 
     findMissingReferences, stubMissingReferences, addBackMissingReferences,
 } = require('../attr-template-utils');
-
-function refToMarkup(refKey) {
-    return '<!--' + refKey + '-->';
-}
 
 const elTemplateMap = new WeakMap();
 const elAnimatedMap = new WeakMap(); //TODO: Can probably get rid of this if we make subscribe a promise and distinguish between initial value
@@ -176,10 +172,10 @@ module.exports = {
         value = ($.isPlainObject(value) ? value : [].concat(value));
 
         const el = $el.get(0);
-        let loopTemplate = elTemplateMap.get(el);
-        if (!loopTemplate) {
-            loopTemplate = $el.html().replace(/&lt;/g, '<').replace(/&gt;/g, '>');
-            elTemplateMap.set(el, loopTemplate);
+        let originalHTML = elTemplateMap.get(el);
+        if (!originalHTML) {
+            originalHTML = $el.html().replace(/&lt;/g, '<').replace(/&gt;/g, '>');
+            elTemplateMap.set(el, originalHTML);
         }
         
         const defaultKey = $.isPlainObject(value) ? 'key' : 'index';
@@ -192,32 +188,30 @@ module.exports = {
         //  -- if success, nothing to do
         //  -- if fail, store your data and wait for someone else to take it and template
         // 
-        const missingReferences = findMissingReferences(loopTemplate, [keyAttr, valueAttr]);
-        loopTemplate = stubMissingReferences(loopTemplate, missingReferences);
-
         const knownData = getKnownDataForEl($el);
+        const missingReferences = findMissingReferences(originalHTML, [keyAttr, valueAttr].concat(Object.keys(knownData)));
+        const stubbedTemplate = stubMissingReferences(originalHTML, missingReferences);
 
-        const templateFn = template(loopTemplate);
+        const templateFn = template(stubbedTemplate);
         const $dummyEl = $('<div></div>');
         each(value, function (dataval, datakey) {
             if (dataval === undefined || dataval === null) {
                 dataval = dataval + ''; //convert undefineds to strings
             }
-            const templateData = {};
-            templateData[keyAttr] = datakey;
-            templateData[valueAttr] = dataval;
-            
-            $.extend(templateData, knownData);
+            const templateData = $.extend(true, {}, knownData, {
+                [keyAttr]: datakey,
+                [valueAttr]: dataval
+            });
 
             let nodes;
             let isTemplated;
             try {
-                let templatedLoop = templateFn(templateData);
-                templatedLoop = addBackMissingReferences(templatedLoop, missingReferences);
-                isTemplated = templatedLoop !== loopTemplate;
-                nodes = $(templatedLoop);
+                const templated = templateFn(templateData);
+                const templatedWithReferences = addBackMissingReferences(templated, missingReferences);
+                isTemplated = templatedWithReferences !== stubbedTemplate;
+                nodes = $(templatedWithReferences);
             } catch (e) { //you don't have all the references you need;
-                nodes = $(loopTemplate);
+                nodes = $(stubbedTemplate);
                 isTemplated = true;
                 updateKnownDataForEl($(nodes), templateData);
             }

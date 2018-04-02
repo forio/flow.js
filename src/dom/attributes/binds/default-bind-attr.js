@@ -177,7 +177,7 @@ module.exports = {
         }
 
         const contents = getNewContent(originalContents, value);
-        addContentAndAnimate($el, contents, !elAnimatedMap.has(el));
-        elAnimatedMap.set(el, true, config.animation);
+        addContentAndAnimate($el, contents, !elAnimatedMap.has(el), config.animation);
+        elAnimatedMap.set(el, true);
     }
 };
