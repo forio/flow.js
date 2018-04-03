@@ -120,6 +120,7 @@
 const parseUtils = require('../../../utils/parse-utils');
 const config = require('../../../config');
 
+const { extractVariableName, parseKeyAlias, parseValueAlias } = require('./loop-attr-utils');
 const { addChangeClassesToList } = require('utils/animation');
 const { each, template } = require('lodash');
 
@@ -153,19 +154,8 @@ module.exports = {
     },
 
     //provide variable name from bound
-    parse: function (attrVal, $el) {
-        const inMatch = attrVal.match(/(.*) (?:in|of) (.*)/);
-        if (inMatch) {
-            const itMatch = inMatch[1].match(/\((.*),(.*)\)/);
-            if (itMatch) {
-                $el.data(config.attrs.keyAs, itMatch[1].trim());
-                $el.data(config.attrs.valueAs, itMatch[2].trim());
-            } else {
-                $el.data(config.attrs.valueAs, inMatch[1].trim());
-            }
-            attrVal = inMatch[2];
-        }
-        return attrVal;
+    parse: function (attrVal) {
+        return extractVariableName(attrVal);
     },
 
     handle: function (value, prop, $el) {
@@ -178,9 +168,9 @@ module.exports = {
             elTemplateMap.set(el, originalHTML);
         }
         
-        const defaultKey = $.isPlainObject(value) ? 'key' : 'index';
-        const keyAttr = $el.data(config.attrs.keyAs) || defaultKey;
-        const valueAttr = $el.data(config.attrs.valueAs) || 'value';
+        const attrVal = $el.data(`f-${prop}`);
+        const keyAttr = parseKeyAlias(attrVal, value);
+        const valueAttr = parseValueAlias(attrVal, value);
         
         // Go through matching template tags and make a list of references you don't know about
         //  -- replace with a comment ref id, or lodash will break on missing references

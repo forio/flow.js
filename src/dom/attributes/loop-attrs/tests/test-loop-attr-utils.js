@@ -1,6 +1,6 @@
 import { extractVariableName, parseKeyAlias, parseValueAlias } from '../loop-attr-utils';
 
-describe.only('Loop Attr Utils', ()=> {
+describe('Loop Attr Utils', ()=> {
     describe('#extractVariableName', ()=> {
         it('should treat single strings as variablenames', ()=> {
             expect(extractVariableName('foo')).to.equal('foo');
