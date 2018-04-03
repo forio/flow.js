@@ -83,7 +83,7 @@ The Legend window displays a legend of different kinds of Flow.js attributes. Yo
 
 
 * The Bind Output highlights read-only elements (e.g. `<span>`) using the `data-f-bind` attribute. ([Learn more](../generated/dom/attributes/binds/default-bind-attr/).)
-* The Loop Output highlights elements using the `data-f-foreach` and `data-f-repeat` elements. ([Learn](../generated/dom/attributes/foreach/default-foreach-attr/) [more](../generated/dom/attributes/repeat-attr/).)
+* The Loop Output highlights elements using the `data-f-foreach` and `data-f-repeat` elements. ([Learn](../generated/dom/attributes/loop-attrs/foreach-attr/) [more](../generated/dom/attributes/loop-attrs/repeat-attr/).)
 * The Custom Output highlights elements using [custom attributes](../generated/dom/attributes/attribute-manager/).
 * The Bind Input highlights read-write elements (e.g. `<input>`) using the `data-f-bind` attribute. ([Learn more](../generated/dom/attributes/binds/default-bind-attr/).)
 * The Event Input highlights elements that call operations, such as `data-f-on-click`. ([Learn more](../operations-overview/).)

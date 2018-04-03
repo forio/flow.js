@@ -57,14 +57,14 @@
  * * You can use the `data-f-repeat` attribute with both arrays and objects. If the model variable is an object, reference the `key` instead of the `index` in your templates.
  * * The `key`, `index`, and `value` are special variables that Flow.js populates for you.
  * * The template syntax is to enclose each keyword (`index`, `key`, `variable`) in `<%=` and `%>`. Templates are available as part of Flow.js's lodash dependency. See more background on [working with templates](../../../../#templates).
- * * In most cases the same effect can be achieved with the [`data-f-foreach` attribute](../../attributes/foreach/default-foreach-attr/), which is similar. In the common use case of a table of data displayed over time, the `data-f-repeat` can be more concise and easier to read. However, the `data-f-foreach` allows aliasing, and so can be more useful especially if you are nesting HTML elements or want to introduce logic about how to display the values.
+ * * In most cases the same effect can be achieved with the [`data-f-foreach` attribute](../../attributes/loop-attrs/foreach-attr/), which is similar. In the common use case of a table of data displayed over time, the `data-f-repeat` can be more concise and easier to read. However, the `data-f-foreach` allows aliasing, and so can be more useful especially if you are nesting HTML elements or want to introduce logic about how to display the values.
  *
  */
 
 const { each, template } = require('lodash');
-const parseUtils = require('../../utils/parse-utils');
-const gutils = require('../../utils/general');
-const config = require('../../config');
+const parseUtils = require('utils/parse-utils');
+const gutils = require('utils/general');
+const config = require('config');
 
 const templateIdAttr = config.attrs.repeat.templateId;
 
@@ -75,7 +75,7 @@ const elAnimatedMap = new WeakMap(); //TODO: Can probably get rid of this if we 
 
 const { getKnownDataForEl, updateKnownDataForEl, removeKnownData, 
     findMissingReferences, stubMissingReferences, addBackMissingReferences,
-} = require('./attr-template-utils');
+} = require('../attr-template-utils');
 
 module.exports = {
 

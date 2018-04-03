@@ -40,7 +40,7 @@ This update includes several new features:
 			</li>
 		</ul>
 	
-	See complete details and additional examples on the [data-f-foreach page](https://forio.com/epicenter/docs/public/data_binding_flow_js/generated/dom/attributes/foreach/default-foreach-attr/) and the [data-f-repeat page](https://forio.com/epicenter/docs/public/data_binding_flow_js/generated/dom/attributes/repeat-attr/). You can also learn more about [working with templates in Flow.js](https://forio.com/epicenter/docs/public/data_binding_flow_js/#templates).
+	See complete details and additional examples on the [data-f-foreach page](https://forio.com/epicenter/docs/public/data_binding_flow_js/generated/dom/attributes/loop-attrs/foreach-attr/) and the [data-f-repeat page](https://forio.com/epicenter/docs/public/data_binding_flow_js/generated/dom/attributes/loop-attrs/repeat-attr/). You can also learn more about [working with templates in Flow.js](https://forio.com/epicenter/docs/public/data_binding_flow_js/#templates).
 	
 * Both the [variables channel](https://forio.com/epicenter/docs/public/data_binding_flow_js/generated/channels/variables-channel/) and the [operations channel](https://forio.com/epicenter/docs/public/data_binding_flow_js/generated/channels/operations-channel/) now include a `readOnly` configuration option, so that you can allow using the channel for subscribing but disallow publishing. This is useful if you want to display information about the variables or operations without updating the run.
 
@@ -93,7 +93,7 @@ In the third step of the model, this example generates the HTML:
  </table>
 ```
 
-More information available [in the documentation](http://forio.com/epicenter/docs/public/data_binding_flow_js/generated/dom/attributes/repeat-attr/).
+More information available [in the documentation](http://forio.com/epicenter/docs/public/data_binding_flow_js/generated/dom/attributes/loop-attrs/repeat-attr/).
 
 ##### New add-on feature: Flow Inspector
 
@@ -115,7 +115,7 @@ Once you've enabled Flow Inspector for a page in your project, you see two windo
 - The channel now takes in a `autoFetch` parameter on instantiation. See more details [here.](https://forio.com/epicenter/docs/public/data_binding_flow_js/generated/channels/variables-channel/)
 
 ##### for-each attributes
-You can now use `data-f-foreach` with arrays and objects. Usage in analogous to `data-f-bind`, specifics are noted [here.](https://forio.com/epicenter/docs/public/data_binding_flow_js/generated/dom/attributes/foreach/default-foreach-attr/)
+You can now use `data-f-foreach` with arrays and objects. Usage in analogous to `data-f-bind`, specifics are noted [here.](https://forio.com/epicenter/docs/public/data_binding_flow_js/generated/dom/attributes/loop-attrs/foreach-attr/)
 
 ##### Live Binding
 Flow.js now uses `MutationObservers` to listen for addition/removal of DOM changes after it has been initialized. This is especially useful if you're loading new content through ajax and don't want to call re-initialize every time. You can disable this behavior by setting
@@ -130,7 +130,7 @@ Flow.initialize({
 ```
 ##### Templates
 Both `data-f-foreach` and `data-f-bind` allow using lodash templates for more control over your layout and display variables. See
-(data-f-bind with multiple values and templates)[https://forio.com/epicenter/docs/public/data_binding_flow_js/generated/dom/attributes/binds/default-bind-attr/] and (data-f-foreach)[https://forio.com/epicenter/docs/public/data_binding_flow_js/generated/dom/attributes/foreach/default-foreach-attr/]
+(data-f-bind with multiple values and templates)[https://forio.com/epicenter/docs/public/data_binding_flow_js/generated/dom/attributes/binds/default-bind-attr/] and (data-f-foreach)[https://forio.com/epicenter/docs/public/data_binding_flow_js/generated/dom/attributes/loop-attrs/foreach-attr/]
 
 
 ##### DOM Manager

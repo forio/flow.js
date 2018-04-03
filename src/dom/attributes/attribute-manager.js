@@ -14,7 +14,7 @@
  *
  * Built-in attribute handlers like `data-f-value` and `data-f-foreach` automatically bind variables in your project's model to particular HTML elements. However, your UI may sometimes require displaying only part of the variable (e.g. if it's an object), or "doing something" with the value of the variable, rather than simply displaying it.
  *
- * One example of when custom attribute handlers are useful is when your model variable is a complex object and you want to display the fields in a particular way, or you only want to display some of the fields. While the combination of the [`data-f-foreach` attribute](../foreach/default-foreach-attr/) and [templating](../../../../#templates) can help with this, sometimes it's easier to write your own attribute handler. (This is especially true if you will be reusing the attribute handler -- you won't have to copy your templating code over and over.)
+ * One example of when custom attribute handlers are useful is when your model variable is a complex object and you want to display the fields in a particular way, or you only want to display some of the fields. While the combination of the [`data-f-foreach` attribute](../loop-attrs/foreach-attr/) and [templating](../../../../#templates) can help with this, sometimes it's easier to write your own attribute handler. (This is especially true if you will be reusing the attribute handler -- you won't have to copy your templating code over and over.)
  *
  *      Flow.dom.attributes.register('showSched', '*', function (sched) {
  *            // display all the schedule milestones
@@ -45,11 +45,11 @@ const { isString, isFunction, isRegExp, filter, each } = require('lodash');
 var defaultHandlers = [
     require('./no-op-attr'),
     require('./events/default-event-attr'),
-    require('./foreach/default-foreach-attr'),
+    require('./loop-attrs/foreach-attr'),
+    require('./loop-attrs/repeat-attr'),
     require('./binds/checkbox-radio-bind-attr'),
     require('./binds/input-bind-attr'),
     require('./class-attr'),
-    require('./repeat-attr'),
     require('./positive-boolean-attr'),
     require('./negative-boolean-attr'),
     require('./toggles/show-if-attr'),

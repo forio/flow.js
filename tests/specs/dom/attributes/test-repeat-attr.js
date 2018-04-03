@@ -1,6 +1,6 @@
 import { initWithNode, createDummyChannel } from 'tests/testing-utils';
 import domManager from 'src/dom/dom-manager';
-import repeatHandler from 'src/dom/attributes/repeat-attr';
+import repeatHandler from 'src/dom/attributes/loop-attrs/repeat-attr';
 
 describe('Repeat', function () {
     describe('#handle', function () {

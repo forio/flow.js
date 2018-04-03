@@ -1,5 +1,5 @@
 var config = require('src/config');
-var foreachHandler = require('src/dom/attributes/foreach/default-foreach-attr');
+var foreachHandler = require('src/dom/attributes/loop-attrs/foreach-attr');
 
 describe('Default Foreach', function () {
 
