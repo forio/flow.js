@@ -73,6 +73,10 @@ const { addChangeClassesToList } = require('utils/animation');
 const elTemplateMap = new WeakMap(); //<domel>: template
 const elAnimatedMap = new WeakMap(); //TODO: Can probably get rid of this if we make subscribe a promise and distinguish between initial value
 
+const { getKnownDataForEl, updateKnownDataForEl, removeKnownData, 
+    findMissingReferences, stubMissingReferences, addBackMissingReferences,
+} = require('./attr-template-utils');
+
 module.exports = {
 
     test: 'repeat',
@@ -89,11 +93,26 @@ module.exports = {
         const el = $el.get(0);
         elAnimatedMap.delete(el);
 
-        const loopTemplate = elTemplateMap.get(el);
-        if (loopTemplate) {
+        const originalHTML = elTemplateMap.get(el);
+        if (originalHTML) {
             elTemplateMap.delete(el);
-            $el.replaceWith(loopTemplate);
+            $el.replaceWith(originalHTML);
         }
+    },
+
+    parse: function (attrVal, $el) {
+        const inMatch = attrVal.match(/(.*) (?:in|of) (.*)/);
+        if (inMatch) {
+            const itMatch = inMatch[1].match(/\((.*),(.*)\)/);
+            if (itMatch) {
+                $el.data(config.attrs.keyAs, itMatch[1].trim());
+                $el.data(config.attrs.valueAs, itMatch[2].trim());
+            } else {
+                $el.data(config.attrs.valueAs, inMatch[1].trim());
+            }
+            attrVal = inMatch[2];
+        }
+        return attrVal;
     },
 
     handle: function (value, prop, $el) {
@@ -102,10 +121,10 @@ module.exports = {
         
         const el = $el.get(0);
 
-        let loopTemplate = elTemplateMap.get(el);
-        if (!loopTemplate) {
-            loopTemplate = el.outerHTML;
-            elTemplateMap.set(el, loopTemplate);
+        let originalHTML = elTemplateMap.get(el);
+        if (!originalHTML) {
+            originalHTML = el.outerHTML.replace(/&lt;/g, '<').replace(/&gt;/g, '>');
+            elTemplateMap.set(el, originalHTML);
         }
 
         let $dummyOldDiv = $('<div></div>');
@@ -116,15 +135,40 @@ module.exports = {
             id = gutils.random('repeat-');
             $el.attr('data-' + templateIdAttr, id);
         }
-  
+
+        const defaultKey = $.isPlainObject(value) ? 'key' : 'index';
+        const keyAttr = $el.data(config.attrs.keyAs) || defaultKey;
+        const valueAttr = $el.data(config.attrs.valueAs) || 'value';
+
+        const knownData = getKnownDataForEl($el);
+        const missingReferences = findMissingReferences(originalHTML, [keyAttr, valueAttr].concat(Object.keys(knownData)));
+        const stubbedTemplate = stubMissingReferences(originalHTML, missingReferences);
+
+        const templateFn = template(stubbedTemplate);
         var last;
         each(value, function (dataval, datakey) {
-            var cloop = loopTemplate.replace(/&lt;/g, '<').replace(/&gt;/g, '>');
-            var templatedLoop = template(cloop)({ value: dataval, key: datakey, index: datakey });
-            var isTemplated = templatedLoop !== cloop;
-            var nodes = $(templatedLoop);
-            var hasData = (dataval !== null && dataval !== undefined);
+            if (dataval === undefined || dataval === null) {
+                dataval = dataval + ''; //convert undefineds to strings
+            }
+            const templateData = $.extend(true, {}, knownData, {
+                [keyAttr]: datakey,
+                [valueAttr]: dataval
+            });
 
+            let nodes;
+            let isTemplated;
+            try {
+                const templated = templateFn(templateData);
+                const templatedWithReferences = addBackMissingReferences(templated, missingReferences);
+                isTemplated = templatedWithReferences !== stubbedTemplate;
+                nodes = $(templatedWithReferences);
+            } catch (e) { //you don't have all the references you need;
+                nodes = $(stubbedTemplate);
+                isTemplated = true;
+                updateKnownDataForEl($(nodes), templateData);
+            }
+
+            var hasData = (dataval !== null && dataval !== undefined);
             nodes.each(function (i, newNode) {
                 const $newNode = $(newNode);
                 $newNode.removeAttr('data-f-repeat').removeAttr('data-' + templateIdAttr);

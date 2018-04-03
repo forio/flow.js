@@ -26,7 +26,7 @@ describe('Run Variables channel', ()=> {
                 });
             });
         });
-        describe.only('#groupVariableBySubscripts', ()=> {
+        describe('#groupVariableBySubscripts', ()=> {
             it('should leave unsubscripted variables as is', ()=> {
                 const op = groupVariableBySubscripts(['Foo', 'Bar']);
                 expect(op).to.eql({

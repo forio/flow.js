@@ -34,17 +34,6 @@ describe('Repeat', function () {
                     $(newChildren[i]).html().should.equal(data[i] + '');
                 }
             });
-            it('should not replace existing content with nulls', function () {
-                var $rootNode = $('<ul> <li>stuff</li> </ul>');
-
-                var data = [undefined, undefined, undefined];
-                repeatHandler.handle(data, 'repeat', $rootNode.find('li:first'));
-                var newChildren = $rootNode.children();
-
-                for (var i = 0; i < data.length; i++) {
-                    $(newChildren[i]).html().should.equal('stuff');
-                }
-            });
             it('should treat single values as arrays with 1 iteam', function () {
                 var $rootNode = $('<ul> <li> </li> </ul>');
 
@@ -301,7 +290,7 @@ describe('Repeat', function () {
             const channel = createDummyChannel();
             return initWithNode(`
                 <ul> 
-                    <li data-f-repeat="someobject" data-stuff="<%=index%>"> <%= value %> </li> 
+                    <li data-f-repeat="someobject" data-stuff="<%=key%>"> <%= value %> </li> 
                 </ul>
             `, domManager, channel).then(function ($node) {
                 return channel.publish({ someobject: targetData }).then(()=> {
