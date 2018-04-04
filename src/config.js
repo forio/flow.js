@@ -24,9 +24,6 @@ module.exports = {
         repeat: {
             templateId: 'repeat-template-id' //don't prefix by f or dom-manager unbind will kill it
         },
-
-        keyAs: 'f-foreach-key-as',
-        valueAs: 'f-foreach-value-as',
     },
     animation: {
         addAttr: 'data-add',

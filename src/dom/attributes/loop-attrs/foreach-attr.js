@@ -147,9 +147,6 @@ module.exports = {
             elTemplateMap.delete(el);
         }
 
-        const dataToRemove = [config.attrs.keyAs, config.attrs.valueAs];
-        $el.removeData(dataToRemove);
-
         removeKnownData($el);
     },
 
