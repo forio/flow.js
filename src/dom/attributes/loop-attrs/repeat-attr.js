@@ -77,6 +77,8 @@ const { getKnownDataForEl, updateKnownDataForEl, removeKnownData,
     findMissingReferences, stubMissingReferences, addBackMissingReferences,
 } = require('../attr-template-utils');
 
+const { extractVariableName, parseKeyAlias, parseValueAlias } = require('./loop-attr-utils');
+
 module.exports = {
 
     test: 'repeat',
@@ -98,21 +100,12 @@ module.exports = {
             elTemplateMap.delete(el);
             $el.replaceWith(originalHTML);
         }
+
+        removeKnownData($el);
     },
 
-    parse: function (attrVal, $el) {
-        const inMatch = attrVal.match(/(.*) (?:in|of) (.*)/);
-        if (inMatch) {
-            const itMatch = inMatch[1].match(/\((.*),(.*)\)/);
-            if (itMatch) {
-                $el.data(config.attrs.keyAs, itMatch[1].trim());
-                $el.data(config.attrs.valueAs, itMatch[2].trim());
-            } else {
-                $el.data(config.attrs.valueAs, inMatch[1].trim());
-            }
-            attrVal = inMatch[2];
-        }
-        return attrVal;
+    parse: function (attrVal) {
+        return extractVariableName(attrVal);
     },
 
     handle: function (value, prop, $el) {
@@ -136,9 +129,9 @@ module.exports = {
             $el.attr('data-' + templateIdAttr, id);
         }
 
-        const defaultKey = $.isPlainObject(value) ? 'key' : 'index';
-        const keyAttr = $el.data(config.attrs.keyAs) || defaultKey;
-        const valueAttr = $el.data(config.attrs.valueAs) || 'value';
+        const attrVal = $el.data(`f-${prop}`);
+        const keyAttr = parseKeyAlias(attrVal, value);
+        const valueAttr = parseValueAlias(attrVal, value);
 
         const knownData = getKnownDataForEl($el);
         const missingReferences = findMissingReferences(originalHTML, [keyAttr, valueAttr].concat(Object.keys(knownData)));
