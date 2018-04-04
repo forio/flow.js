@@ -81,7 +81,25 @@ describe('Default Bind', function () {
             });
         });
     });
-
+    
+    //S FIXME in default-bind
+    // describe('#init', ()=> {
+    //     it('should remove contents if it\'s template', ()=> {
+    //         const $el = $('<div><%= value %> World</div>');
+    //         bindHandler.init('bind', 'stuff', $el);
+    //         expect($el.html()).to.equal('');
+    //     });
+    //     it('should return true', ()=> {
+    //         const $el = $('<div><%= value %> World</div>');
+    //         const ret = bindHandler.init('bind', 'stuff', $el);
+    //         expect(ret).to.equal(true);
+    //     });
+    //     it('should leave contents as-is if not templated', ()=> {
+    //         const $el = $('<div>Hello World</div>');
+    //         bindHandler.init('bind', 'stuff', $el);
+    //         expect($el.html()).to.equal('Hello World');
+    //     });
+    // });
     describe('Integration', function () {
         it('should output last values for arrays', function () {
             var targetData = { Price: [10, 30] };

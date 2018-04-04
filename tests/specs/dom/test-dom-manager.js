@@ -311,9 +311,8 @@ describe('DOM Manager', function () {
                 var nodes = `
                     <div data-f-bind="a">Hello <%= value %>! <span> some child <%= a %></span</div>
                 `.trim();
+                var originalHTML = $(nodes).html();
                 return utils.initWithNode(nodes, domManager, channel).then(($node)=> {
-                    var originalHTML = $node.html();
-
                     return channel.publish({ a: 'apple' }).then(()=> {
                         var newhtml = $node.html();
                         expect(newhtml).to.equal('Hello apple! <span> some child apple</span>');

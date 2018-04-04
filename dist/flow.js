@@ -3959,9 +3959,10 @@ var _require4 = __webpack_require__(8),
     removeKnownData = _require4.removeKnownData,
     findMissingReferences = _require4.findMissingReferences,
     stubMissingReferences = _require4.stubMissingReferences,
-    addBackMissingReferences = _require4.addBackMissingReferences;
+    addBackMissingReferences = _require4.addBackMissingReferences,
+    getOriginalContents = _require4.getOriginalContents,
+    clearOriginalContents = _require4.clearOriginalContents;
 
-var elTemplateMap = new WeakMap();
 var elAnimatedMap = new WeakMap(); //TODO: Can probably get rid of this if we make subscribe a promise and distinguish between initial value
 
 module.exports = {
@@ -3974,16 +3975,14 @@ module.exports = {
         var el = $el.get(0);
         elAnimatedMap.delete(el);
 
-        var template = elTemplateMap.get(el);
+        var template = getOriginalContents($el);
         if (template) {
             $el.html(template);
-            elTemplateMap.delete(el);
         }
-
+        clearOriginalContents($el);
         removeKnownData($el);
     },
 
-    //provide variable name from bound
     parse: function (attrVal) {
         return extractVariableName(attrVal);
     },
@@ -3991,23 +3990,13 @@ module.exports = {
     handle: function (value, prop, $el) {
         value = $.isPlainObject(value) ? value : [].concat(value);
 
-        var el = $el.get(0);
-        var originalHTML = elTemplateMap.get(el);
-        if (!originalHTML) {
-            originalHTML = $el.html().replace(/&lt;/g, '<').replace(/&gt;/g, '>');
-            elTemplateMap.set(el, originalHTML);
-        }
-
         var attrVal = $el.data('f-' + prop);
         var keyAttr = parseKeyAlias(attrVal, value);
         var valueAttr = parseValueAlias(attrVal, value);
 
-        // Go through matching template tags and make a list of references you don't know about
-        //  -- replace with a comment ref id, or lodash will break on missing references
-        // Try templating data with what you know
-        //  -- if success, nothing to do
-        //  -- if fail, store your data and wait for someone else to take it and template
-        // 
+        var originalHTML = getOriginalContents($el, function ($el) {
+            return $el.html();
+        });
         var knownData = getKnownDataForEl($el);
         var missingReferences = findMissingReferences(originalHTML, [keyAttr, valueAttr].concat(Object.keys(knownData)));
         var stubbedTemplate = stubMissingReferences(originalHTML, missingReferences);
@@ -4048,6 +4037,7 @@ module.exports = {
             $dummyEl.append(nodes);
         });
 
+        var el = $el.get(0);
         var isInitialAnim = !elAnimatedMap.get(el);
         var $withAnimAttrs = addChangeClassesToList($el.children(), $dummyEl.children(), isInitialAnim, config.animation);
         $el.empty().append($withAnimAttrs);
@@ -4138,7 +4128,6 @@ var templateIdAttr = config.attrs.repeat.templateId;
 var _require2 = __webpack_require__(7),
     addChangeClassesToList = _require2.addChangeClassesToList;
 
-var elTemplateMap = new WeakMap(); //<domel>: template
 var elAnimatedMap = new WeakMap(); //TODO: Can probably get rid of this if we make subscribe a promise and distinguish between initial value
 
 var _require3 = __webpack_require__(8),
@@ -4147,7 +4136,9 @@ var _require3 = __webpack_require__(8),
     removeKnownData = _require3.removeKnownData,
     findMissingReferences = _require3.findMissingReferences,
     stubMissingReferences = _require3.stubMissingReferences,
-    addBackMissingReferences = _require3.addBackMissingReferences;
+    addBackMissingReferences = _require3.addBackMissingReferences,
+    getOriginalContents = _require3.getOriginalContents,
+    clearOriginalContents = _require3.clearOriginalContents;
 
 var _require4 = __webpack_require__(13),
     extractVariableName = _require4.extractVariableName,
@@ -4170,11 +4161,11 @@ module.exports = {
         var el = $el.get(0);
         elAnimatedMap.delete(el);
 
-        var originalHTML = elTemplateMap.get(el);
+        var originalHTML = getOriginalContents($el);
         if (originalHTML) {
-            elTemplateMap.delete(el);
             $el.replaceWith(originalHTML);
         }
+        clearOriginalContents($el);
 
         removeKnownData($el);
     },
@@ -4187,13 +4178,9 @@ module.exports = {
         value = $.isPlainObject(value) ? value : [].concat(value);
         var id = $el.data(templateIdAttr);
 
-        var el = $el.get(0);
-
-        var originalHTML = elTemplateMap.get(el);
-        if (!originalHTML) {
-            originalHTML = el.outerHTML.replace(/&lt;/g, '<').replace(/&gt;/g, '>');
-            elTemplateMap.set(el, originalHTML);
-        }
+        var originalHTML = getOriginalContents($el, function ($el) {
+            return $el.get(0).outerHTML;
+        });
 
         var $dummyOldDiv = $('<div></div>');
         if (id) {
@@ -4260,6 +4247,8 @@ module.exports = {
         });
 
         var $newEls = $el.nextUntil(':not(\'[data-' + id + ']\')');
+
+        var el = $el.get(0);
         var isInitialAnim = !elAnimatedMap.get(el);
         addChangeClassesToList($dummyOldDiv.children(), $newEls, isInitialAnim, config.animation);
 
@@ -4713,9 +4702,10 @@ var _require3 = __webpack_require__(8),
     findMissingReferences = _require3.findMissingReferences,
     stubMissingReferences = _require3.stubMissingReferences,
     addBackMissingReferences = _require3.addBackMissingReferences,
-    isTemplated = _require3.isTemplated;
+    isTemplated = _require3.isTemplated,
+    getOriginalContents = _require3.getOriginalContents,
+    clearOriginalContents = _require3.clearOriginalContents;
 
-var elTemplateMap = new WeakMap(); //<dom-element>: template
 var elAnimatedMap = new WeakMap(); //TODO: Can probably get rid of this if we make subscribe a promise and distinguish between initial value
 
 function translateDataToInsertable(value) {
@@ -4746,6 +4736,16 @@ module.exports = {
 
     test: 'bind',
 
+    //FIXME: Can't do this because if you have a bind within a foreach, foreach overwrites the old el with a new el, and at that points contents are lost
+    // But if i don't do this the <%= %> is going to show up
+    // init: function (attr, value, $el) {
+    //     const contents = getOriginalContents($el, ($el)=> $el.html());
+    //     if (isTemplated(contents)) {
+    //         $el.empty();
+    //     }
+    //     return true;
+    // },
+
     /**
      * @param {string} attr
      * @param {JQuery<HTMLElement>} $el
@@ -4755,11 +4755,11 @@ module.exports = {
         var el = $el.get(0);
         elAnimatedMap.delete(el);
 
-        var bindTemplate = elTemplateMap.get(el);
+        var bindTemplate = getOriginalContents($el);
         if (bindTemplate) {
             $el.html(bindTemplate);
-            elTemplateMap.delete(el);
         }
+        clearOriginalContents($el);
         removeKnownData($el);
     },
 
@@ -4795,13 +4795,11 @@ module.exports = {
         }
 
         var el = $el.get(0);
-        var originalContents = elTemplateMap.get(el);
-        if (!originalContents) {
-            originalContents = $el.html().replace(/&lt;/g, '<').replace(/&gt;/g, '>');
-            elTemplateMap.set(el, originalContents);
-        }
-
+        var originalContents = getOriginalContents($el, function ($el) {
+            return $el.html();
+        });
         var contents = getNewContent(originalContents, value);
+
         addContentAndAnimate($el, contents, !elAnimatedMap.has(el), config.animation);
         elAnimatedMap.set(el, true);
     }

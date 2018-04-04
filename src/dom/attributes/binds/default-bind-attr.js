@@ -122,6 +122,16 @@ module.exports = {
 
     test: 'bind',
 
+    //FIXME: Can't do this because if you have a bind within a foreach, foreach overwrites the old el with a new el, and at that points contents are lost
+    // But if i don't do this the <%= %> is going to show up
+    // init: function (attr, value, $el) {
+    //     const contents = getOriginalContents($el, ($el)=> $el.html());
+    //     if (isTemplated(contents)) {
+    //         $el.empty();
+    //     }
+    //     return true;
+    // },
+
     /**
      * @param {string} attr
      * @param {JQuery<HTMLElement>} $el
