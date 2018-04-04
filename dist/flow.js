@@ -83,7 +83,7 @@ var Flow =
 /******/ 	__webpack_require__.p = "";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 14);
+/******/ 	return __webpack_require__(__webpack_require__.s = 15);
 /******/ })
 /************************************************************************/
 /******/ ([
@@ -123,10 +123,7 @@ module.exports = {
         //Used by repeat attr handler to keep track of template after first evaluation
         repeat: {
             templateId: 'repeat-template-id' //don't prefix by f or dom-manager unbind will kill it
-        },
-
-        keyAs: 'f-foreach-key-as',
-        valueAs: 'f-foreach-value-as'
+        }
     },
     animation: {
         addAttr: 'data-add',
@@ -243,9 +240,9 @@ function toPublishableFormat(value) {
 /* harmony export (immutable) */ __webpack_exports__["c"] = mapWithPrefix;
 /* harmony export (immutable) */ __webpack_exports__["i"] = withPrefix;
 /* harmony export (immutable) */ __webpack_exports__["h"] = unprefix;
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__silencable__ = __webpack_require__(54);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__silencable__ = __webpack_require__(55);
 /* harmony reexport (binding) */ __webpack_require__.d(__webpack_exports__, "f", function() { return __WEBPACK_IMPORTED_MODULE_0__silencable__["a"]; });
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__exclude_read_only__ = __webpack_require__(55);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__exclude_read_only__ = __webpack_require__(56);
 /* harmony reexport (binding) */ __webpack_require__.d(__webpack_exports__, "b", function() { return __WEBPACK_IMPORTED_MODULE_1__exclude_read_only__["a"]; });
 var CHANNEL_DELIMITER = ':';
 
@@ -659,9 +656,9 @@ function router(handlers) {
 /* unused harmony export OPERATIONS_PREFIX */
 /* unused harmony export _shouldFetch */
 /* harmony export (immutable) */ __webpack_exports__["a"] = RunRouter;
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__run_meta_channel__ = __webpack_require__(51);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__run_variables_channel__ = __webpack_require__(52);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__run_operations_channel__ = __webpack_require__(53);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__run_meta_channel__ = __webpack_require__(52);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__run_variables_channel__ = __webpack_require__(53);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__run_operations_channel__ = __webpack_require__(54);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_3_channels_channel_router__ = __webpack_require__(5);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_4_channels_middleware_utils__ = __webpack_require__(3);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_5_lodash__ = __webpack_require__(0);
@@ -934,6 +931,119 @@ function addContentAndAnimate($el, newValue, isInitial, options) {
 
 /***/ }),
 /* 8 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
+/* harmony export (immutable) */ __webpack_exports__["getKnownDataForEl"] = getKnownDataForEl;
+/* harmony export (immutable) */ __webpack_exports__["updateKnownDataForEl"] = updateKnownDataForEl;
+/* harmony export (immutable) */ __webpack_exports__["removeKnownData"] = removeKnownData;
+/* harmony export (immutable) */ __webpack_exports__["getTemplateTags"] = getTemplateTags;
+/* harmony export (immutable) */ __webpack_exports__["isTemplated"] = isTemplated;
+/* harmony export (immutable) */ __webpack_exports__["findMissingReferences"] = findMissingReferences;
+/* harmony export (immutable) */ __webpack_exports__["stubMissingReferences"] = stubMissingReferences;
+/* harmony export (immutable) */ __webpack_exports__["addBackMissingReferences"] = addBackMissingReferences;
+/* harmony export (immutable) */ __webpack_exports__["getOriginalContents"] = getOriginalContents;
+/* harmony export (immutable) */ __webpack_exports__["clearOriginalContents"] = clearOriginalContents;
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_lodash__ = __webpack_require__(0);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_lodash___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_lodash__);
+
+
+var CURRENT_INDEX_KEY = 'current-index';
+var CURRENT_INDEX_ATTR = 'data-' + CURRENT_INDEX_KEY;
+
+function getKnownDataForEl($el) {
+    var closestKnownDataEl = $el.closest('[' + CURRENT_INDEX_ATTR + ']');
+    var knownData = {};
+    if (closestKnownDataEl.length) {
+        knownData = closestKnownDataEl.data(CURRENT_INDEX_KEY);
+    }
+    return knownData;
+}
+function updateKnownDataForEl($el, data) {
+    $el.attr(CURRENT_INDEX_ATTR, JSON.stringify(data));
+}
+function removeKnownData($el) {
+    $el.removeAttr(CURRENT_INDEX_ATTR);
+}
+
+function getTemplateTags(template) {
+    template = template.replace(/&lt;/g, '<').replace(/&gt;/g, '>');
+    var templateTagsUsed = template.match(/<%[=-]?([\s\S]+?)%>/g);
+    return templateTagsUsed || [];
+}
+function isTemplated(template) {
+    return getTemplateTags(template).length > 0;
+}
+
+function findMissingReferences(template, knownDataKeys) {
+    function isKnownTag(tag, knownTags) {
+        var match = knownDataKeys.find(function (key) {
+            var regex = new RegExp('\\b' + key + '\\b');
+            return regex.test(tag);
+        });
+        return match;
+    }
+
+    template = template.replace(/&lt;/g, '<').replace(/&gt;/g, '>');
+    var missingReferences = {};
+    var templateTagsUsed = getTemplateTags(template);
+    if (templateTagsUsed) {
+        templateTagsUsed.forEach(function (tag) {
+            if (tag.match(/\w+/) && !isKnownTag(tag, knownDataKeys)) {
+                var refKey = missingReferences[tag];
+                if (!refKey) {
+                    refKey = Object(__WEBPACK_IMPORTED_MODULE_0_lodash__["uniqueId"])('no-ref');
+                    missingReferences[tag] = refKey;
+                }
+            }
+        });
+    }
+    return missingReferences;
+}
+
+function refToMarkup(refKey) {
+    return '<!--' + refKey + '-->';
+}
+
+function stubMissingReferences(template, missingReferences) {
+    template = template.replace(/&lt;/g, '<').replace(/&gt;/g, '>');
+
+    Object.keys(missingReferences).forEach(function (tag) {
+        var refId = missingReferences[tag];
+        var r = new RegExp(tag, 'g');
+        template = template.replace(r, refToMarkup(refId));
+    });
+    return template;
+}
+
+function addBackMissingReferences(template, missingReferences) {
+    Object.keys(missingReferences).forEach(function (originalTemplateVal) {
+        var commentRef = missingReferences[originalTemplateVal];
+        var r = new RegExp(refToMarkup(commentRef), 'g');
+        template = template.replace(r, originalTemplateVal);
+    });
+
+    return template;
+}
+
+var elTemplateMap = new WeakMap();
+function getOriginalContents($el, resolver) {
+    var el = $el.get(0);
+    var originalHTML = elTemplateMap.get(el);
+    if (!originalHTML && resolver) {
+        originalHTML = resolver($el).replace(/&lt;/g, '<').replace(/&gt;/g, '>');
+        elTemplateMap.set(el, originalHTML);
+    }
+    return originalHTML;
+}
+function clearOriginalContents($el) {
+    var el = $el.get(0);
+    elTemplateMap.delete(el);
+}
+
+/***/ }),
+/* 9 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var _require = __webpack_require__(0),
@@ -1012,14 +1122,14 @@ module.exports = {
 };
 
 /***/ }),
-/* 9 */
+/* 10 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 
 var config = __webpack_require__(1);
-var BaseView = __webpack_require__(10);
+var BaseView = __webpack_require__(11);
 
 module.exports = BaseView.extend({
     propertyHandlers: [],
@@ -1050,13 +1160,13 @@ module.exports = BaseView.extend({
 }, { selector: 'input, select, textarea' });
 
 /***/ }),
-/* 10 */
+/* 11 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 
-var BaseView = __webpack_require__(11);
+var BaseView = __webpack_require__(12);
 
 module.exports = BaseView.extend({
     propertyHandlers: [],
@@ -1065,7 +1175,7 @@ module.exports = BaseView.extend({
 }, { selector: '*' });
 
 /***/ }),
-/* 11 */
+/* 12 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var _require = __webpack_require__(0),
@@ -1125,105 +1235,45 @@ View.extend = extendView;
 module.exports = View;
 
 /***/ }),
-/* 12 */
+/* 13 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
-/* harmony export (immutable) */ __webpack_exports__["getKnownDataForEl"] = getKnownDataForEl;
-/* harmony export (immutable) */ __webpack_exports__["updateKnownDataForEl"] = updateKnownDataForEl;
-/* harmony export (immutable) */ __webpack_exports__["removeKnownData"] = removeKnownData;
-/* harmony export (immutable) */ __webpack_exports__["getTemplateTags"] = getTemplateTags;
-/* harmony export (immutable) */ __webpack_exports__["isTemplated"] = isTemplated;
-/* harmony export (immutable) */ __webpack_exports__["findMissingReferences"] = findMissingReferences;
-/* harmony export (immutable) */ __webpack_exports__["stubMissingReferences"] = stubMissingReferences;
-/* harmony export (immutable) */ __webpack_exports__["addBackMissingReferences"] = addBackMissingReferences;
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_lodash__ = __webpack_require__(0);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_lodash___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_lodash__);
+/* harmony export (immutable) */ __webpack_exports__["extractVariableName"] = extractVariableName;
+/* harmony export (immutable) */ __webpack_exports__["parseKeyAlias"] = parseKeyAlias;
+/* harmony export (immutable) */ __webpack_exports__["parseValueAlias"] = parseValueAlias;
+function extractVariableName(attrVal, $el) {
+    var inMatch = attrVal.trim().match(/(.*) (?:in|of) (.*)/);
+    var varName = inMatch ? inMatch[2] : attrVal;
+    return varName.trim();
+}
 
-
-var CURRENT_INDEX_KEY = 'current-index';
-var CURRENT_INDEX_ATTR = 'data-' + CURRENT_INDEX_KEY;
-
-function getKnownDataForEl($el) {
-    var closestKnownDataEl = $el.closest('[' + CURRENT_INDEX_ATTR + ']');
-    var knownData = {};
-    if (closestKnownDataEl.length) {
-        knownData = closestKnownDataEl.data(CURRENT_INDEX_KEY);
+function parseKeyAlias(attrVal, data) {
+    var defaultKey = $.isPlainObject(data) ? 'key' : 'index';
+    var inMatch = attrVal.match(/(.*) (?:in|of) (.*)/);
+    if (!inMatch) {
+        return defaultKey;
     }
-    return knownData;
+    var itMatch = inMatch[1].match(/(.*),(.*)/);
+    var alias = itMatch ? itMatch[1].trim() : defaultKey;
+    return alias;
 }
 
-function updateKnownDataForEl($el, data) {
-    $el.attr(CURRENT_INDEX_ATTR, JSON.stringify(data));
-}
-
-function removeKnownData($el) {
-    $el.removeAttr(CURRENT_INDEX_ATTR);
-}
-
-function getTemplateTags(template) {
-    template = template.replace(/&lt;/g, '<').replace(/&gt;/g, '>');
-    var templateTagsUsed = template.match(/<%[=-]?([\s\S]+?)%>/g);
-    return templateTagsUsed || [];
-}
-function isTemplated(template) {
-    return getTemplateTags(template).length > 0;
-}
-
-function findMissingReferences(template, knownDataKeys) {
-    function isKnownTag(tag, knownTags) {
-        var match = knownDataKeys.find(function (key) {
-            var regex = new RegExp('\\b' + key + '\\b');
-            return regex.test(tag);
-        });
-        return match;
+function parseValueAlias(attrVal) {
+    var defaultValueProp = 'value';
+    var inMatch = attrVal.match(/(.*) (?:in|of) (.*)/);
+    if (!inMatch) {
+        return defaultValueProp;
     }
 
-    template = template.replace(/&lt;/g, '<').replace(/&gt;/g, '>');
-    var missingReferences = {};
-    var templateTagsUsed = getTemplateTags(template);
-    if (templateTagsUsed) {
-        templateTagsUsed.forEach(function (tag) {
-            if (tag.match(/\w+/) && !isKnownTag(tag, knownDataKeys)) {
-                var refKey = missingReferences[tag];
-                if (!refKey) {
-                    refKey = Object(__WEBPACK_IMPORTED_MODULE_0_lodash__["uniqueId"])('no-ref');
-                    missingReferences[tag] = refKey;
-                }
-            }
-        });
-    }
-    return missingReferences;
-}
-
-function refToMarkup(refKey) {
-    return '<!--' + refKey + '-->';
-}
-
-function stubMissingReferences(template, missingReferences) {
-    template = template.replace(/&lt;/g, '<').replace(/&gt;/g, '>');
-
-    Object.keys(missingReferences).forEach(function (tag) {
-        var refId = missingReferences[tag];
-        var r = new RegExp(tag, 'g');
-        template = template.replace(r, refToMarkup(refId));
-    });
-    return template;
-}
-
-function addBackMissingReferences(template, missingReferences) {
-    Object.keys(missingReferences).forEach(function (originalTemplateVal) {
-        var commentRef = missingReferences[originalTemplateVal];
-        var r = new RegExp(refToMarkup(commentRef), 'g');
-        template = template.replace(r, originalTemplateVal);
-    });
-
-    return template;
+    var itMatch = inMatch[1].match(/(.*),(.*)/);
+    var alias = itMatch ? itMatch[2] : inMatch[1];
+    return alias.trim();
 }
 
 /***/ }),
-/* 13 */
+/* 14 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -1261,7 +1311,7 @@ function interpolateWithValues(topic, data) {
 }
 
 /***/ }),
-/* 14 */
+/* 15 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /**
@@ -1329,10 +1379,10 @@ function interpolateWithValues(topic, data) {
  *
  */
 
-var domManager = __webpack_require__(15);
-var BaseView = __webpack_require__(11);
+var domManager = __webpack_require__(16);
+var BaseView = __webpack_require__(12);
 
-var ChannelManager = __webpack_require__(46).default;
+var ChannelManager = __webpack_require__(47).default;
 
 var Flow = {
     dom: domManager,
@@ -1383,7 +1433,7 @@ if (true) Flow.version = "0.11.0"; //eslint-disable-line no-undef
 module.exports = Flow;
 
 /***/ }),
-/* 15 */
+/* 16 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -1399,7 +1449,7 @@ module.exports = Flow;
 
 var _ = __webpack_require__(0);
 
-var _require = __webpack_require__(16),
+var _require = __webpack_require__(17),
     getConvertersForEl = _require.getConvertersForEl,
     getChannelForAttribute = _require.getChannelForAttribute,
     getChannelConfigForElement = _require.getChannelConfigForElement,
@@ -1411,10 +1461,10 @@ var _require2 = __webpack_require__(0),
 var config = __webpack_require__(1);
 var parseUtils = __webpack_require__(2);
 
-var converterManager = __webpack_require__(20);
-var nodeManager = __webpack_require__(29);
-var attrManager = __webpack_require__(31);
-var autoUpdatePlugin = __webpack_require__(45);
+var converterManager = __webpack_require__(21);
+var nodeManager = __webpack_require__(30);
+var attrManager = __webpack_require__(32);
+var autoUpdatePlugin = __webpack_require__(46);
 
 module.exports = function () {
     //Jquery selector to return everything which has a f- property set
@@ -1860,14 +1910,14 @@ module.exports = function () {
 }();
 
 /***/ }),
-/* 16 */
+/* 17 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__parse_converters__ = __webpack_require__(17);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__parse_channel__ = __webpack_require__(18);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__parse_topics__ = __webpack_require__(19);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__parse_converters__ = __webpack_require__(18);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__parse_channel__ = __webpack_require__(19);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__parse_topics__ = __webpack_require__(20);
 /* harmony reexport (binding) */ __webpack_require__.d(__webpack_exports__, "getConvertersForEl", function() { return __WEBPACK_IMPORTED_MODULE_0__parse_converters__["a"]; });
 /* harmony reexport (binding) */ __webpack_require__.d(__webpack_exports__, "getChannelForAttribute", function() { return __WEBPACK_IMPORTED_MODULE_1__parse_channel__["b"]; });
 /* harmony reexport (binding) */ __webpack_require__.d(__webpack_exports__, "getChannelConfigForElement", function() { return __WEBPACK_IMPORTED_MODULE_1__parse_channel__["a"]; });
@@ -1879,7 +1929,7 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 
 
 /***/ }),
-/* 17 */
+/* 18 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -1957,7 +2007,7 @@ function getConvertersForEl($el, attribute) {
 }
 
 /***/ }),
-/* 18 */
+/* 19 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -2003,7 +2053,7 @@ function getChannelConfigForElement(el) {
 }
 
 /***/ }),
-/* 19 */
+/* 20 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -2028,7 +2078,7 @@ function parseTopicsFromAttributeValue(attrVal) {
 }
 
 /***/ }),
-/* 20 */
+/* 21 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /**
@@ -2245,7 +2295,7 @@ var converterManager = {
 };
 
 //Bootstrap
-var defaultconverters = [__webpack_require__(21), __webpack_require__(22), __webpack_require__(23), __webpack_require__(24), __webpack_require__(25), __webpack_require__(26), __webpack_require__(27), __webpack_require__(28)];
+var defaultconverters = [__webpack_require__(22), __webpack_require__(23), __webpack_require__(24), __webpack_require__(25), __webpack_require__(26), __webpack_require__(27), __webpack_require__(28), __webpack_require__(29)];
 
 defaultconverters.reverse().forEach(function (converter) {
     if (Array.isArray(converter)) {
@@ -2260,7 +2310,7 @@ defaultconverters.reverse().forEach(function (converter) {
 module.exports = converterManager;
 
 /***/ }),
-/* 21 */
+/* 22 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -2299,7 +2349,7 @@ module.exports = {
 };
 
 /***/ }),
-/* 22 */
+/* 23 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -2393,7 +2443,7 @@ module.exports = {
 };
 
 /***/ }),
-/* 23 */
+/* 24 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /**
@@ -2590,7 +2640,7 @@ var mapped = Object.keys(list).map(function (alias) {
 module.exports = mapped;
 
 /***/ }),
-/* 24 */
+/* 25 */
 /***/ (function(module, exports) {
 
 function parseArgs(toCompare, trueVal, falseVal, valueToCompare, matchString) {
@@ -2620,7 +2670,7 @@ module.exports = [{
 }];
 
 /***/ }),
-/* 25 */
+/* 26 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /**
@@ -3008,7 +3058,7 @@ module.exports = {
 };
 
 /***/ }),
-/* 26 */
+/* 27 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -3186,7 +3236,7 @@ module.exports = {
 };
 
 /***/ }),
-/* 27 */
+/* 28 */
 /***/ (function(module, exports) {
 
 /**
@@ -3298,7 +3348,7 @@ module.exports = {
 };
 
 /***/ }),
-/* 28 */
+/* 29 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var _ = __webpack_require__(0);
@@ -3398,7 +3448,7 @@ var converters = Object.keys(list).map(function (name) {
 module.exports = converters;
 
 /***/ }),
-/* 29 */
+/* 30 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var _ = __webpack_require__(0);
@@ -3482,7 +3532,7 @@ var nodeManager = {
 };
 
 //bootstraps
-var defaultHandlers = [__webpack_require__(30), __webpack_require__(9), __webpack_require__(10)];
+var defaultHandlers = [__webpack_require__(31), __webpack_require__(10), __webpack_require__(11)];
 defaultHandlers.reverse().forEach(function (handler) {
     nodeManager.register(handler.selector, handler);
 });
@@ -3490,13 +3540,13 @@ defaultHandlers.reverse().forEach(function (handler) {
 module.exports = nodeManager;
 
 /***/ }),
-/* 30 */
+/* 31 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 
-var BaseView = __webpack_require__(9);
+var BaseView = __webpack_require__(10);
 
 module.exports = BaseView.extend({
 
@@ -3517,7 +3567,7 @@ module.exports = BaseView.extend({
 }, { selector: ':checkbox,:radio' });
 
 /***/ }),
-/* 31 */
+/* 32 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /**
@@ -3536,7 +3586,7 @@ module.exports = BaseView.extend({
  *
  * Built-in attribute handlers like `data-f-value` and `data-f-foreach` automatically bind variables in your project's model to particular HTML elements. However, your UI may sometimes require displaying only part of the variable (e.g. if it's an object), or "doing something" with the value of the variable, rather than simply displaying it.
  *
- * One example of when custom attribute handlers are useful is when your model variable is a complex object and you want to display the fields in a particular way, or you only want to display some of the fields. While the combination of the [`data-f-foreach` attribute](../foreach/default-foreach-attr/) and [templating](../../../../#templates) can help with this, sometimes it's easier to write your own attribute handler. (This is especially true if you will be reusing the attribute handler -- you won't have to copy your templating code over and over.)
+ * One example of when custom attribute handlers are useful is when your model variable is a complex object and you want to display the fields in a particular way, or you only want to display some of the fields. While the combination of the [`data-f-foreach` attribute](../loop-attrs/foreach-attr/) and [templating](../../../../#templates) can help with this, sometimes it's easier to write your own attribute handler. (This is especially true if you will be reusing the attribute handler -- you won't have to copy your templating code over and over.)
  *
  *      Flow.dom.attributes.register('showSched', '*', function (sched) {
  *            // display all the schedule milestones
@@ -3569,7 +3619,7 @@ var _require = __webpack_require__(0),
     filter = _require.filter,
     each = _require.each;
 
-var defaultHandlers = [__webpack_require__(32), __webpack_require__(33), __webpack_require__(34), __webpack_require__(35), __webpack_require__(36), __webpack_require__(37), __webpack_require__(38), __webpack_require__(39), __webpack_require__(40), __webpack_require__(41), __webpack_require__(42), __webpack_require__(43), __webpack_require__(44)];
+var defaultHandlers = [__webpack_require__(33), __webpack_require__(34), __webpack_require__(35), __webpack_require__(36), __webpack_require__(37), __webpack_require__(38), __webpack_require__(39), __webpack_require__(40), __webpack_require__(41), __webpack_require__(42), __webpack_require__(43), __webpack_require__(44), __webpack_require__(45)];
 
 /**
  * @typedef AttributeHandler
@@ -3683,7 +3733,7 @@ module.exports = {
 };
 
 /***/ }),
-/* 32 */
+/* 33 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -3712,7 +3762,7 @@ module.exports = {
 };
 
 /***/ }),
-/* 33 */
+/* 34 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -3764,7 +3814,7 @@ module.exports = {
 };
 
 /***/ }),
-/* 34 */
+/* 35 */
 /***/ (function(module, exports, __webpack_require__) {
 
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
@@ -3886,25 +3936,30 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
  *              <li> Year <%= index %>: Sales of <%= value %> </li>
  *          </ul>
  *
- * * The `data-f-foreach` attribute is [similar to the `data-f-repeat` attribute](../../repeat-attr/), so you may want to review the examples there as well.
+ * * The `data-f-foreach` attribute is [similar to the `data-f-repeat` attribute](../../loop-attrs/repeat-attr/), so you may want to review the examples there as well.
  */
 var parseUtils = __webpack_require__(2);
 var config = __webpack_require__(1);
 
-var _require = __webpack_require__(7),
-    addChangeClassesToList = _require.addChangeClassesToList;
+var _require = __webpack_require__(13),
+    extractVariableName = _require.extractVariableName,
+    parseKeyAlias = _require.parseKeyAlias,
+    parseValueAlias = _require.parseValueAlias;
 
-var _require2 = __webpack_require__(0),
-    each = _require2.each,
-    template = _require2.template;
+var _require2 = __webpack_require__(7),
+    addChangeClassesToList = _require2.addChangeClassesToList;
 
-var _require3 = __webpack_require__(12),
-    getKnownDataForEl = _require3.getKnownDataForEl,
-    updateKnownDataForEl = _require3.updateKnownDataForEl,
-    removeKnownData = _require3.removeKnownData,
-    findMissingReferences = _require3.findMissingReferences,
-    stubMissingReferences = _require3.stubMissingReferences,
-    addBackMissingReferences = _require3.addBackMissingReferences;
+var _require3 = __webpack_require__(0),
+    each = _require3.each,
+    template = _require3.template;
+
+var _require4 = __webpack_require__(8),
+    getKnownDataForEl = _require4.getKnownDataForEl,
+    updateKnownDataForEl = _require4.updateKnownDataForEl,
+    removeKnownData = _require4.removeKnownData,
+    findMissingReferences = _require4.findMissingReferences,
+    stubMissingReferences = _require4.stubMissingReferences,
+    addBackMissingReferences = _require4.addBackMissingReferences;
 
 var elTemplateMap = new WeakMap();
 var elAnimatedMap = new WeakMap(); //TODO: Can probably get rid of this if we make subscribe a promise and distinguish between initial value
@@ -3925,26 +3980,12 @@ module.exports = {
             elTemplateMap.delete(el);
         }
 
-        var dataToRemove = [config.attrs.keyAs, config.attrs.valueAs];
-        $el.removeData(dataToRemove);
-
         removeKnownData($el);
     },
 
     //provide variable name from bound
-    parse: function (attrVal, $el) {
-        var inMatch = attrVal.match(/(.*) (?:in|of) (.*)/);
-        if (inMatch) {
-            var itMatch = inMatch[1].match(/\((.*),(.*)\)/);
-            if (itMatch) {
-                $el.data(config.attrs.keyAs, itMatch[1].trim());
-                $el.data(config.attrs.valueAs, itMatch[2].trim());
-            } else {
-                $el.data(config.attrs.valueAs, inMatch[1].trim());
-            }
-            attrVal = inMatch[2];
-        }
-        return attrVal;
+    parse: function (attrVal) {
+        return extractVariableName(attrVal);
     },
 
     handle: function (value, prop, $el) {
@@ -3957,9 +3998,9 @@ module.exports = {
             elTemplateMap.set(el, originalHTML);
         }
 
-        var defaultKey = $.isPlainObject(value) ? 'key' : 'index';
-        var keyAttr = $el.data(config.attrs.keyAs) || defaultKey;
-        var valueAttr = $el.data(config.attrs.valueAs) || 'value';
+        var attrVal = $el.data('f-' + prop);
+        var keyAttr = parseKeyAlias(attrVal, value);
+        var valueAttr = parseValueAlias(attrVal, value);
 
         // Go through matching template tags and make a list of references you don't know about
         //  -- replace with a comment ref id, or lodash will break on missing references
@@ -4016,7 +4057,218 @@ module.exports = {
 };
 
 /***/ }),
-/* 35 */
+/* 36 */
+/***/ (function(module, exports, __webpack_require__) {
+
+function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+
+/**
+ * ## Display Array Variables: data-f-repeat
+ *
+ * The `data-f-repeat` attribute allows you to automatically loop over a referenced variable. The most common use case is in time-based models, like those written in [SimLang](../../../../../model_code/forio_simlang/) or [Vensim](../../../../../model_code/vensim/), when you want to report the value of the variable at every time step so far. The `data-f-repeat` attribute automatically repeats the DOM element it's attached to, filling in the value.
+ *
+ * **To display a DOM element repeatedly based on an array variable from the model:**
+ *
+ * 1. Add the `data-f-repeat` attribute to any HTML element that has repeated sub-elements. The two most common examples are lists and tables.
+ * 2. Set the value of the `data-f-repeat` attribute in the HTML element you want to repeat to the name of the array variable.
+ * 3. Optionally, you can use templates (`<%= %>`) to reference the `index` (for arrays) or `key` (for objects) and `value` to display. The `index`, `key`, and `value` are special variables that Flow.js populates for you.
+ *
+ *
+ * **Examples:**
+ *
+ * For example, to create a table that displays the year and cost for every step of the model that has occurred so far:
+ *
+ *      <table>
+ *          <tr>
+ *              <td>Year</td>
+ *              <td data-f-repeat="Cost[Products]"><%= index + 1 %></td>
+ *          </tr>
+ *          <tr>
+ *              <td>Cost of Products</td>
+ *              <td data-f-repeat="Cost[Products]"></td>
+ *          </tr>
+ *      </table>
+ *
+ * In the third step of the model, this example generates the HTML:
+ *
+ *      <table>
+ *          <tr>
+ *              <td>Year</td>
+ *              <td data-f-repeat="Cost[Products]">1</td>
+ *              <td>2</td>
+ *              <td>3</td>
+ *          </tr>
+ *          <tr>
+ *              <td>Cost of Products</td>
+ *              <td data-f-repeat="Cost[Products]">100</td>
+ *              <td>102</td>
+ *              <td>105</td>
+ *          </tr>
+ *      </table>
+ *
+ * You can also use this with a `<div>` and have the `<div>` itself repeated. For example:
+ *
+ *      <div data-f-repeat="sample_array"></div>
+ *
+ * generates:
+ *
+ *      <div data-f-repeat="sample_array">2</div>
+ *      <div>4</div>
+ *      <div>6</div>
+ *
+ * **Notes:**
+ *
+ * * You can use the `data-f-repeat` attribute with both arrays and objects. If the model variable is an object, reference the `key` instead of the `index` in your templates.
+ * * The `key`, `index`, and `value` are special variables that Flow.js populates for you.
+ * * The template syntax is to enclose each keyword (`index`, `key`, `variable`) in `<%=` and `%>`. Templates are available as part of Flow.js's lodash dependency. See more background on [working with templates](../../../../#templates).
+ * * In most cases the same effect can be achieved with the [`data-f-foreach` attribute](../../attributes/loop-attrs/foreach-attr/), which is similar. In the common use case of a table of data displayed over time, the `data-f-repeat` can be more concise and easier to read. However, the `data-f-foreach` allows aliasing, and so can be more useful especially if you are nesting HTML elements or want to introduce logic about how to display the values.
+ *
+ */
+
+var _require = __webpack_require__(0),
+    each = _require.each,
+    template = _require.template;
+
+var parseUtils = __webpack_require__(2);
+var gutils = __webpack_require__(9);
+var config = __webpack_require__(1);
+
+var templateIdAttr = config.attrs.repeat.templateId;
+
+var _require2 = __webpack_require__(7),
+    addChangeClassesToList = _require2.addChangeClassesToList;
+
+var elTemplateMap = new WeakMap(); //<domel>: template
+var elAnimatedMap = new WeakMap(); //TODO: Can probably get rid of this if we make subscribe a promise and distinguish between initial value
+
+var _require3 = __webpack_require__(8),
+    getKnownDataForEl = _require3.getKnownDataForEl,
+    updateKnownDataForEl = _require3.updateKnownDataForEl,
+    removeKnownData = _require3.removeKnownData,
+    findMissingReferences = _require3.findMissingReferences,
+    stubMissingReferences = _require3.stubMissingReferences,
+    addBackMissingReferences = _require3.addBackMissingReferences;
+
+var _require4 = __webpack_require__(13),
+    extractVariableName = _require4.extractVariableName,
+    parseKeyAlias = _require4.parseKeyAlias,
+    parseValueAlias = _require4.parseValueAlias;
+
+module.exports = {
+
+    test: 'repeat',
+
+    target: '*',
+
+    unbind: function (attr, $el) {
+        var id = $el.data(templateIdAttr);
+        if (id) {
+            $el.nextUntil(':not([data-' + id + '])').remove();
+            // this.removeAttr('data-' + templateIdAttr); //FIXME: Something about calling rebind multiple times in IB makes this happen without the removal
+        }
+
+        var el = $el.get(0);
+        elAnimatedMap.delete(el);
+
+        var originalHTML = elTemplateMap.get(el);
+        if (originalHTML) {
+            elTemplateMap.delete(el);
+            $el.replaceWith(originalHTML);
+        }
+
+        removeKnownData($el);
+    },
+
+    parse: function (attrVal) {
+        return extractVariableName(attrVal);
+    },
+
+    handle: function (value, prop, $el) {
+        value = $.isPlainObject(value) ? value : [].concat(value);
+        var id = $el.data(templateIdAttr);
+
+        var el = $el.get(0);
+
+        var originalHTML = elTemplateMap.get(el);
+        if (!originalHTML) {
+            originalHTML = el.outerHTML.replace(/&lt;/g, '<').replace(/&gt;/g, '>');
+            elTemplateMap.set(el, originalHTML);
+        }
+
+        var $dummyOldDiv = $('<div></div>');
+        if (id) {
+            var $removed = $el.nextUntil(':not([data-' + id + '])').remove();
+            $dummyOldDiv.append($removed);
+        } else {
+            id = gutils.random('repeat-');
+            $el.attr('data-' + templateIdAttr, id);
+        }
+
+        var attrVal = $el.data('f-' + prop);
+        var keyAttr = parseKeyAlias(attrVal, value);
+        var valueAttr = parseValueAlias(attrVal, value);
+
+        var knownData = getKnownDataForEl($el);
+        var missingReferences = findMissingReferences(originalHTML, [keyAttr, valueAttr].concat(Object.keys(knownData)));
+        var stubbedTemplate = stubMissingReferences(originalHTML, missingReferences);
+
+        var templateFn = template(stubbedTemplate);
+        var last;
+        each(value, function (dataval, datakey) {
+            var _$$extend;
+
+            if (dataval === undefined || dataval === null) {
+                dataval = dataval + ''; //convert undefineds to strings
+            }
+            var templateData = $.extend(true, {}, knownData, (_$$extend = {}, _defineProperty(_$$extend, keyAttr, datakey), _defineProperty(_$$extend, valueAttr, dataval), _$$extend));
+
+            var nodes = void 0;
+            var isTemplated = void 0;
+            try {
+                var templated = templateFn(templateData);
+                var templatedWithReferences = addBackMissingReferences(templated, missingReferences);
+                isTemplated = templatedWithReferences !== stubbedTemplate;
+                nodes = $(templatedWithReferences);
+            } catch (e) {
+                //you don't have all the references you need;
+                nodes = $(stubbedTemplate);
+                isTemplated = true;
+                updateKnownDataForEl($(nodes), templateData);
+            }
+
+            var hasData = dataval !== null && dataval !== undefined;
+            nodes.each(function (i, newNode) {
+                var $newNode = $(newNode);
+                $newNode.removeAttr('data-f-repeat').removeAttr('data-' + templateIdAttr);
+                each($newNode.data(), function (val, key) {
+                    if (!last) {
+                        $el.data(key, parseUtils.toImplicitType(val));
+                    } else {
+                        $newNode.data(key, parseUtils.toImplicitType(val));
+                    }
+                });
+                $newNode.attr('data-' + id, true);
+                if (!isTemplated && !$newNode.children().length && hasData) {
+                    $newNode.html(dataval + '');
+                }
+            });
+            if (!last) {
+                last = $el.html(nodes.html());
+            } else {
+                last = nodes.insertAfter(last);
+            }
+        });
+
+        var $newEls = $el.nextUntil(':not(\'[data-' + id + ']\')');
+        var isInitialAnim = !elAnimatedMap.get(el);
+        addChangeClassesToList($dummyOldDiv.children(), $newEls, isInitialAnim, config.animation);
+
+        elAnimatedMap.set(el, true);
+    }
+};
+
+/***/ }),
+/* 37 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /**
@@ -4061,7 +4313,7 @@ module.exports = {
 };
 
 /***/ }),
-/* 36 */
+/* 38 */
 /***/ (function(module, exports) {
 
 /**
@@ -4103,7 +4355,7 @@ module.exports = {
 };
 
 /***/ }),
-/* 37 */
+/* 39 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /**
@@ -4181,172 +4433,7 @@ module.exports = {
 };
 
 /***/ }),
-/* 38 */
-/***/ (function(module, exports, __webpack_require__) {
-
-/**
- * ## Display Array Variables: data-f-repeat
- *
- * The `data-f-repeat` attribute allows you to automatically loop over a referenced variable. The most common use case is in time-based models, like those written in [SimLang](../../../../../model_code/forio_simlang/) or [Vensim](../../../../../model_code/vensim/), when you want to report the value of the variable at every time step so far. The `data-f-repeat` attribute automatically repeats the DOM element it's attached to, filling in the value.
- *
- * **To display a DOM element repeatedly based on an array variable from the model:**
- *
- * 1. Add the `data-f-repeat` attribute to any HTML element that has repeated sub-elements. The two most common examples are lists and tables.
- * 2. Set the value of the `data-f-repeat` attribute in the HTML element you want to repeat to the name of the array variable.
- * 3. Optionally, you can use templates (`<%= %>`) to reference the `index` (for arrays) or `key` (for objects) and `value` to display. The `index`, `key`, and `value` are special variables that Flow.js populates for you.
- *
- *
- * **Examples:**
- *
- * For example, to create a table that displays the year and cost for every step of the model that has occurred so far:
- *
- *      <table>
- *          <tr>
- *              <td>Year</td>
- *              <td data-f-repeat="Cost[Products]"><%= index + 1 %></td>
- *          </tr>
- *          <tr>
- *              <td>Cost of Products</td>
- *              <td data-f-repeat="Cost[Products]"></td>
- *          </tr>
- *      </table>
- *
- * In the third step of the model, this example generates the HTML:
- *
- *      <table>
- *          <tr>
- *              <td>Year</td>
- *              <td data-f-repeat="Cost[Products]">1</td>
- *              <td>2</td>
- *              <td>3</td>
- *          </tr>
- *          <tr>
- *              <td>Cost of Products</td>
- *              <td data-f-repeat="Cost[Products]">100</td>
- *              <td>102</td>
- *              <td>105</td>
- *          </tr>
- *      </table>
- *
- * You can also use this with a `<div>` and have the `<div>` itself repeated. For example:
- *
- *      <div data-f-repeat="sample_array"></div>
- *
- * generates:
- *
- *      <div data-f-repeat="sample_array">2</div>
- *      <div>4</div>
- *      <div>6</div>
- *
- * **Notes:**
- *
- * * You can use the `data-f-repeat` attribute with both arrays and objects. If the model variable is an object, reference the `key` instead of the `index` in your templates.
- * * The `key`, `index`, and `value` are special variables that Flow.js populates for you.
- * * The template syntax is to enclose each keyword (`index`, `key`, `variable`) in `<%=` and `%>`. Templates are available as part of Flow.js's lodash dependency. See more background on [working with templates](../../../../#templates).
- * * In most cases the same effect can be achieved with the [`data-f-foreach` attribute](../../attributes/foreach/default-foreach-attr/), which is similar. In the common use case of a table of data displayed over time, the `data-f-repeat` can be more concise and easier to read. However, the `data-f-foreach` allows aliasing, and so can be more useful especially if you are nesting HTML elements or want to introduce logic about how to display the values.
- *
- */
-
-var _require = __webpack_require__(0),
-    each = _require.each,
-    template = _require.template;
-
-var parseUtils = __webpack_require__(2);
-var gutils = __webpack_require__(8);
-var config = __webpack_require__(1);
-
-var templateIdAttr = config.attrs.repeat.templateId;
-
-var _require2 = __webpack_require__(7),
-    addChangeClassesToList = _require2.addChangeClassesToList;
-
-var elTemplateMap = new WeakMap(); //<domel>: template
-var elAnimatedMap = new WeakMap(); //TODO: Can probably get rid of this if we make subscribe a promise and distinguish between initial value
-
-module.exports = {
-
-    test: 'repeat',
-
-    target: '*',
-
-    unbind: function (attr, $el) {
-        var id = $el.data(templateIdAttr);
-        if (id) {
-            $el.nextUntil(':not([data-' + id + '])').remove();
-            // this.removeAttr('data-' + templateIdAttr); //FIXME: Something about calling rebind multiple times in IB makes this happen without the removal
-        }
-
-        var el = $el.get(0);
-        elAnimatedMap.delete(el);
-
-        var loopTemplate = elTemplateMap.get(el);
-        if (loopTemplate) {
-            elTemplateMap.delete(el);
-            $el.replaceWith(loopTemplate);
-        }
-    },
-
-    handle: function (value, prop, $el) {
-        value = $.isPlainObject(value) ? value : [].concat(value);
-        var id = $el.data(templateIdAttr);
-
-        var el = $el.get(0);
-
-        var loopTemplate = elTemplateMap.get(el);
-        if (!loopTemplate) {
-            loopTemplate = el.outerHTML;
-            elTemplateMap.set(el, loopTemplate);
-        }
-
-        var $dummyOldDiv = $('<div></div>');
-        if (id) {
-            var $removed = $el.nextUntil(':not([data-' + id + '])').remove();
-            $dummyOldDiv.append($removed);
-        } else {
-            id = gutils.random('repeat-');
-            $el.attr('data-' + templateIdAttr, id);
-        }
-
-        var last;
-        each(value, function (dataval, datakey) {
-            var cloop = loopTemplate.replace(/&lt;/g, '<').replace(/&gt;/g, '>');
-            var templatedLoop = template(cloop)({ value: dataval, key: datakey, index: datakey });
-            var isTemplated = templatedLoop !== cloop;
-            var nodes = $(templatedLoop);
-            var hasData = dataval !== null && dataval !== undefined;
-
-            nodes.each(function (i, newNode) {
-                var $newNode = $(newNode);
-                $newNode.removeAttr('data-f-repeat').removeAttr('data-' + templateIdAttr);
-                each($newNode.data(), function (val, key) {
-                    if (!last) {
-                        $el.data(key, parseUtils.toImplicitType(val));
-                    } else {
-                        $newNode.data(key, parseUtils.toImplicitType(val));
-                    }
-                });
-                $newNode.attr('data-' + id, true);
-                if (!isTemplated && !$newNode.children().length && hasData) {
-                    $newNode.html(dataval + '');
-                }
-            });
-            if (!last) {
-                last = $el.html(nodes.html());
-            } else {
-                last = nodes.insertAfter(last);
-            }
-        });
-
-        var $newEls = $el.nextUntil(':not(\'[data-' + id + ']\')');
-        var isInitialAnim = !elAnimatedMap.get(el);
-        addChangeClassesToList($dummyOldDiv.children(), $newEls, isInitialAnim, config.animation);
-
-        elAnimatedMap.set(el, true);
-    }
-};
-
-/***/ }),
-/* 39 */
+/* 40 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /**
@@ -4388,7 +4475,7 @@ module.exports = {
 };
 
 /***/ }),
-/* 40 */
+/* 41 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /**
@@ -4430,7 +4517,7 @@ module.exports = {
 };
 
 /***/ }),
-/* 41 */
+/* 42 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /**
@@ -4475,7 +4562,7 @@ module.exports = {
 };
 
 /***/ }),
-/* 42 */
+/* 43 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /**
@@ -4523,7 +4610,7 @@ module.exports = {
 };
 
 /***/ }),
-/* 43 */
+/* 44 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -4619,7 +4706,7 @@ var _require2 = __webpack_require__(7),
 
 var config = __webpack_require__(1);
 
-var _require3 = __webpack_require__(12),
+var _require3 = __webpack_require__(8),
     getKnownDataForEl = _require3.getKnownDataForEl,
     updateKnownDataForEl = _require3.updateKnownDataForEl,
     removeKnownData = _require3.removeKnownData,
@@ -4721,14 +4808,14 @@ module.exports = {
 };
 
 /***/ }),
-/* 44 */
+/* 45 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 /**
  * ## Default Attribute Handling: Read-only Binding
  *
- * Flow.js uses the HTML5 convention of prepending data- to any custom HTML attribute. Flow.js also adds `f` for easy identification of Flow.js. For example, Flow.js provides several custom attributes and attribute handlers -- including [data-f-bind](../binds/default-bind-attr), [data-f-foreach](../foreach/default-foreach-attr/), etc. You can also [add your own attribute handlers](../attribute-manager/).
+ * Flow.js uses the HTML5 convention of prepending data- to any custom HTML attribute. Flow.js also adds `f` for easy identification of Flow.js. For example, Flow.js provides several custom attributes and attribute handlers -- including [data-f-bind](../binds/default-bind-attr), [data-f-foreach](../loop-attrs/foreach-attr/), etc. You can also [add your own attribute handlers](../attribute-manager/).
  *
  * The default behavior for handling a known attribute is to use the value of the model variable as the value of the attribute. (There are exceptions for some [boolean attributes](../boolean-attr/).)
  *
@@ -4768,7 +4855,7 @@ module.exports = {
 };
 
 /***/ }),
-/* 45 */
+/* 46 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -4834,17 +4921,17 @@ module.exports = function (target, domManager, isEnabled) {
 };
 
 /***/ }),
-/* 46 */
+/* 47 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 /* harmony export (immutable) */ __webpack_exports__["default"] = ChannelManager;
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__channel_manager__ = __webpack_require__(47);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__middleware_epicenter_router__ = __webpack_require__(49);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__middleware_json_router__ = __webpack_require__(63);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__middleware_default_router__ = __webpack_require__(64);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__channel_manager_enhancements__ = __webpack_require__(65);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__channel_manager__ = __webpack_require__(48);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__middleware_epicenter_router__ = __webpack_require__(50);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__middleware_json_router__ = __webpack_require__(64);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__middleware_default_router__ = __webpack_require__(65);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__channel_manager_enhancements__ = __webpack_require__(66);
 
 
 
@@ -4863,11 +4950,11 @@ function ChannelManager(opts) {
 }
 
 /***/ }),
-/* 47 */
+/* 48 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_jquery__ = __webpack_require__(48);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_jquery__ = __webpack_require__(49);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_jquery___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_jquery__);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__channel_utils__ = __webpack_require__(4);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_lodash__ = __webpack_require__(0);
@@ -5114,21 +5201,21 @@ var ChannelManager = function () {
 /* harmony default export */ __webpack_exports__["a"] = (ChannelManager);
 
 /***/ }),
-/* 48 */
+/* 49 */
 /***/ (function(module, exports) {
 
 module.exports = jQuery;
 
 /***/ }),
-/* 49 */
+/* 50 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__run_manager_router__ = __webpack_require__(50);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__scenario_manager_router__ = __webpack_require__(56);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__custom_run_router__ = __webpack_require__(57);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__world_manager_router__ = __webpack_require__(59);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__runs_router__ = __webpack_require__(62);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__run_manager_router__ = __webpack_require__(51);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__scenario_manager_router__ = __webpack_require__(57);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__custom_run_router__ = __webpack_require__(58);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__world_manager_router__ = __webpack_require__(60);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__runs_router__ = __webpack_require__(63);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_5_channels_middleware_utils__ = __webpack_require__(3);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_6_channels_channel_router__ = __webpack_require__(5);
 
@@ -5232,7 +5319,7 @@ var runidRegex = '(?:.{' + sampleRunidLength + '})';
 });
 
 /***/ }),
-/* 50 */
+/* 51 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -5281,7 +5368,7 @@ var RUN_PREFIX = 'current:';
 });
 
 /***/ }),
-/* 51 */
+/* 52 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -5336,7 +5423,7 @@ function RunMetaChannel($runServicePromise, notifier) {
 }
 
 /***/ }),
-/* 52 */
+/* 53 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -5344,7 +5431,7 @@ function RunMetaChannel($runServicePromise, notifier) {
 /* unused harmony export groupVariableBySubscripts */
 /* unused harmony export optimizedFetch */
 /* harmony export (immutable) */ __webpack_exports__["a"] = RunVariablesChannel;
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_utils_general__ = __webpack_require__(8);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_utils_general__ = __webpack_require__(9);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_utils_general___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_utils_general__);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_channels_channel_utils__ = __webpack_require__(4);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_lodash__ = __webpack_require__(0);
@@ -5514,7 +5601,7 @@ function RunVariablesChannel($runServicePromise, notifier) {
 }
 
 /***/ }),
-/* 53 */
+/* 54 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -5543,7 +5630,7 @@ function RunOperationsChannel($runServicePromise, notifier) {
 }
 
 /***/ }),
-/* 54 */
+/* 55 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -5573,7 +5660,7 @@ function silencable(published, silentOptions) {
 }
 
 /***/ }),
-/* 55 */
+/* 56 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -5615,7 +5702,7 @@ function excludeReadOnly(publishable, readOnlyOptions) {
 }
 
 /***/ }),
-/* 56 */
+/* 57 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -5676,11 +5763,11 @@ function excludeReadOnly(publishable, readOnlyOptions) {
 });
 
 /***/ }),
-/* 57 */
+/* 58 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__run_router_factory__ = __webpack_require__(58);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__run_router_factory__ = __webpack_require__(59);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_channels_middleware_utils__ = __webpack_require__(3);
 
 
@@ -5708,7 +5795,7 @@ function excludeReadOnly(publishable, readOnlyOptions) {
 });
 
 /***/ }),
-/* 58 */
+/* 59 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -5727,12 +5814,12 @@ var knownRunIDServiceChannels = {};
 });
 
 /***/ }),
-/* 59 */
+/* 60 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__world_users_channel__ = __webpack_require__(60);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__world_current_user_channel__ = __webpack_require__(61);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__world_users_channel__ = __webpack_require__(61);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__world_current_user_channel__ = __webpack_require__(62);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_channels_middleware_utils__ = __webpack_require__(3);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__run_router__ = __webpack_require__(6);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_4_channels_channel_router__ = __webpack_require__(5);
@@ -5817,7 +5904,7 @@ var _window = window,
 });
 
 /***/ }),
-/* 60 */
+/* 61 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -5900,7 +5987,7 @@ function WorldUsersChanngel(worldPromise, notifier) {
 }
 
 /***/ }),
-/* 61 */
+/* 62 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -5966,12 +6053,12 @@ function WorldUsersChanngel(worldPromise, notifier) {
 }
 
 /***/ }),
-/* 62 */
+/* 63 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 /* harmony export (immutable) */ __webpack_exports__["a"] = RunsRouter;
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_utils_general__ = __webpack_require__(8);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_utils_general__ = __webpack_require__(9);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_utils_general___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_utils_general__);
 var _slicedToArray = function () { function sliceIterator(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"]) _i["return"](); } finally { if (_d) throw _e; } } return _arr; } return function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { return sliceIterator(arr, i); } else { throw new TypeError("Invalid attempt to destructure non-iterable instance"); } }; }();
 
@@ -6055,7 +6142,7 @@ function RunsRouter(options, notifier, channelManagerContext) {
 }
 
 /***/ }),
-/* 63 */
+/* 64 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -6094,7 +6181,7 @@ function JSONRouter(config, notifier) {
 }
 
 /***/ }),
-/* 64 */
+/* 65 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -6166,25 +6253,25 @@ function JSONRouter(config, notifier) {
 });
 
 /***/ }),
-/* 65 */
+/* 66 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__interpolatable__ = __webpack_require__(66);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__interpolatable__ = __webpack_require__(67);
 /* harmony reexport (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return __WEBPACK_IMPORTED_MODULE_0__interpolatable__["a"]; });
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__with_middleware__ = __webpack_require__(69);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__with_middleware__ = __webpack_require__(70);
 /* harmony reexport (binding) */ __webpack_require__.d(__webpack_exports__, "b", function() { return __WEBPACK_IMPORTED_MODULE_1__with_middleware__["a"]; });
 
 
 
 /***/ }),
-/* 66 */
+/* 67 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 /* harmony export (immutable) */ __webpack_exports__["a"] = interpolatable;
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__subscribe_interpolator__ = __webpack_require__(67);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__publish_interpolator__ = __webpack_require__(68);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__subscribe_interpolator__ = __webpack_require__(68);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__publish_interpolator__ = __webpack_require__(69);
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
 var _get = function get(object, property, receiver) { if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { return get(parent, property, receiver); } } else if ("value" in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } };
@@ -6257,7 +6344,7 @@ function interpolatable(ChannelManager) {
 }
 
 /***/ }),
-/* 67 */
+/* 68 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -6265,7 +6352,7 @@ function interpolatable(ChannelManager) {
 /* unused harmony export interpolateWithDependencies */
 /* unused harmony export mergeInterpolatedTopicsWithData */
 /* harmony export (immutable) */ __webpack_exports__["a"] = subscribeInterpolator;
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__interpolatable_utils__ = __webpack_require__(13);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__interpolatable_utils__ = __webpack_require__(14);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_lodash__ = __webpack_require__(0);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_lodash___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1_lodash__);
 
@@ -6343,14 +6430,14 @@ function subscribeInterpolator(subscribeFn, onDependencyChange) {
 }
 
 /***/ }),
-/* 68 */
+/* 69 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 /* unused harmony export getDependencies */
 /* unused harmony export interpolateWithDependencies */
 /* harmony export (immutable) */ __webpack_exports__["a"] = publishInterpolator;
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__interpolatable_utils__ = __webpack_require__(13);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__interpolatable_utils__ = __webpack_require__(14);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_channels_channel_utils__ = __webpack_require__(4);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_lodash__ = __webpack_require__(0);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_lodash___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_2_lodash__);
@@ -6411,12 +6498,12 @@ function publishInterpolator(publishFunction, fetchFn) {
 }
 
 /***/ }),
-/* 69 */
+/* 70 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 /* harmony export (immutable) */ __webpack_exports__["a"] = withMiddleware;
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__middleware_manager__ = __webpack_require__(70);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__middleware_manager__ = __webpack_require__(71);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__channel_utils__ = __webpack_require__(4);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_lodash__ = __webpack_require__(0);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_lodash___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_2_lodash__);
@@ -6560,7 +6647,7 @@ function withMiddleware(ChannelManager) {
 }
 
 /***/ }),
-/* 70 */
+/* 71 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";

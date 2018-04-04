@@ -126,9 +126,9 @@ const { each, template } = require('lodash');
 
 const { getKnownDataForEl, updateKnownDataForEl, removeKnownData, 
     findMissingReferences, stubMissingReferences, addBackMissingReferences,
+    getOriginalContents, clearOriginalContents
 } = require('../attr-template-utils');
 
-const elTemplateMap = new WeakMap();
 const elAnimatedMap = new WeakMap(); //TODO: Can probably get rid of this if we make subscribe a promise and distinguish between initial value
 
 module.exports = {
@@ -141,16 +141,14 @@ module.exports = {
         const el = $el.get(0);
         elAnimatedMap.delete(el);
         
-        const template = elTemplateMap.get(el);
+        const template = getOriginalContents($el);
         if (template) {
             $el.html(template);
-            elTemplateMap.delete(el);
         }
-
+        clearOriginalContents($el);
         removeKnownData($el);
     },
 
-    //provide variable name from bound
     parse: function (attrVal) {
         return extractVariableName(attrVal);
     },
@@ -158,23 +156,11 @@ module.exports = {
     handle: function (value, prop, $el) {
         value = ($.isPlainObject(value) ? value : [].concat(value));
 
-        const el = $el.get(0);
-        let originalHTML = elTemplateMap.get(el);
-        if (!originalHTML) {
-            originalHTML = $el.html().replace(/&lt;/g, '<').replace(/&gt;/g, '>');
-            elTemplateMap.set(el, originalHTML);
-        }
-        
         const attrVal = $el.data(`f-${prop}`);
         const keyAttr = parseKeyAlias(attrVal, value);
         const valueAttr = parseValueAlias(attrVal, value);
         
-        // Go through matching template tags and make a list of references you don't know about
-        //  -- replace with a comment ref id, or lodash will break on missing references
-        // Try templating data with what you know
-        //  -- if success, nothing to do
-        //  -- if fail, store your data and wait for someone else to take it and template
-        // 
+        const originalHTML = getOriginalContents($el, ($el)=> $el.html());
         const knownData = getKnownDataForEl($el);
         const missingReferences = findMissingReferences(originalHTML, [keyAttr, valueAttr].concat(Object.keys(knownData)));
         const stubbedTemplate = stubMissingReferences(originalHTML, missingReferences);
@@ -215,6 +201,7 @@ module.exports = {
             $dummyEl.append(nodes);
         });
         
+        const el = $el.get(0);
         const isInitialAnim = !elAnimatedMap.get(el);
         const $withAnimAttrs = addChangeClassesToList($el.children(), $dummyEl.children(), isInitialAnim, config.animation);
         $el.empty().append($withAnimAttrs);

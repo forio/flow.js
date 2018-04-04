@@ -70,11 +70,11 @@ const templateIdAttr = config.attrs.repeat.templateId;
 
 const { addChangeClassesToList } = require('utils/animation');
 
-const elTemplateMap = new WeakMap(); //<domel>: template
 const elAnimatedMap = new WeakMap(); //TODO: Can probably get rid of this if we make subscribe a promise and distinguish between initial value
 
 const { getKnownDataForEl, updateKnownDataForEl, removeKnownData, 
     findMissingReferences, stubMissingReferences, addBackMissingReferences,
+    getOriginalContents, clearOriginalContents,
 } = require('../attr-template-utils');
 
 const { extractVariableName, parseKeyAlias, parseValueAlias } = require('./loop-attr-utils');
@@ -95,11 +95,11 @@ module.exports = {
         const el = $el.get(0);
         elAnimatedMap.delete(el);
 
-        const originalHTML = elTemplateMap.get(el);
+        const originalHTML = getOriginalContents($el);
         if (originalHTML) {
-            elTemplateMap.delete(el);
             $el.replaceWith(originalHTML);
         }
+        clearOriginalContents($el);
 
         removeKnownData($el);
     },
@@ -112,13 +112,7 @@ module.exports = {
         value = ($.isPlainObject(value) ? value : [].concat(value));
         var id = $el.data(templateIdAttr);
         
-        const el = $el.get(0);
-
-        let originalHTML = elTemplateMap.get(el);
-        if (!originalHTML) {
-            originalHTML = el.outerHTML.replace(/&lt;/g, '<').replace(/&gt;/g, '>');
-            elTemplateMap.set(el, originalHTML);
-        }
+        const originalHTML = getOriginalContents($el, ($el)=> $el.get(0).outerHTML);
 
         let $dummyOldDiv = $('<div></div>');
         if (id) {
@@ -185,6 +179,8 @@ module.exports = {
         });
 
         const $newEls = $el.nextUntil(`:not('[data-${id}]')`);
+
+        const el = $el.get(0);
         const isInitialAnim = !elAnimatedMap.get(el);
         addChangeClassesToList($dummyOldDiv.children(), $newEls, isInitialAnim, config.animation);
 
