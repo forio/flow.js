@@ -7,6 +7,9 @@ import { uniqueId, uniq } from 'lodash';
  * @returns {number[][]}
  */
 export function groupByContigousArrayItems(subscripts) {
+    if (subscripts.length === 1) {
+        return [subscripts];
+    }
     const grouped = subscripts.reduce((accum, thisSub, index)=> {
         if (index === 0) {
             accum.last = [thisSub];
@@ -81,7 +84,7 @@ export function optimizedFetch(runService, variables) {
             } else {
                 groupedSubs.forEach((subscript, index)=> {
                     const v = vname.split('[')[0];
-                    accum[`${v}[${subscript}]`] = values[vname][index];
+                    accum[`${v}[${subscript}]`] = [].concat(values[vname])[index];
                 });
             }
             return accum;
