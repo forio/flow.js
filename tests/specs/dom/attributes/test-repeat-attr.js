@@ -1,19 +1,19 @@
 import { initWithNode, createDummyChannel } from 'tests/testing-utils';
 import domManager from 'src/dom/dom-manager';
-import repeatHandler from 'src/dom/attributes/repeat-attr';
+import repeatHandler from 'src/dom/attributes/loop-attrs/repeat-attr';
 
 describe('Repeat', function () {
     describe('#handle', function () {
         describe('Arrays', function () {
             it('should clone children for arrays', function () {
-                var $rootNode = $('<ul> <li> </li> </ul>');
+                var $rootNode = $('<ul> <li data-f-repeat="something"> </li> </ul>');
 
                 repeatHandler.handle([1, 2, 3, 4], 'repeat', $rootNode.find('li:first'));
                 var newChildren = $rootNode.children();
                 newChildren.length.should.equal(4);
             });
             it('should put the value inside the element if it`s not templated', function () {
-                var $rootNode = $('<ul> <li> </li> </ul>');
+                var $rootNode = $('<ul> <li data-f-repeat="something"> </li> </ul>');
 
                 var data = [0, 1, 2, 3, 4];
                 repeatHandler.handle(data, 'repeat', $rootNode.find('li:first'));
@@ -24,7 +24,7 @@ describe('Repeat', function () {
                 }
             });
             it('should replace existing content', function () {
-                var $rootNode = $('<ul> <li>stuff</li> </ul>');
+                var $rootNode = $('<ul> <li data-f-repeat="something">stuff</li> </ul>');
 
                 var data = [0, 1, 2, 3, 4];
                 repeatHandler.handle(data, 'repeat', $rootNode.find('li:first'));
@@ -35,7 +35,7 @@ describe('Repeat', function () {
                 }
             });
             it('should treat single values as arrays with 1 iteam', function () {
-                var $rootNode = $('<ul> <li> </li> </ul>');
+                var $rootNode = $('<ul> <li data-f-repeat="something"> </li> </ul>');
 
                 repeatHandler.handle(3, 'repeat', $rootNode.find('li:first'));
                 var newChildren = $rootNode.children();
@@ -46,7 +46,7 @@ describe('Repeat', function () {
         });
         describe('Objects', function () {
             it('should clone children for objects', function () {
-                var $rootNode = $('<ul> <li> </li> </ul>');
+                var $rootNode = $('<ul> <li data-f-repeat="something"> </li> </ul>');
 
                 repeatHandler.handle({ a: 3, b: 4, d: 6 }, 'repeat', $rootNode.find('li:first'));
                 var newChildren = $rootNode.children();
@@ -55,7 +55,7 @@ describe('Repeat', function () {
         });
         describe('Update behavior', function () {
             it('should not grow exponentially when called multiple times', function () {
-                var $rootNode = $('<ul> <li> </li> </ul>');
+                var $rootNode = $('<ul> <li data-f-repeat="something"> </li> </ul>');
 
                 repeatHandler.handle([1, 2, 3, 4], 'repeat', $rootNode.find('li:first'));
                 var newChildren = $rootNode.children();
@@ -66,7 +66,7 @@ describe('Repeat', function () {
                 newChildren.length.should.equal(5);
             });
             it('should replace older values with new ones', function () {
-                var $rootNode = $('<ul> <li data-stuff="<%=index%>"> <%= value %> </li> </ul>');
+                var $rootNode = $('<ul> <li data-f-repeat="something" data-stuff="<%=index%>"> <%= value %> </li> </ul>');
 
                 repeatHandler.handle([1, 2, 3, 4], 'repeat', $rootNode.find('li:first'));
                 var targetData = [5, 3, 6, 1];
@@ -86,7 +86,7 @@ describe('Repeat', function () {
         describe('Templated', function () {
             describe('Arrays', function () {
                 it('should replace templated data attributes for children', function () {
-                    var $rootNode = $('<ul> <li data-stuff="<%=value%>"> </li> </ul>');
+                    var $rootNode = $('<ul> <li data-f-repeat="something" data-stuff="<%=value%>"> </li> </ul>');
                     var targetData = [5, 3, 6, 1];
 
                     repeatHandler.handle(targetData, 'repeat', $rootNode.find('li:first'));
@@ -97,7 +97,7 @@ describe('Repeat', function () {
                     });
                 });
                 it('should support inline conditions in templates', function () {
-                    var $rootNode = $('<ul> <li> <%= (index === 0) ? "first" : value %> </li> </ul>');
+                    var $rootNode = $('<ul> <li data-f-repeat="something"> <%= (index === 0) ? "first" : value %> </li> </ul>');
                     var targetData = [5, 3, 6, 1];
                     var outputdata = ['first', 3, 6, 1];
 
@@ -110,7 +110,7 @@ describe('Repeat', function () {
                 });
                 it('should support block conditions in inline templates', function () {
                     var $rootNode = $(`
-                        <ul> <li> <% if (index === 0) { %> <%= value %> <% } %> </li> </ul>
+                        <ul> <li data-f-repeat="something"> <% if (index === 0) { %> <%= value %> <% } %> </li> </ul>
                     `);
                     var targetData = [5, 3, 6, 1];
                     var outputdata = [5, '', '', ''];
@@ -125,7 +125,7 @@ describe('Repeat', function () {
                 it('should support block conditions in templates with multi children', function () {
                     var $rootNode = $(`
                         <ul>
-                            <li> <% if (index === 0) { %> <span> HI </span> <% } %>  <span> <%= value %> </span> </li>
+                            <li data-f-repeat="something"> <% if (index === 0) { %> <span> HI </span> <% } %>  <span> <%= value %> </span> </li>
                         </ul>
                     `);
                     var targetData = [5, 3, 6, 1];
@@ -143,8 +143,8 @@ describe('Repeat', function () {
                 it('should support block conditions in templates with top-level children', function () {
                     var $rootNode = $(`
                         <ul> 
-                            <% if (index === 0) { %> <li> HI </li> <% } %>
-                            <li> <%= value %> </li> 
+                            <% if (index === 0) { %> <li data-f-repeat="somethingelse"> HI </li> <% } %>
+                            <li data-f-repeat="something"> <%= value %> </li> 
                         </ul>
                     `);
                     var targetData = [5, 3, 6, 1];
@@ -155,7 +155,7 @@ describe('Repeat', function () {
 
 
                 it('should replace templated inner html for children', function () {
-                    var $rootNode = $('<ul> <li data-stuff="<%=index%>"> <%= value %> </li> </ul>');
+                    var $rootNode = $('<ul> <li data-f-repeat="something" data-stuff="<%=index%>"> <%= value %> </li> </ul>');
                     var targetData = [5, 3, 6, 1];
 
                     repeatHandler.handle(targetData, 'repeat', $rootNode.find('li:first'));
@@ -171,7 +171,7 @@ describe('Repeat', function () {
             });
             describe('Objects', function () {
                 it('should replace templated inner html for children', function () {
-                    var $rootNode = $('<ul> <li data-stuff="<%=key%>"> <%= value %> </li> </ul>');
+                    var $rootNode = $('<ul> <li data-f-repeat="something" data-stuff="<%=key%>"> <%= value %> </li> </ul>');
                     var targetData = { a: 3, b: 4 };
 
                     repeatHandler.handle(targetData, 'repeat', $rootNode.find('li:first'));
@@ -188,7 +188,7 @@ describe('Repeat', function () {
     });
     describe('Parallel repeats', function () {
         it('should not affect siblings on first render', function () {
-            var $rootNode = $('<ul> <li class="first"> </li> <li class="second"> </li> </ul>');
+            var $rootNode = $('<ul> <li data-f-repeat="something" class="first"> </li> <li data-f-repeat="somethingelse" class="second"> </li> </ul>');
 
             repeatHandler.handle([1, 2, 3, 4], 'repeat', $rootNode.find('li.first'));
             repeatHandler.handle(['a', 'b', 'c', 'd'], 'repeat', $rootNode.find('li.second'));
@@ -197,7 +197,7 @@ describe('Repeat', function () {
         });
 
         it('should not affect siblings on update', function () {
-            var $rootNode = $('<ul> <li class="first"> </li> <li class="second"> </li> </ul>');
+            var $rootNode = $('<ul> <li data-f-repeat="something" class="first"> </li> <li data-f-repeat="somethingelse" class="second"> </li> </ul>');
 
             repeatHandler.handle([1, 2, 3, 4], 'repeat', $rootNode.find('li.first'));
             repeatHandler.handle(['a', 'b', 'c', 'd'], 'repeat', $rootNode.find('li.second'));
@@ -216,7 +216,7 @@ describe('Repeat', function () {
     });
     describe('Nested Repeats', function () {
         it('should not affect children', function () {
-            var $rootNode = $('<ul> <li class="first"> <div class="second"> </div> </li> </ul>');
+            var $rootNode = $('<ul> <li data-f-repeat="something" class="first"> <div  data-f-repeat="somethingelse" class="second"> </div> </li> </ul>');
 
             repeatHandler.handle([1, 2, 3, 4], 'repeat', $rootNode.find('.first'));
             repeatHandler.handle(['a', 'b', 'c', 'd'], 'repeat', $rootNode.find('.second'));

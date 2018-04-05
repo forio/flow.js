@@ -88,10 +88,10 @@ const config = require('../../../config');
 const { getKnownDataForEl, updateKnownDataForEl, removeKnownData, 
     findMissingReferences, stubMissingReferences, addBackMissingReferences,
     isTemplated,
+    getOriginalContents, clearOriginalContents
 } = require('../attr-template-utils');
 
 
-const elTemplateMap = new WeakMap(); //<dom-element>: template
 const elAnimatedMap = new WeakMap(); //TODO: Can probably get rid of this if we make subscribe a promise and distinguish between initial value
 
 function translateDataToInsertable(value) {
@@ -122,6 +122,16 @@ module.exports = {
 
     test: 'bind',
 
+    //FIXME: Can't do this because if you have a bind within a foreach, foreach overwrites the old el with a new el, and at that points contents are lost
+    // But if i don't do this the <%= %> is going to show up
+    // init: function (attr, value, $el) {
+    //     const contents = getOriginalContents($el, ($el)=> $el.html());
+    //     if (isTemplated(contents)) {
+    //         $el.empty();
+    //     }
+    //     return true;
+    // },
+
     /**
      * @param {string} attr
      * @param {JQuery<HTMLElement>} $el
@@ -131,11 +141,11 @@ module.exports = {
         const el = $el.get(0);
         elAnimatedMap.delete(el);
 
-        const bindTemplate = elTemplateMap.get(el);
+        const bindTemplate = getOriginalContents($el);
         if (bindTemplate) {
             $el.html(bindTemplate);
-            elTemplateMap.delete(el);
         }
+        clearOriginalContents($el);
         removeKnownData($el);
     },
 
@@ -170,13 +180,9 @@ module.exports = {
         }
 
         const el = $el.get(0);
-        let originalContents = elTemplateMap.get(el);
-        if (!originalContents) {
-            originalContents = $el.html().replace(/&lt;/g, '<').replace(/&gt;/g, '>');
-            elTemplateMap.set(el, originalContents);
-        }
-
+        const originalContents = getOriginalContents($el, ($el)=> $el.html());
         const contents = getNewContent(originalContents, value);
+
         addContentAndAnimate($el, contents, !elAnimatedMap.has(el), config.animation);
         elAnimatedMap.set(el, true);
     }

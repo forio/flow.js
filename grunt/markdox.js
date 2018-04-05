@@ -70,12 +70,12 @@ module.exports = function (grunt) {
                     dest: 'documentation/generated/dom/attributes/events/init-event-attr/index.html.md'
                 },
                 {
-                    src: 'src/dom/attributes/foreach/default-foreach-attr.js',
-                    dest: 'documentation/generated/dom/attributes/foreach/default-foreach-attr/index.html.md'
+                    src: 'src/dom/attributes/loop-attrs/foreach-attr.js',
+                    dest: 'documentation/generated/dom/attributes/loop-attrs/foreach-attr/index.html.md'
                 },
                 {
-                    src: 'src/dom/attributes/repeat-attr.js',
-                    dest: 'documentation/generated/dom/attributes/repeat-attr/index.html.md'
+                    src: 'src/dom/attributes/loop-attrs/repeat-attr.js',
+                    dest: 'documentation/generated/dom/attributes/loop-attrs/repeat-attr/index.html.md'
                 },
                 {
                     src: 'src/dom/attributes/toggles/show-if-attr.js',

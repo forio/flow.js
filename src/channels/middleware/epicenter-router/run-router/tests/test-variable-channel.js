@@ -24,6 +24,10 @@ describe('Run Variables channel', ()=> {
                     const op3 = groupByContigousArrayItems([0, 2, 3, 4, 8, 9]);
                     expect(op3).to.eql([[0], [2, 3, 4], [8, 9]]);
                 });
+                it('should handle singletons by themselves', ()=> {
+                    const op3 = groupByContigousArrayItems([13]);
+                    expect(op3).to.eql([[13]]);
+                });
             });
         });
         describe('#groupVariableBySubscripts', ()=> {

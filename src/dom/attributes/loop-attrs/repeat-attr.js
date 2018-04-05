@@ -57,25 +57,27 @@
  * * You can use the `data-f-repeat` attribute with both arrays and objects. If the model variable is an object, reference the `key` instead of the `index` in your templates.
  * * The `key`, `index`, and `value` are special variables that Flow.js populates for you.
  * * The template syntax is to enclose each keyword (`index`, `key`, `variable`) in `<%=` and `%>`. Templates are available as part of Flow.js's lodash dependency. See more background on [working with templates](../../../../#templates).
- * * In most cases the same effect can be achieved with the [`data-f-foreach` attribute](../../attributes/foreach/default-foreach-attr/), which is similar. In the common use case of a table of data displayed over time, the `data-f-repeat` can be more concise and easier to read. However, the `data-f-foreach` allows aliasing, and so can be more useful especially if you are nesting HTML elements or want to introduce logic about how to display the values.
+ * * In most cases the same effect can be achieved with the [`data-f-foreach` attribute](../../attributes/loop-attrs/foreach-attr/), which is similar. In the common use case of a table of data displayed over time, the `data-f-repeat` can be more concise and easier to read. However, the `data-f-foreach` allows aliasing, and so can be more useful especially if you are nesting HTML elements or want to introduce logic about how to display the values.
  *
  */
 
 const { each, template } = require('lodash');
-const parseUtils = require('../../utils/parse-utils');
-const gutils = require('../../utils/general');
-const config = require('../../config');
+const parseUtils = require('utils/parse-utils');
+const gutils = require('utils/general');
+const config = require('config');
 
 const templateIdAttr = config.attrs.repeat.templateId;
 
 const { addChangeClassesToList } = require('utils/animation');
 
-const elTemplateMap = new WeakMap(); //<domel>: template
 const elAnimatedMap = new WeakMap(); //TODO: Can probably get rid of this if we make subscribe a promise and distinguish between initial value
 
 const { getKnownDataForEl, updateKnownDataForEl, removeKnownData, 
     findMissingReferences, stubMissingReferences, addBackMissingReferences,
-} = require('./attr-template-utils');
+    getOriginalContents, clearOriginalContents,
+} = require('../attr-template-utils');
+
+const { extractVariableName, parseKeyAlias, parseValueAlias } = require('./loop-attr-utils');
 
 module.exports = {
 
@@ -93,39 +95,24 @@ module.exports = {
         const el = $el.get(0);
         elAnimatedMap.delete(el);
 
-        const originalHTML = elTemplateMap.get(el);
+        const originalHTML = getOriginalContents($el);
         if (originalHTML) {
-            elTemplateMap.delete(el);
             $el.replaceWith(originalHTML);
         }
+        clearOriginalContents($el);
+
+        removeKnownData($el);
     },
 
-    parse: function (attrVal, $el) {
-        const inMatch = attrVal.match(/(.*) (?:in|of) (.*)/);
-        if (inMatch) {
-            const itMatch = inMatch[1].match(/\((.*),(.*)\)/);
-            if (itMatch) {
-                $el.data(config.attrs.keyAs, itMatch[1].trim());
-                $el.data(config.attrs.valueAs, itMatch[2].trim());
-            } else {
-                $el.data(config.attrs.valueAs, inMatch[1].trim());
-            }
-            attrVal = inMatch[2];
-        }
-        return attrVal;
+    parse: function (attrVal) {
+        return extractVariableName(attrVal);
     },
 
     handle: function (value, prop, $el) {
         value = ($.isPlainObject(value) ? value : [].concat(value));
         var id = $el.data(templateIdAttr);
         
-        const el = $el.get(0);
-
-        let originalHTML = elTemplateMap.get(el);
-        if (!originalHTML) {
-            originalHTML = el.outerHTML.replace(/&lt;/g, '<').replace(/&gt;/g, '>');
-            elTemplateMap.set(el, originalHTML);
-        }
+        const originalHTML = getOriginalContents($el, ($el)=> $el.get(0).outerHTML);
 
         let $dummyOldDiv = $('<div></div>');
         if (id) {
@@ -136,9 +123,9 @@ module.exports = {
             $el.attr('data-' + templateIdAttr, id);
         }
 
-        const defaultKey = $.isPlainObject(value) ? 'key' : 'index';
-        const keyAttr = $el.data(config.attrs.keyAs) || defaultKey;
-        const valueAttr = $el.data(config.attrs.valueAs) || 'value';
+        const attrVal = $el.data(`f-${prop}`);
+        const keyAttr = parseKeyAlias(attrVal, value);
+        const valueAttr = parseValueAlias(attrVal, value);
 
         const knownData = getKnownDataForEl($el);
         const missingReferences = findMissingReferences(originalHTML, [keyAttr, valueAttr].concat(Object.keys(knownData)));
@@ -192,6 +179,8 @@ module.exports = {
         });
 
         const $newEls = $el.nextUntil(`:not('[data-${id}]')`);
+
+        const el = $el.get(0);
         const isInitialAnim = !elAnimatedMap.get(el);
         addChangeClassesToList($dummyOldDiv.children(), $newEls, isInitialAnim, config.animation);
 
