@@ -19,8 +19,6 @@
  *
  */
 
-const { isArray } = require('lodash');
-
 module.exports = {
 
     target: '*',
@@ -28,7 +26,7 @@ module.exports = {
     test: /^(?:disabled|hidden|readonly)$/i,
 
     handle: function (value, prop) {
-        if (isArray(value)) {
+        if (Array.isArray(value)) {
             value = value[value.length - 1];
         }
         this.prop(prop, !value);

@@ -62,7 +62,7 @@ export function normalizeParamOptions(topic, publishValue, options) {
     if ($.isPlainObject(topic)) {
         return { params: objectToPublishable(topic), options: publishValue };
     }
-    if ($.isArray(topic)) {
+    if (Array.isArray(topic)) {
         return { params: topic, options: publishValue };
     }
     return { params: [{ name: topic, value: publishValue }], options: options };

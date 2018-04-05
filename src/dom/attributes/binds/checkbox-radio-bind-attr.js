@@ -16,8 +16,6 @@
  *      <input type="checkbox" data-f-bind="sampleBool" />
  *
  */
-const { isArray } = require('lodash');
-
 module.exports = {
 
     target: ':checkbox,:radio',
@@ -29,7 +27,7 @@ module.exports = {
      * @return {void}
      */ 
     handle: function (value) {
-        if (isArray(value)) {
+        if (Array.isArray(value)) {
             value = value[value.length - 1];
         }
         var settableValue = this.attr('value'); //initial value

@@ -37,17 +37,16 @@
  *       </div>
  *
  */
-const { isArray, isNumber } = require('lodash');
+const { isNumber } = require('lodash');
 const config = require('../../config');
 
 module.exports = {
-
     test: 'class',
 
     target: '*',
 
     handle: function (value, prop) {
-        if (isArray(value)) {
+        if (Array.isArray(value)) {
             value = value[value.length - 1];
         }
 

@@ -18,8 +18,6 @@
  * * You can chain model variable(s) together with any number of converters. The result of the conversion must be boolean.
  */
 
-const { isArray } = require('lodash');
-
 module.exports = {
     test: 'hideif',
 
@@ -30,7 +28,7 @@ module.exports = {
         return true;
     },
     handle: function (value, prop, $el) {
-        if (isArray(value)) {
+        if (Array.isArray(value)) {
             value = value[value.length - 1];
         }
         if (value && `${value}`.trim()) {

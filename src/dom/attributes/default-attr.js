@@ -22,11 +22,7 @@
  *		<input data-f-value="sample_int"></input>
  *
  */
-
-'use strict';
-
 module.exports = {
-
     test: '*',
 
     target: '*',
