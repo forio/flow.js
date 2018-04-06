@@ -1,3 +1,4 @@
+/* eslint-disable complexity */
 function toImplicitType(data) {
     const objRegex = /^(?:\{.*\})$/;
     const arrRegex = /^(?:\[.*])$/;
@@ -65,7 +66,7 @@ function splitNameArgs(value) {
 
 /**
  * @param  {string} value
- * @return {{ name: string, value: string[]}[]}       [description]
+ * @return {{ name: string, value: any}[]}       [description]
  */
 function toPublishableFormat(value) {
     const split = (value || '').split('|');
