@@ -26,18 +26,17 @@ module.exports = {
         return (attr.indexOf('on-') === 0);
     },
 
-    unbind: function (attr) {
+    unbind: function (attr, $el) {
         const eventName = attr.replace('on-', '');
-        this.off(eventName);
+        $el.off(eventName);
     },
 
-    init: function (attr, value) {
+    init: function (attr, value, $el) {
         const eventName = attr.replace('on-', '');
-        var me = this;
-        this.off(eventName).on(eventName, function (evt) {
+        $el.off(eventName).on(eventName, function (evt) {
             evt.preventDefault();
             var listOfOperations = toPublishableFormat(value);
-            me.trigger(config.events.operate, { data: listOfOperations, source: attr });
+            $el.trigger(config.events.operate, { data: listOfOperations, source: attr });
         });
         return false; //Don't bother binding on this attr. NOTE: Do readonly, true instead?;
     }
