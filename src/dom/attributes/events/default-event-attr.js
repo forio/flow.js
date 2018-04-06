@@ -15,8 +15,8 @@
  *
  */
 
-var config = require('config');
-var toPublishableFormat = require('utils/parse-utils').toPublishableFormat;
+const config = require('config');
+const { toPublishableFormat } = require('utils/parse-utils');
 
 module.exports = {
 
@@ -31,11 +31,12 @@ module.exports = {
         $el.off(eventName);
     },
 
-    init: function (attr, value, $el) {
+    init: function (attr, topics, $el) {
         const eventName = attr.replace('on-', '');
+        const matching = topics && topics[0]; //multiple topics aren't really relevant here
         $el.off(eventName).on(eventName, function (evt) {
             evt.preventDefault();
-            var listOfOperations = toPublishableFormat(value);
+            var listOfOperations = toPublishableFormat(matching);
             $el.trigger(config.events.operate, { data: listOfOperations, source: attr });
         });
         return false; //Don't bother binding on this attr. NOTE: Do readonly, true instead?;

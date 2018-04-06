@@ -76,8 +76,8 @@ describe('parse utils', function () {
             const op = toPublishableFormat('add');
             expect(op).to.eql([{ name: 'add', value: [] }]);
         });
-        it('should allow pipe seperated inpus', ()=> {
-            const op = toPublishableFormat('add | subtract(2, 3)');
+        it('should allow && seperated inputs', ()=> {
+            const op = toPublishableFormat('add && subtract(2, 3)');
             expect(op).to.eql([{ name: 'add', value: [] }, { name: 'subtract', value: ['2', '3'] }]);
         });
         it('should support equals format', ()=> {

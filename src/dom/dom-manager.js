@@ -81,7 +81,7 @@ module.exports = (function () {
                 attr = attr.replace(wantedPrefix, '');
                 const handler = attrManager.getHandler(attr, $el);
                 if (handler.unbind) {
-                    handler.unbind.call($el, attr, $el);
+                    handler.unbind(attr, $el);
                 }
             }
         });
@@ -178,18 +178,23 @@ module.exports = (function () {
                 } 
                 attr = attr.replace(filterPrefix, '');
 
-                let attrVal = nodeMap.value;
+                const attrVal = nodeMap.value;
+                let topics = parseTopicsFromAttributeValue(attrVal);
+                
                 const handler = attrManager.getHandler(attr, $el);
                 if (handler && handler.parse) {
-                    attrVal = handler.parse(attrVal, $el); //Parse value to return variable name
+                    topics = topics.reduce((accum, topic)=> {
+                        const parsed = handler.parse(topic, $el); //Parse value to return variable name
+                        accum = accum.concat(parsed);
+                        return accum; 
+                    }, []);
                 }
                 
-                const initVal = handler && handler.init && handler.init.call($el, attr, attrVal, $el);
+                const initVal = handler && handler.init && handler.init(attr, topics, $el);
                 const isBindable = initVal !== false;
 
                 const converters = getConvertersForEl($el, attr);
-             
-                let topics = parseTopicsFromAttributeValue(attrVal);
+            
                 if (topics && topics.length) {
                     const channelPrefix = getChannelForAttribute($el, attr);
                     if (channelPrefix) {
@@ -417,7 +422,7 @@ module.exports = (function () {
 
                         const handler = attrManager.getHandler(prop, $el);
                         const convertedValue = converterManager.convert(val, attrConverters);
-                        handler.handle.call($el, convertedValue, prop, $el);
+                        handler.handle(convertedValue, prop, $el);
                     }
 
                     if ($.isPlainObject(data)) {

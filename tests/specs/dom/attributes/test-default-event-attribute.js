@@ -5,7 +5,7 @@ describe('Default Event attribute', function () {
     describe('#init', function () {
         it('should attach event listeners for properties prefixed with on-', function () {
             var $node = $('<button data-f-on-click="stuff"> Click </button>');
-            defaultEventAttr.init('on-click', 'stuff', $node);
+            defaultEventAttr.init('on-click', ['stuff'], $node);
 
             var spy = sinon.spy();
             $node.on(config.events.operate, spy);
@@ -16,7 +16,7 @@ describe('Default Event attribute', function () {
 
         it('should only trigger one operation per event', function () {
             var $node = $('<button data-f-on-click="stuff"> Click </button>');
-            defaultEventAttr.init('on-click', 'stuff', $node);
+            defaultEventAttr.init('on-click', ['stuff'], $node);
 
             var spy = sinon.spy();
             $node.on(config.events.operate, spy);
@@ -31,7 +31,7 @@ describe('Default Event attribute', function () {
 
         it('should pass the right parameters to operate', function () {
             var $node = $('<button data-f-on-click="stuff"> Click </button>');
-            defaultEventAttr.init('on-click', 'stuff', $node);
+            defaultEventAttr.init('on-click', ['stuff'], $node);
 
             var spy = sinon.spy();
             $node.on(config.events.operate, spy);
@@ -41,7 +41,7 @@ describe('Default Event attribute', function () {
         });
         it('should support name = value format', function () {
             var $node = $('<button data-f-on-click="somevariable = 1"> Click </button>');
-            defaultEventAttr.init('on-click', 'somevariable = 1', $node);
+            defaultEventAttr.init('on-click', ['somevariable = 1'], $node);
 
             var spy = sinon.spy();
             $node.on(config.events.operate, spy);
@@ -52,7 +52,7 @@ describe('Default Event attribute', function () {
 
         it('should pass parameters in the right order for multiples', function () {
             var $node = $('<button data-f-on-click="stuff"> Click </button>');
-            defaultEventAttr.init('on-click', 'stuff(1)| foo=bar | reset(0)', $node);
+            defaultEventAttr.init('on-click', ['stuff(1) && foo=bar  && reset(0)'], $node);
 
             var spy = sinon.spy();
             $node.on(config.events.operate, spy);
@@ -68,7 +68,7 @@ describe('Default Event attribute', function () {
     describe('#unbind', function () {
         it('should remove event listeners', ()=> {
             var $node = $('<button data-f-on-click="stuff"> Click </button>');
-            defaultEventAttr.init('on-click', 'stuff', $node);
+            defaultEventAttr.init('on-click', ['stuff'], $node);
 
             var spy = sinon.spy();
             $node.on(config.events.operate, spy);
