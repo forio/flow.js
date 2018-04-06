@@ -40,20 +40,20 @@
  *
  */
 
-const { isString, isFunction, isRegExp, filter, each } = require('lodash');
+const { isString, isFunction, isRegExp, each } = require('lodash');
 
 var defaultHandlers = [
     require('./no-op-attr'),
     require('./events/default-event-attr'),
     require('./loop-attrs/foreach-attr'),
     require('./loop-attrs/repeat-attr'),
-    require('./binds/checkbox-radio-bind-attr'),
-    require('./binds/input-bind-attr'),
     require('./class-attr'),
     require('./positive-boolean-attr'),
     require('./negative-boolean-attr'),
     require('./toggles/show-if-attr'),
     require('./toggles/hide-if-attr'),
+    require('./binds/checkbox-radio-bind-attr'),
+    require('./binds/input-bind-attr'),
     require('./binds/default-bind-attr'),
     require('./default-attr')
 ];
@@ -126,11 +126,11 @@ module.exports = {
      * @return {Array|Null} An array of matching attribute handlers, or null if no matches found.
      */
     filter: function (attrFilter, nodeFilter) {
-        var filtered = filter(handlersList, function (handler) {
+        var filtered = handlersList.filter(function (handler) {
             return matchAttr(handler.test, attrFilter);
         });
         if (nodeFilter) {
-            filtered = filter(filtered, function (handler) {
+            filtered = filtered.filter(function (handler) {
                 return matchNode(handler.target, nodeFilter);
             });
         }
