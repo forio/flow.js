@@ -80,10 +80,11 @@
  *
  */
 
-'use strict';
 const { template } = require('lodash');
 const { addContentAndAnimate } = require('utils/animation');
-const config = require('../../../config');
+const { animation } = require('config');
+
+const { translateDataToTemplatable, translateDataToInsertable } = require('./bind-utils');
 
 const { getKnownDataForEl, updateKnownDataForEl, removeKnownData, 
     findMissingReferences, stubMissingReferences, addBackMissingReferences,
@@ -93,28 +94,6 @@ const { getKnownDataForEl, updateKnownDataForEl, removeKnownData,
 
 
 const elAnimatedMap = new WeakMap(); //TODO: Can probably get rid of this if we make subscribe a promise and distinguish between initial value
-
-function translateDataToInsertable(value) {
-    if (Array.isArray(value)) {
-        value = value[value.length - 1];
-    }
-    value = ($.isPlainObject(value)) ? JSON.stringify(value) : value + '';
-    return value;
-}
-function translateDataToTemplatable(value, alias) {
-    let templateData = {};
-    if (!$.isPlainObject(value)) {
-        templateData = { value: value };
-        if (alias) {
-            templateData[alias] = value;
-        }
-    } else {
-        templateData = $.extend({}, value, {
-            value: value, //If the key has 'weird' characters like '<>' hard to get at with a template otherwise
-        });
-    }
-    return templateData;
-}
 
 module.exports = {
 
@@ -183,7 +162,7 @@ module.exports = {
         const originalContents = getOriginalContents($el, ($el)=> $el.html());
         const contents = getNewContent(originalContents, value);
 
-        addContentAndAnimate($el, contents, !elAnimatedMap.has(el), config.animation);
+        addContentAndAnimate($el, contents, !elAnimatedMap.has(el), animation);
         elAnimatedMap.set(el, true);
     }
 };

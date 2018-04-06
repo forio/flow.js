@@ -15,7 +15,6 @@
  *
  */
 
-'use strict';
 var config = require('config');
 var toPublishableFormat = require('utils/parse-utils').toPublishableFormat;
 
