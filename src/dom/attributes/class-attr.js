@@ -45,17 +45,17 @@ module.exports = {
 
     target: '*',
 
-    handle: function (value, prop) {
+    handle: function (value, prop, $el) {
         if (Array.isArray(value)) {
             value = value[value.length - 1];
         }
 
-        var addedClasses = this.data(config.classesAdded);
+        var addedClasses = $el.data(config.classesAdded);
         if (!addedClasses) {
             addedClasses = {};
         }
         if (addedClasses[prop]) {
-            this.removeClass(addedClasses[prop]);
+            $el.removeClass(addedClasses[prop]);
         }
 
         if (isNumber(value)) {
@@ -63,7 +63,7 @@ module.exports = {
         }
         addedClasses[prop] = value;
         //Fixme: prop is always "class"
-        this.addClass(value);
-        this.data(config.classesAdded, addedClasses);
+        $el.addClass(value);
+        $el.data(config.classesAdded, addedClasses);
     }
 };

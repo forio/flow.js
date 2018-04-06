@@ -24,14 +24,16 @@ module.exports = {
 
     /**
      * @param {string[]|number[]|string|number} value
+     * @param {strting} prop name of property bound to
+     * @param {jQueryElement} $el
      * @return {void}
      */ 
-    handle: function (value) {
+    handle: function (value, prop, $el) {
         if (Array.isArray(value)) {
             value = value[value.length - 1];
         }
-        var settableValue = this.attr('value'); //initial value
+        var settableValue = $el.attr('value'); //initial value
         var isChecked = (typeof settableValue !== 'undefined') ? (settableValue == value) : !!value; //eslint-disable-line eqeqeq
-        this.prop('checked', isChecked);
+        $el.prop('checked', isChecked);
     }
 };

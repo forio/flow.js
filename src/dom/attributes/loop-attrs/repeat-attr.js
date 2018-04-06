@@ -89,7 +89,7 @@ module.exports = {
         var id = $el.data(templateIdAttr);
         if (id) {
             $el.nextUntil(':not([data-' + id + '])').remove();
-            // this.removeAttr('data-' + templateIdAttr); //FIXME: Something about calling rebind multiple times in IB makes this happen without the removal
+            // $el.removeAttr('data-' + templateIdAttr); //FIXME: Something about calling rebind multiple times in IB makes this happen without the removal
         }
 
         const el = $el.get(0);

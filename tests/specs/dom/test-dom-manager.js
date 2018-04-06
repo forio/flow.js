@@ -83,11 +83,11 @@ describe('DOM Manager', function () {
             require('./attributes/test-toggle-attrs');
 
             it('should allow handling custom attributes', function () {
-                var toggle = function (value) {
+                var toggle = function (value, prop, $el) {
                     if (value !== 1) {
-                        this.css('display', 'none');
+                        $el.css('display', 'none');
                     } else {
-                        this.css('display', 'block');
+                        $el.css('display', 'block');
                     }
                 };
                 var toggleSpy = sinon.spy(toggle);

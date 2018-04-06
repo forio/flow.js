@@ -25,10 +25,10 @@ module.exports = {
 
     test: /^(?:disabled|hidden|readonly)$/i,
 
-    handle: function (value, prop) {
+    handle: function (value, prop, $el) {
         if (Array.isArray(value)) {
             value = value[value.length - 1];
         }
-        this.prop(prop, !value);
+        $el.prop(prop, !value);
     }
 };
