@@ -158,7 +158,7 @@ module.exports = {
 
         const attrVal = $el.data(`f-${prop}`);
         const keyAttr = parseKeyAlias(attrVal, value);
-        const valueAttr = parseValueAlias(attrVal, value);
+        const valueAttr = parseValueAlias(attrVal);
         
         const originalHTML = getOriginalContents($el, ($el)=> $el.html());
         const knownData = getKnownDataForEl($el);

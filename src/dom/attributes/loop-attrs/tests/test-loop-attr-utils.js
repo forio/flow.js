@@ -1,4 +1,5 @@
 import { extractVariableName, parseKeyAlias, parseValueAlias } from '../loop-attr-utils';
+import { expect } from 'chai';
 
 describe('Loop Attr Utils', ()=> {
     describe('#extractVariableName', ()=> {
