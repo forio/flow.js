@@ -8,7 +8,6 @@ var srcContext = require.context('../src/', true, /tests\/test-(.*)\.js$/i);
 srcContext.keys().forEach(srcContext);
 
 require('./specs/utils/test-general-utils');
-require('./specs/utils/test-parse-utils');
 require('./specs/dom/test-dom-manager'); //2.7
 require('./specs/dom/attributes/test-attribute-manager');
 require('./specs/dom/test-default-input-node');
