@@ -84,7 +84,7 @@ const { template } = require('lodash');
 const { addContentAndAnimate } = require('utils/animation');
 const { animation } = require('config');
 
-const { translateDataToTemplatable, translateDataToInsertable } = require('./bind-utils');
+const { extractVariableNames, translateDataToTemplatable, translateDataToInsertable } = require('./bind-utils');
 
 const { getKnownDataForEl, updateKnownDataForEl, removeKnownData, 
     findMissingReferences, stubMissingReferences, addBackMissingReferences,
@@ -100,6 +100,10 @@ module.exports = {
     target: '*',
 
     test: 'bind',
+
+    parse: function (attrVal) {
+        return extractVariableNames(attrVal);
+    },
 
     //FIXME: Can't do this because if you have a bind within a foreach, foreach overwrites the old el with a new el, and at that points contents are lost
     // But if i don't do this the <%= %> is going to show up
@@ -140,7 +144,7 @@ module.exports = {
                 return translateDataToInsertable(value);
             } 
 
-            let templateData = translateDataToTemplatable(value, $el.data(`f-${prop}`));
+            const templateData = translateDataToTemplatable(value, $el.data(`f-${prop}`));
             const knownData = getKnownDataForEl($el);
             $.extend(templateData, knownData);
 

@@ -1,6 +1,5 @@
-'use strict';
+//moving this into the specs folder throws errors for some reason, probably because sinon.
 var lolex = require('lolex');
-
 var debounce = require('src/utils/general').debounceAndMerge;
 
 describe('Test general utils', ()=> {

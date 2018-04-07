@@ -22,10 +22,9 @@ export function translateDataToTemplatable(value, alias) {
 }
 
 const AS_REGEX = /(.*) (?:as) (.*)/;
-const KEY_VALUE_REGEX = /(.*),(.*)/;
 
-export function extractVariableName(attrVal, $el) {
+export function extractVariableNames(attrVal) {
     const asMatch = attrVal.trim().match(AS_REGEX);
-    const varName = asMatch ? asMatch[1] : attrVal;
+    const varName = asMatch && asMatch[2] ? asMatch[2] : attrVal;
     return varName.trim();
 }
