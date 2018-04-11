@@ -149,7 +149,8 @@ module.exports = {
         removeKnownData($el);
     },
 
-    parse: function (attrVal) {
+    parse: function (topics) {
+        const attrVal = topics[0];
         return extractVariableName(attrVal);
     },
 

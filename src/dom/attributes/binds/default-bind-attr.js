@@ -101,8 +101,10 @@ module.exports = {
 
     test: 'bind',
 
-    parse: function (attrVal) {
-        return extractVariableNames(attrVal);
+    parse: function (topics) {
+        return topics.map((topic)=> {
+            return extractVariableNames(topic);
+        });
     },
 
     //FIXME: Can't do this because if you have a bind within a foreach, foreach overwrites the old el with a new el, and at that points contents are lost

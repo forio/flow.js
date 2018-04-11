@@ -183,11 +183,7 @@ module.exports = (function () {
                 
                 const handler = attrManager.getHandler(attr, $el);
                 if (handler && handler.parse) {
-                    topics = topics.reduce((accum, topic)=> {
-                        const parsed = handler.parse(topic, $el); //Parse value to return variable name
-                        accum = accum.concat(parsed);
-                        return accum; 
-                    }, []);
+                    topics = [].concat(handler.parse(topics));
                 }
                 
                 const initVal = handler && handler.init && handler.init(attr, topics, $el);
