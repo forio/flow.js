@@ -55,8 +55,15 @@ export function groupVariableBySubscripts(variables) {
 }
 
 export function optimizedFetch(runService, variables) {
-    const groupedBySubscripts = groupVariableBySubscripts(variables);
+    const MODEL_EXTENSIONS_SUPPORTING_OPTIMIZATION = ['xls', 'xlsx'];
+    const config = runService.getCurrentConfig();
+    const modelExtension = config.model && (config.model.toLowerCase()).split('.').pop();
+    const canOptimize = !!(MODEL_EXTENSIONS_SUPPORTING_OPTIMIZATION.find((e)=> e === modelExtension));
+    if (!canOptimize) {
+        return runService.variables().query(variables);
+    }
 
+    const groupedBySubscripts = groupVariableBySubscripts(variables);
     const reducedVariables = variables.reduce((accum, v)=> {
         const vname = v.split('[')[0];
         const subs = groupedBySubscripts[vname];
