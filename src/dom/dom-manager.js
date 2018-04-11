@@ -189,8 +189,6 @@ module.exports = (function () {
                     topics = [].concat(handler.parse(topics));
                 }
                 
-                const isBindable = topics.length > 0;
-                const converters = getConvertersForEl($el, attr);
                 const channelPrefix = getChannelForAttribute($el, attr);
                 if (channelPrefix) {
                     topics = topics.map((v)=> {
@@ -199,8 +197,9 @@ module.exports = (function () {
                     });
                 }
                 const channelConfig = getChannelConfigForElement(domEl);
+                const converters = getConvertersForEl($el, attr);
+                
                 attrList[attr] = {
-                    isBindable: isBindable,
                     channelPrefix: channelPrefix,
                     channelConfig: channelConfig,
                     topics: topics,
@@ -212,8 +211,8 @@ module.exports = (function () {
             
             const attrsWithSubscriptions = Object.keys(attrList).reduce((accum, name)=> {
                 const attr = attrList[name];
-                const { topics, channelPrefix, channelConfig, isBindable } = attr;
-                if (!isBindable) {
+                const { topics, channelPrefix, channelConfig } = attr;
+                if (!topics.length) {
                     accum[name] = attr;
                     return accum;
                 }
