@@ -196,22 +196,20 @@ module.exports = (function () {
                         return hasChannelDefined ? v : `${channelPrefix}:${v}`;
                     });
                 }
-                const channelConfig = getChannelConfigForElement(domEl);
                 const converters = getConvertersForEl($el, attr);
-                
                 attrList[attr] = {
                     channelPrefix: channelPrefix,
-                    channelConfig: channelConfig,
                     topics: topics,
-                    converters: converters,
+                    converters: converters, //Store once instead of calculating on deman to avoid having to parse through dom every time
                 };
             });
             //Need this to be set before subscribing or callback maybe called before it's set
             this.matchedElements.set(domEl, attrList);
             
+            const channelConfig = getChannelConfigForElement(domEl);
             const attrsWithSubscriptions = Object.keys(attrList).reduce((accum, name)=> {
                 const attr = attrList[name];
-                const { topics, channelPrefix, channelConfig } = attr;
+                const { topics, channelPrefix } = attr;
                 if (!topics.length) {
                     accum[name] = attr;
                     return accum;
