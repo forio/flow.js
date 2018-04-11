@@ -24,8 +24,8 @@ module.exports = {
 
     /**
      * @param {string[]|number[]|string|number} value
-     * @param {strting} prop name of property bound to
-     * @param {jQueryElement} $el
+     * @param {string} prop name of property bound to
+     * @param {JQuery<HTMLElement>} $el
      * @return {void}
      */ 
     handle: function (value, prop, $el) {

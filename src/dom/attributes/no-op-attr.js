@@ -16,7 +16,7 @@ module.exports = {
 
     handle: $.noop,
 
-    init: function () {
-        return false;
+    parse: function () {
+        return [];
     }
 };

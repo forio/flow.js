@@ -182,32 +182,30 @@ module.exports = (function () {
                 let topics = parseTopicsFromAttributeValue(attrVal);
                 
                 const handler = attrManager.getHandler(attr, $el);
+                if (handler && handler.init) {
+                    handler.init(attr, topics, $el);
+                }
                 if (handler && handler.parse) {
                     topics = [].concat(handler.parse(topics));
                 }
                 
-                const initVal = handler && handler.init && handler.init(attr, topics, $el);
-                const isBindable = initVal !== false;
-
+                const isBindable = topics.length > 0;
                 const converters = getConvertersForEl($el, attr);
-            
-                if (topics && topics.length) {
-                    const channelPrefix = getChannelForAttribute($el, attr);
-                    if (channelPrefix) {
-                        topics = topics.map((v)=> {
-                            const hasChannelDefined = v.indexOf(':') !== -1;
-                            return hasChannelDefined ? v : `${channelPrefix}:${v}`;
-                        });
-                    }
-                    const channelConfig = getChannelConfigForElement(domEl);
-                    attrList[attr] = {
-                        isBindable: isBindable,
-                        channelPrefix: channelPrefix,
-                        channelConfig: channelConfig,
-                        topics: topics,
-                        converters: converters,
-                    };
+                const channelPrefix = getChannelForAttribute($el, attr);
+                if (channelPrefix) {
+                    topics = topics.map((v)=> {
+                        const hasChannelDefined = v.indexOf(':') !== -1;
+                        return hasChannelDefined ? v : `${channelPrefix}:${v}`;
+                    });
                 }
+                const channelConfig = getChannelConfigForElement(domEl);
+                attrList[attr] = {
+                    isBindable: isBindable,
+                    channelPrefix: channelPrefix,
+                    channelConfig: channelConfig,
+                    topics: topics,
+                    converters: converters,
+                };
             });
             //Need this to be set before subscribing or callback maybe called before it's set
             this.matchedElements.set(domEl, attrList);

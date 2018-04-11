@@ -59,7 +59,7 @@
             <li><%= value %></li>
         </ul> -->
 
-        <div data-f-bind="Price">(<%= value %>)</div>
+        <!-- <div data-f-bind="Price">(<%= value %>)</div> -->
 <!-- 
         <h6>Nested multi-foreach</h6>
         <ul data-f-foreach="price in Price">
@@ -81,16 +81,17 @@
             </table>
         </div>
 
+-->
         <h6>Nested foreach + bind</h6>
         <ul data-f-foreach="price in Price">
             <li>
                 Price index: <%= index %>
-                <div data-f-bind="Sales">
+                <div data-f-bind="Sales[<%= index %>]">
                     <span>Hello</span>
                     <%= value %>
                 </div>
             </li>
-        </ul> -->
+        </ul> 
         <script>
             var defaultRoutes = {
                 match: 'foo',

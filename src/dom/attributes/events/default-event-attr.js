@@ -31,6 +31,10 @@ module.exports = {
         $el.off(eventName);
     },
 
+    parse: function () {
+        return []; //There's nothing to subscribe to on an event
+    },
+
     init: function (attr, topics, $el) {
         const eventName = attr.replace('on-', '');
         const matching = topics && topics[0]; //multiple topics aren't really relevant here
@@ -39,6 +43,5 @@ module.exports = {
             var listOfOperations = toPublishableFormat(matching);
             $el.trigger(config.events.operate, { data: listOfOperations, source: attr });
         });
-        return false; //Don't bother binding on this attr. NOTE: Do readonly, true instead?;
     }
 };

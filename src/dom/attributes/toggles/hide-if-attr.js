@@ -25,7 +25,6 @@ module.exports = {
 
     init: function (attr, value, $el) {
         $el.hide(); //hide by default; if not this shows text until data is fetched
-        return true;
     },
     handle: function (value, prop, $el) {
         if (Array.isArray(value)) {

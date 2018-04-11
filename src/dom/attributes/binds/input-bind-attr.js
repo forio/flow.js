@@ -25,8 +25,7 @@ module.exports = {
     /**
     * @param {string[]|number[]|string|number} value
     * @param {string} prop name of property bound to
-    * @param {jQueryElement} $el
-    * @return {void}
+    * @param {JQuery<HTMLElement>} $el
     */ 
     handle: function (value, prop, $el) {
         if (value === undefined) {
