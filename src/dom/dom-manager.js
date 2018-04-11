@@ -191,9 +191,13 @@ module.exports = (function () {
                 
                 const channelPrefix = getChannelForAttribute($el, attr);
                 if (channelPrefix) {
-                    topics = topics.map((v)=> {
-                        const hasChannelDefined = v.indexOf(':') !== -1;
-                        return hasChannelDefined ? v : `${channelPrefix}:${v}`;
+                    topics = topics.map((topic)=> {
+                        const currentName = topic.name;
+                        const hasChannelDefined = currentName.indexOf(':') !== -1;
+                        if (!hasChannelDefined) {
+                            topic.name = `${channelPrefix}:${currentName}`;
+                        }
+                        return topic;
                     });
                 }
                 const converters = getConvertersForEl($el, attr);
@@ -216,12 +220,13 @@ module.exports = (function () {
                 }
 
                 const subsOptions = $.extend({ batch: true }, channelConfig);
-                const subsid = channel.subscribe(topics, (data)=> {
+                const subscribableTopics = topics.map((t)=> t.name);
+                const subsid = channel.subscribe(subscribableTopics, (data)=> {
                     const toConvert = {};
-                    if (topics.length === 1) { //If I'm only interested in 1 thing pass in value directly, else mke a map;
-                        toConvert[name] = data[topics[0]];
+                    if (subscribableTopics.length === 1) { //If I'm only interested in 1 thing pass in value directly, else mke a map;
+                        toConvert[name] = data[subscribableTopics[0]];
                     } else {
-                        const dataForAttr = pick(data, topics) || {};
+                        const dataForAttr = pick(data, subscribableTopics) || {};
                         toConvert[name] = Object.keys(dataForAttr).reduce((accum, key)=> {
                             //If this was through a 'hidden' channel attr return what was bound
                             const toReplace = new RegExp(`^${channelPrefix}:`);
@@ -408,12 +413,13 @@ module.exports = (function () {
                     if (!elMeta) {
                         return;
                     }
+
                     function convert(val, prop) {
-                        const attrConverters = elMeta[prop].converters;
+                        const { converters, topics } = elMeta[prop];
+                        const convertedValue = converterManager.convert(val, converters);
 
                         const handler = attrManager.getHandler(prop, $el);
-                        const convertedValue = converterManager.convert(val, attrConverters);
-                        handler.handle(convertedValue, prop, $el);
+                        handler.handle(convertedValue, prop, $el, topics);
                     }
 
                     if ($.isPlainObject(data)) {

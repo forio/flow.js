@@ -103,7 +103,8 @@ module.exports = {
 
     parse: function (topics) {
         return topics.map((topic)=> {
-            return extractVariableNames(topic);
+            topic.name = extractVariableNames(topic.name);
+            return topic;
         });
     },
 

@@ -37,7 +37,7 @@ module.exports = {
 
     init: function (attr, topics, $el) {
         const eventName = attr.replace('on-', '');
-        const matching = topics && topics[0]; //multiple topics aren't really relevant here
+        const matching = topics[0] && topics[0].name; //multiple topics aren't really relevant here
         $el.off(eventName).on(eventName, function (evt) {
             evt.preventDefault();
             var listOfOperations = toPublishableFormat(matching);

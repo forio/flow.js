@@ -1,6 +1,6 @@
 /**
  * @param {string} attrVal 
- * @returns {string[]} variables
+ * @returns {NormalizedTopic[]} variables
  */
 export function parseTopicsFromAttributeValue(attrVal) {
     const commaRegex = /,(?![^[(]*[\])])/; //split except on a[b,c] or a(v,c)
@@ -10,7 +10,7 @@ export function parseTopicsFromAttributeValue(attrVal) {
     } 
     const split = topicsPart.split(commaRegex);
     if (split.length > 1) {
-        return split.map((v)=> v.trim());
+        return split.map((v)=> ({ name: v.trim() }));
     } 
-    return [topicsPart.trim()];
+    return [{ name: topicsPart.trim() }];
 }

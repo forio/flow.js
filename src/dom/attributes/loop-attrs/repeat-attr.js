@@ -105,8 +105,8 @@ module.exports = {
     },
 
     parse: function (topics) {
-        const attrVal = topics[0];
-        return extractVariableName(attrVal);
+        const attrVal = topics[0].name;
+        return { name: extractVariableName(attrVal) };
     },
 
     handle: function (value, prop, $el) {
@@ -115,7 +115,7 @@ module.exports = {
         
         const originalHTML = getOriginalContents($el, ($el)=> $el.get(0).outerHTML);
 
-        let $dummyOldDiv = $('<div></div>');
+        const $dummyOldDiv = $('<div></div>');
         if (id) {
             const $removed = $el.nextUntil(':not([data-' + id + '])').remove();
             $dummyOldDiv.append($removed);
