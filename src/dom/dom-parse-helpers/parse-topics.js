@@ -8,8 +8,9 @@ export function parseTopicsFromAttributeValue(attrVal) {
     if (topicsPart.indexOf('<%') !== -1) { //Assume it's templated for later use
         return [];
     } 
-    if (topicsPart.split(commaRegex).length > 1) {
-        return topicsPart.split(commaRegex).map((v)=> v.trim());
+    const split = topicsPart.split(commaRegex);
+    if (split.length > 1) {
+        return split.map((v)=> v.trim());
     } 
     return [topicsPart.trim()];
 }

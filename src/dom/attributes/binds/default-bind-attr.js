@@ -114,7 +114,6 @@ module.exports = {
     //     if (isTemplated(contents)) {
     //         $el.empty();
     //     }
-    //     return true;
     // },
 
     /**
