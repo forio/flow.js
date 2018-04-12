@@ -6,25 +6,33 @@ export function translateDataToInsertable(value) {
     return value;
 }
 
-export function translateDataToTemplatable(value, alias) {
-    let templateData = {};
-    if (!$.isPlainObject(value)) {
-        templateData = { value: value };
-        if (alias) {
-            templateData[alias] = value;
-        }
+export function translateDataToTemplatable(value, aliasMap) {
+    const templateData = { value: value };
+    if ($.isPlainObject(value)) {
+        Object.keys(value).forEach((originalName)=> {
+            const alias = aliasMap[originalName] || originalName;
+            templateData[alias] = value[originalName];
+        });
     } else {
-        templateData = $.extend({}, value, {
-            value: value, //If the key has 'weird' characters like '<>' hard to get at with a template otherwise
+        Object.keys(aliasMap).forEach((originalName)=> {
+            const alias = aliasMap[originalName] || originalName;
+            templateData[alias] = value;
         });
     }
+    
     return templateData;
 }
 
 const AS_REGEX = /(.*) (?:as) (.*)/;
 
-export function extractVariableNames(attrVal) {
+export function extractVariableName(attrVal) {
     const asMatch = attrVal.trim().match(AS_REGEX);
-    const varName = asMatch && asMatch[2] ? asMatch[2] : attrVal;
+    const varName = asMatch && asMatch[1] ? asMatch[1] : attrVal;
     return varName.trim();
+}
+
+export function extractAlias(attrVal) {
+    const asMatch = attrVal.trim().match(AS_REGEX);
+    const alias = asMatch && asMatch[2] ? asMatch[2] : attrVal;
+    return alias.trim();
 }

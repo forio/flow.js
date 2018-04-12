@@ -84,7 +84,7 @@ const { template } = require('lodash');
 const { addContentAndAnimate } = require('utils/animation');
 const { animation } = require('config');
 
-const { extractVariableNames, translateDataToTemplatable, translateDataToInsertable } = require('./bind-utils');
+const { extractVariableName, extractAlias, translateDataToTemplatable, translateDataToInsertable } = require('./bind-utils');
 
 const { getKnownDataForEl, updateKnownDataForEl, removeKnownData, 
     findMissingReferences, stubMissingReferences, addBackMissingReferences,
@@ -92,9 +92,14 @@ const { getKnownDataForEl, updateKnownDataForEl, removeKnownData,
     getOriginalContents, clearOriginalContents
 } = require('../attr-template-utils');
 
-
 const elAnimatedMap = new WeakMap(); //TODO: Can probably get rid of this if we make subscribe a promise and distinguish between initial value
 
+function toAliasMap(topics) {
+    return (topics || []).reduce((accum, topic)=> {
+        accum[topic.name] = topic.alias;   
+        return accum;
+    }, {});
+}
 module.exports = {
 
     target: '*',
@@ -103,8 +108,11 @@ module.exports = {
 
     parse: function (topics) {
         return topics.map((topic)=> {
-            topic.name = extractVariableNames(topic.name);
-            return topic;
+            const attrVal = topic.name;
+            return {
+                name: extractVariableName(attrVal),
+                alias: extractAlias(attrVal),
+            };
         });
     },
 
@@ -138,15 +146,16 @@ module.exports = {
     * @param {any} value
     * @param {string} prop
     * @param {JQuery<HTMLElement>} $el
+    * @param {{name: string, alias:string}[]} [topics]
     * @return {void}
     */ 
-    handle: function (value, prop, $el) {
+    handle: function (value, prop, $el, topics) {
         function getNewContent(currentContents, value) {
             if (!isTemplated(currentContents)) {
                 return translateDataToInsertable(value);
             } 
 
-            const templateData = translateDataToTemplatable(value, $el.data(`f-${prop}`));
+            const templateData = translateDataToTemplatable(value, toAliasMap(topics));
             const knownData = getKnownDataForEl($el);
             $.extend(templateData, knownData);
 

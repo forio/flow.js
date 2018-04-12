@@ -204,7 +204,7 @@ module.exports = (function () {
                 attrList[attr] = {
                     channelPrefix: channelPrefix,
                     topics: topics,
-                    converters: converters, //Store once instead of calculating on deman to avoid having to parse through dom every time
+                    converters: converters, //Store once instead of calculating on demand. Avoids having to parse through dom every time
                 };
             });
             //Need this to be set before subscribing or callback maybe called before it's set
