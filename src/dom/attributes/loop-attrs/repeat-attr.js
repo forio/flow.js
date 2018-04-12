@@ -100,16 +100,19 @@ module.exports = {
             $el.replaceWith(originalHTML);
         }
         clearOriginalContents($el);
-
         removeKnownData($el);
     },
 
     parse: function (topics) {
         const attrVal = topics[0].name;
-        return { name: extractVariableName(attrVal) };
+        return {
+            name: extractVariableName(attrVal),
+            keyAlias: parseKeyAlias(attrVal),
+            valueAlias: parseValueAlias(attrVal),
+        };
     },
 
-    handle: function (value, prop, $el) {
+    handle: function (value, prop, $el, topics) {
         value = ($.isPlainObject(value) ? value : [].concat(value));
         var id = $el.data(templateIdAttr);
         
@@ -124,12 +127,14 @@ module.exports = {
             $el.attr('data-' + templateIdAttr, id);
         }
 
-        const attrVal = $el.data(`f-${prop}`);
-        const keyAttr = parseKeyAlias(attrVal, value);
-        const valueAttr = parseValueAlias(attrVal, value);
+        const relevantTopic = topics[0]; //doesn't support multiple topics
+
+        const defaultKey = $.isPlainObject(value) ? 'key' : 'index';
+        const keyAlias = relevantTopic.keyAlias || defaultKey;
+        const valueAlias = relevantTopic.valueAlias || 'value';
 
         const knownData = getKnownDataForEl($el);
-        const missingReferences = findMissingReferences(originalHTML, [keyAttr, valueAttr].concat(Object.keys(knownData)));
+        const missingReferences = findMissingReferences(originalHTML, [keyAlias, valueAlias].concat(Object.keys(knownData)));
         const stubbedTemplate = stubMissingReferences(originalHTML, missingReferences);
 
         const templateFn = template(stubbedTemplate);
@@ -139,8 +144,8 @@ module.exports = {
                 dataval = dataval + ''; //convert undefineds to strings
             }
             const templateData = $.extend(true, {}, knownData, {
-                [keyAttr]: datakey,
-                [valueAttr]: dataval
+                [keyAlias]: datakey,
+                [valueAlias]: dataval
             });
 
             let nodes;

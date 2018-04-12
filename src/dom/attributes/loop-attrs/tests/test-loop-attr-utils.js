@@ -23,21 +23,18 @@ describe('Loop Attr Utils', ()=> {
         });
     });
     describe('#parseKeyAlias', ()=> {
-        it('should return default alias single strings', ()=> {
-            expect(parseKeyAlias('foo', {})).to.equal('key');
-            expect(parseKeyAlias(' foo bar', [])).to.equal('index');
+        it('should return nothing for single strings', ()=> {
+            expect(parseKeyAlias('foo')).to.equal(undefined);
         });
-        it('should return default alias for `in` form', ()=> {
-            expect(parseKeyAlias('X in foo', {})).to.equal('key');
-            expect(parseKeyAlias('X in foo', [])).to.equal('index');
+        it('should return nothing for `in` form without key', ()=> {
+            expect(parseKeyAlias('X in foo')).to.equal(undefined);
         });
-        it('should return alias for `of` form', ()=> {
-            expect(parseKeyAlias('X of foo', {})).to.equal('key');
-            expect(parseKeyAlias('X of foo', [])).to.equal('index');
+        it('should return nothing for `of` form without key', ()=> {
+            expect(parseKeyAlias('X of foo')).to.equal(undefined);
         });
         it('should return actual alias if provided', ()=> {
-            expect(parseKeyAlias('X,Y in foo bar', [])).to.equal('X');
-            expect(parseKeyAlias('X,Y in bar[X,Y]', [])).to.equal('X');
+            expect(parseKeyAlias('X,Y in foo bar')).to.equal('X');
+            expect(parseKeyAlias('X,Y of bar[X,Y]')).to.equal('X');
         });
     });
     describe('#parseValueAlias', ()=> {

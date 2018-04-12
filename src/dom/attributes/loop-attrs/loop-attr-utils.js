@@ -7,14 +7,13 @@ export function extractVariableName(attrVal, $el) {
     return varName.trim();
 }
 
-export function parseKeyAlias(attrVal, data) {
-    const defaultKey = $.isPlainObject(data) ? 'key' : 'index';
+export function parseKeyAlias(attrVal) {
     const inMatch = attrVal.match(IN_OF_REGEX);
     if (!inMatch) {
-        return defaultKey;
+        return undefined;
     }
     const itMatch = inMatch[1].match(KEY_VALUE_REGEX);
-    const alias = itMatch ? itMatch[1].trim() : defaultKey;
+    const alias = itMatch ? itMatch[1].trim() : undefined;
     return alias;
 }
 
