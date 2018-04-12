@@ -190,13 +190,15 @@ describe('Default Bind', function () {
     });
 
     describe('Animation hooks', ()=> {
-        function publishAndVerify(channel, data, el, condition) {
-            return channel.publish((data)=> {
+        function publishAndVerify(channel, data, el, checks) {
+            return channel.publish(data).then(()=> {
                 const $d = $.Deferred();
                 setTimeout(()=> {
-                    expect(el.hasAttribute('data-change')).to.equal(condition);
+                    Object.keys(checks).forEach((attr)=> {
+                        expect(el.hasAttribute(attr)).to.equal(checks[attr]);
+                    });
                     $d.resolve();
-                }, 0);
+                }, 1);
                 return $d.promise();
             });
         }
@@ -205,43 +207,47 @@ describe('Default Bind', function () {
                 const channel = createDummyChannel();
                 return initWithNode('<div data-f-bind="Price"></div>', domManager, channel).then(function ($node) {
                     const el = $node.get(0);
-                    expect(el.hasAttribute('data-change')).to.equal(false);
+                    expect(el.hasAttribute('data-update')).to.equal(false);
+                    expect(el.hasAttribute('data-initial')).to.equal(false);
 
-                    return publishAndVerify(channel, { Price: 30 }, el, true);
+                    return publishAndVerify(channel, { Price: 30 }, el, { 'data-update': true, 'data-initial': true });
                 });
             });
             it('should not animate if initial value doesn\'t change', ()=> {
                 const channel = createDummyChannel();
                 return initWithNode('<div data-f-bind="Price">30</div>', domManager, channel).then(function ($node) {
                     const el = $node.get(0);
-                    expect(el.hasAttribute('data-change')).to.equal(false);
+                    expect(el.hasAttribute('data-update')).to.equal(false);
+                    expect(el.hasAttribute('data-initial')).to.equal(false);
 
-                    return publishAndVerify(channel, { Price: 30 }, el, true);
+                    return publishAndVerify(channel, { Price: 30 }, el, { 'data-update': false, 'data-initial': false });
                 });
             });
             it('should not animate if later value doesn\'t change', ()=> {
                 const channel = createDummyChannel();
 
-                initWithNode('<div data-f-bind="Price">30</div>', domManager, channel).then(function ($node) {
+                return initWithNode('<div data-f-bind="Price">30</div>', domManager, channel).then(function ($node) {
                     const el = $node.get(0);
-                    expect(el.hasAttribute('data-change')).to.equal(false);
+                    expect(el.hasAttribute('data-update')).to.equal(false);
+                    expect(el.hasAttribute('data-initial')).to.equal(false);
 
-                    return publishAndVerify(channel, { Price: 40 }, el, true).then(()=> {
-                        return publishAndVerify(channel, { Price: 40 }, el, false).then(()=> {
-                            return publishAndVerify(channel, { Price: 50 }, el, false);
+                    return publishAndVerify(channel, { Price: 40 }, el, { 'data-update': true, 'data-initial': true }).then(()=> {
+                        return publishAndVerify(channel, { Price: 40 }, el, { 'data-update': false, 'data-initial': false }).then(()=> {
+                            return publishAndVerify(channel, { Price: 50 }, el, { 'data-update': true, 'data-initial': false });
                         });
                     });
                 });
             });
         });
-        it('should not add change attr if templated', ()=> {
+        it('should add change attr if templated', ()=> {
             const channel = createDummyChannel();
-            initWithNode('<div data-f-bind="Price"><%= value %></div>', domManager, channel).then(function ($node) {
+            return initWithNode('<div data-f-bind="Price"><%= value %></div>', domManager, channel).then(function ($node) {
                 const el = $node.get(0);
-                expect(el.hasAttribute('data-change')).to.equal(false);
+                expect(el.hasAttribute('data-update')).to.equal(false);
+                expect(el.hasAttribute('data-initial')).to.equal(false);
 
-                return publishAndVerify(channel, { Price: 30 }, el, false).then(()=> {
-                    return publishAndVerify(channel, { Price: 40 }, el, false);
+                return publishAndVerify(channel, { Price: 30 }, el, { 'data-update': true, 'data-initial': true }).then(()=> {
+                    return publishAndVerify(channel, { Price: 40 }, el, { 'data-update': true, 'data-initial': false });
                 });
             });
         });

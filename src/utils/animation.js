@@ -115,8 +115,10 @@ export function addContentAndAnimate($el, newValue, isInitial, options) {
     }
 
     $el.html(newValue);
-    setTimeout(()=> $el.attr({
-        [opts.changeAttr]: true,
-        [opts.initialAttr]: isInitial || null //jquery removes if set to null
-    }, true), 0); //need this to trigger animation
+    setTimeout(function () {
+        $el.attr({
+            [opts.changeAttr]: true,
+            [opts.initialAttr]: isInitial || null //jquery removes if set to null
+        });
+    }, 0); //need this to trigger animation
 }
