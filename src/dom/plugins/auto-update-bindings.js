@@ -1,9 +1,8 @@
-'use strict';
-
 /**
  * Hooks up dom elements to mutation observer
- * @param  {HTMLElement} target     [description]
- * @param  {Object} domManager [description]
+ * @param  {HTMLElement} target     root to start observing from
+ * @param  {object} domManager 
+ * @param  {boolean} isEnabled Determines if it's enabled by default
  * @return {void}
  */
 module.exports = function (target, domManager, isEnabled) {

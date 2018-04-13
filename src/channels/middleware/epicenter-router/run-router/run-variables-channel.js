@@ -4,7 +4,7 @@ import { uniqueId, uniq } from 'lodash';
 
 /**
  * @param {number[]} subscripts 
- * @returns {number[][]}
+ * @returns {number[]}
  */
 export function groupByContigousArrayItems(subscripts) {
     if (subscripts.length === 1) {

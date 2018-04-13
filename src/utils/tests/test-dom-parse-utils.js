@@ -32,10 +32,10 @@ describe('DOM parse utils', function () {
         });
 
         it('identifies nulls', function () {
-            should.not.exist(toImplicitType(null));
-            should.not.exist(toImplicitType('null'));
-            toImplicitType('undefined').should.equal('');
-            should.not.exist(toImplicitType());
+            expect(toImplicitType(null)).to.not.exist;
+            expect(toImplicitType('null')).to.not.exist;
+            expect(toImplicitType()).to.not.exist;
+            expect(toImplicitType('undefined')).to.equal('');
         });
 
         it('identifies objs', function () {
