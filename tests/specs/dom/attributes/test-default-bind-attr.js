@@ -187,6 +187,39 @@ describe('Default Bind', function () {
                 });
             });
         });
+
+        describe('Aliases', ()=> {
+            it('should alias single variables', function () {
+                var targetData = { Price: '20' };
+
+                const channel = createDummyChannel();
+                return initWithNode('<div data-f-bind="Price as p"> <%= p %> </div>', domManager, channel).then(function ($node) {
+                    return channel.publish(targetData).then(()=> {
+                        $node.html().trim().should.equal('20');
+                    });
+                });
+            });
+            it('should alias multi variables', function () {
+                var targetData = { Price: 20, sales: 30 };
+
+                const channel = createDummyChannel();
+                return initWithNode('<div data-f-bind="Price as p, sales as s"> <%= p + s %> </div>', domManager, channel).then(function ($node) {
+                    return channel.publish(targetData).then(()=> {
+                        $node.html().trim().should.equal('50');
+                    });
+                });
+            });
+            it('should run through converters before aliasing', function () {
+                var targetData = { Price: [10, 30] };
+
+                const channel = createDummyChannel();
+                return initWithNode('<div data-f-bind="Price as p |first"> <%= value %> </div>', domManager, channel).then(function ($node) {
+                    return channel.publish(targetData).then(()=> {
+                        $node.html().trim().should.equal('10');
+                    });
+                });
+            });
+        });
     });
 
     describe('Animation hooks', ()=> {
