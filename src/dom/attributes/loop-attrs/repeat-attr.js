@@ -61,26 +61,25 @@
  *
  */
 
-const { each, template } = require('lodash');
-const parseUtils = require('utils/parse-utils');
-const gutils = require('utils/general');
-const config = require('config');
+import { each, template } from 'lodash';
+import { toImplicitType } from 'utils/parse-utils';
+import { random } from 'utils/general';
+import { attrs, animation } from '../../../config';
 
-const templateIdAttr = config.attrs.repeat.templateId;
+const templateIdAttr = attrs.repeat.templateId;
 
-const { addChangeClassesToList } = require('utils/animation');
+import { addChangeClassesToList } from 'utils/animation';
 
 const elAnimatedMap = new WeakMap(); //TODO: Can probably get rid of this if we make subscribe a promise and distinguish between initial value
 
-const { getKnownDataForEl, updateKnownDataForEl, removeKnownData, 
-    findMissingReferences, stubMissingReferences, addBackMissingReferences,
-    getOriginalContents, clearOriginalContents,
-} = require('../attr-template-utils');
+import { getKnownDataForEl, updateKnownDataForEl, removeKnownData, findMissingReferences, stubMissingReferences, addBackMissingReferences, getOriginalContents, clearOriginalContents } from '../attr-template-utils';
 
-const { extractVariableName, parseKeyAlias, parseValueAlias } = require('./loop-attr-utils');
+import { extractVariableName, parseKeyAlias, parseValueAlias } from './loop-attr-utils';
 
-module.exports = {
-
+/**
+ * @type AttributeHandler 
+ */
+const loopAttrHandler = {
     test: 'repeat',
 
     target: '*',
@@ -105,11 +104,11 @@ module.exports = {
 
     parse: function (topics) {
         const attrVal = topics[0].name;
-        return {
+        return [{
             name: extractVariableName(attrVal),
             keyAlias: parseKeyAlias(attrVal),
             valueAlias: parseValueAlias(attrVal),
-        };
+        }];
     },
 
     handle: function (value, prop, $el, topics) {
@@ -123,7 +122,7 @@ module.exports = {
             const $removed = $el.nextUntil(':not([data-' + id + '])').remove();
             $dummyOldDiv.append($removed);
         } else {
-            id = gutils.random('repeat-');
+            id = random('repeat-');
             $el.attr('data-' + templateIdAttr, id);
         }
 
@@ -167,9 +166,9 @@ module.exports = {
                 $newNode.removeAttr('data-f-repeat').removeAttr('data-' + templateIdAttr);
                 each($newNode.data(), function (val, key) {
                     if (!last) {
-                        $el.data(key, parseUtils.toImplicitType(val));
+                        $el.data(key, toImplicitType(val));
                     } else {
-                        $newNode.data(key, parseUtils.toImplicitType(val));
+                        $newNode.data(key, toImplicitType(val));
                     }
                 });
                 $newNode.attr('data-' + id, true);
@@ -188,8 +187,10 @@ module.exports = {
 
         const el = $el.get(0);
         const isInitialAnim = !elAnimatedMap.get(el);
-        addChangeClassesToList($dummyOldDiv.children(), $newEls, isInitialAnim, config.animation);
+        addChangeClassesToList($dummyOldDiv.children(), $newEls, isInitialAnim, animation);
 
         elAnimatedMap.set(el, true);
     }
 };
+
+export default loopAttrHandler;

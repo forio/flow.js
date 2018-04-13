@@ -40,7 +40,10 @@
 const { isNumber } = require('lodash');
 const config = require('../../config');
 
-module.exports = {
+/**
+ * @type AttributeHandler
+ */
+const classAttr = {
     test: 'class',
 
     target: '*',
@@ -67,3 +70,5 @@ module.exports = {
         $el.data(config.classesAdded, addedClasses);
     }
 };
+
+module.exports = classAttr;

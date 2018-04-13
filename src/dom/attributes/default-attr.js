@@ -22,7 +22,11 @@
  *		<input data-f-value="sample_int"></input>
  *
  */
-module.exports = {
+
+/**
+ * @type AttributeHandler 
+ */
+const defaultAttr = {
     test: '*',
 
     target: '*',
@@ -35,3 +39,5 @@ module.exports = {
         $el.prop(prop, value);
     }
 };
+
+export default defaultAttr;

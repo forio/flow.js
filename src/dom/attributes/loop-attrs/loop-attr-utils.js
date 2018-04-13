@@ -1,12 +1,20 @@
 const IN_OF_REGEX = /(.*) (?:in|of) (.*)/;
 const KEY_VALUE_REGEX = /(.*),(.*)/;
 
-export function extractVariableName(attrVal, $el) {
+/**
+ * @param {string} attrVal 
+ * @return {string}
+ */
+export function extractVariableName(attrVal) {
     const inMatch = attrVal.trim().match(IN_OF_REGEX);
     const varName = inMatch ? inMatch[2] : attrVal;
     return varName.trim();
 }
 
+/**
+ * @param {string} attrVal 
+ * @return {string}
+ */
 export function parseKeyAlias(attrVal) {
     const inMatch = attrVal.match(IN_OF_REGEX);
     if (!inMatch) {
@@ -17,6 +25,10 @@ export function parseKeyAlias(attrVal) {
     return alias;
 }
 
+/**
+ * @param {string} attrVal 
+ * @return {string}
+ */
 export function parseValueAlias(attrVal) {
     const defaultValueProp = 'value';
     const inMatch = attrVal.match(IN_OF_REGEX);

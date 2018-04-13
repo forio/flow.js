@@ -80,17 +80,13 @@
  *
  */
 
-const { template } = require('lodash');
-const { addContentAndAnimate } = require('utils/animation');
-const { animation } = require('config');
+import { template } from 'lodash';
+import { addContentAndAnimate } from 'utils/animation';
+import { animation } from 'config';
 
-const { extractVariableName, extractAlias, translateDataToTemplatable, translateDataToInsertable } = require('./bind-utils');
+import { extractVariableName, extractAlias, translateDataToTemplatable, translateDataToInsertable } from './bind-utils';
 
-const { getKnownDataForEl, updateKnownDataForEl, removeKnownData, 
-    findMissingReferences, stubMissingReferences, addBackMissingReferences,
-    isTemplated,
-    getOriginalContents, clearOriginalContents
-} = require('../attr-template-utils');
+import { getKnownDataForEl, updateKnownDataForEl, removeKnownData, findMissingReferences, stubMissingReferences, addBackMissingReferences, isTemplated, getOriginalContents, clearOriginalContents } from '../attr-template-utils';
 
 const elAnimatedMap = new WeakMap(); //TODO: Can probably get rid of this if we make subscribe a promise and distinguish between initial value
 
@@ -100,7 +96,11 @@ function toAliasMap(topics) {
         return accum;
     }, {});
 }
-module.exports = {
+
+/**
+ * @type AttributeHandler 
+ */
+const bindAttrHandler = {
 
     target: '*',
 
@@ -125,11 +125,6 @@ module.exports = {
     //     }
     // },
 
-    /**
-     * @param {string} attr
-     * @param {JQuery<HTMLElement>} $el
-     * @return {void}
-     */ 
     unbind: function (attr, $el) {
         const el = $el.get(0);
         elAnimatedMap.delete(el);
@@ -142,13 +137,6 @@ module.exports = {
         removeKnownData($el);
     },
 
-    /**
-    * @param {any} value
-    * @param {string} prop
-    * @param {JQuery<HTMLElement>} $el
-    * @param {{name: string, alias:string}[]} [topics]
-    * @return {void}
-    */ 
     handle: function (value, prop, $el, topics) {
         function getNewContent(currentContents, value) {
             if (!isTemplated(currentContents)) {
@@ -181,3 +169,5 @@ module.exports = {
         elAnimatedMap.set(el, true);
     }
 };
+
+export default bindAttrHandler;
