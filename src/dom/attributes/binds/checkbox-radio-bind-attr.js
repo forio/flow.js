@@ -30,8 +30,8 @@ const checkboxAttrHandler = {
         if (Array.isArray(value)) {
             value = value[value.length - 1];
         }
-        var settableValue = $el.attr('value'); //initial value
-        var isChecked = (typeof settableValue !== 'undefined') ? (settableValue == value) : !!value; //eslint-disable-line eqeqeq
+        const settableValue = $el.attr('value'); //initial value
+        const isChecked = (typeof settableValue !== 'undefined') ? (settableValue == value) : !!value; //eslint-disable-line eqeqeq
         $el.prop('checked', isChecked);
     }
 };

@@ -18,7 +18,10 @@
  * * You can chain model variable(s) together with any number of converters. The result of the conversion must be boolean.
  */
 
-module.exports = {
+/**
+  * @type AttributeHandler
+  */
+const hideifHandler = {
     test: 'hideif',
 
     target: '*',
@@ -37,3 +40,5 @@ module.exports = {
         }
     }
 };
+
+export default hideifHandler;

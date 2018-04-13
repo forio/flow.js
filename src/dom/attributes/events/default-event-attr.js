@@ -15,14 +15,17 @@
  *
  */
 
-const config = require('config');
-const { toPublishableFormat } = require('utils/parse-utils');
+import { events } from 'config';
+import { toPublishableFormat } from 'utils/parse-utils';
 
-module.exports = {
+/**
+ * @type AttributeHandler 
+ */
+const defaultEventAttr = {
 
     target: '*',
 
-    test: function (attr, $node) {
+    test: function (attr) {
         return (attr.indexOf('on-') === 0);
     },
 
@@ -41,7 +44,9 @@ module.exports = {
         $el.off(eventName).on(eventName, function (evt) {
             evt.preventDefault();
             var listOfOperations = toPublishableFormat(matching);
-            $el.trigger(config.events.operate, { data: listOfOperations, source: attr });
+            $el.trigger(events.operate, { data: listOfOperations, source: attr });
         });
     }
 };
+
+export default defaultEventAttr;

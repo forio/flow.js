@@ -19,7 +19,10 @@
  *
  */
 
-module.exports = {
+/**
+ * @type AttributeHandler 
+ */
+const negativeBooleanAttr = {
 
     target: '*',
 
@@ -32,3 +35,5 @@ module.exports = {
         $el.prop(prop, !value);
     }
 };
+
+export default negativeBooleanAttr;

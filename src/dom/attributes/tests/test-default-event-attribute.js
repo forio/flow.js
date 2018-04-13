@@ -1,5 +1,5 @@
 var config = require('config');
-var defaultEventAttr = require('src/dom/attributes/events/default-event-attr');
+var defaultEventAttr = require('src/dom/attributes/events/default-event-attr').default;
 
 describe('Default Event attribute', function () {
     describe('#init', function () {

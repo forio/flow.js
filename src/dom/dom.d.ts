@@ -7,11 +7,12 @@ interface NormalizedTopic {
     [key: string]: any
 }
 
-
+type attributeMatcher = (value: string)=> boolean;
 interface AttributeHandler {
-    test: string|RegExp,
-    target: string,
+    test: string | RegExp | attributeMatcher
+    target: string
+    init?(attr: string, topics: NormalizedTopic[], $el: JQuery)
     unbind?(attr: string, $el: JQuery)
-    parse?(topics: NormalizedTopic[]): NormalizedTopic[],
-    handle?(value: any, prop: string, $el: JQuery, topics: NormalizedTopic[]): void;
+    parse?(topics: NormalizedTopic[]): NormalizedTopic[]
+    handle?(value: any, prop: string, $el: JQuery, topics: NormalizedTopic[]): void
 }

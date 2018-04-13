@@ -14,7 +14,6 @@ require('./specs/dom/test-default-input-node');
 
 require('./specs/dom/attributes/test-default-foreach-attr');
 require('./specs/dom/attributes/test-repeat-attr');
-require('./specs/dom/attributes/test-default-bind-attr');
 
 // require('./specs/channels/test-channel-manager'); //0.6secons
 // require('./specs/channels/test-channel-router'); //1.1 secs..

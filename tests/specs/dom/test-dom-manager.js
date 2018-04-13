@@ -77,7 +77,6 @@ describe('DOM Manager', function () {
             require('./attributes/test-no-op-attr');
             require('./attributes/test-negative-boolean-attr');
             require('./attributes/test-positive-boolean-attr');
-            require('./attributes/test-default-event-attribute');
             require('./attributes/test-toggle-attrs');
 
             it('should allow handling custom attributes', function () {

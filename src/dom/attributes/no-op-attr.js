@@ -5,10 +5,10 @@
  *
  */
 
-'use strict';
-
-// Attributes which are just parameters to others and can just be ignored
-module.exports = {
+/**
+ * @type AttributeHandler 
+ */
+const noopAttr = {
 
     target: '*',
 
@@ -20,3 +20,5 @@ module.exports = {
         return [];
     }
 };
+
+export default noopAttr;
