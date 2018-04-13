@@ -117,21 +117,21 @@
  *
  * * The `data-f-foreach` attribute is [similar to the `data-f-repeat` attribute](../../loop-attrs/repeat-attr/), so you may want to review the examples there as well.
  */
-const parseUtils = require('../../../utils/parse-utils');
-const config = require('../../../config');
+import { toImplicitType } from 'utils/parse-utils';
+import { animation } from '../../../config';
 
-const { extractVariableName, parseKeyAlias, parseValueAlias } = require('./loop-attr-utils');
-const { addChangeClassesToList } = require('utils/animation');
-const { each, template } = require('lodash');
+import { extractVariableName, parseKeyAlias, parseValueAlias } from './loop-attr-utils';
+import { addChangeClassesToList } from 'utils/animation';
+import { each, template } from 'lodash';
 
-const { getKnownDataForEl, updateKnownDataForEl, removeKnownData, 
-    findMissingReferences, stubMissingReferences, addBackMissingReferences,
-    getOriginalContents, clearOriginalContents
-} = require('../attr-template-utils');
+import { getKnownDataForEl, updateKnownDataForEl, removeKnownData, findMissingReferences, stubMissingReferences, addBackMissingReferences, getOriginalContents, clearOriginalContents } from '../attr-template-utils';
 
 const elAnimatedMap = new WeakMap(); //TODO: Can probably get rid of this if we make subscribe a promise and distinguish between initial value
 
-module.exports = {
+/**
+ * @type AttributeHandler
+ */
+const foreachAttr = {
 
     test: 'foreach',
 
@@ -151,11 +151,11 @@ module.exports = {
 
     parse: function (topics) {
         const attrVal = topics[0].name;
-        return { 
+        return [{ 
             name: extractVariableName(attrVal),
             keyAlias: parseKeyAlias(attrVal),
             valueAlias: parseValueAlias(attrVal),
-        };
+        }];
     },
 
     handle: function (value, prop, $el, topics) {
@@ -199,7 +199,7 @@ module.exports = {
             nodes.each(function (i, newNode) {
                 const $newNode = $(newNode);
                 each($newNode.data(), function (val, key) {
-                    $newNode.data(key, parseUtils.toImplicitType(val));
+                    $newNode.data(key, toImplicitType(val));
                 });
                 if (!isTemplated && !$newNode.html().trim()) {
                     $newNode.html(dataval);
@@ -210,9 +210,11 @@ module.exports = {
         
         const el = $el.get(0);
         const isInitialAnim = !elAnimatedMap.get(el);
-        const $withAnimAttrs = addChangeClassesToList($el.children(), $dummyEl.children(), isInitialAnim, config.animation);
+        const $withAnimAttrs = addChangeClassesToList($el.children(), $dummyEl.children(), isInitialAnim, animation);
         $el.empty().append($withAnimAttrs);
 
         elAnimatedMap.set(el, true);
     }
 };
+
+export default foreachAttr;

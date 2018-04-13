@@ -17,16 +17,15 @@
  * 		</select>
  *
  */
-module.exports = {
+
+/**
+ * @type AttributeHandler 
+ */
+const inputBindAttr = {
     target: 'input, select, textarea',
 
     test: 'bind',
 
-    /**
-    * @param {string[]|number[]|string|number} value
-    * @param {string} prop name of property bound to
-    * @param {JQuery<HTMLElement>} $el
-    */ 
     handle: function (value, prop, $el) {
         if (value === undefined) {
             value = '';
@@ -36,3 +35,5 @@ module.exports = {
         $el.val(value);
     }
 };
+
+export default inputBindAttr;

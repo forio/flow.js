@@ -45,15 +45,15 @@ const { isString, isFunction, isRegExp, each } = require('lodash');
 var defaultHandlers = [
     require('./no-op-attr'),
     require('./events/default-event-attr'),
-    require('./loop-attrs/foreach-attr'),
+    require('./loop-attrs/foreach-attr').default,
     require('./loop-attrs/repeat-attr').default,
-    require('./class-attr'),
+    require('./class-attr').default,
     require('./positive-boolean-attr'),
     require('./negative-boolean-attr'),
     require('./toggles/show-if-attr'),
     require('./toggles/hide-if-attr'),
-    require('./binds/checkbox-radio-bind-attr'),
-    require('./binds/input-bind-attr'),
+    require('./binds/checkbox-radio-bind-attr').default,
+    require('./binds/input-bind-attr').default,
     require('./binds/default-bind-attr').default,
     require('./default-attr').default
 ];

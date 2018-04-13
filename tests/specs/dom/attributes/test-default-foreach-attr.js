@@ -1,4 +1,4 @@
-var foreachHandler = require('src/dom/attributes/loop-attrs/foreach-attr');
+var foreachHandler = require('src/dom/attributes/loop-attrs/foreach-attr').default;
 
 describe('Default Foreach', function () {
 

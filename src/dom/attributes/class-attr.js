@@ -37,8 +37,8 @@
  *       </div>
  *
  */
-const { isNumber } = require('lodash');
-const config = require('../../config');
+import { isNumber } from 'lodash';
+import { classesAdded } from '../../config';
 
 /**
  * @type AttributeHandler
@@ -53,7 +53,7 @@ const classAttr = {
             value = value[value.length - 1];
         }
 
-        var addedClasses = $el.data(config.classesAdded);
+        var addedClasses = $el.data(classesAdded);
         if (!addedClasses) {
             addedClasses = {};
         }
@@ -67,8 +67,8 @@ const classAttr = {
         addedClasses[prop] = value;
         //Fixme: prop is always "class"
         $el.addClass(value);
-        $el.data(config.classesAdded, addedClasses);
+        $el.data(classesAdded, addedClasses);
     }
 };
 
-module.exports = classAttr;
+export default classAttr;

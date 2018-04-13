@@ -3,12 +3,11 @@ var domManager = require('src/dom/dom-manager');
 var config = require('src/config');
 
 describe('DOM Manager', function () {
-    afterEach(function () {
+    beforeEach(function () {
         domManager.matchedElements.clear();
     });
     describe('#initialize', function () {
         describe('Selectors', function () {
-
             it('should select nothing by default', function () {
                 return utils.initWithNode('<div></div>', domManager).then(function () {
                     domManager.matchedElements.size.should.equal(0);
@@ -78,7 +77,6 @@ describe('DOM Manager', function () {
             require('./attributes/test-no-op-attr');
             require('./attributes/test-negative-boolean-attr');
             require('./attributes/test-positive-boolean-attr');
-            require('./attributes/test-class-attr');
             require('./attributes/test-default-event-attribute');
             require('./attributes/test-toggle-attrs');
 

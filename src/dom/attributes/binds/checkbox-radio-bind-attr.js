@@ -16,18 +16,16 @@
  *      <input type="checkbox" data-f-bind="sampleBool" />
  *
  */
-module.exports = {
+
+/**
+  * @type {AttributeHandler}
+  */
+const checkboxAttrHandler = {
 
     target: ':checkbox,:radio',
 
     test: 'bind',
 
-    /**
-     * @param {string[]|number[]|string|number} value
-     * @param {string} prop name of property bound to
-     * @param {JQuery<HTMLElement>} $el
-     * @return {void}
-     */ 
     handle: function (value, prop, $el) {
         if (Array.isArray(value)) {
             value = value[value.length - 1];
@@ -37,3 +35,5 @@ module.exports = {
         $el.prop('checked', isChecked);
     }
 };
+
+export default checkboxAttrHandler;
