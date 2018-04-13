@@ -366,6 +366,8 @@ module.exports = (function () {
                     const { data, source, options } = params;
                     const sourceMeta = elMeta[source] || {};
 
+                    const { channelPrefix, converters } = sourceMeta;
+
                     const filtered = ([].concat(data || [])).reduce(function (accum, operation) {
                         const val = operation.value;
                         if (Array.isArray(val)) {
@@ -383,8 +385,8 @@ module.exports = (function () {
                             if (operation.name.indexOf(':') === -1) {
                                 operation.name = `${DEFAULT_OPERATIONS_PREFIX}${operation.name}`;
                             }
-                            if (operation.name.indexOf(DEFAULT_OPERATIONS_PREFIX) === 0 && sourceMeta.channelPrefix) {
-                                operation.name = `${sourceMeta.channelPrefix}:${operation.name}`;
+                            if (operation.name.indexOf(DEFAULT_OPERATIONS_PREFIX) === 0 && channelPrefix) {
+                                operation.name = `${channelPrefix}:${operation.name}`;
                             }
                             accum.operations.push(operation);
                         }
@@ -397,8 +399,8 @@ module.exports = (function () {
                      
                     //FIXME: Needed for the 'gotopage' in interfacebuilder. Remove this once we add a window channel
                     promise.then(function (args) {
-                        filtered.converters.forEach(function (con) {
-                            converterManager.convert(con.value, [con.name]);
+                        (converters || []).forEach(function (con) {
+                            converterManager.convert('', con);
                         });
                     });
                 });
