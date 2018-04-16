@@ -159,8 +159,8 @@ describe('integration', function () {
 
             const channel = new CManager();
             return initWithNode(`
-                <ul data-f-foreach="v1 in somearray">
-                    <li data-f-foreach="v2 in somethingElse"> 
+                <ul data-f-foreach="(v1) in somearray">
+                    <li data-f-foreach="(v2) in somethingElse"> 
                         <div> <%= v1 %> <%= v2 %> </div>
                     </li>
                 </ul>
@@ -187,8 +187,8 @@ describe('integration', function () {
             var targetData2 = [2, 4];
 
             var html = `
-                <ul data-f-foreach="v1 in somearray">
-                    <li data-f-foreach="v2 in somethingElse">
+                <ul data-f-foreach="(v1) in somearray">
+                    <li data-f-foreach="(v2) in somethingElse">
                         <div> <%= (v1 > v2 ) ? "greater" : "smaller"%> </div>
                     </li>
                 </ul>
@@ -219,7 +219,7 @@ describe('integration', function () {
 
             const channel = createDummyChannel();
             return initWithNode(`
-                <ul data-f-foreach="v1 in somearray">
+                <ul data-f-foreach="(v1) in somearray">
                     <li data-f-foreach="somethingElse">
                         <div> <%= v1 %> <%= value %> </div>
                     </li>
@@ -247,10 +247,10 @@ describe('integration', function () {
 
             var channel = createDummyChannel();
             return initWithNode(`
-                <ul data-f-foreach="v1 in somearray">
+                <ul data-f-foreach="(v1) in somearray">
                     <li class="p">
-                        <ul class="ul1" data-f-foreach="v2 in somethingElse"> <li> <%= v1 %> <%= v2 %></li></ul>
-                        <ul class="ul2" data-f-foreach="v3 in somethingElse2"> <li> <%= v1 %> <%= v3 %></li></ul>
+                        <ul class="ul1" data-f-foreach="(v2) in somethingElse"> <li> <%= v1 %> <%= v2 %></li></ul>
+                        <ul class="ul2" data-f-foreach="(v3) in somethingElse2"> <li> <%= v1 %> <%= v3 %></li></ul>
                     </li>
                 </ul>
             `, domManager, channel).then(function ($node) {
@@ -283,12 +283,12 @@ describe('integration', function () {
 
             var channel = createDummyChannel();
             return initWithNode(`
-                <ul data-f-foreach="v1 in somearray"> 
+                <ul data-f-foreach="(v1) in somearray"> 
                     <li class="p">
-                        <ul class="ul1" data-f-foreach="v2 in somethingElse"> 
+                        <ul class="ul1" data-f-foreach="(v2) in somethingElse"> 
                             <li> <%= v1 %> <%= v2 %></li>
                         </ul>
-                        <ul class="ul2" data-f-foreach="v2 in somethingElse2"> 
+                        <ul class="ul2" data-f-foreach="(v2) in somethingElse2"> 
                             <li> <%= v1 %> <%= v2 %></li>
                         </ul>
                     </li>

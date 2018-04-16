@@ -1,5 +1,5 @@
 import _ from 'lodash';
-import { objectToArray } from 'channels/channel-utils';
+import { objectToPublishable } from 'channels/channel-utils';
 
 const F = window.F;
 
@@ -30,7 +30,7 @@ export default function (options, notifier) {
                 //FIXME: Returning this instantly makes this give data back faster than the subscription has happened
                 //Because middleware executes this first before getting subsid back
                 //Fix by making subscribes promise based?
-                notifier(objectToArray(response));
+                notifier(objectToPublishable(response));
             }, 0);
             return response;
         },

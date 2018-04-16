@@ -57,24 +57,29 @@
  * * You can use the `data-f-repeat` attribute with both arrays and objects. If the model variable is an object, reference the `key` instead of the `index` in your templates.
  * * The `key`, `index`, and `value` are special variables that Flow.js populates for you.
  * * The template syntax is to enclose each keyword (`index`, `key`, `variable`) in `<%=` and `%>`. Templates are available as part of Flow.js's lodash dependency. See more background on [working with templates](../../../../#templates).
- * * In most cases the same effect can be achieved with the [`data-f-foreach` attribute](../../attributes/foreach/default-foreach-attr/), which is similar. In the common use case of a table of data displayed over time, the `data-f-repeat` can be more concise and easier to read. However, the `data-f-foreach` allows aliasing, and so can be more useful especially if you are nesting HTML elements or want to introduce logic about how to display the values.
+ * * In most cases the same effect can be achieved with the [`data-f-foreach` attribute](../../attributes/loop-attrs/foreach-attr/), which is similar. In the common use case of a table of data displayed over time, the `data-f-repeat` can be more concise and easier to read. However, the `data-f-foreach` allows aliasing, and so can be more useful especially if you are nesting HTML elements or want to introduce logic about how to display the values.
  *
  */
 
-const { each, template } = require('lodash');
-const parseUtils = require('../../utils/parse-utils');
-const gutils = require('../../utils/general');
-const config = require('../../config');
+import { each, template } from 'lodash';
+import { toImplicitType } from 'utils/parse-utils';
+import { random } from 'utils/general';
+import { attrs, animation } from '../../../config';
 
-const templateIdAttr = config.attrs.repeat.templateId;
+const templateIdAttr = attrs.repeat.templateId;
 
-const { addChangeClassesToList } = require('utils/animation');
+import { addChangeClassesToList } from 'utils/animation';
 
-const elTemplateMap = new WeakMap(); //<domel>: template
 const elAnimatedMap = new WeakMap(); //TODO: Can probably get rid of this if we make subscribe a promise and distinguish between initial value
 
-module.exports = {
+import { getKnownDataForEl, updateKnownDataForEl, removeKnownData, findMissingReferences, stubMissingReferences, addBackMissingReferences, getOriginalContents, clearOriginalContents } from '../attr-template-utils';
 
+import { aliasesFromTopics, parseTopics } from './loop-attr-utils';
+
+/**
+ * @type AttributeHandler 
+ */
+const loopAttrHandler = {
     test: 'repeat',
 
     target: '*',
@@ -83,56 +88,78 @@ module.exports = {
         var id = $el.data(templateIdAttr);
         if (id) {
             $el.nextUntil(':not([data-' + id + '])').remove();
-            // this.removeAttr('data-' + templateIdAttr); //FIXME: Something about calling rebind multiple times in IB makes this happen without the removal
+            // $el.removeAttr('data-' + templateIdAttr); //FIXME: Something about calling rebind multiple times in IB makes this happen without the removal
         }
 
         const el = $el.get(0);
         elAnimatedMap.delete(el);
 
-        const loopTemplate = elTemplateMap.get(el);
-        if (loopTemplate) {
-            elTemplateMap.delete(el);
-            $el.replaceWith(loopTemplate);
+        const originalHTML = getOriginalContents($el);
+        if (originalHTML) {
+            $el.replaceWith(originalHTML);
         }
+        clearOriginalContents($el);
+        removeKnownData($el);
     },
 
-    handle: function (value, prop, $el) {
+    parse: function (topics) {
+        return parseTopics(topics);
+    },
+
+    handle: function (value, prop, $el, topics) {
         value = ($.isPlainObject(value) ? value : [].concat(value));
         var id = $el.data(templateIdAttr);
         
-        const el = $el.get(0);
+        const originalHTML = getOriginalContents($el, ($el)=> $el.get(0).outerHTML);
 
-        let loopTemplate = elTemplateMap.get(el);
-        if (!loopTemplate) {
-            loopTemplate = el.outerHTML;
-            elTemplateMap.set(el, loopTemplate);
-        }
-
-        let $dummyOldDiv = $('<div></div>');
+        const $dummyOldDiv = $('<div></div>');
         if (id) {
             const $removed = $el.nextUntil(':not([data-' + id + '])').remove();
             $dummyOldDiv.append($removed);
         } else {
-            id = gutils.random('repeat-');
+            id = random('repeat-');
             $el.attr('data-' + templateIdAttr, id);
         }
-  
+
+        const { keyAlias, valueAlias } = aliasesFromTopics(topics, value);
+
+        const knownData = getKnownDataForEl($el);
+        const missingReferences = findMissingReferences(originalHTML, [keyAlias, valueAlias].concat(Object.keys(knownData)));
+        const stubbedTemplate = stubMissingReferences(originalHTML, missingReferences);
+
+        const templateFn = template(stubbedTemplate);
         var last;
         each(value, function (dataval, datakey) {
-            var cloop = loopTemplate.replace(/&lt;/g, '<').replace(/&gt;/g, '>');
-            var templatedLoop = template(cloop)({ value: dataval, key: datakey, index: datakey });
-            var isTemplated = templatedLoop !== cloop;
-            var nodes = $(templatedLoop);
-            var hasData = (dataval !== null && dataval !== undefined);
+            if (dataval === undefined || dataval === null) {
+                dataval = dataval + ''; //convert undefineds to strings
+            }
+            const templateData = $.extend(true, {}, knownData, {
+                [keyAlias]: datakey,
+                [valueAlias]: dataval
+            });
 
+            let nodes;
+            let isTemplated;
+            try {
+                const templated = templateFn(templateData);
+                const templatedWithReferences = addBackMissingReferences(templated, missingReferences);
+                isTemplated = templatedWithReferences !== stubbedTemplate;
+                nodes = $(templatedWithReferences);
+            } catch (e) { //you don't have all the references you need;
+                nodes = $(stubbedTemplate);
+                isTemplated = true;
+                updateKnownDataForEl($(nodes), templateData);
+            }
+
+            var hasData = (dataval !== null && dataval !== undefined);
             nodes.each(function (i, newNode) {
                 const $newNode = $(newNode);
                 $newNode.removeAttr('data-f-repeat').removeAttr('data-' + templateIdAttr);
                 each($newNode.data(), function (val, key) {
                     if (!last) {
-                        $el.data(key, parseUtils.toImplicitType(val));
+                        $el.data(key, toImplicitType(val));
                     } else {
-                        $newNode.data(key, parseUtils.toImplicitType(val));
+                        $newNode.data(key, toImplicitType(val));
                     }
                 });
                 $newNode.attr('data-' + id, true);
@@ -148,9 +175,13 @@ module.exports = {
         });
 
         const $newEls = $el.nextUntil(`:not('[data-${id}]')`);
+
+        const el = $el.get(0);
         const isInitialAnim = !elAnimatedMap.get(el);
-        addChangeClassesToList($dummyOldDiv.children(), $newEls, isInitialAnim, config.animation);
+        addChangeClassesToList($dummyOldDiv.children(), $newEls, isInitialAnim, animation);
 
         elAnimatedMap.set(el, true);
     }
 };
+
+export default loopAttrHandler;

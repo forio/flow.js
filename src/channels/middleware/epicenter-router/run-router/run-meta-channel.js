@@ -1,4 +1,4 @@
-import { objectToArray, arrayToObject } from 'channels/channel-utils';
+import { objectToPublishable, publishableToObject } from 'channels/channel-utils';
 import { intersection } from 'lodash';
 
 export default function RunMetaChannel($runServicePromise, notifier) {
@@ -34,10 +34,10 @@ export default function RunMetaChannel($runServicePromise, notifier) {
         },
         publishHandler: function (topics, options) {
             return $runServicePromise.then(function (runService) {
-                var toSave = arrayToObject(topics);
+                var toSave = publishableToObject(topics);
                 return runService.save(toSave).then(function (res) {
                     runService.runMeta = $.extend({}, true, runService.runMeta, res);
-                    return objectToArray(res);
+                    return objectToPublishable(res);
                 });
             });
         }

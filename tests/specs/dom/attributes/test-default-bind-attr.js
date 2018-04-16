@@ -81,7 +81,25 @@ describe('Default Bind', function () {
             });
         });
     });
-
+    
+    //S FIXME in default-bind
+    // describe('#init', ()=> {
+    //     it('should remove contents if it\'s template', ()=> {
+    //         const $el = $('<div><%= value %> World</div>');
+    //         bindHandler.init('bind', 'stuff', $el);
+    //         expect($el.html()).to.equal('');
+    //     });
+    //     it('should return true', ()=> {
+    //         const $el = $('<div><%= value %> World</div>');
+    //         const ret = bindHandler.init('bind', 'stuff', $el);
+    //         expect(ret).to.equal(true);
+    //     });
+    //     it('should leave contents as-is if not templated', ()=> {
+    //         const $el = $('<div>Hello World</div>');
+    //         bindHandler.init('bind', 'stuff', $el);
+    //         expect($el.html()).to.equal('Hello World');
+    //     });
+    // });
     describe('Integration', function () {
         it('should output last values for arrays', function () {
             var targetData = { Price: [10, 30] };
@@ -169,16 +187,51 @@ describe('Default Bind', function () {
                 });
             });
         });
+
+        describe('Aliases', ()=> {
+            it('should alias single variables', function () {
+                var targetData = { Price: '20' };
+
+                const channel = createDummyChannel();
+                return initWithNode('<div data-f-bind="Price as (p)"> <%= p %> </div>', domManager, channel).then(function ($node) {
+                    return channel.publish(targetData).then(()=> {
+                        $node.html().trim().should.equal('20');
+                    });
+                });
+            });
+            it('should alias multi variables', function () {
+                var targetData = { Price: 20, sales: 30 };
+
+                const channel = createDummyChannel();
+                return initWithNode('<div data-f-bind="Price as (p), sales as (s)"> <%= p + s %> </div>', domManager, channel).then(function ($node) {
+                    return channel.publish(targetData).then(()=> {
+                        $node.html().trim().should.equal('50');
+                    });
+                });
+            });
+            it('should run through converters before aliasing', function () {
+                var targetData = { Price: [10, 30] };
+
+                const channel = createDummyChannel();
+                return initWithNode('<div data-f-bind="Price as (p) |first"> <%= value %> </div>', domManager, channel).then(function ($node) {
+                    return channel.publish(targetData).then(()=> {
+                        $node.html().trim().should.equal('10');
+                    });
+                });
+            });
+        });
     });
 
     describe('Animation hooks', ()=> {
-        function publishAndVerify(channel, data, el, condition) {
-            return channel.publish((data)=> {
+        function publishAndVerify(channel, data, el, checks) {
+            return channel.publish(data).then(()=> {
                 const $d = $.Deferred();
                 setTimeout(()=> {
-                    expect(el.hasAttribute('data-change')).to.equal(condition);
+                    Object.keys(checks).forEach((attr)=> {
+                        expect(el.hasAttribute(attr)).to.equal(checks[attr]);
+                    });
                     $d.resolve();
-                }, 0);
+                }, 1);
                 return $d.promise();
             });
         }
@@ -187,43 +240,47 @@ describe('Default Bind', function () {
                 const channel = createDummyChannel();
                 return initWithNode('<div data-f-bind="Price"></div>', domManager, channel).then(function ($node) {
                     const el = $node.get(0);
-                    expect(el.hasAttribute('data-change')).to.equal(false);
+                    expect(el.hasAttribute('data-update')).to.equal(false);
+                    expect(el.hasAttribute('data-initial')).to.equal(false);
 
-                    return publishAndVerify(channel, { Price: 30 }, el, true);
+                    return publishAndVerify(channel, { Price: 30 }, el, { 'data-update': true, 'data-initial': true });
                 });
             });
             it('should not animate if initial value doesn\'t change', ()=> {
                 const channel = createDummyChannel();
                 return initWithNode('<div data-f-bind="Price">30</div>', domManager, channel).then(function ($node) {
                     const el = $node.get(0);
-                    expect(el.hasAttribute('data-change')).to.equal(false);
+                    expect(el.hasAttribute('data-update')).to.equal(false);
+                    expect(el.hasAttribute('data-initial')).to.equal(false);
 
-                    return publishAndVerify(channel, { Price: 30 }, el, true);
+                    return publishAndVerify(channel, { Price: 30 }, el, { 'data-update': false, 'data-initial': false });
                 });
             });
             it('should not animate if later value doesn\'t change', ()=> {
                 const channel = createDummyChannel();
 
-                initWithNode('<div data-f-bind="Price">30</div>', domManager, channel).then(function ($node) {
+                return initWithNode('<div data-f-bind="Price">30</div>', domManager, channel).then(function ($node) {
                     const el = $node.get(0);
-                    expect(el.hasAttribute('data-change')).to.equal(false);
+                    expect(el.hasAttribute('data-update')).to.equal(false);
+                    expect(el.hasAttribute('data-initial')).to.equal(false);
 
-                    return publishAndVerify(channel, { Price: 40 }, el, true).then(()=> {
-                        return publishAndVerify(channel, { Price: 40 }, el, false).then(()=> {
-                            return publishAndVerify(channel, { Price: 50 }, el, false);
+                    return publishAndVerify(channel, { Price: 40 }, el, { 'data-update': true, 'data-initial': true }).then(()=> {
+                        return publishAndVerify(channel, { Price: 40 }, el, { 'data-update': false, 'data-initial': false }).then(()=> {
+                            return publishAndVerify(channel, { Price: 50 }, el, { 'data-update': true, 'data-initial': false });
                         });
                     });
                 });
             });
         });
-        it('should not add change attr if templated', ()=> {
+        it('should add change attr if templated', ()=> {
             const channel = createDummyChannel();
-            initWithNode('<div data-f-bind="Price"><%= value %></div>', domManager, channel).then(function ($node) {
+            return initWithNode('<div data-f-bind="Price"><%= value %></div>', domManager, channel).then(function ($node) {
                 const el = $node.get(0);
-                expect(el.hasAttribute('data-change')).to.equal(false);
+                expect(el.hasAttribute('data-update')).to.equal(false);
+                expect(el.hasAttribute('data-initial')).to.equal(false);
 
-                return publishAndVerify(channel, { Price: 30 }, el, false).then(()=> {
-                    return publishAndVerify(channel, { Price: 40 }, el, false);
+                return publishAndVerify(channel, { Price: 30 }, el, { 'data-update': true, 'data-initial': true }).then(()=> {
+                    return publishAndVerify(channel, { Price: 40 }, el, { 'data-update': true, 'data-initial': false });
                 });
             });
         });

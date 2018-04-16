@@ -11,11 +11,9 @@ export function getKnownDataForEl($el) {
     }
     return knownData;
 }
-
 export function updateKnownDataForEl($el, data) {
     $el.attr(CURRENT_INDEX_ATTR, JSON.stringify(data));
 }
-
 export function removeKnownData($el) {
     $el.removeAttr(CURRENT_INDEX_ATTR);
 }
@@ -79,4 +77,20 @@ export function addBackMissingReferences(template, missingReferences) {
     });
 
     return template;
+}
+
+
+const elTemplateMap = new WeakMap();
+export function getOriginalContents($el, resolver) {
+    const el = $el.get(0);
+    let originalHTML = elTemplateMap.get(el);
+    if (!originalHTML && resolver) {
+        originalHTML = resolver($el).replace(/&lt;/g, '<').replace(/&gt;/g, '>');
+        elTemplateMap.set(el, originalHTML);
+    }
+    return originalHTML;
+}
+export function clearOriginalContents($el) {
+    const el = $el.get(0);
+    elTemplateMap.delete(el);
 }

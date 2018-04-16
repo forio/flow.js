@@ -19,17 +19,21 @@
  *
  */
 
-const { isArray } = require('lodash');
-module.exports = {
+/**
+ * @type AttributeHandler 
+ */
+const positiveAttrHandler = {
     target: '*',
 
     test: /^(?:checked|selected|async|autofocus|autoplay|controls|defer|ismap|loop|multiple|open|required|scoped)$/i,
 
-    handle: function (value, prop) {
-        if (isArray(value)) {
+    handle: function (value, prop, $el) {
+        if (Array.isArray(value)) {
             value = value[value.length - 1];
         }
-        var val = (this.attr('value')) ? (value == this.prop('value')) : !!value; //eslint-disable-line eqeqeq
-        this.prop(prop, val);
+        const val = ($el.attr('value')) ? (value == $el.prop('value')) : !!value; //eslint-disable-line eqeqeq
+        $el.prop(prop, val);
     }
 };
+
+export default positiveAttrHandler;

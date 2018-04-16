@@ -7,7 +7,7 @@ isPage: true
 ## Flow.js and Data Visualization: Graphing with Contour
 
 
-Flow.js makes it easy to show data from your model variables in [text](../generated/dom/attributes/binds/default-bind-attr/) or [lists](../generated/dom/attributes/foreach/default-foreach-attr/). However, often you want more than just textual output &mdash; you want to visualize the results of your simulation!
+Flow.js makes it easy to show data from your model variables in [text](../generated/dom/attributes/binds/default-bind-attr/) or [lists](../generated/dom/attributes/loop-attrs/foreach-attr/). However, often you want more than just textual output &mdash; you want to visualize the results of your simulation!
 
 One way to do this is to use <a href="http://forio.com/contour/" target="_blank">Contour</a>, an open source JavaScript library developed by Forio for interactive data visualization, based on <a href="http://d3js.org" target="_blank">d3.js</a>. Most of the [example projects](../../project_admin/#personal) in Epicenter use Contour for their graphs.
 

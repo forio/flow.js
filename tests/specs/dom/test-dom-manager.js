@@ -3,12 +3,11 @@ var domManager = require('src/dom/dom-manager');
 var config = require('src/config');
 
 describe('DOM Manager', function () {
-    afterEach(function () {
+    beforeEach(function () {
         domManager.matchedElements.clear();
     });
     describe('#initialize', function () {
         describe('Selectors', function () {
-
             it('should select nothing by default', function () {
                 return utils.initWithNode('<div></div>', domManager).then(function () {
                     domManager.matchedElements.size.should.equal(0);
@@ -78,16 +77,14 @@ describe('DOM Manager', function () {
             require('./attributes/test-no-op-attr');
             require('./attributes/test-negative-boolean-attr');
             require('./attributes/test-positive-boolean-attr');
-            require('./attributes/test-class-attr');
-            require('./attributes/test-default-event-attribute');
             require('./attributes/test-toggle-attrs');
 
             it('should allow handling custom attributes', function () {
-                var toggle = function (value) {
+                var toggle = function (value, prop, $el) {
                     if (value !== 1) {
-                        this.css('display', 'none');
+                        $el.css('display', 'none');
                     } else {
-                        this.css('display', 'block');
+                        $el.css('display', 'block');
                     }
                 };
                 var toggleSpy = sinon.spy(toggle);
@@ -311,9 +308,8 @@ describe('DOM Manager', function () {
                 var nodes = `
                     <div data-f-bind="a">Hello <%= value %>! <span> some child <%= a %></span</div>
                 `.trim();
+                var originalHTML = $(nodes).html();
                 return utils.initWithNode(nodes, domManager, channel).then(($node)=> {
-                    var originalHTML = $node.html();
-
                     return channel.publish({ a: 'apple' }).then(()=> {
                         var newhtml = $node.html();
                         expect(newhtml).to.equal('Hello apple! <span> some child apple</span>');

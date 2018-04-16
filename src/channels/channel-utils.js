@@ -18,10 +18,10 @@ export function findBestHandler(topic, handlers) {
 
 /**
  * 
- * @param {Object} obj
+ * @param {object} obj
  * @return {Publishable[]}
  */
-export function objectToArray(obj) {
+export function objectToPublishable(obj) {
     var mapped = Object.keys(obj || {}).map(function (t) {
         return { name: t, value: obj[t] };
     });
@@ -31,13 +31,14 @@ export function objectToArray(obj) {
 /**
  * Converts arrays of the form [{ name: '', value: ''}] to {[name]: value}
  * @param {Publishable[]} arr
- * @returns {Object}
+ * @param {object} [mergeWith]
+ * @returns {object}
  */
-export function arrayToObject(arr) {
+export function publishableToObject(arr, mergeWith) {
     var result = (arr || []).reduce(function (accum, topic) {
         accum[topic.name] = topic.value;
         return accum;
-    }, {});
+    }, $.extend(true, {}, mergeWith));
     return result;
 }
 
@@ -59,9 +60,9 @@ export function normalizeParamOptions(topic, publishValue, options) {
         return { params: [], options: {} };
     }
     if ($.isPlainObject(topic)) {
-        return { params: objectToArray(topic), options: publishValue };
+        return { params: objectToPublishable(topic), options: publishValue };
     }
-    if ($.isArray(topic)) {
+    if (Array.isArray(topic)) {
         return { params: topic, options: publishValue };
     }
     return { params: [{ name: topic, value: publishValue }], options: options };

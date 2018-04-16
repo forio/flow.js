@@ -1,9 +1,7 @@
-'use strict';
-
-import { toImplicitType, splitNameArgs, toPublishableFormat } from 'src/utils/parse-utils';
+import { toImplicitType, splitNameArgs, toPublishableFormat } from '../parse-utils';
 import { expect } from 'chai';
 
-describe('parse utils', function () {
+describe('DOM parse utils', function () {
     describe('#toImplicitType', function () {
         it('identifies strings', function () {
             toImplicitType('abc').should.equal('abc');
@@ -34,10 +32,10 @@ describe('parse utils', function () {
         });
 
         it('identifies nulls', function () {
-            should.not.exist(toImplicitType(null));
-            should.not.exist(toImplicitType('null'));
-            toImplicitType('undefined').should.equal('');
-            should.not.exist(toImplicitType());
+            expect(toImplicitType(null)).to.not.exist;
+            expect(toImplicitType('null')).to.not.exist;
+            expect(toImplicitType()).to.not.exist;
+            expect(toImplicitType('undefined')).to.equal('');
         });
 
         it('identifies objs', function () {
@@ -76,8 +74,8 @@ describe('parse utils', function () {
             const op = toPublishableFormat('add');
             expect(op).to.eql([{ name: 'add', value: [] }]);
         });
-        it('should allow pipe seperated inpus', ()=> {
-            const op = toPublishableFormat('add | subtract(2, 3)');
+        it('should allow && seperated inputs', ()=> {
+            const op = toPublishableFormat('add && subtract(2, 3)');
             expect(op).to.eql([{ name: 'add', value: [] }, { name: 'subtract', value: ['2', '3'] }]);
         });
         it('should support equals format', ()=> {

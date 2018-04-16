@@ -36,9 +36,9 @@ describe('button', function () {
             });
         });
 
-        it('should call operations in serial with |', function () {
+        it('should call multiple operations with &&', function () {
             var channel = createDummyChannel();
-            return initWithNode('<input type="button" data-f-on-click="step(1, 2) | reset()"/>', domManager, channel).then(function ($node) {
+            return initWithNode('<input type="button" data-f-on-click="step(1, 2) && reset()"/>', domManager, channel).then(function ($node) {
                 $node.trigger('click');
                 channel.publish.should.have.been.calledWith([
                     { name: 'operations:step', value: [1, 2] },

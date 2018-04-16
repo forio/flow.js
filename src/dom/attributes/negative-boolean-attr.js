@@ -19,18 +19,21 @@
  *
  */
 
-const { isArray } = require('lodash');
-
-module.exports = {
+/**
+ * @type AttributeHandler 
+ */
+const negativeBooleanAttr = {
 
     target: '*',
 
     test: /^(?:disabled|hidden|readonly)$/i,
 
-    handle: function (value, prop) {
-        if (isArray(value)) {
+    handle: function (value, prop, $el) {
+        if (Array.isArray(value)) {
             value = value[value.length - 1];
         }
-        this.prop(prop, !value);
+        $el.prop(prop, !value);
     }
 };
+
+export default negativeBooleanAttr;

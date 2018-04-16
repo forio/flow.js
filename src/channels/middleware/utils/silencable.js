@@ -1,4 +1,4 @@
-import { isArray, includes } from 'lodash';
+import { includes } from 'lodash';
 
 /**
  * @param {Publishable[]} published 
@@ -8,7 +8,7 @@ import { isArray, includes } from 'lodash';
 export default function silencable(published, silentOptions) {
     if (silentOptions === true || !published) {
         return [];
-    } else if (isArray(silentOptions)) {
+    } else if (Array.isArray(silentOptions)) {
         return published.filter((data)=> !includes(silentOptions, data.name));
     } else if (silentOptions && silentOptions.except) {
         return published.filter((data)=> includes(silentOptions.except || [], data.name));

@@ -101,7 +101,7 @@ Additionally, the `Flow.initialize()` call returns a promise, which is resolved 
 
 Several common JavaScript libraries embed a simple template engine, including `lodash.js`, which Flow.js [already requires](#using_in_project) as one of its dependencies. You can use this templating in your project's user interface.
 
-Some basic examples are [adding variables to an enclosing tag](./generated/dom/attributes/binds/default-bind-attr/) and [working with array variables](./generated/dom/attributes/foreach/default-foreach-attr/):
+Some basic examples are [adding variables to an enclosing tag](./generated/dom/attributes/binds/default-bind-attr/) and [working with array variables](./generated/dom/attributes/loop-attrs/foreach-attr/):
 
 	<div data-f-bind="CurrentYear, Revenue, Profit">
 		In <%= CurrentYear %>, 

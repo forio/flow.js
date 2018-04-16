@@ -1,4 +1,4 @@
-import { isArray, includes, isFunction } from 'lodash';
+import { includes, isFunction } from 'lodash';
 
 /**
  * 
@@ -13,7 +13,7 @@ export default function excludeReadOnly(publishable, readOnlyOptions) {
     if (readOnlyOptions === true) {
         console.error('Tried to publish to a readonly channel', publishable);
         return [];
-    } else if (isArray(readOnlyOptions)) {
+    } else if (Array.isArray(readOnlyOptions)) {
         var split = publishable.reduce((accum, data)=> {
             var isReadonly = includes(readOnlyOptions, data.name);
             if (isReadonly) {
