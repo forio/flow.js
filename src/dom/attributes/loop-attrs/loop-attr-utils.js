@@ -1,4 +1,4 @@
-const IN_OF_REGEX = /\((.*)\) (?:in|of) (.*)/;
+const IN_OF_REGEX = /\((.*)\) (?:in|of)\s+(.*)/;
 const KEY_VALUE_REGEX = /(.*),(.*)/;
 
 /**

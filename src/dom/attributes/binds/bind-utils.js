@@ -8,7 +8,7 @@ export function translateDataToInsertable(value) {
 
 /**
  * @param {any} value
- * @param {{string:string}} aliasMap
+ * @param {object} aliasMap
  * @returns {{value: any}}
  */
 export function translateDataToTemplatable(value, aliasMap) {
@@ -28,7 +28,7 @@ export function translateDataToTemplatable(value, aliasMap) {
     return templateData;
 }
 
-const AS_REGEX = /(.*) (?:as) (.*)/;
+const AS_REGEX = /(.*) (?:as)\s+\((.*)\)/;
 
 /**
  * @param {string} attrVal 

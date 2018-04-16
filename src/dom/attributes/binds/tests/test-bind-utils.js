@@ -2,7 +2,7 @@ import { extractVariableName, extractAlias, translateDataToTemplatable } from '.
 import { expect } from 'chai';
 
 describe('Bind utils', ()=> {
-    describe('#extractVariableName', ()=> {
+    describe('#extractAlias', ()=> {
         describe('unaliased', ()=> {
             it('should default to variable name as alias for unsubscripted', ()=> {
                 expect(extractAlias('Foo')).to.equal('Foo');
@@ -13,14 +13,22 @@ describe('Bind utils', ()=> {
                 expect(extractAlias('Bar[1,2]')).to.eql('Bar[1,2]');
             });
         });
+        describe('unaliased with `as` in name', ()=> {
+            it('should leave single names without aliases as-is', ()=> {
+                expect(extractAlias('something as Foo')).to.equal('something as Foo');
+                expect(extractAlias('somethingElse as Foo ')).to.equal('somethingElse as Foo');
+                expect(extractAlias('sword of jonas as  something')).to.equal('sword of jonas as  something');
+                expect(extractAlias('Bar[1,2] as somethingElse')).to.eql('Bar[1,2] as somethingElse');
+            });
+        });
         describe('aliased', ()=> {
             it('should alias single names with aliases', ()=> {
-                expect(extractAlias('something as Foo')).to.equal('Foo');
-                expect(extractAlias('somethingElse as Foo ')).to.equal('Foo');
-                expect(extractAlias('sword of jonas as  something')).to.equal('something');
+                expect(extractAlias('something as (Foo)')).to.equal('Foo');
+                expect(extractAlias('somethingElse as (Foo) ')).to.equal('Foo');
+                expect(extractAlias('sword of jonas as  (something)')).to.equal('something');
             });
             it('should alias subscripted variables', ()=> {
-                expect(extractAlias('Bar[1,2] as somethingElse')).to.eql('somethingElse');
+                expect(extractAlias('Bar[1,2] as (somethingElse)')).to.eql('somethingElse');
             });
         });
     });
@@ -35,14 +43,22 @@ describe('Bind utils', ()=> {
                 expect(extractVariableName('Bar[1,2]')).to.eql('Bar[1,2]');
             });
         });
+        describe('un-aliased with `as` in name', ()=> {
+            it('should extract single names with aliases', ()=> {
+                expect(extractVariableName('something as Foo')).to.equal('something as Foo');
+                expect(extractVariableName('somethingElse as Foo ')).to.equal('somethingElse as Foo');
+                expect(extractVariableName('sword of jonas as  something')).to.equal('sword of jonas as  something');
+                expect(extractVariableName('Bar[1,2] as somethingElse')).to.eql('Bar[1,2] as somethingElse');
+            });
+        });
         describe('aliased', ()=> {
             it('should extract single names with aliases', ()=> {
-                expect(extractVariableName('something as Foo')).to.equal('something');
-                expect(extractVariableName('somethingElse as Foo ')).to.equal('somethingElse');
-                expect(extractVariableName('sword of jonas as  something')).to.equal('sword of jonas');
+                expect(extractVariableName('something as (Foo)')).to.equal('something');
+                expect(extractVariableName('somethingElse as (Foo) ')).to.equal('somethingElse');
+                expect(extractVariableName('sword of jonas as  (something)')).to.equal('sword of jonas');
             });
             it('should extract subscripted variables', ()=> {
-                expect(extractVariableName('Bar[1,2] as somethingElse')).to.eql('Bar[1,2]');
+                expect(extractVariableName('Bar[1,2] as (somethingElse)')).to.eql('Bar[1,2]');
             });
         });
     });
