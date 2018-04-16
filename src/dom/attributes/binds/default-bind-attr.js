@@ -97,6 +97,29 @@ function toAliasMap(topics) {
     }, {});
 }
 
+function getNewContent(currentContents, value, $el, topics) {
+    if (!isTemplated(currentContents)) {
+        return translateDataToInsertable(value);
+    }
+
+    const templateData = translateDataToTemplatable(value, toAliasMap(topics));
+    const knownData = getKnownDataForEl($el);
+    $.extend(templateData, knownData);
+
+    const missingReferences = findMissingReferences(currentContents, Object.keys(templateData));
+    const stubbedTemplate = stubMissingReferences(currentContents, missingReferences);
+
+    const templateFn = template(stubbedTemplate);
+    try {
+        const templatedHTML = templateFn(templateData);
+        const templatedWithReferences = addBackMissingReferences(templatedHTML, missingReferences);
+        return templatedWithReferences;
+    } catch (e) { //you don't have all the references you need;
+        updateKnownDataForEl($el, templateData);
+        return currentContents;
+    }
+}
+
 /**
  * @type AttributeHandler 
  */
@@ -138,32 +161,9 @@ const bindAttrHandler = {
     },
 
     handle: function (value, prop, $el, topics) {
-        function getNewContent(currentContents, value) {
-            if (!isTemplated(currentContents)) {
-                return translateDataToInsertable(value);
-            } 
-
-            const templateData = translateDataToTemplatable(value, toAliasMap(topics));
-            const knownData = getKnownDataForEl($el);
-            $.extend(templateData, knownData);
-
-            const missingReferences = findMissingReferences(currentContents, Object.keys(templateData));
-            const stubbedTemplate = stubMissingReferences(currentContents, missingReferences);
-
-            const templateFn = template(stubbedTemplate);
-            try {
-                const templatedHTML = templateFn(templateData);
-                const templatedWithReferences = addBackMissingReferences(templatedHTML, missingReferences);
-                return templatedWithReferences;
-            } catch (e) { //you don't have all the references you need;
-                updateKnownDataForEl($el, templateData);
-                return currentContents;
-            }
-        }
-
         const el = $el.get(0);
         const originalContents = getOriginalContents($el, ($el)=> $el.html());
-        const contents = getNewContent(originalContents, value);
+        const contents = getNewContent(originalContents, value, $el, topics);
 
         addContentAndAnimate($el, contents, !elAnimatedMap.has(el), animation);
         elAnimatedMap.set(el, true);

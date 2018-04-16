@@ -74,7 +74,7 @@ const elAnimatedMap = new WeakMap(); //TODO: Can probably get rid of this if we 
 
 import { getKnownDataForEl, updateKnownDataForEl, removeKnownData, findMissingReferences, stubMissingReferences, addBackMissingReferences, getOriginalContents, clearOriginalContents } from '../attr-template-utils';
 
-import { extractVariableName, parseKeyAlias, parseValueAlias } from './loop-attr-utils';
+import { aliasesFromTopics, parseTopics } from './loop-attr-utils';
 
 /**
  * @type AttributeHandler 
@@ -103,12 +103,7 @@ const loopAttrHandler = {
     },
 
     parse: function (topics) {
-        const attrVal = topics[0].name;
-        return [{
-            name: extractVariableName(attrVal),
-            keyAlias: parseKeyAlias(attrVal),
-            valueAlias: parseValueAlias(attrVal),
-        }];
+        return parseTopics(topics);
     },
 
     handle: function (value, prop, $el, topics) {
@@ -126,11 +121,7 @@ const loopAttrHandler = {
             $el.attr('data-' + templateIdAttr, id);
         }
 
-        const relevantTopic = topics[0]; //doesn't support multiple topics
-
-        const defaultKey = $.isPlainObject(value) ? 'key' : 'index';
-        const keyAlias = relevantTopic.keyAlias || defaultKey;
-        const valueAlias = relevantTopic.valueAlias || 'value';
+        const { keyAlias, valueAlias } = aliasesFromTopics(topics, value);
 
         const knownData = getKnownDataForEl($el);
         const missingReferences = findMissingReferences(originalHTML, [keyAlias, valueAlias].concat(Object.keys(knownData)));

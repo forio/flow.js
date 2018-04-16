@@ -120,7 +120,7 @@
 import { toImplicitType } from 'utils/parse-utils';
 import { animation } from '../../../config';
 
-import { extractVariableName, parseKeyAlias, parseValueAlias } from './loop-attr-utils';
+import { aliasesFromTopics, parseTopics } from './loop-attr-utils';
 import { addChangeClassesToList } from 'utils/animation';
 import { each, template } from 'lodash';
 
@@ -150,22 +150,13 @@ const foreachAttr = {
     },
 
     parse: function (topics) {
-        const attrVal = topics[0].name;
-        return [{ 
-            name: extractVariableName(attrVal),
-            keyAlias: parseKeyAlias(attrVal),
-            valueAlias: parseValueAlias(attrVal),
-        }];
+        return parseTopics(topics);
     },
 
     handle: function (value, prop, $el, topics) {
         value = ($.isPlainObject(value) ? value : [].concat(value));
 
-        const relevantTopic = topics[0]; //doesn't support multiple topics
-
-        const defaultKey = $.isPlainObject(value) ? 'key' : 'index';
-        const keyAlias = relevantTopic.keyAlias || defaultKey;
-        const valueAlias = relevantTopic.valueAlias || 'value';
+        const { keyAlias, valueAlias } = aliasesFromTopics(topics, value);
 
         const originalHTML = getOriginalContents($el, ($el)=> $el.html());
         const knownData = getKnownDataForEl($el);
