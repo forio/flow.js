@@ -1242,7 +1242,7 @@ module.exports = View;
 /* harmony export (immutable) */ __webpack_exports__["a"] = extractVariableName;
 /* harmony export (immutable) */ __webpack_exports__["b"] = parseKeyAlias;
 /* harmony export (immutable) */ __webpack_exports__["c"] = parseValueAlias;
-var IN_OF_REGEX = /(.*) (?:in|of) (.*)/;
+var IN_OF_REGEX = /\((.*)\) (?:in|of) (.*)/;
 var KEY_VALUE_REGEX = /(.*),(.*)/;
 
 /**

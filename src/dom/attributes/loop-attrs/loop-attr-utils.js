@@ -1,4 +1,4 @@
-const IN_OF_REGEX = /(.*) (?:in|of) (.*)/;
+const IN_OF_REGEX = /\((.*)\) (?:in|of) (.*)/;
 const KEY_VALUE_REGEX = /(.*),(.*)/;
 
 /**
@@ -30,10 +30,9 @@ export function parseKeyAlias(attrVal) {
  * @return {string}
  */
 export function parseValueAlias(attrVal) {
-    const defaultValueProp = 'value';
     const inMatch = attrVal.match(IN_OF_REGEX);
     if (!inMatch) {
-        return defaultValueProp;
+        return undefined;
     }
     const itMatch = inMatch[1].match(KEY_VALUE_REGEX);
     const alias = itMatch ? itMatch[2] : inMatch[1];
