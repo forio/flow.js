@@ -40,32 +40,24 @@
  *
  */
 
-const { isString, isFunction, isRegExp, filter, each } = require('lodash');
+const { isString, isFunction, isRegExp, each } = require('lodash');
 
 var defaultHandlers = [
-    require('./no-op-attr'),
-    require('./events/default-event-attr'),
-    require('./loop-attrs/foreach-attr'),
-    require('./loop-attrs/repeat-attr'),
-    require('./binds/checkbox-radio-bind-attr'),
-    require('./binds/input-bind-attr'),
-    require('./class-attr'),
-    require('./positive-boolean-attr'),
-    require('./negative-boolean-attr'),
-    require('./toggles/show-if-attr'),
-    require('./toggles/hide-if-attr'),
-    require('./binds/default-bind-attr'),
-    require('./default-attr')
+    require('./no-op-attr').default,
+    require('./events/default-event-attr').default,
+    require('./loop-attrs/foreach-attr').default,
+    require('./loop-attrs/repeat-attr').default,
+    require('./class-attr').default,
+    require('./positive-boolean-attr').default,
+    require('./negative-boolean-attr').default,
+    require('./toggles/show-if-attr').default,
+    require('./toggles/hide-if-attr').default,
+    require('./binds/checkbox-radio-bind-attr').default,
+    require('./binds/input-bind-attr').default,
+    require('./binds/default-bind-attr').default,
+    require('./default-attr').default
 ];
 
-/**
- * @typedef AttributeHandler
- * @property {string|Function|RegExp} test
- * @property {Function} handle
- * @property {string|JQuery<HTMLElement>} target
- */
-
- 
 var handlersList = [];
 
 var normalize = function (attributeMatcher, nodeMatcher, handler) {
@@ -110,7 +102,7 @@ module.exports = {
      *
      * @param  {string|Function|RegExp} attributeMatcher Description of which attributes to match.
      * @param  {string|JQuery<HTMLElement>} nodeMatcher Which nodes to add attributes to. Use [jquery Selector syntax](https://api.jquery.com/category/selectors/).
-     * @param  {Function|Object} handler If `handler` is a function, the function is called with `$element` as context, and attribute value + name. If `handler` is an object, it should include two functions, and have the form: `{ init: fn,  handle: fn }`. The `init` function is called when the page loads; use this to define event handlers. The `handle` function is called with `$element` as context, and attribute value + name.
+     * @param  {Function|object} handler If `handler` is a function, the function is called with `$element` as context, and attribute value + name. If `handler` is an object, it should include two functions, and have the form: `{ init: fn,  handle: fn }`. The `init` function is called when the page loads; use this to define event handlers. The `handle` function is called with `$element` as context, and attribute value + name.
      * @returns {void}
      */
     register: function (attributeMatcher, nodeMatcher, handler) {
@@ -123,14 +115,14 @@ module.exports = {
      * @param  {string} attrFilter Attribute to match.
      * @param  {string|JQuery<HTMLElement>} nodeFilter Node to match.
      *
-     * @return {Array|Null} An array of matching attribute handlers, or null if no matches found.
+     * @return {AttributeHandler[]} An array of matching attribute handlers, or null if no matches found.
      */
     filter: function (attrFilter, nodeFilter) {
-        var filtered = filter(handlersList, function (handler) {
+        var filtered = handlersList.filter(function (handler) {
             return matchAttr(handler.test, attrFilter);
         });
         if (nodeFilter) {
-            filtered = filter(filtered, function (handler) {
+            filtered = filtered.filter(function (handler) {
                 return matchNode(handler.target, nodeFilter);
             });
         }
@@ -142,7 +134,7 @@ module.exports = {
      *
      * @param  {string} attrFilter Attribute to match.
      * @param  {string|JQuery<HTMLElement>} nodeFilter Node to match.
-     * @param  {Function|Object} handler The updated attribute handler. If `handler` is a function, the function is called with `$element` as context, and attribute value + name. If `handler` is an object, it should include two functions, and have the form: `{ init: fn,  handle: fn }`. The `init` function is called when the page loads; use this to define event handlers. The `handle` function is called with `$element` as context, and attribute value + name.
+     * @param  {Function|object} handler The updated attribute handler. If `handler` is a function, the function is called with `$element` as context, and attribute value + name. If `handler` is an object, it should include two functions, and have the form: `{ init: fn,  handle: fn }`. The `init` function is called when the page loads; use this to define event handlers. The `handle` function is called with `$element` as context, and attribute value + name.
      * @returns {void}
      */
     replace: function (attrFilter, nodeFilter, handler) {
@@ -162,7 +154,7 @@ module.exports = {
      * @param {string} property The attribute.
      * @param {JQuery<HTMLElement>} $el The DOM element.
      *
-     * @return {Object} The attribute handler.
+     * @return {AttributeHandler|undefined} The attribute handler, if a matching one is found
      */
     getHandler: function (property, $el) {
         var filtered = this.filter(property, $el);

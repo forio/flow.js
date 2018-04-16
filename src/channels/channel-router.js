@@ -89,7 +89,7 @@ export function passthroughPublishInterceptors(handlers, publishData, options) {
 
 /**
  * Router
- * @param  {Handler[]} myHandlers
+ * @param  {Handler[]} handlers
  * @return {Router}
  */
 export default function router(handlers) {

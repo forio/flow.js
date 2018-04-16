@@ -17,21 +17,23 @@
  * 		</select>
  *
  */
-module.exports = {
+
+/**
+ * @type AttributeHandler 
+ */
+const inputBindAttr = {
     target: 'input, select, textarea',
 
     test: 'bind',
 
-    /**
-    * @param {string[]|number[]|string|number} value
-    * @return {void}
-    */ 
-    handle: function (value) {
+    handle: function (value, prop, $el) {
         if (value === undefined) {
             value = '';
         } else if (Array.isArray(value)) {
             value = value[value.length - 1];
         }
-        this.val(value);
+        $el.val(value);
     }
 };
+
+export default inputBindAttr;

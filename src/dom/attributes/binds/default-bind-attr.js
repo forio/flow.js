@@ -80,47 +80,64 @@
  *
  */
 
-'use strict';
-const { template } = require('lodash');
-const { addContentAndAnimate } = require('utils/animation');
-const config = require('../../../config');
+import { template } from 'lodash';
+import { addContentAndAnimate } from 'utils/animation';
+import { animation } from 'config';
 
-const { getKnownDataForEl, updateKnownDataForEl, removeKnownData, 
-    findMissingReferences, stubMissingReferences, addBackMissingReferences,
-    isTemplated,
-    getOriginalContents, clearOriginalContents
-} = require('../attr-template-utils');
+import { extractVariableName, extractAlias, translateDataToTemplatable, translateDataToInsertable } from './bind-utils';
 
+import { getKnownDataForEl, updateKnownDataForEl, removeKnownData, findMissingReferences, stubMissingReferences, addBackMissingReferences, isTemplated, getOriginalContents, clearOriginalContents } from '../attr-template-utils';
 
 const elAnimatedMap = new WeakMap(); //TODO: Can probably get rid of this if we make subscribe a promise and distinguish between initial value
 
-function translateDataToInsertable(value) {
-    if (Array.isArray(value)) {
-        value = value[value.length - 1];
-    }
-    value = ($.isPlainObject(value)) ? JSON.stringify(value) : value + '';
-    return value;
-}
-function translateDataToTemplatable(value, alias) {
-    let templateData = {};
-    if (!$.isPlainObject(value)) {
-        templateData = { value: value };
-        if (alias) {
-            templateData[alias] = value;
-        }
-    } else {
-        templateData = $.extend({}, value, {
-            value: value, //If the key has 'weird' characters like '<>' hard to get at with a template otherwise
-        });
-    }
-    return templateData;
+function toAliasMap(topics) {
+    return (topics || []).reduce((accum, topic)=> {
+        accum[topic.name] = topic.alias;   
+        return accum;
+    }, {});
 }
 
-module.exports = {
+function getNewContent(currentContents, value, $el, topics) {
+    if (!isTemplated(currentContents)) {
+        return translateDataToInsertable(value);
+    }
+
+    const templateData = translateDataToTemplatable(value, toAliasMap(topics));
+    const knownData = getKnownDataForEl($el);
+    $.extend(templateData, knownData);
+
+    const missingReferences = findMissingReferences(currentContents, Object.keys(templateData));
+    const stubbedTemplate = stubMissingReferences(currentContents, missingReferences);
+
+    const templateFn = template(stubbedTemplate);
+    try {
+        const templatedHTML = templateFn(templateData);
+        const templatedWithReferences = addBackMissingReferences(templatedHTML, missingReferences);
+        return templatedWithReferences;
+    } catch (e) { //you don't have all the references you need;
+        updateKnownDataForEl($el, templateData);
+        return currentContents;
+    }
+}
+
+/**
+ * @type AttributeHandler 
+ */
+const bindAttrHandler = {
 
     target: '*',
 
     test: 'bind',
+
+    parse: function (topics) {
+        return topics.map((topic)=> {
+            const attrVal = topic.name;
+            return {
+                name: extractVariableName(attrVal),
+                alias: extractAlias(attrVal),
+            };
+        });
+    },
 
     //FIXME: Can't do this because if you have a bind within a foreach, foreach overwrites the old el with a new el, and at that points contents are lost
     // But if i don't do this the <%= %> is going to show up
@@ -129,14 +146,8 @@ module.exports = {
     //     if (isTemplated(contents)) {
     //         $el.empty();
     //     }
-    //     return true;
     // },
 
-    /**
-     * @param {string} attr
-     * @param {JQuery<HTMLElement>} $el
-     * @return {void}
-     */ 
     unbind: function (attr, $el) {
         const el = $el.get(0);
         elAnimatedMap.delete(el);
@@ -149,41 +160,14 @@ module.exports = {
         removeKnownData($el);
     },
 
-    /**
-    * @param {any} value
-    * @param {string} prop
-    * @param {JQuery<HTMLElement>} $el
-    * @return {void}
-    */ 
-    handle: function (value, prop, $el) {
-        function getNewContent(currentContents, value) {
-            if (!isTemplated(currentContents)) {
-                return translateDataToInsertable(value);
-            } 
-
-            let templateData = translateDataToTemplatable(value, $el.data(`f-${prop}`));
-            const knownData = getKnownDataForEl($el);
-            $.extend(templateData, knownData);
-
-            const missingReferences = findMissingReferences(currentContents, Object.keys(templateData));
-            const stubbedTemplate = stubMissingReferences(currentContents, missingReferences);
-
-            const templateFn = template(stubbedTemplate);
-            try {
-                const templatedHTML = templateFn(templateData);
-                const templatedWithReferences = addBackMissingReferences(templatedHTML, missingReferences);
-                return templatedWithReferences;
-            } catch (e) { //you don't have all the references you need;
-                updateKnownDataForEl($el, templateData);
-                return currentContents;
-            }
-        }
-
+    handle: function (value, prop, $el, topics) {
         const el = $el.get(0);
         const originalContents = getOriginalContents($el, ($el)=> $el.html());
-        const contents = getNewContent(originalContents, value);
+        const contents = getNewContent(originalContents, value, $el, topics);
 
-        addContentAndAnimate($el, contents, !elAnimatedMap.has(el), config.animation);
+        addContentAndAnimate($el, contents, !elAnimatedMap.has(el), animation);
         elAnimatedMap.set(el, true);
     }
 };
+
+export default bindAttrHandler;

@@ -15,31 +15,38 @@
  *
  */
 
-'use strict';
-var config = require('config');
-var toPublishableFormat = require('utils/parse-utils').toPublishableFormat;
+import { events } from 'config';
+import { toPublishableFormat } from 'utils/parse-utils';
 
-module.exports = {
+/**
+ * @type AttributeHandler 
+ */
+const defaultEventAttr = {
 
     target: '*',
 
-    test: function (attr, $node) {
+    test: function (attr) {
         return (attr.indexOf('on-') === 0);
     },
 
-    unbind: function (attr) {
+    unbind: function (attr, $el) {
         const eventName = attr.replace('on-', '');
-        this.off(eventName);
+        $el.off(eventName);
     },
 
-    init: function (attr, value) {
+    parse: function () {
+        return []; //There's nothing to subscribe to on an event
+    },
+
+    init: function (attr, topics, $el) {
         const eventName = attr.replace('on-', '');
-        var me = this;
-        this.off(eventName).on(eventName, function (evt) {
+        const matching = topics[0] && topics[0].name; //multiple topics aren't really relevant here
+        $el.off(eventName).on(eventName, function (evt) {
             evt.preventDefault();
-            var listOfOperations = toPublishableFormat(value);
-            me.trigger(config.events.operate, { data: listOfOperations, source: attr });
+            var listOfOperations = toPublishableFormat(matching);
+            $el.trigger(events.operate, { data: listOfOperations, source: attr });
         });
-        return false; //Don't bother binding on this attr. NOTE: Do readonly, true instead?;
     }
 };
+
+export default defaultEventAttr;

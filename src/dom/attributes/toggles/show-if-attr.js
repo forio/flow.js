@@ -18,14 +18,16 @@
  * * You can chain model variable(s) together with any number of converters. The result of the conversion must be boolean.
  */
 
-module.exports = {
+/**
+  * @type AttributeHandler
+  */
+const showifHandler = {
     test: 'showif',
 
     target: '*',
 
     init: function (attr, value, $el) {
         $el.hide(); //hide by default; if not this shows text until data is fetched
-        return true;
     },
 
     handle: function (value, prop, $el) {
@@ -35,3 +37,5 @@ module.exports = {
         return (value && `${value}`.trim()) ? $el.show() : $el.hide();
     }
 };
+
+export default showifHandler;

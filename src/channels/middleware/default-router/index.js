@@ -1,5 +1,4 @@
 import router from '../../channel-router';
-import { toImplicitType } from 'utils/parse-utils';
 
 //FIXME: This doesn't handle add-route
 export default function (config, notifier, channelManagerContext) {

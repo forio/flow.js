@@ -81,7 +81,7 @@ module.exports = (function () {
                 attr = attr.replace(wantedPrefix, '');
                 const handler = attrManager.getHandler(attr, $el);
                 if (handler.unbind) {
-                    handler.unbind.call($el, attr, $el);
+                    handler.unbind(attr, $el);
                 }
             }
         });
@@ -178,54 +178,55 @@ module.exports = (function () {
                 } 
                 attr = attr.replace(filterPrefix, '');
 
-                let attrVal = nodeMap.value;
+                const attrVal = nodeMap.value;
+                let topics = parseTopicsFromAttributeValue(attrVal);
+                
                 const handler = attrManager.getHandler(attr, $el);
+                if (handler && handler.init) {
+                    handler.init(attr, topics, $el);
+                }
                 if (handler && handler.parse) {
-                    attrVal = handler.parse(attrVal, $el); //Parse value to return variable name
+                    topics = [].concat(handler.parse(topics));
                 }
                 
-                const initVal = handler && handler.init && handler.init.call($el, attr, attrVal, $el);
-                const isBindable = initVal !== false;
-
-                const converters = getConvertersForEl($el, attr);
-             
-                let topics = parseTopicsFromAttributeValue(attrVal);
-                if (topics && topics.length) {
-                    const channelPrefix = getChannelForAttribute($el, attr);
-                    if (channelPrefix) {
-                        topics = topics.map((v)=> {
-                            const hasChannelDefined = v.indexOf(':') !== -1;
-                            return hasChannelDefined ? v : `${channelPrefix}:${v}`;
-                        });
-                    }
-                    const channelConfig = getChannelConfigForElement(domEl);
-                    attrList[attr] = {
-                        isBindable: isBindable,
-                        channelPrefix: channelPrefix,
-                        channelConfig: channelConfig,
-                        topics: topics,
-                        converters: converters,
-                    };
+                const channelPrefix = getChannelForAttribute($el, attr);
+                if (channelPrefix) {
+                    topics = topics.map((topic)=> {
+                        const currentName = topic.name;
+                        const hasChannelDefined = currentName.indexOf(':') !== -1;
+                        if (!hasChannelDefined) {
+                            topic.name = `${channelPrefix}:${currentName}`;
+                        }
+                        return topic;
+                    });
                 }
+                const converters = getConvertersForEl($el, attr);
+                attrList[attr] = {
+                    channelPrefix: channelPrefix,
+                    topics: topics,
+                    converters: converters, //Store once instead of calculating on demand. Avoids having to parse through dom every time
+                };
             });
             //Need this to be set before subscribing or callback maybe called before it's set
             this.matchedElements.set(domEl, attrList);
             
+            const channelConfig = getChannelConfigForElement(domEl);
             const attrsWithSubscriptions = Object.keys(attrList).reduce((accum, name)=> {
                 const attr = attrList[name];
-                const { topics, channelPrefix, channelConfig, isBindable } = attr;
-                if (!isBindable) {
+                const { topics, channelPrefix } = attr;
+                if (!topics.length) {
                     accum[name] = attr;
                     return accum;
                 }
 
                 const subsOptions = $.extend({ batch: true }, channelConfig);
-                const subsid = channel.subscribe(topics, (data)=> {
+                const subscribableTopics = topics.map((t)=> t.name);
+                const subsid = channel.subscribe(subscribableTopics, (data)=> {
                     const toConvert = {};
-                    if (topics.length === 1) { //If I'm only interested in 1 thing pass in value directly, else mke a map;
-                        toConvert[name] = data[topics[0]];
+                    if (subscribableTopics.length === 1) { //If I'm only interested in 1 thing pass in value directly, else mke a map;
+                        toConvert[name] = data[subscribableTopics[0]];
                     } else {
-                        const dataForAttr = pick(data, topics) || {};
+                        const dataForAttr = pick(data, subscribableTopics) || {};
                         toConvert[name] = Object.keys(dataForAttr).reduce((accum, key)=> {
                             //If this was through a 'hidden' channel attr return what was bound
                             const toReplace = new RegExp(`^${channelPrefix}:`);
@@ -365,6 +366,8 @@ module.exports = (function () {
                     const { data, source, options } = params;
                     const sourceMeta = elMeta[source] || {};
 
+                    const { channelPrefix, converters } = sourceMeta;
+
                     const filtered = ([].concat(data || [])).reduce(function (accum, operation) {
                         const val = operation.value;
                         if (Array.isArray(val)) {
@@ -382,8 +385,8 @@ module.exports = (function () {
                             if (operation.name.indexOf(':') === -1) {
                                 operation.name = `${DEFAULT_OPERATIONS_PREFIX}${operation.name}`;
                             }
-                            if (operation.name.indexOf(DEFAULT_OPERATIONS_PREFIX) === 0 && sourceMeta.channelPrefix) {
-                                operation.name = `${sourceMeta.channelPrefix}:${operation.name}`;
+                            if (operation.name.indexOf(DEFAULT_OPERATIONS_PREFIX) === 0 && channelPrefix) {
+                                operation.name = `${channelPrefix}:${operation.name}`;
                             }
                             accum.operations.push(operation);
                         }
@@ -396,8 +399,8 @@ module.exports = (function () {
                      
                     //FIXME: Needed for the 'gotopage' in interfacebuilder. Remove this once we add a window channel
                     promise.then(function (args) {
-                        filtered.converters.forEach(function (con) {
-                            converterManager.convert(con.value, [con.name]);
+                        (converters || []).forEach(function (con) {
+                            converterManager.convert('', con);
                         });
                     });
                 });
@@ -412,12 +415,13 @@ module.exports = (function () {
                     if (!elMeta) {
                         return;
                     }
+
                     function convert(val, prop) {
-                        const attrConverters = elMeta[prop].converters;
+                        const { converters, topics } = elMeta[prop];
+                        const convertedValue = converterManager.convert(val, converters);
 
                         const handler = attrManager.getHandler(prop, $el);
-                        const convertedValue = converterManager.convert(val, attrConverters);
-                        handler.handle.call($el, convertedValue, prop, $el);
+                        handler.handle(convertedValue, prop, $el, topics);
                     }
 
                     if ($.isPlainObject(data)) {

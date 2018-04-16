@@ -10,7 +10,7 @@
  * **To display a DOM element based on an array variable from your model:**
  *
  * 1. Add the `data-f-foreach` attribute to any HTML element that has repeated sub-elements. The two most common examples are lists and tables. The `data-f-foreach` goes on the enclosing element. For a list, this is the `<ul>`, and for a table, it's the `<tbody>`.
- * 2. Set the value of the `data-f-foreach` attribute in your top-level HTML element to reference the model array variable. You can do this either with or without introducing an alias to reference the array elements: `<ul data-f-foreach="Time"></ul>` or `<ul data-f-foreach="t in Time"></ul>`.
+ * 2. Set the value of the `data-f-foreach` attribute in your top-level HTML element to reference the model array variable. You can do this either with or without introducing an alias to reference the array elements: `<ul data-f-foreach="Time"></ul>` or `<ul data-f-foreach="(t) in Time"></ul>`.
  * 3. Add the HTML in which the value of your model array variable should appear. Optionally, inside this inner HTML element, you can use templates (`<%= %>`) to reference the `index` (for arrays) or `key` (for objects) and `value` to display, or to reference the alias you introduced. The `index`, `key`, and `value` are special variables that Flow.js populates for you. 
  *
  *
@@ -67,13 +67,13 @@
  *
  * **Add an alias for the value.** Alternatively, you can add an alias when you initially introduce your model array variable, then reference that alias within templates (`<%= %>`). For example:
  *
- *      <ul data-f-foreach="f in Fruits">
+ *      <ul data-f-foreach="(f) in Fruits">
  *          <li> <%= f %> </li>
  *      </ul>
  *
  * which generates:
  *
- *      <ul data-f-foreach="f in Fruits">
+ *      <ul data-f-foreach="(f) in Fruits">
  *          <li> apples </li>
  *          <li> bananas </li>
  *          <li> cherries </li>
@@ -82,9 +82,9 @@
  * **Nesting with aliases.** An advantage to introducing aliases is that you can nest HTML elements that have repeated sub-elements. For example:
  *
  *      <!-- given Sales, an array whose elements are themselves arrays of the sales for each Region -->
- *      <ul data-f-foreach="r in Regions">
+ *      <ul data-f-foreach="(r) in Regions">
  *          <li>Region <%= r %>: 
- *              <ul data-f-foreach="s in Sales[<%= r %>]">
+ *              <ul data-f-foreach="(s) in Sales[<%= r %>]">
  *                  <li>Sales <%= s %></li>
  *              </ul>
  *          </li>
@@ -93,8 +93,8 @@
  * **Logic, data processing.** Finally, note that you can add logic to the display of your data by combining templating with either the `value` or an alias. For example, suppose you only want to display the sales total if it is greater than 250:
  *
  *      <table>
- *          <tbody data-f-foreach="r in regions">
- *              <tr data-f-foreach="s in sales">
+ *          <tbody data-f-foreach="(r) in regions">
+ *              <tr data-f-foreach="(s) in sales">
  *                  <td><%= r + ": " %> <%= (s > 250) ? s : "sales below threshold" %></td>
  *              </tr>
  *          </tbody>
@@ -117,21 +117,21 @@
  *
  * * The `data-f-foreach` attribute is [similar to the `data-f-repeat` attribute](../../loop-attrs/repeat-attr/), so you may want to review the examples there as well.
  */
-const parseUtils = require('../../../utils/parse-utils');
-const config = require('../../../config');
+import { toImplicitType } from 'utils/parse-utils';
+import { animation } from '../../../config';
 
-const { extractVariableName, parseKeyAlias, parseValueAlias } = require('./loop-attr-utils');
-const { addChangeClassesToList } = require('utils/animation');
-const { each, template } = require('lodash');
+import { aliasesFromTopics, parseTopics } from './loop-attr-utils';
+import { addChangeClassesToList } from 'utils/animation';
+import { each, template } from 'lodash';
 
-const { getKnownDataForEl, updateKnownDataForEl, removeKnownData, 
-    findMissingReferences, stubMissingReferences, addBackMissingReferences,
-    getOriginalContents, clearOriginalContents
-} = require('../attr-template-utils');
+import { getKnownDataForEl, updateKnownDataForEl, removeKnownData, findMissingReferences, stubMissingReferences, addBackMissingReferences, getOriginalContents, clearOriginalContents } from '../attr-template-utils';
 
 const elAnimatedMap = new WeakMap(); //TODO: Can probably get rid of this if we make subscribe a promise and distinguish between initial value
 
-module.exports = {
+/**
+ * @type AttributeHandler
+ */
+const foreachAttr = {
 
     test: 'foreach',
 
@@ -149,20 +149,18 @@ module.exports = {
         removeKnownData($el);
     },
 
-    parse: function (attrVal) {
-        return extractVariableName(attrVal);
+    parse: function (topics) {
+        return parseTopics(topics);
     },
 
-    handle: function (value, prop, $el) {
+    handle: function (value, prop, $el, topics) {
         value = ($.isPlainObject(value) ? value : [].concat(value));
 
-        const attrVal = $el.data(`f-${prop}`);
-        const keyAttr = parseKeyAlias(attrVal, value);
-        const valueAttr = parseValueAlias(attrVal, value);
-        
+        const { keyAlias, valueAlias } = aliasesFromTopics(topics, value);
+
         const originalHTML = getOriginalContents($el, ($el)=> $el.html());
         const knownData = getKnownDataForEl($el);
-        const missingReferences = findMissingReferences(originalHTML, [keyAttr, valueAttr].concat(Object.keys(knownData)));
+        const missingReferences = findMissingReferences(originalHTML, [keyAlias, valueAlias].concat(Object.keys(knownData)));
         const stubbedTemplate = stubMissingReferences(originalHTML, missingReferences);
 
         const templateFn = template(stubbedTemplate);
@@ -172,8 +170,8 @@ module.exports = {
                 dataval = dataval + ''; //convert undefineds to strings
             }
             const templateData = $.extend(true, {}, knownData, {
-                [keyAttr]: datakey,
-                [valueAttr]: dataval
+                [keyAlias]: datakey,
+                [valueAlias]: dataval
             });
 
             let nodes;
@@ -192,7 +190,7 @@ module.exports = {
             nodes.each(function (i, newNode) {
                 const $newNode = $(newNode);
                 each($newNode.data(), function (val, key) {
-                    $newNode.data(key, parseUtils.toImplicitType(val));
+                    $newNode.data(key, toImplicitType(val));
                 });
                 if (!isTemplated && !$newNode.html().trim()) {
                     $newNode.html(dataval);
@@ -203,9 +201,11 @@ module.exports = {
         
         const el = $el.get(0);
         const isInitialAnim = !elAnimatedMap.get(el);
-        const $withAnimAttrs = addChangeClassesToList($el.children(), $dummyEl.children(), isInitialAnim, config.animation);
+        const $withAnimAttrs = addChangeClassesToList($el.children(), $dummyEl.children(), isInitialAnim, animation);
         $el.empty().append($withAnimAttrs);
 
         elAnimatedMap.set(el, true);
     }
 };
+
+export default foreachAttr;

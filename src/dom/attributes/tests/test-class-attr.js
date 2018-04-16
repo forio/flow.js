@@ -1,8 +1,7 @@
 import { initWithNode, createDummyChannel } from 'tests/testing-utils';
 import domManager from 'src/dom/dom-manager';
 
-describe('Classes', function () {
-
+describe('Classes Integration', function () {
     it('should able to add classes if there are none', function () {
         const channel = createDummyChannel();
         return initWithNode('<input type="text" data-f-class="apple" data-f-bind="stuff"/>', domManager, channel).then(function ($node) {

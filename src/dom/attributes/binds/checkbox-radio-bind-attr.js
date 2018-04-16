@@ -16,22 +16,24 @@
  *      <input type="checkbox" data-f-bind="sampleBool" />
  *
  */
-module.exports = {
+
+/**
+  * @type {AttributeHandler}
+  */
+const checkboxAttrHandler = {
 
     target: ':checkbox,:radio',
 
     test: 'bind',
 
-    /**
-     * @param {string[]|number[]|string|number} value
-     * @return {void}
-     */ 
-    handle: function (value) {
+    handle: function (value, prop, $el) {
         if (Array.isArray(value)) {
             value = value[value.length - 1];
         }
-        var settableValue = this.attr('value'); //initial value
-        var isChecked = (typeof settableValue !== 'undefined') ? (settableValue == value) : !!value; //eslint-disable-line eqeqeq
-        this.prop('checked', isChecked);
+        const settableValue = $el.attr('value'); //initial value
+        const isChecked = (typeof settableValue !== 'undefined') ? (settableValue == value) : !!value; //eslint-disable-line eqeqeq
+        $el.prop('checked', isChecked);
     }
 };
+
+export default checkboxAttrHandler;

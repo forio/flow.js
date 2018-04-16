@@ -1,5 +1,4 @@
-var config = require('src/config');
-var foreachHandler = require('src/dom/attributes/loop-attrs/foreach-attr');
+var foreachHandler = require('src/dom/attributes/loop-attrs/foreach-attr').default;
 
 describe('Default Foreach', function () {
 
@@ -8,16 +7,17 @@ describe('Default Foreach', function () {
 
             it('should clone children for arrays', function () {
                 var $rootNode = $('<ul data-f-foreach="something"> <li> </li> </ul>');
-
-                foreachHandler.handle([1, 2, 3, 4], 'foreach', $rootNode);
+                var topics = [{ name: 'something' }];
+                foreachHandler.handle([1, 2, 3, 4], 'foreach', $rootNode, topics);
                 var newChildren = $rootNode.children();
                 newChildren.length.should.equal(4);
             });
             it('should replace templated data attributes for children', function () {
                 var $rootNode = $('<ul data-f-foreach="something"> <li data-stuff="<%=value%>"> </li> </ul>');
                 var targetData = [5, 3, 6, 1];
+                var topics = [{ name: 'something' }];
 
-                foreachHandler.handle(targetData, 'foreach', $rootNode);
+                foreachHandler.handle(targetData, 'foreach', $rootNode, topics);
                 var newChildren = $rootNode.children();
                 newChildren.each(function (index) {
                     var data = $(this).data('stuff');
@@ -28,8 +28,9 @@ describe('Default Foreach', function () {
                 var $rootNode = $('<ul data-f-foreach="something"> <li> <%= (index === 0) ? "first" : value %> </li> </ul>');
                 var targetData = [5, 3, 6, 1];
                 var outputdata = ['first', 3, 6, 1];
+                var topics = [{ name: 'something' }];
 
-                foreachHandler.handle(targetData, 'foreach', $rootNode);
+                foreachHandler.handle(targetData, 'foreach', $rootNode, topics);
                 var newChildren = $rootNode.children();
                 newChildren.each(function (index) {
                     var data = $(this).html().trim();
@@ -40,8 +41,9 @@ describe('Default Foreach', function () {
                 var $rootNode = $('<ul data-f-foreach="something"> <li> <% if (index === 0) { %> <%= value %> <% } %> </li> </ul>');
                 var targetData = [5, 3, 6, 1];
                 var outputdata = [5, '', '', ''];
+                var topics = [{ name: 'something' }];
 
-                foreachHandler.handle(targetData, 'foreach', $rootNode);
+                foreachHandler.handle(targetData, 'foreach', $rootNode, topics);
                 var newChildren = $rootNode.children();
                 newChildren.each(function (index) {
                     var data = $(this).html().trim();
@@ -51,8 +53,9 @@ describe('Default Foreach', function () {
             it('should support block conditions in templates with multi children', function () {
                 var $rootNode = $('<ul data-f-foreach="something"> <li> <% if (index === 0) { %> <span> HI </span> <% } %>  <span> <%= value %> </span> </li> </ul>');
                 var targetData = [5, 3, 6, 1];
+                var topics = [{ name: 'something' }];
 
-                foreachHandler.handle(targetData, 'foreach', $rootNode);
+                foreachHandler.handle(targetData, 'foreach', $rootNode, topics);
                 var newChildren = $rootNode.children();
                 newChildren.each(function (index, el) {
                     if (index === 0) {
@@ -66,8 +69,10 @@ describe('Default Foreach', function () {
                 //Maybe deprecate this syntax?
                 var $rootNode = $('<ul data-f-foreach="something"> <% if (index === 0) { %> <li> HI </li> <% } %>  <li> <%= value %> </li> </ul>');
                 var targetData = [5, 3, 6, 1];
+                var topics = [{ name: 'something' }];
 
-                foreachHandler.handle(targetData, 'foreach', $rootNode);
+
+                foreachHandler.handle(targetData, 'foreach', $rootNode, topics);
                 $rootNode.children().length.should.equal(targetData.length + 1);
             });
 
@@ -75,8 +80,9 @@ describe('Default Foreach', function () {
             it('should replace templated inner html for children', function () {
                 var $rootNode = $('<ul data-f-foreach="something"> <li data-stuff="<%=index%>"> <%= value %> </li> </ul>');
                 var targetData = [5, 3, 6, 1];
+                var topics = [{ name: 'something' }];
 
-                foreachHandler.handle(targetData, 'foreach', $rootNode);
+                foreachHandler.handle(targetData, 'foreach', $rootNode, topics);
                 var newChildren = $rootNode.children();
                 newChildren.each(function (index) {
                     var data = $(this).html().trim();
@@ -88,8 +94,9 @@ describe('Default Foreach', function () {
             });
             it('should treat single values as arrays with 1 iteam', function () {
                 var $rootNode = $('<ul data-f-foreach="something"> <li data-value="<%= value %>"> </li> </ul>');
+                var topics = [{ name: 'something' }];
 
-                foreachHandler.handle(3, 'foreach', $rootNode);
+                foreachHandler.handle(3, 'foreach', $rootNode, topics);
                 var newChildren = $rootNode.children();
                 newChildren.length.should.equal(1);
 
@@ -97,8 +104,9 @@ describe('Default Foreach', function () {
             });
             it('should print out undefineds in html when passed nothing in', function () {
                 var $rootNode = $('<ul data-f-foreach="something"> <li data-value="<%= value %>"> <%= value %></li> </ul>');
+                var topics = [{ name: 'something' }];
 
-                foreachHandler.handle(undefined, 'foreach', $rootNode);
+                foreachHandler.handle(undefined, 'foreach', $rootNode, topics);
                 var newChildren = $rootNode.children();
                 newChildren.length.should.equal(1);
 
@@ -106,8 +114,9 @@ describe('Default Foreach', function () {
             });
             it('should set data to blank when passed nothing in', function () {
                 var $rootNode = $('<ul data-f-foreach="something"> <li data-value="<%= value %>"> <%= value %></li> </ul>');
+                var topics = [{ name: 'something' }];
 
-                foreachHandler.handle(undefined, 'foreach', $rootNode);
+                foreachHandler.handle(undefined, 'foreach', $rootNode, topics);
                 var newChildren = $rootNode.children();
                 newChildren.length.should.equal(1);
 
@@ -116,9 +125,10 @@ describe('Default Foreach', function () {
 
             it('should put the value inside the element if it`s not templated', function () {
                 var $rootNode = $('<ul data-f-foreach="something"> <li> </li> </ul>');
+                var topics = [{ name: 'something' }];
 
                 var data = [1, 2, 3, 4];
-                foreachHandler.handle(data, 'foreach', $rootNode);
+                foreachHandler.handle(data, 'foreach', $rootNode, topics);
                 var newChildren = $rootNode.children();
 
                 for (var i = 0; i < data.length; i++) {
@@ -129,16 +139,18 @@ describe('Default Foreach', function () {
         describe('Objects', function () {
             it('should clone children for objects', function () {
                 var $rootNode = $('<ul data-f-foreach="something"> <li> </li> </ul>');
+                var topics = [{ name: 'something' }];
 
-                foreachHandler.handle({ a: 3, b: 4, d: 6 }, 'foreach', $rootNode);
+                foreachHandler.handle({ a: 3, b: 4, d: 6 }, 'foreach', $rootNode, topics);
                 var newChildren = $rootNode.children();
                 newChildren.length.should.equal(3);
             });
             it('should replace templated inner html for children', function () {
                 var $rootNode = $('<ul data-f-foreach="something"> <li data-stuff="<%=key%>"> <%= value %> </li> </ul>');
                 var targetData = { a: 3, b: 4 };
+                var topics = [{ name: 'something' }];
 
-                foreachHandler.handle(targetData, 'foreach', $rootNode);
+                foreachHandler.handle(targetData, 'foreach', $rootNode, topics);
                 var newChildren = $rootNode.children();
                 newChildren.each(function () {
                     var val = $(this).html().trim();
@@ -152,21 +164,23 @@ describe('Default Foreach', function () {
         describe('Update behavior', function () {
             it('should not grow exponentially when called multiple times', function () {
                 var $rootNode = $('<ul data-f-foreach="something"> <li> </li> </ul>');
+                var topics = [{ name: 'something' }];
 
-                foreachHandler.handle([1, 2, 3, 4], 'foreach', $rootNode);
+                foreachHandler.handle([1, 2, 3, 4], 'foreach', $rootNode, topics);
                 var newChildren = $rootNode.children();
                 newChildren.length.should.equal(4);
 
-                foreachHandler.handle([1, 2, 3, 4], 'foreach', $rootNode);
+                foreachHandler.handle([1, 2, 3, 4], 'foreach', $rootNode, topics);
                 newChildren = $rootNode.children();
                 newChildren.length.should.equal(4);
             });
             it('should replace older values with new ones', function () {
                 var $rootNode = $('<ul data-f-foreach="something"> <li data-stuff="<%=index%>"> <%= value %> </li> </ul>');
+                var topics = [{ name: 'something' }];
 
-                foreachHandler.handle([1, 2, 3, 4], 'foreach', $rootNode);
+                foreachHandler.handle([1, 2, 3, 4], 'foreach', $rootNode, topics);
                 var targetData = [5, 3, 6, 1];
-                foreachHandler.handle(targetData, 'foreach', $rootNode);
+                foreachHandler.handle(targetData, 'foreach', $rootNode, topics);
 
                 var newChildren = $rootNode.children();
                 newChildren.each(function (index) {
@@ -180,9 +194,10 @@ describe('Default Foreach', function () {
             describe('Multiple children', function () {
                 it('should append the right number for children for templates with multiple children', function () {
                     var $rootNode = $('<ul data-f-foreach="something"> <li> <%= value %> </li> <li data-stuff="<%= index %>"> <%= value %> </li> </ul>');
-
+                    var topics = [{ name: 'something' }];
                     var targetData = [5, 3, 6];
-                    foreachHandler.handle(targetData, 'foreach', $rootNode);
+
+                    foreachHandler.handle(targetData, 'foreach', $rootNode, topics);
 
                     var newChildren = $rootNode.children();
                     newChildren.length.should.equal(6);
@@ -190,18 +205,19 @@ describe('Default Foreach', function () {
 
                 it('should process data attributes for all children', function () {
                     var $rootNode = $('<ul data-f-foreach="something"> <li> <%= value %> </li> <li data-stuff="<%= index %>"> <%= value %> </li> </ul>');
-
+                    var topics = [{ name: 'something' }];
+                    
                     var targetData = [5, 3, 6];
-                    foreachHandler.handle(targetData, 'foreach', $rootNode);
+                    foreachHandler.handle(targetData, 'foreach', $rootNode, topics);
 
                     var newChildren = $rootNode.children();
                     newChildren.eq(1).data('stuff').should.equal(0);
                 });
                 it('should process innerhtml for all children', function () {
                     var $rootNode = $('<ul data-f-foreach="something"> <li> <%= value %> </li> <li data-stuff="<%= index %>"> <%= index %> </li> </ul>');
-
+                    var topics = [{ name: 'something' }];
                     var targetData = [5, 3, 6];
-                    foreachHandler.handle(targetData, 'foreach', $rootNode);
+                    foreachHandler.handle(targetData, 'foreach', $rootNode, topics);
 
                     var newChildren = $rootNode.children();
                     newChildren.eq(1).html().trim().should.equal('0');
@@ -214,18 +230,18 @@ describe('Default Foreach', function () {
     describe('Variable aliasing', function () {
         it('should provide "key" and "value" variables for objects by default', function () {
             var $rootNode = $('<ul data-f-foreach="something"> <li> <%= key %> <%= value %> </li> </ul>');
-
+            var topics = [{ name: 'something' }];
             var targetData = { a: 1 };
-            foreachHandler.handle(targetData, 'foreach', $rootNode);
+            foreachHandler.handle(targetData, 'foreach', $rootNode, topics);
 
             var newChildren = $rootNode.children();
             newChildren.eq(0).html().trim().should.equal('a 1');
         });
         it('should provide "index" and "value" variables for arrays by default', function () {
             var $rootNode = $('<ul data-f-foreach="something"> <li> <%= index %> <%= value %> </li> </ul>');
-
+            var topics = [{ name: 'something' }];
             var targetData = [1];
-            foreachHandler.handle(targetData, 'foreach', $rootNode);
+            foreachHandler.handle(targetData, 'foreach', $rootNode, topics);
 
             var newChildren = $rootNode.children();
             newChildren.eq(0).html().trim().should.equal('0 1');

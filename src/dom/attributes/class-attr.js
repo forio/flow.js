@@ -37,25 +37,28 @@
  *       </div>
  *
  */
-const { isNumber } = require('lodash');
-const config = require('../../config');
+import { isNumber } from 'lodash';
+import { classesAdded } from '../../config';
 
-module.exports = {
+/**
+ * @type AttributeHandler
+ */
+const classAttr = {
     test: 'class',
 
     target: '*',
 
-    handle: function (value, prop) {
+    handle: function (value, prop, $el) {
         if (Array.isArray(value)) {
             value = value[value.length - 1];
         }
 
-        var addedClasses = this.data(config.classesAdded);
+        var addedClasses = $el.data(classesAdded);
         if (!addedClasses) {
             addedClasses = {};
         }
         if (addedClasses[prop]) {
-            this.removeClass(addedClasses[prop]);
+            $el.removeClass(addedClasses[prop]);
         }
 
         if (isNumber(value)) {
@@ -63,7 +66,9 @@ module.exports = {
         }
         addedClasses[prop] = value;
         //Fixme: prop is always "class"
-        this.addClass(value);
-        this.data(config.classesAdded, addedClasses);
+        $el.addClass(value);
+        $el.data(classesAdded, addedClasses);
     }
 };
+
+export default classAttr;

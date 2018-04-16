@@ -1,4 +1,5 @@
 import ChannelManager from '../channel-manager';
+import { expect } from 'chai';
 
 function noop() {}
 describe('Subscription Manager', ()=> {
