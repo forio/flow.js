@@ -58,7 +58,10 @@ export function optimizedFetch(runService, variables) {
     const MODEL_EXTENSIONS_SUPPORTING_OPTIMIZATION = ['xls', 'xlsx'];
     const config = runService.getCurrentConfig();
     const modelExtension = config.model && (config.model.toLowerCase()).split('.').pop();
-    const canOptimize = !!(MODEL_EXTENSIONS_SUPPORTING_OPTIMIZATION.find((e)=> e === modelExtension));
+    // const canOptimize = !!(MODEL_EXTENSIONS_SUPPORTING_OPTIMIZATION.find((e)=> e === modelExtension));
+    // FIXME: this is not fully thought through yet; for e.g. don't think this handles cases with Price[1..2] as the input
+    // Revisit after EPICENTER-3493 is done
+    const canOptimize = false;
     if (!canOptimize) {
         return runService.variables().query(variables);
     }
