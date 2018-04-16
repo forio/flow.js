@@ -1,10 +1,8 @@
 var foreachHandler = require('src/dom/attributes/loop-attrs/foreach-attr').default;
 
 describe('Default Foreach', function () {
-
     describe('#handle', function () {
         describe('Arrays', function () {
-
             it('should clone children for arrays', function () {
                 var $rootNode = $('<ul data-f-foreach="something"> <li> </li> </ul>');
                 var topics = [{ name: 'something' }];
@@ -247,5 +245,4 @@ describe('Default Foreach', function () {
             newChildren.eq(0).html().trim().should.equal('0 1');
         });
     });
-    require('./test-default-foreach-integration.js');
 });

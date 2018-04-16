@@ -118,13 +118,13 @@
  * * The `data-f-foreach` attribute is [similar to the `data-f-repeat` attribute](../../loop-attrs/repeat-attr/), so you may want to review the examples there as well.
  */
 import { toImplicitType } from 'utils/parse-utils';
-import { animation } from '../../../config';
+import { animation } from '../../../../config';
 
-import { aliasesFromTopics, parseTopics } from './loop-attr-utils';
+import { aliasesFromTopics, parseTopics } from '../loop-attr-utils';
 import { addChangeClassesToList } from 'utils/animation';
 import { each, template } from 'lodash';
 
-import { getKnownDataForEl, updateKnownDataForEl, removeKnownData, findMissingReferences, stubMissingReferences, addBackMissingReferences, getOriginalContents, clearOriginalContents } from '../attr-template-utils';
+import { getKnownDataForEl, updateKnownDataForEl, removeKnownData, findMissingReferences, stubMissingReferences, addBackMissingReferences, getOriginalContents, clearOriginalContents } from '../../attr-template-utils';
 
 const elAnimatedMap = new WeakMap(); //TODO: Can probably get rid of this if we make subscribe a promise and distinguish between initial value
 

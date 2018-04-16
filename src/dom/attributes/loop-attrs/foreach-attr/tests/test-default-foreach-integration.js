@@ -2,7 +2,7 @@ import { initWithNode, createDummyChannel } from 'tests/testing-utils';
 import domManager from 'src/dom/dom-manager';
 import CManager from 'src/channels/channel-manager';
 
-describe('integration', function () {
+describe('Foreach integration', function () {
     it('should loop through children for elems with foreach=variableArray', function () {
         var targetData = [5, 3, 6, 1];
 

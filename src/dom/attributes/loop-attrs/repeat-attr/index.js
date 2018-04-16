@@ -64,7 +64,7 @@
 import { each, template } from 'lodash';
 import { toImplicitType } from 'utils/parse-utils';
 import { random } from 'utils/general';
-import { attrs, animation } from '../../../config';
+import { attrs, animation } from '../../../../config';
 
 const templateIdAttr = attrs.repeat.templateId;
 
@@ -72,9 +72,9 @@ import { addChangeClassesToList } from 'utils/animation';
 
 const elAnimatedMap = new WeakMap(); //TODO: Can probably get rid of this if we make subscribe a promise and distinguish between initial value
 
-import { getKnownDataForEl, updateKnownDataForEl, removeKnownData, findMissingReferences, stubMissingReferences, addBackMissingReferences, getOriginalContents, clearOriginalContents } from '../attr-template-utils';
+import { getKnownDataForEl, updateKnownDataForEl, removeKnownData, findMissingReferences, stubMissingReferences, addBackMissingReferences, getOriginalContents, clearOriginalContents } from '../../attr-template-utils';
 
-import { aliasesFromTopics, parseTopics } from './loop-attr-utils';
+import { aliasesFromTopics, parseTopics } from '../loop-attr-utils';
 
 /**
  * @type AttributeHandler 
