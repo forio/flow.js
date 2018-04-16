@@ -1,42 +1,41 @@
-import { initWithNode, createDummyChannel } from 'tests/testing-utils';
-import domManager from 'src/dom/dom-manager';
+import showifAttr from '../index.js';
 
 describe('show if', function () {
-    it('should hide node by default', ()=> {
-        return initWithNode('<div data-f-showif="stuff"/></div>', domManager).then(function ($node) {
-            $node.is(':visible').should.equal(false);
+    describe('#init', ()=> {
+        it('should hide node by default', ()=> {
+            const $el = $('<div data-f-showif="stuff"/></div>');
+            showifAttr.handle('showif', 'stuff', $el);
+            $el.is(':visible').should.equal(false);
         });
     });
-    it('should show node if condition is true', ()=> {
-        const channel = createDummyChannel();
-        return initWithNode('<div data-f-showif="stuff"/></div>', domManager, channel).then(function ($node) {
-            return channel.publish({ stuff: true }).then(()=> {
-                $node.attr('style').should.equal('');
-            });
+    describe('#handle', ()=> {
+        it('should show node if value is true', ()=> {
+            const $el = $('<div data-f-showif="stuff"/></div>');
+            showifAttr.handle(true, 'showif', $el);
+            ($el.attr('style') || '').should.equal('');
         });
-    });
-    it('should show if condition is truthy', ()=> {
-        const channel = createDummyChannel();
-        return initWithNode('<div data-f-showif="stuff"/></div>', domManager, channel).then(function ($node) {
-            return channel.publish({ stuff: 'foobar' }).then(()=> {
-                $node.attr('style').should.equal('');
-            });
+        it('should show if value is truthy', ()=> {
+            const $el = $('<div data-f-showif="stuff"/></div>');
+            showifAttr.handle('foobar', 'showif', $el);
+            ($el.attr('style') || '').should.equal('');
         });
-    });
-    it('should hide node if condition is false', ()=> {
-        const channel = createDummyChannel();
-        return initWithNode('<div data-f-showif="stuff"></div>', domManager, channel).then(function ($node) {
-            return channel.publish({ stuff: false }).then(()=> {
-                $node.is(':visible').should.equal(false);
-            });
+
+        it('should hide if value is false', ()=> {
+            const $el = $('<div data-f-showif="stuff"/></div>');
+            showifAttr.handle(false, 'showif', $el);
+            $el.is(':visible').should.equal(false);
         });
-    });
-    it('should hide node if condition is falsy', ()=> {
-        const channel = createDummyChannel();
-        return initWithNode('<div data-f-showif="stuff"></div>', domManager, channel).then(function ($node) {
-            return channel.publish({ stuff: '' }).then(()=> {
-                $node.is(':visible').should.equal(false);
-            });
+
+        it('should hide if value is falsy', ()=> {
+            const $el = $('<div data-f-showif="stuff"/></div>');
+            showifAttr.handle('', 'showif', $el);
+            $el.is(':visible').should.equal(false);
+        });
+
+        it('should take last value if array', ()=> {
+            const $el = $('<div data-f-showif="stuff"/></div>');
+            showifAttr.handle([true, true, false], 'showif', $el);
+            $el.is(':visible').should.equal(false);
         });
     });
 });

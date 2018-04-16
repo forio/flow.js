@@ -1,43 +1,41 @@
-import { initWithNode, createDummyChannel } from 'tests/testing-utils';
-import domManager from 'src/dom/dom-manager';
+import hideifAttr from '../index.js';
 
 describe('hide if', function () {
-    it('should hide node by default', ()=> {
-        return initWithNode('<div data-f-hideif="stuff | greaterThan(10)"/></div>', domManager).then(function ($node) {
-            $node.is(':visible').should.equal(false);
+    describe('#init', ()=> {
+        it('should hide node by default', ()=> {
+            const $el = $('<div data-f-hideif="stuff"/></div>');
+            hideifAttr.handle('hideif', 'stuff', $el);
+            $el.is(':visible').should.equal(false);
         });
     });
-    it('should show node if condition is true', ()=> {
-        const channel = createDummyChannel();
-        return initWithNode('<div data-f-hideif="stuff | greaterThan(10)"/></div>', domManager, channel).then(function ($node) {
-            return channel.publish({ stuff: 0 }).then(()=> {
-                $node.attr('style').should.equal('');
-            });
+    describe('#handle', ()=> {
+        it('should hide node if value is true', ()=> {
+            const $el = $('<div data-f-hideif="stuff"/></div>');
+            hideifAttr.handle(true, 'hideif', $el);
+            $el.is(':visible').should.equal(false);
         });
-    });
-    it('should hide node if condition is false', ()=> {
-        const channel = createDummyChannel();
-        return initWithNode('<div data-f-hideif="stuff | greaterThan(10)"></div>', domManager, channel).then(function ($node) {
-            return channel.publish({ stuff: 100 }).then(()=> {
-                $node.is(':visible').should.equal(false);
-            });
+        it('should hide if value is truthy', ()=> {
+            const $el = $('<div data-f-hideif="stuff"/></div>');
+            hideifAttr.handle('foobar', 'hideif', $el);
+            $el.is(':visible').should.equal(false);
         });
-    });
-    it('should hide if condition is truthy', ()=> {
-        const channel = createDummyChannel();
-        return initWithNode('<div data-f-hideif="stuff"/></div>', domManager, channel).then(function ($node) {
-            return channel.publish({ stuff: 'foobar' }).then(()=> {
-                $node.is(':visible').should.equal(false);
-            });
+
+        it('should show if value is false', ()=> {
+            const $el = $('<div data-f-hideif="stuff"/></div>');
+            hideifAttr.handle(false, 'hideif', $el);
+            ($el.attr('style') || '').should.equal('');
         });
-    });
-  
-    it('should show node if condition is falsy', ()=> {
-        const channel = createDummyChannel();
-        return initWithNode('<div data-f-hideif="stuff"></div>', domManager, channel).then(function ($node) {
-            return channel.publish({ stuff: '' }).then(()=> {
-                $node.attr('style').should.equal('');
-            });
+
+        it('should show if value is falsy', ()=> {
+            const $el = $('<div data-f-hideif="stuff"/></div>');
+            hideifAttr.handle('', 'hideif', $el);
+            ($el.attr('style') || '').should.equal('');
+        });
+
+        it('should take last value if array', ()=> {
+            const $el = $('<div data-f-hideif="stuff"/></div>');
+            hideifAttr.handle([true, true, false], 'hideif', $el);
+            ($el.attr('style') || '').should.equal('');
         });
     });
 });
