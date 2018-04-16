@@ -182,7 +182,7 @@ var converterManager = {
      */
     parse: function (value, list) {
         if (!list || !list.length) {
-            return value;
+            return toImplicitType(value); //FIXME: Implement this as a default catch-all converter
         }
         list = [].concat(list).reverse().map((v)=> v.trim());
 
@@ -192,6 +192,8 @@ var converterManager = {
             var converter = me.getConverter(converterName);
             if (converter.parse) {
                 currentValue = converter.parse(currentValue, converterName);
+            } else {
+                currentValue = toImplicitType(currentValue);
             }
         });
         return currentValue;

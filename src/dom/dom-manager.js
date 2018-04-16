@@ -335,37 +335,30 @@ module.exports = (function () {
                     const $el = $(evt.target);
 
                     const defaultPrefix = source.indexOf('on-') === 0 ? DEFAULT_OPERATIONS_PREFIX : DEFAULT_VARIABLES_PREFIX;
-                    const needsDefault = defaultPrefix !== DEFAULT_VARIABLES_PREFIX;
+                    const needsDefaultPrefix = defaultPrefix !== DEFAULT_VARIABLES_PREFIX;
 
                     const parsed = ([].concat(data || [])).map(function (action) {
                         let { name, value } = action;
 
                         if (Array.isArray(value)) {
                             value = value.map(function (val) {
-                                const converted = converterManager.parse(val, converters);
-                                return parseUtils.toImplicitType(converted);
+                                return converterManager.parse(val, converters);
                             });
                         } else {
-                            const converted = converterManager.parse(value, converters);
-                            value = parseUtils.toImplicitType(converted);
+                            value = converterManager.parse(value, converters);
                         }
 
                         name = name.split('|')[0].trim();
-
-                        if (source.indexOf('on-') === 0) {
-                            if (name.indexOf(':') === -1) {
-                                name = `${DEFAULT_OPERATIONS_PREFIX}${name}`;
-                            }
-                            if (name.indexOf(DEFAULT_OPERATIONS_PREFIX) === 0 && channelPrefix) {
-                                name = `${channelPrefix}:${name}`;
-                            }
-                        } else {
-                            const canPrefix = name.indexOf(':') === -1 || name.indexOf(DEFAULT_VARIABLES_PREFIX) === 0;
-                            if (canPrefix && channelPrefix) {
-                                name = `${channelPrefix}:${name}`;
-                            }
+                        
+                        const isUnprefixed = name.indexOf(':') === -1;
+                        if (isUnprefixed && needsDefaultPrefix) {
+                            name = `${defaultPrefix}${name}`;
                         }
-                      
+                        const hasDefaultPrefix = name.indexOf(defaultPrefix) === 0;
+                        if ((isUnprefixed || hasDefaultPrefix) && channelPrefix) {
+                            name = `${channelPrefix}:${name}`;
+                        }
+                  
                         return { name: name, value: value };
                     }, []);
 
