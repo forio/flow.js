@@ -193,7 +193,7 @@ describe('Default Bind', function () {
                 var targetData = { Price: '20' };
 
                 const channel = createDummyChannel();
-                return initWithNode('<div data-f-bind="Price as p"> <%= p %> </div>', domManager, channel).then(function ($node) {
+                return initWithNode('<div data-f-bind="Price as (p)"> <%= p %> </div>', domManager, channel).then(function ($node) {
                     return channel.publish(targetData).then(()=> {
                         $node.html().trim().should.equal('20');
                     });
@@ -203,7 +203,7 @@ describe('Default Bind', function () {
                 var targetData = { Price: 20, sales: 30 };
 
                 const channel = createDummyChannel();
-                return initWithNode('<div data-f-bind="Price as p, sales as s"> <%= p + s %> </div>', domManager, channel).then(function ($node) {
+                return initWithNode('<div data-f-bind="Price as (p), sales as (s)"> <%= p + s %> </div>', domManager, channel).then(function ($node) {
                     return channel.publish(targetData).then(()=> {
                         $node.html().trim().should.equal('50');
                     });
@@ -213,7 +213,7 @@ describe('Default Bind', function () {
                 var targetData = { Price: [10, 30] };
 
                 const channel = createDummyChannel();
-                return initWithNode('<div data-f-bind="Price as p |first"> <%= value %> </div>', domManager, channel).then(function ($node) {
+                return initWithNode('<div data-f-bind="Price as (p) |first"> <%= value %> </div>', domManager, channel).then(function ($node) {
                     return channel.publish(targetData).then(()=> {
                         $node.html().trim().should.equal('10');
                     });
