@@ -13,7 +13,7 @@ module.exports = {
         convert: 'f.convert',
 
         //When triggered posts the payload to the operations API. Assumes payloaded is formmatted in a way Run Channel can understand
-        operate: 'f.ui.operate'
+        operate: 'update.f.ui'
     },
 
     attrs: {

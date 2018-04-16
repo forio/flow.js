@@ -253,17 +253,20 @@ describe(config.events.trigger, function () {
             channel.publish.should.have.been.calledWith([{ name: 'apple', value: 20000 }]);
         });
     });
-    it('should trigger f.convert to convert values', function () {
+    it('should trigger f.convert to convert values', function (done) {
         const channel = utils.createDummyChannel();
-        return utils.initWithNode('<input type="text" data-f-bind="apple | $#,###.00"/>', domManager, channel).then(function ($node) {
+        utils.initWithNode('<input type="text" data-f-bind="apple | $#,###.00"/>', domManager, channel).then(function ($node) {
             var spy = sinon.spy();
             $node.on('f.convert', spy);
 
             var payload = { data: [{ name: 'apple', value: '20000' }], source: 'bind' };
             $node.trigger(config.events.trigger, payload);
-
-            spy.should.have.been.calledOnce;
-            spy.getCall(0).args[1].should.eql({ bind: 20000 });
+            
+            setTimeout(()=> {
+                spy.should.have.been.calledOnce;
+                spy.getCall(0).args[1].should.eql({ bind: 20000 });
+                done();
+            }, 0);
         });
     });
     describe('Channel prefix', ()=> {

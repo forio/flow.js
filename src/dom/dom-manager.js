@@ -323,86 +323,67 @@ module.exports = (function () {
             const DEFAULT_OPERATIONS_PREFIX = 'operations:';
             const DEFAULT_VARIABLES_PREFIX = 'variables:';
 
-            //TODO: Merge the two listeners and just have prefix by 'source';
-            //TODO: ONce it's merged, support && for multiple operations and | to pipe to converters
-            function attachUIVariablesListener($root) {
+            function attachUIListeners($root) {
                 $root.off(config.events.trigger).on(config.events.trigger, function (evt, params) {
-                    const elMeta = me.matchedElements.get(evt.target);
-                    if (!elMeta) {
-                        return;
-                    }
-
-                    const { data, source, options } = params;
-                    const { converters, channelPrefix } = elMeta[source] || {};
-                    const $el = $(evt.target);
-
-                    const parsed = [];
-                    data.forEach((d)=> {
-                        const { value, name } = d;
-                        const converted = converterManager.parse(value, converters);
-                        const typed = parseUtils.toImplicitType(converted);
-
-                        let key = name.split('|')[0].trim(); //in case the pipe formatting syntax was used
-                        const canPrefix = key.indexOf(':') === -1 || key.indexOf(DEFAULT_VARIABLES_PREFIX) === 0;
-                        if (canPrefix && channelPrefix) {
-                            key = `${channelPrefix}:${key}`;
-                        }
-                        parsed.push({ name: key, value: typed });
-
-                        const convertParams = {};
-                        convertParams[source] = typed;
-                        $el.trigger(config.events.convert, convertParams);
-                    });
-                    channel.publish(parsed, options);
-                });
-            }
-
-            function attachUIOperationsListener($root) {
-                $root.off(config.events.operate).on(config.events.operate, function (evt, params) {
                     const elMeta = me.matchedElements.get(evt.target);
                     if (!elMeta) {
                         return;
                     }
                     const { data, source, options } = params;
                     const sourceMeta = elMeta[source] || {};
-
                     const { channelPrefix, converters } = sourceMeta;
+                    const $el = $(evt.target);
 
-                    const filtered = ([].concat(data || [])).reduce(function (accum, operation) {
-                        const val = operation.value;
-                        if (Array.isArray(val)) {
-                            operation.value = val.map(function (val) {
-                                return parseUtils.toImplicitType(val);
+                    const defaultPrefix = source.indexOf('on-') === 0 ? DEFAULT_OPERATIONS_PREFIX : DEFAULT_VARIABLES_PREFIX;
+                    const needsDefault = defaultPrefix !== DEFAULT_VARIABLES_PREFIX;
+
+                    const parsed = ([].concat(data || [])).map(function (action) {
+                        let { name, value } = action;
+
+                        if (Array.isArray(value)) {
+                            value = value.map(function (val) {
+                                const converted = converterManager.parse(val, converters);
+                                return parseUtils.toImplicitType(converted);
                             });
                         } else {
-                            operation.value = parseUtils.toImplicitType(val);
+                            const converted = converterManager.parse(value, converters);
+                            value = parseUtils.toImplicitType(converted);
                         }
 
-                        const isConverter = converterManager.getConverter(operation.name);
-                        if (isConverter) {
-                            accum.converters.push(operation);
+                        name = name.split('|')[0].trim();
+
+                        if (source.indexOf('on-') === 0) {
+                            if (name.indexOf(':') === -1) {
+                                name = `${DEFAULT_OPERATIONS_PREFIX}${name}`;
+                            }
+                            if (name.indexOf(DEFAULT_OPERATIONS_PREFIX) === 0 && channelPrefix) {
+                                name = `${channelPrefix}:${name}`;
+                            }
                         } else {
-                            if (operation.name.indexOf(':') === -1) {
-                                operation.name = `${DEFAULT_OPERATIONS_PREFIX}${operation.name}`;
+                            const canPrefix = name.indexOf(':') === -1 || name.indexOf(DEFAULT_VARIABLES_PREFIX) === 0;
+                            if (canPrefix && channelPrefix) {
+                                name = `${channelPrefix}:${name}`;
                             }
-                            if (operation.name.indexOf(DEFAULT_OPERATIONS_PREFIX) === 0 && channelPrefix) {
-                                operation.name = `${channelPrefix}:${operation.name}`;
-                            }
-                            accum.operations.push(operation);
                         }
-                        return accum;
-                    }, { operations: [], converters: [] });
+                      
+                        return { name: name, value: value };
+                    }, []);
 
-                    const promise = (filtered.operations.length) ?
-                        channel.publish(filtered.operations, options) :
-                        $.Deferred().resolve().promise();
-                     
-                    //FIXME: Needed for the 'gotopage' in interfacebuilder. Remove this once we add a window channel
-                    promise.then(function (args) {
-                        (converters || []).forEach(function (con) {
-                            converterManager.convert('', con);
+                    if (parsed.length) {
+                        channel.publish(parsed, options).then(()=> {
+                            parsed.forEach((item)=> {
+                                const convertParams = {};
+                                convertParams[source] = item.value;
+                                $el.trigger(config.events.convert, convertParams);
+                            });
                         });
-                    });
+                    } else {
+                        parsed.forEach((item)=> {
+                            const convertParams = {};
+                            convertParams[source] = item.value;
+                            $el.trigger(config.events.convert, convertParams);
+                        });
+                    }
                 });
             }
 
@@ -436,8 +417,7 @@ module.exports = (function () {
             $(function () {
                 me.bindAll();
             
-                attachUIVariablesListener($root);
-                attachUIOperationsListener($root);
+                attachUIListeners($root);
                 attachConversionListner($root);
 
                 me.plugins.autoBind = autoUpdatePlugin($root.get(0), me, me.options.autoBind);
