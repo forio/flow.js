@@ -36,6 +36,7 @@ module.exports = function (grunt) {
     grunt.config.set('webpack', {
         options: {
             stats: 'errors-only',
+            node: false,
             plugins: [
                 new webpack.DefinePlugin({
                     RELEASE_VERSION: JSON.stringify(version)

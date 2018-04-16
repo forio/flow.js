@@ -38,8 +38,16 @@
  *
  */
 import { isNumber } from 'lodash';
-import { classesAdded } from '../../config';
+import { classesAdded } from '../../../config';
 
+const elClassesMap = new WeakMap();
+function deleteAddedClasses($el) {
+    const el = $el.get(0);
+    const addedClasses = elClassesMap.get(el);
+    if (addedClasses) {
+        $el.removeClass(addedClasses);
+    }
+}
 /**
  * @type AttributeHandler
  */
@@ -48,26 +56,27 @@ const classAttr = {
 
     target: '*',
 
+
+    unbind: function (attr, $el) {
+        const el = $el.get(0);
+        deleteAddedClasses($el);
+        elClassesMap.delete(el);
+    },
+
     handle: function (value, prop, $el) {
         if (Array.isArray(value)) {
             value = value[value.length - 1];
         }
 
-        var addedClasses = $el.data(classesAdded);
-        if (!addedClasses) {
-            addedClasses = {};
-        }
-        if (addedClasses[prop]) {
-            $el.removeClass(addedClasses[prop]);
-        }
+        const el = $el.get(0);
+        deleteAddedClasses($el);
 
         if (isNumber(value)) {
             value = 'value-' + value;
         }
-        addedClasses[prop] = value;
-        //Fixme: prop is always "class"
         $el.addClass(value);
-        $el.data(classesAdded, addedClasses);
+
+        elClassesMap.set(el, value);
     }
 };
 

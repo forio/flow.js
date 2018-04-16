@@ -1,4 +1,3 @@
-'use strict';
 module.exports = {
     prefix: 'f',
     defaultAttr: 'bind',
@@ -17,9 +16,6 @@ module.exports = {
     },
 
     attrs: {
-        //Used by the classes attr handler to keep track of which classes were added by itself
-        classesAdded: 'f-added-classes',
-
         //Used by repeat attr handler to keep track of template after first evaluation
         repeat: {
             templateId: 'repeat-template-id' //don't prefix by f or dom-manager unbind will kill it
