@@ -1,4 +1,4 @@
-import { extractVariableName, extractAlias, translateDataToTemplatable } from '../bind-utils';
+import { extractVariableName, extractAlias, translateDataToTemplatable } from '../index';
 import { expect } from 'chai';
 
 describe('Bind utils', ()=> {

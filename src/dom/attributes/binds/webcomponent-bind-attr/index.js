@@ -6,7 +6,7 @@ const webcompHandler = {
 
     test: 'bind',
 
-    handle: $.noop
+    handle: ()=> {}
 };
 
 export default webcompHandler;
