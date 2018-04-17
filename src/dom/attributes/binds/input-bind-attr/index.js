@@ -32,7 +32,7 @@ const inputBindAttr = {
         } else if (Array.isArray(value)) {
             value = value[value.length - 1];
         }
-        $el.val(value);
+        $el.val(value + '');
     }
 };
 

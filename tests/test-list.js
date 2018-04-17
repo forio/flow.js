@@ -2,10 +2,10 @@
  * List of tests to be required
  */
 
-'use strict';
-
 var srcContext = require.context('../src/', true, /tests\/test-(.*)\.js$/i);
-srcContext.keys().forEach(srcContext);
+srcContext.keys().forEach((key)=> {
+    srcContext(key);
+});
 
 require('./specs/utils/test-general-utils');
 require('./specs/dom/test-dom-manager'); //2.7
