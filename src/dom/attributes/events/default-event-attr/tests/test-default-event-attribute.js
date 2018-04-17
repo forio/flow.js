@@ -1,11 +1,17 @@
 var config = require('config');
-var defaultEventAttr = require('src/dom/attributes/events/default-event-attr').default;
+
+import defaultEventAttr from '../index';
+import sinon from 'sinon';
+import chai from 'chai';
+chai.use(require('sinon-chai'));
+
+const { expect } = chai;
 
 describe('Default Event attribute', function () {
     describe('#init', function () {
         it('should attach event listeners for properties prefixed with on-', function () {
             var $node = $('<button data-f-on-click="stuff"> Click </button>');
-            defaultEventAttr.init('on-click', ['stuff'], $node);
+            defaultEventAttr.init('on-click', [{ name: 'stuff' }], $node);
 
             var spy = sinon.spy();
             $node.on(config.events.operate, spy);
@@ -16,7 +22,7 @@ describe('Default Event attribute', function () {
 
         it('should only trigger one operation per event', function () {
             var $node = $('<button data-f-on-click="stuff"> Click </button>');
-            defaultEventAttr.init('on-click', ['stuff'], $node);
+            defaultEventAttr.init('on-click', [{ name: 'stuff' }], $node);
 
             var spy = sinon.spy();
             $node.on(config.events.operate, spy);

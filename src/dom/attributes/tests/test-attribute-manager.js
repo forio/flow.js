@@ -1,7 +1,8 @@
-var am = require('src/dom/attributes/attribute-manager.js');
+import { expect } from 'chai';
+import am from '../attribute-manager';
 
 describe('Attribute Manager', function () {
-    var defaultHandlers = am.list.splice();
+    var defaultHandlers = [].concat(am.list);
     afterEach(function () {
         am.list = defaultHandlers;
     });
@@ -14,7 +15,7 @@ describe('Attribute Manager', function () {
         });
     });
     describe('#getHandler', function () {
-        it('matches default handlers', function () {
+        it('matches default handlers', function () { 
             am.register('def', '*', { handle: $.noop });
 
             var def = am.getHandler('def', '*');
@@ -26,12 +27,12 @@ describe('Attribute Manager', function () {
     describe('#replace', function () {
         it('should replace existing string converters with new ones', function () {
             var conv = am.getHandler('class', '*');
-            should.not.exist(conv.apple);
+            expect(conv.apple).to.equal(undefined);
 
             am.replace('class', '*', { apple: 'sauce', handle: $.noop });
 
             conv = am.getHandler('class', '*');
-            conv.apple.should.equal('sauce');
+            expect(conv.apple).to.equal('sauce');
         });
     });
 

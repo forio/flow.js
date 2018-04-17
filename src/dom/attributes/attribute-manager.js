@@ -151,7 +151,7 @@ module.exports = {
      *  Retrieve the appropriate handler for a particular attribute. There may be multiple matching handlers, but the first (most exact) match is always used.
      *
      * @param {string} property The attribute.
-     * @param {JQuery<HTMLElement>} $el The DOM element.
+     * @param {string|JQuery<HTMLElement>} $el The DOM element.
      *
      * @return {AttributeHandler|undefined} The attribute handler, if a matching one is found
      */
