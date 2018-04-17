@@ -34,9 +34,8 @@ const defaultEventAttr = {
         $el.off(eventName);
     },
 
-    parse: function () {
-        return []; //There's nothing to subscribe to on an event
-    },
+    parse: ()=> ([]), //There's nothing to subscribe to on an event
+    handle: ()=> {},
 
     init: function (attr, topics, $el) {
         const eventName = attr.replace('on-', '');

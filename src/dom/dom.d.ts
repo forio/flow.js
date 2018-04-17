@@ -14,5 +14,5 @@ interface AttributeHandler {
     init?(attr: string, topics: NormalizedTopic[], $el: JQuery)
     unbind?(attr: string, $el: JQuery)
     parse?(topics: NormalizedTopic[]): NormalizedTopic[]
-    handle?(value: any, prop: string, $el: JQuery, topics: NormalizedTopic[]): void
+    handle(value: any, prop: string, $el: JQuery, topics: NormalizedTopic[]): void
 }
