@@ -84,9 +84,9 @@ import { template } from 'lodash';
 import { addContentAndAnimate } from 'utils/animation';
 import { animation } from 'config';
 
-import { extractVariableName, extractAlias, translateDataToTemplatable, translateDataToInsertable } from './bind-utils';
+import { extractVariableName, extractAlias, translateDataToTemplatable, translateDataToInsertable } from '../bind-utils';
 
-import { getKnownDataForEl, updateKnownDataForEl, removeKnownData, findMissingReferences, stubMissingReferences, addBackMissingReferences, isTemplated, getOriginalContents, clearOriginalContents } from '../attr-template-utils';
+import { getKnownDataForEl, updateKnownDataForEl, removeKnownData, findMissingReferences, stubMissingReferences, addBackMissingReferences, isTemplated, getOriginalContents, clearOriginalContents } from '../../attr-template-utils';
 
 const elAnimatedMap = new WeakMap(); //TODO: Can probably get rid of this if we make subscribe a promise and distinguish between initial value
 
