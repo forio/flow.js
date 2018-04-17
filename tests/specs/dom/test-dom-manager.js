@@ -73,9 +73,6 @@ describe('DOM Manager', function () {
         });
 
         describe('Attribute Handlers', function () {
-            require('./attributes/test-negative-boolean-attr');
-            require('./attributes/test-positive-boolean-attr');
-
             it('should allow handling custom attributes', function () {
                 var toggle = function (value, prop, $el) {
                     if (value !== 1) {

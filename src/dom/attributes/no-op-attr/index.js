@@ -14,11 +14,8 @@ const noopAttr = {
 
     test: /^(?:model|convert|channel|on-init)/i,
 
-    handle: $.noop,
-
-    parse: function () {
-        return [];
-    }
+    handle: ()=> {},
+    parse: ()=> []
 };
 
 export default noopAttr;
