@@ -67,8 +67,6 @@ describe('DOM Manager', function () {
             require('./element-tests/test-radio-button');
             require('./element-tests/test-text');
             require('./element-tests/test-select');
-            require('./element-tests/test-generic-dom');
-
             require('./element-tests/test-button');
         });
 

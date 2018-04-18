@@ -24,6 +24,16 @@ describe('Default Bind', function () {
                 });
             });
         });
+
+        it('should replace existing values', function () {
+            var targetData = { Price: 43 };
+            const channel = createDummyChannel();
+            return initWithNode('<div data-f-bind="Price">Hello there</div>', domManager, channel).then(function ($node) {
+                return channel.publish(targetData).then(()=> {
+                    $node.html().trim().should.equal('43');
+                });
+            });
+        });
         it('should templatize multiple-bound variables', function () {
             var targetData = { Price: '20', Sales: 30 };
 
