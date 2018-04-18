@@ -1,5 +1,4 @@
-const _ = require('lodash');
-const { isString, isFunction } = require('lodash');
+import { isString, isFunction } from 'lodash';
 /**
  * @typedef NodeHandler
  * @property {string} selector
@@ -12,7 +11,7 @@ const { isString, isFunction } = require('lodash');
  * @param {Function | NodeHandler } handler
  * @return {NodeHandler}
  */
-var normalize = function (selector, handler) {
+const normalize = function (selector, handler) {
     if (!selector) {
         selector = '*';
     }
@@ -32,14 +31,14 @@ var normalize = function (selector, handler) {
  * @param { {selector:string} } node
  * @return {boolean}
  */ 
-var match = function (toMatch, node) {
+const match = function (toMatch, node) {
     if (isString(toMatch)) {
         return toMatch === node.selector;
     }
     return $(toMatch).is(node.selector);
 };
 
-var nodeManager = {
+const nodeManager = {
     list: [],
 
     /**
@@ -57,13 +56,13 @@ var nodeManager = {
      * @return NodeHandler
      */ 
     getHandler: function (selector) {
-        return _.find(this.list, function (node) {
+        return this.list.find(function (node) {
             return match(selector, node);
         });
     },
 
     replace: function (selector, handler) {
-        var index;
+        let index;
         this.list.forEach(function (currentHandler, i) {
             if (selector === currentHandler.selector) {
                 index = i;
@@ -75,7 +74,7 @@ var nodeManager = {
 };
 
 //bootstraps
-var defaultHandlers = [
+const defaultHandlers = [
     require('./input-checkbox-node'),
     require('./default-input-node'),
     require('./default-node')
@@ -84,4 +83,4 @@ defaultHandlers.reverse().forEach(function (handler) {
     nodeManager.register(handler.selector, handler);
 });
 
-module.exports = nodeManager;
+export default nodeManager;

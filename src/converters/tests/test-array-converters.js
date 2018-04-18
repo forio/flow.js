@@ -1,4 +1,4 @@
-const cm = require('converters/converter-manager.js');
+const cm = require('converters/converter-manager.js').default;
 
 describe('#Array converters', ()=> {
     describe('#list', ()=> {

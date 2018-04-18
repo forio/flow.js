@@ -40,7 +40,7 @@
  *
  */
 
-const { isString, isFunction, isRegExp, each } = require('lodash');
+import { isString, isFunction, isRegExp, each } from 'lodash';
 
 const defaultHandlers = [
     require('./no-op-attr').default,
@@ -94,7 +94,7 @@ const matchNode = function (target, nodeFilter) {
     return (isString(nodeFilter)) ? (nodeFilter === target) : nodeFilter.is(target);
 };
 
-module.exports = {
+const attributeManager = {
     list: handlersList,
     /**
      * Add a new attribute handler.
@@ -162,3 +162,4 @@ module.exports = {
     }
 };
 
+export default attributeManager;

@@ -1,5 +1,5 @@
 const conv = require('../general-util-converters');
-const cm = require('converters/converter-manager.js');
+const cm = require('converters/converter-manager.js').default;
 
 const fn = conv[0].convert;
 

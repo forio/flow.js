@@ -1,5 +1,5 @@
 const nc = require('converters/bool-conditional-converters');
-const cm = require('converters/converter-manager.js');
+const cm = require('converters/converter-manager.js').default;
 
 describe('Boolean Conditional', function () {
     describe('toBool', ()=> {

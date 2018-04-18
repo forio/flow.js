@@ -6,18 +6,16 @@
  * The DOM Manager is an integral part of the Flow.js architecture but, in keeping with our general philosophy of extensibility and configurability, it is also replaceable. For instance, if you want to manage your DOM state with [Backbone Views](http://backbonejs.org) or [Angular.js](https://angularjs.org), while still using the channels to handle the communication with your model, this is the piece you'd replace. [Contact us](http://forio.com/about/contact/) if you are interested in extending Flow.js in this way -- we'll be happy to talk about it in more detail.
  *
  */
-'use strict';
 
-const _ = require('lodash');
 const { getConvertersForEl, getChannelForAttribute, getChannelConfigForElement, parseTopicsFromAttributeValue } = require('./dom-parse-helpers');
-const { pick } = require('lodash');
+const { pick, each } = require('lodash');
 
 const config = require('../config');
 
-const converterManager = require('converters/converter-manager');
-const nodeManager = require('./nodes/node-manager');
-const attrManager = require('./attributes/attribute-manager');
-const autoUpdatePlugin = require('./plugins/auto-update-bindings');
+const converterManager = require('converters/converter-manager').default;
+const nodeManager = require('./nodes/node-manager').default;
+const attrManager = require('./attributes/attribute-manager').default;
+const autoUpdatePlugin = require('./plugins/auto-update-bindings').default;
 
 module.exports = (function () {
     //Jquery selector to return everything which has a f- property set
@@ -397,7 +395,7 @@ module.exports = (function () {
                     }
 
                     if ($.isPlainObject(data)) {
-                        _.each(data, convert);
+                        each(data, convert);
                     } else {
                         convert(data, 'bind');
                     }

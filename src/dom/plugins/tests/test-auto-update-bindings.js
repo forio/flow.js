@@ -1,25 +1,24 @@
-'use strict';
-module.exports = (function () {
-    var autoUpdate = require('../auto-update-bindings');
-    describe('Update behavior', function () {
-        it.skip('should call bind for added elements', function () {
-            var $node = $('<div> </div>');
-            var dummyDom = {
-                bindAll: sinon.spy(),
-                unbindAll: sinon.spy()
-            };
+import sinon from 'sinon';
+import autoUpdate from '../auto-update-bindings';
 
-            autoUpdate($node.get(0), dummyDom);
-            var $sampleNode1 = $('<input type="text" data-f-bind="stuff" />');
-            $node.append($sampleNode1);
+describe('Update behavior', function () {
+    it.skip('should call bind for added elements', function () {
+        var $node = $('<div> </div>');
+        var dummyDom = {
+            bindAll: sinon.spy(),
+            unbindAll: sinon.spy()
+        };
 
-            dummyDom.bindAll.should.have.been.calledOnce;
-            dummyDom.bindAll.should.have.been.calledWith([$sampleNode1.get(0)]);
-        });
+        autoUpdate($node.get(0), dummyDom, true);
+        var $sampleNode1 = $('<input type="text" data-f-bind="stuff" />');
+        $node.append($sampleNode1);
 
-        it('should call unbind for removed elements', function () {
+        dummyDom.bindAll.should.have.been.calledOnce;
+        dummyDom.bindAll.should.have.been.calledWith([$sampleNode1.get(0)]);
+    });
 
-        });
+    it('should call unbind for removed elements', function () {
 
     });
-}());
+
+});
