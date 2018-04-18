@@ -189,6 +189,9 @@ var converterManager = {
         var me = this;
         list.forEach(function (converterName) {
             var converter = me.getConverter(converterName);
+            if (!converter) {
+                throw new Error('parse: Could not find converter ' + converterName);
+            }
             if (converter.parse) {
                 currentValue = converter.parse(currentValue, converterName);
             } else {
