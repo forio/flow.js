@@ -1,12 +1,17 @@
 //moving this into the specs folder throws errors for some reason, probably because sinon.
-var lolex = require('lolex');
-var debounce = require('src/utils/general').debounceAndMerge;
+import { install } from 'lolex';
+import { debounceAndMerge as debounce } from '../general';
+import chai from 'chai';
+import sinon from 'sinon';
+
+chai.use(require('sinon-chai'));
+const { expect } = chai;
 
 describe('Test general utils', ()=> {
     describe('#debounceWithStore', ()=> {
         var clock;
         beforeEach(()=> {
-            clock = lolex.install();
+            clock = install();
         });
         afterEach(()=> {
             clock.uninstall();
