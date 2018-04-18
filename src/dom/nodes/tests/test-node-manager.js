@@ -1,5 +1,5 @@
-'use strict';
-var nm = require('src/dom/nodes/node-manager');
+import nm from '../node-manager';
+import { expect } from 'chai';
 
 describe('Node Manager', function () {
     var defaultHandlers = nm.list.slice();
@@ -12,16 +12,16 @@ describe('Node Manager', function () {
         it('should allow adding new handlers', function () {
             var currentRegisterList = nm.list.length;
             nm.register('*', $.noop);
-            nm.list.length.should.equal(currentRegisterList + 1);
+            expect(nm.list.length).to.equal(currentRegisterList + 1);
         });
     });
     describe('#getHandler', function () {
         it('matches default handlers', function () {
-            nm.register(':radio', { handle: $.noop });
+            nm.register(':radio', $.noop);
 
             var def = nm.getHandler(':radio');
-            def.should.exist;
-            def.selector.should.equal(':radio');
+            expect(def.selector).to.exist;
+            expect(def.selector).to.equal(':radio');
         });
     });
 
@@ -30,12 +30,12 @@ describe('Node Manager', function () {
         //Don't really have a valid usecase for replace yet, so leaving as-is
         it('should replace existing string converters with new ones', function () {
             var conv = nm.getHandler('input, select, textarea');
-            should.not.exist(conv.apple);
+            expect(conv.apple).to.equal(undefined);
 
             nm.replace('input, select, textarea', { apple: 'sauce', handle: $.noop });
 
             conv = nm.getHandler('input, select, textarea');
-            conv.apple.should.equal('sauce');
+            expect(conv.apple).to.equal('sauce');
         });
     });
 });

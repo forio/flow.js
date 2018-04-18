@@ -96,10 +96,6 @@ describe('DOM Manager', function () {
             });
         });
 
-        describe('Node Handlers', function () {
-            require('./nodes/test-node-manager');
-        });
-
         require('./test-dom-converters');
     });
 
