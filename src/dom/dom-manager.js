@@ -338,21 +338,15 @@ module.exports = (function () {
                         return { name: prefixedName, value: parsedValue };
                     }, []);
 
-                    if (parsed.length) {
-                        channel.publish(parsed, options).then(()=> {
-                            parsed.forEach((item)=> {
-                                const convertParams = {};
-                                convertParams[source] = item.value;
-                                $el.trigger(config.events.convert, convertParams);
-                            });
-                        });
-                    } else {
-                        parsed.forEach((item)=> {
-                            const convertParams = {};
-                            convertParams[source] = item.value;
-                            $el.trigger(config.events.convert, convertParams);
-                        });
-                    }
+                    const prom = parsed.length ? channel.publish(parsed, options) : $.Deferred().resolve(parsed).promise();
+                    prom.then(()=> {
+                        const mapped = parsed.reduce((accum, item)=> {
+                            accum[item.name] = item.value;
+                            return accum;
+                        }, {});
+                        const toConvert = parsed.length === 1 ? parsed[0].value : mapped;
+                        $el.trigger(config.events.convert, { [source]: toConvert });
+                    });
                 });
             }
 
