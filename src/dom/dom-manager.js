@@ -322,15 +322,15 @@ module.exports = (function () {
 
                 $root.off(config.events.trigger).on(config.events.trigger, function (evt, params) {
                     const elMeta = me.matchedElements.get(evt.target);
-                    if (!elMeta) {
+                    const { data, source, options } = params;
+                    if (!elMeta || !data) {
                         return;
                     }
-                    const { data, source, options } = params;
                     const sourceMeta = elMeta[source] || {};
                     const { channelPrefix, converters } = sourceMeta;
                     const $el = $(evt.target);
 
-                    const parsed = ([].concat(data || [])).map(function (action) {
+                    const parsed = ([].concat(data)).map(function (action) {
                         const { name, value } = action;
                         const parsedValue = parseValue(value, converters);
                         const actualName = name.split('|')[0].trim(); //FIXME: this shouldn't know about the pipe syntax
@@ -338,12 +338,8 @@ module.exports = (function () {
                         return { name: prefixedName, value: parsedValue };
                     }, []);
 
-                    const prom = parsed.length ? channel.publish(parsed, options) : $.Deferred().resolve(parsed).promise();
-                    prom.then((result)=> {
+                    channel.publish(parsed, options).then((result)=> {
                         const last = result[result.length - 1];
-                        if (!last) {
-                            return;
-                        }
                         $el.trigger(config.events.convert, { [source]: last.value });
                     });
                 });

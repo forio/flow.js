@@ -243,14 +243,11 @@
         "prefer-template": 0
     },
     "overrides": [{
-        "files": ["**/tests/*.js", "tests/**/*.js"],
+        "files": ["**/tests/*.js", "./tests/specs/**/*js"],
         "env": {
             "mocha": true
         },
-        "globals": {
-            "expect": false,
-            "sinon": false
-        },
+
         "rules": {
             "quote-props": 0,
             "no-magic-numbers": 0,

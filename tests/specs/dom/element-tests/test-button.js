@@ -60,7 +60,7 @@ describe('button', function () {
         });
     });
 
-    describe.only('Converter passthroughs', ()=> {
+    describe('Converter passthroughs', ()=> {
         let reverseConverter;
         beforeEach(()=> {
             reverseConverter = sinon.spy(function (val) {
