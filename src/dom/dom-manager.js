@@ -339,13 +339,12 @@ module.exports = (function () {
                     }, []);
 
                     const prom = parsed.length ? channel.publish(parsed, options) : $.Deferred().resolve(parsed).promise();
-                    prom.then(()=> {
-                        const mapped = parsed.reduce((accum, item)=> {
-                            accum[item.name] = item.value;
-                            return accum;
-                        }, {});
-                        const toConvert = parsed.length === 1 ? parsed[0].value : mapped;
-                        $el.trigger(config.events.convert, { [source]: toConvert });
+                    prom.then((result)=> {
+                        const last = result[result.length - 1];
+                        if (!last) {
+                            return;
+                        }
+                        $el.trigger(config.events.convert, { [source]: last.value });
                     });
                 });
             }

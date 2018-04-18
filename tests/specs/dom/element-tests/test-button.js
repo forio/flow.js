@@ -1,6 +1,11 @@
 import { initWithNode, createDummyChannel, spyOnNode } from 'tests/testing-utils';
 import domManager from 'src/dom/dom-manager';
 
+import sinon from 'sinon';
+import chai from 'chai';
+chai.use(require('sinon-chai'));
+
+const { expect } = chai;
 
 describe('button', function () {
     it('should call operation with single params', function () {
@@ -52,6 +57,68 @@ describe('button', function () {
             `, domManager, channel).then(function ($node) {
             $node.trigger('click');
             channel.publish.should.have.been.calledWith([{ name: 'operations:step', value: [1, { hello: 'world' }] }]);
+        });
+    });
+
+    describe.only('Converter passthroughs', ()=> {
+        let reverseConverter;
+        beforeEach(()=> {
+            reverseConverter = sinon.spy(function (val) {
+                return ([].concat(val)).reverse();
+            });
+            domManager.converters.register('reverseArray', reverseConverter, true);
+        });
+        afterEach(()=> {
+            domManager.converters.replace('flip', ()=> {});
+        });
+        describe('single publish operation', ()=> {
+            it('should call converter once for single publish', (done)=> {
+                const channel = createDummyChannel();
+                initWithNode('<input type="button" data-f-on-click="step(1, 2) | reverseArray"/>', domManager, channel).then(function ($node) {
+                    $node.trigger('click');
+                    channel.publish.should.have.been.calledWith([
+                        { name: 'operations:step', value: [1, 2] },
+                    ]);
+                    setTimeout(()=> {
+                        expect(reverseConverter).to.have.been.calledOnce;
+                        done();
+                    }, 0);
+                });
+            });
+            it('should pass through published value for single publish', (done)=> {
+                const channel = createDummyChannel();
+                initWithNode('<input type="button" data-f-on-click="step(1, 2) | reverseArray"/>', domManager, channel).then(function ($node) {
+                    $node.trigger('click');
+                    setTimeout(()=> {
+                        const args = reverseConverter.getCall(0).args[0];
+                        expect(args).to.eql([1, 2]);
+                        done();
+                    }, 0);
+                });
+            });
+        });
+        describe('multi publish operations', ()=> {
+            it('should call converter once for last publish result', (done)=> {
+                const channel = createDummyChannel();
+                initWithNode('<input type="button" data-f-on-click="step(1, 2) && reset | reverseArray"/>', domManager, channel).then(function ($node) {
+                    $node.trigger('click');
+                    setTimeout(()=> {
+                        expect(reverseConverter).to.have.been.calledOnce;
+                        done();
+                    }, 0);
+                });
+            });
+            it('should pass through last published value for single publish', (done)=> {
+                const channel = createDummyChannel();
+                initWithNode('<input type="button" data-f-on-click="reset && step(1, 2) | reverseArray"/>', domManager, channel).then(function ($node) {
+                    $node.trigger('click');
+                    setTimeout(()=> {
+                        const args = reverseConverter.getCall(0).args[0];
+                        expect(args).to.eql([1, 2]);
+                        done();
+                    }, 0);
+                });
+            });
         });
     });
 });
