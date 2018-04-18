@@ -1,3 +1,4 @@
+
 /**
  * ## DOM Manager
  *
@@ -7,7 +8,12 @@
  *
  */
 
-const { getConvertersForEl, getChannelForAttribute, getChannelConfigForElement, parseTopicsFromAttributeValue } = require('./dom-parse-helpers');
+const { 
+    getConvertersForEl, getChannelForAttribute, getChannelConfigForElement, parseTopicsFromAttributeValue 
+} = require('./dom-manager-utils/dom-parse-helpers');
+
+const { addPrefixToTopics } = require('./dom-manager-utils/dom-channel-prefix-helpers');
+
 const { pick, each } = require('lodash');
 
 const config = require('../config');
@@ -187,16 +193,8 @@ module.exports = (function () {
                 }
                 
                 const channelPrefix = getChannelForAttribute($el, attr);
-                if (channelPrefix) {
-                    topics = topics.map((topic)=> {
-                        const currentName = topic.name;
-                        const hasChannelDefined = currentName.indexOf(':') !== -1;
-                        if (!hasChannelDefined) {
-                            topic.name = `${channelPrefix}:${currentName}`;
-                        }
-                        return topic;
-                    });
-                }
+                topics = addPrefixToTopics(topics, channelPrefix);
+
                 const converters = getConvertersForEl($el, attr);
                 attrList[attr] = {
                     channelPrefix: channelPrefix,
