@@ -1,3 +1,6 @@
+$.expr.pseudos.webcomponent = function (obj) {
+    return obj.nodeName.indexOf('-') !== -1;
+};
 /**
  * @type AttributeHandler 
  */

@@ -12,9 +12,9 @@ const {
     getConvertersForEl, getChannelForAttribute, getChannelConfigForElement, parseTopicsFromAttributeValue 
 } = require('./dom-manager-utils/dom-parse-helpers');
 
-const { addPrefixToTopics } = require('./dom-manager-utils/dom-channel-prefix-helpers');
+const { addPrefixToTopics, addDefaultPrefix } = require('./dom-manager-utils/dom-channel-prefix-helpers');
 
-const { pick, each } = require('lodash');
+const { pick } = require('lodash');
 
 const config = require('../config');
 
@@ -36,10 +36,6 @@ module.exports = (function () {
             }
         }
         return false;
-    };
-
-    $.expr.pseudos.webcomponent = function (obj) {
-        return obj.nodeName.indexOf('-') !== -1;
     };
 
     /**
@@ -218,7 +214,7 @@ module.exports = (function () {
                 const subscribableTopics = topics.map((t)=> t.name);
                 const subsid = channel.subscribe(subscribableTopics, (data)=> {
                     const toConvert = {};
-                    if (subscribableTopics.length === 1) { //If I'm only interested in 1 thing pass in value directly, else mke a map;
+                    if (subscribableTopics.length === 1) { //If I'm only interested in 1 thing pass in value directly, else make a map;
                         toConvert[name] = data[subscribableTopics[0]];
                     } else {
                         const dataForAttr = pick(data, subscribableTopics) || {};
@@ -314,10 +310,16 @@ module.exports = (function () {
             const me = this;
             const $root = $(defaults.root);
 
-            const DEFAULT_OPERATIONS_PREFIX = 'operations:';
-            const DEFAULT_VARIABLES_PREFIX = 'variables:';
-
             function attachUIListeners($root) {
+                function parseValue(value, converters) {
+                    if (Array.isArray(value)) {
+                        return value.map(function (val) {
+                            return converterManager.parse(val, converters);
+                        });
+                    }
+                    return converterManager.parse(value, converters);
+                }
+
                 $root.off(config.events.trigger).on(config.events.trigger, function (evt, params) {
                     const elMeta = me.matchedElements.get(evt.target);
                     if (!elMeta) {
@@ -328,32 +330,12 @@ module.exports = (function () {
                     const { channelPrefix, converters } = sourceMeta;
                     const $el = $(evt.target);
 
-                    const defaultPrefix = source.indexOf('on-') === 0 ? DEFAULT_OPERATIONS_PREFIX : DEFAULT_VARIABLES_PREFIX;
-                    const needsDefaultPrefix = defaultPrefix !== DEFAULT_VARIABLES_PREFIX;
-
                     const parsed = ([].concat(data || [])).map(function (action) {
-                        let { name, value } = action;
-
-                        if (Array.isArray(value)) {
-                            value = value.map(function (val) {
-                                return converterManager.parse(val, converters);
-                            });
-                        } else {
-                            value = converterManager.parse(value, converters);
-                        }
-
-                        name = name.split('|')[0].trim(); //FIXME: this shouldn't know about the pipe syntax
-                        
-                        const isUnprefixed = name.indexOf(':') === -1;
-                        if (isUnprefixed && needsDefaultPrefix) {
-                            name = `${defaultPrefix}${name}`;
-                        }
-                        const hasDefaultPrefix = name.indexOf(defaultPrefix) === 0;
-                        if ((isUnprefixed || hasDefaultPrefix) && channelPrefix) {
-                            name = `${channelPrefix}:${name}`;
-                        }
-                  
-                        return { name: name, value: value };
+                        const { name, value } = action;
+                        const parsedValue = parseValue(value, converters);
+                        const actualName = name.split('|')[0].trim(); //FIXME: this shouldn't know about the pipe syntax
+                        const prefixedName = addDefaultPrefix(actualName, source, channelPrefix);
+                        return { name: prefixedName, value: parsedValue };
                     }, []);
 
                     if (parsed.length) {
@@ -375,7 +357,7 @@ module.exports = (function () {
             }
 
             function attachConversionListner($root) {
-                // data = {proptoupdate: value} || just a value (assumes 'bind' if so)
+                // data = {proptoupdate: value}
                 $root.off(config.events.convert).on(config.events.convert, function (evt, data) {
                     const $el = $(evt.target);
 
@@ -384,19 +366,14 @@ module.exports = (function () {
                         return;
                     }
 
-                    function convert(val, prop) {
+                    Object.keys(data).forEach((prop)=> {
+                        const val = data[prop];
                         const { converters, topics } = elMeta[prop];
                         const convertedValue = converterManager.convert(val, converters);
 
                         const handler = attrManager.getHandler(prop, $el);
                         handler.handle(convertedValue, prop, $el, topics);
-                    }
-
-                    if ($.isPlainObject(data)) {
-                        each(data, convert);
-                    } else {
-                        convert(data, 'bind');
-                    }
+                    });
                 });
             }
             

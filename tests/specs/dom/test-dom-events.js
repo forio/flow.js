@@ -123,13 +123,6 @@ describe('f.convert', function () {
             $node.prop('stuff').should.equal('$43.00');
         });
     });
-    it('should work if triggered with value directly', function () {
-        var channel = utils.createDummyChannel();
-        return utils.initWithNode('<input type="text" data-f-bind="43 | $0.00"/>', domManager, channel).then(function ($node) {
-            $node.trigger('f.convert', 43);
-            $node.val().should.equal('$43.00');
-        });
-    });
     it('should work if triggered with value objects', function () {
         var channel = utils.createDummyChannel();
         return utils.initWithNode('<input type="text" data-f-bind="price" data-f-stuff="a,b" />', domManager, channel).then(function ($node) {
