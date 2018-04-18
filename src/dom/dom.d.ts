@@ -16,3 +16,12 @@ interface AttributeHandler {
     parse?(topics: NormalizedTopic[]): NormalizedTopic[]
     handle(value: any, prop: string, $el: JQuery, topics: NormalizedTopic[]): void
 }
+
+interface ChannelOptions {
+    [key: string]: any
+}
+interface Channel {
+    publish(): Promise<any[]>
+    subscribe(topics: String[] | String, callback: Function, options: ChannelOptions): string
+    unsubscribe(subsid: string): void
+}

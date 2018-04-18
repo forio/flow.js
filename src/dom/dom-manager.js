@@ -13,7 +13,6 @@ const { getConvertersForEl, getChannelForAttribute, getChannelConfigForElement, 
 const { pick } = require('lodash');
 
 const config = require('../config');
-const parseUtils = require('utils/parse-utils');
 
 const converterManager = require('converters/converter-manager');
 const nodeManager = require('./nodes/node-manager');
@@ -110,7 +109,7 @@ module.exports = (function () {
          * Unbind the element; unsubscribe from all updates on the relevant channels.
          *
          * @param {JQuery<HTMLElement> | HTMLElement} element The element to remove from the data binding.
-         * @param {ChannelInstance} channel (Optional) The channel from which to unsubscribe. Defaults to the [variables channel](../channels/variables-channel/).
+         * @param {Channel} channel (Optional) The channel from which to unsubscribe. Defaults to the [variables channel](../channels/variables-channel/).
          * @returns {void}
          */
         unbindElement: function (element, channel) {
@@ -148,8 +147,8 @@ module.exports = (function () {
         /**
          * Bind the element: subscribe from updates on the relevant channels.
          *
-         * @param {JQuery<HTMLElement>} element The element to add to the data binding.
-         * @param {ChannelInstance} channel (Optional) The channel to subscribe to. Defaults to the [run channel](../channels/run-channel/).
+         * @param {HTMLElement | JQuery<HTMLElement>} element The element to add to the data binding.
+         * @param {Channel} channel (Optional) The channel to subscribe to. Defaults to the [run channel](../channels/run-channel/).
          * @returns {void}
          */
         bindElement: function (element, channel) {
@@ -228,7 +227,7 @@ module.exports = (function () {
                     } else {
                         const dataForAttr = pick(data, subscribableTopics) || {};
                         toConvert[name] = Object.keys(dataForAttr).reduce((accum, key)=> {
-                            //If this was through a 'hidden' channel attr return what was bound
+                            //If this was through a auto-prefixed channel attr return what was bound
                             const toReplace = new RegExp(`^${channelPrefix}:`);
                             const k = channelPrefix ? key.replace(toReplace, '') : key;
                             accum[k] = dataForAttr[key];
@@ -258,10 +257,9 @@ module.exports = (function () {
                 elementsToBind = getMatchingElements(elementsToBind);
             }
 
-            const me = this;
             //parse through dom and find everything with matching attributes
-            $.each(elementsToBind, function (index, element) {
-                me.bindElement(element, me.options.channel);
+            $.each(elementsToBind, (index, element)=> {
+                this.bindElement(element, this.options.channel);
             });
         },
         /**
@@ -300,14 +298,14 @@ module.exports = (function () {
             const defaults = {
                 /**
                  * Root of the element for flow.js to manage from.
-                 * @type {String} jQuery selector
+                 * @type {string} jQuery selector
                  */
                 root: 'body',
                 channel: null,
 
                 /**
                  * Any variables added to the DOM after `Flow.initialize()` has been called will be automatically parsed, and subscriptions added to channels. Note, this does not work in IE versions < 11.
-                 * @type {Boolean}
+                 * @type {boolean}
                  */
                 autoBind: true
             };
@@ -348,7 +346,7 @@ module.exports = (function () {
                             value = converterManager.parse(value, converters);
                         }
 
-                        name = name.split('|')[0].trim();
+                        name = name.split('|')[0].trim(); //FIXME: this shouldn't know about the pipe syntax
                         
                         const isUnprefixed = name.indexOf(':') === -1;
                         if (isUnprefixed && needsDefaultPrefix) {
@@ -406,7 +404,7 @@ module.exports = (function () {
                 });
             }
             
-            const promise = $.Deferred();
+            const deferred = $.Deferred();
             $(function () {
                 me.bindAll();
             
@@ -415,11 +413,11 @@ module.exports = (function () {
 
                 me.plugins.autoBind = autoUpdatePlugin($root.get(0), me, me.options.autoBind);
                 
-                promise.resolve($root);
+                deferred.resolve($root);
                 $root.trigger('f.domready');
             });
 
-            return promise;
+            return deferred.promise();
         }
     };
 
