@@ -1,7 +1,5 @@
 module.exports = {
     prefix: 'f',
-    defaultAttr: 'bind',
-
     binderAttr: 'f-bind',
 
     events: {
