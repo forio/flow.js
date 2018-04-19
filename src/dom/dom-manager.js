@@ -13,6 +13,7 @@ const {
 } = require('./dom-manager-utils/dom-parse-helpers');
 
 const { addPrefixToTopics, addDefaultPrefix } = require('./dom-manager-utils/dom-channel-prefix-helpers');
+const { toImplicitType } = require('utils/parse-utils');
 
 const { pick } = require('lodash');
 
@@ -313,11 +314,12 @@ module.exports = (function () {
             function attachUIListeners($root) {
                 function parseValue(value, converters) {
                     if (Array.isArray(value)) {
-                        return value.map(function (val) {
-                            return converterManager.parse(val, converters);
+                        const parsed = value.map(function (val) {
+                            return toImplicitType(val);
                         });
+                        return converterManager.parse(parsed, converters);
                     }
-                    return converterManager.parse(value, converters);
+                    return converterManager.parse(toImplicitType(value), converters);
                 }
 
                 $root.off(config.events.trigger).on(config.events.trigger, function (evt, params) {
