@@ -14,7 +14,7 @@ describe('Default Event attribute', function () {
             defaultEventAttr.init('on-click', [{ name: 'stuff' }], $node);
 
             var spy = sinon.spy();
-            $node.on(events.operate, spy);
+            $node.on(events.trigger, spy);
             $node.trigger('click');
 
             expect(spy).to.have.been.called;
@@ -25,7 +25,7 @@ describe('Default Event attribute', function () {
             defaultEventAttr.init('on-click', [{ name: 'stuff' }], $node);
 
             var spy = sinon.spy();
-            $node.on(events.operate, spy);
+            $node.on(events.trigger, spy);
             $node.trigger('click');
 
             expect(spy).to.have.been.calledOnce;
@@ -40,7 +40,7 @@ describe('Default Event attribute', function () {
             defaultEventAttr.init('on-click', [{ name: 'stuff' }], $node);
 
             var spy = sinon.spy();
-            $node.on(events.operate, spy);
+            $node.on(events.trigger, spy);
             $node.trigger('click');
 
             spy.getCall(0).args[1].should.eql({ data: [{ name: 'stuff', value: [] }], source: 'on-click' });
@@ -50,7 +50,7 @@ describe('Default Event attribute', function () {
             defaultEventAttr.init('on-click', [{ name: 'somevariable = 1' }], $node);
 
             var spy = sinon.spy();
-            $node.on(events.operate, spy);
+            $node.on(events.trigger, spy);
             $node.trigger('click');
 
             spy.getCall(0).args[1].should.eql({ data: [{ name: 'somevariable', value: '1' }], source: 'on-click' });
@@ -61,7 +61,7 @@ describe('Default Event attribute', function () {
             defaultEventAttr.init('on-click', [{ name: 'stuff(1) && foo=bar  && reset(0)' }], $node);
 
             var spy = sinon.spy();
-            $node.on(events.operate, spy);
+            $node.on(events.trigger, spy);
             $node.trigger('click');
 
             spy.getCall(0).args[1].should.eql({
@@ -77,7 +77,7 @@ describe('Default Event attribute', function () {
             defaultEventAttr.init('on-click', [{ name: 'stuff' }], $node);
 
             var spy = sinon.spy();
-            $node.on(events.operate, spy);
+            $node.on(events.trigger, spy);
             $node.trigger('click');
 
             expect(spy).to.have.been.calledOnce;

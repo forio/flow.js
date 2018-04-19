@@ -43,7 +43,7 @@ const defaultEventAttr = {
         $el.off(eventName).on(eventName, function (evt) {
             evt.preventDefault();
             var listOfOperations = toPublishableFormat(matching);
-            $el.trigger(events.operate, { data: listOfOperations, source: attr });
+            $el.trigger(events.trigger, { data: listOfOperations, source: attr });
         });
     }
 };

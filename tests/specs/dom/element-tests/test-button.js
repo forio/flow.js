@@ -60,7 +60,7 @@ describe('button', function () {
         });
     });
 
-    describe.only('Converter passthroughs', ()=> {
+    describe('Converter passthroughs', ()=> {
         describe('Parse: Before Publish', ()=> {
             let reverseParser;
             beforeEach(()=> {
