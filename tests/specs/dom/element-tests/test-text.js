@@ -33,6 +33,5 @@ describe(':text', function () {
                 });
             });
         });
-        //TODO: make it only take the last element of an array?
     });
 });

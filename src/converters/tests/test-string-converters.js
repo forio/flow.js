@@ -1,4 +1,4 @@
-const cm = require('src/converters/converter-manager.js');
+import cm from 'src/converters/converter-manager.js';
 
 describe('String converter', ()=> {
     describe('upperCase', ()=> {

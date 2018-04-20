@@ -1,5 +1,5 @@
 const nc = require('converters/number-compare-converters');
-const cm = require('converters/converter-manager.js');
+const cm = require('converters/converter-manager.js').default;
 
 describe('Number compare converters', ()=> {
     describe('greaterThan', ()=> {

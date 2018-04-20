@@ -21,10 +21,10 @@
  *            // sched is an object, each element is an array
  *            // of ['Formal Milestone Name', milestoneMonth, completionPercentage]
  *
- *            var schedStr = '<ul>';
- *            var sortedSched = sortBy(sched, function(el) { return el[1]; });
+ *            const schedStr = '<ul>';
+ *            const sortedSched = sortBy(sched, function(el) { return el[1]; });
  *
- *            for (var i = 0; i < sortedSched.length; i++) {
+ *            for (let i = 0; i < sortedSched.length; i++) {
  *                  schedStr += '<li><strong>' + sortedSched[i][0]
  *                        + '</strong> currently scheduled for <strong>Month '
  *                        + sortedSched[i][1] + '</strong></li>';
@@ -40,16 +40,15 @@
  *
  */
 
-const { isString, isFunction, isRegExp, each } = require('lodash');
+import { isString, isFunction, isRegExp, each } from 'lodash';
 
-var defaultHandlers = [
+const defaultHandlers = [
     require('./no-op-attr').default,
     require('./events/default-event-attr').default,
     require('./loop-attrs/foreach-attr').default,
     require('./loop-attrs/repeat-attr').default,
     require('./class-attr').default,
-    require('./positive-boolean-attr').default,
-    require('./negative-boolean-attr').default,
+    require('./boolean-attr').default,
     require('./toggles/show-if-attr').default,
     require('./toggles/hide-if-attr').default,
     require('./binds/checkbox-radio-bind-attr').default,
@@ -58,9 +57,9 @@ var defaultHandlers = [
     require('./default-attr').default
 ];
 
-var handlersList = [];
+const handlersList = [];
 
-var normalize = function (attributeMatcher, nodeMatcher, handler) {
+const normalize = function (attributeMatcher, nodeMatcher, handler) {
     if (!nodeMatcher) {
         nodeMatcher = '*';
     }
@@ -77,8 +76,8 @@ defaultHandlers.forEach(function (handler) {
 });
 
 
-var matchAttr = function (matchExpr, attr, $el) {
-    var attrMatch;
+const matchAttr = function (matchExpr, attr, $el) {
+    let attrMatch;
 
     if (isString(matchExpr)) {
         attrMatch = (matchExpr === '*' || (matchExpr.toLowerCase() === attr.toLowerCase()));
@@ -91,11 +90,11 @@ var matchAttr = function (matchExpr, attr, $el) {
     return attrMatch;
 };
 
-var matchNode = function (target, nodeFilter) {
+const matchNode = function (target, nodeFilter) {
     return (isString(nodeFilter)) ? (nodeFilter === target) : nodeFilter.is(target);
 };
 
-module.exports = {
+const attributeManager = {
     list: handlersList,
     /**
      * Add a new attribute handler.
@@ -118,7 +117,7 @@ module.exports = {
      * @return {AttributeHandler[]} An array of matching attribute handlers, or null if no matches found.
      */
     filter: function (attrFilter, nodeFilter) {
-        var filtered = handlersList.filter(function (handler) {
+        let filtered = handlersList.filter(function (handler) {
             return matchAttr(handler.test, attrFilter);
         });
         if (nodeFilter) {
@@ -138,7 +137,7 @@ module.exports = {
      * @returns {void}
      */
     replace: function (attrFilter, nodeFilter, handler) {
-        var index;
+        let index;
         each(handlersList, function (currentHandler, i) {
             if (matchAttr(currentHandler.test, attrFilter) && matchNode(currentHandler.target, nodeFilter)) {
                 index = i;
@@ -152,14 +151,15 @@ module.exports = {
      *  Retrieve the appropriate handler for a particular attribute. There may be multiple matching handlers, but the first (most exact) match is always used.
      *
      * @param {string} property The attribute.
-     * @param {JQuery<HTMLElement>} $el The DOM element.
+     * @param {string|JQuery<HTMLElement>} $el The DOM element.
      *
      * @return {AttributeHandler|undefined} The attribute handler, if a matching one is found
      */
     getHandler: function (property, $el) {
-        var filtered = this.filter(property, $el);
+        const filtered = this.filter(property, $el);
         //There could be multiple matches, but the top first has the most priority
         return filtered[0];
     }
 };
 
+export default attributeManager;

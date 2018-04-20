@@ -1,4 +1,4 @@
-var cm = require('../converter-manager.js');
+var cm = require('../converter-manager.js').default;
 
 describe('Converter Manager', function () {
     describe('#register', function () {

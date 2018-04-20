@@ -9,9 +9,8 @@
  *
  */
 
-const _ = require('lodash');
-const { isFunction, isString, isRegExp, find, mapValues } = require('lodash');
-const { splitNameArgs, toImplicitType } = require('../utils/parse-utils');
+import { isFunction, isString, isRegExp, find, mapValues } from 'lodash';
+import { splitNameArgs, toImplicitType } from '../utils/parse-utils';
 
 var normalize = function (alias, converter, acceptList) {
     var ret = [];
@@ -141,7 +140,7 @@ var converterManager = {
         var me = this;
 
         var convertArray = function (converter, val, converterName) {
-            return _.map(val, function (v) {
+            return val.map(function (v) {
                 return converter.convert(v, converterName);
             });
         };
@@ -190,6 +189,9 @@ var converterManager = {
         var me = this;
         list.forEach(function (converterName) {
             var converter = me.getConverter(converterName);
+            if (!converter) {
+                throw new Error('parse: Could not find converter ' + converterName);
+            }
             if (converter.parse) {
                 currentValue = converter.parse(currentValue, converterName);
             }
@@ -221,4 +223,4 @@ defaultconverters.reverse().forEach(function (converter) {
     }
 });
 
-module.exports = converterManager;
+export default converterManager;
