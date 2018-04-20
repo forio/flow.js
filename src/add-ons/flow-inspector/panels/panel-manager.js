@@ -16,7 +16,8 @@ var availablePanels = {
     context: require('./context-show/context-show-panel'),
     filter: require('./legend-toggle/legend-panel')
 };
-_.each(availablePanels, function (panel, alias) {
+Object.keys(availablePanels).forEach(function (alias) {
+    var panel = availablePanels[alias];
     panelManager.register(alias, panel);
 });
 

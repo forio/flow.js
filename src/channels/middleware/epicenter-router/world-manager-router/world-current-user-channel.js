@@ -27,7 +27,7 @@ export default function WorldUsersChanngel(worldPromise, notifier) {
         subscribeHandler: function (userFields) {
             return worldPromise.then((world)=> {
                 const session = am.getCurrentUserSessionInfo();
-                const myUser = _.find(world.users, (user)=> {
+                const myUser = world.users.find((user)=> {
                     return user.userId === session.userId;
                 });
                 $.extend(store, myUser);
