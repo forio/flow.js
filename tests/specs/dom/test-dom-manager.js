@@ -358,6 +358,4 @@ describe('DOM Manager', function () {
             });
         });
     });
-
-    require('./test-dom-events');
 });

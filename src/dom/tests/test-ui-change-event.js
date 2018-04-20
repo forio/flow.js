@@ -6,6 +6,7 @@ import chai from 'chai';
 chai.use(require('sinon-chai'));
 
 import { expect } from 'chai';
+import config from '../../config';
 
 describe('UI Change Event', ()=> {
     var channel;
@@ -13,6 +14,46 @@ describe('UI Change Event', ()=> {
         channel = createDummyChannel();
     });
     describe('Bound element change', ()=> {
+        it('should call publish on the channel', function () {
+            var channel = createDummyChannel();
+            return initWithNode('<input type="text" data-f-bind="apple"/>', domManager, channel).then(function ($node) {
+                const payload = { data: [{ name: 'apple', value: 2 }], source: 'bind' };
+                $node.trigger(config.events.trigger, payload);
+                channel.publish.should.have.been.calledOnce;
+            });
+        });
+        it('should pass the right parameters to publish', function () {
+            var channel = createDummyChannel();
+            return initWithNode('<input type="text" data-f-bind="apple"/>', domManager, channel).then(function ($node) {
+                var payload = { data: [{ name: 'apple', value: 2 }], source: 'bind' };
+                $node.trigger(config.events.trigger, payload);
+                channel.publish.should.have.been.calledWith([{ name: 'apple', value: 2 }]);
+            });
+        });
+        it('should implicitly convert parameters to send to tpublish', function () {
+            var channel = createDummyChannel();
+            return initWithNode('<input type="text" data-f-bind="apple"/>', domManager, channel).then(function ($node) {
+                var payload = { data: [{ name: 'apple', value: '2' }], source: 'bind' };
+                $node.trigger(config.events.trigger, payload);
+                channel.publish.should.have.been.calledWith([{ name: 'apple', value: 2 }]);
+            });
+        });
+        it('should trigger f.convert to convert values', function (done) {
+            const channel = createDummyChannel();
+            initWithNode('<input type="text" data-f-bind="apple | $#,###.00"/>', domManager, channel).then(function ($node) {
+                var spy = sinon.spy();
+                $node.on('f.convert', spy);
+
+                var payload = { data: [{ name: 'apple', value: '20000' }], source: 'bind' };
+                $node.trigger(config.events.trigger, payload);
+                
+                setTimeout(()=> {
+                    spy.should.have.been.calledOnce;
+                    spy.getCall(0).args[1].should.eql({ bind: 20000 });
+                    done();
+                }, 0);
+            });
+        });
         describe('parse: before publish', ()=> {
             it('should call parser once for single publish', ()=> {
                 return initWithNode('<input type="text" data-f-bind="Price | $#,###.00"/>', domManager, channel).then(function ($node) {
@@ -36,6 +77,27 @@ describe('UI Change Event', ()=> {
         });
     });
     describe('on-* element change', ()=> {
+        it('should call publish', function () {
+            return initWithNode('<div data-f-on-click="somethingrandom"></div>', domManager, channel).then(function ($node) {
+                $node.trigger(config.events.trigger, { data: [{ name: 'stuff', value: [] }], source: 'on-click' });
+                channel.publish.should.have.been.calledOnce;
+            });
+        });
+        it('should pass the right parameters to publish', function () {
+            return initWithNode('<div data-f-on-click="somethingrandom"></div>', domManager, channel).then(function ($node) {
+                var payload = { data: [{ name: 'stuff', value: [] }], source: 'on-click' };
+                $node.trigger(config.events.trigger, payload);
+                channel.publish.should.have.been.calledWith([{ name: 'operations:stuff', value: [] }]);
+            });
+        });
+        it('should implicitly convert parameters to send to publish', function () {
+            return initWithNode('<div data-f-on-click="somethingrandom"></div>', domManager, channel).then(function ($node) {
+                var payload = { data: [{ name: 'stuff', value: ['1', 0] }], source: 'on-click' };
+                $node.trigger(config.events.trigger, payload);
+                channel.publish.should.have.been.calledWith([{ name: 'operations:stuff', value: [1, 0] }]);
+            });
+        });
+
         describe('Parse: Before Publish', ()=> {
             let reverseParser;
             beforeEach(()=> {
@@ -52,8 +114,6 @@ describe('UI Change Event', ()=> {
             });
 
             describe('single publish operation', ()=> {
-                
-                
                 it('should call parser once for single publish', ()=> {
                     return initWithNode('<input type="button" data-f-on-click="step(1, 2) | reverseArray"/>', domManager, channel).then(function ($node) {
                         $node.trigger('click');
