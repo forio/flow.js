@@ -1,4 +1,10 @@
-var cm = require('../converter-manager.js').default;
+import cm from '../converter-manager.js';
+import sinon from 'sinon';
+import chai from 'chai';
+chai.use(require('sinon-chai'));
+
+const { expect } = chai;
+
 
 describe('Converter Manager', function () {
     describe('#register', function () {

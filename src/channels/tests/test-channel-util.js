@@ -1,4 +1,5 @@
 import * as utils from '../channel-utils';
+import { expect } from 'chai';
 
 describe('Channel Utils', ()=> {
     describe('#normalizeParamOptions', ()=> {

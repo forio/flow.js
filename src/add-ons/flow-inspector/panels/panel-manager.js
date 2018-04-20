@@ -1,5 +1,3 @@
-const _ = require('lodash');
-
 var panelManager = {
     list: {},
     register: function (alias, handler) {

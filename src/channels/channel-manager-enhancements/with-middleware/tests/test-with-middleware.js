@@ -1,5 +1,10 @@
 import ChannelManager from 'channels/channel-manager';
 import withMidddleware from '../index';
+import sinon from 'sinon';
+import chai from 'chai';
+chai.use(require('sinon-chai'));
+
+const { expect } = chai;
 
 var ChannelWithMiddleware = withMidddleware(ChannelManager);
 function noop() {}

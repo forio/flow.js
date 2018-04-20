@@ -1,11 +1,7 @@
 import { initWithNode, createDummyChannel, spyOnNode } from 'tests/testing-utils';
 import domManager from 'src/dom/dom-manager';
 
-import sinon from 'sinon';
-import chai from 'chai';
-chai.use(require('sinon-chai'));
-
-const { expect } = chai;
+import { expect } from 'chai';
 
 describe('button', function () {
     it('should call operation with single params', function () {

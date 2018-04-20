@@ -1,4 +1,5 @@
 import { match } from '../index';
+import { expect } from 'chai';
 
 describe('JSON Router', ()=> {
     describe('#match', ()=> {

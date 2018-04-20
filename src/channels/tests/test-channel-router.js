@@ -1,5 +1,9 @@
 import { notifySubscribeHandlers, notifyUnsubscribeHandlers, passthroughPublishInterceptors } from '../channel-router';
+import sinon from 'sinon';
+import chai from 'chai';
+chai.use(require('sinon-chai'));
 
+const { expect } = chai;
 describe('Channel Router', ()=> {
     describe('notifySubscribeHandlers', ()=> {
         it('should call the right handler matches', ()=> {

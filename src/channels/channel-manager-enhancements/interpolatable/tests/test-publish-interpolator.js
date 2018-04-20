@@ -3,6 +3,11 @@ import { default as publishInterpolator,
     interpolateWithDependencies,
 } from '../publish-interpolator';
 
+import sinon from 'sinon';
+import chai from 'chai';
+chai.use(require('sinon-chai'));
+
+const { expect } = chai;
 
 function formatInputs(inputs) {
     return inputs.map((ip, index)=> {

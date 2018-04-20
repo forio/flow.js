@@ -1,5 +1,9 @@
 import Channel from '../run-meta-channel';
+import sinon from 'sinon';
+import chai from 'chai';
+chai.use(require('sinon-chai'));
 
+const { expect } = chai;
 describe('Run Meta channel', ()=> {
     describe('#subscribeHandler', ()=> {
         var mockRun, mockNotifier, channel;

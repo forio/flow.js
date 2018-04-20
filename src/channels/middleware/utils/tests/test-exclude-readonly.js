@@ -1,4 +1,5 @@
 import readonly from '../exclude-read-only';
+import { expect } from 'chai';
 
 describe('Readonly Flag', ()=> {
     describe('Boolean', ()=> {

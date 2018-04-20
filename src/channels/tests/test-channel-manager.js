@@ -1,5 +1,9 @@
 import ChannelManager from '../channel-manager';
-import { expect } from 'chai';
+import sinon from 'sinon';
+import chai from 'chai';
+chai.use(require('sinon-chai'));
+
+const { expect } = chai;
 
 function noop() {}
 describe('Subscription Manager', ()=> {

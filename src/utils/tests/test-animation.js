@@ -1,5 +1,6 @@
 import { addChangeClassesToList, addContentAndAnimate, _findMostConsequtive } from '../animation';
-import { animation } from 'src/config';
+import { animation } from '../../config';
+import { expect } from 'chai';
 
 describe('Animation', ()=> {
     describe('#_findMostConsequtive', ()=> {

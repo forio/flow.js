@@ -1,4 +1,5 @@
 import { groupByContigousArrayItems, groupVariableBySubscripts } from '../run-variables-channel';
+import { expect } from 'chai';
 
 describe('Run Variables channel', ()=> {
     describe('Utils', ()=> {

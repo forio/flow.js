@@ -1,4 +1,5 @@
-const cc = require('converters/collection-converters');
+import cc from 'converters/collection-converters';
+import { expect } from 'chai';
 
 function getConverter(name) {
     const conv = cc.find((c)=> c.alias === name);

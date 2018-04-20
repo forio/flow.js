@@ -1,4 +1,5 @@
-const cm = require('converters/converter-manager.js').default;
+import cm from 'converters/converter-manager';
+import { expect } from 'chai';
 
 describe('#Array converters', ()=> {
     describe('#list', ()=> {

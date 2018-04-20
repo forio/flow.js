@@ -52,7 +52,7 @@ export function publishableToObject(arr, mergeWith) {
  *
  * @param {String|Object|array} topic 
  * @param {*} publishValue 
- * @param {Object} options
+ * @param {Object} [options]
  * @return {NormalizedParam}
  */
 export function normalizeParamOptions(topic, publishValue, options) {
