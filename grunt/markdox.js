@@ -10,13 +10,6 @@ module.exports = function (grunt) {
         target: {
             files: [
                 {
-                    src: 'src/channels/operations-channel.js',
-                    dest: 'documentation/generated/channels/operations-channel/index.html.md'
-                }, {
-                    src: 'src/channels/variables-channel.js',
-                    dest: 'documentation/generated/channels/variables-channel/index.html.md'
-                },
-                {
                     src: 'src/converters/array-converter.js',
                     dest: 'documentation/generated/converters/array-converter/index.html.md'
                 }, {
@@ -40,52 +33,6 @@ module.exports = function (grunt) {
                     src: 'src/dom/attributes/attribute-manager.js',
                     dest: 'documentation/generated/dom/attributes/attribute-manager/index.html.md'
                 }, {
-                    src: 'src/dom/attributes/class-attr.js',
-                    dest: 'documentation/generated/dom/attributes/class-attr/index.html.md'
-                }, {
-                    src: 'src/dom/attributes/default-attr.js',
-                    dest: 'documentation/generated/dom/attributes/default-attr/index.html.md'
-                },
-                // only need to build one of positive and negative for purposes of docpad-generated help;
-                // to accompany the code, repeat the same content in both
-                {
-                    src: 'src/dom/attributes/positive-boolean-attr.js',
-                    dest: 'documentation/generated/dom/attributes/boolean-attr/index.html.md'
-                },
-                {
-                    src: 'src/dom/attributes/binds/checkbox-radio-bind-attr.js',
-                    dest: 'documentation/generated/dom/attributes/binds/checkbox-radio-bind-attr/index.html.md'
-                }, {
-                    src: 'src/dom/attributes/binds/default-bind-attr.js',
-                    dest: 'documentation/generated/dom/attributes/binds/default-bind-attr/index.html.md'
-                }, {
-                    src: 'src/dom/attributes/binds/input-bind-attr.js',
-                    dest: 'documentation/generated/dom/attributes/binds/input-bind-attr/index.html.md'
-                },
-                {
-                    src: 'src/dom/attributes/events/default-event-attr.js',
-                    dest: 'documentation/generated/dom/attributes/events/default-event-attr/index.html.md'
-                }, {
-                    src: 'src/dom/attributes/events/init-event-attr.js',
-                    dest: 'documentation/generated/dom/attributes/events/init-event-attr/index.html.md'
-                },
-                {
-                    src: 'src/dom/attributes/loop-attrs/foreach-attr.js',
-                    dest: 'documentation/generated/dom/attributes/loop-attrs/foreach-attr/index.html.md'
-                },
-                {
-                    src: 'src/dom/attributes/loop-attrs/repeat-attr.js',
-                    dest: 'documentation/generated/dom/attributes/loop-attrs/repeat-attr/index.html.md'
-                },
-                {
-                    src: 'src/dom/attributes/toggles/show-if-attr.js',
-                    dest: 'documentation/generated/dom/attributes/toggles/show-if/index.html.md'
-                },
-                {
-                    src: 'src/dom/attributes/toggles/hide-if-attr.js',
-                    dest: 'documentation/generated/dom/attributes/toggles/hide-if/index.html.md'
-                },
-                {
                     src: 'src/converters/number-compare-converters.js',
                     dest: 'documentation/generated/converters/number-compare-converter/index.html.md'
                 },

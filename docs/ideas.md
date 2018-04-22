@@ -11,8 +11,13 @@ This'll subscribe to input and change price whenever input changes
 
 #Build new dom: router
 - Matches on # or on dom:<any valid css selector>
-
 <div data-f-on-click="variables:price[<#inp>,<#inp2>]"></div>
+
+#Build url router
+```
+<ul data-f-foreach="item in https://reddit.com/json | pick('children')"></ul>
+```
+
 
 ## Add `-on` adapter to show output of operations? --- not different from bind?
 ```
@@ -28,6 +33,7 @@ This'll make it so you can do
 ```
 
 This'll mean the only concepts to be aware of are `&&` vs `|`
+**Don't need to make it routes to do that, can just split it at the dom level. Do the js route first and then figure this out**
 
 #Silent mode:
 
