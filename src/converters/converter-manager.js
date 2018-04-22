@@ -1,14 +1,3 @@
-/**
- * ## Converter Manager: Make your own Converters
- *
- * Converters allow you to convert data -- in particular, model variables that you display in your project's user interface -- from one form to another.
- *
- * Basic converting and formatting options are built in to Flow.js.
- *
- * You can also create your own converters. Each converter should be a function that takes in a value or values to convert. To use your converter, `register()` it in your instance of Flow.js.
- *
- */
-
 import { isFunction, isString, isRegExp, find, mapValues } from 'lodash';
 import { splitNameArgs, toImplicitType } from '../utils/parse-utils';
 

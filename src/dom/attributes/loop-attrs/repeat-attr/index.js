@@ -1,3 +1,4 @@
+import { template, each } from 'lodash';
 import { toImplicitType } from 'utils/parse-utils';
 import { random } from 'utils/general';
 import { attrs, animation } from '../../../../config';
