@@ -7,6 +7,7 @@
     "test": "tests"
   },
   "scripts": {
+    "start": "./node_modules/grunt-cli/bin/grunt",
     "prepush": "./node_modules/grunt-cli/bin/grunt validate",
     "test": "./node_modules/grunt-cli/bin/grunt test",
     "build": "./node_modules/grunt-cli/bin/grunt production",
