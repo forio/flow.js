@@ -89,9 +89,12 @@ describe('Test general utils', ()=> {
             clock.tick(200);
             clock.tick(100);
             expect(fnToDebounce).to.have.have.been.calledWith([1, 2]); 
-            debounced([2]);
+            debounced([3]);
+            clock.tick(100);
+            debounced([4]);
             clock.tick(200);
-            expect(fnToDebounce).to.have.have.been.calledWith([2]); 
+            clock.tick(100);
+            expect(fnToDebounce).to.have.have.been.calledWith([3, 4]); 
         });
         describe('promise', ()=> {
             it('should return a promise', ()=> {

@@ -105,9 +105,9 @@ export function optimizedFetch(runService, variables) {
 
 export default function RunVariablesChannel($runServicePromise, notifier) {
 
-    var id = uniqueId('variable-channel');
+    const id = uniqueId('variable-channel');
 
-    var fetchFn = function (runService, debounceInterval) {
+    function debouncedVariableQuery(runService, debounceInterval) {
         if (!runService.debouncedFetchers) {
             runService.debouncedFetchers = {};
         }
@@ -125,10 +125,10 @@ export default function RunVariablesChannel($runServicePromise, notifier) {
             }]);
         }
         return runService.debouncedFetchers[id];
-    };
+    }
      
 
-    var knownTopics = [];
+    let knownTopics = [];
     return { 
         fetch: function () {
             return $runServicePromise.then(function (runService) {
@@ -140,8 +140,8 @@ export default function RunVariablesChannel($runServicePromise, notifier) {
             knownTopics = remainingTopics;
         },
         subscribeHandler: function (topics, options) {
-            var isAutoFetchEnabled = options.autoFetch;
-            var debounceInterval = options.debounce;
+            const isAutoFetchEnabled = options.autoFetch;
+            const debounceInterval = options.debounce;
 
             return $runServicePromise.then(function (runService) {
                 knownTopics = uniq(knownTopics.concat(topics));
@@ -150,25 +150,25 @@ export default function RunVariablesChannel($runServicePromise, notifier) {
                 } else if (!isAutoFetchEnabled) {
                     return $.Deferred().resolve(topics).promise();
                 }
-                return fetchFn(runService, debounceInterval)(topics).then(notifier);
+                return debouncedVariableQuery(runService, debounceInterval)(topics).then(notifier);
             });
         },
         notify: function (variableObj) {
             return $runServicePromise.then(function (runService) {
                 const variables = Object.keys(variableObj); 
-                return runService.variables().query(variables).then(objectToPublishable).then(notifier);
+                return optimizedFetch(runService, variables).then(notifier);
             });
         },
         publishHandler: function (topics, options) {
             return $runServicePromise.then(function (runService) {
-                var toSave = publishableToObject(topics);
+                const toSave = publishableToObject(topics);
                 return runService.variables().save(toSave).then(function (response) {
                     const variables = Object.keys(toSave); 
                     //Get the latest from the server because what you think you saved may not be what was saved
                     //bool -> 1, scalar to array for time-based models etc
                     //FIXME: This causes dupe requests, one here and one after fetch by the run-variables channel
                     //FIXME: Other publish can't do anything till this is done, so debouncing won't help. Only way out is caching
-                    return runService.variables().query(variables).then(objectToPublishable);
+                    return optimizedFetch(runService, variables);
                 });
             });
         }
