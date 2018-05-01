@@ -22,4 +22,4 @@ To run locally
 ```
 This will create a ```flow-edge.js``` file in ```dist/```. When you're happy with your changes do ```grunt release``` to increment version numbers and push.
 
-&copy; Forio Corporation, 2014.  All rights reserved.
+&copy; Forio Corporation, 2018.  All rights reserved.

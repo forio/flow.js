@@ -1,10 +1,15 @@
+# Solve speed issue
+The excel workforce model had a 50row x 5 binds and was too slow. Bulk of the time was on prefixing.
+
+Instead of prefixing, just pass an array of prefixes and let the channel manager only send what matched?
+
 #Interpolate operation parameters as well
 
 This'll get the value of the input at resolution time
 <button data-f-on-click="submit(<#inp>)"></button>
 
 This'll subscribe to input and change price whenever input changes
-<div data-f-on-click="price[<#inp>]"></div>
+<div data-f-bind="price[<#inp>]"></div>
 
 ##Todos:
     - Implement a 'fetch' or 'once' method per channel
@@ -34,6 +39,7 @@ This'll make it so you can do
 
 This'll mean the only concepts to be aware of are `&&` vs `|`
 **Don't need to make it routes to do that, can just split it at the dom level. Do the js route first and then figure this out**
+    - Doesn't this mean i can't do gs:A12 | run:regression?
 
 #Silent mode:
 
