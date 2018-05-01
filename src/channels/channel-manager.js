@@ -136,7 +136,10 @@ class ChannelManager {
     publish(topic, value, options) {
         var normalized = normalizeParamOptions(topic, value, options);
         var prom = $.Deferred().resolve(normalized.params).promise();
-        prom = prom.then(this.notify.bind(this));
+        prom = prom.then((publishResponses)=> {
+            this.notify(publishResponses, options);
+            return publishResponses;
+        });
         return prom;
     }
 
