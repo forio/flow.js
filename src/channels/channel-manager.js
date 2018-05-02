@@ -171,14 +171,10 @@ class ChannelManager {
      */
     unsubscribe(token) {
         var olderLength = this.subscriptions.length;
-        if (!olderLength) {
-            throw new Error('No subscriptions found to unsubscribe from');
-        }
-    
         var remaining = this.subscriptions.filter(function (subs) {
             return subs.id !== token;
         });
-        if (!remaining.length === olderLength) {
+        if (remaining.length === olderLength) {
             throw new Error('No subscription found for token ' + token);
         }
         delete cacheBySubsId[token];

@@ -1,5 +1,10 @@
 'use strict';
 
+//Documentation alternatives
+// https://github.com/neogeek/doxdox/
+// https://github.com/sutoiku/jsdox
+// https://github.com/jsdoc2md/jsdoc-to-markdown https://github.com/jsdoc2md/jsdoc-to-markdown/wiki/Create-a-custom-partial
+
 module.exports = function (grunt) {
     grunt.loadNpmTasks('grunt-markdox');
     grunt.config.set('markdox', {
