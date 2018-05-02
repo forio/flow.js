@@ -17,6 +17,9 @@
     ],
     "exclude": [
         "node_modules",
-        "dist"
+        "dist",
+        "docs",
+        "documentation",
+        "coverage"
     ]
 }
