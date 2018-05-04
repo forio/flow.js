@@ -2647,10 +2647,10 @@ function parseArgs(toCompare, trueVal, falseVal, valueToCompare, matchString) {
             return $.extend(toReturn, { trueVal: trueVal, falseVal: falseVal, input: valueToCompare });
         case 4:
             //eslint-disable-line
-            return $.extend(toReturn, { trueVal: trueVal, input: falseVal });
+            return $.extend(toReturn, { trueVal: trueVal, falseVal: falseVal, input: falseVal });
         case 3:
             //eslint-disable-line
-            return $.extend(toReturn, { input: trueVal });
+            return $.extend(toReturn, { input: trueVal, falseVal: trueVal });
         default:
             return toReturn;
     }
@@ -6078,7 +6078,7 @@ function publishInterpolator(publishFunction, fetchFn) {
         fetchFn(dependencies, function handleDependencyChange(resolvedDependencies) {
             var interpolated = interpolateWithDependencies(normalizedPublishInputs.params, resolvedDependencies);
             var newPublishProm = publishFunction(interpolated, normalizedPublishInputs.options);
-            prom.resolve(newPublishProm);
+            newPublishProm.then(prom.resolve, prom.reject);
         });
         return prom.promise();
     };
