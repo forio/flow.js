@@ -48,7 +48,7 @@ export default function publishInterpolator(publishFunction, fetchFn) {
         fetchFn(dependencies, function handleDependencyChange(resolvedDependencies) {
             var interpolated = interpolateWithDependencies(normalizedPublishInputs.params, resolvedDependencies);
             var newPublishProm = publishFunction(interpolated, normalizedPublishInputs.options);
-            prom.resolve(newPublishProm);
+            newPublishProm.then(prom.resolve, prom.reject);
         });
         return prom.promise();
     };
