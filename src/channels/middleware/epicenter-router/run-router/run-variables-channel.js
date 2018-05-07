@@ -1,6 +1,6 @@
 import { debounceAndMerge } from 'utils/general';
 import { objectToPublishable, publishableToObject } from 'channels/channel-utils';
-import { uniqueId, uniq } from 'lodash';
+import { uniqueId, uniq, intersection } from 'lodash';
 
 /**
  * @param {number[]} subscripts 
@@ -137,7 +137,7 @@ export default function RunVariablesChannel($runServicePromise, notifier) {
         },
 
         unsubscribeHandler: function (unsubscribedTopics, remainingTopics) {
-            knownTopics = remainingTopics;
+            knownTopics = intersection(knownTopics, uniq(remainingTopics));
         },
         subscribeHandler: function (topics, options) {
             const isAutoFetchEnabled = options.autoFetch;
