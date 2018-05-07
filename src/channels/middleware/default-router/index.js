@@ -8,41 +8,23 @@ export default function (config, notifier, channelManagerContext) {
 
     const routes = options.routes.map((r)=> {
         const router = (typeof r === 'function') ? new r(config, notifier) : r;
-        const oldSubsHandler = router.subscribeHandler;
-
         if (typeof router.match === 'string') {
             const oldMatch = router.match;
             router.match = (t)=> t === oldMatch;
         }
 
-        router.subscribeHandler = (topics)=> {
-            const parsed = topics.reduce((accum, t)=> {
-                if (router.match(t)) {
-                    accum.claimed.push({
-                        name: t,
-                        value: oldSubsHandler(t)
-                    });
-                } else {
-                    accum.rest.push(t);
-                }
-                return accum;
-            }, { claimed: [], rest: [] });
-            setTimeout(()=> {
-                if (parsed.claimed.length) {
-                    notifier(parsed.claimed);
-                }
-            }, 0);
-            return parsed.rest;
-        };
         return router;
     });
     var defaultRouter = router(routes, notifier);
-    const oldHandler = defaultRouter.subscribeHandler;
     defaultRouter.subscribeHandler = (topics, options)=> {
         const parsed = topics.reduce((accum, topic)=> {
             routes.forEach((route)=> {
-                if (route.match(topic)) {
-                    accum.claimed.push(topic);
+                if (route.match(topic) && route.subscribeHandler) {
+                    const value = route.subscribeHandler(topic);
+                    accum.claimed.push({
+                        name: topic,
+                        value: value
+                    });
                 } else {
                     accum.rest.push(topic);
                 }
@@ -50,7 +32,9 @@ export default function (config, notifier, channelManagerContext) {
             return accum;
         }, { claimed: [], rest: [] });
         if (parsed.claimed.length) {
-            oldHandler(parsed.claimed);
+            setTimeout(()=> {
+                notifier(parsed.claimed);
+            }, 0);
             return parsed.rest;
         }
         return topics;

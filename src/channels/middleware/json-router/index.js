@@ -21,6 +21,7 @@ export default function JSONRouter(config, notifier) {
                 }
                 return accum;
             }, { claimed: [], rest: [] });
+            //FIXME: Only call notifier if claimed.length > 0
             setTimeout(()=> {
                 notifier(parsed.claimed);
             }, 0);

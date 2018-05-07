@@ -83,7 +83,7 @@
 
 -->
         <h6>Nested foreach + bind</h6>
-        <ul data-f-foreach="price in Price">
+        <ul data-f-foreach="(price) in Price">
             <li>
                 Price index: <%= index %>
                 <div data-f-bind="Sales[<%= index %>]">
@@ -92,11 +92,12 @@
                 </div>
             </li>
         </ul> 
+        <h1 data-f-bind="foo"></h1>
         <script>
-            var defaultRoutes = {
+            var foosubsHandler = {
                 match: 'foo',
                 subscribeHandler: ()=> {
-                    return 'bar';
+                    return 'bar1';
                 }
             };
 
@@ -109,7 +110,7 @@
                             model: 'gglasses.vmf',
                         }
                     },
-                    routes: [defaultRoutes]
+                    routes: [foosubsHandler]
                 }
             });
         </script>
