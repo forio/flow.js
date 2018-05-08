@@ -95,6 +95,14 @@ export function passthroughPublishInterceptors(handlers, publishData, options) {
 export default function router(handlers) {
     let myHandlers = handlers || [];
     return {
+        match: (topic)=> {
+            return myHandlers.reduce((match, handler)=> {
+                if (!match && handler.match(topic)) {
+                    return handler.match(topic);
+                }
+            }, false);
+        },
+
         /**
          * @param {String[]} topics
          * @param {SubscribeOptions} [options]

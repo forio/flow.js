@@ -185,7 +185,7 @@ module.exports = (function () {
                 if (handler && handler.init) {
                     handler.init(attr, topics, $el);
                 }
-                if (handler && handler.parse) {
+                if (topics.length && handler && handler.parse) {
                     topics = [].concat(handler.parse(topics));
                 }
                 
