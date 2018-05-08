@@ -2764,7 +2764,10 @@ module.exports = {
             var validFirstChars = ['s', '#', '0', '.'];
             var validLastChars = ['%', '#', '0'];
 
-            var isValidFirstChar = validFirstChars.indexOf(v.charAt(0)) !== -1 || isAllowedLeading(v.charAt(0));
+            if (isAllowedLeading(v.charAt(0))) {
+                v = v.slice(1);
+            }
+            var isValidFirstChar = validFirstChars.indexOf(v.charAt(0)) !== -1;
             var isValidLastChar = validLastChars.indexOf(v.charAt(v.length - 1)) !== -1;
 
             if (v.length === 2) {

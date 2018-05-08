@@ -88,7 +88,10 @@ module.exports = {
             const validFirstChars = ['s', '#', '0', '.'];
             const validLastChars = ['%', '#', '0'];
 
-            const isValidFirstChar = validFirstChars.indexOf(v.charAt(0)) !== -1 || isAllowedLeading(v.charAt(0));
+            if (isAllowedLeading(v.charAt(0))) {
+                v = v.slice(1);
+            }
+            const isValidFirstChar = validFirstChars.indexOf(v.charAt(0)) !== -1;
             const isValidLastChar = validLastChars.indexOf(v.charAt(v.length - 1)) !== -1;
 
             if (v.length === 2) {

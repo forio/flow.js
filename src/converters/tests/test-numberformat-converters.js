@@ -5,9 +5,9 @@ describe('Number format Converter', ()=> {
         const validHashes = ['#', '##', '##.##', '#,###', '#,###.#'];
         const percents = ['%', '0%', '0.00%', '#,###%', '#,###.#%'];
         const shortFormats = ['s0', 's0.0', 's#,##'];
-        const validCurrencies = ['$#,###', '€0.0'];
-
+        const validCurrencies = ['$#,###', '€0.0', '$s0', '$00'];
         const totalValid = [].concat(validZeros, validHashes, percents, shortFormats, validCurrencies);
+        // const totalValid = [];
 
         it('should match known formats', ()=> {
             totalValid.forEach((v)=> {
@@ -45,8 +45,8 @@ describe('Number format Converter', ()=> {
         });
 
         it('should convert percents to decimals', ()=> {
-            numberConverter.parse('1%', '$###').should.equal(0.01);
-            numberConverter.parse('1.5%', '$###').should.equal(0.015);
+            numberConverter.parse('1%').should.equal(0.01);
+            numberConverter.parse('1.5%').should.equal(0.015);
         });
 
         it('should convert strings with short units', ()=> {
@@ -68,6 +68,7 @@ describe('Number format Converter', ()=> {
         it('should convert strings to formatted strings', ()=> {
             numberConverter.convert('1000000', '$#,###.00').should.equal('$1,000,000.00');
             numberConverter.convert('1000000', '$#,###').should.equal('$1,000,000');
+            numberConverter.convert('1000000', '$s0').should.equal('$1M');
         });
         it('should convert numbers to formatted strings', ()=> {
             numberConverter.convert(1000000, '$#,###.00').should.equal('$1,000,000.00');
