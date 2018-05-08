@@ -63,6 +63,9 @@ export function optimizedFetch(runService, variables) {
     // Revisit after EPICENTER-3493 is done
     const canOptimize = false;
     if (!canOptimize) {
+        if (!variables || !variables.length) {
+            return $.Deferred().resolve([]).promise();
+        }
         return runService.variables().query(variables).then(objectToPublishable);
     }
 
@@ -113,9 +116,6 @@ export default function RunVariablesChannel($runServicePromise, notifier) {
         }
         if (!runService.debouncedFetchers[id]) {
             runService.debouncedFetchers[id] = debounceAndMerge(function (variables) {
-                if (!variables || !variables.length) {
-                    return $.Deferred().resolve([]).promise();
-                }
                 return optimizedFetch(runService, variables);
             }, debounceInterval, [function mergeVariables(accum, newval) {
                 if (!accum) {
