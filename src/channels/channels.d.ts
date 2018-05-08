@@ -34,11 +34,15 @@ interface BaseHandler {
     publishHandler?: (publishData: Publishable[], options: PublishOptions, match?:string)=> Promise<Publishable[]>;
 }
 
+interface handlerMatcher {
+    (topic: string): string | false;
+}
 interface Handler extends BaseHandler {
-    name: string;
-    match: Function;
+    match: handlerMatcher;
+    name?: string;
     isDefault?: boolean;
-    options: HandlerOptions;
+    options?: HandlerOptions;
+    [propName: string]: any;
 }
 
 interface MatchedHandler extends Handler {

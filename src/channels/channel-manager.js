@@ -152,7 +152,6 @@ class ChannelManager {
         });
     }
 
-    //TODO: Allow subscribing to regex? Will solve problem of listening only to variables etc
     /**
      * @param {String[] | String} topics
      * @param {Function} cb
