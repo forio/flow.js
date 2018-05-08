@@ -107,6 +107,7 @@
         </li>
     </ul>
     <h1 data-f-bind="foo"></h1>
+    <h2 data-f-bind="operations:something"></h2>
     <button data-f-on-click="something=5">Override</button>
     <script>
         var foosubsHandler = {
@@ -120,9 +121,10 @@
         };
         var somethingPubHandler = {
             match: 'operations:something',
+            subscribeHandler: () => [],
             publishHandler: (topic) => {
                 return [{
-                    name: topic.name,
+                    name: topic[0].name,
                     value: '25'
                 }];
             }

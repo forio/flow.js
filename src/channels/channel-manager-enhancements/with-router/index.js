@@ -39,7 +39,7 @@ export default function withRouter(ChannelManager) {
                 }
                 if (typeof handler.match === 'string') {
                     const oldMatch = handler.match;
-                    handler.match = (t)=> t === oldMatch;
+                    handler.match = (t)=> t === oldMatch ? t : false;
                 }
                 return handler;
             });
