@@ -18,17 +18,18 @@ export default function (config, notifier, channelManagerContext) {
     var defaultRouter = router(routes, notifier);
     defaultRouter.subscribeHandler = (topics, options)=> {
         const parsed = topics.reduce((accum, topic)=> {
-            routes.forEach((route)=> {
-                if (route.match(topic) && route.subscribeHandler) {
-                    const value = route.subscribeHandler(topic);
-                    accum.claimed.push({
-                        name: topic,
-                        value: value
-                    });
-                } else {
-                    accum.rest.push(topic);
-                }
+            const matchingRoute = routes.find((route)=> {
+                return (route.match(topic) && route.subscribeHandler);
             });
+            if (matchingRoute) {
+                const value = matchingRoute.subscribeHandler(topic);
+                accum.claimed.push({
+                    name: topic,
+                    value: value
+                });
+            } else {
+                accum.rest.push(topic);
+            }
             return accum;
         }, { claimed: [], rest: [] });
         if (parsed.claimed.length) {
