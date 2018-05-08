@@ -5149,12 +5149,14 @@ function RunVariablesChannel($runServicePromise, notifier) {
     return {
         fetch: function () {
             return $runServicePromise.then(function (runService) {
-                return optimizedFetch(runService, knownTopics).then(notifier);
+                return optimizedFetch(runService, [].concat(knownTopics)).then(notifier);
             });
         },
 
         unsubscribeHandler: function (unsubscribedTopics, remainingTopics) {
-            knownTopics = Object(__WEBPACK_IMPORTED_MODULE_2_lodash__["intersection"])(knownTopics, Object(__WEBPACK_IMPORTED_MODULE_2_lodash__["uniq"])(remainingTopics));
+            knownTopics = knownTopics.filter(function (t) {
+                return unsubscribedTopics.indexOf(t) === -1;
+            });
         },
         subscribeHandler: function (topics, options) {
             var isAutoFetchEnabled = options.autoFetch;

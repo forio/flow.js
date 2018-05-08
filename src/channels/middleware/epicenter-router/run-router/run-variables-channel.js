@@ -1,6 +1,6 @@
 import { debounceAndMerge } from 'utils/general';
 import { objectToPublishable, publishableToObject } from 'channels/channel-utils';
-import { uniqueId, uniq, intersection } from 'lodash';
+import { uniqueId, uniq } from 'lodash';
 
 /**
  * @param {number[]} subscripts 
@@ -132,12 +132,12 @@ export default function RunVariablesChannel($runServicePromise, notifier) {
     return { 
         fetch: function () {
             return $runServicePromise.then(function (runService) {
-                return optimizedFetch(runService, knownTopics).then(notifier);
+                return optimizedFetch(runService, [].concat(knownTopics)).then(notifier);
             });
         },
 
         unsubscribeHandler: function (unsubscribedTopics, remainingTopics) {
-            knownTopics = intersection(knownTopics, uniq(remainingTopics));
+            knownTopics = knownTopics.filter((t)=> unsubscribedTopics.indexOf(t) === -1);
         },
         subscribeHandler: function (topics, options) {
             const isAutoFetchEnabled = options.autoFetch;
