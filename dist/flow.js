@@ -5151,7 +5151,7 @@ function RunVariablesChannel($runServicePromise, notifier) {
         },
 
         unsubscribeHandler: function (unsubscribedTopics, remainingTopics) {
-            knownTopics = remainingTopics;
+            knownTopics = Object(__WEBPACK_IMPORTED_MODULE_2_lodash__["intersection"])(knownTopics, Object(__WEBPACK_IMPORTED_MODULE_2_lodash__["uniq"])(remainingTopics));
         },
         subscribeHandler: function (topics, options) {
             var isAutoFetchEnabled = options.autoFetch;

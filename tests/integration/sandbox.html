@@ -93,11 +93,21 @@
             </li>
         </ul> 
         <h1 data-f-bind="foo"></h1>
+        <button data-f-on-click="something=5">Override</button>
         <script>
             var foosubsHandler = {
                 match: 'foo',
                 subscribeHandler: ()=> {
                     return 'bar1';
+                }
+            };
+            var somethingPubHandler=  {
+                match: 'operations:something',
+                publishHandler: (topic)=> {
+                    return [{
+                        name: topic.name,
+                        value: '25'
+                    }];
                 }
             };
 
@@ -110,7 +120,7 @@
                             model: 'gglasses.vmf',
                         }
                     },
-                    routes: [foosubsHandler]
+                    routes: [foosubsHandler, somethingPubHandler]
                 }
             });
         </script>

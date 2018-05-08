@@ -341,6 +341,9 @@ module.exports = (function () {
                     }, []);
 
                     channel.publish(parsed, options).then((result)=> {
+                        if (!result || !result.length) {
+                            return;
+                        }
                         const last = result[result.length - 1];
                         $el.trigger(config.events.convert, { [source]: last.value });
                     });
