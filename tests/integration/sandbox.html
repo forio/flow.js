@@ -101,13 +101,16 @@
                 </div>
         </li>
     </ul> -->
-    <!-- <h1 data-f-bind="foo"></h1> -->
+    <h1 data-f-bind="foo"></h1>
     <button data-f-on-click="something=5">Override</button>
     <script>
         var foosubsHandler = {
             match: 'foo',
-            subscribeHandler: () => {
-                return 'bar1';
+            subscribeHandler: (topics) => {
+                return {
+                    name: topics[0],
+                    value: 'bar1'
+                };
             }
         };
         var somethingPubHandler = {
@@ -129,7 +132,7 @@
                         model: 'gglasses.vmf',
                     }
                 },
-                // routes: [foosubsHandler, somethingPubHandler]
+                routes: [foosubsHandler, somethingPubHandler]
             }
         });
     </script>

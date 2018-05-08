@@ -11,8 +11,10 @@ import { interpolatable, withMiddleware } from './channel-manager-enhancements';
 //Moving  connecting glue here so channel-manager can be tested in isolation
 var InterpolatableChannelManagerWithMiddleware = interpolatable(withRouter(DefaultChannelManager));
 export default function ChannelManager(opts) {
+    const defaultRoutes = [JSONRoutes];
+    const routes = opts && opts.routes ? opts.routes : [];
     var cm = new InterpolatableChannelManagerWithMiddleware($.extend(true, {}, {
-        routes: [JSONRoutes]
+        routes: [].concat(routes, defaultRoutes)
     }, opts));
     return cm;
 }

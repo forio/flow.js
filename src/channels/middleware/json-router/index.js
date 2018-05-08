@@ -5,7 +5,7 @@ export function match(topic) {
     return typeof parsed !== 'string';
 }
 
-export default function JSONRouter(config, notifier) {
+export default function JSONRouter(config) {
     return {
         match: match,
         name: 'JSON Route',
@@ -21,11 +21,7 @@ export default function JSONRouter(config, notifier) {
                 }
                 return accum;
             }, { claimed: [], rest: [] });
-            //FIXME: Only call notifier if claimed.length > 0
-            setTimeout(()=> {
-                notifier(parsed.claimed);
-            }, 0);
-            return parsed.rest;
+            return parsed.claimed;
         }
     };
 }

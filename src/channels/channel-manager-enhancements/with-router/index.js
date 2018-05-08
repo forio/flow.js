@@ -56,11 +56,16 @@ export default function withRouter(ChannelManager) {
             const subsid = super.subscribe(topics, cb, options);
             //Subscription needs to happen first, or if you skip topics they'll never be subscribed, so you can't notify
             var grouped = groupByHandlers([].concat(topics), this.routeHandlers);
-            grouped.forEach(function (handler) {
+            grouped.forEach((handler)=> {
                 if (handler.subscribeHandler) {
                     var mergedOptions = $.extend(true, {}, handler.options, options);
                     var unprefixed = unprefix(handler.data, handler.matched);
-                    handler.subscribeHandler(unprefixed, mergedOptions, handler.matched);
+                    const returned = handler.subscribeHandler(unprefixed, mergedOptions, handler.matched);
+                    if (returned) {
+                        setTimeout(()=> {
+                            this.notify([].concat(returned));
+                        }, 0);
+                    }
                 }
             });
             return subsid;
