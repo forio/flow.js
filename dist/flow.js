@@ -1819,6 +1819,9 @@ module.exports = function () {
                     }, []);
 
                     channel.publish(parsed, options).then(function (result) {
+                        if (!result || !result.length) {
+                            return;
+                        }
                         var last = result[result.length - 1];
                         $el.trigger(config.events.convert, _defineProperty({}, source, last.value));
                     });
@@ -5076,6 +5079,9 @@ function optimizedFetch(runService, variables) {
     // Revisit after EPICENTER-3493 is done
     var canOptimize = false;
     if (!canOptimize) {
+        if (!variables || !variables.length) {
+            return $.Deferred().resolve([]).promise();
+        }
         return runService.variables().query(variables).then(__WEBPACK_IMPORTED_MODULE_1_channels_channel_utils__["d" /* objectToPublishable */]);
     }
 
@@ -5126,9 +5132,6 @@ function RunVariablesChannel($runServicePromise, notifier) {
         }
         if (!runService.debouncedFetchers[id]) {
             runService.debouncedFetchers[id] = Object(__WEBPACK_IMPORTED_MODULE_0_utils_general__["debounceAndMerge"])(function (variables) {
-                if (!variables || !variables.length) {
-                    return $.Deferred().resolve([]).promise();
-                }
                 return optimizedFetch(runService, variables);
             }, debounceInterval, [function mergeVariables(accum, newval) {
                 if (!accum) {
@@ -5761,6 +5764,7 @@ function JSONRouter(config, notifier) {
                 }
                 return accum;
             }, { claimed: [], rest: [] });
+            //FIXME: Only call notifier if claimed.length > 0
             setTimeout(function () {
                 notifier(parsed.claimed);
             }, 0);
@@ -5785,8 +5789,6 @@ function JSONRouter(config, notifier) {
 
     var routes = options.routes.map(function (r) {
         var router = typeof r === 'function' ? new r(config, notifier) : r;
-        var oldSubsHandler = router.subscribeHandler;
-
         if (typeof router.match === 'string') {
             var oldMatch = router.match;
             router.match = function (t) {
@@ -5794,42 +5796,53 @@ function JSONRouter(config, notifier) {
             };
         }
 
-        router.subscribeHandler = function (topics) {
-            var parsed = topics.reduce(function (accum, t) {
-                if (router.match(t)) {
-                    accum.claimed.push({
-                        name: t,
-                        value: oldSubsHandler(t)
-                    });
-                } else {
-                    accum.rest.push(t);
-                }
-                return accum;
-            }, { claimed: [], rest: [] });
-            setTimeout(function () {
-                if (parsed.claimed.length) {
-                    notifier(parsed.claimed);
-                }
-            }, 0);
-            return parsed.rest;
-        };
         return router;
     });
     var defaultRouter = Object(__WEBPACK_IMPORTED_MODULE_0__channel_router__["a" /* default */])(routes, notifier);
-    var oldHandler = defaultRouter.subscribeHandler;
     defaultRouter.subscribeHandler = function (topics, options) {
         var parsed = topics.reduce(function (accum, topic) {
-            routes.forEach(function (route) {
-                if (route.match(topic)) {
-                    accum.claimed.push(topic);
-                } else {
-                    accum.rest.push(topic);
-                }
+            var matchingRoute = routes.find(function (route) {
+                return route.match(topic) && route.subscribeHandler;
             });
+            if (matchingRoute) {
+                var value = matchingRoute.subscribeHandler(topic);
+                accum.claimed.push({
+                    name: topic,
+                    value: value
+                });
+            } else {
+                accum.rest.push(topic);
+            }
             return accum;
         }, { claimed: [], rest: [] });
         if (parsed.claimed.length) {
-            oldHandler(parsed.claimed);
+            setTimeout(function () {
+                notifier(parsed.claimed);
+            }, 0);
+            return parsed.rest;
+        }
+        return topics;
+    };
+
+    defaultRouter.publishHandler = function (topics, options) {
+        var parsed = topics.reduce(function (accum, topic) {
+            var matchingRoute = routes.find(function (route) {
+                return route.match(topic.name) && route.publishHandler;
+            });
+            if (matchingRoute) {
+                var value = matchingRoute.publishHandler(topic);
+                accum.claimed.push(value);
+            } else {
+                accum.rest.push(topic);
+            }
+
+            return accum;
+        }, { claimed: [], rest: [] });
+
+        if (parsed.claimed.length) {
+            setTimeout(function () {
+                notifier(parsed.claimed);
+            }, 0);
             return parsed.rest;
         }
         return topics;
