@@ -96,8 +96,20 @@ export function passthroughPublishInterceptors(handlers, publishData, options) {
  * @param  {Handler[]} handlers
  * @return {Router}
  */
-export default function router(handlers) {
-    let myHandlers = handlers || [];
+export default function router(handlers, options, notifier) {
+    let myHandlers = (handlers || []).map((Handler)=> {
+        let handler = Handler;
+        if (_.isFunction(Handler)) {
+            handler = new Handler(options, notifier);
+            $.extend(this, handler.expose);
+        }
+        if (typeof handler.match === 'string') {
+            const matchString = handler.match;
+            handler.match = (t)=> t === matchString ? '' : false;
+        }
+        return handler;
+    });
+
     return {
         match: (topic)=> {
             return myHandlers.reduce((match, handler)=> {

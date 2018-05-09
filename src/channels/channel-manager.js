@@ -145,7 +145,7 @@ class ChannelManager {
 
     notify(topic, value, options) {
         var normalized = normalizeParamOptions(topic, value, options);
-        // console.log('notify', normalized.params);
+        console.log('notify', normalized.params);
         return this.subscriptions.forEach(function (subs) {
             var fn = subs.batch ? checkAndNotifyBatch : checkAndNotify;
             fn(normalized.params, subs);

@@ -27,20 +27,7 @@ export default function withRouter(ChannelManager) {
             const opts = $.extend(true, {}, defaults, options);
             const optsToPassOn = omit(opts, Object.keys(defaults));
 
-            const routeHandlers = opts.routes.map((Handler)=> {
-                let handler = Handler;
-                if (isFunction(Handler)) {
-                    handler = new Handler(optsToPassOn, this.notify.bind(this), this);
-                    $.extend(this, handler.expose);
-                }
-                if (typeof handler.match === 'string') {
-                    const matchString = handler.match;
-                    handler.match = (t)=> t === matchString ? '' : false;
-                }
-                return handler;
-            });
-
-            this.router = router(routeHandlers);
+            this.router = router(opts.routes, optsToPassOn, this.notify.bind(this));
         }
 
         /**
