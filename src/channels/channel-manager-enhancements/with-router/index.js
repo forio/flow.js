@@ -30,7 +30,7 @@ export default function withRouter(ChannelManager) {
 
             var optsToPassOn = omit(opts, Object.keys(defaults));
 
-            this.routeHandlers = opts.routes.map((Handler)=> {
+            const routeHandlers = opts.routes.map((Handler)=> {
                 let handler = Handler;
                 if (isFunction(Handler)) {
                     handler = new Handler(optsToPassOn, this.notify.bind(this), this);
@@ -42,7 +42,7 @@ export default function withRouter(ChannelManager) {
                 return handler;
             });
 
-            this.router = router(this.routeHandlers);
+            this.router = router(routeHandlers);
         }
 
         /**
@@ -55,7 +55,7 @@ export default function withRouter(ChannelManager) {
         subscribe(topics, cb, options) {
             const subsid = super.subscribe(topics, cb, options);
             const returned = this.router.subscribeHandler([].concat(topics), options);
-            if (returned) {
+            if (returned && returned.length) {
                 setTimeout(()=> {
                     this.notify([].concat(returned));
                 }, 0);

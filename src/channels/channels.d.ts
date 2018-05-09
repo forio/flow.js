@@ -29,7 +29,7 @@ interface HandlerOptions extends SubscribeOptions, PublishOptions {
 }
 
 interface BaseHandler {
-    subscribeHandler?: (topics: string[], options: SubscribeOptions, match?:string)=> void;
+    subscribeHandler?: (topics: string[], options: SubscribeOptions, match?:string)=> string[] | void;
     unsubscribeHandler?: (unsubscribedTopics: string[], remainingTopics: string[])=> void;
     publishHandler?: (publishData: Publishable[], options: PublishOptions, match?:string)=> Promise<Publishable[]>;
 }
