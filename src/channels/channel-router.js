@@ -11,14 +11,18 @@ import _ from 'lodash';
  */
 export function notifySubscribeHandlers(handlers, topics, options) {
     var grouped = groupByHandlers(topics, handlers);
+    var toReturn = [];
     grouped.forEach(function (handler) {
         if (handler.subscribeHandler) {
             var mergedOptions = $.extend(true, {}, handler.options, options);
             var unprefixed = unprefix(handler.data, handler.matched);
-            handler.subscribeHandler(unprefixed, mergedOptions, handler.matched);
+            var subsResponse = handler.subscribeHandler(unprefixed, mergedOptions, handler.matched);
+            if (subsResponse) {
+                toReturn = toReturn.concat(subsResponse);
+            }
         }
     });
-    return topics;
+    return toReturn;
 }
 
 /**

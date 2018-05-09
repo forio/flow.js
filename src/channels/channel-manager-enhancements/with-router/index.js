@@ -43,6 +43,8 @@ export default function withRouter(ChannelManager) {
                 }
                 return handler;
             });
+
+            this.router = router(this.routeHandlers);
         }
 
         /**
@@ -54,20 +56,12 @@ export default function withRouter(ChannelManager) {
          */
         subscribe(topics, cb, options) {
             const subsid = super.subscribe(topics, cb, options);
-            //Subscription needs to happen first, or if you skip topics they'll never be subscribed, so you can't notify
-            var grouped = groupByHandlers([].concat(topics), this.routeHandlers);
-            grouped.forEach((handler)=> {
-                if (handler.subscribeHandler) {
-                    var mergedOptions = $.extend(true, {}, handler.options, options);
-                    var unprefixed = unprefix(handler.data, handler.matched);
-                    const returned = handler.subscribeHandler(unprefixed, mergedOptions, handler.matched);
-                    if (returned) {
-                        setTimeout(()=> {
-                            this.notify([].concat(returned));
-                        }, 0);
-                    }
-                }
-            });
+            const returned = this.router.subscribeHandler([].concat(topics), options);
+            if (returned) {
+                setTimeout(()=> {
+                    this.notify([].concat(returned));
+                }, 0);
+            }
             return subsid;
         }
 
