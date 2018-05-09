@@ -5,23 +5,16 @@ export function match(topic) {
     return typeof parsed !== 'string';
 }
 
-export default function JSONRouter(config) {
-    return {
-        match: match,
-        name: 'JSON Route',
-        subscribeHandler: function (topics, options, prefix) {
-            const parsed = topics.reduce((accum, t)=> {
-                if (match(t)) {
-                    accum.claimed.push({
-                        name: t,
-                        value: toImplicitType(t)
-                    });
-                } else {
-                    accum.rest.push(t);
-                }
-                return accum;
-            }, { claimed: [], rest: [] });
-            return parsed.claimed;
-        }
-    };
-}
+export default {
+    match: match,
+    name: 'JSON Route',
+    subscribeHandler: function (topics) {
+        const parsed = topics.map((t)=> {
+            return {
+                name: t,
+                value: toImplicitType(t)
+            };
+        });
+        return parsed;
+    }
+};

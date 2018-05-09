@@ -2,8 +2,6 @@ import router from 'channels/channel-router';
 import { normalizeParamOptions } from '../../channel-utils';
 import { omit, isFunction } from 'lodash';
 
-import _ from 'lodash';
-
 function getTopicsFromSubsList(subcriptionList) {
     return subcriptionList.reduce(function (accum, subs) {
         accum = accum.concat(subs.topics);
@@ -23,21 +21,21 @@ export default function withRouter(ChannelManager) {
     return class ChannelWithRouter extends ChannelManager {
         constructor(options) {
             super(options);
-            var defaults = {
+            const defaults = {
                 routes: []
             };
-            var opts = $.extend(true, {}, defaults, options);
-
-            var optsToPassOn = omit(opts, Object.keys(defaults));
+            const opts = $.extend(true, {}, defaults, options);
+            const optsToPassOn = omit(opts, Object.keys(defaults));
 
             const routeHandlers = opts.routes.map((Handler)=> {
                 let handler = Handler;
                 if (isFunction(Handler)) {
                     handler = new Handler(optsToPassOn, this.notify.bind(this), this);
+                    $.extend(this, handler.expose);
                 }
                 if (typeof handler.match === 'string') {
-                    const oldMatch = handler.match;
-                    handler.match = (t)=> t === oldMatch ? t : false;
+                    const matchString = handler.match;
+                    handler.match = (t)=> t === matchString ? '' : false;
                 }
                 return handler;
             });
@@ -71,7 +69,7 @@ export default function withRouter(ChannelManager) {
          * @return {Promise}
          */
         publish(topic, value, options) {
-            var publishData = normalizeParamOptions(topic, value, options);
+            const publishData = normalizeParamOptions(topic, value, options);
             return this.router.publishHandler(publishData.params, publishData.options).then((published)=> {
                 return super.publish(published, publishData.options);
             });
@@ -84,9 +82,9 @@ export default function withRouter(ChannelManager) {
          * @return {void}
          */
         unsubscribe(token) {
-            var recentlyUnsubscribedTopics = getTopicsFromSubsList(this.subscriptions);
+            const recentlyUnsubscribedTopics = getTopicsFromSubsList(this.subscriptions);
             super.unsubscribe(token);
-            var remainingTopics = getTopicsFromSubsList(this.subscriptions);
+            const remainingTopics = getTopicsFromSubsList(this.subscriptions);
             return this.router.unsubscribeHandler(recentlyUnsubscribedTopics, remainingTopics);
         }
 
@@ -95,7 +93,7 @@ export default function withRouter(ChannelManager) {
          * @return {void}
          */
         unsubscribeAll() {
-            var recentlyUnsubscribedTopics = getTopicsFromSubsList(this.subscriptions);
+            const recentlyUnsubscribedTopics = getTopicsFromSubsList(this.subscriptions);
             super.unsubscribeAll();
 
             return this.router.unsubscribeHandler(recentlyUnsubscribedTopics, []);
