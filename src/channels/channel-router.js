@@ -17,7 +17,7 @@ export function notifySubscribeHandlers(handlers, topics, options) {
             var mergedOptions = $.extend(true, {}, handler.options, options);
             var unprefixed = unprefix(handler.data, handler.matched);
             var subsResponse = handler.subscribeHandler(unprefixed, mergedOptions, handler.matched);
-            if (subsResponse) {
+            if (subsResponse && !subsResponse.then) { //FIXME
                 toReturn = toReturn.concat(subsResponse);
             }
         }
@@ -102,7 +102,7 @@ export default function router(handlers) {
         match: (topic)=> {
             return myHandlers.reduce((match, handler)=> {
                 if (!match && handler.match(topic)) {
-                    return handler.match(topic);
+                    return '';
                 }
             }, false);
         },
