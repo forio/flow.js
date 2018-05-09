@@ -1,8 +1,6 @@
 import router from 'channels/channel-router';
 import { normalizeParamOptions } from '../../channel-utils';
-import { omit, isFunction, difference } from 'lodash';
-import { groupByHandlers, groupSequentiallyByHandlers } from 'channels/channel-utils';
-import { unprefix, mapWithPrefix, silencable, excludeReadOnly } from 'channels/middleware/utils';
+import { omit, isFunction } from 'lodash';
 
 import _ from 'lodash';
 
@@ -86,31 +84,10 @@ export default function withRouter(ChannelManager) {
          * @return {void}
          */
         unsubscribe(token) {
-            var currentTopics = getTopicsFromSubsList(this.subscriptions);
+            var recentlyUnsubscribedTopics = getTopicsFromSubsList(this.subscriptions);
             super.unsubscribe(token);
             var remainingTopics = getTopicsFromSubsList(this.subscriptions);
-
-
-            const handlers = this.routeHandlers.map(function (h, index) {
-                h.unsubsKey = index;
-                return h;
-            });
-            var recentlyUnsubscribedTopics = difference(currentTopics, remainingTopics);
-        
-            var unsubsGrouped = groupByHandlers(recentlyUnsubscribedTopics, handlers);
-            var remainingGrouped = groupByHandlers(remainingTopics, handlers);
-        
-            unsubsGrouped.forEach(function (handler) {
-                if (handler.unsubscribeHandler) {
-                    var unprefixedUnsubs = unprefix(handler.data, handler.matched);
-                    var matchingRemainingHandler = _.find(remainingGrouped, function (remainingHandler) {
-                        return remainingHandler.unsubsKey === handler.unsubsKey;
-                    });
-                    var matchingTopicsRemaining = matchingRemainingHandler ? matchingRemainingHandler.data : [];
-                    var unprefixedRemaining = unprefix(matchingTopicsRemaining || [], handler.matched);
-                    handler.unsubscribeHandler(unprefixedUnsubs, unprefixedRemaining);
-                }
-            });
+            return this.router.unsubscribeHandler(recentlyUnsubscribedTopics, remainingTopics);
         }
 
         /**
@@ -121,20 +98,7 @@ export default function withRouter(ChannelManager) {
             var recentlyUnsubscribedTopics = getTopicsFromSubsList(this.subscriptions);
             super.unsubscribeAll();
 
-
-            const handlers = this.routeHandlers.map(function (h, index) {
-                h.unsubsKey = index;
-                return h;
-            });
-        
-            var unsubsGrouped = groupByHandlers(recentlyUnsubscribedTopics, handlers);
-        
-            unsubsGrouped.forEach(function (handler) {
-                if (handler.unsubscribeHandler) {
-                    var unprefixedUnsubs = unprefix(handler.data, handler.matched);
-                    handler.unsubscribeHandler(unprefixedUnsubs, []);
-                }
-            });
+            return this.router.unsubscribeHandler(recentlyUnsubscribedTopics, []);
         }
     };
 }
