@@ -74,35 +74,7 @@ export default function withRouter(ChannelManager) {
          */
         publish(topic, value, options) {
             var publishData = normalizeParamOptions(topic, value, options);
-
-            var grouped = groupSequentiallyByHandlers(publishData.params, this.routeHandlers);
-            var $initialProm = $.Deferred().resolve([]).promise();
-            grouped.forEach(function (handler) {
-                $initialProm = $initialProm.then(function (dataSoFar) {
-                    var mergedOptions = $.extend(true, {}, handler.options, options);
-                    var unprefixed = unprefix(handler.data, handler.matched);
-
-                    var publishableData = excludeReadOnly(unprefixed, mergedOptions.readOnly);
-                    if (!publishableData.length) {
-                        return dataSoFar;
-                    }
-
-                    var result = handler.publishHandler ? handler.publishHandler(publishableData, mergedOptions, handler.matched) : publishableData;
-                    var publishProm = $.Deferred().resolve(result).promise();
-                    return publishProm.then(function (published) {
-                        return silencable(published, mergedOptions.silent);
-                    }).then(function (published) {
-                        var mapped = mapWithPrefix(published, handler.matched);
-                        if (handler.isDefault && handler.matched) {
-                            mapped = mapped.concat(published);
-                        }
-                        return mapped;
-                    }).then(function (mapped) {
-                        return [].concat(dataSoFar, mapped);
-                    });
-                });
-            });
-            return $initialProm.then((published)=> {
+            return this.router.publishHandler(publishData.params, publishData.options).then((published)=> {
                 return super.publish(published, publishData.options);
             });
         }
