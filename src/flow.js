@@ -63,10 +63,11 @@
  *
  */
 
-var domManager = require('./dom/dom-manager');
-var BaseView = require('./utils/base-view');
+const domManager = require('./dom/dom-manager');
+const BaseView = require('./utils/base-view');
 
-var ChannelManager = require('channels/configured-channel-manager').default;
+const ChannelManager = require('channels/configured-channel-manager').default;
+const config = require('config');
 
 var Flow = {
     dom: domManager,
@@ -112,6 +113,7 @@ var Flow = {
     }
 };
 Flow.ChannelManager = ChannelManager;
+Flow.constants = config;
 //set by grunt
 if (RELEASE_VERSION) Flow.version = RELEASE_VERSION; //eslint-disable-line no-undef
 module.exports = Flow;
