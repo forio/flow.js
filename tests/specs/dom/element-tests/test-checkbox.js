@@ -53,14 +53,14 @@ describe(':checkbox', function () {
 
             it('should pass the right value on uncheck - default off', function () {
                 const channel = createDummyChannel();
-                return initWithNode('<input type="checkbox" data-f-bind="stuff" data-f-off="5" checked/>', domManager, channel).then(function ($node) {
+                return initWithNode(`<input type="checkbox" data-f-bind="stuff" ${config.attrs.checkboxOffValue}="5" checked/>`, domManager, channel).then(function ($node) {
                     var spy = sinon.spy();
                     $node.on(config.events.trigger, spy);
 
                     $node.prop('checked', false).trigger('change');
 
                     const args = spy.getCall(0).args[1];
-                    args.data.should.eql([{ name: 'stuff', value: 5 }]);
+                    args.data.should.eql([{ name: 'stuff', value: '5' }]);
                 });
             });
         });
