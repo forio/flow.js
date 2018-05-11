@@ -20,7 +20,7 @@ function getConvertersFromAttr($el, attribute) {
     }
     return [];
 }
-function findConvertersForEl($el) {
+function getFConvertAttrVal($el) {
     const conv = $el.attr('data-f-convert'); //.data shows value cached by jquery
     return convertersToArray(conv);
 }
@@ -38,13 +38,9 @@ export function getConvertersForEl($el, attribute) {
         }
 
         const whiteListedGenericAttributes = ['bind', 'foreach', 'repeat'];
-        if (whiteListedGenericAttributes.indexOf(attribute) === -1) {
-            return [];
-        }
-
-        const convertersOnElement = findConvertersForEl($el);
-        if (convertersOnElement.length) {
-            return convertersOnElement;
+        const canUseFConvert = whiteListedGenericAttributes.indexOf(attribute) !== -1;
+        if (canUseFConvert) {
+            return getFConvertAttrVal($el);
         }
 
         return [];
