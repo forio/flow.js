@@ -28,20 +28,34 @@ describe('#getConvertersForEl', ()=> {
         });
     });
     describe('convert attr', ()=> {
-        it('should return empty if no convert attrs', ()=> {
-            const node = makeEl('<div foo="bar" id="x"></div>');
-            const config = getConvertersForEl(node, 'bind');
-            expect(config).to.eql([]);
+        describe('bind', ()=> {
+            it('should return empty if no convert attrs', ()=> {
+                const node = makeEl('<div foo="bar" id="x"></div>');
+                const config = getConvertersForEl(node, 'bind');
+                expect(config).to.eql([]);
+            });
+            it('should return items in convert attr', ()=> {
+                const node = makeEl('<div data-f-convert="foo"></div>');
+                const config = getConvertersForEl(node, 'bind');
+                expect(config).to.eql(['foo']);
+            });
+            it('should return piped items in convert attr', ()=> {
+                const node = makeEl('<div data-f-convert="foo | bar| gaz"></div>');
+                const config = getConvertersForEl(node, 'bind');
+                expect(config).to.eql(['foo', 'bar', 'gaz']);
+            });
         });
-        it('should return items in convert attr', ()=> {
-            const node = makeEl('<div data-f-convert="foo"></div>');
-            const config = getConvertersForEl(node, 'bind');
-            expect(config).to.eql(['foo']);
-        });
-        it('should return piped items in convert attr', ()=> {
-            const node = makeEl('<div data-f-convert="foo | bar| gaz"></div>');
-            const config = getConvertersForEl(node, 'bind');
-            expect(config).to.eql(['foo', 'bar', 'gaz']);
+        describe('other attrs', ()=> {
+            it('should return items in convert attr', ()=> {
+                const node = makeEl('<div data-f-convert-attrname="foo"></div>');
+                const config = getConvertersForEl(node, 'attrname');
+                expect(config).to.eql(['foo']);
+            });
+            it('should return piped items in convert attr', ()=> {
+                const node = makeEl('<div data-f-convert-attrname="foo | bar| gaz"></div>');
+                const config = getConvertersForEl(node, 'attrname');
+                expect(config).to.eql(['foo', 'bar', 'gaz']);
+            });
         });
     });
     describe('Parent', ()=> {

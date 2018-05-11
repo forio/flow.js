@@ -1956,8 +1956,10 @@ function getConvertersFromAttr($el, attribute) {
     }
     return [];
 }
-function findConvertersForEl($el) {
-    var conv = $el.attr('data-f-convert'); //.data shows value cached by jquery
+function getFConvertAttrVal($el, suffix) {
+    var baseAttr = 'data-f-convert';
+    var suffixAttr = suffix ? '-' + suffix : '';
+    var conv = $el.attr('' + baseAttr + suffixAttr); //.data shows value cached by jquery
     return convertersToArray(conv);
 }
 
@@ -1974,16 +1976,11 @@ function getConvertersForEl($el, attribute) {
         }
 
         var whiteListedGenericAttributes = ['bind', 'foreach', 'repeat'];
-        if (whiteListedGenericAttributes.indexOf(attribute) === -1) {
-            return [];
+        var canUseFConvert = whiteListedGenericAttributes.indexOf(attribute) !== -1;
+        if (canUseFConvert) {
+            return getFConvertAttrVal($el, '');
         }
-
-        var convertersOnElement = findConvertersForEl($el);
-        if (convertersOnElement.length) {
-            return convertersOnElement;
-        }
-
-        return [];
+        return getFConvertAttrVal($el, attribute);
     }
 
     var converters = getAllConverters($el, attribute);
