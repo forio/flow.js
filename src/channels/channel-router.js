@@ -94,6 +94,8 @@ export function passthroughPublishInterceptors(handlers, publishData, options) {
 /**
  * Router
  * @param  {Handler[]} handlers
+ * @param {object} options
+ * @param {function} notifier
  * @return {Router}
  */
 export default function router(handlers, options, notifier) {
@@ -113,9 +115,10 @@ export default function router(handlers, options, notifier) {
     return {
         match: (topic)=> {
             return myHandlers.reduce((match, handler)=> {
-                if (!match && handler.match(topic)) {
+                if (match === false && handler.match(topic)) {
                     return '';
                 }
+                return match;
             }, false);
         },
 
