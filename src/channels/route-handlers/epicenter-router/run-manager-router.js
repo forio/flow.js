@@ -1,6 +1,6 @@
 import RunChannel from './run-router';
 
-import { withPrefix, defaultPrefix } from 'channels/middleware/utils';
+import { withPrefix, defaultPrefix } from 'channels/route-handlers/utils';
 import router from 'channels/channel-router';
 
 const { F } = window;

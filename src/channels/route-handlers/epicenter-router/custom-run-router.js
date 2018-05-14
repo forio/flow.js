@@ -1,5 +1,5 @@
 import runChannelFactory from './run-router-factory';
-import { withPrefix, stripSuffixDelimiter } from 'channels/middleware/utils';
+import { withPrefix, stripSuffixDelimiter } from 'channels/route-handlers/utils';
 
 export default function (options, notifier) {
     if (!options) options = {};

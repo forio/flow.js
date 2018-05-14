@@ -3,7 +3,7 @@ import VariablesChannel from './run-variables-channel';
 import OperationsChannel from './run-operations-channel';
 
 import router from 'channels/channel-router';
-import { withPrefix, prefix, defaultPrefix } from 'channels/middleware/utils';
+import { withPrefix, prefix, defaultPrefix } from 'channels/route-handlers/utils';
 
 import _ from 'lodash';
 

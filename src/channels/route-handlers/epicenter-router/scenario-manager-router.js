@@ -1,5 +1,5 @@
 import RunRouter from './run-router';
-import { prefix, withPrefix, defaultPrefix } from 'channels/middleware/utils';
+import { prefix, withPrefix, defaultPrefix } from 'channels/route-handlers/utils';
 import router from 'channels/channel-router';
 
 export default function (config, notifier) {

@@ -1,5 +1,5 @@
 import { groupByHandlers, groupSequentiallyByHandlers } from 'channels/channel-utils';
-import { unprefix, mapWithPrefix, silencable, excludeReadOnly } from 'channels/middleware/utils';
+import { unprefix, mapWithPrefix, silencable, excludeReadOnly } from 'channels/route-handlers/utils';
 import _ from 'lodash';
 
 /**

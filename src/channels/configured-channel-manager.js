@@ -1,19 +1,15 @@
 import DefaultChannelManager from './channel-manager';
 
-import EpicenterRoutes from './middleware/epicenter-router';
-import JSONRoutes from './middleware/json-router';
-
-import withRouter from './channel-manager-enhancements/with-router';
-
-import { interpolatable } from './channel-manager-enhancements';
+import { JSONRouteHandler, EpicenterRouteHandler } from './route-handlers';
+import { interpolatable, routable } from './channel-manager-enhancements';
 
 //Moving connecting glue here so channel-manager can be tested in isolation
-var InterpolatableChannelManagerWithMiddleware = interpolatable(withRouter(DefaultChannelManager));
+var InterpolatableRoutableChannelManager = interpolatable(routable(DefaultChannelManager));
 export default function ChannelManager(opts) {
-    const defaultRoutes = [JSONRoutes, EpicenterRoutes];
+    const defaultRouteHandlers = [JSONRouteHandler, EpicenterRouteHandler];
     const routes = opts && opts.routes ? opts.routes : [];
-    var cm = new InterpolatableChannelManagerWithMiddleware($.extend(true, {}, {
-        routes: [].concat(routes, defaultRoutes)
+    var cm = new InterpolatableRoutableChannelManager($.extend(true, {}, {
+        routes: [].concat(routes, defaultRouteHandlers)
     }, opts));
     return cm;
 }
