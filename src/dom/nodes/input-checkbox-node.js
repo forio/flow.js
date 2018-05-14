@@ -1,19 +1,23 @@
-'use strict';
-var BaseView = require('./default-input-node');
+import BaseView from './default-input-node';
+import config from 'config';
 
-module.exports = BaseView.extend({
+const offAttr = config.attrs.checkboxOffValue;
 
+export default BaseView.extend({
     propertyHandlers: [
 
     ],
 
     getUIValue: function () {
-        var $el = this.$el;
-        var offVal = (typeof $el.data('f-off') !== 'undefined') ? $el.data('f-off') : false;
-        //attr = initial value, prop = current value
-        var onVal = (typeof $el.attr('value') !== 'undefined') ? $el.prop('value') : true;
+        const $el = this.$el;
+        const offAttrVal = $el.attr(offAttr);
+        const offVal = (offAttrVal && typeof offAttrVal !== 'undefined') ? offAttrVal : false;
 
-        var val = ($el.is(':checked')) ? onVal : offVal;
+        const onAttrVal = $el.attr('value');
+        //attr = initial value, prop = current value
+        const onVal = (onAttrVal && typeof onAttrVal !== 'undefined') ? $el.prop('value') : true;
+
+        const val = ($el.is(':checked')) ? onVal : offVal;
         return val;
     },
     initialize: function () {

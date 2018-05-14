@@ -1,4 +1,4 @@
-import silencable from 'src/channels/middleware/utils/silencable';
+import silencable from '../silencable';
 import { expect } from 'chai';
 
 describe('Silencable', ()=> {

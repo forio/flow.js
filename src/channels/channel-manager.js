@@ -145,14 +145,13 @@ class ChannelManager {
 
     notify(topic, value, options) {
         var normalized = normalizeParamOptions(topic, value, options);
-        // console.log('notify', normalized.params);
+        console.log('notify', normalized.params);
         return this.subscriptions.forEach(function (subs) {
             var fn = subs.batch ? checkAndNotifyBatch : checkAndNotify;
             fn(normalized.params, subs);
         });
     }
 
-    //TODO: Allow subscribing to regex? Will solve problem of listening only to variables etc
     /**
      * @param {String[] | String} topics
      * @param {Function} cb

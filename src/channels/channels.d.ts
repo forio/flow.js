@@ -29,16 +29,20 @@ interface HandlerOptions extends SubscribeOptions, PublishOptions {
 }
 
 interface BaseHandler {
-    subscribeHandler?: (topics: string[], options: SubscribeOptions, match?:string)=> void;
+    subscribeHandler?: (topics: string[], options: SubscribeOptions, match?:string)=> string[] | void;
     unsubscribeHandler?: (unsubscribedTopics: string[], remainingTopics: string[])=> void;
     publishHandler?: (publishData: Publishable[], options: PublishOptions, match?:string)=> Promise<Publishable[]>;
 }
 
+interface handlerMatcher {
+    (topic: string): string | false;
+}
 interface Handler extends BaseHandler {
-    name: string;
-    match: Function;
+    match: handlerMatcher;
+    name?: string;
     isDefault?: boolean;
-    options: HandlerOptions;
+    options?: HandlerOptions;
+    [propName: string]: any;
 }
 
 interface MatchedHandler extends Handler {

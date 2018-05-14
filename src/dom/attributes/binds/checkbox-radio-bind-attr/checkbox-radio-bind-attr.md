@@ -12,11 +12,18 @@ Flow.js provides special handling for DOM elements with `type="checkbox"` and `t
 
 In particular, if you add the `data-f-bind` attribute to an `input` with `type="checkbox"` and `type="radio"`, the checkbox or radio button is automatically selected if the `value` matches the value of the model variable referenced, or if the model variable is `true`.
 
+For checkboxes you can control the 'checked' and 'unchecked' values by setting the `value` (for checked) or `data-off-value` (for unchecked) states.
+
 **Example**
 
-     <!-- radio button, selected if sampleInt is 8 -->
-     <input type="radio" data-f-bind="sampleInt" value="8" />
+     <!-- radio button, selected if currentSelection is 8 -->
+     <input type="radio" data-f-bind="currentSelection" value="8" />
 
-     <!-- checkbox, checked if sampleBool is true -->
-     <input type="checkbox" data-f-bind="sampleBool" />
+     <!-- checkbox, checked if enableDecision is true -->
+     <input type="checkbox" data-f-bind="enableDecision" />
 
+     <!-- If checked sets 'currentSelection' to 8 -->
+     <input type="checkbox" data-f-bind="currentSelection" value="8 />
+
+    <!-- If unchecked sets 'currentSelection' to 8 -->
+     <input type="checkbox" data-f-bind="currentSelection" data-off-value="8 />

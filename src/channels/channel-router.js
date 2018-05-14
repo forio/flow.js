@@ -1,5 +1,5 @@
 import { groupByHandlers, groupSequentiallyByHandlers } from 'channels/channel-utils';
-import { unprefix, mapWithPrefix, silencable, excludeReadOnly } from 'channels/middleware/utils';
+import { unprefix, mapWithPrefix, silencable, excludeReadOnly } from 'channels/route-handlers/utils';
 import _ from 'lodash';
 
 /**
@@ -11,14 +11,18 @@ import _ from 'lodash';
  */
 export function notifySubscribeHandlers(handlers, topics, options) {
     var grouped = groupByHandlers(topics, handlers);
+    var toReturn = [];
     grouped.forEach(function (handler) {
         if (handler.subscribeHandler) {
             var mergedOptions = $.extend(true, {}, handler.options, options);
             var unprefixed = unprefix(handler.data, handler.matched);
-            handler.subscribeHandler(unprefixed, mergedOptions, handler.matched);
+            var subsResponse = handler.subscribeHandler(unprefixed, mergedOptions, handler.matched);
+            if (subsResponse && !subsResponse.then) { //FIXME
+                toReturn = toReturn.concat(subsResponse);
+            }
         }
     });
-    return topics;
+    return toReturn;
 }
 
 /**
@@ -90,11 +94,34 @@ export function passthroughPublishInterceptors(handlers, publishData, options) {
 /**
  * Router
  * @param  {Handler[]} handlers
+ * @param {object} options
+ * @param {function} notifier
  * @return {Router}
  */
-export default function router(handlers) {
-    let myHandlers = handlers || [];
+export default function router(handlers, options, notifier) {
+    let myHandlers = (handlers || []).map((Handler)=> {
+        let handler = Handler;
+        if (_.isFunction(Handler)) {
+            handler = new Handler(options, notifier);
+            $.extend(this, handler.expose);
+        }
+        if (typeof handler.match === 'string') {
+            const matchString = handler.match;
+            handler.match = (t)=> t === matchString ? '' : false;
+        }
+        return handler;
+    });
+
     return {
+        match: (topic)=> {
+            return myHandlers.reduce((match, handler)=> {
+                if (match === false && handler.match(topic)) {
+                    return '';
+                }
+                return match;
+            }, false);
+        },
+
         /**
          * @param {String[]} topics
          * @param {SubscribeOptions} [options]

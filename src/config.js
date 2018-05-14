@@ -11,6 +11,7 @@ module.exports = {
     },
 
     attrs: {
+        checkboxOffValue: 'data-off-value',
         //Used by repeat attr handler to keep track of template after first evaluation
         repeat: {
             templateId: 'repeat-template-id' //don't prefix by f or dom-manager unbind will kill it

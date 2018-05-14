@@ -7,7 +7,7 @@
 
     <script src="/node_modules/lodash/lodash.js"></script>
     <script src="/dist/flow-edge.js"></script>
-   <!--  
+    <!--  
     <script src="//cdnjs.cloudflare.com/ajax/libs/lodash.js/2.4.1/lodash.js"></script>
     <script src="https://forio.com/tools/js-libs/flow/0.12.0/flow.min.js"></script> -->
     <style>
@@ -19,26 +19,32 @@
                 opacity: 1;
             }
         }
+        
         @keyframes highlightred {
             0% {
-                background: red; /* lovely yellow colour */
+                background: red;
+                /* lovely yellow colour */
             }
             100% {
                 background: none;
             }
         }
+        
         @keyframes highlight {
             0% {
-                background: #ffff99; /* lovely yellow colour */
+                background: #ffff99;
+                /* lovely yellow colour */
             }
             100% {
                 background: none;
             }
         }
-
-        [data-change]:not([data-change-initial]), [data-update] {
-                 animation: highlight 1s;
-         }
+        
+        [data-change]:not([data-change-initial]),
+        [data-update] {
+            animation: highlight 1s;
+        }
+        
         [data-add] {
             animation: highlightred 1s;
         }
@@ -46,84 +52,97 @@
 </head>
 
 <body>
-        <button data-f-on-click="step">Step</button>
-        <button data-f-on-click="reset">reset</button>
-<!--     <table data-f-convert="pickEvery(1)">
+    <button data-f-on-click="step">Step</button>
+    <button data-f-on-click="reset">reset</button>
+    <table data-f-convert="pickEvery(1)">
         <tr data-f-convert="$#,###.00| inherit">
             <td data-f-repeat="Price">?</td>
         </tr>
-    </table> -->
+    </table>
 
 
-    <!--     <ul data-f-foreach="[1,2,3]">
-            <li><%= value %></li>
-        </ul> -->
+    <ul data-f-foreach="[1,2,3]">
+        <li>
+            <%= value %>
+        </li>
+    </ul>
 
-        <!-- <div data-f-bind="Price">(<%= value %>)</div> -->
-<!-- 
-        <h6>Nested multi-foreach</h6>
-        <ul data-f-foreach="price in Price">
-            <li>
-                Price index: <%= index %>
-                <ol data-f-foreach="sales in Sales">
-                    <li>Sales: <%= sales %></li>
+    <div data-f-bind="Price">(
+        <%= value %>)</div>
+
+    <h6>Nested multi-foreach</h6>
+    <ul data-f-foreach="(price) in Price">
+        <li>
+            Price index:
+            <%= index %>
+                <ol data-f-foreach="(sales) in Sales">
+                    <li>Sales:
+                        <%= sales %>
+                    </li>
                 </ol>
-            </li>
-        </ul>
+        </li>
+    </ul>
 
-        <div class="col-xs-12" id="f-content" data-f-bind="Price, Revenue">
-            <table class="table">
-                <tbody data-f-foreach="p in [<%= Price %>]">
-                    <tr>
-                        <th><%= p %></th>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
+    <div class="col-xs-12" id="f-content" data-f-bind="Price, Revenue">
+        <table class="table">
+            <tbody data-f-foreach="(p) in [<%= Price %>]">
+                <tr>
+                    <th>
+                        <%= p %>
+                    </th>
+                </tr>
+            </tbody>
+        </table>
+    </div>
 
--->
-        <h6>Nested foreach + bind</h6>
-        <ul data-f-foreach="(price) in Price">
-            <li>
-                Price index: <%= index %>
+    <h6>Nested foreach + bind</h6>
+    <ul data-f-foreach="(price) in Price">
+        <li>
+            Price index:
+            <%= index %>
                 <div data-f-bind="Sales[<%= index %>]">
                     <span>Hello</span>
                     <%= value %>
                 </div>
-            </li>
-        </ul> 
-        <h1 data-f-bind="foo"></h1>
-        <button data-f-on-click="something=5">Override</button>
-        <script>
-            var foosubsHandler = {
-                match: 'foo',
-                subscribeHandler: ()=> {
-                    return 'bar1';
-                }
-            };
-            var somethingPubHandler=  {
-                match: 'operations:something',
-                publishHandler: (topic)=> {
-                    return [{
-                        name: topic.name,
-                        value: '25'
-                    }];
-                }
-            };
+        </li>
+    </ul>
+    <h1 data-f-bind="foo"></h1>
+    <h2 data-f-bind="operations:something"></h2>
+    <button data-f-on-click="something=5">Override</button>
+    <script>
+        var foosubsHandler = {
+            match: 'foo',
+            subscribeHandler: (topics) => {
+                return {
+                    name: topics[0],
+                    value: 'bar1'
+                };
+            }
+        };
+        var somethingPubHandler = {
+            match: 'operations:something',
+            subscribeHandler: () => [],
+            publishHandler: (topic) => {
+                return [{
+                    name: topic[0].name,
+                    value: '25'
+                }];
+            }
+        };
 
-            Flow.initialize({
-                channel: {
-                    defaults: {
-                        run: {
-                            account: 'jaimedp',
-                            project: 'glasses',
-                            model: 'gglasses.vmf',
-                        }
-                    },
-                    routes: [foosubsHandler, somethingPubHandler]
-                }
-            });
-        </script>
+        Flow.initialize({
+            channel: {
+                defaults: {
+                    run: {
+                        account: 'jaimedp',
+                        project: 'glasses',
+                        model: 'gglasses.vmf',
+                    }
+                },
+                routes: [foosubsHandler, somethingPubHandler]
+            }
+        });
+    </script>
 </body>
 
 </html>
