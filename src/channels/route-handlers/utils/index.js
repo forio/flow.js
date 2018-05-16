@@ -39,7 +39,8 @@ export function prefix(prefix) {
 */
 export function defaultPrefix(prefix) {
     return function matchPrefix(topic) {
-        return prefix;
+        const hasPrefix = topic.indexOf(prefix) === 0;
+        return hasPrefix ? prefix : '';
     };
 }
 

@@ -40,7 +40,9 @@ export default function withRouter(ChannelManager) {
         subscribe(topics, cb, options) {
             const subsid = super.subscribe(topics, cb, options);
             this.router.subscribeHandler([].concat(topics), options).then((topicsWithData)=> {
-                this.notify([].concat(topicsWithData));
+                if (topicsWithData.length) {
+                    this.notify([].concat(topicsWithData));
+                }
             }, (err)=> {
                 console.error('subs err', err);
             });

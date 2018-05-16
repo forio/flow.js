@@ -8,7 +8,7 @@ import _ from 'lodash';
  * @param  {Handler[]} handlers Array of the form [{ match: function (){}, }]
  * @param  {String[]} topics   Array of strings
  * @param  {SubscribeOptions} [options]
- * @return {String[]} Returns the original topics array
+ * @return {Promise<String[]>} Returns populated topics if available
  */
 export function notifySubscribeHandlers(handlers, topics, options) {
     var grouped = groupByHandlers(topics, handlers);
@@ -119,7 +119,8 @@ export default function router(handlers, options, notifier) {
     return {
         match: (topic)=> {
             return myHandlers.reduce((match, handler)=> {
-                if (match === false && handler.match(topic)) {
+                const matched = handler.match(topic);
+                if (match === false && matched !== false) {
                     return '';
                 }
                 return match;
@@ -129,7 +130,7 @@ export default function router(handlers, options, notifier) {
         /**
          * @param {String[]} topics
          * @param {SubscribeOptions} [options]
-         * @return {String[]} Returns the original topics array
+         * @return {Promise<String[]>} Returns populated topics if available
          */
         subscribeHandler: function (topics, options) {
             return notifySubscribeHandlers(myHandlers, topics, options);
