@@ -1,73 +1,66 @@
-const { uniqueId, random, toArray } = require('lodash');
+import { uniqueId, random as _random, toArray } from 'lodash';
 
-module.exports = {
-
-    random: function (prefix, min, max) {
-        if (!min) {
-            min = parseInt(uniqueId(), 10);
-        }
-        if (!max) {
-            max = 100000; //eslint-disable-line no-magic-numbers
-        }
-        var rnd = random(min, max, false) + '';
-        if (prefix) {
-            rnd = prefix + rnd;
-        }
-        return rnd;
-    },
-
-    /**
-     * A promise-returning debounce function. Also lets you decide what to do with arguments passed in while being debounced
-     * @param  {Function} fn                function to debounce
-     * @param  {Number}   debounceInterval  interval
-     * @param  {Array}   [argumentsReducers] A reducer for each argument to the function
-     * @return {Function}                     
-     */
-    debounceAndMerge: function (fn, debounceInterval, argumentsReducers) {
-        var timer = null;
-
-        var argsToPass = [];
-        if (!argumentsReducers) {
-            var arrayReducer = function (accum, newVal) {
-                if (!accum) {
-                    accum = [];
-                }
-                return accum.concat(newVal);
-            };
-            argumentsReducers = [
-                arrayReducer
-            ];
-        }
-        return function () {
-            var $def = $.Deferred();
-            var newArgs = toArray(arguments);
-            argsToPass = newArgs.map(function (arg, index) {
-                var reducer = argumentsReducers[index];
-                if (reducer) {
-                    return reducer(argsToPass[index], arg);
-                } else {
-                    return arg;
-                }
-            });
-
-            if (timer) {
-                clearTimeout(timer);
-            }
-            timer = setTimeout(function () {
-                timer = null;
-                var res = fn.apply(fn, argsToPass);
-                if (res && res.then) {
-                    return res.then(function (arg) {
-                        argsToPass = [];
-                        $def.resolve(arg);
-                    });
-                } else {
-                    argsToPass = [];
-                    $def.resolve(res);
-                }
-            }, debounceInterval);
-
-            return $def.promise();
-        };
+export function makePromise(val) {
+    if (val.then) {
+        return val;
     }
-};
+    return $.Deferred().resolve(val).promise();
+}
+
+export function random(prefix, min, max) {
+    if (!min) {
+        min = parseInt(uniqueId(), 10);
+    }
+    if (!max) {
+        max = 100000; //eslint-disable-line no-magic-numbers
+    }
+    var rnd = _random(min, max, false) + '';
+    if (prefix) {
+        rnd = prefix + rnd;
+    }
+    return rnd;
+}
+export function debounceAndMerge(fn, debounceInterval, argumentsReducers) {
+    var timer = null;
+    var argsToPass = [];
+    if (!argumentsReducers) {
+        var arrayReducer = function (accum, newVal) {
+            if (!accum) {
+                accum = [];
+            }
+            return accum.concat(newVal);
+        };
+        argumentsReducers = [
+            arrayReducer
+        ];
+    }
+    return function () {
+        var $def = $.Deferred();
+        var newArgs = toArray(arguments);
+        argsToPass = newArgs.map(function (arg, index) {
+            var reducer = argumentsReducers[index];
+            if (reducer) {
+                return reducer(argsToPass[index], arg);
+            } else {
+                return arg;
+            }
+        });
+        if (timer) {
+            clearTimeout(timer);
+        }
+        timer = setTimeout(function () {
+            timer = null;
+            var res = fn.apply(fn, argsToPass);
+            if (res && res.then) {
+                return res.then(function (arg) {
+                    argsToPass = [];
+                    $def.resolve(arg);
+                });
+            } else {
+                argsToPass = [];
+                $def.resolve(res);
+            }
+        }, debounceInterval);
+        return $def.promise();
+    };
+}

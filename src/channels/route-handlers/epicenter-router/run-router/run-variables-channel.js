@@ -150,7 +150,7 @@ export default function RunVariablesChannel($runServicePromise, notifier) {
                 } else if (!isAutoFetchEnabled) {
                     return $.Deferred().resolve(topics).promise();
                 }
-                return debouncedVariableQuery(runService, debounceInterval)(topics).then(notifier);
+                return debouncedVariableQuery(runService, debounceInterval)(topics);
             });
         },
         notify: function (variableObj) {

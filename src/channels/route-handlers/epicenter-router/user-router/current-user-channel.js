@@ -26,13 +26,7 @@ export default function (options, notifier) {
     return {
         subscribeHandler: function (topics, options, prefix) {
             const response = _.pick(getState(), topics);
-            setTimeout(()=> {
-                //FIXME: Returning this instantly makes this give data back faster than the subscription has happened
-                //Because middleware executes this first before getting subsid back
-                //Fix by making subscribes promise based?
-                notifier(objectToPublishable(response));
-            }, 0);
-            return response;
+            return objectToPublishable(response);
         },
         publishHandler: function (topics, options, prefix) {
             //login, logout are only operations supported

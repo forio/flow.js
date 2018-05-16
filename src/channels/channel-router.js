@@ -1,5 +1,6 @@
 import { groupByHandlers, groupSequentiallyByHandlers } from 'channels/channel-utils';
 import { unprefix, mapWithPrefix, silencable, excludeReadOnly } from 'channels/route-handlers/utils';
+import { makePromise } from 'utils/general';
 import _ from 'lodash';
 
 /**
@@ -11,18 +12,21 @@ import _ from 'lodash';
  */
 export function notifySubscribeHandlers(handlers, topics, options) {
     var grouped = groupByHandlers(topics, handlers);
-    var toReturn = [];
+    const promises = [];
     grouped.forEach(function (handler) {
         if (handler.subscribeHandler) {
             var mergedOptions = $.extend(true, {}, handler.options, options);
             var unprefixed = unprefix(handler.data, handler.matched);
             var subsResponse = handler.subscribeHandler(unprefixed, mergedOptions, handler.matched);
-            if (subsResponse && !subsResponse.then) { //FIXME
-                toReturn = toReturn.concat(subsResponse);
-            }
+            const promise = makePromise(subsResponse || []).then((topicsWithData)=> {
+                return mapWithPrefix(topicsWithData, handler.matched);
+            });
+            promises.push(promise);
         }
     });
-    return toReturn;
+    return $.when.apply(null, promises).then((returns)=> {
+        return [].concat.apply([], returns);
+    });
 }
 
 /**
