@@ -29,7 +29,8 @@ export default function RunMetaChannel($runServicePromise, notifier) {
                     });
                 } 
                 return runService.loadPromise.then(function (data) {
-                    mergeAndSend(data, topics);
+                    console.log('meta, returning', data);
+                    return mergeAndSend(data, topics);
                 });
             });
         },

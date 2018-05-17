@@ -66,7 +66,10 @@ export function optimizedFetch(runService, variables) {
         if (!variables || !variables.length) {
             return $.Deferred().resolve([]).promise();
         }
-        return runService.variables().query(variables).then(objectToPublishable);
+        return runService.variables().query(variables).then((data)=> {
+            console.log('variables, returning', data);
+            return data;
+        }) .then(objectToPublishable);
     }
 
     const groupedBySubscripts = groupVariableBySubscripts(variables);
@@ -150,7 +153,8 @@ export default function RunVariablesChannel($runServicePromise, notifier) {
                 } else if (!isAutoFetchEnabled) {
                     return $.Deferred().resolve(topics).promise();
                 }
-                return debouncedVariableQuery(runService, debounceInterval)(topics);
+                return optimizedFetch(runService, [].concat(knownTopics));
+                // return debouncedVariableQuery(runService, debounceInterval)(topics);
             });
         },
         notify: function (variableObj) {

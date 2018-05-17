@@ -8,7 +8,7 @@ import _ from 'lodash';
  * @param  {Handler[]} handlers Array of the form [{ match: function (){}, }]
  * @param  {String[]} topics   Array of strings
  * @param  {SubscribeOptions} [options]
- * @return {Promise<String[]>} Returns populated topics if available
+ * @return {Promise<Publishable[]>} Returns populated topics if available
  */
 export function notifySubscribeHandlers(handlers, topics, options) {
     var grouped = groupByHandlers(topics, handlers);
@@ -19,13 +19,15 @@ export function notifySubscribeHandlers(handlers, topics, options) {
             var unprefixed = unprefix(handler.data, handler.matched);
             var subsResponse = handler.subscribeHandler(unprefixed, mergedOptions, handler.matched);
             const promise = makePromise(subsResponse || []).then((topicsWithData)=> {
-                return mapWithPrefix(topicsWithData, handler.matched);
+                const prefixed = mapWithPrefix([].concat(topicsWithData), handler.matched);
+                return prefixed;
             });
             promises.push(promise);
         }
     });
-    return $.when.apply(null, promises).then((returns)=> {
-        return [].concat.apply([], returns);
+    return $.when.apply(null, promises).then(function () {
+        const arr = [].concat.apply([], arguments);
+        return arr;
     });
 }
 
@@ -130,7 +132,7 @@ export default function router(handlers, options, notifier) {
         /**
          * @param {String[]} topics
          * @param {SubscribeOptions} [options]
-         * @return {Promise<String[]>} Returns populated topics if available
+         * @return {Promise<Publishable[]>} Returns populated topics if available
          */
         subscribeHandler: function (topics, options) {
             return notifySubscribeHandlers(myHandlers, topics, options);
