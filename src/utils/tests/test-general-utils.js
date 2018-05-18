@@ -113,6 +113,7 @@ describe('Test general utils', ()=> {
                 debounced([2]).then(spy2);
                 clock.tick(200);
                 clock.tick(100);
+                expect(fnToDebounce).to.have.been.calledOnce;
                 expect(fnToDebounce).to.have.have.been.calledWith([1, 2]); 
                 expect(spy1).to.have.been.calledOnce;
                 expect(spy1).to.have.have.been.calledWith(3); 
@@ -137,6 +138,7 @@ describe('Test general utils', ()=> {
                 debounced([2]).then(spy2);
                 clock.tick(200);
                 clock.tick(100);
+                expect(fnToDebounce).to.have.been.calledOnce;
                 expect(fnToDebounce).to.have.have.been.calledWith([1, 2]); 
                 expect(spy1).to.have.been.calledOnce;
                 expect(spy1).to.have.have.been.calledWith(3); 
@@ -149,6 +151,43 @@ describe('Test general utils', ()=> {
                 clock.tick(201);
                 expect(fnToDebounce).to.have.have.been.calledWith([2]); 
                 expect(spy3).to.have.have.been.calledWith(2); 
+            });
+
+            it('should pass on errors to chained handlers on error from function', ()=> {
+                var fnToDebounce = sinon.spy((input)=> {
+                    if (input.length > 1) {
+                        throw new Error('foobar');
+                    }
+                    return input[0];
+                });
+                var spy1 = sinon.spy(function (foo) {
+                    return foo;
+                });
+                var spy1Fail = sinon.spy();
+                var spy2 = sinon.spy();
+                var spy2Fail = sinon.spy();
+                var spy3 = sinon.spy();
+                var spy3Fail = sinon.spy();
+                var debounced = debounce(fnToDebounce, 200);
+                debounced([1]).then(spy1, spy1Fail);
+                clock.tick(100);
+                debounced([2]).then(spy2, spy2Fail);
+                clock.tick(200);
+                clock.tick(100);
+                expect(fnToDebounce).to.have.been.calledOnce;
+                expect(fnToDebounce).to.have.have.been.calledWith([1, 2]);
+
+                expect(spy1).to.not.have.been.called;
+                expect(spy2).to.not.have.been.called;
+
+                expect(spy1Fail).to.have.been.calledOnce;
+                expect(spy2Fail).to.have.been.calledOnce;
+                
+                debounced([2]).then(spy3).catch(spy3Fail);
+                clock.tick(201);
+                expect(fnToDebounce).to.have.have.been.calledWith([2]); 
+                expect(spy3).to.have.have.been.calledWith(2); 
+                expect(spy3Fail).to.not.have.been.called;
             });
         });
     });

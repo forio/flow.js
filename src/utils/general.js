@@ -1,5 +1,9 @@
 import { uniqueId, random as _random, toArray } from 'lodash';
 
+/**
+ * @param {any} val 
+ * @returns {Promise}
+ */
 export function makePromise(val) {
     if (val.then) {
         return val;
@@ -20,6 +24,15 @@ export function random(prefix, min, max) {
     }
     return rnd;
 }
+
+/**
+ * Returns debounced version of original (optionally promise returning) function
+ * 
+ * @param {Function} fn function to debounce
+ * @param {number} debounceInterval 
+ * @param {Function[]} argumentsReducers pass in 1 reducer for each option your function takes
+ * @return {Function} debounced function
+ */
 export function debounceAndMerge(fn, debounceInterval, argumentsReducers) {
     var timer = null;
     var $def = null;
@@ -37,7 +50,11 @@ export function debounceAndMerge(fn, debounceInterval, argumentsReducers) {
             arrayReducer
         ];
     }
-    return function () {
+
+    /**
+     * @returns {Promise}
+     */
+    return function debouncedFunction() {
         var newArgs = toArray(arguments);
         argsToPass = newArgs.map(function (arg, index) {
             var reducer = argumentsReducers[index];
@@ -57,21 +74,32 @@ export function debounceAndMerge(fn, debounceInterval, argumentsReducers) {
         }
         timer = setTimeout(function () {
             timer = null;
-            var res = fn.apply(fn, argsToPass);
+            var res;
+            try {
+                res = fn.apply(fn, argsToPass);
+            } catch (e) {
+                argsToPass = [];
+                $def.reject(e);
+            }
             if (res && res.then) {
                 return res.then(function (arg) {
                     argsToPass = [];
                     $def.resolve(arg);
-                }, $def.reject);
+                }, (e)=> {
+                    argsToPass = [];
+                    $def.reject(e);
+                });
             } else {
                 argsToPass = [];
                 $def.resolve(res);
             }
         }, debounceInterval);
-        prom.then(()=> {
-            $def = prom = null;  
-        }, ()=> {
+        prom.then((r)=> {
+            $def = prom = null; 
+            return r; 
+        }, (err)=> {
             $def = prom = null;
+            throw err;
         });
         return prom;
     };
