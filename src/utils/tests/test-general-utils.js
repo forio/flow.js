@@ -126,20 +126,25 @@ describe('Test general utils', ()=> {
                 expect(fnToDebounce).to.have.have.been.calledWith([2]); 
                 expect(spy3).to.have.have.been.calledWith(2); 
             });
-            it.skip('should handle functions which return promises', ()=> {
-                //FIXME: the funcationality works but the test is wrong
-                var fnToDebounce = sinon.spy((input)=> $.Deferred().resolve(input.reduce((a, v)=> a + v, 0)).promise());
+            it('should handle functions which return promises', ()=> {
+                var fnToDebounce = sinon.spy((input)=> input.reduce((a, v)=> a + v, 0));
+                var spy1 = sinon.spy();
                 var spy2 = sinon.spy();
                 var spy3 = sinon.spy();
                 var debounced = debounce(fnToDebounce, 200);
-                debounced([1]).then(spy2);
+                debounced([1]).then(spy1);
                 clock.tick(100);
                 debounced([2]).then(spy2);
                 clock.tick(200);
                 clock.tick(100);
                 expect(fnToDebounce).to.have.have.been.calledWith([1, 2]); 
+                expect(spy1).to.have.been.calledOnce;
+                expect(spy1).to.have.have.been.calledWith(3); 
                 expect(spy2).to.have.been.calledOnce;
                 expect(spy2).to.have.have.been.calledWith(3); 
+
+                expect(spy1).to.have.been.calledBefore(spy2);
+
                 debounced([2]).then(spy3);
                 clock.tick(201);
                 expect(fnToDebounce).to.have.have.been.calledWith([2]); 
