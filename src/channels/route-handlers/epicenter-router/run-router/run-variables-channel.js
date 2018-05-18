@@ -153,8 +153,7 @@ export default function RunVariablesChannel($runServicePromise, notifier) {
                 } else if (!isAutoFetchEnabled) {
                     return $.Deferred().resolve(topics).promise();
                 }
-                return optimizedFetch(runService, [].concat(knownTopics));
-                // return debouncedVariableQuery(runService, debounceInterval)(topics);
+                return debouncedVariableQuery(runService, debounceInterval)(topics);
             });
         },
         notify: function (variableObj) {
