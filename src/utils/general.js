@@ -22,6 +22,9 @@ export function random(prefix, min, max) {
 }
 export function debounceAndMerge(fn, debounceInterval, argumentsReducers) {
     var timer = null;
+    var $def = null;
+    var prom = null;
+
     var argsToPass = [];
     if (!argumentsReducers) {
         var arrayReducer = function (accum, newVal) {
@@ -35,7 +38,6 @@ export function debounceAndMerge(fn, debounceInterval, argumentsReducers) {
         ];
     }
     return function () {
-        var $def = $.Deferred();
         var newArgs = toArray(arguments);
         argsToPass = newArgs.map(function (arg, index) {
             var reducer = argumentsReducers[index];
@@ -48,6 +50,11 @@ export function debounceAndMerge(fn, debounceInterval, argumentsReducers) {
         if (timer) {
             clearTimeout(timer);
         }
+
+        if (!$def) {
+            $def = $.Deferred();
+            prom = $def.promise();
+        }
         timer = setTimeout(function () {
             timer = null;
             var res = fn.apply(fn, argsToPass);
@@ -55,12 +62,17 @@ export function debounceAndMerge(fn, debounceInterval, argumentsReducers) {
                 return res.then(function (arg) {
                     argsToPass = [];
                     $def.resolve(arg);
-                });
+                }, $def.reject);
             } else {
                 argsToPass = [];
                 $def.resolve(res);
             }
         }, debounceInterval);
-        return $def.promise();
+        prom.then(()=> {
+            $def = prom = null;  
+        }, ()=> {
+            $def = prom = null;
+        });
+        return prom;
     };
 }
