@@ -38,9 +38,9 @@ describe('Run Meta channel', ()=> {
                     foo: 'la',
                     barr: 'lala',
                 };
-                return channel.subscribeHandler(['foo', 'barr'], {}).then(()=> {
+                return channel.subscribeHandler(['foo', 'barr'], {}).then((data)=> {
                     expect(mockRun.load).to.not.have.been.called;
-                    expect(mockNotifier).to.have.been.calledWith([{ name: 'foo', value: 'la' }, { name: 'barr', value: 'lala' }]);
+                    expect(data).to.eql([{ name: 'foo', value: 'la' }, { name: 'barr', value: 'lala' }]);
                 });
             });
             it('should load if there\'s not enough cache to resolve subscriptions', ()=> {

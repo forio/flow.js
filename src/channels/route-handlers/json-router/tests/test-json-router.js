@@ -9,7 +9,7 @@ describe('JSON Router', ()=> {
 
             validMatches.forEach((v)=> {
                 const ret = match(v);
-                expect(ret).to.eql(true);
+                expect(ret).to.eql('');
             });
 
             invalidMatches.forEach((v)=> {
