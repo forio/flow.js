@@ -3,12 +3,13 @@ import _ from 'lodash';
 /**
  * @param {String} topic
  * @param {Handler[]} handlers
+ * @param {any} [matchOptions] options to pass on to matcher
  * @return {MatchedHandler | undefined}
  */
-export function findBestHandler(topic, handlers) {
+export function findBestHandler(topic, handlers, matchOptions) {
     for (var i = 0; i < handlers.length; i++) {
         var thishandler = handlers[i];
-        var match = thishandler.match(topic);
+        var match = thishandler.match(topic, matchOptions);
         if (match !== false) {
             return $.extend(true, {}, thishandler, { matched: match });
         }
@@ -109,7 +110,7 @@ export function groupSequentiallyByHandlers(data, handlers) {
     });
     var grouped = data.reduce(function (accum, dataPt) {
         var lastHandler = accum[accum.length - 1];
-        var bestHandler = findBestHandler(dataPt.name, handlers);
+        var bestHandler = findBestHandler(dataPt.name, handlers, true);
         if (bestHandler) {
             if (lastHandler && bestHandler.key === lastHandler.key) {
                 lastHandler.data.push(dataPt);

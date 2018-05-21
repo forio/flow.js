@@ -9,7 +9,7 @@ interface SubscribeOptions {
 // }
 
 interface matchFunction extends Function {
-    (prefix:string):boolean | string;
+    (prefix:string, options?:any):boolean | string;
 }
 
 interface Publishable {
