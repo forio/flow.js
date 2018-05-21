@@ -8,9 +8,7 @@ interface SubscribeOptions {
 //     publish: () => Promise<Publishable>;
 // }
 
-interface matchFunction extends Function {
-    (prefix:string, options?:any):boolean | string;
-}
+
 
 interface Publishable {
     name: string;
@@ -34,11 +32,11 @@ interface BaseHandler {
     publishHandler?: (publishData: Publishable[], options: PublishOptions, match?:string)=> Promise<Publishable[]>;
 }
 
-interface handlerMatcher {
-    (topic: string): string | false;
+interface matchFunction extends Function {
+    (topic:string, options?:any): string | false;
 }
 interface Handler extends BaseHandler {
-    match: handlerMatcher;
+    match: matchFunction;
     name?: string;
     isDefault?: boolean;
     options?: HandlerOptions;

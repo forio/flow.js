@@ -7,7 +7,7 @@ import RunsRouter from './runs-router';
 
 // import UserRouter from './user-router/current-user-channel';
 
-import { withPrefix } from 'channels/route-handlers/utils';
+import { withPrefix } from 'channels/channel-router/utils';
 import { matchPrefix, matchDefaultPrefix, matchRegex } from 'channels/route-handlers/route-matchers';
 
 import router from 'channels/channel-router';

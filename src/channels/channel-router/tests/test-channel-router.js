@@ -1,4 +1,4 @@
-import { notifySubscribeHandlers, notifyUnsubscribeHandlers, passthroughPublishInterceptors } from '../channel-router';
+import { notifySubscribeHandlers, notifyUnsubscribeHandlers, passthroughPublishInterceptors } from '../index';
 import sinon from 'sinon';
 import chai from 'chai';
 chai.use(require('sinon-chai'));

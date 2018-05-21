@@ -1,40 +1,7 @@
-import * as utils from '../channel-utils';
+import * as utils from '../handler-utils';
 import { expect } from 'chai';
 
 describe('Channel Utils', ()=> {
-    describe('#normalizeParamOptions', ()=> {
-        var convert = utils.normalizeParamOptions;
-
-        it('should convert arrays', ()=> {
-            var input = [{ name: 'foo', value: 'bar' }];
-            var options = { foo: 'bah' };
-            var output = convert(input, options);
-            var expectedOutput = { params: input, options: options };
-
-            expect(output).to.eql(expectedOutput);
-        });
-        it('should convert objects', ()=> {
-            var input = { a: 1, b: 'good' };
-            var options = { foo: 'bah' };
-            var output = convert(input, options);
-            var expectedOutput = { 
-                params: [{ name: 'a', value: 1 }, { name: 'b', value: 'good' }], 
-                options: options 
-            };
-
-            expect(output).to.eql(expectedOutput);
-        });
-        it('should convert key, value pairs', ()=> {
-            var options = { foo: 'bah' };
-            var output = convert('a', 1, options);
-            var expectedOutput = { 
-                params: [{ name: 'a', value: 1 }], 
-                options: options 
-            };
-
-            expect(output).to.eql(expectedOutput);
-        });
-    });
     describe('#findBestHandler', ()=> {
         var findBestHandler = utils.findBestHandler;
         it('should return first handler which matches', ()=> {

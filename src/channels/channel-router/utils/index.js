@@ -1,4 +1,4 @@
-var CHANNEL_DELIMITER = ':';
+const CHANNEL_DELIMITER = ':';
 
 export { default as silencable } from './silencable';
 export { default as excludeReadOnly } from './exclude-read-only';
@@ -14,7 +14,6 @@ export function stripSuffixDelimiter(text) {
     }
     return text;
 }
-
 
 /**
  * 
@@ -44,7 +43,7 @@ export function withPrefix(callback, prefixList) {
      */
     return function (data) {
         arr.forEach(function (prefix) {
-            var mapped = mapWithPrefix(data, prefix);
+            const mapped = mapWithPrefix(data, prefix);
             callback(mapped);
         });
     };
@@ -58,7 +57,7 @@ export function withPrefix(callback, prefixList) {
  */
 export function unprefix(list, prefix) {
     if (!prefix) return list;
-    var unprefixed = list.map(function (item) {
+    const unprefixed = list.map(function (item) {
         if (item.name) {
             return $.extend(true, {}, item, { name: item.name.replace(prefix, '') });
         }

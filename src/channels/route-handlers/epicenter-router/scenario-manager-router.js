@@ -1,5 +1,5 @@
 import RunRouter from './run-router';
-import { withPrefix } from 'channels/route-handlers/utils';
+import { withPrefix } from 'channels/channel-router/utils';
 import router from 'channels/channel-router';
 import { matchPrefix, matchDefaultPrefix, } from 'channels/route-handlers/route-matchers';
 

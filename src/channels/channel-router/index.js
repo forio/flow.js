@@ -1,5 +1,5 @@
-import { groupByHandlers, groupSequentiallyByHandlers } from 'channels/channel-utils';
-import { unprefix, mapWithPrefix, silencable, excludeReadOnly } from 'channels/route-handlers/utils';
+import { groupByHandlers, groupSequentiallyByHandlers } from './utils/handler-utils';
+import { unprefix, mapWithPrefix, silencable, excludeReadOnly } from './utils';
 import { makePromise } from 'utils/general';
 import _ from 'lodash';
 

@@ -1,7 +1,7 @@
 import WorldUsersChannel from './world-users-channel';
 import WorldCurrentUserChannel from './world-current-user-channel';
 
-import { withPrefix } from 'channels/route-handlers/utils';
+import { withPrefix } from 'channels/channel-router/utils';
 import { matchPrefix, matchDefaultPrefix } from 'channels/route-handlers/route-matchers';
 
 import RunChannel from '../run-router';
