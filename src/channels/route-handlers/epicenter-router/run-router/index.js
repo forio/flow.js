@@ -3,7 +3,8 @@ import VariablesChannel from './run-variables-channel';
 import OperationsChannel from './run-operations-channel';
 
 import router from 'channels/channel-router';
-import { withPrefix, prefix, defaultPrefix } from 'channels/route-handlers/utils';
+import { withPrefix } from 'channels/route-handlers/utils';
+import { matchPrefix, matchDefaultPrefix } from 'channels/route-handlers/route-matchers';
 
 import _ from 'lodash';
 
@@ -101,18 +102,18 @@ export default function RunRouter(config, notifier) {
     const handlers = [
         $.extend({}, metaChannel, { 
             name: 'meta',
-            match: prefix(META_PREFIX),
+            match: matchPrefix(META_PREFIX),
             options: opts.channelOptions.meta,
         }),
         $.extend({}, operationsChannel, { 
             name: 'operations',
-            match: prefix(OPERATIONS_PREFIX),
+            match: matchPrefix(OPERATIONS_PREFIX),
             options: opts.channelOptions.operations,
         }),
         $.extend({}, variableschannel, { 
             isDefault: true,
             name: 'variables',
-            match: defaultPrefix(VARIABLES_PREFIX),
+            match: matchDefaultPrefix(VARIABLES_PREFIX),
             options: opts.channelOptions.variables,
         }),
     ];

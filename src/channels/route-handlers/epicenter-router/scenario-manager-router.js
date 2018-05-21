@@ -1,6 +1,8 @@
 import RunRouter from './run-router';
-import { prefix, withPrefix, defaultPrefix } from 'channels/route-handlers/utils';
+import { withPrefix } from 'channels/route-handlers/utils';
 import router from 'channels/channel-router';
+import { matchPrefix, matchDefaultPrefix, } from 'channels/route-handlers/route-matchers';
+
 
 export default function (config, notifier) {
     var defaults = {
@@ -34,13 +36,13 @@ export default function (config, notifier) {
     var handlers = [
         $.extend(baselineChannel, {
             name: 'baseline',
-            match: prefix('baseline:'),
+            match: matchPrefix('baseline:'),
             options: baselineOptions.channelOptions,
         }),
         $.extend(currentRunChannel, { 
             isDefault: true, 
             name: 'current',
-            match: defaultPrefix('current:'),
+            match: matchDefaultPrefix('current:'),
             options: runOptions.channelOptions,
         }),
 
