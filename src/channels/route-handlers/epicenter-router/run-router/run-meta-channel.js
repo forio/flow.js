@@ -14,6 +14,7 @@ export default function RunMetaChannel($runServicePromise, notifier) {
     return {
         subscribeHandler: function (topics, options) {
             topics = [].concat(topics);
+            
             return $runServicePromise.then(function (runService) {
                 var cachedValues = intersection(Object.keys(runService.runMeta || {}), topics);
                 if (options.autoFetch === false) {
@@ -29,7 +30,6 @@ export default function RunMetaChannel($runServicePromise, notifier) {
                     });
                 } 
                 return runService.loadPromise.then(function (data) {
-                    // console.log('meta, returning', data);
                     return mergeAndSend(data, topics);
                 });
             });
