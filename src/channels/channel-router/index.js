@@ -12,22 +12,20 @@ import _ from 'lodash';
  * @return {Promise<Publishable[]>} Returns populated topics if available
  */
 export function notifySubscribeHandlers(handlers, topics, options) {
-    var grouped = groupByHandlers(topics, handlers);
+    const grouped = groupByHandlers(topics, handlers);
     const promises = [];
-    grouped.forEach(function (handler) {
-        if (handler.subscribeHandler) {
-            var mergedOptions = $.extend(true, {}, handler.options, options);
-            var unprefixed = unprefixTopics(handler.data, handler.matched);
-            const promise = makePromise(()=> {
-                var subsResponse = handler.subscribeHandler(unprefixed, mergedOptions, handler.matched);
-                return subsResponse;
-            }).then((topicsWithData)=> {
-                const normalized = normalizeSubscribeResponse(topicsWithData, unprefixed);
-                const prefixed = mapWithPrefix(normalized, handler.matched);
-                return prefixed;
-            });
-            promises.push(promise);
-        }
+    grouped.filter((handler)=> handler.subscribeHandler).forEach(function (handler) {
+        const mergedOptions = $.extend(true, {}, handler.options, options);
+        const unprefixed = unprefixTopics(handler.data, handler.matched);
+        const promise = makePromise(()=> {
+            const subsResponse = handler.subscribeHandler(unprefixed, mergedOptions, handler.matched);
+            return subsResponse;
+        }).then((topicsWithData)=> {
+            const normalized = normalizeSubscribeResponse(topicsWithData, unprefixed);
+            const prefixed = mapWithPrefix(normalized, handler.matched);
+            return prefixed;
+        });
+        promises.push(promise);
     });
     return $.when.apply(null, promises).then(function () {
         const arr = [].concat.apply([], arguments);
@@ -47,19 +45,17 @@ export function notifyUnsubscribeHandlers(handlers, recentlyUnsubscribedTopics, 
         return h;
     });
 
-    var unsubsGrouped = groupByHandlers(recentlyUnsubscribedTopics, handlers);
-    var remainingGrouped = groupByHandlers(remainingTopics, handlers);
+    const unsubsGrouped = groupByHandlers(recentlyUnsubscribedTopics, handlers);
+    const remainingGrouped = groupByHandlers(remainingTopics, handlers);
 
-    unsubsGrouped.forEach(function (handler) {
-        if (handler.unsubscribeHandler) {
-            var unprefixedUnsubs = unprefix(handler.data, handler.matched);
-            var matchingRemainingHandler = _.find(remainingGrouped, function (remainingHandler) {
-                return remainingHandler.unsubsKey === handler.unsubsKey;
-            });
-            var matchingTopicsRemaining = matchingRemainingHandler ? matchingRemainingHandler.data : [];
-            var unprefixedRemaining = unprefix(matchingTopicsRemaining || [], handler.matched);
-            handler.unsubscribeHandler(unprefixedUnsubs, unprefixedRemaining);
-        }
+    unsubsGrouped.filter((h)=> h.unsubscribeHandler).forEach(function (handler) {
+        const unprefixedUnsubs = unprefixTopics(handler.data, handler.matched);
+        const matchingRemainingHandler = _.find(remainingGrouped, function (remainingHandler) {
+            return remainingHandler.unsubsKey === handler.unsubsKey;
+        });
+        const matchingTopicsRemaining = matchingRemainingHandler ? matchingRemainingHandler.data : [];
+        const unprefixedRemaining = unprefixTopics(matchingTopicsRemaining || [], handler.matched);
+        handler.unsubscribeHandler(unprefixedUnsubs, unprefixedRemaining);
     });
 }
 
@@ -71,24 +67,24 @@ export function notifyUnsubscribeHandlers(handlers, recentlyUnsubscribedTopics, 
  * @return {Promise}
  */
 export function passthroughPublishInterceptors(handlers, publishData, options) {
-    var grouped = groupSequentiallyByHandlers(publishData, handlers);
-    var $initialProm = $.Deferred().resolve([]).promise();
+    const grouped = groupSequentiallyByHandlers(publishData, handlers);
+    let $initialProm = $.Deferred().resolve([]).promise();
     grouped.forEach(function (handler) {
         $initialProm = $initialProm.then(function (dataSoFar) {
-            var mergedOptions = $.extend(true, {}, handler.options, options);
-            var unprefixed = unprefix(handler.data, handler.matched);
+            const mergedOptions = $.extend(true, {}, handler.options, options);
+            const unprefixed = unprefix(handler.data, handler.matched);
 
-            var publishableData = excludeReadOnly(unprefixed, mergedOptions.readOnly);
+            const publishableData = excludeReadOnly(unprefixed, mergedOptions.readOnly);
             if (!publishableData.length) {
                 return dataSoFar;
             }
 
-            var result = handler.publishHandler ? handler.publishHandler(publishableData, mergedOptions, handler.matched) : publishableData;
-            var publishProm = $.Deferred().resolve(result).promise();
+            const result = handler.publishHandler ? handler.publishHandler(publishableData, mergedOptions, handler.matched) : publishableData;
+            const publishProm = $.Deferred().resolve(result).promise();
             return publishProm.then(function (published) {
                 return silencable(published, mergedOptions.silent);
             }).then(function (published) {
-                var mapped = mapWithPrefix(published, handler.matched);
+                let mapped = mapWithPrefix(published, handler.matched);
                 if (handler.isDefault && handler.matched) {
                     mapped = mapped.concat(published);
                 }

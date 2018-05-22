@@ -41,8 +41,13 @@ interface Handler extends BaseHandler {
     name?: string;
     isDefault?: boolean;
     options?: HandlerOptions;
-    data?: Publishable[] | string[];
     [propName: string]: any;
+}
+interface HandlerWithTopics extends Handler {
+    data: string[];
+}
+interface HandlerWithData extends Handler {
+    data: Publishable[];
 }
 
 interface Subscription {

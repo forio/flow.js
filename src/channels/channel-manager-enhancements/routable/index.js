@@ -1,6 +1,6 @@
 import router from 'channels/channel-router';
 import { normalizeParamOptions } from '../../channel-utils';
-import { omit } from 'lodash';
+import { omit, difference } from 'lodash';
 
 function getTopicsFromSubsList(subcriptionList) {
     return subcriptionList.reduce(function (accum, subs) {
@@ -73,10 +73,12 @@ export default function withRouter(ChannelManager) {
          * @return {void}
          */
         unsubscribe(token) {
-            const recentlyUnsubscribedTopics = getTopicsFromSubsList(this.subscriptions);
+            const originalTopics = getTopicsFromSubsList(this.subscriptions);
             super.unsubscribe(token);
             const remainingTopics = getTopicsFromSubsList(this.subscriptions);
-            return this.router.unsubscribeHandler(recentlyUnsubscribedTopics, remainingTopics);
+            const unsubscribedTopics = difference(originalTopics, remainingTopics);
+
+            return this.router.unsubscribeHandler(unsubscribedTopics, remainingTopics);
         }
 
         /**
@@ -84,10 +86,10 @@ export default function withRouter(ChannelManager) {
          * @return {void}
          */
         unsubscribeAll() {
-            const recentlyUnsubscribedTopics = getTopicsFromSubsList(this.subscriptions);
+            const originalTopics = getTopicsFromSubsList(this.subscriptions);
             super.unsubscribeAll();
 
-            return this.router.unsubscribeHandler(recentlyUnsubscribedTopics, []);
+            return this.router.unsubscribeHandler(originalTopics, []);
         }
     };
 }
