@@ -51,6 +51,20 @@ export function withPrefix(callback, prefixList) {
 
 /**
  * 
+ * @param {string[]} list 
+ * @param {string} prefix
+ * @return {string[]} Item with prefix removed
+ */
+export function unprefixTopics(list, prefix) {
+    if (!prefix) return list;
+    const unprefixed = list.map(function (item) {
+        return item.replace(prefix, '');
+    });
+    return unprefixed;
+}
+
+/**
+ * 
  * @param {Publishable[]} list 
  * @param {string} prefix
  * @return {Publishable[]} Item with prefix removed

@@ -1,7 +1,8 @@
-import { groupByHandlers, groupSequentiallyByHandlers } from './utils/handler-utils';
-import { unprefix, mapWithPrefix, silencable, excludeReadOnly } from './utils';
+import { groupByHandlers, groupSequentiallyByHandlers, normalizeSubscribeResponse } from './utils/handler-utils';
+import { unprefix, unprefixTopics, mapWithPrefix, silencable, excludeReadOnly } from './utils';
 import { makePromise } from 'utils/general';
 import _ from 'lodash';
+
 
 /**
  * Handle subscriptions
@@ -16,10 +17,13 @@ export function notifySubscribeHandlers(handlers, topics, options) {
     grouped.forEach(function (handler) {
         if (handler.subscribeHandler) {
             var mergedOptions = $.extend(true, {}, handler.options, options);
-            var unprefixed = unprefix(handler.data, handler.matched);
-            var subsResponse = handler.subscribeHandler(unprefixed, mergedOptions, handler.matched);
-            const promise = makePromise(subsResponse || []).then((topicsWithData)=> {
-                const prefixed = mapWithPrefix([].concat(topicsWithData), handler.matched);
+            var unprefixed = unprefixTopics(handler.data, handler.matched);
+            const promise = makePromise(()=> {
+                var subsResponse = handler.subscribeHandler(unprefixed, mergedOptions, handler.matched);
+                return subsResponse;
+            }).then((topicsWithData)=> {
+                const normalized = normalizeSubscribeResponse(topicsWithData, unprefixed);
+                const prefixed = mapWithPrefix(normalized, handler.matched);
                 return prefixed;
             });
             promises.push(promise);
