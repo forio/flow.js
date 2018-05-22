@@ -151,4 +151,42 @@ describe('Channel Utils', ()=> {
             expect(op).to.eql([{ data: [{ name: 'cat' }], matched: false }, { data: [{ name: 'trex' }], matched: false }]);
         });
     });
+    describe('normalizeSubscribeResponse', ()=> {
+        const { normalizeSubscribeResponse } = utils;
+        it('should convert undefined to empty array', ()=> {
+            const topics = ['topic1'];
+            const op = normalizeSubscribeResponse(undefined, topics);
+            expect(op).to.eql([]);
+        });
+        it('should convert literals to name value', ()=> {
+            const ip = 'foo';
+            const topics = ['topic1'];
+            const op = normalizeSubscribeResponse(ip, topics);
+            expect(op).to.eql([{ name: 'topic1', value: 'foo' }]);
+        });
+        it('should convert arrays to name value if no name property and single topic', ()=> {
+            const ip = ['foo'];
+            const topics = ['topic1'];
+            const op = normalizeSubscribeResponse(ip, topics);
+            expect(op).to.eql([{ name: 'topic1', value: ['foo'] }]);
+        });
+        it('should leave named arrays as-is if topic matches', ()=> {
+            const ip = [{ name: 'topic1', value: 'foo' }];
+            const topics = ['topic1'];
+            const op = normalizeSubscribeResponse(ip, topics);
+            expect(op).to.eql(ip);
+        });
+        it('should convert objects to arrays', ()=> {
+            const ip = { topic2: 'bar', topic1: 'test' };
+            const topics = ['topic1', 'topic2'];
+            const op = normalizeSubscribeResponse(ip, topics);
+            expect(op).to.eql([{ name: 'topic1', value: 'test' }, { name: 'topic2', value: 'bar' }]);
+        });
+        it('should ignore additional properties on objects ', ()=> {
+            const ip = { foo: 'bar', topic1: 'test' };
+            const topics = ['topic1'];
+            const op = normalizeSubscribeResponse(ip, topics);
+            expect(op).to.eql([{ name: 'topic1', value: 'test' }]);
+        });
+    });
 });

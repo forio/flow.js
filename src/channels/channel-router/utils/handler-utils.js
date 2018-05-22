@@ -1,4 +1,5 @@
 import _ from 'lodash';
+import { toPublishableFormat } from 'utils/parse-utils';
 
 /**
  * @param {String} topic
@@ -70,4 +71,31 @@ export function groupSequentiallyByHandlers(data, handlers) {
         return accum;
     }, []);
     return grouped;
+}
+
+
+/**
+ * @param {any} response 
+ * @param {string[]} topics 
+ * @returns {Publishable[]}
+ */
+export function normalizeSubscribeResponse(response, topics) {
+    // @ts-ignore
+    if (response === undefined) {
+        return [];
+    }
+    if (Array.isArray(response) && response[0].name === topics[0]) {
+        return response; 
+    }
+    if (typeof response === 'object' && !Array.isArray(response)) {
+        return topics.reduce((accum, t)=> {
+            accum.push({ name: t, value: response[t] });
+            return accum; 
+        }, []);
+    }
+    if (topics.length === 1) {
+        const name = topics[0];
+        return [{ name: name, value: response }];
+    }
+    throw new Error('unrecognized subscribe response format');
 }
