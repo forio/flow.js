@@ -1,29 +1,4 @@
-import { uniqueId, random as _random, toArray } from 'lodash';
-
-/**
- * @param {any} val 
- * @returns {Promise}
- */
-export function makePromise(val) {
-    if (val.then) {
-        return val;
-    }
-    return $.Deferred().resolve(val).promise();
-}
-
-export function random(prefix, min, max) {
-    if (!min) {
-        min = parseInt(uniqueId(), 10);
-    }
-    if (!max) {
-        max = 100000; //eslint-disable-line no-magic-numbers
-    }
-    var rnd = _random(min, max, false) + '';
-    if (prefix) {
-        rnd = prefix + rnd;
-    }
-    return rnd;
-}
+import { toArray } from 'lodash';
 
 /**
  * Returns debounced version of original (optionally promise returning) function
@@ -33,7 +8,7 @@ export function random(prefix, min, max) {
  * @param {Function[]} argumentsReducers pass in 1 reducer for each option your function takes
  * @return {Function} debounced function
  */
-export function debounceAndMerge(fn, debounceInterval, argumentsReducers) {
+export default function debounceAndMerge(fn, debounceInterval, argumentsReducers) {
     var timer = null;
     var $def = null;
     var prom = null;
