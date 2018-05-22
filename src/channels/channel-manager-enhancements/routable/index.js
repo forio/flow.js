@@ -1,6 +1,6 @@
 import router from 'channels/channel-router';
 import { normalizeParamOptions } from '../../channel-utils';
-import { omit, isFunction } from 'lodash';
+import { omit } from 'lodash';
 
 function getTopicsFromSubsList(subcriptionList) {
     return subcriptionList.reduce(function (accum, subs) {
@@ -12,11 +12,11 @@ function getTopicsFromSubsList(subcriptionList) {
 /**
  * Decorates passed channel manager with middleware functionality
  * @param  {ChannelManager} ChannelManager
- * @return {ChannelManager}                wrapped channel manager
+ * @return {ChannelManager} wrapped channel manager
  */
 export default function withRouter(ChannelManager) {
     /**
-     * @implements {ChannelManager}
+     * @augments ChannelManager
      */
     return class ChannelWithRouter extends ChannelManager {
         constructor(options) {
@@ -44,7 +44,10 @@ export default function withRouter(ChannelManager) {
                     this.notify([].concat(topicsWithData));
                 }
             }, (err)=> {
-                console.error('subs err', err);
+                super.unsubscribe(subsid);
+                if (options && options.onError) {
+                    options.onError(err);
+                }
             });
             return subsid;
         }

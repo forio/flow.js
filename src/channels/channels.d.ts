@@ -1,20 +1,21 @@
-interface SubscribeOptions {
-    autoFetch: boolean;
-}
-// interface ChannelManager {
-//     subscribe: (topics: string[] | string, options: SubscribeOptions) => string;
-//     unsubscribe: (token: string) => void;
-//     unsubscribeAll: () => void;
-//     publish: () => Promise<Publishable>;
-// }
-
-
-
 interface Publishable {
     name: string;
     value: any;
 }
 
+
+interface SubscribeOptions {
+    autoFetch: boolean;
+}
+
+// declare class ChannelManager {
+//     constructor();
+//     subscribe(topics: string[] | string, options: SubscribeOptions): string;
+//     unsubscribe(token: string): void;
+//     unsubscribeAll(): void;
+//     publish(topic: string | Publishable, value?:any, options?:PublishOptions): Promise<Publishable>;
+//     notify(topic: string | Publishable, value?:any): Promise<Publishable>;
+// }
 
 interface PublishOptions {
     readOnly: boolean | string[];
@@ -40,12 +41,8 @@ interface Handler extends BaseHandler {
     name?: string;
     isDefault?: boolean;
     options?: HandlerOptions;
-    [propName: string]: any;
-}
-
-interface MatchedHandler extends Handler {
     data?: Publishable[];
-    matched: string;
+    [propName: string]: any;
 }
 
 interface Subscription {

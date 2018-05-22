@@ -120,7 +120,7 @@ function getTopicsFromSubsList(subcriptionList) {
 }
 
 /**
- * @implements {ChannelManager}
+ * @class ChannelManager
  */
 class ChannelManager {
     constructor(options) {
@@ -130,7 +130,7 @@ class ChannelManager {
     /**
      * @param {String | Publishable } topic
      * @param {any} [value] item to publish
-     * @param {Object} [options]
+     * @param {PublishOptions} [options]
      * @return {Promise}
      */
     publish(topic, value, options) {
