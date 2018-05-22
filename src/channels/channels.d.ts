@@ -5,7 +5,7 @@ interface Publishable {
 
 
 interface SubscribeOptions {
-    autoFetch: boolean;
+    autoFetch?: boolean;
 }
 
 // declare class ChannelManager {
@@ -18,8 +18,8 @@ interface SubscribeOptions {
 // }
 
 interface PublishOptions {
-    readOnly: boolean | string[];
-    silent: boolean | string[] | { except: string[] };
+    readOnly?: boolean | string[];
+    silent?: boolean | string[] | { except: string[] };
 }
 
 
@@ -41,7 +41,7 @@ interface Handler extends BaseHandler {
     name?: string;
     isDefault?: boolean;
     options?: HandlerOptions;
-    data?: Publishable[];
+    data?: Publishable[] | string[];
     [propName: string]: any;
 }
 

@@ -5,7 +5,7 @@ import { toArray } from 'lodash';
  * 
  * @param {Function} fn function to debounce
  * @param {number} debounceInterval 
- * @param {Function[]} argumentsReducers pass in 1 reducer for each option your function takes
+ * @param {Function[]} [argumentsReducers] pass in 1 reducer for each option your function takes
  * @return {Function} debounced function
  */
 export default function debounceAndMerge(fn, debounceInterval, argumentsReducers) {

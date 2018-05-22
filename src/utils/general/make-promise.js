@@ -17,7 +17,7 @@ export default function makePromise(val) {
     if (isFunction(val)) {
         try {
             const toReturn = val();
-            if (toReturn.then) {
+            if (toReturn && toReturn.then) {
                 return toReturn.then((r)=> $def.resolve(r)).catch(((e)=> $def.reject(e)));
             }
             $def.resolve(toReturn);
