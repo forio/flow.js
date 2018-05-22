@@ -1,5 +1,3 @@
-import { includes } from 'lodash';
-
 /**
  * @param {Publishable[]} published 
  * @param {boolean|String[]|{except: String[]}} [silentOptions]
@@ -9,9 +7,15 @@ export default function silencable(published, silentOptions) {
     if (silentOptions === true || !published) {
         return [];
     } else if (Array.isArray(silentOptions)) {
-        return published.filter((data)=> !includes(silentOptions, data.name));
+        return published.filter((data)=> {
+            const found = silentOptions.indexOf(data.name) !== -1;
+            return !found;
+        });
     } else if (silentOptions && silentOptions.except) {
-        return published.filter((data)=> includes(silentOptions.except || [], data.name));
+        return published.filter((data)=> {
+            const found = (silentOptions.except || []).indexOf(data.name) !== -1;
+            return found;
+        });
     }
     return published;
 }
