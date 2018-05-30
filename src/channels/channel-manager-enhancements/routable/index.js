@@ -1,4 +1,3 @@
-import router from 'channels/channel-router';
 import { normalizeParamOptions } from '../../channel-utils';
 import { omit, difference } from 'lodash';
 
@@ -14,7 +13,7 @@ function getTopicsFromSubsList(subcriptionList) {
  * @param  {ChannelManager} ChannelManager
  * @return {ChannelManager} wrapped channel manager
  */
-export default function withRouter(ChannelManager) {
+export default function withRouter(ChannelManager, router) {
     /**
      * @augments ChannelManager
      */
