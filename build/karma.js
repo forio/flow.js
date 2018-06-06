@@ -102,7 +102,7 @@ module.exports = function (grunt) {
             customLaunchers: {
                 Chrome_with_devtools: {
                     base: 'Chrome',
-                    flags: ['--auto-open-devtools-for-tabs', '--start-maximized', '--remote-debugging-port=9333']
+                    flags: ['--user-data-dir=' + path.resolve(__dirname, './.chrome'), '--auto-open-devtools-for-tabs', '--start-maximized', '--remote-debugging-port=9333', 'http://local.forio.com:9876/debug.html']
                 }
             },
         },
