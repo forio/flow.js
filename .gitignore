@@ -7,8 +7,6 @@ pids
 *.pid
 *.seed
 
-todos.todo
-
 # sass
 .sass-cache/
 
@@ -41,3 +39,6 @@ coverage/
 
 todos.todo
 *.orig
+
+.vscode
+.chrome

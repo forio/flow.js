@@ -43,7 +43,7 @@ export default function withRouter(ChannelManager, router) {
                     this.notify([].concat(topicsWithData));
                 }
             }, (err)=> {
-                super.unsubscribe(subsid);
+                this.unsubscribe(subsid);
                 if (options && options.onError) {
                     options.onError(err);
                 }
@@ -77,7 +77,7 @@ export default function withRouter(ChannelManager, router) {
             const remainingTopics = getTopicsFromSubsList(this.subscriptions);
             const unsubscribedTopics = difference(originalTopics, remainingTopics);
 
-            return this.router.unsubscribeHandler(unsubscribedTopics, remainingTopics);
+            this.router.unsubscribeHandler(unsubscribedTopics, remainingTopics);
         }
 
         /**
