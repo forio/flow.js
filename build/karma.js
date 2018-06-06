@@ -57,6 +57,12 @@ module.exports = function (grunt) {
                 noInfo: true,
                 stats: 'none'
             },
+            client: {
+                mocha: {
+                    // change Karma's debug.html to the mocha web reporter
+                    reporter: 'html',
+                }
+            },
             webpack: {
                 module: {
                     rules: [babelloader].concat(webpackLoaders)
@@ -96,7 +102,7 @@ module.exports = function (grunt) {
             customLaunchers: {
                 Chrome_with_devtools: {
                     base: 'Chrome',
-                    flags: ['--auto-open-devtools-for-tabs', '--start-maximized']
+                    flags: ['--auto-open-devtools-for-tabs', '--start-maximized', '--remote-debugging-port=9333']
                 }
             },
         },
