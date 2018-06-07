@@ -1,11 +1,12 @@
 import { normalizeParamOptions } from '../../channel-utils';
-import { omit, difference } from 'lodash';
+import { omit, difference, uniq } from 'lodash';
 
 function getTopicsFromSubsList(subcriptionList) {
-    return subcriptionList.reduce(function (accum, subs) {
+    const allTopics = subcriptionList.reduce(function (accum, subs) {
         accum = accum.concat(subs.topics);
         return accum;
     }, []);
+    return uniq(allTopics);
 }
 
 /**

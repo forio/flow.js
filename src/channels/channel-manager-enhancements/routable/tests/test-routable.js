@@ -1,3 +1,5 @@
+import OriginalChannelManager from 'channels/channel-manager';
+
 import routable from '../index';
 
 import sinon from 'sinon';
@@ -35,10 +37,12 @@ describe('routable', ()=> {
         });
     });
     describe('#subscribe', ()=> {
-        function makeRouter(subsSpy) {
+        function makeRouter(subsSpy, mockCM) {
+            if (!mockCM) {
+                mockCM = makeMockChannelManager();
+            }
             const mockRouter = makeMockRouter(subsSpy);
 
-            const mockCM = makeMockChannelManager();
             const RoutableCM = routable(mockCM, mockRouter);
             const routableCM = new RoutableCM();
             return routableCM;
@@ -58,17 +62,16 @@ describe('routable', ()=> {
             expect(routableCM.router.subscribeHandler).to.have.been.calledWith(['foobar'], options);
         });
         it('should call notify if routerSubshandler returns response', (done)=> {
+            const mockCM = makeMockChannelManager();
             const response = [{ name: 'foo', value: 'bar' }];
             const subsReturningData = sinon.spy(()=> Promise.resolve(response));
-            const routableCM = makeRouter(subsReturningData);
-
-            const notifySpy = sinon.spy();
-            sinon.stub(routableCM, 'notify').callsFake(notifySpy);
+            const routableCM = makeRouter(subsReturningData, mockCM);
 
             const options = { test: 1 };
             routableCM.subscribe('foobar', ()=> {}, options);
             setTimeout(()=> {
-                expect(notifySpy).to.have.been.calledOnce;
+                expect(mockCM.prototype.notify).to.have.been.calledOnce;
+                expect(mockCM.prototype.notify).to.have.been.calledWith(response);
                 done();
             }, 0);
         });
@@ -88,16 +91,15 @@ describe('routable', ()=> {
             }, 0);
         });
         it('should not call notify if router subshandler returns nothing', (done)=> {
+            const mockCM = makeMockChannelManager();
+            
             const subsReturningNothing = sinon.spy(()=> Promise.resolve(undefined));
             const routableCM = makeRouter(subsReturningNothing);
-
-            const notifySpy = sinon.spy();
-            sinon.stub(routableCM, 'notify').callsFake(notifySpy);
 
             const options = { test: 1, onError: sinon.spy() };
             routableCM.subscribe('foobar', ()=> {}, options);
             setTimeout(()=> {
-                expect(notifySpy).to.not.have.been.called;
+                expect(mockCM.prototype.notify).to.not.have.been.called;
                 expect(options.onError).to.not.have.been.called;
                 done();
             }, 0);
@@ -175,7 +177,7 @@ describe('routable', ()=> {
             });
         });
     });
-    describe.only('#unsubscribe', ()=> {
+    describe('#unsubscribe', ()=> {
         function makeRouter(unsubsSpy, mockCM) {
             if (!mockCM) {
                 mockCM = makeMockChannelManager();
@@ -194,11 +196,41 @@ describe('routable', ()=> {
             expect(mockCM.prototype.unsubscribe).to.have.been.calledWith('foobar');
         });
         it('should call router with unsubscribed topics', ()=> {
-            const mockCM = makeMockChannelManager();
-            const routableCM = makeRouter(sinon.spy(), mockCM); 
-            routableCM.unsubscribe('foobar');
+            const routableCM = makeRouter(sinon.spy(), OriginalChannelManager); 
+            const cb = ()=> {};
+            const subs1 = routableCM.subscribe(['apples', 'bananas'], cb);
+            const subs2 = routableCM.subscribe(['carrots', 'bananas'], cb);
+            const subs3 = routableCM.subscribe(['donuts', 'eggs'], cb);
 
-            expect(routableCM.router.unsubscribeHandler).to.have.been.calledWith([], []);
+            routableCM.unsubscribe(subs2);
+
+            expect(routableCM.router.unsubscribeHandler).to.have.been.calledWith(['carrots'], ['apples', 'bananas', 'donuts', 'eggs']);
+            routableCM.unsubscribe(subs1);
+            expect(routableCM.router.unsubscribeHandler).to.have.been.calledWith(['apples', 'bananas'], ['donuts', 'eggs']);
+            routableCM.unsubscribe(subs3);
+            expect(routableCM.router.unsubscribeHandler).to.have.been.calledWith(['donuts', 'eggs'], []);
+        });
+    });
+    describe('#unsubscribeAll', ()=> {
+        function makeRouter(unsubsSpy, mockCM) {
+            if (!mockCM) {
+                mockCM = makeMockChannelManager();
+            }
+            const mockRouter = makeMockRouter(null, null, unsubsSpy);
+            const RoutableCM = routable(mockCM, mockRouter);
+            const routableCM = new RoutableCM();
+            return routableCM;
+        }
+        it('should call router will all unsubscribed topics', ()=> {
+            const routableCM = makeRouter(sinon.spy(), OriginalChannelManager); 
+            const cb = ()=> {};
+            
+            routableCM.subscribe(['apples', 'bananas'], cb);
+            routableCM.subscribe(['carrots', 'bananas'], cb);
+            routableCM.subscribe(['donuts', 'eggs'], cb);
+
+            routableCM.unsubscribeAll();
+            expect(routableCM.router.unsubscribeHandler).to.have.been.calledWith(['apples', 'bananas', 'carrots', 'donuts', 'eggs'], []);
         });
     });
 });
