@@ -38,7 +38,6 @@ export default function WorldUsersChanngel(worldPromise, notifier) {
                     }
                     return accum;
                 }, []);
-                notifier(toNotify);
                 
                 //TODO: Also subscribe to presence?
                 if (!subsid) {
@@ -51,6 +50,7 @@ export default function WorldUsersChanngel(worldPromise, notifier) {
                         }
                     });
                 }
+                return toNotify;
             });
         }
     };

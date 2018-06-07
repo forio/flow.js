@@ -1,4 +1,4 @@
-var CHANNEL_DELIMITER = ':';
+const CHANNEL_DELIMITER = ':';
 
 export { default as silencable } from './silencable';
 export { default as excludeReadOnly } from './exclude-read-only';
@@ -13,50 +13,6 @@ export function stripSuffixDelimiter(text) {
         text = text.replace(CHANNEL_DELIMITER, '');
     }
     return text;
-}
-
-/**
- * 
- * @param {string} prefix
- * @returns {matchFunction}
- */
-export function prefix(prefix) {
-    return function matchPrefix(topic) {
-        const hasPrefix = topic.indexOf(prefix) === 0;
-        if (hasPrefix) return prefix;
-
-        const isOnlyPrefix = prefix.replace(/:/g, '') === topic;
-        if (isOnlyPrefix) return topic;
-
-        return false;
-    };
-}
-
-/**
-* 
-* @param {string} prefix
-* @returns {matchFunction}
-*/
-export function defaultPrefix(prefix) {
-    return function matchPrefix(topic) {
-        return prefix;
-    };
-}
-
-/**
- * 
- * @param {string} regex
- * @returns {matchFunction}
- */
-export function regex(regex) {
-    var toMatch = new RegExp('^' + regex + CHANNEL_DELIMITER);
-    return function matchRegex(topic) {
-        var match = topic.match(toMatch);
-        if (match && match.length) {
-            return match[0];
-        }
-        return false;
-    };
 }
 
 /**
@@ -87,10 +43,24 @@ export function withPrefix(callback, prefixList) {
      */
     return function (data) {
         arr.forEach(function (prefix) {
-            var mapped = mapWithPrefix(data, prefix);
+            const mapped = mapWithPrefix(data, prefix);
             callback(mapped);
         });
     };
+}
+
+/**
+ * 
+ * @param {string[]} list 
+ * @param {string} prefix
+ * @return {string[]} Item with prefix removed
+ */
+export function unprefixTopics(list, prefix) {
+    if (!prefix) return list;
+    const unprefixed = list.map(function (item) {
+        return item.replace(prefix, '');
+    });
+    return unprefixed;
 }
 
 /**
@@ -101,7 +71,7 @@ export function withPrefix(callback, prefixList) {
  */
 export function unprefix(list, prefix) {
     if (!prefix) return list;
-    var unprefixed = list.map(function (item) {
+    const unprefixed = list.map(function (item) {
         if (item.name) {
             return $.extend(true, {}, item, { name: item.name.replace(prefix, '') });
         }

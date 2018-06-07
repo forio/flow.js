@@ -57,7 +57,7 @@ export default function WorldUsersChanngel(worldPromise, notifier) {
                 });
             }
             return parsedUsersPromise.then((users)=> {
-                return notifier([{ name: '', value: users }]);
+                return [{ name: '', value: users }];
             });
         },
         publishHandler: function (topics, options) {

@@ -211,7 +211,14 @@ module.exports = (function () {
                     return accum;
                 }
 
-                const subsOptions = $.extend({ batch: true }, channelConfig);
+                const subsOptions = $.extend({ 
+                    batch: true,
+                    onError: (e)=> {
+                        console.error(e);
+                        const msg = e.message || e;
+                        $el.attr(config.errorAttr, msg);
+                    }
+                }, channelConfig);
                 const subscribableTopics = topics.map((t)=> t.name);
                 const subsid = channel.subscribe(subscribableTopics, (data)=> {
                     const toConvert = {};
@@ -227,7 +234,7 @@ module.exports = (function () {
                             return accum;
                         }, {});
                     }
-                    $el.trigger(config.events.convert, toConvert);
+                    $el.removeAttr(config.errorAttr).trigger(config.events.convert, toConvert);
                 }, subsOptions);
 
                 accum[name] = Object.assign({}, attr, { subscriptionId: subsid });

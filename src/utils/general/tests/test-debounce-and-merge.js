@@ -1,6 +1,6 @@
 //moving this into the specs folder throws errors for some reason, probably because sinon.
 import { install } from 'lolex';
-import { debounceAndMerge as debounce } from '../general';
+import debounce from '../debounce-and-merge';
 import chai from 'chai';
 import sinon from 'sinon';
 

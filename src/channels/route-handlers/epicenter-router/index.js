@@ -7,7 +7,8 @@ import RunsRouter from './runs-router';
 
 // import UserRouter from './user-router/current-user-channel';
 
-import { regex, withPrefix, prefix as prefixMatch, defaultPrefix } from 'channels/route-handlers/utils';
+import { withPrefix } from 'channels/channel-router/utils';
+import { matchPrefix, matchDefaultPrefix, matchRegex } from 'channels/route-handlers/route-matchers';
 
 import router from 'channels/channel-router';
 
@@ -38,17 +39,17 @@ export default function (config, notifier, channelManagerContext) {
     var handlers = [
         $.extend({}, customRunChannel, { 
             name: 'customRun',
-            match: regex(runidRegex),
+            match: matchRegex(runidRegex),
             options: customRunChannelOpts.channelOptions,
         }), 
         $.extend({}, runsChannel, {
             name: 'archiveRuns',
-            match: prefixMatch('runs:'),
+            match: matchPrefix('runs:'),
             options: customRunChannelOpts.channelOptions,
         }),  
         // $.extend({}, userChannel, {
         //     name: 'User Channel',
-        //     match: prefixMatch('user:'),
+        //     match: matchPrefix('user:'),
         // })
     ];
     var exposable = {};
@@ -61,7 +62,7 @@ export default function (config, notifier, channelManagerContext) {
             rm = new RunManagerRouter(runManagerOpts, withPrefix(notifier, RUN_PREFIX));
             handlers.push($.extend({}, rm, { 
                 name: 'run',
-                match: prefixMatch(RUN_PREFIX), //if both scenario manager and run manager are being used, require a prefix
+                match: matchPrefix(RUN_PREFIX), //if both scenario manager and run manager are being used, require a prefix
                 options: runManagerOpts.channelOptions,
             }));
         } else if (isMultiplayer) {
@@ -69,7 +70,7 @@ export default function (config, notifier, channelManagerContext) {
             rm = new WorldManagerRouter(runManagerOpts, withPrefix(notifier, [WORLD_PREFIX, '']));
             handlers.push($.extend({}, rm, { 
                 name: 'World run',
-                match: defaultPrefix(WORLD_PREFIX),
+                match: matchDefaultPrefix(WORLD_PREFIX),
                 isDefault: true,
                 options: runManagerOpts.channelOptions,
             }));
@@ -77,7 +78,7 @@ export default function (config, notifier, channelManagerContext) {
             rm = new RunManagerRouter(runManagerOpts, withPrefix(notifier, [RUN_PREFIX, '']));
             handlers.push($.extend({}, rm, { 
                 name: 'run',
-                match: defaultPrefix(RUN_PREFIX),
+                match: matchDefaultPrefix(RUN_PREFIX),
                 isDefault: true,
                 options: runManagerOpts.channelOptions,
             }));
@@ -91,7 +92,7 @@ export default function (config, notifier, channelManagerContext) {
         var sm = new ScenarioRouter(scenarioManagerOpts, withPrefix(notifier, [SCENARIO_PREFIX, '']));
         handlers.push($.extend({}, sm, { 
             name: 'scenario',
-            match: defaultPrefix(SCENARIO_PREFIX),
+            match: matchDefaultPrefix(SCENARIO_PREFIX),
             options: scenarioManagerOpts.channelOptions,
             isDefault: true,
         }));

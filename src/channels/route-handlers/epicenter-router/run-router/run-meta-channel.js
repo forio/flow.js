@@ -8,11 +8,13 @@ export default function RunMetaChannel($runServicePromise, notifier) {
             accum.push({ name: meta, value: runMeta[meta] });
             return accum;
         }, []);
-        return notifier(toSend);
+        return toSend;
+        // return notifier(toSend);
     }
     return {
         subscribeHandler: function (topics, options) {
             topics = [].concat(topics);
+            
             return $runServicePromise.then(function (runService) {
                 var cachedValues = intersection(Object.keys(runService.runMeta || {}), topics);
                 if (options.autoFetch === false) {
@@ -28,7 +30,7 @@ export default function RunMetaChannel($runServicePromise, notifier) {
                     });
                 } 
                 return runService.loadPromise.then(function (data) {
-                    mergeAndSend(data, topics);
+                    return mergeAndSend(data, topics);
                 });
             });
         },

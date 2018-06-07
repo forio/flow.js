@@ -2,7 +2,7 @@ import { toImplicitType } from 'utils/parse-utils';
 
 export function match(topic) {
     var parsed = toImplicitType(topic);
-    return typeof parsed !== 'string';
+    return typeof parsed !== 'string' ? '' : false;
 }
 
 export default {

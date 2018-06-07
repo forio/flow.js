@@ -1,7 +1,9 @@
 import WorldUsersChannel from './world-users-channel';
 import WorldCurrentUserChannel from './world-current-user-channel';
 
-import { withPrefix, defaultPrefix, prefix } from 'channels/route-handlers/utils';
+import { withPrefix } from 'channels/channel-router/utils';
+import { matchPrefix, matchDefaultPrefix } from 'channels/route-handlers/route-matchers';
+
 import RunChannel from '../run-router';
 import router from 'channels/channel-router';
 
@@ -46,7 +48,7 @@ export default function (config, notifier) {
     const currentRunChannel = new RunChannel(currentChannelOpts, withPrefix(notifier, ['run:', '']));
 
     const runRouteHandler = $.extend(currentRunChannel, { 
-        match: defaultPrefix('run:'),
+        match: matchDefaultPrefix('run:'),
         name: 'World Run',
         isDefault: true,
         options: currentChannelOpts.channelOptions,
@@ -59,14 +61,14 @@ export default function (config, notifier) {
     });
     const presenceChannel = new WorldUsersChannel(worldPromise, withPrefix(notifier, 'users:'));
     const presenceHandler = $.extend(presenceChannel, { 
-        match: prefix('users:'),
+        match: matchPrefix('users:'),
         name: 'world users',
     });
     handlers.unshift(presenceHandler);
     
     const userChannel = new WorldCurrentUserChannel(worldPromise, withPrefix(notifier, 'user:'));
     const userHandler = $.extend(userChannel, {
-        match: prefix('user:'),
+        match: matchPrefix('user:'),
         name: 'current user',
     });
     handlers.unshift(userHandler);

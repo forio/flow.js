@@ -50,7 +50,7 @@ describe('DOM Manager #bindElement', function () {
 
                 var args = channel.subscribe.getCall(0).args;
                 args[0].should.eql(['a', 'b']);
-                args[2].should.eql({ batch: true }); //a
+                args[2].batch.should.eql(true); //a
             });
 
             it('should pass in channel config', ()=> {
@@ -59,7 +59,7 @@ describe('DOM Manager #bindElement', function () {
 
                 var args = channel.subscribe.getCall(0).args;
                 args[0].should.eql(['a']);
-                args[2].should.eql({ batch: true, foo: 'bar' }); //args[1] is callback fn
+                args[2].foo.should.eql('bar'); //args[1] is callback fn
             });
         });
         describe('Channel Prefix', ()=> {

@@ -1,28 +1,36 @@
-import { groupByHandlers, groupSequentiallyByHandlers } from 'channels/channel-utils';
-import { unprefix, mapWithPrefix, silencable, excludeReadOnly } from 'channels/route-handlers/utils';
+import { groupByHandlers, groupSequentiallyByHandlers, normalizeSubscribeResponse } from './utils/handler-utils';
+import { unprefix, unprefixTopics, mapWithPrefix, silencable, excludeReadOnly } from './utils';
+import { makePromise } from 'utils/general';
 import _ from 'lodash';
+
 
 /**
  * Handle subscriptions
  * @param  {Handler[]} handlers Array of the form [{ match: function (){}, }]
  * @param  {String[]} topics   Array of strings
  * @param  {SubscribeOptions} [options]
- * @return {String[]} Returns the original topics array
+ * @return {Promise<Publishable[]>} Returns populated topics if available
  */
 export function notifySubscribeHandlers(handlers, topics, options) {
-    var grouped = groupByHandlers(topics, handlers);
-    var toReturn = [];
-    grouped.forEach(function (handler) {
-        if (handler.subscribeHandler) {
-            var mergedOptions = $.extend(true, {}, handler.options, options);
-            var unprefixed = unprefix(handler.data, handler.matched);
-            var subsResponse = handler.subscribeHandler(unprefixed, mergedOptions, handler.matched);
-            if (subsResponse && !subsResponse.then) { //FIXME
-                toReturn = toReturn.concat(subsResponse);
-            }
-        }
+    const grouped = groupByHandlers(topics, handlers);
+    const promises = [];
+    grouped.filter((handler)=> handler.subscribeHandler).forEach(function (handler) {
+        const mergedOptions = $.extend(true, {}, handler.options, options);
+        const unprefixed = unprefixTopics(handler.data, handler.matched);
+        const promise = makePromise(()=> {
+            const subsResponse = handler.subscribeHandler(unprefixed, mergedOptions, handler.matched);
+            return subsResponse;
+        }).then((topicsWithData)=> {
+            const normalized = normalizeSubscribeResponse(topicsWithData, unprefixed);
+            const prefixed = mapWithPrefix(normalized, handler.matched);
+            return prefixed;
+        });
+        promises.push(promise);
     });
-    return toReturn;
+    return $.when.apply(null, promises).then(function () {
+        const arr = [].concat.apply([], arguments);
+        return arr;
+    });
 }
 
 /**
@@ -37,19 +45,17 @@ export function notifyUnsubscribeHandlers(handlers, recentlyUnsubscribedTopics, 
         return h;
     });
 
-    var unsubsGrouped = groupByHandlers(recentlyUnsubscribedTopics, handlers);
-    var remainingGrouped = groupByHandlers(remainingTopics, handlers);
+    const unsubsGrouped = groupByHandlers(recentlyUnsubscribedTopics, handlers);
+    const remainingGrouped = groupByHandlers(remainingTopics, handlers);
 
-    unsubsGrouped.forEach(function (handler) {
-        if (handler.unsubscribeHandler) {
-            var unprefixedUnsubs = unprefix(handler.data, handler.matched);
-            var matchingRemainingHandler = _.find(remainingGrouped, function (remainingHandler) {
-                return remainingHandler.unsubsKey === handler.unsubsKey;
-            });
-            var matchingTopicsRemaining = matchingRemainingHandler ? matchingRemainingHandler.data : [];
-            var unprefixedRemaining = unprefix(matchingTopicsRemaining || [], handler.matched);
-            handler.unsubscribeHandler(unprefixedUnsubs, unprefixedRemaining);
-        }
+    unsubsGrouped.filter((h)=> h.unsubscribeHandler).forEach(function (handler) {
+        const unprefixedUnsubs = unprefixTopics(handler.data, handler.matched);
+        const matchingRemainingHandler = _.find(remainingGrouped, function (remainingHandler) {
+            return remainingHandler.unsubsKey === handler.unsubsKey;
+        });
+        const matchingTopicsRemaining = matchingRemainingHandler ? matchingRemainingHandler.data : [];
+        const unprefixedRemaining = unprefixTopics(matchingTopicsRemaining || [], handler.matched);
+        handler.unsubscribeHandler(unprefixedUnsubs, unprefixedRemaining);
     });
 }
 
@@ -61,24 +67,24 @@ export function notifyUnsubscribeHandlers(handlers, recentlyUnsubscribedTopics, 
  * @return {Promise}
  */
 export function passthroughPublishInterceptors(handlers, publishData, options) {
-    var grouped = groupSequentiallyByHandlers(publishData, handlers);
-    var $initialProm = $.Deferred().resolve([]).promise();
+    const grouped = groupSequentiallyByHandlers(publishData, handlers);
+    let $initialProm = $.Deferred().resolve([]).promise();
     grouped.forEach(function (handler) {
         $initialProm = $initialProm.then(function (dataSoFar) {
-            var mergedOptions = $.extend(true, {}, handler.options, options);
-            var unprefixed = unprefix(handler.data, handler.matched);
+            const mergedOptions = $.extend(true, {}, handler.options, options);
+            const unprefixed = unprefix(handler.data, handler.matched);
 
-            var publishableData = excludeReadOnly(unprefixed, mergedOptions.readOnly);
+            const publishableData = excludeReadOnly(unprefixed, mergedOptions.readOnly);
             if (!publishableData.length) {
                 return dataSoFar;
             }
 
-            var result = handler.publishHandler ? handler.publishHandler(publishableData, mergedOptions, handler.matched) : publishableData;
-            var publishProm = $.Deferred().resolve(result).promise();
+            const result = handler.publishHandler ? handler.publishHandler(publishableData, mergedOptions, handler.matched) : publishableData;
+            const publishProm = $.Deferred().resolve(result).promise();
             return publishProm.then(function (published) {
                 return silencable(published, mergedOptions.silent);
             }).then(function (published) {
-                var mapped = mapWithPrefix(published, handler.matched);
+                let mapped = mapWithPrefix(published, handler.matched);
                 if (handler.isDefault && handler.matched) {
                     mapped = mapped.concat(published);
                 }
@@ -115,7 +121,8 @@ export default function router(handlers, options, notifier) {
     return {
         match: (topic)=> {
             return myHandlers.reduce((match, handler)=> {
-                if (match === false && handler.match(topic)) {
+                const matched = handler.match(topic);
+                if (match === false && matched !== false) {
                     return '';
                 }
                 return match;
@@ -125,7 +132,7 @@ export default function router(handlers, options, notifier) {
         /**
          * @param {String[]} topics
          * @param {SubscribeOptions} [options]
-         * @return {String[]} Returns the original topics array
+         * @return {Promise<Publishable[]>} Returns populated topics if available
          */
         subscribeHandler: function (topics, options) {
             return notifySubscribeHandlers(myHandlers, topics, options);

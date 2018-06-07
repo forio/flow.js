@@ -1,7 +1,8 @@
 import RunChannel from './run-router';
 
-import { withPrefix, defaultPrefix } from 'channels/route-handlers/utils';
+import { withPrefix } from 'channels/channel-router/utils';
 import router from 'channels/channel-router';
+import { matchDefaultPrefix } from 'channels/route-handlers/route-matchers';
 
 const { F } = window;
 
@@ -25,7 +26,7 @@ export default function (config, notifier) {
     const currentRunChannel = new RunChannel(currentChannelOpts, withPrefix(notifier, [RUN_PREFIX, '']));
 
     const runRouteHandler = $.extend(currentRunChannel, { 
-        match: defaultPrefix(RUN_PREFIX), //TODO: Just remove prefix?
+        match: matchDefaultPrefix(RUN_PREFIX), //TODO: Just remove prefix?
         name: 'Current Run',
         isDefault: true,
         options: currentChannelOpts.channelOptions,

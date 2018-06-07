@@ -1,40 +1,7 @@
-import * as utils from '../channel-utils';
+import * as utils from '../handler-utils';
 import { expect } from 'chai';
 
 describe('Channel Utils', ()=> {
-    describe('#normalizeParamOptions', ()=> {
-        var convert = utils.normalizeParamOptions;
-
-        it('should convert arrays', ()=> {
-            var input = [{ name: 'foo', value: 'bar' }];
-            var options = { foo: 'bah' };
-            var output = convert(input, options);
-            var expectedOutput = { params: input, options: options };
-
-            expect(output).to.eql(expectedOutput);
-        });
-        it('should convert objects', ()=> {
-            var input = { a: 1, b: 'good' };
-            var options = { foo: 'bah' };
-            var output = convert(input, options);
-            var expectedOutput = { 
-                params: [{ name: 'a', value: 1 }, { name: 'b', value: 'good' }], 
-                options: options 
-            };
-
-            expect(output).to.eql(expectedOutput);
-        });
-        it('should convert key, value pairs', ()=> {
-            var options = { foo: 'bah' };
-            var output = convert('a', 1, options);
-            var expectedOutput = { 
-                params: [{ name: 'a', value: 1 }], 
-                options: options 
-            };
-
-            expect(output).to.eql(expectedOutput);
-        });
-    });
     describe('#findBestHandler', ()=> {
         var findBestHandler = utils.findBestHandler;
         it('should return first handler which matches', ()=> {
@@ -182,6 +149,44 @@ describe('Channel Utils', ()=> {
             var data = [{ name: 'cat' }, { name: 'trex' }];
             var op = groupSequentiallyByHandlers(data, handlers);
             expect(op).to.eql([{ data: [{ name: 'cat' }], matched: false }, { data: [{ name: 'trex' }], matched: false }]);
+        });
+    });
+    describe('normalizeSubscribeResponse', ()=> {
+        const { normalizeSubscribeResponse } = utils;
+        it('should convert undefined to empty array', ()=> {
+            const topics = ['topic1'];
+            const op = normalizeSubscribeResponse(undefined, topics);
+            expect(op).to.eql([]);
+        });
+        it('should convert literals to name value', ()=> {
+            const ip = 'foo';
+            const topics = ['topic1'];
+            const op = normalizeSubscribeResponse(ip, topics);
+            expect(op).to.eql([{ name: 'topic1', value: 'foo' }]);
+        });
+        it('should convert arrays to name value if no name property and single topic', ()=> {
+            const ip = ['foo'];
+            const topics = ['topic1'];
+            const op = normalizeSubscribeResponse(ip, topics);
+            expect(op).to.eql([{ name: 'topic1', value: ['foo'] }]);
+        });
+        it('should leave named arrays as-is if topic matches', ()=> {
+            const ip = [{ name: 'topic1', value: 'foo' }];
+            const topics = ['topic1'];
+            const op = normalizeSubscribeResponse(ip, topics);
+            expect(op).to.eql(ip);
+        });
+        it('should convert objects to arrays', ()=> {
+            const ip = { topic2: 'bar', topic1: 'test' };
+            const topics = ['topic1', 'topic2'];
+            const op = normalizeSubscribeResponse(ip, topics);
+            expect(op).to.eql([{ name: 'topic1', value: 'test' }, { name: 'topic2', value: 'bar' }]);
+        });
+        it('should ignore additional properties on objects ', ()=> {
+            const ip = { foo: 'bar', topic1: 'test' };
+            const topics = ['topic1'];
+            const op = normalizeSubscribeResponse(ip, topics);
+            expect(op).to.eql([{ name: 'topic1', value: 'test' }]);
         });
     });
 });

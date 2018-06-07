@@ -1,22 +1,22 @@
-import router from 'channels/channel-router';
 import { normalizeParamOptions } from '../../channel-utils';
-import { omit, isFunction } from 'lodash';
+import { omit, difference, uniq } from 'lodash';
 
 function getTopicsFromSubsList(subcriptionList) {
-    return subcriptionList.reduce(function (accum, subs) {
+    const allTopics = subcriptionList.reduce(function (accum, subs) {
         accum = accum.concat(subs.topics);
         return accum;
     }, []);
+    return uniq(allTopics);
 }
 
 /**
  * Decorates passed channel manager with middleware functionality
  * @param  {ChannelManager} ChannelManager
- * @return {ChannelManager}                wrapped channel manager
+ * @return {ChannelManager} wrapped channel manager
  */
-export default function withRouter(ChannelManager) {
+export default function withRouter(ChannelManager, router) {
     /**
-     * @implements {ChannelManager}
+     * @augments ChannelManager
      */
     return class ChannelWithRouter extends ChannelManager {
         constructor(options) {
@@ -39,12 +39,16 @@ export default function withRouter(ChannelManager) {
          */
         subscribe(topics, cb, options) {
             const subsid = super.subscribe(topics, cb, options);
-            const returned = this.router.subscribeHandler([].concat(topics), options);
-            if (returned && returned.length) {
-                setTimeout(()=> {
-                    this.notify([].concat(returned));
-                }, 0);
-            }
+            this.router.subscribeHandler([].concat(topics), options).then((topicsWithData)=> {
+                if (topicsWithData.length) {
+                    this.notify([].concat(topicsWithData));
+                }
+            }, (err)=> {
+                this.unsubscribe(subsid);
+                if (options && options.onError) {
+                    options.onError(err);
+                }
+            });
             return subsid;
         }
 
@@ -69,10 +73,12 @@ export default function withRouter(ChannelManager) {
          * @return {void}
          */
         unsubscribe(token) {
-            const recentlyUnsubscribedTopics = getTopicsFromSubsList(this.subscriptions);
+            const originalTopics = getTopicsFromSubsList(this.subscriptions);
             super.unsubscribe(token);
             const remainingTopics = getTopicsFromSubsList(this.subscriptions);
-            return this.router.unsubscribeHandler(recentlyUnsubscribedTopics, remainingTopics);
+            const unsubscribedTopics = difference(originalTopics, remainingTopics);
+
+            this.router.unsubscribeHandler(unsubscribedTopics, remainingTopics);
         }
 
         /**
@@ -80,10 +86,10 @@ export default function withRouter(ChannelManager) {
          * @return {void}
          */
         unsubscribeAll() {
-            const recentlyUnsubscribedTopics = getTopicsFromSubsList(this.subscriptions);
+            const originalTopics = getTopicsFromSubsList(this.subscriptions);
             super.unsubscribeAll();
 
-            return this.router.unsubscribeHandler(recentlyUnsubscribedTopics, []);
+            return this.router.unsubscribeHandler(originalTopics, []);
         }
     };
 }

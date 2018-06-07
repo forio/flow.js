@@ -15,6 +15,7 @@ export default function interpolatable(ChannelManager) {
     return class InterpolatedChannelManager extends ChannelManager {
         constructor(options) {
             super(options);
+            //FIXME: Add on-error (from routable) here?
             this.subscribe = subscribeInterpolator(this.subscribe.bind(this), (dependencySubsId, newDependentId)=> {
                 var existing = subsidMap[dependencySubsId];
                 if (existing) {
