@@ -112,10 +112,10 @@
         var foosubsHandler = {
             match: 'foo',
             subscribeHandler: (topics) => {
-                return {
+                return [{
                     name: topics[0],
                     value: 'bar1'
-                };
+                }];
             }
         };
         var somethingPubHandler = {

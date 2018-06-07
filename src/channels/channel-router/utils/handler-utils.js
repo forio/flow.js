@@ -83,7 +83,7 @@ export function normalizeSubscribeResponse(response, topics) {
     if (response === undefined) {
         return [];
     }
-    if (Array.isArray(response) && response[0].name === topics[0]) {
+    if (Array.isArray(response) && response[0] && response[0].name === topics[0]) {
         return response; 
     }
     if (typeof response === 'object' && !Array.isArray(response)) {

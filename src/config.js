@@ -17,6 +17,8 @@ module.exports = {
             templateId: 'repeat-template-id' //don't prefix by f or dom-manager unbind will kill it
         },
     },
+
+    errorAttr: 'data-flow-error',
     animation: {
         addAttr: 'data-add',
         changeAttr: 'data-update',
