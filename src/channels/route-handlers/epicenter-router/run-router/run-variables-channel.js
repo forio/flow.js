@@ -1,6 +1,6 @@
 import { debounceAndMerge } from 'utils/general';
 import { objectToPublishable, publishableToObject } from 'channels/channel-utils';
-import { uniqueId, uniq } from 'lodash';
+import { uniqueId, uniq, difference } from 'lodash';
 import { retriableFetch } from './retriable-variable-fetch';
 // import { optimizedFetch } from './optimized-variables-fetch';
 
@@ -47,17 +47,14 @@ export default function RunVariablesChannel($runServicePromise, notifier) {
                     return $.Deferred().resolve(topics).promise();
                 }
                 return debouncedVariableQuery(runService, debounceInterval)(topics).then((response)=> {
-                    const filtered = topics.reduce((accum, t)=> {
-                        const val = response[t];
-                        if (val !== undefined) {
-                            accum.push({ name: t, value: val });
-                        }
-                        return accum; 
-                    }, []);
-                    if (filtered.length !== topics.length) {
-                        throw Error('Missing variables');
+                    const missingVariables = difference(topics, Object.keys(response));
+                    if (missingVariables.length) {
+                        return $.Deferred().reject({
+                            context: missingVariables,
+                            message: `Missing variables: ${missingVariables.join(',')}`
+                        }).promise();
                     }
-                    return filtered;
+                    return response;
                 });
             });
         },

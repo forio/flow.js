@@ -215,7 +215,8 @@ module.exports = (function () {
                     batch: true,
                     onError: (e)=> {
                         console.error(e);
-                        $el.attr(config.errorAttr, e);
+                        const msg = e.message || e;
+                        $el.attr(config.errorAttr, msg);
                     }
                 }, channelConfig);
                 const subscribableTopics = topics.map((t)=> t.name);
