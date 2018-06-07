@@ -1,7 +1,8 @@
 import { debounceAndMerge } from 'utils/general';
 import { objectToPublishable, publishableToObject } from 'channels/channel-utils';
 import { uniqueId, uniq } from 'lodash';
-import { optimizedFetch } from './optimized-variables-fetch';
+import { retriableFetch } from './retriable-variable-fetch';
+// import { optimizedFetch } from './optimized-variables-fetch';
 
 export default function RunVariablesChannel($runServicePromise, notifier) {
     const id = uniqueId('variable-channel');
@@ -12,7 +13,7 @@ export default function RunVariablesChannel($runServicePromise, notifier) {
         }
         if (!runService.debouncedFetchers[id]) {
             runService.debouncedFetchers[id] = debounceAndMerge(function (variables) {
-                return optimizedFetch(runService, variables);
+                return retriableFetch(runService, variables);
             }, debounceInterval, [function mergeVariables(accum, newval) {
                 if (!accum) {
                     accum = [];
@@ -27,7 +28,7 @@ export default function RunVariablesChannel($runServicePromise, notifier) {
     return { 
         fetch: function () {
             return $runServicePromise.then(function (runService) {
-                return optimizedFetch(runService, [].concat(knownTopics)).then(objectToPublishable).then(notifier);
+                return retriableFetch(runService, [].concat(knownTopics)).then(objectToPublishable).then(notifier);
             });
         },
 
@@ -45,13 +46,25 @@ export default function RunVariablesChannel($runServicePromise, notifier) {
                 } else if (!isAutoFetchEnabled) {
                     return $.Deferred().resolve(topics).promise();
                 }
-                return debouncedVariableQuery(runService, debounceInterval)(topics);
+                return debouncedVariableQuery(runService, debounceInterval)(topics).then((response)=> {
+                    const filtered = topics.reduce((accum, t)=> {
+                        const val = response[t];
+                        if (val !== undefined) {
+                            accum.push({ name: t, value: val });
+                        }
+                        return accum; 
+                    }, []);
+                    if (filtered.length !== topics.length) {
+                        throw Error('Missing variables');
+                    }
+                    return filtered;
+                });
             });
         },
         notify: function (variableObj) {
             return $runServicePromise.then(function (runService) {
                 const variables = Object.keys(variableObj); 
-                return optimizedFetch(runService, variables).then(objectToPublishable).then(notifier);
+                return retriableFetch(runService, variables).then(objectToPublishable).then(notifier);
             });
         },
         publishHandler: function (topics, options) {
@@ -63,7 +76,7 @@ export default function RunVariablesChannel($runServicePromise, notifier) {
                     //bool -> 1, scalar to array for time-based models etc
                     //FIXME: This causes dupe requests, one here and one after fetch by the run-variables channel
                     //FIXME: Other publish can't do anything till this is done, so debouncing won't help. Only way out is caching
-                    return optimizedFetch(runService, variables);
+                    return retriableFetch(runService, variables);
                 });
             });
         }

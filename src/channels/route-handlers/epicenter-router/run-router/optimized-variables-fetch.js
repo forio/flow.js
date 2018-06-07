@@ -62,7 +62,9 @@ export function optimizedFetch(runService, variables) {
         if (!variables || !variables.length) {
             return $.Deferred().resolve([]).promise();
         }
-        return runService.variables().query(variables);
+        return runService.variables().query(variables).catch((e)=> {
+            throw e.responseJSON;
+        });
     }
 
     const groupedBySubscripts = groupVariableBySubscripts(variables);
