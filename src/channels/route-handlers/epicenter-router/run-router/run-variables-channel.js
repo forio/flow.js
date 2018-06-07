@@ -151,12 +151,6 @@ export default function RunVariablesChannel($runServicePromise, notifier) {
                     return $.Deferred().resolve(topics).promise();
                 }
                 return debouncedVariableQuery(runService, debounceInterval)(topics);
-            }).then(function (response) {
-                const filtered = topics.reduce((accum, topic)=> {
-                    accum.push({ name: topic, value: response[topic] });
-                    return accum;
-                }, []);
-                return filtered;
             });
         },
         notify: function (variableObj) {
@@ -174,13 +168,7 @@ export default function RunVariablesChannel($runServicePromise, notifier) {
                     //bool -> 1, scalar to array for time-based models etc
                     //FIXME: This causes dupe requests, one here and one after fetch by the run-variables channel
                     //FIXME: Other publish can't do anything till this is done, so debouncing won't help. Only way out is caching
-                    return optimizedFetch(runService, variables).then(function (fetchResponse) {
-                        const filtered = topics.reduce((accum, topic)=> {
-                            accum.push({ name: topic, value: fetchResponse[topic] });
-                            return accum;
-                        }, []);
-                        return filtered;
-                    });
+                    return optimizedFetch(runService, variables);
                 });
             });
         }
