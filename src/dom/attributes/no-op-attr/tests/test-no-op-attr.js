@@ -12,4 +12,17 @@ describe('No-op attributes Integration', function () {
             });
         });
     });
+    it('should handle f-convert variants', ()=> {
+        const channel = createDummyChannel();
+        return initWithNode('<input type="text" data-f-convert-class="greaterThan(3, foo, bar)" data-f-class="apple"/>', domManager, channel).then(function ($node) {
+            return channel.publish({ apple: 4 }).then(()=> {
+                expect($node.hasClass('foo')).to.equal(true);
+                expect($node.hasClass('bar')).to.equal(false);
+                return channel.publish({ apple: 2 }).then(()=> {
+                    expect($node.hasClass('foo')).to.equal(false);
+                    expect($node.hasClass('bar')).to.equal(true);
+                });
+            });
+        });
+    });
 });
