@@ -27,7 +27,7 @@ export default function (config, notifier) {
     });
     const $runPromise = getRunPromise.then((run)=> {
         if (!run.world) {
-            console.error('No world found in run. Make sure you\'re using EpicenterJS version > 2.4');
+            console.error('No world found in run. Make sure you\'re using EpicenterJS version > 2.7');
             throw new Error('Could not find world');
         }
         if (rm.run.getChannel) {
