@@ -73,7 +73,7 @@ export default function RunVariablesChannel($runServicePromise, notifier) {
                     //bool -> 1, scalar to array for time-based models etc
                     //FIXME: This causes dupe requests, one here and one after fetch by the run-variables channel
                     //FIXME: Other publish can't do anything till this is done, so debouncing won't help. Only way out is caching
-                    return retriableFetch(runService, variables);
+                    return retriableFetch(runService, variables).then(objectToPublishable);
                 });
             });
         }
