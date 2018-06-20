@@ -215,7 +215,10 @@ module.exports = (function () {
                     batch: true,
                     onError: (e)=> {
                         console.error(e);
-                        const msg = e.message || e;
+                        let msg = e.message || e;
+                        if ($.isPlainObject(msg)) {
+                            msg = JSON.stringify(msg);
+                        }
                         $el.attr(config.errorAttr, msg);
                     }
                 }, channelConfig);
