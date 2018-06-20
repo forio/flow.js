@@ -70,13 +70,13 @@ which appears as:
 
 **Add an alias for the value.** Alternatively, you can add an alias when you initially introduce your model array variable, then reference that alias within templates (`<%= %>`). For example:
 
-     <ul data-f-foreach="f in Fruits">
+     <ul data-f-foreach="(f) in Fruits">
          <li> <%= f %> </li>
      </ul>
 
 which generates:
 
-     <ul data-f-foreach="f in Fruits">
+     <ul data-f-foreach="(f) in Fruits">
          <li> apples </li>
          <li> bananas </li>
          <li> cherries </li>
@@ -85,9 +85,9 @@ which generates:
 **Nesting with aliases.** An advantage to introducing aliases is that you can nest HTML elements that have repeated sub-elements. For example:
 
      <!-- given Sales, an array whose elements are themselves arrays of the sales for each Region -->
-     <ul data-f-foreach="r in Regions">
+     <ul data-f-foreach="(r) in Regions">
          <li>Region <%= r %>: 
-             <ul data-f-foreach="s in Sales[<%= r %>]">
+             <ul data-f-foreach="(s) in Sales[<%= r %>]">
                  <li>Sales <%= s %></li>
              </ul>
          </li>
@@ -96,8 +96,8 @@ which generates:
 **Logic, data processing.** Finally, note that you can add logic to the display of your data by combining templating with either the `value` or an alias. For example, suppose you only want to display the sales total if it is greater than 250:
 
      <table>
-         <tbody data-f-foreach="r in regions">
-             <tr data-f-foreach="s in sales">
+         <tbody data-f-foreach="(r) in regions">
+             <tr data-f-foreach="(s) in sales">
                  <td><%= r + ": " %> <%= (s > 250) ? s : "sales below threshold" %></td>
              </tr>
          </tbody>
