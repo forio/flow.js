@@ -158,6 +158,11 @@ describe('Channel Utils', ()=> {
             const op = normalizeSubscribeResponse(undefined, topics);
             expect(op).to.eql([]);
         });
+        it('should pass through empty arrays', ()=> {
+            const topics = ['topic1'];
+            const op = normalizeSubscribeResponse([], topics);
+            expect(op).to.eql([]);
+        });
         it('should convert literals to name value', ()=> {
             const ip = 'foo';
             const topics = ['topic1'];
