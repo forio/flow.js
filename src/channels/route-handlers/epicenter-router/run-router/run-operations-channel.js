@@ -5,6 +5,9 @@ export default function RunOperationsChannel($runServicePromise, notifier) {
             return notifier(parsed);
         },
 
+        subscribeHandler: function () {
+            return [];
+        },
         publishHandler: function (topics, options) {
             return $runServicePromise.then(function (runService) {
                 var toSave = topics.map(function (topic) {
