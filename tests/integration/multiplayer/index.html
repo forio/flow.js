@@ -63,11 +63,11 @@
 </head>
 
 <body class="container">
-
     <div class="chat-bar">
-        <ul data-f-foreach="u in users | except(isMe)">
+        <ul data-f-foreach="(u) in world:users | except(isMe)">
             <li title="<%= u.userName %>" class="user <%= u.isOnline ? 'online' : 'offline' %>">
                 <img src="https://api.adorable.io/avatars/40/<%= u.role %>.png" alt="">
+                <%= u.userName %> . Online? <%= u.isOnline %>
             </li>
         </ul>
     </div>
@@ -86,7 +86,7 @@
     <h4>Users</h4>
     
     <script type="text/javascript">
-        const userChannel = ['user', 'user:role', 'user:UserName'];
+        const userChannel = ['user', 'user:role', 'user:userName'];
         const varChannel = ['P1_Price_Decision', '<user:role>_Price_Decision'];
 
         const toTest = {

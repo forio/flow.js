@@ -15,27 +15,26 @@
     }
 
 ## World Channel
-        world:users
-        world:role
-        world:run:variables:price
+    world:users
+    world:role
+    world:run:variables:price
 
-        foreach: 
-            world:users
-            world:<userid>:role
-            world:<userid>:isOnline
-            world:me:role
+    foreach: 
+        world:users
+        world:<userid>:role
+        world:<userid>:isOnline
+        world:me:role
 
 ##User Channel
-    - user:channel
-        user:isLoggedin
-        user:Name
-        <if multipler, gets extra props>
-        user:role
-        user:isOnline
-        user:<userid>:role
-        user:<userid>:isonline
+    user:isLoggedin
+    user:Name
+    <if multipler, gets extra props>
+    user:role
+    user:isOnline
+    user:<userid>:role
+    user:<userid>:isonline
 
-        defaults to '<currentuserid>', can also be <userid>
+    defaults to '<currentuserid>', can also be <userid>
 
 ##Presence
 presence list

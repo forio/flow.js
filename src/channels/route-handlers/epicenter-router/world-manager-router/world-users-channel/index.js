@@ -1,7 +1,7 @@
 const F = window.F;
 
 export default function WorldUsersChanngel(worldPromise, notifier) {
-    let subsid;
+    let presenceSubsId;
 
     const store = {
         users: [],
@@ -32,21 +32,21 @@ export default function WorldUsersChanngel(worldPromise, notifier) {
     
     return { 
         unsubscribeHandler: function (knownTopics, remainingTopics) {
-            if (remainingTopics.length || !subsid) {
+            if (remainingTopics.length || !presenceSubsId) {
                 return;
             }
             worldPromise.then((world)=> {
                 const worldChannel = channelManager.getWorldChannel(world);
-                worldChannel.unsubscribe(subsid);
-                subsid = null;
+                worldChannel.unsubscribe(presenceSubsId);
+                presenceSubsId = null;
             });
 
         },
         subscribeHandler: function (userids) {
-            if (!subsid) {
+            if (!presenceSubsId) {
                 worldPromise.then((world)=> {
                     const worldChannel = channelManager.getWorldChannel(world);
-                    subsid = worldChannel.subscribe('presence', (user, meta)=> {
+                    presenceSubsId = worldChannel.subscribe('presence', (user, meta)=> {
                         // console.log('presence', user, meta);
                         const userid = user.id;
                         store.mark(userid, user.isOnline);

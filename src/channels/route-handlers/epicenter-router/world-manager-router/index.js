@@ -21,50 +21,52 @@ export default function (config, notifier) {
     const rmOptions = opts.serviceOptions;
     const rm = new F.manager.RunManager(rmOptions);
     
-    const getRunPromise = rm.getRun().catch((err)=> {
-        console.error('Run manager get run error', err);
-        throw err;
-    });
-    const $runPromise = getRunPromise.then((run)=> {
+    const getRunPromise = rm.getRun().then((run)=> {
         if (!run.world) {
             console.error('No world found in run. Make sure you\'re using EpicenterJS version > 2.7');
             throw new Error('Could not find world');
         }
-        if (rm.run.getChannel) {
+        return run;
+    }, (err)=> {
+        console.error('Run manager get run error', err);
+        throw err;
+    });
+    const $runPromise = getRunPromise.then((run)=> {
+        if (rm.run.channel) {
             return rm.run;
         }
-
         const channelManager = new F.manager.ChannelManager();
         const worldChannel = channelManager.getWorldChannel(run.world);
 
-        worldChannel.subscribe('reset', (run)=> {
+        worldChannel.subscribe('run/reset', (run)=> {
             rm.run.updateConfig({ filter: run.id });
         }, this, { includeMine: false });
         rm.run.channel = worldChannel;
         return rm.run;
     });
-    const currentChannelOpts = $.extend(true, 
-        { serviceOptions: $runPromise }, opts.defaults, opts.current);
-    const currentRunChannel = new RunChannel(currentChannelOpts, withPrefix(notifier, ['run:', '']));
+
+    const currentRunChannelOpts = $.extend(true, { serviceOptions: $runPromise }, opts.defaults, opts.current);
+    const currentRunChannel = new RunChannel(currentRunChannelOpts, withPrefix(notifier, ['run:', '']));
+
+    const handlers = [];
 
     const runRouteHandler = $.extend(currentRunChannel, { 
         match: matchDefaultPrefix('run:'),
         name: 'World Run',
         isDefault: true,
-        options: currentChannelOpts.channelOptions,
+        options: currentRunChannelOpts.channelOptions,
     });
-    const handlers = [
-        runRouteHandler
-    ];
+    handlers.unshift(runRouteHandler);
+
     const worldPromise = getRunPromise.then((run)=> {
         return run.world;
     });
-    const presenceChannel = new WorldUsersChannel(worldPromise, withPrefix(notifier, 'users:'));
-    const presenceHandler = $.extend(presenceChannel, { 
+    const multiUserChannel = new WorldUsersChannel(worldPromise, withPrefix(notifier, 'users:'));
+    const multiUserHandler = $.extend(multiUserChannel, { 
         match: matchPrefix('users:'),
         name: 'world users',
     });
-    handlers.unshift(presenceHandler);
+    handlers.unshift(multiUserHandler);
     
     const userChannel = new WorldCurrentUserChannel(worldPromise, withPrefix(notifier, 'user:'));
     const userHandler = $.extend(userChannel, {

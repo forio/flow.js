@@ -100,8 +100,8 @@ export function passthroughPublishInterceptors(handlers, publishData, options) {
 /**
  * Router
  * @param  {Handler[]} handlers
- * @param {object} options
- * @param {function} notifier
+ * @param {object} [options]
+ * @param {function} [notifier]
  * @return {Router}
  */
 export default function router(handlers, options, notifier) {
@@ -113,6 +113,7 @@ export default function router(handlers, options, notifier) {
         }
         if (typeof handler.match === 'string') {
             const matchString = handler.match;
+            handler.name = matchString;
             handler.match = (t)=> t === matchString ? '' : false;
         }
         return handler;

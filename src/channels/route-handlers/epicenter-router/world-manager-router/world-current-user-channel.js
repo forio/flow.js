@@ -1,5 +1,3 @@
-import _ from 'lodash';
-
 const F = window.F;
 
 export default function WorldUsersChanngel(worldPromise, notifier) {
@@ -14,15 +12,14 @@ export default function WorldUsersChanngel(worldPromise, notifier) {
 
     return { 
         unsubscribeHandler: function (unsubscribedTopics, remainingTopics) {
-            if (remainingTopics.length || !subsid) {
-                return;
+            const stillNeedRoles = remainingTopics.indexOf('role') !== -1;
+            if (!stillNeedRoles && subsid) {
+                worldPromise.then((world)=> {
+                    const worldChannel = channelManager.getWorldChannel(world);
+                    worldChannel.unsubscribe(subsid);
+                });
+                subsid = null;
             }
-
-            worldPromise.then((world)=> {
-                const worldChannel = channelManager.getWorldChannel(world);
-                worldChannel.unsubscribe(subsid);
-            });
-            subsid = null;
         },
         subscribeHandler: function (userFields) {
             return worldPromise.then((world)=> {
@@ -33,14 +30,16 @@ export default function WorldUsersChanngel(worldPromise, notifier) {
                 $.extend(store, myUser);
                 
                 const toNotify = userFields.reduce((accum, field)=> {
-                    if (store[field] !== undefined) {
+                    if (field === '') { //the entire user object
+                        accum.push({ name: field, value: store });
+                    } else if (store[field] !== undefined) {
                         accum.push({ name: field, value: store[field] });
                     }
                     return accum;
                 }, []);
                 
-                //TODO: Also subscribe to presence?
-                if (!subsid) {
+                const isSubscribingToRole = userFields.indexOf('role') !== -1;
+                if (isSubscribingToRole && !subsid) {
                     const worldChannel = channelManager.getWorldChannel(world);
                     subsid = worldChannel.subscribe('roles', (user, meta)=> {
                         // console.log('Roles notification', user, meta);
