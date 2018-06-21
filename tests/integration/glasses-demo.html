@@ -21,11 +21,12 @@
     <div class="content-wrapper container">
       <h1> Google Glasses Sales Simulator </h1>
 
+        <h5 data-f-bind="operations:step"></h5>
         <div style="margin-top: 30px;">
             <label>Set your price: </label>
             <input type="text" data-f-bind="Price" placeholder="s">
 
-            <button class="btn btn-primary"  data-f-on-click="step(1000)">Advance</button>
+            <button class="btn btn-primary"  data-f-on-click="step">Advance</button>
             <button class="btn" data-ub-component="Button"  data-f-on-click="reset">Reset</button>
 
         </div>

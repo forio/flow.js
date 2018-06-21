@@ -15,7 +15,7 @@ export default function RunOperationsChannel($runServicePromise, notifier) {
                 });
                 return runService.serial(toSave).then(function (result) {
                     var toReturn = result.map(function (response, index) {
-                        return { name: topics[index].name, value: response };
+                        return { name: topics[index].name, value: response.result };
                     });
                     return toReturn;
                 });
