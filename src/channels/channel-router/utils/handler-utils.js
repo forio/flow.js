@@ -83,7 +83,8 @@ export function normalizeSubscribeResponse(response, topics) {
     if (response === undefined) {
         return [];
     }
-    if (Array.isArray(response) && (!response.length || response[0].name === topics[0])) {
+    const isAlreadyInPublishableFormat = Array.isArray(response) && (!response.length || response[0].name);
+    if (isAlreadyInPublishableFormat) {
         return response; 
     }
     if (typeof response === 'object' && !Array.isArray(response)) {
@@ -92,7 +93,7 @@ export function normalizeSubscribeResponse(response, topics) {
             return accum; 
         }, []);
     }
-    if (topics.length === 1) {
+    if (topics.length === 1) { //it's not in a publishable format, so someone just returned a string or something
         const name = topics[0];
         return [{ name: name, value: response }];
     }
