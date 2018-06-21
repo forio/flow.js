@@ -28,7 +28,9 @@ export default function interpolatable(ChannelManager) {
                 super.subscribe(variables, (response, meta)=> {
                     this.unsubscribe(meta.id);
                     cb(response);
-                }, { autoFetch: true, batch: true });
+                }, { autoFetch: true, batch: true, onError: (e)=> {
+                    throw e;
+                } });
             });
         }
         unsubscribe(token) {
