@@ -87,7 +87,7 @@
     
     <script type="text/javascript">
         const userChannel = ['user', 'user:role', 'user:userName'];
-        const varChannel = ['P1_Price_Decision', '<user:role>_Price_Decision'];
+        const varChannel = ['P1_Price_Decision[<Step>]', '<user:role>_Price_Decision[<Step>]'];
 
         const toTest = {
             'User Channel': userChannel,
@@ -100,7 +100,7 @@
                 return `
                     <tr>
                         <td><code>${b.replace('<', '&lt;').replace('>', '&gt;')}</code></td>
-                        <td data-f-bind="${b}"></td>
+                        <td data-f-bind="${b}" style="max-width: 200px"></td>
                         <td><input type="text" data-f-bind="${b}" /></td>
                     </tr>
                 `;
@@ -113,7 +113,7 @@
             `
             return html;
         });
-        // $('.table tbody').html(tbody.join(''));
+        $('.table tbody').html(tbody.join(''));
 
         Flow.initialize({
             channel: {
@@ -125,10 +125,10 @@
                         model: 'bikes-multiplayer.xlsx',
                     }
                 },
-                routes: [{
-                    match: 'user:role',
-                    subscribeHandler: ()=> 'P2'
-                }]
+                // routes: [{
+                //     match: 'user:role',
+                //     subscribeHandler: ()=> 'P2'
+                // }]
             }
         });
     </script>

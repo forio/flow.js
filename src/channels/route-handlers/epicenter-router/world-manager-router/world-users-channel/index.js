@@ -47,12 +47,9 @@ export default function WorldUsersChanngel(worldPromise, notifier) {
                 worldPromise.then((world)=> {
                     const worldChannel = channelManager.getWorldChannel(world);
                     presenceSubsId = worldChannel.subscribe('presence', (user, meta)=> {
-                        // console.log('presence', user, meta);
                         const userid = user.id;
                         store.mark(userid, user.isOnline);
-
                         return notifier([{ name: '', value: store.users }]);
-
                     }, { includeMine: false });
                 });
             }
