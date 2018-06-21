@@ -99,7 +99,7 @@
             const boundHTML = binds.map((b)=> {
                 return `
                     <tr>
-                        <td><code>${b.replace('<', '&lt;').replace('>', '&gt;')}</code></td>
+                        <td><code>${b.replace(/</g, '&lt;').replace(/>/g, '&gt;')}</code></td>
                         <td data-f-bind="${b}" style="max-width: 200px"></td>
                         <td><input type="text" data-f-bind="${b}" /></td>
                     </tr>

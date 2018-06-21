@@ -83,7 +83,7 @@ export function normalizeSubscribeResponse(response, topics) {
     if (response === undefined) {
         return [];
     }
-    const isAlreadyInPublishableFormat = Array.isArray(response) && (!response.length || response[0].name);
+    const isAlreadyInPublishableFormat = Array.isArray(response) && (!response.length || response[0].name !== undefined);
     if (isAlreadyInPublishableFormat) {
         return response; 
     }
