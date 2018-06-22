@@ -34,8 +34,9 @@ const classAttr = {
         if (isNumber(value)) {
             value = 'value-' + value;
         }
-        $el.addClass(value);
-
+        setTimeout(()=> {
+            $el.addClass(value); //If the classes have an animation set, removing with a timeout will trigger it
+        }, 0);
         elClassesMap.set(el, value);
     }
 };
