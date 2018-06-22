@@ -41,11 +41,13 @@ export default function WorldUsersChanngel(worldPromise, notifier) {
                 const isSubscribingToRole = userFields.indexOf('role') !== -1;
                 if (isSubscribingToRole && !subsid) {
                     const worldChannel = channelManager.getWorldChannel(world);
-                    subsid = worldChannel.subscribe('roles', (user, meta)=> {
-                        // console.log('Roles notification', user, meta);
-                        if (user.userId === store.userId && user.role !== store.role) {
-                            store.role = user.role;
-                            notifier([{ name: 'role', value: user.role }]);
+                    subsid = worldChannel.subscribe('roles', (users, meta)=> {
+                        const myUser = users.find((u)=> {
+                            return u.userId === session.userId;
+                        });
+                        if (myUser && myUser.role !== store.role) {
+                            store.role = myUser.role;
+                            notifier([{ name: 'role', value: myUser.role }]);
                         }
                     });
                 }

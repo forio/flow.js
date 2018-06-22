@@ -44,6 +44,7 @@ export default function WorldUsersChanngel(worldPromise, notifier) {
         },
         subscribeHandler: function (userids) {
             if (!presenceSubsId) {
+                //TODO: Also listen to roles channel to update users
                 worldPromise.then((world)=> {
                     const worldChannel = channelManager.getWorldChannel(world);
                     presenceSubsId = worldChannel.subscribe('presence', (user, meta)=> {
