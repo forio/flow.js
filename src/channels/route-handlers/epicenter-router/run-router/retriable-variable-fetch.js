@@ -2,7 +2,7 @@ import { difference } from 'lodash';
 
 export function retriableFetch(runService, variables) {
     if (!variables || !variables.length) {
-        return {};
+        return $.Deferred().resolve({}).promise();
     }
     return runService.variables().query(variables).catch((e)=> {
         const response = e.responseJSON;
