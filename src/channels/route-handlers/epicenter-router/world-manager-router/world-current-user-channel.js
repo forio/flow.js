@@ -41,7 +41,7 @@ export default function WorldUsersChanngel(worldPromise, notifier) {
                 const isSubscribingToRole = userFields.indexOf('role') !== -1;
                 if (isSubscribingToRole && !subsid) {
                     const worldChannel = channelManager.getWorldChannel(world);
-                    subsid = worldChannel.subscribe('roles', (users, meta)=> {
+                    subsid = worldChannel.subscribe(worldChannel.TOPICS.ROLES, (users, meta)=> {
                         const myUser = users.find((u)=> {
                             return u.userId === session.userId;
                         });

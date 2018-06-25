@@ -38,7 +38,7 @@ export default function (config, notifier) {
         const channelManager = new F.manager.ChannelManager();
         const worldChannel = channelManager.getWorldChannel(run.world);
 
-        worldChannel.subscribe('run/reset', (run)=> {
+        worldChannel.subscribe(worldChannel.TOPICS.RUN_RESET, (run)=> {
             rm.run.updateConfig({ filter: run.id });
         }, this, { includeMine: false });
         rm.run.channel = worldChannel;

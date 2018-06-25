@@ -47,7 +47,7 @@ export default function WorldUsersChanngel(worldPromise, notifier) {
                 //TODO: Also listen to roles channel to update users
                 worldPromise.then((world)=> {
                     const worldChannel = channelManager.getWorldChannel(world);
-                    presenceSubsId = worldChannel.subscribe('presence', (user, meta)=> {
+                    presenceSubsId = worldChannel.subscribe(worldChannel.TOPICS.PRESENCE, (user, meta)=> {
                         const userid = user.id;
                         store.mark(userid, user.isOnline);
                         return notifier([{ name: '', value: store.users }]);
