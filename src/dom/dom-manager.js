@@ -124,7 +124,6 @@ module.exports = (function () {
                 return;
             }
             this.matchedElements.delete(element);
-
             const subscriptions = Object.keys(existingData).reduce((accum, a)=> {
                 const subsid = existingData[a].subscriptionId;
                 if (subsid) accum.push(subsid);
@@ -214,7 +213,7 @@ module.exports = (function () {
                 const subsOptions = $.extend({ 
                     batch: true,
                     onError: (e)=> {
-                        console.error(e);
+                        console.error('DomManager: Subscription error for', domEl, e);
                         let msg = e.message || e;
                         if ($.isPlainObject(msg)) {
                             msg = JSON.stringify(msg);
