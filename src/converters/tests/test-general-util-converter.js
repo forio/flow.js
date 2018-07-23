@@ -34,6 +34,10 @@ describe('General util converter', ()=> {
                 cm.convert(3000, 'is(3000, apples, oranges)').should.equal('apples');
                 cm.convert(3000, 'is(4000, apples, oranges)').should.equal('oranges');
             });
+            it('should convert arrays to array of values ', ()=> {
+                cm.convert([4000, 3000], 'is(4000)').should.eql([true, 3000]);
+                cm.convert([4000, 3000], 'is(4000, apples)').should.eql(['apples', 3000]);
+            });
         });
     });
 });

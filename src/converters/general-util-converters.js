@@ -15,7 +15,7 @@ function parseArgs(toCompare, trueVal, falseVal, valueToCompare, matchString) {
 module.exports = [
     {
         alias: 'is',
-        acceptList: true,
+        acceptList: false,
         convert: function (toCompare) {
             const args = parseArgs.apply(null, arguments);
             return args.input === toCompare ? args.trueVal : args.falseVal;
