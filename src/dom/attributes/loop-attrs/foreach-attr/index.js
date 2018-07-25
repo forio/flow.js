@@ -23,7 +23,8 @@ const foreachAttr = {
         elAnimatedMap.delete(el);
         
         const template = getOriginalContents($el);
-        if (template) {
+        const current = $el.html();
+        if (template && current !== template) {
             $el.html(template);
         }
         clearOriginalContents($el);
