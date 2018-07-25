@@ -1,6 +1,6 @@
 import $ from 'jquery';
 import { normalizeParamOptions, publishableToObject } from './channel-utils';
-import { uniqueId, isFunction, intersection, includes, uniq, isEqual } from 'lodash';
+import { uniqueId, isFunction, intersection, uniq } from 'lodash';
 /**
  * 
  * @param {String[]|String} topics 
@@ -9,8 +9,8 @@ import { uniqueId, isFunction, intersection, includes, uniq, isEqual } from 'lod
  * @return {Subscription}
  */
 function makeSubs(topics, callback, options) {
-    var id = uniqueId('subs-');
-    var defaults = {
+    const id = uniqueId('subs-');
+    const defaults = {
         batch: false,
 
         /**
@@ -33,7 +33,7 @@ function makeSubs(topics, callback, options) {
          */
         cache: true,
     };
-    var opts = $.extend({}, defaults, options);
+    const opts = $.extend({}, defaults, options);
     if (!callback || !isFunction(callback)) {
         throw new Error('subscribe callback should be a function');
     }
@@ -44,8 +44,8 @@ function makeSubs(topics, callback, options) {
     }, opts);
 }
 
-var cacheBySubsId = {};
-var sentDataBySubsId = {};
+let cacheBySubsId = {};
+let sentDataBySubsId = {};
 
 function copy(data) {
     if (Array.isArray(data)) {
@@ -62,12 +62,10 @@ function copy(data) {
 * @param {Subscription} subscription 
 * @param {*} data
 */
-function callbackIfChanged(subscription, data) {
-    var id = subscription.id;
-    // if (!isEqual(sentDataBySubsId[id], data)) { //This won't work for operations; reset for e.g., will only be called once
-    // sentDataBySubsId[id] = copy(data);
-    subscription.callback(data, { id: id });
-    // }
+function callbackSubscriber(subscription, data) {
+    const id = subscription.id;
+    subscription.callback(data, { id: id, previousData: sentDataBySubsId[id] });
+    sentDataBySubsId[id] = copy(data);
 }
 
 /**
@@ -80,11 +78,11 @@ function checkAndNotifyBatch(topics, subscription) {
     if (!matchingTopics.length) {
         return;
     }
+
     const relevantDataFromPublish = matchingTopics.reduce((accum, topic)=> {
         accum[topic] = publishData[topic];
         return accum;
     }, {});
-
     const cachedDataForSubs = cacheBySubsId[subscription.id] || {};
     const knownDataForSubs = $.extend(true, {}, cachedDataForSubs, relevantDataFromPublish);
 
@@ -93,7 +91,7 @@ function checkAndNotifyBatch(topics, subscription) {
     }
     const hasDataForAllTopics = intersection(Object.keys(knownDataForSubs), subscription.topics).length === subscription.topics.length;
     if (hasDataForAllTopics) {
-        callbackIfChanged(subscription, knownDataForSubs);
+        callbackSubscriber(subscription, knownDataForSubs);
     }
 }
 
@@ -104,10 +102,10 @@ function checkAndNotifyBatch(topics, subscription) {
  */
 function checkAndNotify(topics, subscription) {
     topics.forEach(function (topic) {
-        if (includes(subscription.topics, topic.name) || includes(subscription.topics, '*')) {
-            var toSend = {};
-            toSend[topic.name] = topic.value;
-            callbackIfChanged(subscription, toSend);
+        const needsThisTopic = subscription.topics.indexOf(topic.name) !== -1;
+        const isWildCard = subscription.topics.indexOf('*') !== -1;
+        if (needsThisTopic || isWildCard) {
+            callbackSubscriber(subscription, { [topic.name]: topic.value });
         }
     });
 }
@@ -138,8 +136,8 @@ class ChannelManager {
      * @return {Promise}
      */
     publish(topic, value, options) {
-        var normalized = normalizeParamOptions(topic, value, options);
-        var prom = $.Deferred().resolve(normalized.params).promise();
+        const normalized = normalizeParamOptions(topic, value, options);
+        let prom = $.Deferred().resolve(normalized.params).promise();
         prom = prom.then((publishResponses)=> {
             this.notify(publishResponses, options);
             return publishResponses;
@@ -148,10 +146,10 @@ class ChannelManager {
     }
 
     notify(topic, value, options) {
-        var normalized = normalizeParamOptions(topic, value, options);
+        const normalized = normalizeParamOptions(topic, value, options);
         // console.log('notify', normalized.params);
         return this.subscriptions.forEach(function (subs) {
-            var fn = subs.batch ? checkAndNotifyBatch : checkAndNotify;
+            const fn = subs.batch ? checkAndNotifyBatch : checkAndNotify;
             fn(normalized.params, subs);
         });
     }
@@ -163,8 +161,8 @@ class ChannelManager {
      * @return {String}
      */
     subscribe(topics, cb, options) {
-        var subs = makeSubs(topics, cb, options);
-        delete cacheBySubsId[subs.id];
+        const subs = makeSubs(topics, cb, options);
+        delete cacheBySubsId[subs.id]; //Just in case subsid is being reused
         delete sentDataBySubsId[subs.id];
         this.subscriptions = this.subscriptions.concat(subs);
         return subs.id;
@@ -175,8 +173,8 @@ class ChannelManager {
      * @param {String} token
      */
     unsubscribe(token) {
-        var olderLength = this.subscriptions.length;
-        var remaining = this.subscriptions.filter(function (subs) {
+        const olderLength = this.subscriptions.length;
+        const remaining = this.subscriptions.filter(function (subs) {
             return subs.id !== token;
         });
         if (remaining.length === olderLength) {
@@ -196,7 +194,7 @@ class ChannelManager {
      * @return {String[]}
      */
     getSubscribedTopics() {
-        var list = uniq(getTopicsFromSubsList(this.subscriptions));
+        const list = uniq(getTopicsFromSubsList(this.subscriptions));
         return list;
     }
 
@@ -205,12 +203,12 @@ class ChannelManager {
      * @return {Subscription[]}
      */
     getSubscribers(topic) {
-        if (topic) {
-            return this.subscriptions.filter(function (subs) {
-                return includes(subs.topics, topic);
-            });
+        if (!topic) {
+            return this.subscriptions;
         }
-        return this.subscriptions;
+        return this.subscriptions.filter(function (subs) {
+            return subs.topics.indexOf(topic) !== -1;
+        });
     }
 }
 
