@@ -437,8 +437,8 @@ function passthroughPublishInterceptors(handlers, publishData, options) {
 /**
  * Router
  * @param  {Handler[]} handlers
- * @param {object} options
- * @param {function} notifier
+ * @param {object} [options]
+ * @param {function} [notifier]
  * @return {Router}
  */
 function router(handlers, options, notifier) {
@@ -452,6 +452,7 @@ function router(handlers, options, notifier) {
         }
         if (typeof handler.match === 'string') {
             var matchString = handler.match;
+            handler.name = matchString;
             handler.match = function (t) {
                 return t === matchString ? '' : false;
             };
@@ -756,20 +757,21 @@ function RunRouter(config, notifier) {
     $initialProm.then(function (rs) {
         if (rs.channel && !subscribed) {
             subscribed = true;
+            var TOPICS = rs.channel.TOPICS;
 
             var subscribeOpts = { includeMine: false };
             //FIXME: Exclude silenced -- let notify take care of this?
             //FIXME: Provide subscription fn to individual channels and let them handle it
-            rs.channel.subscribe('variables', function (data, meta) {
+            rs.channel.subscribe(TOPICS.RUN_VARIABLES, function (data, meta) {
+                console.log('variables', data, meta);
                 variableschannel.notify(data, meta);
                 variableschannel.fetch();
             }, _this, subscribeOpts);
-            rs.channel.subscribe('operation', function (data, meta) {
+            rs.channel.subscribe(TOPICS.RUN_OPERATIONS, function (data, meta) {
                 operationsChannel.notify(data, meta);
                 variableschannel.fetch();
             }, _this, subscribeOpts);
-            //
-            rs.channel.subscribe('reset', function (data, meta) {
+            rs.channel.subscribe(TOPICS.RUN_RESET, function (data, meta) {
                 operationsChannel.notify({ name: 'reset', result: data }, meta);
             }, _this, subscribeOpts);
 
@@ -1534,7 +1536,6 @@ module.exports = function () {
                 return;
             }
             this.matchedElements.delete(element);
-
             var subscriptions = Object.keys(existingData).reduce(function (accum, a) {
                 var subsid = existingData[a].subscriptionId;
                 if (subsid) accum.push(subsid);
@@ -1626,8 +1627,11 @@ module.exports = function () {
                 var subsOptions = $.extend({
                     batch: true,
                     onError: function (e) {
-                        console.error(e);
+                        console.error('DomManager: Subscription error for', domEl, e);
                         var msg = e.message || e;
+                        if ($.isPlainObject(msg)) {
+                            msg = JSON.stringify(msg);
+                        }
                         $el.attr(config.errorAttr, msg);
                     }
                 }, channelConfig);
@@ -2611,7 +2615,7 @@ function parseArgs(toCompare, trueVal, falseVal, valueToCompare, matchString) {
 
 module.exports = [{
     alias: 'is',
-    acceptList: true,
+    acceptList: false,
     convert: function (toCompare) {
         var args = parseArgs.apply(null, arguments);
         return args.input === toCompare ? args.trueVal : args.falseVal;
@@ -3801,7 +3805,8 @@ var foreachAttr = {
         elAnimatedMap.delete(el);
 
         var template = Object(__WEBPACK_IMPORTED_MODULE_5__attr_template_utils__["e" /* getOriginalContents */])($el);
-        if (template) {
+        var current = $el.html();
+        if (template && current !== template) {
             $el.html(template);
         }
         Object(__WEBPACK_IMPORTED_MODULE_5__attr_template_utils__["b" /* clearOriginalContents */])($el);
@@ -3924,7 +3929,8 @@ var loopAttrHandler = {
         elAnimatedMap.delete(el);
 
         var originalHTML = Object(__WEBPACK_IMPORTED_MODULE_5__attr_template_utils__["e" /* getOriginalContents */])($el);
-        if (originalHTML) {
+        var current = $el.get(0).outerHTML;
+        if (originalHTML && current !== originalHTML) {
             $el.replaceWith(originalHTML);
         }
         Object(__WEBPACK_IMPORTED_MODULE_5__attr_template_utils__["b" /* clearOriginalContents */])($el);
@@ -4194,8 +4200,9 @@ var classAttr = {
         if (Object(__WEBPACK_IMPORTED_MODULE_0_lodash__["isNumber"])(value)) {
             value = 'value-' + value;
         }
-        $el.addClass(value);
-
+        setTimeout(function () {
+            $el.addClass(value); //If the classes have an animation set, removing with a timeout will trigger it
+        }, 0);
         elClassesMap.set(el, value);
     }
 };
@@ -4426,7 +4433,8 @@ var bindAttrHandler = {
         elAnimatedMap.delete(el);
 
         var bindTemplate = Object(__WEBPACK_IMPORTED_MODULE_4__attr_template_utils__["e" /* getOriginalContents */])($el);
-        if (bindTemplate) {
+        var current = $el.html();
+        if (bindTemplate && current !== bindTemplate) {
             $el.html(bindTemplate);
         }
         Object(__WEBPACK_IMPORTED_MODULE_4__attr_template_utils__["b" /* clearOriginalContents */])($el);
@@ -4808,6 +4816,8 @@ var ChannelManager = function () {
         key: 'subscribe',
         value: function subscribe(topics, cb, options) {
             var subs = makeSubs(topics, cb, options);
+            delete cacheBySubsId[subs.id];
+            delete sentDataBySubsId[subs.id];
             this.subscriptions = this.subscriptions.concat(subs);
             return subs.id;
         }
@@ -4833,6 +4843,8 @@ var ChannelManager = function () {
     }, {
         key: 'unsubscribeAll',
         value: function unsubscribeAll() {
+            cacheBySubsId = {};
+            sentDataBySubsId = {};
             this.subscriptions = [];
         }
 
@@ -4970,7 +4982,8 @@ function normalizeSubscribeResponse(response, topics) {
     if (response === undefined) {
         return [];
     }
-    if (Array.isArray(response) && response[0] && response[0].name === topics[0]) {
+    var isAlreadyInPublishableFormat = Array.isArray(response) && (!response.length || response[0].name !== undefined);
+    if (isAlreadyInPublishableFormat) {
         return response;
     }
     if (typeof response === 'object' && !Array.isArray(response)) {
@@ -4980,6 +4993,7 @@ function normalizeSubscribeResponse(response, topics) {
         }, []);
     }
     if (topics.length === 1) {
+        //it's not in a publishable format, so someone just returned a string or something
         var name = topics[0];
         return [{ name: name, value: response }];
     }
@@ -5428,7 +5442,7 @@ function RunVariablesChannel($runServicePromise, notifier) {
 
 function retriableFetch(runService, variables) {
     if (!variables || !variables.length) {
-        return {};
+        return $.Deferred().resolve({}).promise();
     }
     return runService.variables().query(variables).catch(function (e) {
         var response = e.responseJSON;
@@ -5454,6 +5468,9 @@ function RunOperationsChannel($runServicePromise, notifier) {
             return notifier(parsed);
         },
 
+        subscribeHandler: function () {
+            return [];
+        },
         publishHandler: function (topics, options) {
             return $runServicePromise.then(function (runService) {
                 var toSave = topics.map(function (topic) {
@@ -5461,7 +5478,7 @@ function RunOperationsChannel($runServicePromise, notifier) {
                 });
                 return runService.serial(toSave).then(function (result) {
                     var toReturn = result.map(function (response, index) {
-                        return { name: topics[index].name, value: response };
+                        return { name: topics[index].name, value: response.result };
                     });
                     return toReturn;
                 });
@@ -5622,47 +5639,52 @@ var _window = window,
     var rmOptions = opts.serviceOptions;
     var rm = new F.manager.RunManager(rmOptions);
 
-    var getRunPromise = rm.getRun().catch(function (err) {
-        console.error('Run manager get run error', err);
-        throw err;
-    });
-    var $runPromise = getRunPromise.then(function (run) {
+    var getRunPromise = rm.getRun().then(function (run) {
         if (!run.world) {
             console.error('No world found in run. Make sure you\'re using EpicenterJS version > 2.7');
             throw new Error('Could not find world');
         }
-        if (rm.run.getChannel) {
+        return run;
+    }, function (err) {
+        console.error('Run manager get run error', err);
+        throw err;
+    });
+    var $runPromise = getRunPromise.then(function (run) {
+        if (rm.run.channel) {
             return rm.run;
         }
-
         var channelManager = new F.manager.ChannelManager();
         var worldChannel = channelManager.getWorldChannel(run.world);
 
-        worldChannel.subscribe('reset', function (run) {
+        worldChannel.subscribe(worldChannel.TOPICS.RUN_RESET, function (run) {
             rm.run.updateConfig({ filter: run.id });
         }, _this, { includeMine: false });
         rm.run.channel = worldChannel;
         return rm.run;
     });
-    var currentChannelOpts = $.extend(true, { serviceOptions: $runPromise }, opts.defaults, opts.current);
-    var currentRunChannel = new __WEBPACK_IMPORTED_MODULE_4__run_router__["a" /* default */](currentChannelOpts, Object(__WEBPACK_IMPORTED_MODULE_2_channels_channel_router_utils__["g" /* withPrefix */])(notifier, ['run:', '']));
+
+    var currentRunChannelOpts = $.extend(true, { serviceOptions: $runPromise }, opts.defaults, opts.current);
+    var currentRunChannel = new __WEBPACK_IMPORTED_MODULE_4__run_router__["a" /* default */](currentRunChannelOpts, Object(__WEBPACK_IMPORTED_MODULE_2_channels_channel_router_utils__["g" /* withPrefix */])(notifier, ['run:', '']));
+
+    var handlers = [];
 
     var runRouteHandler = $.extend(currentRunChannel, {
         match: Object(__WEBPACK_IMPORTED_MODULE_3_channels_route_handlers_route_matchers__["a" /* matchDefaultPrefix */])('run:'),
         name: 'World Run',
         isDefault: true,
-        options: currentChannelOpts.channelOptions
+        options: currentRunChannelOpts.channelOptions
     });
-    var handlers = [runRouteHandler];
+    handlers.unshift(runRouteHandler);
+
     var worldPromise = getRunPromise.then(function (run) {
         return run.world;
     });
-    var presenceChannel = new __WEBPACK_IMPORTED_MODULE_0__world_users_channel__["a" /* default */](worldPromise, Object(__WEBPACK_IMPORTED_MODULE_2_channels_channel_router_utils__["g" /* withPrefix */])(notifier, 'users:'));
-    var presenceHandler = $.extend(presenceChannel, {
+    var multiUserChannel = new __WEBPACK_IMPORTED_MODULE_0__world_users_channel__["a" /* default */](worldPromise, Object(__WEBPACK_IMPORTED_MODULE_2_channels_channel_router_utils__["g" /* withPrefix */])(notifier, 'users:'));
+    var multiUserHandler = $.extend(multiUserChannel, {
         match: Object(__WEBPACK_IMPORTED_MODULE_3_channels_route_handlers_route_matchers__["b" /* matchPrefix */])('users:'),
         name: 'world users'
     });
-    handlers.unshift(presenceHandler);
+    handlers.unshift(multiUserHandler);
 
     var userChannel = new __WEBPACK_IMPORTED_MODULE_1__world_current_user_channel__["a" /* default */](worldPromise, Object(__WEBPACK_IMPORTED_MODULE_2_channels_channel_router_utils__["g" /* withPrefix */])(notifier, 'user:'));
     var userHandler = $.extend(userChannel, {
@@ -5686,7 +5708,7 @@ var _window = window,
 var F = window.F;
 
 function WorldUsersChanngel(worldPromise, notifier) {
-    var subsid = void 0;
+    var presenceSubsId = void 0;
 
     var store = {
         users: [],
@@ -5717,24 +5739,23 @@ function WorldUsersChanngel(worldPromise, notifier) {
 
     return {
         unsubscribeHandler: function (knownTopics, remainingTopics) {
-            if (remainingTopics.length || !subsid) {
+            if (remainingTopics.length || !presenceSubsId) {
                 return;
             }
             worldPromise.then(function (world) {
                 var worldChannel = channelManager.getWorldChannel(world);
-                worldChannel.unsubscribe(subsid);
-                subsid = null;
+                worldChannel.unsubscribe(presenceSubsId);
+                presenceSubsId = null;
             });
         },
         subscribeHandler: function (userids) {
-            if (!subsid) {
+            if (!presenceSubsId) {
+                //TODO: Also listen to roles channel to update users
                 worldPromise.then(function (world) {
                     var worldChannel = channelManager.getWorldChannel(world);
-                    subsid = worldChannel.subscribe('presence', function (user, meta) {
-                        // console.log('presence', user, meta);
+                    presenceSubsId = worldChannel.subscribe(worldChannel.TOPICS.PRESENCE, function (user, meta) {
                         var userid = user.id;
                         store.mark(userid, user.isOnline);
-
                         return notifier([{ name: '', value: store.users }]);
                     }, { includeMine: false });
                 });
@@ -5766,10 +5787,6 @@ function WorldUsersChanngel(worldPromise, notifier) {
 
 "use strict";
 /* harmony export (immutable) */ __webpack_exports__["a"] = WorldUsersChanngel;
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_lodash__ = __webpack_require__(0);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_lodash___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_lodash__);
-
-
 var F = window.F;
 
 function WorldUsersChanngel(worldPromise, notifier) {
@@ -5784,15 +5801,14 @@ function WorldUsersChanngel(worldPromise, notifier) {
 
     return {
         unsubscribeHandler: function (unsubscribedTopics, remainingTopics) {
-            if (remainingTopics.length || !subsid) {
-                return;
+            var stillNeedRoles = remainingTopics.indexOf('role') !== -1;
+            if (!stillNeedRoles && subsid) {
+                worldPromise.then(function (world) {
+                    var worldChannel = channelManager.getWorldChannel(world);
+                    worldChannel.unsubscribe(subsid);
+                });
+                subsid = null;
             }
-
-            worldPromise.then(function (world) {
-                var worldChannel = channelManager.getWorldChannel(world);
-                worldChannel.unsubscribe(subsid);
-            });
-            subsid = null;
         },
         subscribeHandler: function (userFields) {
             return worldPromise.then(function (world) {
@@ -5803,20 +5819,25 @@ function WorldUsersChanngel(worldPromise, notifier) {
                 $.extend(store, myUser);
 
                 var toNotify = userFields.reduce(function (accum, field) {
-                    if (store[field] !== undefined) {
+                    if (field === '') {
+                        //the entire user object
+                        accum.push({ name: field, value: store });
+                    } else if (store[field] !== undefined) {
                         accum.push({ name: field, value: store[field] });
                     }
                     return accum;
                 }, []);
 
-                //TODO: Also subscribe to presence?
-                if (!subsid) {
+                var isSubscribingToRole = userFields.indexOf('role') !== -1;
+                if (isSubscribingToRole && !subsid) {
                     var worldChannel = channelManager.getWorldChannel(world);
-                    subsid = worldChannel.subscribe('roles', function (user, meta) {
-                        // console.log('Roles notification', user, meta);
-                        if (user.userId === store.userId && user.role !== store.role) {
-                            store.role = user.role;
-                            notifier([{ name: 'role', value: user.role }]);
+                    subsid = worldChannel.subscribe(worldChannel.TOPICS.ROLES, function (users, meta) {
+                        var myUser = users.find(function (u) {
+                            return u.userId === session.userId;
+                        });
+                        if (myUser && myUser.role !== store.role) {
+                            store.role = myUser.role;
+                            notifier([{ name: 'role', value: myUser.role }]);
                         }
                     });
                 }
@@ -5980,7 +6001,9 @@ function interpolatable(ChannelManager) {
                 _get(InterpolatedChannelManager.prototype.__proto__ || Object.getPrototypeOf(InterpolatedChannelManager.prototype), 'subscribe', _this).call(_this, variables, function (response, meta) {
                     _this.unsubscribe(meta.id);
                     cb(response);
-                }, { autoFetch: true, batch: true });
+                }, { autoFetch: true, batch: true, onError: function (e) {
+                        throw e;
+                    } });
             });
             return _this;
         }
@@ -6087,7 +6110,7 @@ function subscribeInterpolator(subscribeFn, onDependencyChange) {
 
             (onDependencyChange || $.noop)(dependenciesMeta.id, outerSubsId);
             return outerSubsId;
-        }, { autoFetch: true, batch: true });
+        }, $.extend(options, { autoFetch: true, batch: true }));
 
         return innerSubsId;
     };

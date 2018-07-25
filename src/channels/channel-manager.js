@@ -145,7 +145,7 @@ class ChannelManager {
 
     notify(topic, value, options) {
         var normalized = normalizeParamOptions(topic, value, options);
-        console.log('notify', normalized.params);
+        // console.log('notify', normalized.params);
         return this.subscriptions.forEach(function (subs) {
             var fn = subs.batch ? checkAndNotifyBatch : checkAndNotify;
             fn(normalized.params, subs);
@@ -160,6 +160,8 @@ class ChannelManager {
      */
     subscribe(topics, cb, options) {
         var subs = makeSubs(topics, cb, options);
+        delete cacheBySubsId[subs.id];
+        delete sentDataBySubsId[subs.id];
         this.subscriptions = this.subscriptions.concat(subs);
         return subs.id;
     }
@@ -181,6 +183,8 @@ class ChannelManager {
         this.subscriptions = remaining;
     }
     unsubscribeAll() {
+        cacheBySubsId = {};
+        sentDataBySubsId = {};
         this.subscriptions = [];
     }
 
