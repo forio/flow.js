@@ -71,7 +71,8 @@ const bindAttrHandler = {
         elAnimatedMap.delete(el);
 
         const bindTemplate = getOriginalContents($el);
-        if (bindTemplate) {
+        const current = $el.html();
+        if (bindTemplate && current !== bindTemplate) {
             $el.html(bindTemplate);
         }
         clearOriginalContents($el);

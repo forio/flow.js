@@ -32,7 +32,8 @@ const loopAttrHandler = {
         elAnimatedMap.delete(el);
 
         const originalHTML = getOriginalContents($el);
-        if (originalHTML) {
+        const current = $el.get(0).outerHTML;
+        if (originalHTML && current !== originalHTML) {
             $el.replaceWith(originalHTML);
         }
         clearOriginalContents($el);
