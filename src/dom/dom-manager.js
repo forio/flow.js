@@ -15,7 +15,7 @@ const {
 const { addPrefixToTopics, addDefaultPrefix } = require('./dom-manager-utils/dom-channel-prefix-helpers');
 const { toImplicitType } = require('utils/parse-utils');
 
-const { pick } = require('lodash');
+const { pick, isEqual } = require('lodash');
 
 const config = require('../config');
 
@@ -222,7 +222,10 @@ module.exports = (function () {
                     }
                 }, channelConfig);
                 const subscribableTopics = topics.map((t)=> t.name);
-                const subsid = channel.subscribe(subscribableTopics, (data)=> {
+                const subsid = channel.subscribe(subscribableTopics, (data, meta)=> {
+                    if (meta && isEqual(data, meta.previousData)) {
+                        return;
+                    }
                     const toConvert = {};
                     if (subscribableTopics.length === 1) { //If I'm only interested in 1 thing pass in value directly, else make a map;
                         toConvert[name] = data[subscribableTopics[0]];
