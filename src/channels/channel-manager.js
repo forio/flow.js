@@ -64,10 +64,10 @@ function copy(data) {
 */
 function callbackIfChanged(subscription, data) {
     var id = subscription.id;
-    if (!isEqual(sentDataBySubsId[id], data)) {
-        sentDataBySubsId[id] = copy(data);
-        subscription.callback(data, { id: id });
-    }
+    // if (!isEqual(sentDataBySubsId[id], data)) { //This won't work for operations; reset for e.g., will only be called once
+    // sentDataBySubsId[id] = copy(data);
+    subscription.callback(data, { id: id });
+    // }
 }
 
 /**
@@ -75,21 +75,25 @@ function callbackIfChanged(subscription, data) {
 * @param {Subscription} subscription 
 */
 function checkAndNotifyBatch(topics, subscription) {
-    var cached = cacheBySubsId[subscription.id] || {};
-    var merged = $.extend(true, {}, cached, publishableToObject(topics));
-    var matchingTopics = intersection(Object.keys(merged), subscription.topics);
-    if (matchingTopics.length > 0) {
-        var toSend = subscription.topics.reduce(function (accum, topic) {
-            accum[topic] = merged[topic];
-            return accum;
-        }, {});
+    const publishData = publishableToObject(topics);
+    const matchingTopics = intersection(Object.keys(publishData), subscription.topics);
+    if (!matchingTopics.length) {
+        return;
+    }
+    const relevantDataFromPublish = matchingTopics.reduce((accum, topic)=> {
+        accum[topic] = publishData[topic];
+        return accum;
+    }, {});
 
-        if (subscription.cache) {
-            cacheBySubsId[subscription.id] = toSend;
-        }
-        if (matchingTopics.length === subscription.topics.length) {
-            callbackIfChanged(subscription, toSend);
-        }
+    const cachedDataForSubs = cacheBySubsId[subscription.id] || {};
+    const knownDataForSubs = $.extend(true, {}, cachedDataForSubs, relevantDataFromPublish);
+
+    if (subscription.cache) {
+        cacheBySubsId[subscription.id] = knownDataForSubs;
+    }
+    const hasDataForAllTopics = intersection(Object.keys(knownDataForSubs), subscription.topics).length === subscription.topics.length;
+    if (hasDataForAllTopics) {
+        callbackIfChanged(subscription, knownDataForSubs);
     }
 }
 

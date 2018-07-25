@@ -4708,10 +4708,10 @@ function copy(data) {
 */
 function callbackIfChanged(subscription, data) {
     var id = subscription.id;
-    if (!Object(__WEBPACK_IMPORTED_MODULE_2_lodash__["isEqual"])(sentDataBySubsId[id], data)) {
-        sentDataBySubsId[id] = copy(data);
-        subscription.callback(data, { id: id });
-    }
+    // if (!isEqual(sentDataBySubsId[id], data)) { //This won't work for operations; reset for e.g., will only be called once
+    // sentDataBySubsId[id] = copy(data);
+    subscription.callback(data, { id: id });
+    // }
 }
 
 /**
@@ -4719,21 +4719,25 @@ function callbackIfChanged(subscription, data) {
 * @param {Subscription} subscription 
 */
 function checkAndNotifyBatch(topics, subscription) {
-    var cached = cacheBySubsId[subscription.id] || {};
-    var merged = __WEBPACK_IMPORTED_MODULE_0_jquery___default.a.extend(true, {}, cached, Object(__WEBPACK_IMPORTED_MODULE_1__channel_utils__["c" /* publishableToObject */])(topics));
-    var matchingTopics = Object(__WEBPACK_IMPORTED_MODULE_2_lodash__["intersection"])(Object.keys(merged), subscription.topics);
-    if (matchingTopics.length > 0) {
-        var toSend = subscription.topics.reduce(function (accum, topic) {
-            accum[topic] = merged[topic];
-            return accum;
-        }, {});
+    var publishData = Object(__WEBPACK_IMPORTED_MODULE_1__channel_utils__["c" /* publishableToObject */])(topics);
+    var matchingTopics = Object(__WEBPACK_IMPORTED_MODULE_2_lodash__["intersection"])(Object.keys(publishData), subscription.topics);
+    if (!matchingTopics.length) {
+        return;
+    }
+    var relevantDataFromPublish = matchingTopics.reduce(function (accum, topic) {
+        accum[topic] = publishData[topic];
+        return accum;
+    }, {});
 
-        if (subscription.cache) {
-            cacheBySubsId[subscription.id] = toSend;
-        }
-        if (matchingTopics.length === subscription.topics.length) {
-            callbackIfChanged(subscription, toSend);
-        }
+    var cachedDataForSubs = cacheBySubsId[subscription.id] || {};
+    var knownDataForSubs = __WEBPACK_IMPORTED_MODULE_0_jquery___default.a.extend(true, {}, cachedDataForSubs, relevantDataFromPublish);
+
+    if (subscription.cache) {
+        cacheBySubsId[subscription.id] = knownDataForSubs;
+    }
+    var hasDataForAllTopics = Object(__WEBPACK_IMPORTED_MODULE_2_lodash__["intersection"])(Object.keys(knownDataForSubs), subscription.topics).length === subscription.topics.length;
+    if (hasDataForAllTopics) {
+        callbackIfChanged(subscription, knownDataForSubs);
     }
 }
 
@@ -4798,7 +4802,7 @@ var ChannelManager = function () {
         key: 'notify',
         value: function notify(topic, value, options) {
             var normalized = Object(__WEBPACK_IMPORTED_MODULE_1__channel_utils__["a" /* normalizeParamOptions */])(topic, value, options);
-            console.log('notify', normalized.params);
+            // console.log('notify', normalized.params);
             return this.subscriptions.forEach(function (subs) {
                 var fn = subs.batch ? checkAndNotifyBatch : checkAndNotify;
                 fn(normalized.params, subs);
