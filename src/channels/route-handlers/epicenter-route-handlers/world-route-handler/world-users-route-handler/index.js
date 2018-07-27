@@ -1,6 +1,6 @@
 const F = window.F;
 
-export default function WorldUsersChanngel(worldPromise, notifier) {
+export default function WorldUsersRouteHandler(worldPromise, notifier) {
     let presenceSubsId;
 
     const store = {

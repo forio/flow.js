@@ -1,10 +1,10 @@
-import RunRouter from './run-router';
+import RunRouteHandler from '../run-route-handler';
 import { withPrefix } from 'channels/channel-router/utils';
 import router from 'channels/channel-router';
 import { matchPrefix, matchDefaultPrefix, } from 'channels/route-handlers/route-matchers';
 
 
-export default function (config, notifier) {
+export default function ScenarioManagerRouteHandler(config, notifier) {
     var defaults = {
         serviceOptions: {},
         channelOptions: {},
@@ -31,15 +31,15 @@ export default function (config, notifier) {
         serviceOptions: currentRunPromise,
     }, opts.defaults, opts.current);
 
-    var baselineChannel = new RunRouter(baselineOptions, withPrefix(notifier, 'baseline:'));
-    var currentRunChannel = new RunRouter(runOptions, withPrefix(notifier, ['current:', '']));
+    var baselineHandler = new RunRouteHandler(baselineOptions, withPrefix(notifier, 'baseline:'));
+    var currentRunHandler = new RunRouteHandler(runOptions, withPrefix(notifier, ['current:', '']));
     var handlers = [
-        $.extend(baselineChannel, {
+        $.extend(baselineHandler, {
             name: 'baseline',
             match: matchPrefix('baseline:'),
             options: baselineOptions.channelOptions,
         }),
-        $.extend(currentRunChannel, { 
+        $.extend(currentRunHandler, { 
             isDefault: true, 
             name: 'current',
             match: matchDefaultPrefix('current:'),

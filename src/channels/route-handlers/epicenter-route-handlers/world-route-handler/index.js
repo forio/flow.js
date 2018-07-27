@@ -1,17 +1,17 @@
-import WorldUsersChannel from './world-users-channel';
-import WorldCurrentUserChannel from './world-current-user-channel';
+import WorldUsersRouteHandler from './world-users-route-handler';
+import WorldCurrentUserRouteHandler from './world-current-user-route-handler';
 
 import { withPrefix } from 'channels/channel-router/utils';
 import { matchPrefix, matchDefaultPrefix } from 'channels/route-handlers/route-matchers';
 
-import RunChannel from '../run-router';
+import RunRouteHandler from '../run-route-handler';
 import router from 'channels/channel-router';
 
 const { F } = window;
 
 //TODO: Add custom worldid channel as well
 //
-export default function (config, notifier) {
+export default function WorldRoutesHandler(config, notifier) {
     const defaults = {
         serviceOptions: {},
         channelOptions: {}
@@ -45,35 +45,35 @@ export default function (config, notifier) {
         return rm.run;
     });
 
-    const currentRunChannelOpts = $.extend(true, { serviceOptions: $runPromise }, opts.defaults, opts.current);
-    const currentRunChannel = new RunChannel(currentRunChannelOpts, withPrefix(notifier, ['run:', '']));
+    const currentRunHandlerOpts = $.extend(true, { serviceOptions: $runPromise }, opts.defaults, opts.current);
+    const currentRunHandler = new RunRouteHandler(currentRunHandlerOpts, withPrefix(notifier, ['run:', '']));
 
     const handlers = [];
 
-    const runRouteHandler = $.extend(currentRunChannel, { 
+    const runRouteHandler = $.extend(currentRunHandler, { 
         match: matchDefaultPrefix('run:'),
         name: 'World Run',
         isDefault: true,
-        options: currentRunChannelOpts.channelOptions,
+        options: currentRunHandlerOpts.channelOptions,
     });
     handlers.unshift(runRouteHandler);
 
     const worldPromise = getRunPromise.then((run)=> {
         return run.world;
     });
-    const multiUserChannel = new WorldUsersChannel(worldPromise, withPrefix(notifier, 'users:'));
-    const multiUserHandler = $.extend(multiUserChannel, { 
+    const usersRouteHandler = new WorldUsersRouteHandler(worldPromise, withPrefix(notifier, 'users:'));
+    const usersHandler = $.extend(usersRouteHandler, { 
         match: matchPrefix('users:'),
         name: 'world users',
     });
-    handlers.unshift(multiUserHandler);
+    handlers.unshift(usersHandler);
     
-    const userChannel = new WorldCurrentUserChannel(worldPromise, withPrefix(notifier, 'user:'));
-    const userHandler = $.extend(userChannel, {
+    const currentUserRouteHandler = new WorldCurrentUserRouteHandler(worldPromise, withPrefix(notifier, 'user:'));
+    const currentUserHandler = $.extend(currentUserRouteHandler, {
         match: matchPrefix('user:'),
-        name: 'current user',
+        name: 'world current user',
     });
-    handlers.unshift(userHandler);
+    handlers.unshift(currentUserHandler);
 
     const runMangerRouter = router(handlers);
     runMangerRouter.expose = { runManager: rm };

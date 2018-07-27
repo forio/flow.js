@@ -3,7 +3,7 @@ import { objectToPublishable } from 'channels/channel-utils';
 
 const F = window.F;
 
-export default function (options, notifier) {
+export default function UserRouteHandler(options, notifier) {
     if (!options) options = {};
     const am = new F.manager.AuthManager(options.serviceOptions);
 

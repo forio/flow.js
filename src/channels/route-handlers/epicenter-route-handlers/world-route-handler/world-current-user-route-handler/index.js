@@ -1,6 +1,6 @@
 const F = window.F;
 
-export default function WorldUsersChanngel(worldPromise, notifier) {
+export default function WorldCurrentUserRouteHandler(worldPromise, notifier) {
     let subsid;
 
     const am = new F.manager.AuthManager();
