@@ -11,14 +11,14 @@ function getTopicsFromSubsList(subcriptionList) {
 
 /**
  * Decorates passed channel manager with middleware functionality
- * @param  {ChannelManager} ChannelManager
+ * @param  {ChannelManager} BaseChannelManager
  * @return {ChannelManager} wrapped channel manager
  */
-export default function withRouter(ChannelManager, router) {
+export default function withRouter(BaseChannelManager, router) {
     /**
      * @augments ChannelManager
      */
-    return class ChannelWithRouter extends ChannelManager {
+    return class ChannelWithRouter extends BaseChannelManager {
         constructor(options) {
             super(options);
             const defaults = {
