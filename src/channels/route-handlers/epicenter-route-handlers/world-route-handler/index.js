@@ -1,5 +1,6 @@
 import WorldUsersRouteHandler from './world-users-route-handler';
 import WorldCurrentUserRouteHandler from './world-current-user-route-handler';
+import ConsensusRouteHandler from './consensus-route-handler';
 
 import { withPrefix } from 'channels/channel-router/utils';
 import { matchPrefix, matchDefaultPrefix } from 'channels/route-handlers/route-matchers';
@@ -9,8 +10,12 @@ import router from 'channels/channel-router';
 
 const { F } = window;
 
+const RUN_PREFIX = 'run:';
+const MULTI_USER_PREFIX = 'users:';
+const USER_PREFIX = 'user:';
+const CONSENSUS_PREFIX = 'consensus:';
+
 //TODO: Add custom worldid channel as well
-//
 export default function WorldRoutesHandler(config, notifier) {
     const defaults = {
         serviceOptions: {},
@@ -39,19 +44,19 @@ export default function WorldRoutesHandler(config, notifier) {
         const worldChannel = channelManager.getWorldChannel(run.world);
 
         worldChannel.subscribe(worldChannel.TOPICS.RUN_RESET, (run)=> {
-            rm.run.updateConfig({ filter: run.id });
+            rm.run.updateConfig({ filter: run.id });//Run handler is also listening on the run and will take care of notifying
         }, this, { includeMine: false });
         rm.run.channel = worldChannel;
         return rm.run;
     });
 
     const currentRunHandlerOpts = $.extend(true, { serviceOptions: $runPromise }, opts.defaults, opts.current);
-    const currentRunHandler = new RunRouteHandler(currentRunHandlerOpts, withPrefix(notifier, ['run:', '']));
+    const currentRunHandler = new RunRouteHandler(currentRunHandlerOpts, withPrefix(notifier, [RUN_PREFIX, '']));
 
     const handlers = [];
 
     const runRouteHandler = $.extend(currentRunHandler, { 
-        match: matchDefaultPrefix('run:'),
+        match: matchDefaultPrefix(RUN_PREFIX),
         name: 'World Run',
         isDefault: true,
         options: currentRunHandlerOpts.channelOptions,
@@ -61,22 +66,29 @@ export default function WorldRoutesHandler(config, notifier) {
     const worldPromise = getRunPromise.then((run)=> {
         return run.world;
     });
-    const usersRouteHandler = new WorldUsersRouteHandler(worldPromise, withPrefix(notifier, 'users:'));
+    const usersRouteHandler = new WorldUsersRouteHandler(worldPromise, withPrefix(notifier, MULTI_USER_PREFIX));
     const usersHandler = $.extend(usersRouteHandler, { 
-        match: matchPrefix('users:'),
+        match: matchPrefix(MULTI_USER_PREFIX),
         name: 'world users',
     });
     handlers.unshift(usersHandler);
     
-    const currentUserRouteHandler = new WorldCurrentUserRouteHandler(worldPromise, withPrefix(notifier, 'user:'));
+    const currentUserRouteHandler = new WorldCurrentUserRouteHandler(worldPromise, withPrefix(notifier, USER_PREFIX));
     const currentUserHandler = $.extend(currentUserRouteHandler, {
-        match: matchPrefix('user:'),
+        match: matchPrefix(USER_PREFIX),
         name: 'world current user',
     });
     handlers.unshift(currentUserHandler);
 
-    const runMangerRouter = router(handlers);
-    runMangerRouter.expose = { runManager: rm };
+    const consensusRouteHandler = new ConsensusRouteHandler(opts, withPrefix(notifier, CONSENSUS_PREFIX));
+    const consensusHandler = $.extend(consensusRouteHandler, {
+        match: matchPrefix(CONSENSUS_PREFIX),
+        name: 'consensus',
+    });
+    handlers.unshift(consensusHandler);
 
-    return runMangerRouter;
+    const worldRouteHandler = router(handlers);
+    worldRouteHandler.expose = { runManager: rm };
+
+    return worldRouteHandler;
 }

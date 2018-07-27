@@ -26,7 +26,7 @@ const WORLD_PREFIX = 'world:';
 var sampleRunidLength = '000001593dd81950d4ee4f3df14841769a0b'.length;
 var runidRegex = '(?:.{' + sampleRunidLength + '})';
 
-export default function (config, notifier, channelManagerContext) {
+export default function EpicenterRouteHandler(config, notifier, channelManagerContext) {
     var opts = $.extend(true, {}, config);
 
     var runidHandlerOpts = getOptions(opts, 'runid');
