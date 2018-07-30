@@ -18,7 +18,7 @@ export default function ConsensusOperationsHandler(config, notifier) {
                     return { name: topic.name, arguments: topic.value };
                 });
                 const cs = makeConsensusService(consensus);
-                return cs.submit(actions).then(()=> {
+                return cs.submitActions(actions).then(()=> {
                     return topics;
                 });
             });

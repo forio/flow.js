@@ -21,8 +21,12 @@ export default function ConsensusRouteHandler(config, notifier) {
 
     const cm = new ConsensusManager();
 
-    function getConsensus() {
-        return cm.getCurrent();
+    let consensusProm = null;
+    function getConsensus(force) {
+        if (!consensusProm || force) {
+            consensusProm = cm.getCurrent();
+        }
+        return consensusProm;
     }
 
     const handlerOptions = {
@@ -55,6 +59,29 @@ export default function ConsensusRouteHandler(config, notifier) {
             options: handlerOptions.channelOptions.players,
         }),
     ];
+
+    getWorld().then((world)=> {
+        const channel = getChannel(world.id);
+        channel.subscribe(channel.TOPICS.RUN_RESET, ()=> {
+            getConsensus(true).then((consensus)=> {
+                statusHandler.notify(consensus);
+                playersHandler.notify(consensus);
+            });
+        });
+        // FIXME: Filter by stage here
+        channel.subscribe(channel.TOPICS.CONSENSUS_UPDATE, (consensus)=> {
+            const isComplete = consensus.closed;
+            if (isComplete) {
+                getConsensus(true).then((consensus)=> {
+                    statusHandler.notify(consensus);
+                    playersHandler.notify(consensus);
+                });
+            } else {
+                statusHandler.notify(consensus);
+                playersHandler.notify(consensus);
+            }
+        });
+    });
 
     var consensusRouteHandler = router(handlers, notifier);
     consensusRouteHandler.expose = { consensusManager: cm };

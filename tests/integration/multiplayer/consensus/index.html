@@ -63,58 +63,34 @@
 </head>
 
 <body class="container">
-    <div class="chat-bar">
-        <ul data-f-foreach="(u) in world:users | except(isMe)">
-            <li title="<%= u.userName %>" class="user <%= u.isOnline ? 'online' : 'offline' %>">
-                <img src="https://api.adorable.io/avatars/40/<%= u.role %>.png" alt="">
-                <%= u.userName %> . Online? <%= u.isOnline %>
-            </li>
-        </ul>
+    
+    <h2>My role: <span data-f-bind="user:role"></span></h2>
+    <div class="decisions">
+        Enter Price:
+        <input type="text" data-f-bind="<user:role>_Price_Decision[<Step>]"/>
+        
+        <div class="btn-container">
+            <button data-f-on-click="consensus:operations:step">Step</button>
+            <button data-f-on-click="reset">Reset</button>
+        </div>
     </div>
 
-    <div class="content">
-        <table class="table">
-            <tbody>
-                
-            </tbody>
-        </table>
-    </div>
+   <div class="status">
+       <h6>Pending players</h6>
+       <ul>
+           <li data-f-repeat="(player) in consensus:players:pending"><%= player.name %> (<%= player.role %>)</li>
+       </ul>
+       <h6>Submitted players</h6>
+       <ul>
+           <li data-f-repeat="(player) in consensus:players:submitted"><%= player.name %> (<%= player.role %>)</li>
+       </ul>
+   </div>
 
-    <button data-f-on-click="step">Step</button>
-    <button data-f-on-click="reset">Reset</button>
-
-    <h4>Users</h4>
+   <div class="jumbotron" data-f-showif="consensus:status:amWaiting">
+        <p>Waiting for other players..</p>
+   </div>
     
     <script type="text/javascript">
-        const userChannel = ['user', 'user:role', 'user:userName'];
-        const varChannel = ['P1_Price_Decision[<Step>]', '<user:role>_Price_Decision[<Step>]', 'Step'];
-
-        const toTest = {
-            'User Channel': userChannel,
-            'Variables Channel': varChannel,
-        };
-
-        const tbody = Object.keys(toTest).map((title)=> {
-            const binds = toTest[title];
-            const boundHTML = binds.map((b)=> {
-                return `
-                    <tr>
-                        <td><code>${b.replace(/</g, '&lt;').replace(/>/g, '&gt;')}</code></td>
-                        <td data-f-bind="${b}" style="max-width: 200px"></td>
-                        <td><input type="text" data-f-bind="${b}" /></td>
-                    </tr>
-                `;
-            }).join('');
-            const html = `
-                <tr>
-                    <th>${title}</th>
-                </tr>
-                ${boundHTML}
-            `
-            return html;
-        });
-        $('.table tbody').html(tbody.join(''));
-
         Flow.initialize({
             channel: {
                 defaults: {

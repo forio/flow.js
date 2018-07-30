@@ -1,3 +1,5 @@
+import { objectToPublishable } from '../../../../channel-utils';
+
 export default function ConsensusPlayersHandler(config, notifier) {
     const options = $.extend(true, {
         serviceOptions: {},
@@ -13,6 +15,7 @@ export default function ConsensusPlayersHandler(config, notifier) {
             const playersWithRole = playersForRole.map((p)=> {
                 return Object.assign({}, p, {
                     role: role,
+                    name: p.lastName,
                     isMe: p.userName === session.userName, // so you can do :submitted:users | reject('isMe')
                 });
             });
@@ -22,6 +25,13 @@ export default function ConsensusPlayersHandler(config, notifier) {
         return normalized;
     }
     return {
+        notify: function (consensus) {
+            notifier(objectToPublishable({
+                submitted: normalizePlayers(consensus.submitted),
+                pending: normalizePlayers(consensus.pending),
+            }));
+        },
+        
         subscribeHandler: function (topics) {
             return getConsensus().then((consensus)=> {
                 const toReturn = [];
