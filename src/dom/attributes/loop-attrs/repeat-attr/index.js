@@ -1,4 +1,4 @@
-import { template, each } from 'lodash';
+import { template, each, isEmpty } from 'lodash';
 import { toImplicitType } from 'utils/parse-utils';
 import { random } from 'utils/general';
 import { attrs, animation } from '../../../../config';
@@ -12,6 +12,7 @@ const elAnimatedMap = new WeakMap(); //TODO: Can probably get rid of this if we 
 import { getKnownDataForEl, updateKnownDataForEl, removeKnownData, findMissingReferences, stubMissingReferences, addBackMissingReferences, getOriginalContents, clearOriginalContents } from '../../attr-template-utils';
 
 import { aliasesFromTopics, parseTopics } from '../loop-attr-utils';
+import hideifHandler from '../../toggles/hide-if-attr';
 
 /**
  * @type AttributeHandler 
@@ -46,7 +47,7 @@ const loopAttrHandler = {
 
     handle: function (value, prop, $el, topics) {
         value = ($.isPlainObject(value) ? value : [].concat(value));
-        var id = $el.data(templateIdAttr);
+        let id = $el.data(templateIdAttr);
         
         const originalHTML = getOriginalContents($el, ($el)=> $el.get(0).outerHTML);
 
@@ -65,8 +66,14 @@ const loopAttrHandler = {
         const missingReferences = findMissingReferences(originalHTML, [keyAlias, valueAlias].concat(Object.keys(knownData)));
         const stubbedTemplate = stubMissingReferences(originalHTML, missingReferences);
 
+        if (isEmpty(value)) {
+            $el.attr('hidden', 'true'); //There's always going to be 1 el otherwise
+        } else {
+            $el.removeAttr('hidden');
+        }
+
         const templateFn = template(stubbedTemplate);
-        var last;
+        let last;
         each(value, function (dataval, datakey) {
             if (dataval === undefined || dataval === null) {
                 dataval = dataval + ''; //convert undefineds to strings
