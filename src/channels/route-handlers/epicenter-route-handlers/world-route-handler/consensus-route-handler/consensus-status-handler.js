@@ -1,5 +1,6 @@
 import { makeConsensusService } from './consensus-utils';
 import { objectToPublishable } from 'channels/channel-utils';
+import { pick } from 'lodash';
 
 export default function ConsensusStatusHandler(config, notifier) {
     const options = $.extend(true, {
@@ -46,13 +47,9 @@ export default function ConsensusStatusHandler(config, notifier) {
         },
         subscribeHandler: function (topics) {
             return getConsensus().then((consensus)=> {
-                const normalizedConsensus = normalizeConsensus(consensus);
-                return topics.reduce((accum, topic)=> {
-                    if (normalizedConsensus[topic] !== undefined) {
-                        accum.push({ name: topic, value: normalizedConsensus[topic] });
-                    }
-                    return accum;
-                }, []);
+                const normalized = normalizeConsensus(consensus);
+                const dataForTopics = pick(normalized, topics);
+                return objectToPublishable(dataForTopics);
             });
         },
         publishHandler: function (topics) {
