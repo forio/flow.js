@@ -12,38 +12,47 @@ const PLAYERS_PREFIX = 'players:';
 const STATUS_PREFIX = 'status:';
 
 export default function ConsensusRouteHandler(config, notifier) {
-    const defaults = {
+    const options = $.extend(true, {
         serviceOptions: {},
-        channelOptions: {}
-    };
-    const opts = $.extend(true, {}, defaults, config);
+        channelOptions: {},
+    }, config);
 
-    const cm = new ConsensusManager(opts.serviceOptions);
+    const { getWorld, getSession, getChannel } = options.serviceOptions;
+
+    const cm = new ConsensusManager();
 
     function getConsensus() {
         return cm.getCurrent();
     }
 
-    const opnHandler = OperationsHandler(getConsensus, withPrefix(notifier, OPERATIONS_PREFIX));
-    const statusHandler = StatusHandler(getConsensus, withPrefix(notifier, STATUS_PREFIX));
-    const playersHandler = PlayersHandler(getConsensus, withPrefix(notifier, PLAYERS_PREFIX));
+    const handlerOptions = {
+        serviceOptions: {
+            getConsensus: getConsensus,
+            getSession: getSession
+        },
+        channelOptions: {}
+    };
+
+    const opnHandler = OperationsHandler(handlerOptions, withPrefix(notifier, OPERATIONS_PREFIX));
+    const statusHandler = StatusHandler(handlerOptions, withPrefix(notifier, STATUS_PREFIX));
+    const playersHandler = PlayersHandler(handlerOptions, withPrefix(notifier, PLAYERS_PREFIX));
 
     const handlers = [
         $.extend({}, opnHandler, { 
             name: 'consensus operations',
             match: matchPrefix(OPERATIONS_PREFIX),
-            options: opts.channelOptions.operations,
+            options: handlerOptions.channelOptions.operations,
         }),
         $.extend({}, statusHandler, { 
             name: 'consensus status',
             match: matchPrefix(STATUS_PREFIX),
-            options: opts.channelOptions.status,
+            options: handlerOptions.channelOptions.status,
         }),
         $.extend({}, playersHandler, { 
             isDefault: true,
             name: 'consensus players',
             match: matchPrefix(PLAYERS_PREFIX),
-            options: opts.channelOptions.players,
+            options: handlerOptions.channelOptions.players,
         }),
     ];
 

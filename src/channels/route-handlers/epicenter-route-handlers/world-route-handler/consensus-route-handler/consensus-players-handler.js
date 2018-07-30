@@ -1,19 +1,29 @@
-export default function ConsensusPlayersHandler(getCurrent, notifier) {
+export default function ConsensusPlayersHandler(config, notifier) {
+    const options = $.extend(true, {
+        serviceOptions: {},
+        channelOptions: {},
+    }, config);
+
+    const { getConsensus, getSession } = options.serviceOptions;
+
     function normalizePlayers(rolePlayerMap) {
-        return Object.keys(rolePlayerMap).reduce((accum, role)=> {
+        const session = getSession();
+        const normalized = Object.keys(rolePlayerMap).reduce((accum, role)=> {
             const playersForRole = rolePlayerMap[role];
             const playersWithRole = playersForRole.map((p)=> {
                 return Object.assign({}, p, {
-                    role: role
+                    role: role,
+                    isMe: p.userName === session.userName, // so you can do :submitted:users | reject('isMe')
                 });
             });
             accum = accum.concat(playersWithRole);
             return accum;
         }, []);
+        return normalized;
     }
     return {
         subscribeHandler: function (topics) {
-            return getCurrent().then((consensus)=> {
+            return getConsensus().then((consensus)=> {
                 const toReturn = [];
                 if (topics.indexOf('submitted') !== -1) {
                     toReturn.push({ name: 'submitted', value: normalizePlayers(consensus.submitted) });
