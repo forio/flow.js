@@ -90,9 +90,17 @@ export default function GenericRunRouteHandler(config, notifier) {
                 operationsHandler.notify(data, meta);
                 variablesHandler.fetch();
             }, this, subscribeOpts);
+            rs.channel.subscribe(TOPICS.CONSENSUS_UPDATE, (consensus, meta)=> {
+                if (consensus.closed) {
+                    variablesHandler.fetch(); 
+                    // I should also do operationsHandler.notify but I don't know what to notify them about
+                    //Just remove the 'include Mine' check for operations? That's just cached anyway
+                }
+            }, this, { includeMine: true });
             rs.channel.subscribe(TOPICS.RUN_RESET, (data, meta)=> {
                 operationsHandler.notify({ name: 'reset', result: data }, meta);
             }, this, subscribeOpts);
+
 
             // rs.channel.subscribe('', (data, meta)=> {
             //     console.log('everything', data, meta);
