@@ -37,7 +37,8 @@ export default function WorldRoutesHandler(config, notifier) {
         throw err;
     });
     const $runPromise = getRunPromise.then((run)=> {
-        if (rm.run.channel) {
+        const alreadyStubbedRunChannel = rm.run.channel; //FIXME: Explicitly pass instead of stubbing on a channel
+        if (alreadyStubbedRunChannel) {
             return rm.run;
         }
         const channelManager = new F.manager.ChannelManager();
@@ -63,24 +64,50 @@ export default function WorldRoutesHandler(config, notifier) {
     });
     handlers.unshift(runRouteHandler);
 
-    const worldPromise = getRunPromise.then((run)=> {
-        return run.world;
-    });
-    const usersRouteHandler = new WorldUsersRouteHandler(worldPromise, withPrefix(notifier, MULTI_USER_PREFIX));
+    let $worldProm = null;
+    function getWorld() {
+        if (!$worldProm) {
+            $worldProm = getRunPromise.then((run)=> {
+                return run.world;
+            });
+        }
+        return $worldProm;
+    }
+
+    const worldChannelMap = {};
+    const channelManager = new F.manager.ChannelManager();
+    function getChannelForWorld(worldid) {
+        if (!worldChannelMap[worldid]) {
+            worldChannelMap[worldid] = channelManager.getWorldChannel(worldid);
+        }
+        return worldChannelMap[worldid];
+    }
+
+    const am = new F.manager.AuthManager();
+    const handlerOptions = {
+        serviceOptions: {
+            getWorld: getWorld,
+            getSession: ()=> am.getCurrentUserSessionInfo(),
+            getChannel: getChannelForWorld,
+        },
+        channelOptions: {}
+    };
+    
+    const usersRouteHandler = new WorldUsersRouteHandler(handlerOptions, withPrefix(notifier, MULTI_USER_PREFIX));
     const usersHandler = $.extend(usersRouteHandler, { 
         match: matchPrefix(MULTI_USER_PREFIX),
         name: 'world users',
     });
     handlers.unshift(usersHandler);
     
-    const currentUserRouteHandler = new WorldCurrentUserRouteHandler(worldPromise, withPrefix(notifier, USER_PREFIX));
+    const currentUserRouteHandler = new WorldCurrentUserRouteHandler(handlerOptions, withPrefix(notifier, USER_PREFIX));
     const currentUserHandler = $.extend(currentUserRouteHandler, {
         match: matchPrefix(USER_PREFIX),
         name: 'world current user',
     });
     handlers.unshift(currentUserHandler);
 
-    const consensusRouteHandler = new ConsensusRouteHandler(opts, withPrefix(notifier, CONSENSUS_PREFIX));
+    const consensusRouteHandler = new ConsensusRouteHandler(handlerOptions, withPrefix(notifier, CONSENSUS_PREFIX));
     const consensusHandler = $.extend(consensusRouteHandler, {
         match: matchPrefix(CONSENSUS_PREFIX),
         name: 'consensus',

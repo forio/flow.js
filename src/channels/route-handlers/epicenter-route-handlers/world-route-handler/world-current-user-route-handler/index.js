@@ -1,29 +1,33 @@
-const F = window.F;
+export default function WorldCurrentUserRouteHandler(config, notifier) {
+    const options = $.extend(true, {
+        serviceOptions: {},
+        channelOptions: {},
+    }, config);
 
-export default function WorldCurrentUserRouteHandler(worldPromise, notifier) {
+    const { getWorld, getSession, getChannel } = options.serviceOptions;
+
+    
     let subsid;
 
-    const am = new F.manager.AuthManager();
     const store = $.extend(true, {
         isMe: true,
         isOnline: true,
-    }, am.getCurrentUserSessionInfo());
-    const channelManager = new F.manager.ChannelManager();
+    }, getSession());
 
     return { 
         unsubscribeHandler: function (unsubscribedTopics, remainingTopics) {
             const stillNeedRoles = remainingTopics.indexOf('role') !== -1;
             if (!stillNeedRoles && subsid) {
-                worldPromise.then((world)=> {
-                    const worldChannel = channelManager.getWorldChannel(world);
+                getWorld().then((world)=> {
+                    const worldChannel = getChannel(world.id);
                     worldChannel.unsubscribe(subsid);
                 });
                 subsid = null;
             }
         },
         subscribeHandler: function (userFields) {
-            return worldPromise.then((world)=> {
-                const session = am.getCurrentUserSessionInfo();
+            return getWorld().then((world)=> {
+                const session = getSession();
                 const myUser = world.users.find((user)=> {
                     return user.userId === session.userId;
                 });
@@ -40,7 +44,7 @@ export default function WorldCurrentUserRouteHandler(worldPromise, notifier) {
                 
                 const isSubscribingToRole = userFields.indexOf('role') !== -1;
                 if (isSubscribingToRole && !subsid) {
-                    const worldChannel = channelManager.getWorldChannel(world);
+                    const worldChannel = getChannel(world.id);
                     subsid = worldChannel.subscribe(worldChannel.TOPICS.ROLES, (users, meta)=> {
                         const myUser = users.find((u)=> {
                             return u.userId === session.userId;

@@ -30,6 +30,7 @@ export function _shouldFetch(result, ignoreOperations) {
     return filtered.length > 0;
 }
 
+const RunService = F.service.Run;
 export default function GenericRunRouteHandler(config, notifier) {
     const defaults = {
         serviceOptions: {},
@@ -56,12 +57,12 @@ export default function GenericRunRouteHandler(config, notifier) {
     const serviceOptions = _.result(opts, 'serviceOptions');
 
     let $initialProm = null;
-    if (serviceOptions instanceof window.F.service.Run) {
+    if (serviceOptions instanceof RunService) {
         $initialProm = $.Deferred().resolve(serviceOptions).promise();
     } else if (serviceOptions.then) {
         $initialProm = serviceOptions;
     } else {
-        const rs = new window.F.service.Run(serviceOptions);
+        const rs = new RunService(serviceOptions);
         $initialProm = $.Deferred().resolve(rs).promise();
     }
 
