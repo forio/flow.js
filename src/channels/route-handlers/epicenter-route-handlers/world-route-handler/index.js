@@ -26,17 +26,23 @@ export default function WorldRoutesHandler(config, notifier) {
     const rmOptions = opts.serviceOptions;
     const rm = new F.manager.RunManager(rmOptions);
     
-    const getRunPromise = rm.getRun().then((run)=> {
-        if (!run.world) {
-            console.error('No world found in run. Make sure you\'re using EpicenterJS version > 2.7');
-            throw new Error('Could not find world');
+    let runPromise = null;
+    function getRun() {
+        if (!runPromise) {
+            runPromise = rm.getRun().then((run)=> {
+                if (!run.world) {
+                    console.error('No world found in run. Make sure you\'re using EpicenterJS version > 2.7');
+                    throw new Error('Could not find world');
+                }
+                return run;
+            }, (err)=> {
+                console.error('Run manager get run error', err);
+                throw err;
+            });
         }
-        return run;
-    }, (err)=> {
-        console.error('Run manager get run error', err);
-        throw err;
-    });
-    const $runPromise = getRunPromise.then((run)=> {
+        return runPromise;
+    }
+    const $runPromise = getRun().then((run)=> {
         const alreadyStubbedRunChannel = rm.run.channel; //FIXME: Explicitly pass instead of stubbing on a channel
         if (alreadyStubbedRunChannel) {
             return rm.run;
@@ -67,7 +73,7 @@ export default function WorldRoutesHandler(config, notifier) {
     let $worldProm = null;
     function getWorld() {
         if (!$worldProm) {
-            $worldProm = getRunPromise.then((run)=> {
+            $worldProm = getRun().then((run)=> {
                 return run.world;
             });
         }
@@ -86,6 +92,7 @@ export default function WorldRoutesHandler(config, notifier) {
     const am = new F.manager.AuthManager();
     const handlerOptions = {
         serviceOptions: {
+            getRun: getRun,
             getWorld: getWorld,
             getSession: ()=> am.getCurrentUserSessionInfo(),
             getChannel: getChannelForWorld,

@@ -14,14 +14,16 @@ export default function ConsensusRouteHandler(config, notifier) {
         channelOptions: {},
     }, config);
 
-    const { getWorld, getSession, getChannel } = options.serviceOptions;
+    const { getWorld, getRun, getSession, getChannel } = options.serviceOptions;
 
     const cm = new ConsensusManager();
 
     let consensusProm = null;
     function getConsensus(force) {
         if (!consensusProm || force) {
-            consensusProm = cm.getCurrent();
+            consensusProm = getRun().then(()=> {
+                return cm.getCurrent(); //TODO: GetRun deletes the barrier if it overlaps with this call, so synchronize them
+            });
         }
         return consensusProm;
     }
