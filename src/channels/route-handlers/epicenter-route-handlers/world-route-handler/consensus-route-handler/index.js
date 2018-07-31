@@ -7,7 +7,6 @@ import { withPrefix } from 'channels/channel-router/utils';
 const ConsensusManager = F.manager.ConsensusManager;
 
 const OPERATIONS_PREFIX = 'operations:';
-const STATUS_PREFIX = 'status:';
 
 export default function ConsensusRouteHandler(config, notifier) {
     const options = $.extend(true, {
@@ -36,7 +35,7 @@ export default function ConsensusRouteHandler(config, notifier) {
     };
 
     const opnHandler = OperationsHandler(handlerOptions, withPrefix(notifier, OPERATIONS_PREFIX));
-    const statusHandler = StatusHandler(handlerOptions, withPrefix(notifier, STATUS_PREFIX));
+    const statusHandler = StatusHandler(handlerOptions, notifier);
 
     const handlers = [
         $.extend({}, opnHandler, { 
@@ -46,7 +45,8 @@ export default function ConsensusRouteHandler(config, notifier) {
         }),
         $.extend({}, statusHandler, { 
             name: 'consensus status',
-            match: matchPrefix(STATUS_PREFIX),
+            match: matchPrefix(''),
+            isDefault: true,
             options: handlerOptions.channelOptions.status,
         }),
     ];

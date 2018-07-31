@@ -28,15 +28,15 @@
    <div class="status">
        <h6>Pending players</h6>
        <ul>
-           <li data-f-repeat="(player) in consensus:status:pending"><%= player.name %> (<%= player.role %>)</li>
+           <li data-f-repeat="(player) in consensus:pending"><%= player.name %> (<%= player.role %>)</li>
        </ul>
        <h6>Submitted players</h6>
        <ul>
-           <li data-f-repeat="(player) in consensus:status:submitted"><%= player.name %> (<%= player.role %>)</li>
+           <li data-f-repeat="(player) in consensus:submitted"><%= player.name %> (<%= player.role %>)</li>
        </ul>
    </div>
 
-   <div class="jumbotron" data-f-showif="consensus:status:amWaiting">
+   <div class="jumbotron" data-f-showif="consensus:amWaiting">
         <p>Waiting for other players..</p>
    </div>
     
