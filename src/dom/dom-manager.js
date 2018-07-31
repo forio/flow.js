@@ -213,7 +213,7 @@ module.exports = (function () {
                 const subsOptions = $.extend({ 
                     batch: true,
                     onError: (e)=> {
-                        console.error('DomManager: Subscription error for', domEl, e);
+                        console.error('DomManager: Subscription error', domEl, e);
                         let msg = e.message || e;
                         if ($.isPlainObject(msg)) {
                             msg = JSON.stringify(msg);

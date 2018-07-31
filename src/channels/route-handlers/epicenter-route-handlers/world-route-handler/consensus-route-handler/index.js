@@ -4,7 +4,7 @@ import router from 'channels/channel-router';
 import { matchPrefix } from 'channels/route-handlers/route-matchers';
 import { withPrefix } from 'channels/channel-router/utils';
 
-const ConsensusManager = F.manager.ConsensusManager;
+const ConsensusManager = window.F.manager.ConsensusManager;
 
 const OPERATIONS_PREFIX = 'operations:';
 
