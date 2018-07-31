@@ -83,7 +83,7 @@ var Flow =
 /******/ 	__webpack_require__.p = "";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 16);
+/******/ 	return __webpack_require__(__webpack_require__.s = 18);
 /******/ })
 /************************************************************************/
 /******/ ([
@@ -134,9 +134,9 @@ module.exports = {
 /* harmony export (immutable) */ __webpack_exports__["g"] = withPrefix;
 /* harmony export (immutable) */ __webpack_exports__["f"] = unprefixTopics;
 /* harmony export (immutable) */ __webpack_exports__["e"] = unprefix;
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__silencable__ = __webpack_require__(55);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__silencable__ = __webpack_require__(56);
 /* harmony reexport (binding) */ __webpack_require__.d(__webpack_exports__, "c", function() { return __WEBPACK_IMPORTED_MODULE_0__silencable__["a"]; });
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__exclude_read_only__ = __webpack_require__(56);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__exclude_read_only__ = __webpack_require__(57);
 /* harmony reexport (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return __WEBPACK_IMPORTED_MODULE_1__exclude_read_only__["a"]; });
 var CHANNEL_DELIMITER = ':';
 
@@ -225,109 +225,11 @@ function unprefix(list, prefix) {
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "toImplicitType", function() { return toImplicitType; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "toPublishableFormat", function() { return toPublishableFormat; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "splitNameArgs", function() { return splitNameArgs; });
-/* eslint-disable complexity */
-function toImplicitType(data) {
-    var objRegex = /^(?:\{.*\})$/;
-    var arrRegex = /^(?:\[.*])$/;
-
-    var converted = data;
-    if (typeof data === 'string') {
-        converted = data.trim();
-
-        if (converted === 'true') {
-            converted = true;
-        } else if (converted === 'false') {
-            converted = false;
-        } else if (converted === 'null') {
-            converted = null;
-        } else if (converted === 'undefined') {
-            converted = '';
-        } else if (converted.charAt(0) === '\'' || converted.charAt(0) === '"') {
-            converted = converted.substring(1, converted.length - 1);
-        } else if ($.isNumeric(converted)) {
-            converted = +converted;
-        } else if (arrRegex.test(converted)) {
-            var bracketReplaced = converted.replace(/[[\]]/g, '');
-            if (!bracketReplaced) return [];
-            var parsed = bracketReplaced.split(/,(?![^[]*])/).map(function (val) {
-                return toImplicitType(val);
-            });
-            return parsed;
-        } else if (objRegex.test(converted)) {
-            try {
-                converted = JSON.parse(converted);
-            } catch (e) {
-                console.error('toImplicitType: couldn\'t convert', converted);
-            }
-        }
-    }
-    return converted;
-}
-
-function splitUnescapedCommas(str) {
-    var regex = /(\\.|[^,])+/g;
-    var m = void 0;
-
-    var op = [];
-    while ((m = regex.exec(str)) !== null) {
-        //eslint-disable-line
-        // This is necessary to avoid infinite loops with zero-width matches
-        if (m.index === regex.lastIndex) {
-            regex.lastIndex++;
-        }
-        m.forEach(function (match, groupIndex) {
-            if (groupIndex === 0) {
-                op.push(match.replace('\\', ''));
-            }
-        });
-    }
-    return op;
-}
-
-function splitNameArgs(value) {
-    value = value.trim();
-    var fnName = value.split('(')[0];
-    var params = value.substring(value.indexOf('(') + 1, value.indexOf(')'));
-    var args = splitUnescapedCommas(params).map(function (p) {
-        return p.trim();
-    });
-    return { name: fnName, args: args };
-}
-
-/**
- * @param  {string} value
- * @return {{ name: string, value: any}[]}       [description]
- */
-function toPublishableFormat(value) {
-    var OPERATIONS_SEPERATOR = '&&';
-    var split = (value || '').split(OPERATIONS_SEPERATOR);
-    var listOfOperations = split.map(function (value) {
-        if (value && value.indexOf('=') !== -1) {
-            var _split = value.split('=');
-            return { name: _split[0].trim(), value: _split[1].trim() };
-        }
-        var parsed = splitNameArgs(value);
-        return { name: parsed.name, value: parsed.args };
-    });
-    return listOfOperations;
-}
-
-
-
-/***/ }),
-/* 4 */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
 /* unused harmony export notifySubscribeHandlers */
 /* unused harmony export notifyUnsubscribeHandlers */
 /* unused harmony export passthroughPublishInterceptors */
 /* harmony export (immutable) */ __webpack_exports__["a"] = router;
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__utils_handler_utils__ = __webpack_require__(54);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__utils_handler_utils__ = __webpack_require__(55);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__utils__ = __webpack_require__(2);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_utils_general__ = __webpack_require__(7);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_3_lodash__ = __webpack_require__(0);
@@ -514,6 +416,104 @@ function router(handlers, options, notifier) {
 }
 
 /***/ }),
+/* 4 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "toImplicitType", function() { return toImplicitType; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "toPublishableFormat", function() { return toPublishableFormat; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "splitNameArgs", function() { return splitNameArgs; });
+/* eslint-disable complexity */
+function toImplicitType(data) {
+    var objRegex = /^(?:\{.*\})$/;
+    var arrRegex = /^(?:\[.*])$/;
+
+    var converted = data;
+    if (typeof data === 'string') {
+        converted = data.trim();
+
+        if (converted === 'true') {
+            converted = true;
+        } else if (converted === 'false') {
+            converted = false;
+        } else if (converted === 'null') {
+            converted = null;
+        } else if (converted === 'undefined') {
+            converted = '';
+        } else if (converted.charAt(0) === '\'' || converted.charAt(0) === '"') {
+            converted = converted.substring(1, converted.length - 1);
+        } else if ($.isNumeric(converted)) {
+            converted = +converted;
+        } else if (arrRegex.test(converted)) {
+            var bracketReplaced = converted.replace(/[[\]]/g, '');
+            if (!bracketReplaced) return [];
+            var parsed = bracketReplaced.split(/,(?![^[]*])/).map(function (val) {
+                return toImplicitType(val);
+            });
+            return parsed;
+        } else if (objRegex.test(converted)) {
+            try {
+                converted = JSON.parse(converted);
+            } catch (e) {
+                console.error('toImplicitType: couldn\'t convert', converted);
+            }
+        }
+    }
+    return converted;
+}
+
+function splitUnescapedCommas(str) {
+    var regex = /(\\.|[^,])+/g;
+    var m = void 0;
+
+    var op = [];
+    while ((m = regex.exec(str)) !== null) {
+        //eslint-disable-line
+        // This is necessary to avoid infinite loops with zero-width matches
+        if (m.index === regex.lastIndex) {
+            regex.lastIndex++;
+        }
+        m.forEach(function (match, groupIndex) {
+            if (groupIndex === 0) {
+                op.push(match.replace('\\', ''));
+            }
+        });
+    }
+    return op;
+}
+
+function splitNameArgs(value) {
+    value = value.trim();
+    var fnName = value.split('(')[0];
+    var params = value.substring(value.indexOf('(') + 1, value.indexOf(')'));
+    var args = splitUnescapedCommas(params).map(function (p) {
+        return p.trim();
+    });
+    return { name: fnName, args: args };
+}
+
+/**
+ * @param  {string} value
+ * @return {{ name: string, value: any}[]}       [description]
+ */
+function toPublishableFormat(value) {
+    var OPERATIONS_SEPERATOR = '&&';
+    var split = (value || '').split(OPERATIONS_SEPERATOR);
+    var listOfOperations = split.map(function (value) {
+        if (value && value.indexOf('=') !== -1) {
+            var _split = value.split('=');
+            return { name: _split[0].trim(), value: _split[1].trim() };
+        }
+        var parsed = splitNameArgs(value);
+        return { name: parsed.name, value: parsed.args };
+    });
+    return listOfOperations;
+}
+
+
+
+/***/ }),
 /* 5 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
@@ -581,7 +581,7 @@ function normalizeParamOptions(topic, publishValue, options) {
 /* harmony export (immutable) */ __webpack_exports__["b"] = matchPrefix;
 /* harmony export (immutable) */ __webpack_exports__["a"] = matchDefaultPrefix;
 /* harmony export (immutable) */ __webpack_exports__["c"] = matchRegex;
-var CHANNEL_DELIMITER = ':';
+var ROUTE_DELIMITER = ':';
 
 /**
  * 
@@ -618,7 +618,7 @@ function matchDefaultPrefix(prefix) {
  * @returns {matchFunction}
  */
 function matchRegex(regex) {
-    var toMatch = new RegExp('^' + regex + CHANNEL_DELIMITER);
+    var toMatch = new RegExp('^' + regex + ROUTE_DELIMITER);
     return function regexMatcher(topic) {
         var match = topic.match(toMatch);
         if (match && match.length) {
@@ -636,9 +636,9 @@ function matchRegex(regex) {
 /* harmony export (immutable) */ __webpack_exports__["c"] = random;
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_lodash__ = __webpack_require__(0);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_lodash___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_lodash__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__make_promise__ = __webpack_require__(39);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__make_promise__ = __webpack_require__(41);
 /* harmony reexport (binding) */ __webpack_require__.d(__webpack_exports__, "b", function() { return __WEBPACK_IMPORTED_MODULE_1__make_promise__["a"]; });
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__debounce_and_merge__ = __webpack_require__(40);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__debounce_and_merge__ = __webpack_require__(42);
 /* harmony reexport (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return __WEBPACK_IMPORTED_MODULE_2__debounce_and_merge__["a"]; });
 
 
@@ -668,11 +668,11 @@ function random(prefix, min, max) {
 /* unused harmony export META_PREFIX */
 /* unused harmony export OPERATIONS_PREFIX */
 /* unused harmony export _shouldFetch */
-/* harmony export (immutable) */ __webpack_exports__["a"] = RunRouter;
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__run_meta_channel__ = __webpack_require__(61);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__run_variables_channel__ = __webpack_require__(62);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__run_operations_channel__ = __webpack_require__(64);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3_channels_channel_router__ = __webpack_require__(4);
+/* harmony export (immutable) */ __webpack_exports__["a"] = GenericRunRouteHandler;
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__run_meta_route_handler__ = __webpack_require__(62);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__run_variables_route_handler__ = __webpack_require__(63);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__run_operations_route_hander__ = __webpack_require__(65);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3_channels_channel_router__ = __webpack_require__(3);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_4_channels_channel_router_utils__ = __webpack_require__(2);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_5_channels_route_handlers_route_matchers__ = __webpack_require__(6);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_6_lodash__ = __webpack_require__(0);
@@ -709,7 +709,8 @@ function _shouldFetch(result, ignoreOperations) {
     return filtered.length > 0;
 }
 
-function RunRouter(config, notifier) {
+var RunService = F.service.Run;
+function GenericRunRouteHandler(config, notifier) {
     var _this = this;
 
     var defaults = {
@@ -737,21 +738,21 @@ function RunRouter(config, notifier) {
     var serviceOptions = __WEBPACK_IMPORTED_MODULE_6_lodash___default.a.result(opts, 'serviceOptions');
 
     var $initialProm = null;
-    if (serviceOptions instanceof window.F.service.Run) {
+    if (serviceOptions instanceof RunService) {
         $initialProm = $.Deferred().resolve(serviceOptions).promise();
     } else if (serviceOptions.then) {
         $initialProm = serviceOptions;
     } else {
-        var rs = new window.F.service.Run(serviceOptions);
+        var rs = new RunService(serviceOptions);
         $initialProm = $.Deferred().resolve(rs).promise();
     }
 
     var operationNotifier = Object(__WEBPACK_IMPORTED_MODULE_4_channels_channel_router_utils__["g" /* withPrefix */])(notifier, OPERATIONS_PREFIX);
     var variableNotifier = Object(__WEBPACK_IMPORTED_MODULE_4_channels_channel_router_utils__["g" /* withPrefix */])(notifier, [VARIABLES_PREFIX, '']);
 
-    var metaChannel = new __WEBPACK_IMPORTED_MODULE_0__run_meta_channel__["a" /* default */]($initialProm, Object(__WEBPACK_IMPORTED_MODULE_4_channels_channel_router_utils__["g" /* withPrefix */])(notifier, META_PREFIX));
-    var operationsChannel = new __WEBPACK_IMPORTED_MODULE_2__run_operations_channel__["a" /* default */]($initialProm, operationNotifier);
-    var variableschannel = new __WEBPACK_IMPORTED_MODULE_1__run_variables_channel__["a" /* default */]($initialProm, variableNotifier);
+    var metaHandler = new __WEBPACK_IMPORTED_MODULE_0__run_meta_route_handler__["a" /* default */]($initialProm, Object(__WEBPACK_IMPORTED_MODULE_4_channels_channel_router_utils__["g" /* withPrefix */])(notifier, META_PREFIX));
+    var operationsHandler = new __WEBPACK_IMPORTED_MODULE_2__run_operations_route_hander__["a" /* default */]($initialProm, operationNotifier);
+    var variablesHandler = new __WEBPACK_IMPORTED_MODULE_1__run_variables_route_handler__["a" /* default */]($initialProm, variableNotifier);
 
     var subscribed = false;
     $initialProm.then(function (rs) {
@@ -764,15 +765,22 @@ function RunRouter(config, notifier) {
             //FIXME: Provide subscription fn to individual channels and let them handle it
             rs.channel.subscribe(TOPICS.RUN_VARIABLES, function (data, meta) {
                 console.log('variables', data, meta);
-                variableschannel.notify(data, meta);
-                variableschannel.fetch();
+                variablesHandler.notify(data, meta);
+                variablesHandler.fetch();
             }, _this, subscribeOpts);
             rs.channel.subscribe(TOPICS.RUN_OPERATIONS, function (data, meta) {
-                operationsChannel.notify(data, meta);
-                variableschannel.fetch();
+                operationsHandler.notify(data, meta);
+                variablesHandler.fetch();
             }, _this, subscribeOpts);
+            rs.channel.subscribe(TOPICS.CONSENSUS_UPDATE, function (consensus, meta) {
+                if (consensus.closed) {
+                    variablesHandler.fetch();
+                    // I should also do operationsHandler.notify but I don't know what to notify them about
+                    //Just remove the 'include Mine' check for operations? That's just cached anyway
+                }
+            }, _this, { includeMine: true });
             rs.channel.subscribe(TOPICS.RUN_RESET, function (data, meta) {
-                operationsChannel.notify({ name: 'reset', result: data }, meta);
+                operationsHandler.notify({ name: 'reset', result: data }, meta);
             }, _this, subscribeOpts);
 
             // rs.channel.subscribe('', (data, meta)=> {
@@ -781,15 +789,15 @@ function RunRouter(config, notifier) {
         }
     });
 
-    var handlers = [$.extend({}, metaChannel, {
+    var handlers = [$.extend({}, metaHandler, {
         name: 'meta',
         match: Object(__WEBPACK_IMPORTED_MODULE_5_channels_route_handlers_route_matchers__["b" /* matchPrefix */])(META_PREFIX),
         options: opts.channelOptions.meta
-    }), $.extend({}, operationsChannel, {
+    }), $.extend({}, operationsHandler, {
         name: 'operations',
         match: Object(__WEBPACK_IMPORTED_MODULE_5_channels_route_handlers_route_matchers__["b" /* matchPrefix */])(OPERATIONS_PREFIX),
         options: opts.channelOptions.operations
-    }), $.extend({}, variableschannel, {
+    }), $.extend({}, variablesHandler, {
         isDefault: true,
         name: 'variables',
         match: Object(__WEBPACK_IMPORTED_MODULE_5_channels_route_handlers_route_matchers__["a" /* matchDefaultPrefix */])(VARIABLES_PREFIX),
@@ -806,7 +814,7 @@ function RunRouter(config, notifier) {
             //all the silencing will be taken care of by the router
             var shouldFetch = _shouldFetch(result, ['reset']);
             if (shouldFetch) {
-                variableschannel.fetch();
+                variablesHandler.fetch();
             }
             return result;
         });
@@ -1245,6 +1253,51 @@ function parseTopics(topics) {
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
+Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
+/**
+  * @type AttributeHandler
+  */
+var hideifHandler = {
+    test: 'hideif',
+
+    target: '*',
+
+    init: function (attr, value, $el) {
+        $el.hide(); //hide by default; if not this shows text until data is fetched
+    },
+    handle: function (value, prop, $el) {
+        if (Array.isArray(value)) {
+            value = value[value.length - 1];
+        }
+        if (value && ('' + value).trim()) {
+            $el.hide();
+        } else {
+            $el.show();
+        }
+    }
+};
+
+/* harmony default export */ __webpack_exports__["default"] = (hideifHandler);
+
+/***/ }),
+/* 16 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* harmony export (immutable) */ __webpack_exports__["a"] = makeConsensusService;
+function makeConsensusService(consensisAPIResponse) {
+    return new window.F.service.Consensus({
+        name: consensisAPIResponse.stage,
+        consensusGroup: consensisAPIResponse.name,
+        worldId: consensisAPIResponse.worldId
+    });
+}
+
+/***/ }),
+/* 17 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
 /* harmony export (immutable) */ __webpack_exports__["a"] = extractDependencies;
 /* harmony export (immutable) */ __webpack_exports__["b"] = interpolateWithValues;
 var interpolationRegex = /<(.*?)>/g;
@@ -1275,7 +1328,7 @@ function interpolateWithValues(topic, data) {
 }
 
 /***/ }),
-/* 16 */
+/* 18 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /**
@@ -1343,10 +1396,10 @@ function interpolateWithValues(topic, data) {
  *
  */
 
-var domManager = __webpack_require__(17);
+var domManager = __webpack_require__(19);
 var BaseView = __webpack_require__(13);
 
-var ChannelManager = __webpack_require__(51).default;
+var ChannelManager = __webpack_require__(52).default;
 var config = __webpack_require__(1);
 
 var Flow = {
@@ -1399,7 +1452,7 @@ if (true) Flow.version = "0.11.0"; //eslint-disable-line no-undef
 module.exports = Flow;
 
 /***/ }),
-/* 17 */
+/* 19 */
 /***/ (function(module, exports, __webpack_require__) {
 
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
@@ -1413,28 +1466,29 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
  *
  */
 
-var _require = __webpack_require__(18),
+var _require = __webpack_require__(20),
     getConvertersForEl = _require.getConvertersForEl,
     getChannelForAttribute = _require.getChannelForAttribute,
     getChannelConfigForElement = _require.getChannelConfigForElement,
     parseTopicsFromAttributeValue = _require.parseTopicsFromAttributeValue;
 
-var _require2 = __webpack_require__(22),
+var _require2 = __webpack_require__(24),
     addPrefixToTopics = _require2.addPrefixToTopics,
     addDefaultPrefix = _require2.addDefaultPrefix;
 
-var _require3 = __webpack_require__(3),
+var _require3 = __webpack_require__(4),
     toImplicitType = _require3.toImplicitType;
 
 var _require4 = __webpack_require__(0),
-    pick = _require4.pick;
+    pick = _require4.pick,
+    isEqual = _require4.isEqual;
 
 var config = __webpack_require__(1);
 
-var converterManager = __webpack_require__(23).default;
-var nodeManager = __webpack_require__(32).default;
-var attrManager = __webpack_require__(34).default;
-var autoUpdatePlugin = __webpack_require__(50).default;
+var converterManager = __webpack_require__(25).default;
+var nodeManager = __webpack_require__(34).default;
+var attrManager = __webpack_require__(36).default;
+var autoUpdatePlugin = __webpack_require__(51).default;
 
 module.exports = function () {
     //Jquery selector to return everything which has a f- property set
@@ -1638,7 +1692,10 @@ module.exports = function () {
                 var subscribableTopics = topics.map(function (t) {
                     return t.name;
                 });
-                var subsid = channel.subscribe(subscribableTopics, function (data) {
+                var subsid = channel.subscribe(subscribableTopics, function (data, meta) {
+                    if (meta && isEqual(data, meta.previousData)) {
+                        return;
+                    }
                     var toConvert = {};
                     if (subscribableTopics.length === 1) {
                         //If I'm only interested in 1 thing pass in value directly, else make a map;
@@ -1830,14 +1887,14 @@ module.exports = function () {
 }();
 
 /***/ }),
-/* 18 */
+/* 20 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__parse_converters__ = __webpack_require__(19);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__parse_channel__ = __webpack_require__(20);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__parse_topics__ = __webpack_require__(21);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__parse_converters__ = __webpack_require__(21);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__parse_channel__ = __webpack_require__(22);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__parse_topics__ = __webpack_require__(23);
 /* harmony reexport (binding) */ __webpack_require__.d(__webpack_exports__, "getConvertersForEl", function() { return __WEBPACK_IMPORTED_MODULE_0__parse_converters__["a"]; });
 /* harmony reexport (binding) */ __webpack_require__.d(__webpack_exports__, "getChannelForAttribute", function() { return __WEBPACK_IMPORTED_MODULE_1__parse_channel__["b"]; });
 /* harmony reexport (binding) */ __webpack_require__.d(__webpack_exports__, "getChannelConfigForElement", function() { return __WEBPACK_IMPORTED_MODULE_1__parse_channel__["a"]; });
@@ -1849,7 +1906,7 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 
 
 /***/ }),
-/* 19 */
+/* 21 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -1924,7 +1981,7 @@ function getConvertersForEl($el, attribute) {
 }
 
 /***/ }),
-/* 20 */
+/* 22 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -1970,7 +2027,7 @@ function getChannelConfigForElement(el) {
 }
 
 /***/ }),
-/* 21 */
+/* 23 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -1996,7 +2053,7 @@ function parseTopicsFromAttributeValue(attrVal) {
 }
 
 /***/ }),
-/* 22 */
+/* 24 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -2044,14 +2101,14 @@ function addDefaultPrefix(name, source, channelPrefix) {
 }
 
 /***/ }),
-/* 23 */
+/* 25 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_lodash__ = __webpack_require__(0);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_lodash___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_lodash__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__utils_parse_utils__ = __webpack_require__(3);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__utils_parse_utils__ = __webpack_require__(4);
 
 
 
@@ -2248,7 +2305,7 @@ var converterManager = {
 };
 
 //Bootstrap
-var defaultconverters = [__webpack_require__(24), __webpack_require__(25), __webpack_require__(26), __webpack_require__(27), __webpack_require__(28), __webpack_require__(29), __webpack_require__(30), __webpack_require__(31)];
+var defaultconverters = [__webpack_require__(26), __webpack_require__(27), __webpack_require__(28), __webpack_require__(29), __webpack_require__(30), __webpack_require__(31), __webpack_require__(32), __webpack_require__(33)];
 
 defaultconverters.reverse().forEach(function (converter) {
     if (Array.isArray(converter)) {
@@ -2263,7 +2320,7 @@ defaultconverters.reverse().forEach(function (converter) {
 /* harmony default export */ __webpack_exports__["default"] = (converterManager);
 
 /***/ }),
-/* 24 */
+/* 26 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -2302,7 +2359,7 @@ module.exports = {
 };
 
 /***/ }),
-/* 25 */
+/* 27 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -2396,7 +2453,7 @@ module.exports = {
 };
 
 /***/ }),
-/* 26 */
+/* 28 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /**
@@ -2593,7 +2650,7 @@ var mapped = Object.keys(list).map(function (alias) {
 module.exports = mapped;
 
 /***/ }),
-/* 27 */
+/* 29 */
 /***/ (function(module, exports) {
 
 function parseArgs(toCompare, trueVal, falseVal, valueToCompare, matchString) {
@@ -2623,7 +2680,7 @@ module.exports = [{
 }];
 
 /***/ }),
-/* 28 */
+/* 30 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /**
@@ -3014,7 +3071,7 @@ module.exports = {
 };
 
 /***/ }),
-/* 29 */
+/* 31 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -3192,7 +3249,7 @@ module.exports = {
 };
 
 /***/ }),
-/* 30 */
+/* 32 */
 /***/ (function(module, exports) {
 
 /**
@@ -3304,7 +3361,7 @@ module.exports = {
 };
 
 /***/ }),
-/* 31 */
+/* 33 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var _ = __webpack_require__(0);
@@ -3404,7 +3461,7 @@ var converters = Object.keys(list).map(function (name) {
 module.exports = converters;
 
 /***/ }),
-/* 32 */
+/* 34 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -3486,7 +3543,7 @@ var nodeManager = {
 };
 
 //bootstraps
-var defaultHandlers = [__webpack_require__(33).default, __webpack_require__(11), __webpack_require__(12)];
+var defaultHandlers = [__webpack_require__(35).default, __webpack_require__(11), __webpack_require__(12)];
 defaultHandlers.reverse().forEach(function (handler) {
     nodeManager.register(handler.selector, handler);
 });
@@ -3494,7 +3551,7 @@ defaultHandlers.reverse().forEach(function (handler) {
 /* harmony default export */ __webpack_exports__["default"] = (nodeManager);
 
 /***/ }),
-/* 33 */
+/* 35 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -3529,7 +3586,7 @@ var offAttr = __WEBPACK_IMPORTED_MODULE_1_config___default.a.attrs.checkboxOffVa
 }, { selector: ':checkbox,:radio' }));
 
 /***/ }),
-/* 34 */
+/* 36 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -3580,7 +3637,7 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 
 
 
-var defaultHandlers = [__webpack_require__(35).default, __webpack_require__(36).default, __webpack_require__(37).default, __webpack_require__(38).default, __webpack_require__(41).default, __webpack_require__(42).default, __webpack_require__(43).default, __webpack_require__(44).default, __webpack_require__(45).default, __webpack_require__(46).default, __webpack_require__(47).default, __webpack_require__(49).default];
+var defaultHandlers = [__webpack_require__(37).default, __webpack_require__(38).default, __webpack_require__(39).default, __webpack_require__(40).default, __webpack_require__(43).default, __webpack_require__(44).default, __webpack_require__(45).default, __webpack_require__(15).default, __webpack_require__(46).default, __webpack_require__(47).default, __webpack_require__(48).default, __webpack_require__(50).default];
 
 var handlersList = [];
 
@@ -3689,7 +3746,7 @@ var attributeManager = {
 /* harmony default export */ __webpack_exports__["default"] = (attributeManager);
 
 /***/ }),
-/* 35 */
+/* 37 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -3719,14 +3776,14 @@ var noopAttr = {
 /* harmony default export */ __webpack_exports__["default"] = (noopAttr);
 
 /***/ }),
-/* 36 */
+/* 38 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_config__ = __webpack_require__(1);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_config___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_config__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_utils_parse_utils__ = __webpack_require__(3);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_utils_parse_utils__ = __webpack_require__(4);
 
 
 
@@ -3765,12 +3822,12 @@ var defaultEventAttr = {
 /* harmony default export */ __webpack_exports__["default"] = (defaultEventAttr);
 
 /***/ }),
-/* 37 */
+/* 39 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_utils_parse_utils__ = __webpack_require__(3);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_utils_parse_utils__ = __webpack_require__(4);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__config__ = __webpack_require__(1);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__config___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1__config__);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__loop_attr_utils__ = __webpack_require__(14);
@@ -3879,20 +3936,21 @@ var foreachAttr = {
 /* harmony default export */ __webpack_exports__["default"] = (foreachAttr);
 
 /***/ }),
-/* 38 */
+/* 40 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_lodash__ = __webpack_require__(0);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_lodash___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_lodash__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_utils_parse_utils__ = __webpack_require__(3);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_utils_parse_utils__ = __webpack_require__(4);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_utils_general__ = __webpack_require__(7);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__config__ = __webpack_require__(1);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__config___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_3__config__);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_4_utils_animation__ = __webpack_require__(9);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__attr_template_utils__ = __webpack_require__(10);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_6__loop_attr_utils__ = __webpack_require__(14);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_7__toggles_hide_if_attr__ = __webpack_require__(15);
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
 
@@ -3905,6 +3963,7 @@ var templateIdAttr = __WEBPACK_IMPORTED_MODULE_3__config__["attrs"].repeat.templ
 
 
 var elAnimatedMap = new WeakMap(); //TODO: Can probably get rid of this if we make subscribe a promise and distinguish between initial value
+
 
 
 
@@ -3966,8 +4025,14 @@ var loopAttrHandler = {
         var missingReferences = Object(__WEBPACK_IMPORTED_MODULE_5__attr_template_utils__["c" /* findMissingReferences */])(originalHTML, [keyAlias, valueAlias].concat(Object.keys(knownData)));
         var stubbedTemplate = Object(__WEBPACK_IMPORTED_MODULE_5__attr_template_utils__["h" /* stubMissingReferences */])(originalHTML, missingReferences);
 
+        if (Object(__WEBPACK_IMPORTED_MODULE_0_lodash__["isEmpty"])(value)) {
+            $el.attr('hidden', 'true'); //There's always going to be 1 el otherwise
+        } else {
+            $el.removeAttr('hidden');
+        }
+
         var templateFn = Object(__WEBPACK_IMPORTED_MODULE_0_lodash__["template"])(stubbedTemplate);
-        var last;
+        var last = void 0;
         Object(__WEBPACK_IMPORTED_MODULE_0_lodash__["each"])(value, function (dataval, datakey) {
             var _$$extend;
 
@@ -4026,7 +4091,7 @@ var loopAttrHandler = {
 /* harmony default export */ __webpack_exports__["default"] = (loopAttrHandler);
 
 /***/ }),
-/* 39 */
+/* 41 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -4070,7 +4135,7 @@ function makePromise(val) {
 }
 
 /***/ }),
-/* 40 */
+/* 42 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -4158,7 +4223,7 @@ function debounceAndMerge(fn, debounceInterval, argumentsReducers) {
 }
 
 /***/ }),
-/* 41 */
+/* 43 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -4210,7 +4275,7 @@ var classAttr = {
 /* harmony default export */ __webpack_exports__["default"] = (classAttr);
 
 /***/ }),
-/* 42 */
+/* 44 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -4235,7 +4300,7 @@ var booleanAttrHandler = {
 /* harmony default export */ __webpack_exports__["default"] = (booleanAttrHandler);
 
 /***/ }),
-/* 43 */
+/* 45 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -4263,38 +4328,7 @@ var showifHandler = {
 /* harmony default export */ __webpack_exports__["default"] = (showifHandler);
 
 /***/ }),
-/* 44 */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
-/**
-  * @type AttributeHandler
-  */
-var hideifHandler = {
-    test: 'hideif',
-
-    target: '*',
-
-    init: function (attr, value, $el) {
-        $el.hide(); //hide by default; if not this shows text until data is fetched
-    },
-    handle: function (value, prop, $el) {
-        if (Array.isArray(value)) {
-            value = value[value.length - 1];
-        }
-        if (value && ('' + value).trim()) {
-            $el.hide();
-        } else {
-            $el.show();
-        }
-    }
-};
-
-/* harmony default export */ __webpack_exports__["default"] = (hideifHandler);
-
-/***/ }),
-/* 45 */
+/* 46 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -4321,7 +4355,7 @@ var checkboxAttrHandler = {
 /* harmony default export */ __webpack_exports__["default"] = (checkboxAttrHandler);
 
 /***/ }),
-/* 46 */
+/* 47 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -4347,7 +4381,7 @@ var inputBindAttr = {
 /* harmony default export */ __webpack_exports__["default"] = (inputBindAttr);
 
 /***/ }),
-/* 47 */
+/* 48 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -4357,7 +4391,7 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_utils_animation__ = __webpack_require__(9);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_config__ = __webpack_require__(1);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_config___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_2_config__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__bind_utils__ = __webpack_require__(48);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__bind_utils__ = __webpack_require__(49);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__attr_template_utils__ = __webpack_require__(10);
 
 
@@ -4456,7 +4490,7 @@ var bindAttrHandler = {
 /* harmony default export */ __webpack_exports__["default"] = (bindAttrHandler);
 
 /***/ }),
-/* 48 */
+/* 49 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -4517,7 +4551,7 @@ function extractAlias(attrVal) {
 }
 
 /***/ }),
-/* 49 */
+/* 50 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -4542,7 +4576,7 @@ var defaultAttr = {
 /* harmony default export */ __webpack_exports__["default"] = (defaultAttr);
 
 /***/ }),
-/* 50 */
+/* 51 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -4599,16 +4633,16 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 });
 
 /***/ }),
-/* 51 */
+/* 52 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 /* harmony export (immutable) */ __webpack_exports__["default"] = ChannelManager;
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__channel_manager__ = __webpack_require__(52);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_channels_channel_router__ = __webpack_require__(4);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__route_handlers__ = __webpack_require__(57);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__channel_manager_enhancements__ = __webpack_require__(72);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__channel_manager__ = __webpack_require__(53);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_channels_channel_router__ = __webpack_require__(3);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__route_handlers__ = __webpack_require__(58);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__channel_manager_enhancements__ = __webpack_require__(76);
 
 
 
@@ -4627,11 +4661,11 @@ function ChannelManager(opts) {
 }
 
 /***/ }),
-/* 52 */
+/* 53 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_jquery__ = __webpack_require__(53);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_jquery__ = __webpack_require__(54);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_jquery___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_jquery__);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__channel_utils__ = __webpack_require__(5);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_lodash__ = __webpack_require__(0);
@@ -4639,6 +4673,8 @@ function ChannelManager(opts) {
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
 
 
@@ -4706,12 +4742,10 @@ function copy(data) {
 * @param {Subscription} subscription 
 * @param {*} data
 */
-function callbackIfChanged(subscription, data) {
+function callbackSubscriber(subscription, data) {
     var id = subscription.id;
-    // if (!isEqual(sentDataBySubsId[id], data)) { //This won't work for operations; reset for e.g., will only be called once
-    // sentDataBySubsId[id] = copy(data);
-    subscription.callback(data, { id: id });
-    // }
+    subscription.callback(data, { id: id, previousData: sentDataBySubsId[id] });
+    sentDataBySubsId[id] = copy(data);
 }
 
 /**
@@ -4724,20 +4758,20 @@ function checkAndNotifyBatch(topics, subscription) {
     if (!matchingTopics.length) {
         return;
     }
+
     var relevantDataFromPublish = matchingTopics.reduce(function (accum, topic) {
         accum[topic] = publishData[topic];
         return accum;
     }, {});
-
     var cachedDataForSubs = cacheBySubsId[subscription.id] || {};
-    var knownDataForSubs = __WEBPACK_IMPORTED_MODULE_0_jquery___default.a.extend(true, {}, cachedDataForSubs, relevantDataFromPublish);
+    var knownDataForSubs = __WEBPACK_IMPORTED_MODULE_0_jquery___default.a.extend({}, cachedDataForSubs, relevantDataFromPublish); //jQ Deep clone here will also concat arrays.
 
     if (subscription.cache) {
         cacheBySubsId[subscription.id] = knownDataForSubs;
     }
     var hasDataForAllTopics = Object(__WEBPACK_IMPORTED_MODULE_2_lodash__["intersection"])(Object.keys(knownDataForSubs), subscription.topics).length === subscription.topics.length;
     if (hasDataForAllTopics) {
-        callbackIfChanged(subscription, knownDataForSubs);
+        callbackSubscriber(subscription, knownDataForSubs);
     }
 }
 
@@ -4747,10 +4781,10 @@ function checkAndNotifyBatch(topics, subscription) {
  */
 function checkAndNotify(topics, subscription) {
     topics.forEach(function (topic) {
-        if (Object(__WEBPACK_IMPORTED_MODULE_2_lodash__["includes"])(subscription.topics, topic.name) || Object(__WEBPACK_IMPORTED_MODULE_2_lodash__["includes"])(subscription.topics, '*')) {
-            var toSend = {};
-            toSend[topic.name] = topic.value;
-            callbackIfChanged(subscription, toSend);
+        var needsThisTopic = subscription.topics.indexOf(topic.name) !== -1;
+        var isWildCard = subscription.topics.indexOf('*') !== -1;
+        if (needsThisTopic || isWildCard) {
+            callbackSubscriber(subscription, _defineProperty({}, topic.name, topic.value));
         }
     });
 }
@@ -4820,7 +4854,7 @@ var ChannelManager = function () {
         key: 'subscribe',
         value: function subscribe(topics, cb, options) {
             var subs = makeSubs(topics, cb, options);
-            delete cacheBySubsId[subs.id];
+            delete cacheBySubsId[subs.id]; //Just in case subsid is being reused
             delete sentDataBySubsId[subs.id];
             this.subscriptions = this.subscriptions.concat(subs);
             return subs.id;
@@ -4871,12 +4905,12 @@ var ChannelManager = function () {
     }, {
         key: 'getSubscribers',
         value: function getSubscribers(topic) {
-            if (topic) {
-                return this.subscriptions.filter(function (subs) {
-                    return Object(__WEBPACK_IMPORTED_MODULE_2_lodash__["includes"])(subs.topics, topic);
-                });
+            if (!topic) {
+                return this.subscriptions;
             }
-            return this.subscriptions;
+            return this.subscriptions.filter(function (subs) {
+                return subs.topics.indexOf(topic) !== -1;
+            });
         }
     }]);
 
@@ -4886,13 +4920,13 @@ var ChannelManager = function () {
 /* harmony default export */ __webpack_exports__["a"] = (ChannelManager);
 
 /***/ }),
-/* 53 */
+/* 54 */
 /***/ (function(module, exports) {
 
 module.exports = jQuery;
 
 /***/ }),
-/* 54 */
+/* 55 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -5005,7 +5039,7 @@ function normalizeSubscribeResponse(response, topics) {
 }
 
 /***/ }),
-/* 55 */
+/* 56 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -5033,7 +5067,7 @@ function silencable(published, silentOptions) {
 }
 
 /***/ }),
-/* 56 */
+/* 57 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -5076,24 +5110,24 @@ function excludeReadOnly(publishable, readOnlyOptions) {
 }
 
 /***/ }),
-/* 57 */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__json_router__ = __webpack_require__(58);
-/* harmony reexport (binding) */ __webpack_require__.d(__webpack_exports__, "b", function() { return __WEBPACK_IMPORTED_MODULE_0__json_router__["a"]; });
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__epicenter_router__ = __webpack_require__(59);
-/* harmony reexport (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return __WEBPACK_IMPORTED_MODULE_1__epicenter_router__["a"]; });
-
-
-
-/***/ }),
 /* 58 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__json_route_handler__ = __webpack_require__(59);
+/* harmony reexport (binding) */ __webpack_require__.d(__webpack_exports__, "b", function() { return __WEBPACK_IMPORTED_MODULE_0__json_route_handler__["a"]; });
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__epicenter_route_handlers__ = __webpack_require__(60);
+/* harmony reexport (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return __WEBPACK_IMPORTED_MODULE_1__epicenter_route_handlers__["a"]; });
+
+
+
+/***/ }),
+/* 59 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
 /* unused harmony export match */
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_utils_parse_utils__ = __webpack_require__(3);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_utils_parse_utils__ = __webpack_require__(4);
 
 
 function match(topic) {
@@ -5116,26 +5150,25 @@ function match(topic) {
 });
 
 /***/ }),
-/* 59 */
+/* 60 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__run_manager_router__ = __webpack_require__(60);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__scenario_manager_router__ = __webpack_require__(65);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__custom_run_router__ = __webpack_require__(66);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__world_manager_router__ = __webpack_require__(68);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__runs_router__ = __webpack_require__(71);
+/* harmony export (immutable) */ __webpack_exports__["a"] = EpicenterRouteHandler;
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__default_run_route_handler__ = __webpack_require__(61);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__scenario_route_handler__ = __webpack_require__(66);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__runid_route_handler__ = __webpack_require__(67);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__world_route_handler__ = __webpack_require__(69);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__multi_run_route_handler__ = __webpack_require__(75);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_5_channels_channel_router_utils__ = __webpack_require__(2);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_6_channels_route_handlers_route_matchers__ = __webpack_require__(6);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_7_channels_channel_router__ = __webpack_require__(4);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_7_channels_channel_router__ = __webpack_require__(3);
 
 
 
 
 
 
-
-// import UserRouter from './user-router/current-user-channel';
 
 
 
@@ -5157,23 +5190,23 @@ var WORLD_PREFIX = 'world:';
 var sampleRunidLength = '000001593dd81950d4ee4f3df14841769a0b'.length;
 var runidRegex = '(?:.{' + sampleRunidLength + '})';
 
-/* harmony default export */ __webpack_exports__["a"] = (function (config, notifier, channelManagerContext) {
+function EpicenterRouteHandler(config, notifier, channelManagerContext) {
     var opts = $.extend(true, {}, config);
 
-    var customRunChannelOpts = getOptions(opts, 'runid');
-    var customRunChannel = new __WEBPACK_IMPORTED_MODULE_2__custom_run_router__["a" /* default */](customRunChannelOpts, notifier);
-    var runsChannel = new __WEBPACK_IMPORTED_MODULE_4__runs_router__["a" /* default */](customRunChannelOpts, Object(__WEBPACK_IMPORTED_MODULE_5_channels_channel_router_utils__["g" /* withPrefix */])(notifier, 'runs'), channelManagerContext);
+    var runidHandlerOpts = getOptions(opts, 'runid');
+    var runidHandler = new __WEBPACK_IMPORTED_MODULE_2__runid_route_handler__["a" /* default */](runidHandlerOpts, notifier);
+    var multiRunHandler = new __WEBPACK_IMPORTED_MODULE_4__multi_run_route_handler__["a" /* default */](runidHandlerOpts, Object(__WEBPACK_IMPORTED_MODULE_5_channels_channel_router_utils__["g" /* withPrefix */])(notifier, 'runs'), channelManagerContext);
     // var userChannel = new UserRouter(getOptions(opts, 'runManager').run, withPrefix(notifier, 'user:'), channelManagerContext);
 
     /** @type {Handler[]} **/
-    var handlers = [$.extend({}, customRunChannel, {
+    var handlers = [$.extend({}, runidHandler, {
         name: 'customRun',
         match: Object(__WEBPACK_IMPORTED_MODULE_6_channels_route_handlers_route_matchers__["c" /* matchRegex */])(runidRegex),
-        options: customRunChannelOpts.channelOptions
-    }), $.extend({}, runsChannel, {
+        options: runidHandlerOpts.channelOptions
+    }), $.extend({}, multiRunHandler, {
         name: 'archiveRuns',
         match: Object(__WEBPACK_IMPORTED_MODULE_6_channels_route_handlers_route_matchers__["b" /* matchPrefix */])('runs:'),
-        options: customRunChannelOpts.channelOptions
+        options: runidHandlerOpts.channelOptions
     })];
     var exposable = {};
 
@@ -5182,7 +5215,7 @@ var runidRegex = '(?:.{' + sampleRunidLength + '})';
         var rm;
         var isMultiplayer = runManagerOpts.serviceOptions.strategy === 'multiplayer';
         if (opts.scenarioManager) {
-            rm = new __WEBPACK_IMPORTED_MODULE_0__run_manager_router__["a" /* default */](runManagerOpts, Object(__WEBPACK_IMPORTED_MODULE_5_channels_channel_router_utils__["g" /* withPrefix */])(notifier, RUN_PREFIX));
+            rm = new __WEBPACK_IMPORTED_MODULE_0__default_run_route_handler__["a" /* default */](runManagerOpts, Object(__WEBPACK_IMPORTED_MODULE_5_channels_channel_router_utils__["g" /* withPrefix */])(notifier, RUN_PREFIX));
             handlers.push($.extend({}, rm, {
                 name: 'run',
                 match: Object(__WEBPACK_IMPORTED_MODULE_6_channels_route_handlers_route_matchers__["b" /* matchPrefix */])(RUN_PREFIX), //if both scenario manager and run manager are being used, require a prefix
@@ -5190,7 +5223,7 @@ var runidRegex = '(?:.{' + sampleRunidLength + '})';
             }));
         } else if (isMultiplayer) {
             //Ignore case where both scenario manager and multiplayer are being used
-            rm = new __WEBPACK_IMPORTED_MODULE_3__world_manager_router__["a" /* default */](runManagerOpts, Object(__WEBPACK_IMPORTED_MODULE_5_channels_channel_router_utils__["g" /* withPrefix */])(notifier, [WORLD_PREFIX, '']));
+            rm = new __WEBPACK_IMPORTED_MODULE_3__world_route_handler__["a" /* default */](runManagerOpts, Object(__WEBPACK_IMPORTED_MODULE_5_channels_channel_router_utils__["g" /* withPrefix */])(notifier, [WORLD_PREFIX, '']));
             handlers.push($.extend({}, rm, {
                 name: 'World run',
                 match: Object(__WEBPACK_IMPORTED_MODULE_6_channels_route_handlers_route_matchers__["a" /* matchDefaultPrefix */])(WORLD_PREFIX),
@@ -5198,7 +5231,7 @@ var runidRegex = '(?:.{' + sampleRunidLength + '})';
                 options: runManagerOpts.channelOptions
             }));
         } else {
-            rm = new __WEBPACK_IMPORTED_MODULE_0__run_manager_router__["a" /* default */](runManagerOpts, Object(__WEBPACK_IMPORTED_MODULE_5_channels_channel_router_utils__["g" /* withPrefix */])(notifier, [RUN_PREFIX, '']));
+            rm = new __WEBPACK_IMPORTED_MODULE_0__default_run_route_handler__["a" /* default */](runManagerOpts, Object(__WEBPACK_IMPORTED_MODULE_5_channels_channel_router_utils__["g" /* withPrefix */])(notifier, [RUN_PREFIX, '']));
             handlers.push($.extend({}, rm, {
                 name: 'run',
                 match: Object(__WEBPACK_IMPORTED_MODULE_6_channels_route_handlers_route_matchers__["a" /* matchDefaultPrefix */])(RUN_PREFIX),
@@ -5212,7 +5245,7 @@ var runidRegex = '(?:.{' + sampleRunidLength + '})';
 
     if (opts.scenarioManager) {
         var scenarioManagerOpts = getOptions(opts, 'scenarioManager');
-        var sm = new __WEBPACK_IMPORTED_MODULE_1__scenario_manager_router__["a" /* default */](scenarioManagerOpts, Object(__WEBPACK_IMPORTED_MODULE_5_channels_channel_router_utils__["g" /* withPrefix */])(notifier, [SCENARIO_PREFIX, '']));
+        var sm = new __WEBPACK_IMPORTED_MODULE_1__scenario_route_handler__["a" /* default */](scenarioManagerOpts, Object(__WEBPACK_IMPORTED_MODULE_5_channels_channel_router_utils__["g" /* withPrefix */])(notifier, [SCENARIO_PREFIX, '']));
         handlers.push($.extend({}, sm, {
             name: 'scenario',
             match: Object(__WEBPACK_IMPORTED_MODULE_6_channels_route_handlers_route_matchers__["a" /* matchDefaultPrefix */])(SCENARIO_PREFIX),
@@ -5227,16 +5260,17 @@ var runidRegex = '(?:.{' + sampleRunidLength + '})';
     epicenterRouter.expose = exposable;
 
     return epicenterRouter;
-});
+}
 
 /***/ }),
-/* 60 */
+/* 61 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__run_router__ = __webpack_require__(8);
+/* harmony export (immutable) */ __webpack_exports__["a"] = RunManagerRouteHandler;
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__run_route_handler__ = __webpack_require__(8);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_channels_channel_router_utils__ = __webpack_require__(2);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_channels_channel_router__ = __webpack_require__(4);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_channels_channel_router__ = __webpack_require__(3);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_3_channels_route_handlers_route_matchers__ = __webpack_require__(6);
 
 
@@ -5250,7 +5284,7 @@ var _window = window,
 
 var RUN_PREFIX = 'current:';
 
-/* harmony default export */ __webpack_exports__["a"] = (function (config, notifier) {
+function RunManagerRouteHandler(config, notifier) {
     var defaults = {
         serviceOptions: {},
         channelOptions: {}
@@ -5264,7 +5298,7 @@ var RUN_PREFIX = 'current:';
         return rm.run;
     });
     var currentChannelOpts = $.extend(true, { serviceOptions: $creationPromise }, opts.defaults, opts.current);
-    var currentRunChannel = new __WEBPACK_IMPORTED_MODULE_0__run_router__["a" /* default */](currentChannelOpts, Object(__WEBPACK_IMPORTED_MODULE_1_channels_channel_router_utils__["g" /* withPrefix */])(notifier, [RUN_PREFIX, '']));
+    var currentRunChannel = new __WEBPACK_IMPORTED_MODULE_0__run_route_handler__["a" /* default */](currentChannelOpts, Object(__WEBPACK_IMPORTED_MODULE_1_channels_channel_router_utils__["g" /* withPrefix */])(notifier, [RUN_PREFIX, '']));
 
     var runRouteHandler = $.extend(currentRunChannel, {
         match: Object(__WEBPACK_IMPORTED_MODULE_3_channels_route_handlers_route_matchers__["a" /* matchDefaultPrefix */])(RUN_PREFIX), //TODO: Just remove prefix?
@@ -5278,21 +5312,21 @@ var RUN_PREFIX = 'current:';
     runMangerRouter.expose = { runManager: rm };
 
     return runMangerRouter;
-});
+}
 
 /***/ }),
-/* 61 */
+/* 62 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* harmony export (immutable) */ __webpack_exports__["a"] = RunMetaChannel;
+/* harmony export (immutable) */ __webpack_exports__["a"] = RunMetaRouteHandler;
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_channels_channel_utils__ = __webpack_require__(5);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_lodash__ = __webpack_require__(0);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_lodash___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1_lodash__);
 
 
 
-function RunMetaChannel($runServicePromise, notifier) {
+function RunMetaRouteHandler($runServicePromise, notifier) {
 
     function mergeAndSend(runMeta, requestedTopics) {
         var toSend = [].concat(requestedTopics).reduce(function (accum, meta) {
@@ -5338,24 +5372,24 @@ function RunMetaChannel($runServicePromise, notifier) {
 }
 
 /***/ }),
-/* 62 */
+/* 63 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* harmony export (immutable) */ __webpack_exports__["a"] = RunVariablesChannel;
+/* harmony export (immutable) */ __webpack_exports__["a"] = RunVariablesRouteHandler;
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_utils_general__ = __webpack_require__(7);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_channels_channel_utils__ = __webpack_require__(5);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_lodash__ = __webpack_require__(0);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_lodash___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_2_lodash__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__retriable_variable_fetch__ = __webpack_require__(63);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__retriable_variable_fetch__ = __webpack_require__(64);
 
 
 
 
 // import { optimizedFetch } from './optimized-variables-fetch';
 
-function RunVariablesChannel($runServicePromise, notifier) {
-    var id = Object(__WEBPACK_IMPORTED_MODULE_2_lodash__["uniqueId"])('variable-channel');
+function RunVariablesRouteHandler($runServicePromise, notifier) {
+    var id = Object(__WEBPACK_IMPORTED_MODULE_2_lodash__["uniqueId"])('variable-route-handler');
 
     function debouncedVariableQuery(runService, debounceInterval) {
         if (!runService.debouncedFetchers) {
@@ -5435,7 +5469,7 @@ function RunVariablesChannel($runServicePromise, notifier) {
 }
 
 /***/ }),
-/* 63 */
+/* 64 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -5460,12 +5494,12 @@ function retriableFetch(runService, variables) {
 }
 
 /***/ }),
-/* 64 */
+/* 65 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* harmony export (immutable) */ __webpack_exports__["a"] = RunOperationsChannel;
-function RunOperationsChannel($runServicePromise, notifier) {
+/* harmony export (immutable) */ __webpack_exports__["a"] = RunOperationsRouteHandler;
+function RunOperationsRouteHandler($runServicePromise, notifier) {
     return {
         notify: function (operationsResponse) {
             var parsed = [{ name: operationsResponse.name, value: operationsResponse.result }];
@@ -5492,20 +5526,21 @@ function RunOperationsChannel($runServicePromise, notifier) {
 }
 
 /***/ }),
-/* 65 */
+/* 66 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__run_router__ = __webpack_require__(8);
+/* harmony export (immutable) */ __webpack_exports__["a"] = ScenarioManagerRouteHandler;
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__run_route_handler__ = __webpack_require__(8);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_channels_channel_router_utils__ = __webpack_require__(2);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_channels_channel_router__ = __webpack_require__(4);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_channels_channel_router__ = __webpack_require__(3);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_3_channels_route_handlers_route_matchers__ = __webpack_require__(6);
 
 
 
 
 
-/* harmony default export */ __webpack_exports__["a"] = (function (config, notifier) {
+function ScenarioManagerRouteHandler(config, notifier) {
     var defaults = {
         serviceOptions: {},
         channelOptions: {}
@@ -5536,13 +5571,13 @@ function RunOperationsChannel($runServicePromise, notifier) {
         serviceOptions: currentRunPromise
     }, opts.defaults, opts.current);
 
-    var baselineChannel = new __WEBPACK_IMPORTED_MODULE_0__run_router__["a" /* default */](baselineOptions, Object(__WEBPACK_IMPORTED_MODULE_1_channels_channel_router_utils__["g" /* withPrefix */])(notifier, 'baseline:'));
-    var currentRunChannel = new __WEBPACK_IMPORTED_MODULE_0__run_router__["a" /* default */](runOptions, Object(__WEBPACK_IMPORTED_MODULE_1_channels_channel_router_utils__["g" /* withPrefix */])(notifier, ['current:', '']));
-    var handlers = [$.extend(baselineChannel, {
+    var baselineHandler = new __WEBPACK_IMPORTED_MODULE_0__run_route_handler__["a" /* default */](baselineOptions, Object(__WEBPACK_IMPORTED_MODULE_1_channels_channel_router_utils__["g" /* withPrefix */])(notifier, 'baseline:'));
+    var currentRunHandler = new __WEBPACK_IMPORTED_MODULE_0__run_route_handler__["a" /* default */](runOptions, Object(__WEBPACK_IMPORTED_MODULE_1_channels_channel_router_utils__["g" /* withPrefix */])(notifier, ['current:', '']));
+    var handlers = [$.extend(baselineHandler, {
         name: 'baseline',
         match: Object(__WEBPACK_IMPORTED_MODULE_3_channels_route_handlers_route_matchers__["b" /* matchPrefix */])('baseline:'),
         options: baselineOptions.channelOptions
-    }), $.extend(currentRunChannel, {
+    }), $.extend(currentRunHandler, {
         isDefault: true,
         name: 'current',
         match: Object(__WEBPACK_IMPORTED_MODULE_3_channels_route_handlers_route_matchers__["a" /* matchDefaultPrefix */])('current:'),
@@ -5552,19 +5587,20 @@ function RunOperationsChannel($runServicePromise, notifier) {
     var scenarioManagerRouter = Object(__WEBPACK_IMPORTED_MODULE_2_channels_channel_router__["a" /* default */])(handlers, notifier);
     scenarioManagerRouter.expose = { scenarioManager: sm };
     return scenarioManagerRouter;
-});
+}
 
 /***/ }),
-/* 66 */
+/* 67 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__run_router_factory__ = __webpack_require__(67);
+/* harmony export (immutable) */ __webpack_exports__["a"] = RunidRouteHandler;
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__run_router_factory__ = __webpack_require__(68);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_channels_channel_router_utils__ = __webpack_require__(2);
 
 
 
-/* harmony default export */ __webpack_exports__["a"] = (function (options, notifier) {
+function RunidRouteHandler(options, notifier) {
     if (!options) options = {};
 
     var opts = {};
@@ -5584,14 +5620,14 @@ function RunOperationsChannel($runServicePromise, notifier) {
             return channel.publishHandler(topics);
         }
     };
-});
+}
 
 /***/ }),
-/* 67 */
+/* 68 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__run_router__ = __webpack_require__(8);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__run_route_handler__ = __webpack_require__(8);
 
 var knownRunIDServiceChannels = {};
 
@@ -5599,23 +5635,26 @@ var knownRunIDServiceChannels = {};
     var runChannel = knownRunIDServiceChannels[runid];
     if (!runChannel) {
         var runOptions = $.extend(true, {}, options, { serviceOptions: { id: runid } });
-        runChannel = new __WEBPACK_IMPORTED_MODULE_0__run_router__["a" /* default */](runOptions, notifier);
+        runChannel = new __WEBPACK_IMPORTED_MODULE_0__run_route_handler__["a" /* default */](runOptions, notifier);
         knownRunIDServiceChannels[runid] = runChannel;
     }
     return runChannel;
 });
 
 /***/ }),
-/* 68 */
+/* 69 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__world_users_channel__ = __webpack_require__(69);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__world_current_user_channel__ = __webpack_require__(70);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_channels_channel_router_utils__ = __webpack_require__(2);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3_channels_route_handlers_route_matchers__ = __webpack_require__(6);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__run_router__ = __webpack_require__(8);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5_channels_channel_router__ = __webpack_require__(4);
+/* harmony export (immutable) */ __webpack_exports__["a"] = WorldRoutesHandler;
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__world_users_route_handler__ = __webpack_require__(70);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__world_current_user_route_handler__ = __webpack_require__(71);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__consensus_route_handler__ = __webpack_require__(72);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3_channels_channel_router_utils__ = __webpack_require__(2);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4_channels_route_handlers_route_matchers__ = __webpack_require__(6);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__run_route_handler__ = __webpack_require__(8);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_6_channels_channel_router__ = __webpack_require__(3);
+
 
 
 
@@ -5628,10 +5667,14 @@ var knownRunIDServiceChannels = {};
 var _window = window,
     F = _window.F;
 
-//TODO: Add custom worldid channel as well
-//
 
-/* harmony default export */ __webpack_exports__["a"] = (function (config, notifier) {
+var RUN_PREFIX = 'run:';
+var MULTI_USER_PREFIX = 'users:';
+var USER_PREFIX = 'user:';
+var CONSENSUS_PREFIX = 'consensus:';
+
+//TODO: Add custom worldid channel as well
+function WorldRoutesHandler(config, notifier) {
     var _this = this;
 
     var defaults = {
@@ -5643,76 +5686,128 @@ var _window = window,
     var rmOptions = opts.serviceOptions;
     var rm = new F.manager.RunManager(rmOptions);
 
-    var getRunPromise = rm.getRun().then(function (run) {
-        if (!run.world) {
-            console.error('No world found in run. Make sure you\'re using EpicenterJS version > 2.7');
-            throw new Error('Could not find world');
+    var runPromise = null;
+    function getRun() {
+        if (!runPromise) {
+            runPromise = rm.getRun().then(function (run) {
+                if (!run.world) {
+                    console.error('No world found in run. Make sure you\'re using EpicenterJS version > 2.7');
+                    throw new Error('Could not find world');
+                }
+                return run;
+            }, function (err) {
+                console.error('Run manager get run error', err);
+                throw err;
+            });
         }
-        return run;
-    }, function (err) {
-        console.error('Run manager get run error', err);
-        throw err;
-    });
-    var $runPromise = getRunPromise.then(function (run) {
-        if (rm.run.channel) {
+        return runPromise;
+    }
+    var $runPromise = getRun().then(function (run) {
+        var alreadyStubbedRunChannel = rm.run.channel; //FIXME: Explicitly pass instead of stubbing on a channel
+        if (alreadyStubbedRunChannel) {
             return rm.run;
         }
         var channelManager = new F.manager.ChannelManager();
         var worldChannel = channelManager.getWorldChannel(run.world);
 
         worldChannel.subscribe(worldChannel.TOPICS.RUN_RESET, function (run) {
-            rm.run.updateConfig({ filter: run.id });
+            rm.run.updateConfig({ filter: run.id }); //Run handler is also listening on the run and will take care of notifying
         }, _this, { includeMine: false });
         rm.run.channel = worldChannel;
         return rm.run;
     });
 
-    var currentRunChannelOpts = $.extend(true, { serviceOptions: $runPromise }, opts.defaults, opts.current);
-    var currentRunChannel = new __WEBPACK_IMPORTED_MODULE_4__run_router__["a" /* default */](currentRunChannelOpts, Object(__WEBPACK_IMPORTED_MODULE_2_channels_channel_router_utils__["g" /* withPrefix */])(notifier, ['run:', '']));
+    var currentRunHandlerOpts = $.extend(true, { serviceOptions: $runPromise }, opts.defaults, opts.current);
+    var currentRunHandler = new __WEBPACK_IMPORTED_MODULE_5__run_route_handler__["a" /* default */](currentRunHandlerOpts, Object(__WEBPACK_IMPORTED_MODULE_3_channels_channel_router_utils__["g" /* withPrefix */])(notifier, [RUN_PREFIX, '']));
 
     var handlers = [];
 
-    var runRouteHandler = $.extend(currentRunChannel, {
-        match: Object(__WEBPACK_IMPORTED_MODULE_3_channels_route_handlers_route_matchers__["a" /* matchDefaultPrefix */])('run:'),
+    var runRouteHandler = $.extend(currentRunHandler, {
+        match: Object(__WEBPACK_IMPORTED_MODULE_4_channels_route_handlers_route_matchers__["a" /* matchDefaultPrefix */])(RUN_PREFIX),
         name: 'World Run',
         isDefault: true,
-        options: currentRunChannelOpts.channelOptions
+        options: currentRunHandlerOpts.channelOptions
     });
     handlers.unshift(runRouteHandler);
 
-    var worldPromise = getRunPromise.then(function (run) {
-        return run.world;
-    });
-    var multiUserChannel = new __WEBPACK_IMPORTED_MODULE_0__world_users_channel__["a" /* default */](worldPromise, Object(__WEBPACK_IMPORTED_MODULE_2_channels_channel_router_utils__["g" /* withPrefix */])(notifier, 'users:'));
-    var multiUserHandler = $.extend(multiUserChannel, {
-        match: Object(__WEBPACK_IMPORTED_MODULE_3_channels_route_handlers_route_matchers__["b" /* matchPrefix */])('users:'),
+    var $worldProm = null;
+    function getWorld() {
+        if (!$worldProm) {
+            $worldProm = getRun().then(function (run) {
+                return run.world;
+            });
+        }
+        return $worldProm;
+    }
+
+    var worldChannelMap = {};
+    var channelManager = new F.manager.ChannelManager();
+    function getChannelForWorld(worldid) {
+        if (!worldChannelMap[worldid]) {
+            worldChannelMap[worldid] = channelManager.getWorldChannel(worldid);
+        }
+        return worldChannelMap[worldid];
+    }
+
+    var am = new F.manager.AuthManager();
+    var handlerOptions = {
+        serviceOptions: {
+            getRun: getRun,
+            getWorld: getWorld,
+            getSession: function () {
+                return am.getCurrentUserSessionInfo();
+            },
+            getChannel: getChannelForWorld
+        },
+        channelOptions: {}
+    };
+
+    var usersRouteHandler = new __WEBPACK_IMPORTED_MODULE_0__world_users_route_handler__["a" /* default */](handlerOptions, Object(__WEBPACK_IMPORTED_MODULE_3_channels_channel_router_utils__["g" /* withPrefix */])(notifier, MULTI_USER_PREFIX));
+    var usersHandler = $.extend(usersRouteHandler, {
+        match: Object(__WEBPACK_IMPORTED_MODULE_4_channels_route_handlers_route_matchers__["b" /* matchPrefix */])(MULTI_USER_PREFIX),
         name: 'world users'
     });
-    handlers.unshift(multiUserHandler);
+    handlers.unshift(usersHandler);
 
-    var userChannel = new __WEBPACK_IMPORTED_MODULE_1__world_current_user_channel__["a" /* default */](worldPromise, Object(__WEBPACK_IMPORTED_MODULE_2_channels_channel_router_utils__["g" /* withPrefix */])(notifier, 'user:'));
-    var userHandler = $.extend(userChannel, {
-        match: Object(__WEBPACK_IMPORTED_MODULE_3_channels_route_handlers_route_matchers__["b" /* matchPrefix */])('user:'),
-        name: 'current user'
+    var currentUserRouteHandler = new __WEBPACK_IMPORTED_MODULE_1__world_current_user_route_handler__["a" /* default */](handlerOptions, Object(__WEBPACK_IMPORTED_MODULE_3_channels_channel_router_utils__["g" /* withPrefix */])(notifier, USER_PREFIX));
+    var currentUserHandler = $.extend(currentUserRouteHandler, {
+        match: Object(__WEBPACK_IMPORTED_MODULE_4_channels_route_handlers_route_matchers__["b" /* matchPrefix */])(USER_PREFIX),
+        name: 'world current user'
     });
-    handlers.unshift(userHandler);
+    handlers.unshift(currentUserHandler);
 
-    var runMangerRouter = Object(__WEBPACK_IMPORTED_MODULE_5_channels_channel_router__["a" /* default */])(handlers);
-    runMangerRouter.expose = { runManager: rm };
+    var consensusRouteHandler = new __WEBPACK_IMPORTED_MODULE_2__consensus_route_handler__["a" /* default */](handlerOptions, Object(__WEBPACK_IMPORTED_MODULE_3_channels_channel_router_utils__["g" /* withPrefix */])(notifier, CONSENSUS_PREFIX));
+    var consensusHandler = $.extend(consensusRouteHandler, {
+        match: Object(__WEBPACK_IMPORTED_MODULE_4_channels_route_handlers_route_matchers__["b" /* matchPrefix */])(CONSENSUS_PREFIX),
+        name: 'consensus'
+    });
+    handlers.unshift(consensusHandler);
 
-    return runMangerRouter;
-});
+    var worldRouteHandler = Object(__WEBPACK_IMPORTED_MODULE_6_channels_channel_router__["a" /* default */])(handlers);
+    worldRouteHandler.expose = { runManager: rm };
+
+    return worldRouteHandler;
+}
 
 /***/ }),
-/* 69 */
+/* 70 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* harmony export (immutable) */ __webpack_exports__["a"] = WorldUsersChanngel;
+/* harmony export (immutable) */ __webpack_exports__["a"] = WorldUsersRouteHandler;
 var F = window.F;
 
-function WorldUsersChanngel(worldPromise, notifier) {
-    var presenceSubsId = void 0;
+function WorldUsersRouteHandler(config, notifier) {
+    var options = $.extend(true, {
+        serviceOptions: {},
+        channelOptions: {}
+    }, config);
+
+    var _options$serviceOptio = options.serviceOptions,
+        getWorld = _options$serviceOptio.getWorld,
+        getSession = _options$serviceOptio.getSession,
+        getChannel = _options$serviceOptio.getChannel;
+
 
     var store = {
         users: [],
@@ -5726,11 +5821,9 @@ function WorldUsersChanngel(worldPromise, notifier) {
             return store.users;
         }
     };
-    var channelManager = new F.manager.ChannelManager();
 
-    var parsedUsersPromise = worldPromise.then(function (world) {
-        var am = new F.manager.AuthManager();
-        var session = am.getCurrentUserSessionInfo();
+    var parsedUsersPromise = getWorld().then(function (world) {
+        var session = getSession();
         var parsed = world.users.map(function (u) {
             u.name = u.lastName;
             u.isMe = u.userId === session.userId;
@@ -5741,13 +5834,14 @@ function WorldUsersChanngel(worldPromise, notifier) {
         return parsed;
     });
 
+    var presenceSubsId = void 0;
     return {
         unsubscribeHandler: function (knownTopics, remainingTopics) {
             if (remainingTopics.length || !presenceSubsId) {
                 return;
             }
-            worldPromise.then(function (world) {
-                var worldChannel = channelManager.getWorldChannel(world);
+            getWorld().then(function (world) {
+                var worldChannel = getChannel(world.id);
                 worldChannel.unsubscribe(presenceSubsId);
                 presenceSubsId = null;
             });
@@ -5755,8 +5849,8 @@ function WorldUsersChanngel(worldPromise, notifier) {
         subscribeHandler: function (userids) {
             if (!presenceSubsId) {
                 //TODO: Also listen to roles channel to update users
-                worldPromise.then(function (world) {
-                    var worldChannel = channelManager.getWorldChannel(world);
+                getWorld().then(function (world) {
+                    var worldChannel = getChannel(world.id);
                     presenceSubsId = worldChannel.subscribe(worldChannel.TOPICS.PRESENCE, function (user, meta) {
                         var userid = user.id;
                         store.mark(userid, user.isOnline);
@@ -5786,37 +5880,44 @@ function WorldUsersChanngel(worldPromise, notifier) {
 }
 
 /***/ }),
-/* 70 */
+/* 71 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* harmony export (immutable) */ __webpack_exports__["a"] = WorldUsersChanngel;
-var F = window.F;
+/* harmony export (immutable) */ __webpack_exports__["a"] = WorldCurrentUserRouteHandler;
+function WorldCurrentUserRouteHandler(config, notifier) {
+    var options = $.extend(true, {
+        serviceOptions: {},
+        channelOptions: {}
+    }, config);
 
-function WorldUsersChanngel(worldPromise, notifier) {
+    var _options$serviceOptio = options.serviceOptions,
+        getWorld = _options$serviceOptio.getWorld,
+        getSession = _options$serviceOptio.getSession,
+        getChannel = _options$serviceOptio.getChannel;
+
+
     var subsid = void 0;
 
-    var am = new F.manager.AuthManager();
     var store = $.extend(true, {
         isMe: true,
         isOnline: true
-    }, am.getCurrentUserSessionInfo());
-    var channelManager = new F.manager.ChannelManager();
+    }, getSession());
 
     return {
         unsubscribeHandler: function (unsubscribedTopics, remainingTopics) {
             var stillNeedRoles = remainingTopics.indexOf('role') !== -1;
             if (!stillNeedRoles && subsid) {
-                worldPromise.then(function (world) {
-                    var worldChannel = channelManager.getWorldChannel(world);
+                getWorld().then(function (world) {
+                    var worldChannel = getChannel(world.id);
                     worldChannel.unsubscribe(subsid);
                 });
                 subsid = null;
             }
         },
         subscribeHandler: function (userFields) {
-            return worldPromise.then(function (world) {
-                var session = am.getCurrentUserSessionInfo();
+            return getWorld().then(function (world) {
+                var session = getSession();
                 var myUser = world.users.find(function (user) {
                     return user.userId === session.userId;
                 });
@@ -5834,7 +5935,7 @@ function WorldUsersChanngel(worldPromise, notifier) {
 
                 var isSubscribingToRole = userFields.indexOf('role') !== -1;
                 if (isSubscribingToRole && !subsid) {
-                    var worldChannel = channelManager.getWorldChannel(world);
+                    var worldChannel = getChannel(world.id);
                     subsid = worldChannel.subscribe(worldChannel.TOPICS.ROLES, function (users, meta) {
                         var myUser = users.find(function (u) {
                             return u.userId === session.userId;
@@ -5852,11 +5953,224 @@ function WorldUsersChanngel(worldPromise, notifier) {
 }
 
 /***/ }),
-/* 71 */
+/* 72 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* harmony export (immutable) */ __webpack_exports__["a"] = RunsRouter;
+/* harmony export (immutable) */ __webpack_exports__["a"] = ConsensusRouteHandler;
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__consensus_operations_handler__ = __webpack_require__(73);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__consensus_status_handler__ = __webpack_require__(74);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_channels_channel_router__ = __webpack_require__(3);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3_channels_route_handlers_route_matchers__ = __webpack_require__(6);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4_channels_channel_router_utils__ = __webpack_require__(2);
+
+
+
+
+
+
+var ConsensusManager = window.F.manager.ConsensusManager;
+
+var OPERATIONS_PREFIX = 'operations:';
+
+function ConsensusRouteHandler(config, notifier) {
+    var options = $.extend(true, {
+        serviceOptions: {},
+        channelOptions: {}
+    }, config);
+
+    var _options$serviceOptio = options.serviceOptions,
+        getWorld = _options$serviceOptio.getWorld,
+        getRun = _options$serviceOptio.getRun,
+        getSession = _options$serviceOptio.getSession,
+        getChannel = _options$serviceOptio.getChannel;
+
+
+    var cm = new ConsensusManager();
+
+    var consensusProm = null;
+    function getConsensus(force) {
+        if (!consensusProm || force) {
+            consensusProm = getRun().then(function () {
+                return cm.getCurrent(); //TODO: GetRun deletes the barrier if it overlaps with this call, so synchronize them
+            });
+        }
+        return consensusProm;
+    }
+
+    var handlerOptions = {
+        serviceOptions: {
+            getConsensus: getConsensus,
+            getSession: getSession
+        },
+        channelOptions: {}
+    };
+
+    var opnHandler = Object(__WEBPACK_IMPORTED_MODULE_0__consensus_operations_handler__["a" /* default */])(handlerOptions, Object(__WEBPACK_IMPORTED_MODULE_4_channels_channel_router_utils__["g" /* withPrefix */])(notifier, OPERATIONS_PREFIX));
+    var statusHandler = Object(__WEBPACK_IMPORTED_MODULE_1__consensus_status_handler__["a" /* default */])(handlerOptions, notifier);
+
+    var handlers = [$.extend({}, opnHandler, {
+        name: 'consensus operations',
+        match: Object(__WEBPACK_IMPORTED_MODULE_3_channels_route_handlers_route_matchers__["b" /* matchPrefix */])(OPERATIONS_PREFIX),
+        options: handlerOptions.channelOptions.operations
+    }), $.extend({}, statusHandler, {
+        name: 'consensus status',
+        match: Object(__WEBPACK_IMPORTED_MODULE_3_channels_route_handlers_route_matchers__["b" /* matchPrefix */])(''),
+        isDefault: true,
+        options: handlerOptions.channelOptions.status
+    })];
+
+    getWorld().then(function (world) {
+        var channel = getChannel(world.id);
+        channel.subscribe(channel.TOPICS.RUN_RESET, function () {
+            getConsensus(true).then(function (consensus) {
+                statusHandler.notify(consensus);
+            });
+        });
+        // FIXME: Filter by stage here
+        channel.subscribe(channel.TOPICS.CONSENSUS_UPDATE, function (consensus) {
+            var isComplete = consensus.closed;
+            if (isComplete) {
+                getConsensus(true).then(function (consensus) {
+                    statusHandler.notify(consensus);
+                });
+            } else {
+                statusHandler.notify(consensus);
+            }
+        });
+    });
+
+    var consensusRouteHandler = Object(__WEBPACK_IMPORTED_MODULE_2_channels_channel_router__["a" /* default */])(handlers, notifier);
+    consensusRouteHandler.expose = { consensusManager: cm };
+
+    return consensusRouteHandler;
+}
+
+/***/ }),
+/* 73 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* harmony export (immutable) */ __webpack_exports__["a"] = ConsensusOperationsHandler;
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__consensus_utils__ = __webpack_require__(16);
+
+
+function ConsensusOperationsHandler(config, notifier) {
+    var options = $.extend(true, {
+        serviceOptions: {},
+        channelOptions: {}
+    }, config);
+
+    var getConsensus = options.serviceOptions.getConsensus;
+
+
+    return {
+        subscribeHandler: function () {
+            return [];
+        },
+        publishHandler: function (topics, options) {
+            return getConsensus().then(function (consensus) {
+                var actions = topics.map(function (topic) {
+                    return { name: topic.name, arguments: topic.value };
+                });
+                var cs = Object(__WEBPACK_IMPORTED_MODULE_0__consensus_utils__["a" /* makeConsensusService */])(consensus);
+                return cs.submitActions(actions).then(function () {
+                    return topics;
+                });
+            });
+        }
+    };
+}
+
+/***/ }),
+/* 74 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* harmony export (immutable) */ __webpack_exports__["a"] = ConsensusStatusHandler;
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__consensus_utils__ = __webpack_require__(16);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_channels_channel_utils__ = __webpack_require__(5);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_lodash__ = __webpack_require__(0);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_lodash___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_2_lodash__);
+
+
+
+
+function ConsensusStatusHandler(config, notifier) {
+    var options = $.extend(true, {
+        serviceOptions: {},
+        channelOptions: {}
+    }, config);
+
+    var _options$serviceOptio = options.serviceOptions,
+        getConsensus = _options$serviceOptio.getConsensus,
+        getSession = _options$serviceOptio.getSession;
+
+
+    function normalizePlayers(rolePlayerMap) {
+        var session = getSession();
+        var normalized = Object.keys(rolePlayerMap).reduce(function (accum, role) {
+            var playersForRole = rolePlayerMap[role];
+            var playersWithRole = playersForRole.map(function (p) {
+                var player = p.user || p; //submitted puts user under an extra object because of course
+                return Object.assign({}, player, {
+                    role: role,
+                    userName: player.userName.split('/')[0], //API adds user/project because of course
+                    name: player.lastName,
+                    isMe: player.userName === session.userName // so you can do :submitted:users | reject('isMe')
+                });
+            });
+            accum = accum.concat(playersWithRole);
+            return accum;
+        }, []);
+        return normalized;
+    }
+    function normalizeConsensus(consensus) {
+        var session = getSession();
+        var submitted = normalizePlayers(consensus.submitted);
+        var amWaiting = submitted.find(function (u) {
+            return u.userName === session.userName;
+        });
+        var normalized = $.extend(true, {}, consensus, {
+            amWaiting: !!amWaiting,
+            submitted: submitted,
+            pending: normalizePlayers(consensus.pending)
+        });
+        return normalized;
+    }
+
+    return {
+        notify: function (consensus) {
+            var normalizedConsensus = normalizeConsensus(consensus);
+            notifier(Object(__WEBPACK_IMPORTED_MODULE_1_channels_channel_utils__["b" /* objectToPublishable */])(normalizedConsensus));
+        },
+        subscribeHandler: function (topics) {
+            return getConsensus().then(function (consensus) {
+                var normalized = normalizeConsensus(consensus);
+                var dataForTopics = Object(__WEBPACK_IMPORTED_MODULE_2_lodash__["pick"])(normalized, topics);
+                return Object(__WEBPACK_IMPORTED_MODULE_1_channels_channel_utils__["b" /* objectToPublishable */])(dataForTopics);
+            });
+        },
+        publishHandler: function (topics) {
+            return getConsensus().then(function (consensus) {
+                if (topics.length > 1 || topics[0].name !== 'close') {
+                    throw new TypeError('Can only publish `close` on consensus:status');
+                }
+                var cs = Object(__WEBPACK_IMPORTED_MODULE_0__consensus_utils__["a" /* makeConsensusService */])(consensus);
+                return cs.forceClose().then(function () {
+                    return topics;
+                });
+            });
+        }
+    };
+}
+
+/***/ }),
+/* 75 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* harmony export (immutable) */ __webpack_exports__["a"] = MultiRunRouteHandler;
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_utils_general__ = __webpack_require__(7);
 var _slicedToArray = function () { function sliceIterator(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"]) _i["return"](); } finally { if (_d) throw _e; } } return _arr; } return function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { return sliceIterator(arr, i); } else { throw new TypeError("Invalid attempt to destructure non-iterable instance"); } }; }();
 
@@ -5865,7 +6179,7 @@ var _window = window,
     F = _window.F;
 
 
-function RunsRouter(options, notifier, channelManagerContext) {
+function MultiRunRouteHandler(options, notifier, channelManagerContext) {
     var runService = new F.service.Run(options.serviceOptions.run);
 
     var topicParamMap = {};
@@ -5940,26 +6254,26 @@ function RunsRouter(options, notifier, channelManagerContext) {
 }
 
 /***/ }),
-/* 72 */
+/* 76 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__interpolatable__ = __webpack_require__(73);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__interpolatable__ = __webpack_require__(77);
 /* harmony reexport (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return __WEBPACK_IMPORTED_MODULE_0__interpolatable__["a"]; });
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__routable__ = __webpack_require__(76);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__routable__ = __webpack_require__(80);
 /* harmony reexport (binding) */ __webpack_require__.d(__webpack_exports__, "b", function() { return __WEBPACK_IMPORTED_MODULE_1__routable__["a"]; });
 
 
 // export { default as withMiddleware } from './with-middleware';
 
 /***/ }),
-/* 73 */
+/* 77 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 /* harmony export (immutable) */ __webpack_exports__["a"] = interpolatable;
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__subscribe_interpolator__ = __webpack_require__(74);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__publish_interpolator__ = __webpack_require__(75);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__subscribe_interpolator__ = __webpack_require__(78);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__publish_interpolator__ = __webpack_require__(79);
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
 var _get = function get(object, property, receiver) { if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { return get(parent, property, receiver); } } else if ("value" in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } };
@@ -6035,7 +6349,7 @@ function interpolatable(ChannelManager) {
 }
 
 /***/ }),
-/* 74 */
+/* 78 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -6043,7 +6357,7 @@ function interpolatable(ChannelManager) {
 /* unused harmony export interpolateWithDependencies */
 /* unused harmony export mergeInterpolatedTopicsWithData */
 /* harmony export (immutable) */ __webpack_exports__["a"] = subscribeInterpolator;
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__interpolatable_utils__ = __webpack_require__(15);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__interpolatable_utils__ = __webpack_require__(17);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_lodash__ = __webpack_require__(0);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_lodash___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1_lodash__);
 
@@ -6121,14 +6435,14 @@ function subscribeInterpolator(subscribeFn, onDependencyChange) {
 }
 
 /***/ }),
-/* 75 */
+/* 79 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 /* unused harmony export getDependencies */
 /* unused harmony export interpolateWithDependencies */
 /* harmony export (immutable) */ __webpack_exports__["a"] = publishInterpolator;
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__interpolatable_utils__ = __webpack_require__(15);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__interpolatable_utils__ = __webpack_require__(17);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_channels_channel_utils__ = __webpack_require__(5);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_lodash__ = __webpack_require__(0);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_lodash___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_2_lodash__);
@@ -6189,7 +6503,7 @@ function publishInterpolator(publishFunction, fetchFn) {
 }
 
 /***/ }),
-/* 76 */
+/* 80 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -6220,15 +6534,15 @@ function getTopicsFromSubsList(subcriptionList) {
 
 /**
  * Decorates passed channel manager with middleware functionality
- * @param  {ChannelManager} ChannelManager
+ * @param  {ChannelManager} BaseChannelManager
  * @return {ChannelManager} wrapped channel manager
  */
-function withRouter(ChannelManager, router) {
+function withRouter(BaseChannelManager, router) {
     /**
      * @augments ChannelManager
      */
-    return function (_ChannelManager) {
-        _inherits(ChannelWithRouter, _ChannelManager);
+    return function (_BaseChannelManager) {
+        _inherits(ChannelWithRouter, _BaseChannelManager);
 
         function ChannelWithRouter(options) {
             _classCallCheck(this, ChannelWithRouter);
@@ -6325,7 +6639,7 @@ function withRouter(ChannelManager, router) {
         }]);
 
         return ChannelWithRouter;
-    }(ChannelManager);
+    }(BaseChannelManager);
 }
 
 /***/ })
