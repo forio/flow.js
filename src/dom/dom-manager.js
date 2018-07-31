@@ -218,7 +218,7 @@ module.exports = (function () {
                         if ($.isPlainObject(msg)) {
                             msg = JSON.stringify(msg);
                         }
-                        $el.attr(config.errorAttr, msg);
+                        $el.attr(config.errorAttr, msg).trigger(config.events.error, e);
                     }
                 }, channelConfig);
                 const subscribableTopics = topics.map((t)=> t.name);
