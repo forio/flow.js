@@ -45,10 +45,15 @@ const loopAttrHandler = {
         return parseTopics(topics);
     },
 
+    init: function (attr, value, $el) {
+        
+    },
+
     handle: function (value, prop, $el, topics) {
         value = ($.isPlainObject(value) ? value : [].concat(value));
         let id = $el.data(templateIdAttr);
         
+        $el.removeAttr('hidden');
         const originalHTML = getOriginalContents($el, ($el)=> $el.get(0).outerHTML);
 
         const $dummyOldDiv = $('<div></div>');
@@ -67,9 +72,8 @@ const loopAttrHandler = {
         const stubbedTemplate = stubMissingReferences(originalHTML, missingReferences);
 
         if (isEmpty(value)) {
-            $el.attr('hidden', 'true'); //There's always going to be 1 el otherwise
-        } else {
-            $el.removeAttr('hidden');
+            $el.attr('hidden', true); //There's always going to be 1 el otherwise
+            return;
         }
 
         const templateFn = template(stubbedTemplate);

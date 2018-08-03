@@ -105,7 +105,10 @@ module.exports = {
         trigger: 'update.f.ui',
 
         //Trigger with payload '{attrToUpdate: value}', for e.g. { bind: 34 }. This will run this through all the converts and pass it to attr handler. Useful to by-pass getting this from the model directly.
-        convert: 'f.convert'
+        convert: 'f.convert',
+
+        //On a bind or other flow-related error
+        error: 'f.error'
     },
 
     attrs: {
@@ -362,7 +365,13 @@ function router(handlers, options, notifier) {
         return handler;
     });
 
+    var expose = myHandlers.reduce(function (accum, h) {
+        $.extend(true, accum, h.expose);
+        return accum;
+    }, {});
+
     return {
+        expose: expose,
         match: function (topic) {
             return myHandlers.reduce(function (match, handler) {
                 var matched = handler.match(topic);
@@ -1681,12 +1690,12 @@ module.exports = function () {
                 var subsOptions = $.extend({
                     batch: true,
                     onError: function (e) {
-                        console.error('DomManager: Subscription error for', domEl, e);
+                        console.error('DomManager: Subscription error', domEl, e);
                         var msg = e.message || e;
                         if ($.isPlainObject(msg)) {
                             msg = JSON.stringify(msg);
                         }
-                        $el.attr(config.errorAttr, msg);
+                        $el.attr(config.errorAttr, msg).trigger(config.events.error, e);
                     }
                 }, channelConfig);
                 var subscribableTopics = topics.map(function (t) {
@@ -4000,10 +4009,13 @@ var loopAttrHandler = {
         return Object(__WEBPACK_IMPORTED_MODULE_6__loop_attr_utils__["b" /* parseTopics */])(topics);
     },
 
+    init: function (attr, value, $el) {},
+
     handle: function (value, prop, $el, topics) {
         value = $.isPlainObject(value) ? value : [].concat(value);
         var id = $el.data(templateIdAttr);
 
+        $el.removeAttr('hidden');
         var originalHTML = Object(__WEBPACK_IMPORTED_MODULE_5__attr_template_utils__["e" /* getOriginalContents */])($el, function ($el) {
             return $el.get(0).outerHTML;
         });
@@ -4026,9 +4038,8 @@ var loopAttrHandler = {
         var stubbedTemplate = Object(__WEBPACK_IMPORTED_MODULE_5__attr_template_utils__["h" /* stubMissingReferences */])(originalHTML, missingReferences);
 
         if (Object(__WEBPACK_IMPORTED_MODULE_0_lodash__["isEmpty"])(value)) {
-            $el.attr('hidden', 'true'); //There's always going to be 1 el otherwise
-        } else {
-            $el.removeAttr('hidden');
+            $el.attr('hidden', true); //There's always going to be 1 el otherwise
+            return;
         }
 
         var templateFn = Object(__WEBPACK_IMPORTED_MODULE_0_lodash__["template"])(stubbedTemplate);
@@ -6555,7 +6566,9 @@ function withRouter(BaseChannelManager, router) {
             var opts = $.extend(true, {}, defaults, options);
             var optsToPassOn = Object(__WEBPACK_IMPORTED_MODULE_1_lodash__["omit"])(opts, Object.keys(defaults));
 
-            _this.router = router(opts.routes, optsToPassOn, _this.notify.bind(_this));
+            var rt = router(opts.routes, optsToPassOn, _this.notify.bind(_this));
+            Object.assign(_this, rt.expose || {});
+            _this.router = rt;
             return _this;
         }
 

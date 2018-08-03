@@ -82,5 +82,6 @@ Failed approaches:
 
 - Tried setting a [subscribe-status] attr on each el on bind, and removing it within the subscribe callback, but the subscribe callback isn't guaranteed to be called (i.e. it's technically only called if/when there is data)
     Will making subscribe a promise solve this?
+        -No, same issue. Subscribe isn't guaranteed to return data.
 
 - Tried changing 'init' method of bind to immediately store the data inside it on `init`, but this breaks for nested (when the parent foreach is triggered, the child foreach will have already replaced data?)
