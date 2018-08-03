@@ -1,2 +1,2 @@
-export { default as JSONRouteHandler } from './json-router';
-export { default as EpicenterRouteHandler } from './epicenter-router';
+export { default as JSONRouteHandler } from './json-route-handler';
+export { default as EpicenterRouteHandler } from './epicenter-route-handlers';

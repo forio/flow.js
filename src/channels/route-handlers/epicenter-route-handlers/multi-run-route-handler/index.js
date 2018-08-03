@@ -1,7 +1,7 @@
 import { debounceAndMerge } from 'utils/general';
 var { F } = window;
 
-export default function RunsRouter(options, notifier, channelManagerContext) {
+export default function MultiRunRouteHandler(options, notifier, channelManagerContext) {
     var runService = new F.service.Run(options.serviceOptions.run);
 
     var topicParamMap = {};

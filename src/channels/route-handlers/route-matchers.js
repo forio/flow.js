@@ -1,4 +1,4 @@
-var CHANNEL_DELIMITER = ':';
+const ROUTE_DELIMITER = ':';
 
 /**
  * 
@@ -35,7 +35,7 @@ export function matchDefaultPrefix(prefix) {
  * @returns {matchFunction}
  */
 export function matchRegex(regex) {
-    var toMatch = new RegExp('^' + regex + CHANNEL_DELIMITER);
+    var toMatch = new RegExp('^' + regex + ROUTE_DELIMITER);
     return function regexMatcher(topic) {
         var match = topic.match(toMatch);
         if (match && match.length) {

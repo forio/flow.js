@@ -84,7 +84,7 @@ function checkAndNotifyBatch(topics, subscription) {
         return accum;
     }, {});
     const cachedDataForSubs = cacheBySubsId[subscription.id] || {};
-    const knownDataForSubs = $.extend(true, {}, cachedDataForSubs, relevantDataFromPublish);
+    const knownDataForSubs = $.extend({}, cachedDataForSubs, relevantDataFromPublish);//jQ Deep clone here will also concat arrays.
 
     if (subscription.cache) {
         cacheBySubsId[subscription.id] = knownDataForSubs;

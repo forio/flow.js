@@ -16,8 +16,8 @@
 
 ## World Channel
     world:users
-    world:role
     world:run:variables:price
+    world:user:role
 
     foreach: 
         world:users

@@ -119,7 +119,13 @@ export default function router(handlers, options, notifier) {
         return handler;
     });
 
+    const expose = myHandlers.reduce((accum, h)=> {
+        $.extend(true, accum, h.expose);
+        return accum;
+    }, {});
+
     return {
+        expose: expose,
         match: (topic)=> {
             return myHandlers.reduce((match, handler)=> {
                 const matched = handler.match(topic);

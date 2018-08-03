@@ -27,7 +27,9 @@ export default function withRouter(BaseChannelManager, router) {
             const opts = $.extend(true, {}, defaults, options);
             const optsToPassOn = omit(opts, Object.keys(defaults));
 
-            this.router = router(opts.routes, optsToPassOn, this.notify.bind(this));
+            const rt = router(opts.routes, optsToPassOn, this.notify.bind(this));
+            Object.assign(this, rt.expose || {});
+            this.router = rt;
         }
 
         /**

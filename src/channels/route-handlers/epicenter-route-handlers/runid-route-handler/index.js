@@ -1,7 +1,7 @@
-import runChannelFactory from './run-router-factory';
+import runChannelFactory from '../run-router-factory';
 import { withPrefix, stripSuffixDelimiter } from 'channels/channel-router/utils';
 
-export default function (options, notifier) {
+export default function RunidRouteHandler(options, notifier) {
     if (!options) options = {};
 
     var opts = {};

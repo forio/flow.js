@@ -4,7 +4,6 @@
         "sourceType": "module",
         "ecmaVersion": 6,
         "ecmaFeatures": {
-            "jsx": true,
             "experimentalObjectRestSpread": true
         }
     },
@@ -17,8 +16,8 @@
         "node": true
     },
     "globals": {
-        "$": false
-
+        "$": false,
+        "F": false
     },
     "rules": {
         "array-callback-return": 2,

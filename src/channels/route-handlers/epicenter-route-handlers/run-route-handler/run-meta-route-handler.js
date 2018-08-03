@@ -1,7 +1,7 @@
 import { objectToPublishable, publishableToObject } from 'channels/channel-utils';
 import { intersection } from 'lodash';
 
-export default function RunMetaChannel($runServicePromise, notifier) {
+export default function RunMetaRouteHandler($runServicePromise, notifier) {
 
     function mergeAndSend(runMeta, requestedTopics) {
         var toSend = ([].concat(requestedTopics)).reduce(function (accum, meta) {

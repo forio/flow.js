@@ -1,4 +1,4 @@
-import Channel from '../run-meta-channel';
+import Handler from '../run-meta-route-handler';
 import sinon from 'sinon';
 import chai from 'chai';
 chai.use(require('sinon-chai'));
@@ -18,7 +18,7 @@ describe('Run Meta channel', ()=> {
             };
             mockNotifier = sinon.spy();
             var mockRunPromise = $.Deferred().resolve(mockRun).promise();
-            channel = new Channel(mockRunPromise, mockNotifier);
+            channel = new Handler(mockRunPromise, mockNotifier);
         });
 
         describe('On a clean slate', ()=> {

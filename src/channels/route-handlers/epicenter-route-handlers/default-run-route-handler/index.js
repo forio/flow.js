@@ -1,4 +1,4 @@
-import RunChannel from './run-router';
+import RunRouteHandler from '../run-route-handler';
 
 import { withPrefix } from 'channels/channel-router/utils';
 import router from 'channels/channel-router';
@@ -8,7 +8,7 @@ const { F } = window;
 
 const RUN_PREFIX = 'current:';
 
-export default function (config, notifier) {
+export default function RunManagerRouteHandler(config, notifier) {
     const defaults = {
         serviceOptions: {},
         channelOptions: {}
@@ -23,7 +23,7 @@ export default function (config, notifier) {
     });
     const currentChannelOpts = $.extend(true, 
         { serviceOptions: $creationPromise }, opts.defaults, opts.current);
-    const currentRunChannel = new RunChannel(currentChannelOpts, withPrefix(notifier, [RUN_PREFIX, '']));
+    const currentRunChannel = new RunRouteHandler(currentChannelOpts, withPrefix(notifier, [RUN_PREFIX, '']));
 
     const runRouteHandler = $.extend(currentRunChannel, { 
         match: matchDefaultPrefix(RUN_PREFIX), //TODO: Just remove prefix?

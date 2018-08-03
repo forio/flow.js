@@ -1,4 +1,4 @@
-export default function RunOperationsChannel($runServicePromise, notifier) {
+export default function RunOperationsRouteHandler($runServicePromise, notifier) {
     return {
         notify: function (operationsResponse) {
             const parsed = [{ name: operationsResponse.name, value: operationsResponse.result }];

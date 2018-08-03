@@ -1,11 +1,10 @@
-import RunManagerRouter from './run-manager-router';
-import ScenarioRouter from './scenario-manager-router';
-import CustomRunRouter from './custom-run-router';
-import WorldManagerRouter from './world-manager-router';
+import DefaultRunRouteHandler from './default-run-route-handler';
+import ScenarioRouteHandler from './scenario-route-handler';
+import RunidRouteHandler from './runid-route-handler';
+import WorldRouteHandler from './world-route-handler';
 
-import RunsRouter from './runs-router';
+import MultiRunRouteHandler from './multi-run-route-handler';
 
-// import UserRouter from './user-router/current-user-channel';
 
 import { withPrefix } from 'channels/channel-router/utils';
 import { matchPrefix, matchDefaultPrefix, matchRegex } from 'channels/route-handlers/route-matchers';
@@ -27,25 +26,25 @@ const WORLD_PREFIX = 'world:';
 var sampleRunidLength = '000001593dd81950d4ee4f3df14841769a0b'.length;
 var runidRegex = '(?:.{' + sampleRunidLength + '})';
 
-export default function (config, notifier, channelManagerContext) {
+export default function EpicenterRouteHandler(config, notifier, channelManagerContext) {
     var opts = $.extend(true, {}, config);
 
-    var customRunChannelOpts = getOptions(opts, 'runid');
-    var customRunChannel = new CustomRunRouter(customRunChannelOpts, notifier);
-    var runsChannel = new RunsRouter(customRunChannelOpts, withPrefix(notifier, 'runs'), channelManagerContext);
+    var runidHandlerOpts = getOptions(opts, 'runid');
+    var runidHandler = new RunidRouteHandler(runidHandlerOpts, notifier);
+    var multiRunHandler = new MultiRunRouteHandler(runidHandlerOpts, withPrefix(notifier, 'runs'), channelManagerContext);
     // var userChannel = new UserRouter(getOptions(opts, 'runManager').run, withPrefix(notifier, 'user:'), channelManagerContext);
     
     /** @type {Handler[]} **/
     var handlers = [
-        $.extend({}, customRunChannel, { 
+        $.extend({}, runidHandler, { 
             name: 'customRun',
             match: matchRegex(runidRegex),
-            options: customRunChannelOpts.channelOptions,
+            options: runidHandlerOpts.channelOptions,
         }), 
-        $.extend({}, runsChannel, {
+        $.extend({}, multiRunHandler, {
             name: 'archiveRuns',
             match: matchPrefix('runs:'),
-            options: customRunChannelOpts.channelOptions,
+            options: runidHandlerOpts.channelOptions,
         }),  
         // $.extend({}, userChannel, {
         //     name: 'User Channel',
@@ -59,7 +58,7 @@ export default function (config, notifier, channelManagerContext) {
         var rm;
         const isMultiplayer = runManagerOpts.serviceOptions.strategy === 'multiplayer';
         if (opts.scenarioManager) {
-            rm = new RunManagerRouter(runManagerOpts, withPrefix(notifier, RUN_PREFIX));
+            rm = new DefaultRunRouteHandler(runManagerOpts, withPrefix(notifier, RUN_PREFIX));
             handlers.push($.extend({}, rm, { 
                 name: 'run',
                 match: matchPrefix(RUN_PREFIX), //if both scenario manager and run manager are being used, require a prefix
@@ -67,7 +66,7 @@ export default function (config, notifier, channelManagerContext) {
             }));
         } else if (isMultiplayer) {
             //Ignore case where both scenario manager and multiplayer are being used
-            rm = new WorldManagerRouter(runManagerOpts, withPrefix(notifier, [WORLD_PREFIX, '']));
+            rm = new WorldRouteHandler(runManagerOpts, withPrefix(notifier, [WORLD_PREFIX, '']));
             handlers.push($.extend({}, rm, { 
                 name: 'World run',
                 match: matchDefaultPrefix(WORLD_PREFIX),
@@ -75,7 +74,7 @@ export default function (config, notifier, channelManagerContext) {
                 options: runManagerOpts.channelOptions,
             }));
         } else {
-            rm = new RunManagerRouter(runManagerOpts, withPrefix(notifier, [RUN_PREFIX, '']));
+            rm = new DefaultRunRouteHandler(runManagerOpts, withPrefix(notifier, [RUN_PREFIX, '']));
             handlers.push($.extend({}, rm, { 
                 name: 'run',
                 match: matchDefaultPrefix(RUN_PREFIX),
@@ -89,7 +88,7 @@ export default function (config, notifier, channelManagerContext) {
 
     if (opts.scenarioManager) {
         var scenarioManagerOpts = getOptions(opts, 'scenarioManager');
-        var sm = new ScenarioRouter(scenarioManagerOpts, withPrefix(notifier, [SCENARIO_PREFIX, '']));
+        var sm = new ScenarioRouteHandler(scenarioManagerOpts, withPrefix(notifier, [SCENARIO_PREFIX, '']));
         handlers.push($.extend({}, sm, { 
             name: 'scenario',
             match: matchDefaultPrefix(SCENARIO_PREFIX),

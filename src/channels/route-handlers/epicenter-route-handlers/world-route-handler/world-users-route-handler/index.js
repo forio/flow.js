@@ -1,7 +1,12 @@
 const F = window.F;
 
-export default function WorldUsersChanngel(worldPromise, notifier) {
-    let presenceSubsId;
+export default function WorldUsersRouteHandler(config, notifier) {
+    const options = $.extend(true, {
+        serviceOptions: {},
+        channelOptions: {},
+    }, config);
+
+    const { getWorld, getSession, getChannel } = options.serviceOptions;
 
     const store = {
         users: [],
@@ -15,11 +20,9 @@ export default function WorldUsersChanngel(worldPromise, notifier) {
             return store.users;
         }
     };
-    const channelManager = new F.manager.ChannelManager();
-
-    const parsedUsersPromise = worldPromise.then((world)=> {
-        const am = new F.manager.AuthManager();
-        const session = am.getCurrentUserSessionInfo();
+    
+    const parsedUsersPromise = getWorld().then((world)=> {
+        const session = getSession();
         const parsed = world.users.map((u)=> {
             u.name = u.lastName;
             u.isMe = u.userId === session.userId;
@@ -30,13 +33,14 @@ export default function WorldUsersChanngel(worldPromise, notifier) {
         return parsed;
     });
     
+    let presenceSubsId;
     return { 
         unsubscribeHandler: function (knownTopics, remainingTopics) {
             if (remainingTopics.length || !presenceSubsId) {
                 return;
             }
-            worldPromise.then((world)=> {
-                const worldChannel = channelManager.getWorldChannel(world);
+            getWorld().then((world)=> {
+                const worldChannel = getChannel(world.id);
                 worldChannel.unsubscribe(presenceSubsId);
                 presenceSubsId = null;
             });
@@ -45,8 +49,8 @@ export default function WorldUsersChanngel(worldPromise, notifier) {
         subscribeHandler: function (userids) {
             if (!presenceSubsId) {
                 //TODO: Also listen to roles channel to update users
-                worldPromise.then((world)=> {
-                    const worldChannel = channelManager.getWorldChannel(world);
+                getWorld().then((world)=> {
+                    const worldChannel = getChannel(world.id);
                     presenceSubsId = worldChannel.subscribe(worldChannel.TOPICS.PRESENCE, (user, meta)=> {
                         const userid = user.id;
                         store.mark(userid, user.isOnline);

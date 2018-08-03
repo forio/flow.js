@@ -196,6 +196,28 @@ describe('Repeat', function () {
                     });
                 });
             });
+            describe('Empty values', ()=> {
+                it('should hide itself if called with empty object', ()=> {
+                    var $rootNode = $(`
+                        <ul> 
+                            <% if (index === 0) { %> <li data-f-repeat="somethingelse"> HI </li> <% } %>
+                            <li data-f-repeat="something"> <%= value %> </li> 
+                        </ul>
+                    `);
+                    const topics = [{ name: 'somethingElse' }];
+
+                    const $el = $rootNode.find('li:first');
+                    repeatHandler.handle([], 'repeat', $el, topics);
+                    $el.is('[hidden]').should.equal(true);
+
+                    repeatHandler.handle([1, 2], 'repeat', $el, topics);
+                    $rootNode.find('[hidden]').length.should.equal(0);
+
+                    repeatHandler.handle([], 'repeat', $el, topics);
+                    $el.is('[hidden]').should.equal(true);
+                    $rootNode.find('[hidden]').length.should.equal(1);
+                });
+            });
         });
     });
     describe('Parallel repeats', function () {

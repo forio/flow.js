@@ -1,57 +1,6 @@
 <!doctype html>
 <html>
 <head>
-    <link rel="stylesheet" href="http://forio.com/tools/contour/0.9.91/contour.min.css">
-    <style>
-        .chart {
-            float:left;
-            width: 450px;
-        }
-
-        .label-text {
-            font-family: monospace;
-            font-size: 12px;
-        }
-
-        .tooltip-sensor {
-        }
-
-        .line-marker {
-            stroke: #999;
-        }
-
-        .point-marker .text {
-            fill: #222;
-            stroke: none;
-            font-family: monospace;
-        }
-
-        .point-marker .outside {
-        }
-
-        .point-marker .inside {
-            fill-opacity: 0;
-            stroke: #fff;
-            stroke-width: 1.5px;
-        }
-
-        .series .area {
-            opacity: 0.55
-        }
-    </style>
-</head>
-<body>
-    <h3>Data Legends</h3>
-    <div id="chart1" class="chart"></div>
-
-    <script src="http://d3js.org/d3.v3.min.js" charset="utf-8"></script>
-    <script src="http://cdnjs.cloudflare.com/ajax/libs/lodash.js/2.4.1/lodash.js"></script>
-    <script src="http://forio.com/tools/contour/0.9.91/contour.js"></script>
-</body>
-</html>
-<html>
-
-<head>
     <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css">
     <script src="/node_modules/jquery/dist/jquery.min.js"></script>
     <script src="/node_modules/lodash/lodash.js"></script>
@@ -87,11 +36,13 @@
     
     <script type="text/javascript">
         const userChannel = ['user', 'user:role', 'user:userName'];
+        const consensusChannel = ['consensus:status:name', 'consensus:players:submitted', 'consensus:players:pending'];
         const varChannel = ['P1_Price_Decision[<Step>]', '<user:role>_Price_Decision[<Step>]', 'Step'];
 
         const toTest = {
             'User Channel': userChannel,
             'Variables Channel': varChannel,
+            'Consensus Channel': consensusChannel,
         };
 
         const tbody = Object.keys(toTest).map((title)=> {

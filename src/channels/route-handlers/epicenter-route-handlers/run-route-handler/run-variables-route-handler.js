@@ -4,8 +4,8 @@ import { uniqueId, uniq, difference } from 'lodash';
 import { retriableFetch } from './retriable-variable-fetch';
 // import { optimizedFetch } from './optimized-variables-fetch';
 
-export default function RunVariablesChannel($runServicePromise, notifier) {
-    const id = uniqueId('variable-channel');
+export default function RunVariablesRouteHandler($runServicePromise, notifier) {
+    const id = uniqueId('variable-route-handler');
 
     function debouncedVariableQuery(runService, debounceInterval) {
         if (!runService.debouncedFetchers) {

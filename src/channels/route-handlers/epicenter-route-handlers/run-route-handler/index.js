@@ -1,6 +1,6 @@
-import MetaChannel from './run-meta-channel';
-import VariablesChannel from './run-variables-channel';
-import OperationsChannel from './run-operations-channel';
+import MetaRouteHandler from './run-meta-route-handler';
+import VariablesRouteHandler from './run-variables-route-handler';
+import OperationsRouteHandler from './run-operations-route-hander';
 
 import router from 'channels/channel-router';
 import { withPrefix } from 'channels/channel-router/utils';
@@ -30,7 +30,8 @@ export function _shouldFetch(result, ignoreOperations) {
     return filtered.length > 0;
 }
 
-export default function RunRouter(config, notifier) {
+const RunService = F.service.Run;
+export default function GenericRunRouteHandler(config, notifier) {
     const defaults = {
         serviceOptions: {},
         channelOptions: {
@@ -56,21 +57,21 @@ export default function RunRouter(config, notifier) {
     const serviceOptions = _.result(opts, 'serviceOptions');
 
     let $initialProm = null;
-    if (serviceOptions instanceof window.F.service.Run) {
+    if (serviceOptions instanceof RunService) {
         $initialProm = $.Deferred().resolve(serviceOptions).promise();
     } else if (serviceOptions.then) {
         $initialProm = serviceOptions;
     } else {
-        const rs = new window.F.service.Run(serviceOptions);
+        const rs = new RunService(serviceOptions);
         $initialProm = $.Deferred().resolve(rs).promise();
     }
 
     const operationNotifier = withPrefix(notifier, OPERATIONS_PREFIX);
     const variableNotifier = withPrefix(notifier, [VARIABLES_PREFIX, '']);
 
-    const metaChannel = new MetaChannel($initialProm, withPrefix(notifier, META_PREFIX));
-    const operationsChannel = new OperationsChannel($initialProm, operationNotifier);
-    const variableschannel = new VariablesChannel($initialProm, variableNotifier);
+    const metaHandler = new MetaRouteHandler($initialProm, withPrefix(notifier, META_PREFIX));
+    const operationsHandler = new OperationsRouteHandler($initialProm, operationNotifier);
+    const variablesHandler = new VariablesRouteHandler($initialProm, variableNotifier);
 
     let subscribed = false;
     $initialProm.then((rs)=> {
@@ -82,16 +83,24 @@ export default function RunRouter(config, notifier) {
             //FIXME: Provide subscription fn to individual channels and let them handle it
             rs.channel.subscribe(TOPICS.RUN_VARIABLES, (data, meta)=> {
                 console.log('variables', data, meta);
-                variableschannel.notify(data, meta);
-                variableschannel.fetch();
+                variablesHandler.notify(data, meta);
+                variablesHandler.fetch();
             }, this, subscribeOpts);
             rs.channel.subscribe(TOPICS.RUN_OPERATIONS, (data, meta)=> {
-                operationsChannel.notify(data, meta);
-                variableschannel.fetch();
+                operationsHandler.notify(data, meta);
+                variablesHandler.fetch();
             }, this, subscribeOpts);
+            rs.channel.subscribe(TOPICS.CONSENSUS_UPDATE, (consensus, meta)=> {
+                if (consensus.closed) {
+                    variablesHandler.fetch(); 
+                    // I should also do operationsHandler.notify but I don't know what to notify them about
+                    //Just remove the 'include Mine' check for operations? That's just cached anyway
+                }
+            }, this, { includeMine: true });
             rs.channel.subscribe(TOPICS.RUN_RESET, (data, meta)=> {
-                operationsChannel.notify({ name: 'reset', result: data }, meta);
+                operationsHandler.notify({ name: 'reset', result: data }, meta);
             }, this, subscribeOpts);
+
 
             // rs.channel.subscribe('', (data, meta)=> {
             //     console.log('everything', data, meta);
@@ -100,17 +109,17 @@ export default function RunRouter(config, notifier) {
     });
 
     const handlers = [
-        $.extend({}, metaChannel, { 
+        $.extend({}, metaHandler, { 
             name: 'meta',
             match: matchPrefix(META_PREFIX),
             options: opts.channelOptions.meta,
         }),
-        $.extend({}, operationsChannel, { 
+        $.extend({}, operationsHandler, { 
             name: 'operations',
             match: matchPrefix(OPERATIONS_PREFIX),
             options: opts.channelOptions.operations,
         }),
-        $.extend({}, variableschannel, { 
+        $.extend({}, variablesHandler, { 
             isDefault: true,
             name: 'variables',
             match: matchDefaultPrefix(VARIABLES_PREFIX),
@@ -127,7 +136,7 @@ export default function RunRouter(config, notifier) {
         return prom.then(function (result) { //all the silencing will be taken care of by the router
             const shouldFetch = _shouldFetch(result, ['reset']);
             if (shouldFetch) {
-                variableschannel.fetch();
+                variablesHandler.fetch();
             }
             return result;
         });

@@ -8,6 +8,9 @@ module.exports = {
 
         //Trigger with payload '{attrToUpdate: value}', for e.g. { bind: 34 }. This will run this through all the converts and pass it to attr handler. Useful to by-pass getting this from the model directly.
         convert: 'f.convert',
+
+        //On a bind or other flow-related error
+        error: 'f.error',
     },
 
     attrs: {
