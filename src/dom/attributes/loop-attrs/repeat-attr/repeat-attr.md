@@ -18,43 +18,49 @@ The `data-f-repeat` attribute allows you to automatically loop over a referenced
 
 For example, to create a table that displays the year and cost for every step of the model that has occurred so far:
 
-     <table>
-         <tr>
-             <td>Year</td>
-             <td data-f-repeat="Cost[Products]"><%= index + 1 %></td>
-         </tr>
-         <tr>
-             <td>Cost of Products</td>
-             <td data-f-repeat="Cost[Products]"></td>
-         </tr>
-     </table>
+```html
+<table>
+    <tr>
+        <td>Year</td>
+        <td data-f-repeat="Cost[Products]"><%= index + 1 %></td>
+    </tr>
+    <tr>
+        <td>Cost of Products</td>
+        <td data-f-repeat="Cost[Products]"></td>
+    </tr>
+</table>
+```
 
 In the third step of the model, this example generates the HTML:
 
-     <table>
-         <tr>
-             <td>Year</td>
-             <td data-f-repeat="Cost[Products]">1</td>
-             <td>2</td>
-             <td>3</td>
-         </tr>
-         <tr>
-             <td>Cost of Products</td>
-             <td data-f-repeat="Cost[Products]">100</td>
-             <td>102</td>
-             <td>105</td>
-         </tr>
-     </table>
+```html
+<table>
+    <tr>
+        <td>Year</td>
+        <td data-f-repeat="Cost[Products]">1</td>
+        <td>2</td>
+        <td>3</td>
+    </tr>
+    <tr>
+        <td>Cost of Products</td>
+        <td data-f-repeat="Cost[Products]">100</td>
+        <td>102</td>
+        <td>105</td>
+    </tr>
+</table>
+```
 
 You can also use this with a `<div>` and have the `<div>` itself repeated. For example:
-
-     <div data-f-repeat="sample_array"></div>
+```html
+<div data-f-repeat="sample_array"></div>
+```
 
 generates:
-
-     <div data-f-repeat="sample_array">2</div>
-     <div>4</div>
-     <div>6</div>
+```html
+<div data-f-repeat="sample_array">2</div>
+<div>4</div>
+<div>6</div>
+```
 
 **Notes:**
 

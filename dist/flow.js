@@ -5787,12 +5787,16 @@ function WorldRoutesHandler(config, notifier) {
     });
     handlers.unshift(currentUserHandler);
 
-    var consensusRouteHandler = new __WEBPACK_IMPORTED_MODULE_2__consensus_route_handler__["a" /* default */](handlerOptions, Object(__WEBPACK_IMPORTED_MODULE_3_channels_channel_router_utils__["g" /* withPrefix */])(notifier, CONSENSUS_PREFIX));
-    var consensusHandler = $.extend(consensusRouteHandler, {
-        match: Object(__WEBPACK_IMPORTED_MODULE_4_channels_route_handlers_route_matchers__["b" /* matchPrefix */])(CONSENSUS_PREFIX),
-        name: 'consensus'
-    });
-    handlers.unshift(consensusHandler);
+    var ConsensusManager = window.F.manager.ConsensusManager;
+    if (ConsensusManager) {
+        //epijs < 2.80 did not have this
+        var consensusRouteHandler = new __WEBPACK_IMPORTED_MODULE_2__consensus_route_handler__["a" /* default */](handlerOptions, Object(__WEBPACK_IMPORTED_MODULE_3_channels_channel_router_utils__["g" /* withPrefix */])(notifier, CONSENSUS_PREFIX));
+        var consensusHandler = $.extend(consensusRouteHandler, {
+            match: Object(__WEBPACK_IMPORTED_MODULE_4_channels_route_handlers_route_matchers__["b" /* matchPrefix */])(CONSENSUS_PREFIX),
+            name: 'consensus'
+        });
+        handlers.unshift(consensusHandler);
+    }
 
     var worldRouteHandler = Object(__WEBPACK_IMPORTED_MODULE_6_channels_channel_router__["a" /* default */])(handlers);
     worldRouteHandler.expose = { runManager: rm };

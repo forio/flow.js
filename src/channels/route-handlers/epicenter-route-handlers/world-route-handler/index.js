@@ -114,12 +114,15 @@ export default function WorldRoutesHandler(config, notifier) {
     });
     handlers.unshift(currentUserHandler);
 
-    const consensusRouteHandler = new ConsensusRouteHandler(handlerOptions, withPrefix(notifier, CONSENSUS_PREFIX));
-    const consensusHandler = $.extend(consensusRouteHandler, {
-        match: matchPrefix(CONSENSUS_PREFIX),
-        name: 'consensus',
-    });
-    handlers.unshift(consensusHandler);
+    const ConsensusManager = window.F.manager.ConsensusManager;
+    if (ConsensusManager) { //epijs < 2.80 did not have this
+        const consensusRouteHandler = new ConsensusRouteHandler(handlerOptions, withPrefix(notifier, CONSENSUS_PREFIX));
+        const consensusHandler = $.extend(consensusRouteHandler, {
+            match: matchPrefix(CONSENSUS_PREFIX),
+            name: 'consensus',
+        });
+        handlers.unshift(consensusHandler);
+    }
 
     const worldRouteHandler = router(handlers);
     worldRouteHandler.expose = { runManager: rm };
