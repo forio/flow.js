@@ -4,6 +4,11 @@ import { default as subscribeInterpolator,
     mergeInterpolatedTopicsWithData,
 } from '../subscribe-interpolator';
 
+import sinon from 'sinon';
+import chai from 'chai';
+chai.use(require('sinon-chai'));
+
+const { expect } = chai;
 describe('Subscribe Interceptor', ()=> {
     describe('#getDependencies', ()=> {
         it('should return empty array if no matches', ()=> {

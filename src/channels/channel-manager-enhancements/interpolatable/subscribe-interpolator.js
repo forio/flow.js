@@ -66,7 +66,7 @@ export default function subscribeInterpolator(subscribeFn, onDependencyChange) {
 
             (onDependencyChange || $.noop)(dependenciesMeta.id, outerSubsId);
             return outerSubsId;
-        }, { autoFetch: true, batch: true });
+        }, $.extend(options, { autoFetch: true, batch: true }));
 
         return innerSubsId;
     };

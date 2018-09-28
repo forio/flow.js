@@ -35,10 +35,10 @@
             }
         },
         channelOptions: {
-            // variables: {
-            //     readOnly: false,
-            //     silent: false,
-            // },
+            variables: {
+                readOnly: false,
+                silent: false,
+            },
             // operations: {
             //     silent: true,
             // }
@@ -80,10 +80,10 @@
     }, { autoFetch: true });
 
     sm.subscribe('Price', function (data) {
-        console.log('Manual subscribe to Price', data);
+        console.log('Manual subscribe to Price. Received data', data);
     });
     sm.subscribe('variables:Price', function (data) {
-        console.log('Manual subscribe to variables:Price', data);
+        console.log('Manual subscribe to variables:Price. Received data', data);
     });
 
     $('#btnStep').on('click', function (evt) {

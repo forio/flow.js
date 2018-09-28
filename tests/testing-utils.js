@@ -6,12 +6,14 @@ export function create(str) {
     return (div.childNodes.length === 1) ? div.childNodes[0] : div.childNodes;
 }
 
-export function createDummyChannel(options) {
+export function createDummyChannel(options, knownData) {
     //TODO: Just replace this with the actual channel manager?
     var dummyChannel = function () {
         var i = 0;
         const subsMap = {};
-        const knownData = {};
+        if (!knownData) {
+            knownData = {};
+        }
 
         function notifySubs(subs, data) {
             const knownKeys = Object.keys(data);

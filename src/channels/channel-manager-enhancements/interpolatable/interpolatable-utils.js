@@ -1,5 +1,3 @@
-import { isArray } from 'lodash';
-
 var interpolationRegex = /<(.*?)>/g;
 /**
  *  
@@ -21,7 +19,7 @@ export function extractDependencies(topic) {
 export function interpolateWithValues(topic, data) {
     var interpolatedTopic = topic.replace(interpolationRegex, (match, dependency)=> {
         var val = data[dependency];
-        var toReplace = isArray(val) ? val[val.length - 1] : val;
+        var toReplace = Array.isArray(val) ? val[val.length - 1] : val;
         return toReplace;
     });
     return interpolatedTopic;

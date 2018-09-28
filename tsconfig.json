@@ -3,17 +3,23 @@
         "baseUrl": "./src/",
         "noEmit": true,
         "allowJs": true,
-        "target": "es6",
+        "target": "es2016",
+        "allowSyntheticDefaultImports": true,
         "checkJs": true,
-        "suppressExcessPropertyErrors": true
+        "suppressExcessPropertyErrors": true,
+        "moduleResolution": "node"
     },
     "typeAcquisition": {
         "enable": true
     },
     "include": [
-        "src/**/*"
+        "src/**/*",
     ],
     "exclude": [
-        "node_modules"
+        "node_modules",
+        "dist",
+        "docs",
+        "documentation",
+        "coverage"
     ]
 }

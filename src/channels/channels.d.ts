@@ -1,26 +1,25 @@
-interface SubscribeOptions {
-    autoFetch: boolean;
-}
-// interface ChannelManager {
-//     subscribe: (topics: string[] | string, options: SubscribeOptions) => string;
-//     unsubscribe: (token: string) => void;
-//     unsubscribeAll: () => void;
-//     publish: () => Promise<Publishable>;
-// }
-
-interface matchFunction extends Function {
-    (prefix:string):boolean | string;
-}
-
 interface Publishable {
     name: string;
     value: any;
 }
 
 
+interface SubscribeOptions {
+    autoFetch?: boolean;
+}
+
+// declare class ChannelManager {
+//     constructor();
+//     subscribe(topics: string[] | string, options: SubscribeOptions): string;
+//     unsubscribe(token: string): void;
+//     unsubscribeAll(): void;
+//     publish(topic: string | Publishable, value?:any, options?:PublishOptions): Promise<Publishable>;
+//     notify(topic: string | Publishable, value?:any): Promise<Publishable>;
+// }
+
 interface PublishOptions {
-    readOnly: boolean | string[];
-    silent: boolean | string[] | { except: string[] };
+    readOnly?: boolean | string[];
+    silent?: boolean | string[] | { except: string[] };
 }
 
 
@@ -29,21 +28,26 @@ interface HandlerOptions extends SubscribeOptions, PublishOptions {
 }
 
 interface BaseHandler {
-    subscribeHandler?: (topics: string[], options: SubscribeOptions, match?:string)=> void;
+    subscribeHandler?: (topics: string[], options: SubscribeOptions, match?:string)=> Promise<Publishable[]>;
     unsubscribeHandler?: (unsubscribedTopics: string[], remainingTopics: string[])=> void;
     publishHandler?: (publishData: Publishable[], options: PublishOptions, match?:string)=> Promise<Publishable[]>;
 }
 
-interface Handler extends BaseHandler {
-    name: string;
-    match: Function;
-    isDefault?: boolean;
-    options: HandlerOptions;
+interface matchFunction extends Function {
+    (topic:string, options?:any): string | false;
 }
-
-interface MatchedHandler extends Handler {
-    data?: Publishable[];
-    matched: string;
+interface Handler extends BaseHandler {
+    match: matchFunction;
+    name?: string;
+    isDefault?: boolean;
+    options?: HandlerOptions;
+    [propName: string]: any;
+}
+interface HandlerWithTopics extends Handler {
+    data: string[];
+}
+interface HandlerWithData extends Handler {
+    data: Publishable[];
 }
 
 interface Subscription {

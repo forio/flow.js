@@ -1,6 +1,12 @@
 import ChannelManager from 'channels/channel-manager';
 import interpolatable from '../index';
 
+import sinon from 'sinon';
+import chai from 'chai';
+chai.use(require('sinon-chai'));
+
+const { expect } = chai;
+
 function makeMockChannelManager(pubSpy, subsSpy) {
     return class MockChannelManager {
         constructor() {

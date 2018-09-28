@@ -13,7 +13,7 @@ module.exports = function (grunt) {
         cdnBasePath: '//forio.com/tools/js-libs/flow/'
     });
 
-    grunt.file.expand('grunt/*.js').forEach(function (task) {
+    grunt.file.expand('build/*.js').forEach(function (task) {
         require('./' + task)(grunt);
     });
 
@@ -33,5 +33,5 @@ module.exports = function (grunt) {
         });
     });
 
-    grunt.registerTask('default', ['watch']);
+    grunt.registerTask('default', ['webpack:edge', 'watch']);
 };

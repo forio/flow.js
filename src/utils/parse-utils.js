@@ -1,10 +1,9 @@
-'use strict';
-
+/* eslint-disable complexity */
 function toImplicitType(data) {
-    var objRegex = /^(?:\{.*\})$/;
-    var arrRegex = /^(?:\[.*])$/;
+    const objRegex = /^(?:\{.*\})$/;
+    const arrRegex = /^(?:\[.*])$/;
 
-    var converted = data;
+    let converted = data;
     if (typeof data === 'string') {
         converted = data.trim();
 
@@ -39,10 +38,10 @@ function toImplicitType(data) {
 }
 
 function splitUnescapedCommas(str) {
-    var regex = /(\\.|[^,])+/g;
-    var m;
+    const regex = /(\\.|[^,])+/g;
+    let m;
 
-    var op = [];
+    const op = [];
     while ((m = regex.exec(str)) !== null) { //eslint-disable-line
         // This is necessary to avoid infinite loops with zero-width matches
         if (m.index === regex.lastIndex) {
@@ -57,24 +56,30 @@ function splitUnescapedCommas(str) {
     return op;
 }
 
-function toPublishableFormat(value) {
-    var split = (value || '').split('|');
-    var listOfOperations = split.map(function (value) {
-        value = value.trim();
-        var fnName = value.split('(')[0];
-        var params = value.substring(value.indexOf('(') + 1, value.indexOf(')'));
-        var args = params.trim() !== '' ? params.split(',') : [];
+function splitNameArgs(value) {
+    value = value.trim();
+    const fnName = value.split('(')[0];
+    const params = value.substring(value.indexOf('(') + 1, value.indexOf(')'));
+    const args = splitUnescapedCommas(params).map((p)=> p.trim());
+    return { name: fnName, args: args };
+}
 
-        return { name: fnName, value: args };
+/**
+ * @param  {string} value
+ * @return {{ name: string, value: any}[]}       [description]
+ */
+function toPublishableFormat(value) {
+    const OPERATIONS_SEPERATOR = '&&';
+    const split = (value || '').split(OPERATIONS_SEPERATOR);
+    const listOfOperations = split.map(function (value) {
+        if (value && value.indexOf('=') !== -1) {
+            const split = value.split('=');
+            return { name: split[0].trim(), value: split[1].trim() };
+        }
+        const parsed = splitNameArgs(value);
+        return { name: parsed.name, value: parsed.args };
     });
     return listOfOperations;
 }
 
-function splitNameArgs(value) {
-    var fnName = value.split('(')[0];
-    var params = value.substring(value.indexOf('(') + 1, value.indexOf(')'));
-    var args = splitUnescapedCommas(params);
-    args = args.map(toImplicitType);
-    return { name: fnName, args: args };
-}
 export { toImplicitType, toPublishableFormat, splitNameArgs };

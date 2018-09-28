@@ -29,30 +29,41 @@ function fill(count, val) {
     return a;
 }
 
-function elementsToContents($el) {
-    return $el.children().map((index, child)=> {
-        return $(child).html().trim();
+function elToContents(el) {
+    //ignore data attributes for comparison
+    return el.outerHTML
+        .replace(/\s?data-[a-zA-Z]*=['"][a-zA-Z0-9]*['"]/g, '')
+        .replace(/\s\s/g, ' ').trim();
+}
+
+function elementsToContents($els) {
+    return $els.map((index, child)=> {
+        return elToContents(child);
     }).get();
 }
+
+const defaults = {
+    addAttr: 'data-add',
+    changeAttr: 'data-update',
+    initialAttr: 'data-initial',
+};
+
 /**
  * Compares 2 lists and Adds add or update classes
- * @param {JQuery<HTMLElement>} $currentEl existing elements
+ * @param {JQuery<HTMLElement>} $currentEls existing elements
  * @param {JQuery<HTMLElement>} $newEls   new elements
+ * @param {Boolean} isInitial check if this is initial data or it's updating
  * @param {{ addAttr: string, changeAttr: string}} [options]
  * @returns {JQuery<HTMLElement>} elements with updated attributes
  */
-export function addChangeClassesToList($currentEl, $newEls, options) {
-    const defaults = {
-        addAttr: 'data-add',
-        changeAttr: 'data-update'
-    };
+export function addChangeClassesToList($currentEls, $newEls, isInitial, options) {
     const opts = $.extend({}, defaults, options);
 
-    let currentcontents = elementsToContents($currentEl);
+    let currentcontents = elementsToContents($currentEls);
     const newContents = elementsToContents($newEls);
     const reversedContents = currentcontents;
 
-    const $newChildren = $newEls.children();
+    //Guess if data was added to end or beginning of array
     const diffFromEnd = buildDiffArray(currentcontents, newContents);
     const diffFromBeginning = buildDiffArray(reversedContents.slice().reverse(), newContents.slice().reverse());
 
@@ -62,20 +73,29 @@ export function addChangeClassesToList($currentEl, $newEls, options) {
     const placeHoldersCount = newContents.length - currentcontents.length;
     const placeHolders = fill(placeHoldersCount, undefined);
 
-    if (beginningMatches < endMatches) {
+    if (beginningMatches <= endMatches) {
         currentcontents = currentcontents.concat(placeHolders);
     } else {
         currentcontents = placeHolders.concat(currentcontents);
     }
 
     for (let i = 0; i < newContents.length; i++) {
-        const $el = $newChildren.eq(i);
+        const $el = $newEls.eq(i);
         const curr = currentcontents[i];
+        $el.removeAttr(opts.initialAttr);
+
+        const contents = elToContents($el.get(0));
         if (curr === undefined) {
-            $el.attr(opts.addAttr, true);
+            $el.attr({
+                [opts.addAttr]: true,
+                [opts.initialAttr]: isInitial || null
+            });
             $el.removeAttr(opts.changeAttr);
-        } else if (curr !== $el.html().trim()) {
-            $el.attr(opts.changeAttr, true);
+        } else if (curr !== contents) {
+            $el.attr({
+                [opts.changeAttr]: true,
+                [opts.initialAttr]: isInitial || null
+            });
             $el.removeAttr(opts.addAttr);
         } else {
             $el.removeAttr(`${opts.addAttr} ${opts.changeAttr}`);
@@ -83,4 +103,22 @@ export function addChangeClassesToList($currentEl, $newEls, options) {
     }
 
     return $newEls;
+}
+
+export function addContentAndAnimate($el, newValue, isInitial, options) {
+    const opts = $.extend({}, defaults, options);
+    const current = $el.html().trim();
+
+    $el.removeAttr(`${opts.changeAttr} ${opts.initialAttr}`);
+    if (current === `${newValue}`.trim()) {
+        return $el;
+    }
+
+    $el.html(newValue);
+    setTimeout(function () {
+        $el.attr({
+            [opts.changeAttr]: true,
+            [opts.initialAttr]: isInitial || null //jquery removes if set to null
+        });
+    }, 0); //need this to trigger animation
 }

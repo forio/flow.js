@@ -3,6 +3,11 @@ import { default as publishInterpolator,
     interpolateWithDependencies,
 } from '../publish-interpolator';
 
+import sinon from 'sinon';
+import chai from 'chai';
+chai.use(require('sinon-chai'));
+
+const { expect } = chai;
 
 function formatInputs(inputs) {
     return inputs.map((ip, index)=> {
@@ -85,6 +90,20 @@ describe('Publish Interceptor', ()=> {
             return wrapped(input).then(()=> {
                 mockFetch.should.have.been.calledWith(['a', 'b']);
                 mockPublish.should.have.been.calledWith([
+                    { name: 'fooa1', value: 1 },
+                    { name: 'bar[b1]', value: 2 },
+                    { name: 'bar', value: 3 },
+                    { name: 'cara1', value: 4 },
+                ]);
+            });
+        });
+        it('should resolve promises in the right order', ()=> {
+            var input = formatInputs(['foo<a>', 'bar[<b>]', 'bar', 'car<a>']);
+            var finalCb = sinon.spy();
+            return wrapped(input).then(finalCb).then(()=> {
+                expect(mockFetch).to.have.been.calledBefore(mockPublish);
+                expect(mockPublish).to.have.been.calledBefore(finalCb);
+                expect(finalCb).to.have.been.calledWith([
                     { name: 'fooa1', value: 1 },
                     { name: 'bar[b1]', value: 2 },
                     { name: 'bar', value: 3 },

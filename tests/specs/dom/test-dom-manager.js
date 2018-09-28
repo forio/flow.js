@@ -3,12 +3,11 @@ var domManager = require('src/dom/dom-manager');
 var config = require('src/config');
 
 describe('DOM Manager', function () {
-    afterEach(function () {
+    beforeEach(function () {
         domManager.matchedElements.clear();
     });
     describe('#initialize', function () {
         describe('Selectors', function () {
-
             it('should select nothing by default', function () {
                 return utils.initWithNode('<div></div>', domManager).then(function () {
                     domManager.matchedElements.size.should.equal(0);
@@ -68,26 +67,16 @@ describe('DOM Manager', function () {
             require('./element-tests/test-radio-button');
             require('./element-tests/test-text');
             require('./element-tests/test-select');
-            require('./element-tests/test-generic-dom');
-
             require('./element-tests/test-button');
         });
 
         describe('Attribute Handlers', function () {
-            require('./attributes/test-default-attr');
-            require('./attributes/test-no-op-attr');
-            require('./attributes/test-negative-boolean-attr');
-            require('./attributes/test-positive-boolean-attr');
-            require('./attributes/test-class-attr');
-            require('./attributes/test-default-event-attribute');
-            require('./attributes/test-toggle-attrs');
-
             it('should allow handling custom attributes', function () {
-                var toggle = function (value) {
+                var toggle = function (value, prop, $el) {
                     if (value !== 1) {
-                        this.css('display', 'none');
+                        $el.css('display', 'none');
                     } else {
-                        this.css('display', 'block');
+                        $el.css('display', 'block');
                     }
                 };
                 var toggleSpy = sinon.spy(toggle);
@@ -107,142 +96,7 @@ describe('DOM Manager', function () {
             });
         });
 
-        describe('Node Handlers', function () {
-            require('./nodes/test-node-manager');
-        });
-
         require('./test-dom-converters');
-    });
-
-    describe('#bindElement', function () {
-        it('should update list of added items if match', function () {
-            domManager.matchedElements.size.should.equal(0);
-            domManager.bindElement($('<input type="text" data-f-bind="boo" />'));
-            domManager.matchedElements.size.should.equal(1);
-        });
-        it('should not update list of added items if match', function () {
-            domManager.matchedElements.size.should.equal(0);
-            domManager.bindElement($('<input type="text" data-bind="boo" />'));
-            domManager.matchedElements.size.should.equal(0);
-        });
-        it('should not bind same item twice', function () {
-            const $el = $('<input type="text" data-f-bind="boo" />');
-            domManager.bindElement($el);
-            domManager.matchedElements.size.should.equal(1);
-            domManager.bindElement($el);
-            domManager.matchedElements.size.should.equal(1);
-        });
-
-        describe('Subscriptions', ()=> {
-            var channel;
-            beforeEach(()=> {
-                channel = utils.createDummyChannel();
-            });
-            describe('default', ()=> {
-                it('should subscribe single elements', ()=> {
-                    const el = $('<div data-f-bind="a"> </div>');
-                    domManager.bindElement(el, channel);
-                    expect(channel.subscribe).to.have.been.calledOnce;
-                    expect(channel.subscribe).to.have.been.calledWith(['a']);
-                });
-                it('should only subscribe for top-level elements', ()=> {
-                    const el = $('<div data-f-bind="a"><input type="text" data-f-bind="boo" /></div>');
-                    domManager.bindElement(el, channel);
-                    expect(channel.subscribe).to.have.been.calledOnce;
-                    expect(channel.subscribe).to.have.been.calledWith(['a']);
-                });
-                it('should default to batch for multi variable binds', ()=> {
-                    const el = $('<div data-f-bind="a, b"> </div>');
-                    domManager.bindElement(el, channel);
-
-                    var args = channel.subscribe.getCall(0).args;
-                    args[0].should.eql(['a', 'b']);
-                    args[2].should.eql({ batch: true }); //a
-                });
-
-                it('should pass in channel config', ()=> {
-                    const $el = $('<div data-f-bind="a" data-f-channel-foo="bar"> </div>');
-                    domManager.bindElement($el, channel);
-
-                    var args = channel.subscribe.getCall(0).args;
-                    args[0].should.eql(['a']);
-                    args[2].should.eql({ batch: true, foo: 'bar' }); //args[1] is callback fn
-                });
-            });
-            describe('Channel Prefix', ()=> {
-                describe('Prefix', ()=> {
-                    it('should add channel prefix if provided on itself', ()=> {
-                        const el = $('<div data-f-bind="a" data-f-channel="foo"> </div>');
-                        domManager.bindElement(el, channel);
-
-                        expect(channel.subscribe).to.have.been.calledOnce;
-                        expect(channel.subscribe).to.have.been.calledWith(['foo:a']);
-                    });
-                    it('should add channel prefix if defined on parent', ()=> {
-                        const el = $(`
-                            <div data-f-channel="foo">
-                                <div data-f-bind="a"></div>
-                            </div>
-                        `);
-
-                        domManager.bindElement($(el).find('div'), channel);
-
-                        expect(channel.subscribe).to.have.been.calledOnce;
-                        expect(channel.subscribe).to.have.been.calledWith(['foo:a']);
-                    });
-                    it('should apply to all attrs on element', ()=> {
-                        const el = $(`
-                            <div data-f-channel="foo">
-                                <div data-f-bind="a" data-f-foo="bar"></div>
-                            </div>
-                        `);
-
-                        domManager.bindElement($(el).find('div'), channel);
-
-                        expect(channel.subscribe).to.have.been.calledTwice;
-
-                        const args1 = channel.subscribe.getCall(0).args[0];
-                        expect(args1).to.eql(['foo:a']);
-
-                        const args2 = channel.subscribe.getCall(1).args[0];
-                        expect(args2).to.eql(['foo:bar']);
-                    });
-                    it('should not add a prefix if already defined', ()=> {
-                        const el = $(`
-                            <div data-f-channel="foo">
-                                <div data-f-bind="prefix:a" data-f-foo="bar"></div>
-                            </div>
-                        `);
-
-                        domManager.bindElement($(el).find('div'), channel);
-
-                        expect(channel.subscribe).to.have.been.calledTwice;
-
-                        const args1 = channel.subscribe.getCall(0).args[0];
-                        expect(args1).to.eql(['prefix:a']);
-
-                        const args2 = channel.subscribe.getCall(1).args[0];
-                        expect(args2).to.eql(['foo:bar']);
-                    });
-                });
-            });
-            describe('Channel options', ()=> {
-                it('should provide channeloptions for channels defined as attrs', ()=> {
-                    const el = $('<div data-f-bind="a" data-f-channel="foo" data-f-channel-a="1"> </div>');
-                    domManager.bindElement(el, channel);
-
-                    const opts = channel.subscribe.getCall(0).args[2];
-                    expect(opts.a).to.eql('1');
-                });
-                it('should provide channeloptions for inline channels', ()=> {
-                    const el = $('<div data-f-bind="a" data-f-channel-a="1"> </div>');
-                    domManager.bindElement(el, channel);
-
-                    const opts = channel.subscribe.getCall(0).args[2];
-                    expect(opts.a).to.eql('1');
-                });
-            });
-        });
     });
 
     describe('#unbindElement', function () {
@@ -311,9 +165,8 @@ describe('DOM Manager', function () {
                 var nodes = `
                     <div data-f-bind="a">Hello <%= value %>! <span> some child <%= a %></span</div>
                 `.trim();
+                var originalHTML = $(nodes).html();
                 return utils.initWithNode(nodes, domManager, channel).then(($node)=> {
-                    var originalHTML = $node.html();
-
                     return channel.publish({ a: 'apple' }).then(()=> {
                         var newhtml = $node.html();
                         expect(newhtml).to.equal('Hello apple! <span> some child apple</span>');
@@ -505,6 +358,4 @@ describe('DOM Manager', function () {
             });
         });
     });
-
-    require('./test-dom-events');
 });

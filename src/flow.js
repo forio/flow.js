@@ -63,13 +63,11 @@
  *
  */
 
-'use strict';
+const domManager = require('./dom/dom-manager');
+const BaseView = require('./utils/base-view');
 
-var domManager = require('./dom/dom-manager');
-var BaseView = require('./utils/base-view');
-
-var ChannelManager = require('channels/configured-channel-manager').default;
-// var parseUtils = require('utils/parse-utils');
+const ChannelManager = require('channels/configured-channel-manager').default;
+const config = require('config');
 
 var Flow = {
     dom: domManager,
@@ -95,27 +93,6 @@ var Flow = {
         };
 
         var options = $.extend(true, {}, defaults, config);
-        // var $root = $(options.dom.root);
-
-        // var initialFn = $root.data('f-on-init');
-        // //TOOD: Should move this to as oninit to runstrategy
-        // if (initialFn) {
-        //     var listOfOperations = _.invoke(initialFn.split('|'), 'trim');
-        //     listOfOperations = listOfOperations.map(function (value) {
-        //         var fnName = value.split('(')[0];
-        //         var params = value.substring(value.indexOf('(') + 1, value.indexOf(')'));
-        //         var args = ($.trim(params) !== '') ? params.split(',') : [];
-        //         args = args.map(function (a) {
-        //             return parseUtils.toImplicitType(a.trim());
-        //         });
-        //         var toReturn = {};
-        //         toReturn[fnName] = args;
-        //         return toReturn;
-        //     });
-
-        //     //TODO: Make a channel configuration factory which gets the initial info
-        //     options.channel.options.runManager.defaults.initialOperation = listOfOperations;
-        // }
    
         if (config && config.channel && (config.channel instanceof ChannelManager)) {
             this.channel = config.channel;
@@ -136,6 +113,7 @@ var Flow = {
     }
 };
 Flow.ChannelManager = ChannelManager;
+Flow.constants = config;
 //set by grunt
 if (RELEASE_VERSION) Flow.version = RELEASE_VERSION; //eslint-disable-line no-undef
 module.exports = Flow;

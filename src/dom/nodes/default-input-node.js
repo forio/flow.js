@@ -28,4 +28,4 @@ module.exports = BaseView.extend({
         }
         BaseView.prototype.initialize.apply(this, arguments);
     }
-}, { selector: 'input, select' });
+}, { selector: 'input, select, textarea' });

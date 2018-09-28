@@ -1,17 +1,5 @@
-/**
- * ## Converter Manager: Make your own Converters
- *
- * Converters allow you to convert data -- in particular, model variables that you display in your project's user interface -- from one form to another.
- *
- * Basic converting and formatting options are built in to Flow.js.
- *
- * You can also create your own converters. Each converter should be a function that takes in a value or values to convert. To use your converter, `register()` it in your instance of Flow.js.
- *
- */
-
-const _ = require('lodash');
-const { isFunction, isString, isRegExp, find, isArray, mapValues } = require('lodash');
-const { splitNameArgs } = require('../utils/parse-utils');
+import { isFunction, isString, isRegExp, find, mapValues } from 'lodash';
+import { splitNameArgs, toImplicitType } from '../utils/parse-utils';
 
 var normalize = function (alias, converter, acceptList) {
     var ret = [];
@@ -112,6 +100,8 @@ var converterManager = {
 
     getConverter: function (alias) {
         var norm = splitNameArgs(alias);
+        norm.args = norm.args.map(toImplicitType);
+
         var conv = find(this.list, function (converter) {
             return matchConverter(norm.name, converter);
         });
@@ -139,13 +129,13 @@ var converterManager = {
         var me = this;
 
         var convertArray = function (converter, val, converterName) {
-            return _.map(val, function (v) {
+            return val.map(function (v) {
                 return converter.convert(v, converterName);
             });
         };
         var convert = function (converter, value, converterName) {
             var converted;
-            if (isArray(value) && converter.acceptList !== true) {
+            if (Array.isArray(value) && converter.acceptList !== true) {
                 converted = convertArray(converter, value, converterName);
             } else {
                 converted = converter.convert(value, converterName);
@@ -188,6 +178,9 @@ var converterManager = {
         var me = this;
         list.forEach(function (converterName) {
             var converter = me.getConverter(converterName);
+            if (!converter) {
+                throw new Error('parse: Could not find converter ' + converterName);
+            }
             if (converter.parse) {
                 currentValue = converter.parse(currentValue, converterName);
             }
@@ -202,14 +195,15 @@ var defaultconverters = [
     require('./number-converter'),
     require('./string-converter'),
     require('./array-converter'),
-    require('./underscore-utils-converter'),
+    require('./general-util-converters'),
     require('./numberformat-converter'),
     require('./number-compare-converters'),
     require('./bool-conditional-converters'),
+    require('./collection-converters')
 ];
 
 defaultconverters.reverse().forEach(function (converter) {
-    if (isArray(converter)) {
+    if (Array.isArray(converter)) {
         converter.forEach(function (c) {
             converterManager.register(c);
         });
@@ -218,4 +212,4 @@ defaultconverters.reverse().forEach(function (converter) {
     }
 });
 
-module.exports = converterManager;
+export default converterManager;

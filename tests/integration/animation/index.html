@@ -1,0 +1,98 @@
+<html>
+
+<head>
+    <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.5.2/animate.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/magic/1.1.0/magic.css">
+
+    <script src="/node_modules/jquery/dist/jquery.min.js"></script>
+    <script src="/node_modules/lodash/lodash.js"></script>
+    <script src="/node_modules/epicenter-js/dist/epicenter.min.js"></script>
+    <script src="/dist/flow-edge.js"></script>
+    <style>
+        @keyframes highlight {
+            0% {
+                background: #ffff99;
+            }
+            100% {
+                background: none;
+            }
+        }
+
+        [data-initial] {
+            animation: fadeIn 1s;
+        }
+        [data-update]:not([data-initial]) {
+            animation: highlight 1s;
+         }
+        [data-add]:not([data-initial]) {
+            animation: fadeInUpBig 1s;
+        }
+    </style>
+</head>
+
+<body class="container">
+    <label for="txtPrice">Price</label>
+    <input type="text" id="txtPrice" data-f-bind="Price" />
+
+    <div data-f-bind="Price"></div>
+    <button class="btn btn-primary" data-f-on-click="step">Step</button>
+    <button class="btn" data-f-on-click="reset">Reset</button>
+
+    <h4>Foreach</h4>
+    <div class="row">
+        <div class="col-xs-6">
+            <h6>Add to top</h6>
+            <table class="table">
+                <tbody data-f-foreach="Price">
+                    <tr>
+                        <td><%= value %></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="col-xs-6">
+            <h6>Add to bottom (Price | reverse)</h6>
+            <table class="table">
+                <tbody data-f-foreach="Price | reverse">
+                    <tr>
+                        <td><%= value %></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+   
+    <h4>Sibling Repeat</h4>
+    <div class="row">
+        <div class="col-xs-6">
+            <table class="table">
+                <tbody>
+                    <tr>
+                        <th>Costs</th>
+                        <td data-f-repeat="Costs"></td>
+                        <th>Revenue</th>
+                        <td data-f-repeat="Revenue"></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="col-xs-6"></div>
+    </div>
+
+        <script>
+            Flow.initialize({
+                channel: {
+                    defaults: {
+                        run: {
+                            account: 'jaimedp',
+                            project: 'glasses',
+                            model: 'gglasses.vmf',
+                        }
+                    }
+                }
+            });
+        </script>
+</body>
+
+</html>

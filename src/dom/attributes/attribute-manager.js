@@ -14,17 +14,17 @@
  *
  * Built-in attribute handlers like `data-f-value` and `data-f-foreach` automatically bind variables in your project's model to particular HTML elements. However, your UI may sometimes require displaying only part of the variable (e.g. if it's an object), or "doing something" with the value of the variable, rather than simply displaying it.
  *
- * One example of when custom attribute handlers are useful is when your model variable is a complex object and you want to display the fields in a particular way, or you only want to display some of the fields. While the combination of the [`data-f-foreach` attribute](../foreach/default-foreach-attr/) and [templating](../../../../#templates) can help with this, sometimes it's easier to write your own attribute handler. (This is especially true if you will be reusing the attribute handler -- you won't have to copy your templating code over and over.)
+ * One example of when custom attribute handlers are useful is when your model variable is a complex object and you want to display the fields in a particular way, or you only want to display some of the fields. While the combination of the [`data-f-foreach` attribute](../loop-attrs/foreach-attr/) and [templating](../../../../#templates) can help with this, sometimes it's easier to write your own attribute handler. (This is especially true if you will be reusing the attribute handler -- you won't have to copy your templating code over and over.)
  *
  *      Flow.dom.attributes.register('showSched', '*', function (sched) {
  *            // display all the schedule milestones
  *            // sched is an object, each element is an array
  *            // of ['Formal Milestone Name', milestoneMonth, completionPercentage]
  *
- *            var schedStr = '<ul>';
- *            var sortedSched = sortBy(sched, function(el) { return el[1]; });
+ *            const schedStr = '<ul>';
+ *            const sortedSched = sortBy(sched, function(el) { return el[1]; });
  *
- *            for (var i = 0; i < sortedSched.length; i++) {
+ *            for (let i = 0; i < sortedSched.length; i++) {
  *                  schedStr += '<li><strong>' + sortedSched[i][0]
  *                        + '</strong> currently scheduled for <strong>Month '
  *                        + sortedSched[i][1] + '</strong></li>';
@@ -40,35 +40,26 @@
  *
  */
 
-const { isString, isFunction, isRegExp, filter, each } = require('lodash');
+import { isString, isFunction, isRegExp, each } from 'lodash';
 
-var defaultHandlers = [
-    require('./no-op-attr'),
-    require('./events/default-event-attr'),
-    require('./foreach/default-foreach-attr'),
-    require('./binds/checkbox-radio-bind-attr'),
-    require('./binds/input-bind-attr'),
-    require('./class-attr'),
-    require('./repeat-attr'),
-    require('./positive-boolean-attr'),
-    require('./negative-boolean-attr'),
-    require('./toggles/show-if-attr'),
-    require('./toggles/hide-if-attr'),
-    require('./binds/default-bind-attr'),
-    require('./default-attr')
+const defaultHandlers = [
+    require('./no-op-attr').default,
+    require('./events/default-event-attr').default,
+    require('./loop-attrs/foreach-attr').default,
+    require('./loop-attrs/repeat-attr').default,
+    require('./class-attr').default,
+    require('./boolean-attr').default,
+    require('./toggles/show-if-attr').default,
+    require('./toggles/hide-if-attr').default,
+    require('./binds/checkbox-radio-bind-attr').default,
+    require('./binds/input-bind-attr').default,
+    require('./binds/default-bind-attr').default,
+    require('./default-attr').default
 ];
 
-/**
- * @typedef AttributeHandler
- * @property {string|Function|RegExp} test
- * @property {Function} handle
- * @property {string|JQuery<HTMLElement>} target
- */
+const handlersList = [];
 
- 
-var handlersList = [];
-
-var normalize = function (attributeMatcher, nodeMatcher, handler) {
+const normalize = function (attributeMatcher, nodeMatcher, handler) {
     if (!nodeMatcher) {
         nodeMatcher = '*';
     }
@@ -85,8 +76,8 @@ defaultHandlers.forEach(function (handler) {
 });
 
 
-var matchAttr = function (matchExpr, attr, $el) {
-    var attrMatch;
+const matchAttr = function (matchExpr, attr, $el) {
+    let attrMatch;
 
     if (isString(matchExpr)) {
         attrMatch = (matchExpr === '*' || (matchExpr.toLowerCase() === attr.toLowerCase()));
@@ -99,18 +90,18 @@ var matchAttr = function (matchExpr, attr, $el) {
     return attrMatch;
 };
 
-var matchNode = function (target, nodeFilter) {
+const matchNode = function (target, nodeFilter) {
     return (isString(nodeFilter)) ? (nodeFilter === target) : nodeFilter.is(target);
 };
 
-module.exports = {
+const attributeManager = {
     list: handlersList,
     /**
      * Add a new attribute handler.
      *
      * @param  {string|Function|RegExp} attributeMatcher Description of which attributes to match.
      * @param  {string|JQuery<HTMLElement>} nodeMatcher Which nodes to add attributes to. Use [jquery Selector syntax](https://api.jquery.com/category/selectors/).
-     * @param  {Function|Object} handler If `handler` is a function, the function is called with `$element` as context, and attribute value + name. If `handler` is an object, it should include two functions, and have the form: `{ init: fn,  handle: fn }`. The `init` function is called when the page loads; use this to define event handlers. The `handle` function is called with `$element` as context, and attribute value + name.
+     * @param  {Function|object} handler If `handler` is a function, the function is called with `$element` as context, and attribute value + name. If `handler` is an object, it should include two functions, and have the form: `{ init: fn,  handle: fn }`. The `init` function is called when the page loads; use this to define event handlers. The `handle` function is called with `$element` as context, and attribute value + name.
      * @returns {void}
      */
     register: function (attributeMatcher, nodeMatcher, handler) {
@@ -123,14 +114,14 @@ module.exports = {
      * @param  {string} attrFilter Attribute to match.
      * @param  {string|JQuery<HTMLElement>} nodeFilter Node to match.
      *
-     * @return {Array|Null} An array of matching attribute handlers, or null if no matches found.
+     * @return {AttributeHandler[]} An array of matching attribute handlers, or null if no matches found.
      */
     filter: function (attrFilter, nodeFilter) {
-        var filtered = filter(handlersList, function (handler) {
+        let filtered = handlersList.filter(function (handler) {
             return matchAttr(handler.test, attrFilter);
         });
         if (nodeFilter) {
-            filtered = filter(filtered, function (handler) {
+            filtered = filtered.filter(function (handler) {
                 return matchNode(handler.target, nodeFilter);
             });
         }
@@ -142,11 +133,11 @@ module.exports = {
      *
      * @param  {string} attrFilter Attribute to match.
      * @param  {string|JQuery<HTMLElement>} nodeFilter Node to match.
-     * @param  {Function|Object} handler The updated attribute handler. If `handler` is a function, the function is called with `$element` as context, and attribute value + name. If `handler` is an object, it should include two functions, and have the form: `{ init: fn,  handle: fn }`. The `init` function is called when the page loads; use this to define event handlers. The `handle` function is called with `$element` as context, and attribute value + name.
+     * @param  {Function|object} handler The updated attribute handler. If `handler` is a function, the function is called with `$element` as context, and attribute value + name. If `handler` is an object, it should include two functions, and have the form: `{ init: fn,  handle: fn }`. The `init` function is called when the page loads; use this to define event handlers. The `handle` function is called with `$element` as context, and attribute value + name.
      * @returns {void}
      */
     replace: function (attrFilter, nodeFilter, handler) {
-        var index;
+        let index;
         each(handlersList, function (currentHandler, i) {
             if (matchAttr(currentHandler.test, attrFilter) && matchNode(currentHandler.target, nodeFilter)) {
                 index = i;
@@ -160,14 +151,15 @@ module.exports = {
      *  Retrieve the appropriate handler for a particular attribute. There may be multiple matching handlers, but the first (most exact) match is always used.
      *
      * @param {string} property The attribute.
-     * @param {JQuery<HTMLElement>} $el The DOM element.
+     * @param {string|JQuery<HTMLElement>} $el The DOM element.
      *
-     * @return {Object} The attribute handler.
+     * @return {AttributeHandler|undefined} The attribute handler, if a matching one is found
      */
     getHandler: function (property, $el) {
-        var filtered = this.filter(property, $el);
+        const filtered = this.filter(property, $el);
         //There could be multiple matches, but the top first has the most priority
         return filtered[0];
     }
 };
 
+export default attributeManager;
