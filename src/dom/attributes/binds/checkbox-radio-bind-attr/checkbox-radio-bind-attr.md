@@ -16,14 +16,16 @@ For checkboxes you can control the 'checked' and 'unchecked' values by setting t
 
 **Example**
 
-     <!-- radio button, selected if currentSelection is 8 -->
-     <input type="radio" data-f-bind="currentSelection" value="8" />
+```html
+<!-- radio button, selected if currentSelection is 8 -->
+<input type="radio" data-f-bind="currentSelection" value="8" />
 
-     <!-- checkbox, checked if enableDecision is true -->
-     <input type="checkbox" data-f-bind="enableDecision" />
+<!-- checkbox, checked if enableDecision is true -->
+<input type="checkbox" data-f-bind="enableDecision" />
 
-     <!-- If checked sets 'currentSelection' to 8 -->
-     <input type="checkbox" data-f-bind="currentSelection" value="8 />
+<!-- If checked sets 'currentSelection' to 8 -->
+<input type="checkbox" data-f-bind="currentSelection" value="8 />
 
-    <!-- If unchecked sets 'currentSelection' to 8 -->
-     <input type="checkbox" data-f-bind="currentSelection" data-off-value="8 />
+<!-- If unchecked sets 'currentSelection' to 8 -->
+<input type="checkbox" data-f-bind="currentSelection" data-off-value="8 />
+```

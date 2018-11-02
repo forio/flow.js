@@ -24,10 +24,10 @@ Once you set `data-f-bind`, Flow.js figures out the appropriate action to take b
 2. Set the value of the `data-f-bind` attribute to the name of the variable.
 
 **Example**
-
+```html
      <span data-f-bind="salesManager.name" />
-
      <input type="text" data-f-bind="sampleString" />
+```
 
 **Notes:**
 
@@ -48,38 +48,44 @@ If you have multiple variables, you can use the shortcut of listing multiple var
 3. Inside the HTML element, use templates (`<%= %>`) to reference the specific variable names. These variable names are case-sensitive: they should match the case you used in the `data-f-bind` in step 2.
 
 **Example**
+```html
+<!-- make these three model variables available throughout div -->
 
-     <!-- make these three model variables available throughout div -->
-
-     <div data-f-bind="CurrentYear, Revenue, Profit">
-         In <%= CurrentYear %>,
-         our company earned <%= Revenue %>,
-         resulting in <%= Profit %> profit.
-     </div>
+<div data-f-bind="CurrentYear, Revenue, Profit">
+    In <%= CurrentYear %>,
+    our company earned <%= Revenue %>,
+    resulting in <%= Profit %> profit.
+</div>
+```
 
 This example is shorthand for repeatedly using data-f-bind. For instance, this code also generates the same output:
-
-     <div>
-         In <span data-f-bind="CurrentYear"></span>,
-         our company earned <span data-f-bind="Revenue"></span>,
-         resulting in <span data-f-bind="Profit"> profit</span>.
-     </div>
+```html
+<div>
+    In <span data-f-bind="CurrentYear"></span>,
+    our company earned <span data-f-bind="Revenue"></span>,
+    resulting in <span data-f-bind="Profit"> profit</span>.
+</div>
+```
 
 **Notes:**
 
 * Adding `data-f-bind` to the enclosing HTML element rather than repeatedly using it within the element is a code style preference. In many cases, adding `data-f-bind` at the top level, as in the first example, can make your code easier to read and maintain.
 * However, you might choose to repeatedly use `data-f-bind` in some cases, for example if you want different [formatting](../../../../../converter-overview/) for different variables:
 
-         <div>
-             In <span data-f-bind="CurrentYear | #"></span>,
-             our company earned <span data-f-bind="Revenue | $#,###"></span>
-         </div>
+```html
+<div>
+    In <span data-f-bind="CurrentYear | #"></span>,
+    our company earned <span data-f-bind="Revenue | $#,###"></span>
+</div>
+```
 
 * Because everything within your template (`<%= %>`) is evaluated as JavaScript, you can use templates to pass expressions to other Flow.js attributes. For example,
 
-         <div data-f-bind="myCurrentTimeStep">
-             <div data-f-bind="Revenue[<%= value + 1%>]"></div>
-         </div>
+```html
+<div data-f-bind="myCurrentTimeStep">
+    <div data-f-bind="Revenue[<%= value + 1%>]"></div>
+</div>
+```
 
 will display the value of `Revenue[myCurrentTimeStep + 1]` (for example an estimate of future revenue in your model).
 

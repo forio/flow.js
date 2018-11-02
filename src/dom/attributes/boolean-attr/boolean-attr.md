@@ -12,7 +12,7 @@ In particular, for most HTML attributes that expect Boolean values, the attribut
 
 **Example**
 
-     <!-- this checkbox is CHECKED when sampleBool is TRUE,
-          and UNCHECKED when sampleBool is FALSE -->
-     <input type="checkbox" data-f-checked="sampleBool" />
+<!-- this checkbox is CHECKED when sampleBool is TRUE,
+    and UNCHECKED when sampleBool is FALSE -->
+<input type="checkbox" data-f-checked="sampleBool" />
 
