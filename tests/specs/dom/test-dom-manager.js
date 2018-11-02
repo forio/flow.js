@@ -1,3 +1,8 @@
+import sinon from 'sinon';
+import chai, { expect } from 'chai';
+chai.use(require('sinon-chai'));
+
+
 var utils = require('../../testing-utils');
 var domManager = require('src/dom/dom-manager');
 var config = require('src/config');
@@ -96,9 +101,9 @@ describe('DOM Manager', function () {
             });
         });
 
+        
         require('./test-dom-converters');
     });
-
     describe('#unbindElement', function () {
         it('should unbindElement elements added to the dom', function () {
             return utils.initWithNode('<div data-f-bind="a"> <input type="text" data-f-bind="boo" /> </div>', domManager).then(function ($node) {

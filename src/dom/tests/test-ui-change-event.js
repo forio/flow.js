@@ -76,6 +76,24 @@ describe('UI Change Event', ()=> {
             });
         });
     });
+
+    describe('Dom error events', ()=> {
+        it('should triggger errors on publish fails', (done)=> {
+            initWithNode('<div><input type="text" data-f-bind="rejectThis"/></div>', domManager, channel).then(($node)=> {
+                const errorSpy = sinon.spy();
+                $node.on(config.events.error, errorSpy);
+                expect(errorSpy).to.not.have.been.called;
+                
+                $node.find('input').val('rejectionMessage').trigger('change');
+                setTimeout(()=> {
+                    expect(errorSpy).to.have.been.calledOnce;
+                    const args = errorSpy.getCall(0).args[1];
+                    expect(args).to.equal('rejectionMessage');
+                    done();
+                }, 0);
+            });
+        });
+    });
     describe('on-* element change', ()=> {
         it('should call publish', function () {
             return initWithNode('<div data-f-on-click="somethingrandom"></div>', domManager, channel).then(function ($node) {

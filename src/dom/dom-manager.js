@@ -98,6 +98,13 @@ module.exports = (function () {
         }
     }
 
+    function triggerError($el, e) {
+        let msg = e.message || e;
+        if ($.isPlainObject(msg)) {
+            msg = JSON.stringify(msg);
+        }
+        $el.attr(config.errorAttr, msg).trigger(config.events.error, e);
+    }
     const publicAPI = {
 
         nodes: nodeManager,
@@ -214,11 +221,7 @@ module.exports = (function () {
                     batch: true,
                     onError: (e)=> {
                         console.error('DomManager: Subscription error', domEl, e);
-                        let msg = e.message || e;
-                        if ($.isPlainObject(msg)) {
-                            msg = JSON.stringify(msg);
-                        }
-                        $el.attr(config.errorAttr, msg).trigger(config.events.error, e);
+                        triggerError($el, e);
                     }
                 }, channelConfig);
                 const subscribableTopics = topics.map((t)=> t.name);
@@ -358,6 +361,8 @@ module.exports = (function () {
                         }
                         const last = result[result.length - 1];
                         $el.trigger(config.events.convert, { [source]: last.value });
+                    }, (e)=> {
+                        triggerError($el, e);
                     });
                 });
             }

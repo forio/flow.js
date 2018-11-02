@@ -25,8 +25,15 @@ export function createDummyChannel(options, knownData) {
         }
         return {
             publish: sinon.spy((data)=> {
+                const dataObj = Array.isArray(data) ? data.reduce((accum, d)=> {
+                    accum[d.name] = d.value;
+                    return accum;
+                }, {}) : data;
+                if (Object.keys(dataObj).indexOf('rejectThis') !== -1) {
+                    return $.Deferred().reject(dataObj.rejectThis).promise();
+                }
                 // console.log('Publishing', data);
-                $.extend(knownData, data);
+                $.extend(knownData, dataObj);
                 Object.keys(subsMap).forEach((id)=> {
                     const subs = subsMap[id];
                     notifySubs(subs, data);

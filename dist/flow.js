@@ -1847,6 +1847,12 @@ module.exports = function () {
                         }
                         var last = result[result.length - 1];
                         $el.trigger(config.events.convert, _defineProperty({}, source, last.value));
+                    }, function (e) {
+                        var msg = e.message || e;
+                        if ($.isPlainObject(msg)) {
+                            msg = JSON.stringify(msg);
+                        }
+                        $el.attr(config.errorAttr, msg).trigger(config.events.error, e);
                     });
                 });
             }
@@ -5530,6 +5536,9 @@ function RunOperationsRouteHandler($runServicePromise, notifier) {
                         return { name: topics[index].name, value: response.result };
                     });
                     return toReturn;
+                }).catch(function (e) {
+                    console.log('Caught by run opns', e);
+                    throw e;
                 });
             });
         }
@@ -6619,7 +6628,10 @@ function withRouter(BaseChannelManager, router) {
 
                 var publishData = Object(__WEBPACK_IMPORTED_MODULE_0__channel_utils__["a" /* normalizeParamOptions */])(topic, value, options);
                 return this.router.publishHandler(publishData.params, publishData.options).then(function (published) {
-                    return _get(ChannelWithRouter.prototype.__proto__ || Object.getPrototypeOf(ChannelWithRouter.prototype), 'publish', _this3).call(_this3, published, publishData.options);
+                    return _get(ChannelWithRouter.prototype.__proto__ || Object.getPrototypeOf(ChannelWithRouter.prototype), 'publish', _this3).call(_this3, published, publishData.options).catch(function (e) {
+                        console.log('Caught by routable', e);
+                        throw e;
+                    });
                 });
             }
 
