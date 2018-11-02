@@ -1,28 +1,26 @@
-const { 
-    getConvertersForEl, getChannelForAttribute, getChannelConfigForElement, parseTopicsFromAttributeValue 
-} = require('./dom-manager-utils/dom-parse-helpers');
+import { getConvertersForEl, getChannelForAttribute, getChannelConfigForElement, parseTopicsFromAttributeValue } from './dom-manager-utils/dom-parse-helpers';
 
-const { addPrefixToTopics, addDefaultPrefix } = require('./dom-manager-utils/dom-channel-prefix-helpers');
-const { toImplicitType } = require('utils/parse-utils');
+import { addPrefixToTopics, addDefaultPrefix } from './dom-manager-utils/dom-channel-prefix-helpers';
+import { toImplicitType } from 'utils/parse-utils';
 
-const { pick, isEqual } = require('lodash');
+import { pick, isEqual } from 'lodash';
 
-const config = require('../config');
+import { prefix, errorAttr, events, animation } from '../config';
 
-const converterManager = require('converter-manager').default;
-const nodeManager = require('./nodes/node-manager').default;
-const attrManager = require('./attribute-manager').default;
-const autoUpdatePlugin = require('./plugins/auto-update-bindings').default;
+import converterManager from 'converter-manager';
+import nodeManager from './nodes/node-manager';
+import attrManager from './attribute-manager';
+import autoUpdatePlugin from './plugins/auto-update-bindings';
 
-module.exports = (function () {
+export default (function () {
     //Jquery selector to return everything which has a f- property set
-    $.expr.pseudos[config.prefix] = function (el) {
+    $.expr.pseudos[prefix] = function (el) {
         if (!el || !el.attributes) {
             return false;
         }
         for (let i = 0; i < el.attributes.length; i++) {
             const attr = el.attributes[i].nodeName;
-            if (attr.indexOf('data-' + config.prefix) === 0) {
+            if (attr.indexOf('data-' + prefix) === 0) {
                 return true;
             }
         }
@@ -35,8 +33,8 @@ module.exports = (function () {
      */ 
     function getMatchingElements(root) {
         const $root = $(root);
-        let matchedElements = $root.find(':' + config.prefix);
-        if ($root.is(':' + config.prefix)) {
+        let matchedElements = $root.find(':' + prefix);
+        if ($root.is(':' + prefix)) {
             matchedElements = matchedElements.add($root);
         }
         return matchedElements;
@@ -93,7 +91,7 @@ module.exports = (function () {
         if ($.isPlainObject(msg)) {
             msg = JSON.stringify(msg);
         }
-        $el.attr(config.errorAttr, msg).trigger(config.events.error, e);
+        $el.attr(errorAttr, msg).trigger(events.error, e);
     }
     const publicAPI = {
 
@@ -117,7 +115,7 @@ module.exports = (function () {
             const domEl = getElementOrError(element);
             const $el = $(element);
             const existingData = this.matchedElements.get(domEl);
-            if (!$el.is(':' + config.prefix) || !existingData) {
+            if (!$el.is(':' + prefix) || !existingData) {
                 return;
             }
             this.matchedElements.delete(element);
@@ -131,7 +129,7 @@ module.exports = (function () {
             unbindAllAttributes(domEl);
             removeAllSubscriptions(subscriptions, channel);
             
-            const animAttrs = Object.keys(config.animation).join(' ');
+            const animAttrs = Object.keys(animation).join(' ');
             $el.removeAttr(animAttrs);
 
             Object.keys($el.data()).forEach(function (key) {
@@ -155,7 +153,7 @@ module.exports = (function () {
             // this.unbindElement(element); //unbind actually removes the data,and jquery doesn't refetch when .data() is called..
             const domEl = getElementOrError(element);
             const $el = $(domEl);
-            if (!$el.is(`:${config.prefix}`)) {
+            if (!$el.is(`:${prefix}`)) {
                 return;
             }
 
@@ -165,7 +163,7 @@ module.exports = (function () {
                 el: domEl
             });
 
-            const filterPrefix = `data-${config.prefix}-`;
+            const filterPrefix = `data-${prefix}-`;
             const attrList = {};
             $(domEl.attributes).each(function (index, nodeMap) {
                 let attr = nodeMap.nodeName;
@@ -232,7 +230,7 @@ module.exports = (function () {
                             return accum;
                         }, {});
                     }
-                    $el.removeAttr(config.errorAttr).trigger(config.events.convert, toConvert);
+                    $el.removeAttr(errorAttr).trigger(events.convert, toConvert);
                 }, subsOptions);
 
                 accum[name] = Object.assign({}, attr, { subscriptionId: subsid });
@@ -327,7 +325,7 @@ module.exports = (function () {
                     return converterManager.parse(toImplicitType(value), converters);
                 }
 
-                $root.off(config.events.trigger).on(config.events.trigger, function (evt, params) {
+                $root.off(events.trigger).on(events.trigger, function (evt, params) {
                     const elMeta = me.matchedElements.get(evt.target);
                     const { data, source, options } = params;
                     if (!elMeta || !data) {
@@ -350,7 +348,7 @@ module.exports = (function () {
                             return;
                         }
                         const last = result[result.length - 1];
-                        $el.trigger(config.events.convert, { [source]: last.value });
+                        $el.trigger(events.convert, { [source]: last.value });
                     }, (e)=> {
                         triggerError($el, e);
                     });
@@ -359,7 +357,7 @@ module.exports = (function () {
 
             function attachConversionListner($root) {
                 // data = {proptoupdate: value}
-                $root.off(config.events.convert).on(config.events.convert, function (evt, data) {
+                $root.off(events.convert).on(events.convert, function (evt, data) {
                     const $el = $(evt.target);
 
                     const elMeta = me.matchedElements.get(evt.target);

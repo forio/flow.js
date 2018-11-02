@@ -1,6 +1,6 @@
 import { initWithNode, createDummyChannel, spyOnNode } from 'tests/testing-utils';
-import domManager from 'src/dom/dom-manager';
-import config from 'src/config';
+import domManager from '../../../../src/dom/dom-manager';
+import config from '../../../../src/config';
 
 describe(':checkbox', function () {
     describe('input handlers', function () {

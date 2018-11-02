@@ -1,5 +1,5 @@
 import { initWithNode, createDummyChannel, spyOnNode } from 'tests/testing-utils';
-import domManager from 'src/dom/dom-manager';
+import domManager from '../../../../src/dom/dom-manager';
 
 import { expect } from 'chai';
 

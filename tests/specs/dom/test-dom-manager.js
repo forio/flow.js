@@ -4,8 +4,7 @@ chai.use(require('sinon-chai'));
 
 
 var utils = require('../../testing-utils');
-var domManager = require('src/dom/dom-manager');
-var config = require('src/config');
+var domManager = require('../../../src/dom/dom-manager').default;
 
 describe('DOM Manager', function () {
     beforeEach(function () {

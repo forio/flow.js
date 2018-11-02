@@ -1,5 +1,5 @@
 'use strict';
-var domManager = require('src/dom/dom-manager');
+var domManager = require('../../../src/dom/dom-manager').default;
 var utils = require('../../testing-utils');
 
 describe('converters', function () {

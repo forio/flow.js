@@ -1,4 +1,4 @@
-var NodeClass = require('src/dom/nodes/default-input-node');
+var NodeClass = require('../../../src/dom/nodes/default-input-node');
 var make = require('../../testing-utils').create;
 
 describe('Input node', function () {
