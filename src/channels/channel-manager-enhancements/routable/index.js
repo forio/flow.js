@@ -42,7 +42,7 @@ export default function withRouter(BaseChannelManager, router) {
         subscribe(topics, cb, options) {
             const subsid = super.subscribe(topics, cb, options);
             this.router.subscribeHandler([].concat(topics), options).then((topicsWithData)=> {
-                if (topicsWithData.length) {
+                if (topicsWithData && topicsWithData.length) {
                     this.notify([].concat(topicsWithData));
                 }
             }, (err)=> {

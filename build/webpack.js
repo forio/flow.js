@@ -43,7 +43,10 @@ module.exports = function (grunt) {
                 })
             ],
             resolve: {
-                modules: [__dirname + '/../src', 'node_modules']
+                modules: [__dirname + '/../src', 'node_modules'],
+                alias: {
+                    tests: __dirname + '/../tests',
+                }
             },
             externals: {
                 jquery: 'jQuery',

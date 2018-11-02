@@ -1,5 +1,5 @@
-import domManager from '../dom-manager';
-import { createDummyChannel, initWithNode } from '../../../tests/testing-utils';
+import domManager from 'dom/dom-manager';
+import { createDummyChannel, initWithNode } from 'tests/testing-utils';
 
 import sinon from 'sinon';
 import chai from 'chai';

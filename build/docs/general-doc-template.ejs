@@ -1,0 +1,25 @@
+<%= description %>
+
+## Constructor options
+<%= constructorOptionsTable %>
+
+<% if (methods.length) { %>
+## Methods
+<% methods.forEach((method)=> { %>
+### <%= method.name %>(<%= method.params %>)
+<%= method.description %>
+
+#### Parameters
+<%= method.parameterTable %>
+
+<% if (method.returns.description) { %>
+#### Returns
+`<%= method.returns.type %>` <%= method.returns.description %>
+<% } %>
+
+<% if (method.tags.example.length) { %>#### Example
+<% method.tags.example.forEach((example)=> { %>```js
+<%=  example %>
+```
+<% }); %><% } %>
+<% }); %><% } %>

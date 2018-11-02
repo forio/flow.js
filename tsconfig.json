@@ -7,7 +7,10 @@
         "allowSyntheticDefaultImports": true,
         "checkJs": true,
         "suppressExcessPropertyErrors": true,
-        "moduleResolution": "node"
+        "moduleResolution": "node",
+        "paths": {
+            "tests/*": ["../tests/*"]
+        }
     },
     "typeAcquisition": {
         "enable": true
