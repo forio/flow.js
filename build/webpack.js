@@ -12,6 +12,12 @@ var uglifyOptions = {
     }
 };
 
+var opOptions = {
+    path: path.resolve('./dist/'),
+    library: 'Flow',
+    libraryExport: 'default',
+    libraryTarget: 'var'
+};
 module.exports = function (grunt) {
     var version = grunt.file.readJSON('package.json').version;
     var banner = grunt.file.read('banner.txt');
@@ -56,11 +62,9 @@ module.exports = function (grunt) {
         edge: {
             entry: path.resolve('./src/flow.js'),
             output: {
-                path: path.resolve('./dist/'),
-                pathinfo: true,
                 filename: 'flow-edge.js',
-                library: 'Flow',
-                libraryTarget: 'var'
+                pathinfo: true,
+                ...opOptions,
             },
             module: {
                 rules: [] //meant for testing in a new browser so no babel transpiling required
@@ -73,10 +77,8 @@ module.exports = function (grunt) {
         mapped: {
             entry: path.resolve('./src/flow.js'),
             output: {
-                path: path.resolve('./dist/'),
                 filename: 'flow.js',
-                library: 'Flow',
-                libraryTarget: 'var'
+                ...opOptions,
             },
             module: {
                 rules: [babelloader]
@@ -96,9 +98,7 @@ module.exports = function (grunt) {
             entry: path.resolve('./src/flow.js'),
             output: {
                 path: path.resolve('./dist/'),
-                filename: 'flow.min.js',
-                library: 'Flow',
-                libraryTarget: 'var'
+                ...opOptions,
             },
             module: {
                 rules: [babelloader]
