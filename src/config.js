@@ -3,13 +3,13 @@ module.exports = {
     binderAttr: 'f-bind',
 
     events: {
-        //UI Change to publish to the channel.
+        /** UI Change to publish to the channel. */
         trigger: 'update.f.ui',
 
-        //Trigger with payload '{attrToUpdate: value}', for e.g. { bind: 34 }. This will run this through all the converts and pass it to attr handler. Useful to by-pass getting this from the model directly.
+        /** Trigger with payload '{attrToUpdate: value}', for e.g. { bind: 34 }. This will run this through all the converts and pass it to attr handler. Useful to by-pass getting this from the model directly.  */
         convert: 'f.convert',
 
-        //On a bind or other flow-related error
+        /** On a bind or other flow-related error  */
         error: 'f.error',
     },
 

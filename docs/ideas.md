@@ -3,33 +3,6 @@ The excel workforce model had a 50row x 5 binds and was too slow. Bulk of the ti
 
 Instead of prefixing, just pass an array of prefixes and let the channel manager only send what matched?
 
-#Interpolate operation parameters as well
-
-This'll get the value of the input at resolution time
-<button data-f-on-click="submit(<#inp>)"></button>
-
-This'll subscribe to input and change price whenever input changes
-<div data-f-bind="price[<#inp>]"></div>
-
-##Todos:
-    - Implement a 'fetch' or 'once' method per channel
-
-#Build new dom: router
-- Matches on # or on dom:<any valid css selector>
-<div data-f-on-click="variables:price[<#inp>,<#inp2>]"></div>
-
-#Build url router
-```
-<ul data-f-foreach="item in https://reddit.com/json | pick('children')"></ul>
-```
-
-
-## Add `-on` adapter to show output of operations? --- not different from bind?
-```
-<div data-f-when="submit">
-<div data-f-when="#input">
-```
-
 #Make converters routes
 This'll make it so you can do
 
@@ -80,8 +53,23 @@ Need consider nested items, both with and without templating
 
 Failed approaches:
 
-- Tried setting a [subscribe-status] attr on each el on bind, and removing it within the subscribe callback, but the subscribe callback isn't guaranteed to be called (i.e. it's technically only called if/when there is data)
+- Tried setting a `[subscribe-status]` attr on each el on bind, and removing it within the subscribe callback, but the subscribe callback isn't guaranteed to be called (i.e. it's technically only called if/when there is data)
     Will making subscribe a promise solve this?
         -No, same issue. Subscribe isn't guaranteed to return data.
 
 - Tried changing 'init' method of bind to immediately store the data inside it on `init`, but this breaks for nested (when the parent foreach is triggered, the child foreach will have already replaced data?)
+
+
+## Google sheets
+
+<div data-bind="gs:A12 as price | run:optimize(price)">
+
+
+#Rejected ideas
+
+## Add `-on` adapter to show output of operations? --- not different from bind?
+```html
+<div data-f-when="operations:js"> ===  <div daa-f-bind="operations:js">
+<div daa-f-on-init="operations:js">
+```
+
