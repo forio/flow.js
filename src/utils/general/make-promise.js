@@ -29,3 +29,31 @@ export default function makePromise(val) {
     }
     return $def.promise();
 }
+
+/**
+ * 
+ * @param {function(*)} fn 
+ * @returns {function(...any): Promise}
+ */
+export function promisify(fn) {
+    if (!isFunction(fn)) {
+        throw new Error(`Promisify requires a function, received ${typeof fn}`);
+    }
+    /**
+     * @param {...*} args 
+     * @returns {Promise}
+     */
+    return function promisifiedFunction(args) {
+        const $def = $.Deferred();
+        try {
+            const toReturn = fn.apply(fn, arguments);
+            if (toReturn && toReturn.then) {
+                return toReturn.then((r)=> $def.resolve(r), ((e)=> $def.reject(e)));
+            }
+            $def.resolve(toReturn);
+        } catch (e) {
+            $def.reject(e);
+        }
+        return $def.promise();
+    };
+}
