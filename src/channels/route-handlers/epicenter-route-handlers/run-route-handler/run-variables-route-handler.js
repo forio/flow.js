@@ -4,6 +4,15 @@ import { uniqueId, uniq, difference } from 'lodash';
 import { retriableFetch } from './retriable-variable-fetch';
 // import { optimizedFetch } from './optimized-variables-fetch';
 
+function mergeVariables(accum, newval) {
+    if (!accum) {
+        accum = [];
+    }
+    const merged = uniq(accum.concat(newval)).filter((v)=> !!(v && v.trim()));
+    // console.log(merged, 'merged');
+    return merged;
+}
+
 export default function RunVariablesRouteHandler($runServicePromise, notifier) {
     const id = uniqueId('variable-route-handler');
 
@@ -14,12 +23,7 @@ export default function RunVariablesRouteHandler($runServicePromise, notifier) {
         if (!runService.debouncedFetchers[id]) {
             runService.debouncedFetchers[id] = debounceAndMerge(function (variables) {
                 return retriableFetch(runService, variables);
-            }, debounceInterval, [function mergeVariables(accum, newval) {
-                if (!accum) {
-                    accum = [];
-                }
-                return uniq(accum.concat(newval)).filter((v)=> !!(v && v.trim()));
-            }]);
+            }, debounceInterval, [mergeVariables]);
         }
         return runService.debouncedFetchers[id];
     }
@@ -36,6 +40,7 @@ export default function RunVariablesRouteHandler($runServicePromise, notifier) {
             knownTopics = knownTopics.filter((t)=> unsubscribedTopics.indexOf(t) === -1);
         },
         subscribeHandler: function (topics, options) {
+            console.log('subscribe', JSON.stringify(topics));
             const isAutoFetchEnabled = options.autoFetch;
             const debounceInterval = options.debounce;
 
