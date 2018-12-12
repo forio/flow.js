@@ -1,9 +1,10 @@
 import { toArray } from 'lodash';
+import { promisify } from './promise-utils';
 
 /**
  * Returns debounced version of original (optionally promise returning) function
  * 
- * @param {Function} fn function to debounce
+ * @param {function(*):Promise} fn function to debounce
  * @param {number} debounceInterval 
  * @param {Function[]} [argumentsReducers] pass in 1 reducer for each option your function takes
  * @return {Function} debounced function
@@ -26,6 +27,7 @@ export default function debounceAndMerge(fn, debounceInterval, argumentsReducers
         ];
     }
 
+    const startTime = Date.now();
     /**
      * @returns {Promise}
      */
@@ -48,28 +50,22 @@ export default function debounceAndMerge(fn, debounceInterval, argumentsReducers
             prom = $def.promise();
         }
         timer = setTimeout(function () {
+            console.log('Start executing fn', Date.now() - startTime);
+
             timer = null;
-            var res;
-            try {
-                res = fn.apply(fn, argsToPass);
-            } catch (e) {
+
+            const promisifiedFn = promisify(fn);
+            promisifiedFn.apply(fn, argsToPass).then((arg)=> {
+                argsToPass = [];
+                $def.resolve(arg);
+            }, (e)=> {
                 argsToPass = [];
                 $def.reject(e);
-            }
-            if (res && res.then) {
-                return res.then(function (arg) {
-                    argsToPass = [];
-                    $def.resolve(arg);
-                }, (e)=> {
-                    argsToPass = [];
-                    $def.reject(e);
-                });
-            } else {
-                argsToPass = [];
-                $def.resolve(res);
-            }
+            });
         }, debounceInterval);
-        prom.then((r)=> {
+        prom = prom.then((r)=> {
+            console.log('nullify prom', Date.now() - startTime);
+
             $def = prom = null; 
             return r; 
         }, (err)=> {
