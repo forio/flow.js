@@ -1,0 +1,45 @@
+
+<!doctype html>
+<html>
+<head>
+    <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/dist/add-ons/flow-inspector.css">
+    <link rel="stylesheet" href="../../dist/add-ons/flow-inspector.css">
+    <script src="/node_modules/jquery/dist/jquery.js"></script>
+    <script src="/node_modules/lodash/lodash.min.js"></script>
+    <script src="/node_modules/epicenter-js/dist/epicenter.min.js"></script>
+    <!-- <script src="http://local.forio.com:8084/dist/epicenter-edge.js"></script> -->
+
+    <!-- <script src="https://forio.com/tools/js-libs/flow/1.0.0/flow.min.js"></script> -->
+    <script src="/dist/flow-edge.js"></script>
+
+    <!-- <script src="/dist/flow.min.js"></script> -->
+    <script src="/dist/add-ons/flow-inspector.min.js"></script>
+    <title>Foo</title>
+</head>
+<body data-f-model="PlatformSimSuperSlimv2.xlsx" data-f-on-init="step(10)" class="flow-debug">
+    
+    <input type="range" min="0" max="1" step=".05" data-f-bind="D_Percentage_of_marketing_for_buyers[0,<Step>]">
+
+    <script>
+        function asyncFn(ip) {
+            return new Promise((resolve, reject)=> {
+                setTimeout(() => {
+                    resolve(JSON.stringify(ip));
+                }, 300);
+            });
+        }
+
+        const debounced = Flow.utils.debounceAndMerge(asyncFn, 200);
+        debounced('foo').then(((i)=> {
+            console.log('Foo cb', i, Date.now());
+        }));
+        setTimeout(()=> {
+            debounced('bar').then(((i)=> {
+                console.log('bar cb', i,  Date.now());
+            }));
+        }, 300);
+            // new window.Flow.Inspector('body');
+    </script>
+</body>
+</html>

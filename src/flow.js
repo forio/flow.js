@@ -1,14 +1,13 @@
 import domManager from './dom/dom-manager';
-import BaseView from './utils/base-view';
 
 import ChannelManager from 'channels/configured-channel-manager';
 import config from 'config';
 
+import * as utils from './utils';
+
 const Flow = {
     dom: domManager,
-    utils: {
-        BaseView: BaseView
-    },
+    utils: utils,
     initialize: function (config) {
         const model = $('body').data('f-model');
         const defaults = {
