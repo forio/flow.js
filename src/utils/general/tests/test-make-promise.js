@@ -6,6 +6,16 @@ chai.use(require('sinon-chai'));
 const { expect } = chai;
 
 describe('#makePromise', ()=> {
+    it('should handle undefineds', ()=> {
+        const successSpy = sinon.spy((r)=> r);
+        const failSpy = sinon.spy((r)=> r);
+        return makePromise(undefined).then(successSpy).catch(failSpy).then((r)=> {
+            expect(r).to.eql(undefined);
+            expect(successSpy).to.have.been.calledOnce;
+            expect(failSpy).to.not.have.been.called;
+            expect(successSpy).to.have.been.calledWith(undefined);
+        });
+    });
     it('should make promise from literals', ()=> {
         const ip = 'foo';
         const successSpy = sinon.spy((r)=> r);
