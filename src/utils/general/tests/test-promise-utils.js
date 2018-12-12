@@ -101,7 +101,9 @@ describe('Promise utils', ()=> {
                 const original = sinon.spy(()=> Promise.resolve('result'));
                 const promisified = promisify(original);
     
-                const successSpy = sinon.spy((r)=> r);
+                const successSpy = sinon.spy((r)=> {
+                    return r;
+                });
                 const failSpy = sinon.spy();
     
                 return promisified('foo', 2).then(successSpy, failSpy).then((r)=> {
@@ -109,7 +111,8 @@ describe('Promise utils', ()=> {
                     expect(original).to.have.been.calledWith('foo', 2);
     
                     expect(successSpy).to.have.been.calledOnce;
-                    expect(r).to.equal('result');
+                    expect(successSpy).to.have.been.calledWith('result');
+
                     expect(failSpy).to.not.have.been.called;
                 });
             });

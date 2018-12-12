@@ -48,9 +48,14 @@ export function promisify(fn) {
         try {
             const toReturn = fn.apply(fn, arguments);
             if (toReturn && toReturn.then) {
-                return toReturn.then((r)=> $def.resolve(r), ((e)=> $def.reject(e)));
+                return toReturn.then((r)=> {
+                    return $def.resolve(r);
+                }, (e)=> {
+                    return $def.reject(e);
+                });
+            } else {
+                $def.resolve(toReturn);
             }
-            $def.resolve(toReturn);
         } catch (e) {
             $def.reject(e);
         }
