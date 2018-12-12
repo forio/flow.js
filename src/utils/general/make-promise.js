@@ -10,7 +10,7 @@ export default function makePromise(val) {
     //     return Promise.resolve(val());
     // }
     // return Promise.resolve(val);
-    if (val.then) {
+    if (val && val.then) {
         return val;
     }
     const $def = $.Deferred();
@@ -18,7 +18,7 @@ export default function makePromise(val) {
         try {
             const toReturn = val();
             if (toReturn && toReturn.then) {
-                return toReturn.then((r)=> $def.resolve(r)).catch(((e)=> $def.reject(e)));
+                return toReturn.then((r)=> $def.resolve(r), ((e)=> $def.reject(e)));
             }
             $def.resolve(toReturn);
         } catch (e) {
