@@ -1,6 +1,6 @@
 import { uniqueId, random as _random } from 'lodash';
 
-export { default as makePromise } from './make-promise';
+export { makePromise, promisify } from './promise-utils';
 export { default as debounceAndMerge } from './debounce-and-merge';
 
 export function random(prefix, min, max) {

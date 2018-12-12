@@ -1,4 +1,4 @@
-import makePromise, { promisify } from '../make-promise';
+import { makePromise, promisify } from '../promise-utils';
 import chai from 'chai';
 import sinon from 'sinon';
 

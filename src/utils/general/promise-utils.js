@@ -4,7 +4,7 @@ import { isFunction } from 'lodash';
  * @param {any} val 
  * @returns {Promise}
  */
-export default function makePromise(val) {
+export function makePromise(val) {
     //Can be replaced with Promise.resolve when we drop IE11;
     // if (isFunction(val)) {
     //     return Promise.resolve(val());
