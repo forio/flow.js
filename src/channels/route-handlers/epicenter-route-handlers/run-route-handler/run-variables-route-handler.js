@@ -30,9 +30,18 @@ export default function RunVariablesRouteHandler($runServicePromise, notifier) {
 
     let knownTopics = [];
     return { 
-        fetch: function () {
+        /**
+         * @param {{exclude:? boolean}} options 
+         * @return {Promise}
+         */
+        fetch: function (options) {
+            const opts = $.extend({ exclude: [] }, options);
             return $runServicePromise.then(function (runService) {
-                return retriableFetch(runService, [].concat(knownTopics)).then(objectToPublishable).then(notifier);
+                const variablesToFetch = difference([].concat(knownTopics), opts.exclude);
+                if (!variablesToFetch.length) {
+                    return [];
+                }
+                return retriableFetch(runService, [].concat(variablesToFetch)).then(objectToPublishable).then(notifier);
             });
         },
 
@@ -76,8 +85,6 @@ export default function RunVariablesRouteHandler($runServicePromise, notifier) {
                     const variables = Object.keys(toSave); 
                     //Get the latest from the server because what you think you saved may not be what was saved
                     //bool -> 1, scalar to array for time-based models etc
-                    //FIXME: This causes dupe requests, one here and one after fetch by the run-variables channel
-                    //FIXME: Other publish can't do anything till this is done, so debouncing won't help. Only way out is caching
                     return retriableFetch(runService, variables).then(objectToPublishable);
                 });
             });

@@ -131,12 +131,13 @@ export default function GenericRunRouteHandler(config, notifier) {
 
     const runRouter = router(handlers);
     const oldhandler = runRouter.publishHandler;
-    runRouter.publishHandler = function () {
+    runRouter.publishHandler = function (publishable) {
         const prom = oldhandler.apply(router, arguments);
         return prom.then(function (result) { //all the silencing will be taken care of by the router
             const shouldFetch = _shouldFetch(result, ['reset']);
             if (shouldFetch) {
-                variablesHandler.fetch();
+                const excludeFromFetch = result.map((r)=> r.name); //This was just published, no need to get the value again
+                variablesHandler.fetch({ exclude: excludeFromFetch });
             }
             return result;
         });
