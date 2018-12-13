@@ -1,5 +1,3 @@
-import { difference } from 'lodash';
-
 //Opaquely handle missing variables
 export function retriableFetch(runService, variables) {
     if (!variables || !variables.length) {
@@ -11,7 +9,11 @@ export function retriableFetch(runService, variables) {
         if (info.code !== 'VARIABLE_NOT_FOUND') {
             throw e;
         }
-        const goodVariables = difference(variables, info.context.names);
+        const goodVariables = variables.filter((vName)=> {
+            const baseName = vName.split('[')[0];
+            const isBad = info.context.names.indexOf(baseName) !== -1;
+            return !isBad;
+        });
         return retriableFetch(runService, goodVariables);
     });
 }
