@@ -10,10 +10,6 @@ import { promisify } from './promise-utils';
  * @return {Function} debounced function
  */
 export default function debounceAndMerge(fn, debounceInterval, argumentsReducers) {
-    var timer = null;
-    var $def = null;
-    var prom = null;
-
     var argsToPass = [];
     if (!argumentsReducers) {
         var arrayReducer = function (accum, newVal) {
@@ -27,7 +23,11 @@ export default function debounceAndMerge(fn, debounceInterval, argumentsReducers
         ];
     }
 
-    const startTime = Date.now();
+    const queue = [];
+
+    let timer = null;
+    let isExecuting = false;
+    let $def = $.Deferred();
     /**
      * @returns {Promise}
      */
@@ -41,37 +41,38 @@ export default function debounceAndMerge(fn, debounceInterval, argumentsReducers
                 return arg;
             }
         });
-        if (timer) {
-            clearTimeout(timer);
-        }
 
-        if (!$def) {
+        if (isExecuting || $def.isComplete) {
             $def = $.Deferred();
-            prom = $def.promise();
         }
-        timer = setTimeout(function () {
-            console.log('Start executing fn', Date.now() - startTime);
-
+        if (timer && !isExecuting) {
+            clearTimeout(timer);//caught within debounce period, reuse old deferred
+        } else {
+            queue.push($def);
+        }
+        
+        timer = setTimeout(()=> {
+            isExecuting = true;
             timer = null;
 
+            const argsClone = [].concat(argsToPass);
+            argsToPass = [];
+
             const promisifiedFn = promisify(fn);
-            promisifiedFn.apply(fn, argsToPass).then((arg)=> {
-                argsToPass = [];
-                $def.resolve(arg);
+            promisifiedFn.apply(fn, argsClone).then((args)=> {
+                isExecuting = false;
+                const $def = queue.shift();
+                $def.isComplete = true;
+                return $def.resolve(args);
             }, (e)=> {
-                argsToPass = [];
-                $def.reject(e);
+                isExecuting = false;
+                const $def = queue.shift();
+                $def.isComplete = true;
+                return $def.reject(e);
             });
         }, debounceInterval);
-        prom = prom.then((r)=> {
-            console.log('nullify prom', Date.now() - startTime);
+        const prom = $def.promise();
 
-            $def = prom = null; 
-            return r; 
-        }, (err)=> {
-            $def = prom = null;
-            throw err;
-        });
         return prom;
     };
 }

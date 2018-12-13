@@ -22,24 +22,40 @@
     <input type="range" min="0" max="1" step=".05" data-f-bind="D_Percentage_of_marketing_for_buyers[0,<Step>]">
 
     <script>
-        function asyncFn(ip) {
+        function asyncSlowFn(ip) {
             return new Promise((resolve, reject)=> {
                 setTimeout(() => {
                     resolve(JSON.stringify(ip));
                 }, 300);
             });
         }
+        function asyncFastFn(ip) {
+            return new Promise((resolve, reject)=> {
+                resolve(JSON.stringify(ip));
+            });
+        }
 
-        const debounced = Flow.utils.debounceAndMerge(asyncFn, 200);
-        debounced('foo').then(((i)=> {
-            console.log('Foo cb', i, Date.now());
+        const debouncedSlow = Flow.utils.debounceAndMerge(asyncSlowFn, 200);
+        const debouncedFast = Flow.utils.debounceAndMerge(asyncFastFn, 200);
+
+        debouncedSlow('First').then(((i)=> {
+            console.log('Slow: First cb', i);
         }));
         setTimeout(()=> {
-            debounced('bar').then(((i)=> {
-                console.log('bar cb', i,  Date.now());
+            debouncedSlow('Second').then(((i)=> {
+                console.log('Slow: Second cb', i);
             }));
         }, 300);
-            // new window.Flow.Inspector('body');
+
+
+        debouncedFast('FirstFast').then(((i)=> {
+            console.log('FirstFast: First cb', i);
+        }));
+        setTimeout(()=> {
+            debouncedFast('SecondFast').then(((i)=> {
+                console.log('SecondFast: Second cb', i);
+            }));
+        }, 300);
     </script>
 </body>
 </html>

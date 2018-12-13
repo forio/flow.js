@@ -158,9 +158,9 @@ describe('#debounceAndMerge', ()=> {
         it('Should be resolved with the latest result', ()=> { //NOTE: See integration-test-utils for errors which only happen in a browser
             var fnToDebounce = sinon.spy((input)=> {
                 const $d = $.Deferred(); //NOTE: This doesn't work with native promises for some reason
-                console.log('debouncer, start ip', input);
+                // console.log('debouncer, start ip', input);
                 setTimeout(()=> {
-                    console.log('debouncer, resolve ip', input);
+                    // console.log('debouncer, resolve ip', input);
                     $d.resolve(JSON.stringify(input)); 
                 }, 300);
                 return $d.promise();
@@ -178,17 +178,18 @@ describe('#debounceAndMerge', ()=> {
 
             debounced(['Variable']).then(cb1);
             clock.tick(200);// start executing debounces
-            clock.tick(10);// start executing debounces
             debounced(['Step']).then(cb2); //get second call in the middle of processesing first
             clock.tick(300);
             clock.tick(10);
-                
-            console.log('ereh');
+            clock.tick(300);
+            clock.tick(10);
+
             expect(fnToDebounce).to.have.been.calledTwice;
             expect(cb1).to.have.been.calledOnce;
             expect(cb1).to.have.been.calledWith(JSON.stringify(['Variable']));
+
             expect(cb2).to.have.been.calledOnce;
-            // expect(cb2).to.have.been.calledWith(JSON.stringify(['Variable', 'Step']));
+            expect(cb2).to.have.been.calledWith(JSON.stringify(['Step']));
         });
 
         it('should pass on errors to chained handlers on error from function', ()=> {
