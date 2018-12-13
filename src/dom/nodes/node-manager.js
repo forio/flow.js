@@ -76,7 +76,7 @@ const nodeManager = {
 //bootstraps
 const defaultHandlers = [
     require('./input-checkbox-node').default,
-    require('./default-input-node'),
+    require('./default-input-node').default,
     require('./default-node')
 ];
 defaultHandlers.reverse().forEach(function (handler) {

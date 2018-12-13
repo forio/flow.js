@@ -1,5 +1,6 @@
 import { difference } from 'lodash';
 
+//Opaquely handle missing variables
 export function retriableFetch(runService, variables) {
     if (!variables || !variables.length) {
         return $.Deferred().resolve({}).promise();

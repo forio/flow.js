@@ -1,8 +1,7 @@
-'use strict';
-const config = require('../../config');
-const BaseView = require('./default-node');
+import { binderAttr, events } from '../../config';
+import BaseView from './default-node';
 
-module.exports = BaseView.extend({
+export default BaseView.extend({
     propertyHandlers: [],
 
     uiChangeEvent: 'change',
@@ -16,14 +15,13 @@ module.exports = BaseView.extend({
 
     initialize: function () {
         const me = this;
-        const propName = this.$el.data(config.binderAttr);
+        const propName = this.$el.data(binderAttr);
 
         if (propName) {
             this.$el.off(this.uiChangeEvent).on(this.uiChangeEvent, function () {
                 const val = me.getUIValue();
-
                 const payload = [{ name: propName, value: val }];
-                me.$el.trigger(config.events.trigger, { data: payload, source: 'bind' });
+                me.$el.trigger(events.trigger, { data: payload, source: 'bind' });
             });
         }
         BaseView.prototype.initialize.apply(this, arguments);

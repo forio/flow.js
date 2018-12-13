@@ -8,8 +8,6 @@ srcContext.keys().forEach((key)=> {
 });
 
 require('./specs/dom/test-dom-manager'); //2.7
-require('./specs/dom/test-default-input-node');
-
 
 // require('./specs/channels/test-channel-manager'); //0.6secons
 // require('./specs/channels/test-channel-router'); //1.1 secs..

@@ -1,5 +1,7 @@
-var NodeClass = require('../../../src/dom/nodes/default-input-node');
-var make = require('../../testing-utils').create;
+import NodeClass from '../default-input-node';
+import sinon from 'sinon';
+
+import { create as make } from 'tests/testing-utils';
 
 describe('Input node', function () {
     var textNode;

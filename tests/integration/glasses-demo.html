@@ -24,7 +24,7 @@
         <h5 data-f-bind="operations:step"></h5>
         <div style="margin-top: 30px;">
             <label>Set your price: </label>
-            <input type="text" data-f-bind="Price" placeholder="s">
+            <input type="range" data-f-bind="Price" min="0" max="500" placeholder="s">
 
             <button class="btn btn-primary"  data-f-on-click="step">Advance</button>
             <button class="btn" data-ub-component="Button"  data-f-on-click="reset">Reset</button>
