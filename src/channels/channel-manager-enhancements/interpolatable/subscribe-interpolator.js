@@ -1,5 +1,5 @@
 import { extractDependencies, interpolateWithValues } from './interpolatable-utils';
-import { uniq } from 'lodash';
+import { uniq, isEqual } from 'lodash';
 
 /**
  * @param {String[]} topics
@@ -56,8 +56,10 @@ export default function subscribeInterpolator(subscribeFn, onDependencyChange) {
             return subscribeFn(topics, cb, options);
         }
         var innerSubsId = subscribeFn(dependencies, function handleDependencyValueChange(data, dependenciesMeta) {
-            var interpolatedTopics = interpolateWithDependencies(topics, data);
+            const isSameData = isEqual(data, dependenciesMeta.previousData);
+            if (isSameData) return;
 
+            var interpolatedTopics = interpolateWithDependencies(topics, data);
             var outerSubsId = subscribeFn(interpolatedTopics, function handleInterpolatedValueChange(actualData, actualMeta) {
                 var toSendback = mergeInterpolatedTopicsWithData(topics, interpolatedTopics, actualData);
 
