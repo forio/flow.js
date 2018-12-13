@@ -1,6 +1,8 @@
 import { initWithNode, createDummyChannel, spyOnNode } from 'tests/testing-utils';
 import domManager from '../../../../src/dom/dom-manager';
 
+import sinon from 'sinon';
+
 describe(':radio', function () {
     describe('input handlers', function () {
         it('should trigger the right event on ui change', function () {

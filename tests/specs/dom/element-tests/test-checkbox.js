@@ -1,6 +1,8 @@
 import { initWithNode, createDummyChannel, spyOnNode } from 'tests/testing-utils';
 import domManager from '../../../../src/dom/dom-manager';
 import config from '../../../../src/config';
+import sinon from 'sinon';
+import { expect } from 'chai';
 
 describe(':checkbox', function () {
     describe('input handlers', function () {

@@ -1,6 +1,9 @@
 import { initWithNode, createDummyChannel, spyOnNode } from 'tests/testing-utils';
 import domManager from '../../../../src/dom/dom-manager';
 
+import sinon from 'sinon';
+import { expect } from 'chai';
+
 describe('select', function () {
     describe('input handlers', function () {
         it('should trigger the right event on ui change', function () {

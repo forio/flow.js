@@ -1,8 +1,8 @@
-'use strict';
-var domManager = require('../../../src/dom/dom-manager').default;
-var utils = require('../../testing-utils');
+import domManager from '../../../src/dom/dom-manager';
+import { createDummyChannel, initWithNode } from '../../testing-utils';
+import sinon from 'sinon';
 
-describe('converters', function () {
+describe('Integration test converters', function () {
     before(function () {
         domManager.converters.register('flip', function (val) {
             return val.split('').reverse().join('');
@@ -12,8 +12,8 @@ describe('converters', function () {
         describe('bind', function () {
             describe('convert', function () {
                 it('should convert values with single converters', function () {
-                    const channel = utils.createDummyChannel();
-                    return utils.initWithNode('<input type="text" data-f-bind="apple | titleCase"/>', domManager, channel).then(function ($node) {
+                    const channel = createDummyChannel();
+                    return initWithNode('<input type="text" data-f-bind="apple | titleCase"/>', domManager, channel).then(function ($node) {
                         return channel.publish({
                             apple: 'sauce'
                         }).then(()=> {
@@ -27,8 +27,8 @@ describe('converters', function () {
                         return val.split('').reverse().join('');
                     });
 
-                    const channel = utils.createDummyChannel();
-                    return utils.initWithNode('<input type="text" data-f-bind="apple | titleCase | flip"/>', domManager, channel).then(function ($node) {
+                    const channel = createDummyChannel();
+                    return initWithNode('<input type="text" data-f-bind="apple | titleCase | flip"/>', domManager, channel).then(function ($node) {
                         return channel.publish({
                             apple: 'sauce'
                         }).then(()=> {
@@ -39,8 +39,8 @@ describe('converters', function () {
 
                 describe('arrays', function () {
                     it('should convert arrays into values without converters', function () {
-                        const channel = utils.createDummyChannel();
-                        return utils.initWithNode('<input type="text" data-f-bind="apple"/>', domManager, channel).then(function ($node) {
+                        const channel = createDummyChannel();
+                        return initWithNode('<input type="text" data-f-bind="apple"/>', domManager, channel).then(function ($node) {
                             return channel.publish({
                                 apple: [1, 2, 3]
                             }).then(()=> {
@@ -52,8 +52,8 @@ describe('converters', function () {
                     it('should pass arrays into converters if defined', function () {
                         var spy = sinon.spy();
                         domManager.converters.register('spy', spy, true);
-                        const channel = utils.createDummyChannel();
-                        return utils.initWithNode('<input type="text" data-f-bind="apple | spy"/>', domManager, channel).then(function ($node) {
+                        const channel = createDummyChannel();
+                        return initWithNode('<input type="text" data-f-bind="apple | spy"/>', domManager, channel).then(function ($node) {
                             return channel.publish({
                                 apple: [1, 2, 3]
                             }).then(()=> {
@@ -65,8 +65,8 @@ describe('converters', function () {
             });
             describe('parse', function () {
                 it('should convert values with single converters', function () {
-                    var channel = utils.createDummyChannel();
-                    return utils.initWithNode('<input type="text" data-f-bind="price | $#,### "/>', domManager, channel).then(function ($node) {
+                    var channel = createDummyChannel();
+                    return initWithNode('<input type="text" data-f-bind="price | $#,### "/>', domManager, channel).then(function ($node) {
                         $node.val('2,345').trigger('change');
                         channel.publish.should.have.been.calledWith([{ name: 'price', value: 2345 }]);
                     });
@@ -81,8 +81,8 @@ describe('converters', function () {
                         }
                     });
 
-                    var channel = utils.createDummyChannel();
-                    return utils.initWithNode('<input type="text" data-f-bind="price | $#,### | flip"/>', domManager, channel).then(function ($node) {
+                    var channel = createDummyChannel();
+                    return initWithNode('<input type="text" data-f-bind="price | $#,### | flip"/>', domManager, channel).then(function ($node) {
                         $node.val('$2,345').trigger('change');
                         channel.publish.should.have.been.calledWith([{ name: 'price', value: 5432 }]);
                     });
@@ -98,8 +98,8 @@ describe('converters', function () {
                         }
                     });
 
-                    var channel = utils.createDummyChannel();
-                    return utils.initWithNode('<input type="text" data-f-bind="price | flips | $#,### "/>', domManager, channel).then(function ($node) {
+                    var channel = createDummyChannel();
+                    return initWithNode('<input type="text" data-f-bind="price | flips | $#,### "/>', domManager, channel).then(function ($node) {
                         $node.val('$2,345').trigger('change');
                         channel.publish.should.have.been.calledWith([{ name: 'price', value: 'abc' }]);
                     });
@@ -113,8 +113,8 @@ describe('converters', function () {
                         }
                     });
 
-                    var channel = utils.createDummyChannel();
-                    return utils.initWithNode('<input type="text" data-f-bind="price | flip | $#,### "/>', domManager, channel).then(function ($node) {
+                    var channel = createDummyChannel();
+                    return initWithNode('<input type="text" data-f-bind="price | flip | $#,### "/>', domManager, channel).then(function ($node) {
                         $node.val('$2,345').trigger('change');
                         channel.publish.should.have.been.calledWith([{ name: 'price', value: 2345 }]);
                     });
@@ -123,8 +123,8 @@ describe('converters', function () {
         });
         describe('other attributes', function () {
             it('should convert values with single converters', function () {
-                const channel = utils.createDummyChannel();
-                return utils.initWithNode('<input type="text" data-f-stuff="apple | titleCase"/>', domManager, channel).then(function ($node) {
+                const channel = createDummyChannel();
+                return initWithNode('<input type="text" data-f-stuff="apple | titleCase"/>', domManager, channel).then(function ($node) {
                     return channel.publish({
                         apple: 'sauce'
                     }).then(()=> {
@@ -133,8 +133,8 @@ describe('converters', function () {
                 });
             });
             it('should convert values with multiple converters', function () {
-                const channel = utils.createDummyChannel();
-                return utils.initWithNode('<input type="text" data-f-stuff="apple | titleCase | flip"/>', domManager, channel).then(function ($node) {
+                const channel = createDummyChannel();
+                return initWithNode('<input type="text" data-f-stuff="apple | titleCase | flip"/>', domManager, channel).then(function ($node) {
                     return channel.publish({
                         apple: 'sauce'
                     }).then(()=> {
@@ -147,8 +147,8 @@ describe('converters', function () {
     describe('f-convert', function () {
         describe('convert', function () {
             it('should work if specified directly on the element', function () {
-                const channel = utils.createDummyChannel();
-                return utils.initWithNode('<input type="text" data-f-bind="apple" data-f-convert="titleCase | flip"/>', domManager, channel).then(function ($node) {
+                const channel = createDummyChannel();
+                return initWithNode('<input type="text" data-f-bind="apple" data-f-convert="titleCase | flip"/>', domManager, channel).then(function ($node) {
                     return channel.publish({
                         apple: 'sauce'
                     }).then(()=> {
@@ -165,8 +165,8 @@ describe('converters', function () {
                     '   <span> nothing </span>',
                     '</div>'
                 ];
-                const channel = utils.createDummyChannel();
-                return utils.initWithNode(nested.join(), domManager, channel).then(function ($node) {
+                const channel = createDummyChannel();
+                return initWithNode(nested.join(), domManager, channel).then(function ($node) {
                     var $textNode = $node.find(':text');
                     return channel.publish({
                         apple: 'sauce'
@@ -184,8 +184,8 @@ describe('converters', function () {
                     '   <span> nothing </span>',
                     '</div>'
                 ];
-                const channel = utils.createDummyChannel();
-                return utils.initWithNode(nested.join(), domManager, channel).then(function ($node) {
+                const channel = createDummyChannel();
+                return initWithNode(nested.join(), domManager, channel).then(function ($node) {
                     var $textNode = $node.find(':text');
                     return channel.publish({
                         apple: 'sauce'
@@ -206,8 +206,8 @@ describe('converters', function () {
                     }
                 });
 
-                var channel = utils.createDummyChannel();
-                return utils.initWithNode('<input type="text" data-f-bind="price" data-f-convert="$#,### | flip"/>', domManager, channel).then(function ($node) {
+                var channel = createDummyChannel();
+                return initWithNode('<input type="text" data-f-bind="price" data-f-convert="$#,### | flip"/>', domManager, channel).then(function ($node) {
                     $node.val('$2,345').trigger('change');
                     channel.publish.should.have.been.calledWith([{ name: 'price', value: 5432 }]);
                 });
@@ -221,8 +221,8 @@ describe('converters', function () {
                     '   <span> nothing </span>',
                     '</div>'
                 ];
-                var channel = utils.createDummyChannel();
-                return utils.initWithNode(nested.join(), domManager, channel).then(function ($node) {
+                var channel = createDummyChannel();
+                return initWithNode(nested.join(), domManager, channel).then(function ($node) {
                     var $textNode = $node.find(':text');
 
                     $textNode.val('$2,345').trigger('change');
