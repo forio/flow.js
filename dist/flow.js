@@ -83,7 +83,7 @@ var Flow =
 /******/ 	__webpack_require__.p = "";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 18);
+/******/ 	return __webpack_require__(__webpack_require__.s = 17);
 /******/ })
 /************************************************************************/
 /******/ ([
@@ -101,13 +101,13 @@ module.exports = {
     binderAttr: 'f-bind',
 
     events: {
-        //UI Change to publish to the channel.
+        /** UI Change to publish to the channel. */
         trigger: 'update.f.ui',
 
-        //Trigger with payload '{attrToUpdate: value}', for e.g. { bind: 34 }. This will run this through all the converts and pass it to attr handler. Useful to by-pass getting this from the model directly.
+        /** Trigger with payload '{attrToUpdate: value}', for e.g. { bind: 34 }. This will run this through all the converts and pass it to attr handler. Useful to by-pass getting this from the model directly.  */
         convert: 'f.convert',
 
-        //On a bind or other flow-related error
+        /** On a bind or other flow-related error  */
         error: 'f.error'
     },
 
@@ -429,10 +429,9 @@ function router(handlers, options, notifier) {
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "toImplicitType", function() { return toImplicitType; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "toPublishableFormat", function() { return toPublishableFormat; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "splitNameArgs", function() { return splitNameArgs; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "b", function() { return toImplicitType; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "c", function() { return toPublishableFormat; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return splitNameArgs; });
 /* eslint-disable complexity */
 function toImplicitType(data) {
     var objRegex = /^(?:\{.*\})$/;
@@ -645,9 +644,10 @@ function matchRegex(regex) {
 /* harmony export (immutable) */ __webpack_exports__["c"] = random;
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_lodash__ = __webpack_require__(0);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_lodash___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_lodash__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__make_promise__ = __webpack_require__(41);
-/* harmony reexport (binding) */ __webpack_require__.d(__webpack_exports__, "b", function() { return __WEBPACK_IMPORTED_MODULE_1__make_promise__["a"]; });
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__debounce_and_merge__ = __webpack_require__(42);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__promise_utils__ = __webpack_require__(14);
+/* harmony reexport (binding) */ __webpack_require__.d(__webpack_exports__, "b", function() { return __WEBPACK_IMPORTED_MODULE_1__promise_utils__["a"]; });
+/* unused harmony reexport promisify */
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__debounce_and_merge__ = __webpack_require__(41);
 /* harmony reexport (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return __WEBPACK_IMPORTED_MODULE_2__debounce_and_merge__["a"]; });
 
 
@@ -817,13 +817,16 @@ function GenericRunRouteHandler(config, notifier) {
 
     var runRouter = Object(__WEBPACK_IMPORTED_MODULE_3_channels_channel_router__["a" /* default */])(handlers);
     var oldhandler = runRouter.publishHandler;
-    runRouter.publishHandler = function () {
+    runRouter.publishHandler = function (publishable) {
         var prom = oldhandler.apply(__WEBPACK_IMPORTED_MODULE_3_channels_channel_router__["a" /* default */], arguments);
         return prom.then(function (result) {
             //all the silencing will be taken care of by the router
             var shouldFetch = _shouldFetch(result, ['reset']);
             if (shouldFetch) {
-                variablesHandler.fetch();
+                var excludeFromFetch = result.map(function (r) {
+                    return r.name;
+                }); //This was just published, no need to get the value again
+                variablesHandler.fetch({ exclude: excludeFromFetch });
             }
             return result;
         });
@@ -1075,15 +1078,18 @@ function clearOriginalContents($el) {
 
 /***/ }),
 /* 11 */
-/***/ (function(module, exports, __webpack_require__) {
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
+Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__config__ = __webpack_require__(1);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__config___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0__config__);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__default_node__ = __webpack_require__(12);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__default_node___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1__default_node__);
 
 
-var config = __webpack_require__(1);
-var BaseView = __webpack_require__(12);
 
-module.exports = BaseView.extend({
+/* harmony default export */ __webpack_exports__["default"] = (__WEBPACK_IMPORTED_MODULE_1__default_node___default.a.extend({
     propertyHandlers: [],
 
     uiChangeEvent: 'change',
@@ -1097,19 +1103,18 @@ module.exports = BaseView.extend({
 
     initialize: function () {
         var me = this;
-        var propName = this.$el.data(config.binderAttr);
+        var propName = this.$el.data(__WEBPACK_IMPORTED_MODULE_0__config__["binderAttr"]);
 
         if (propName) {
             this.$el.off(this.uiChangeEvent).on(this.uiChangeEvent, function () {
                 var val = me.getUIValue();
-
                 var payload = [{ name: propName, value: val }];
-                me.$el.trigger(config.events.trigger, { data: payload, source: 'bind' });
+                me.$el.trigger(__WEBPACK_IMPORTED_MODULE_0__config__["events"].trigger, { data: payload, source: 'bind' });
             });
         }
-        BaseView.prototype.initialize.apply(this, arguments);
+        __WEBPACK_IMPORTED_MODULE_1__default_node___default.a.prototype.initialize.apply(this, arguments);
     }
-}, { selector: 'input, select, textarea' });
+}, { selector: 'input, select, textarea' }));
 
 /***/ }),
 /* 12 */
@@ -1118,7 +1123,7 @@ module.exports = BaseView.extend({
 "use strict";
 
 
-var BaseView = __webpack_require__(13);
+var BaseView = __webpack_require__(35);
 
 module.exports = BaseView.extend({
     propertyHandlers: [],
@@ -1128,66 +1133,6 @@ module.exports = BaseView.extend({
 
 /***/ }),
 /* 13 */
-/***/ (function(module, exports, __webpack_require__) {
-
-var _require = __webpack_require__(0),
-    extend = _require.extend,
-    has = _require.has;
-
-var extendView = function (protoProps, staticProps) {
-    var me = this;
-    var child;
-
-    // The constructor function for the new subclass is either defined by you
-    // (the "constructor" property in your `extend` definition), or defaulted
-    // by us to simply call the parent's constructor.
-    if (protoProps && has(protoProps, 'constructor')) {
-        child = protoProps.constructor;
-    } else {
-        child = function () {
-            return me.apply(this, arguments);
-        };
-    }
-
-    // Add static properties to the constructor function, if supplied.
-    extend(child, me, staticProps);
-
-    // Set the prototype chain to inherit from `parent`, without calling
-    // `parent`'s constructor function.
-    var Surrogate = function () {
-        this.constructor = child;
-    };
-    Surrogate.prototype = me.prototype;
-    child.prototype = new Surrogate();
-
-    // Add prototype properties (instance properties) to the subclass,
-    // if supplied.
-    if (protoProps) {
-        extend(child.prototype, protoProps);
-    }
-
-    // Set a convenience property in case the parent's prototype is needed
-    // later.
-    child.__super__ = me.prototype; //eslint-disable-line no-underscore-dangle
-
-    return child;
-};
-
-var View = function (options) {
-    this.$el = options.$el || $(options.el);
-    this.el = options.el;
-    this.initialize.apply(this, arguments);
-};
-extend(View.prototype, {
-    initialize: function () {}
-});
-
-View.extend = extendView;
-
-module.exports = View;
-
-/***/ }),
-/* 14 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -1258,38 +1203,85 @@ function parseTopics(topics) {
 }
 
 /***/ }),
-/* 15 */
+/* 14 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
+/* harmony export (immutable) */ __webpack_exports__["a"] = makePromise;
+/* harmony export (immutable) */ __webpack_exports__["b"] = promisify;
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_lodash__ = __webpack_require__(0);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_lodash___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_lodash__);
+
+
 /**
-  * @type AttributeHandler
-  */
-var hideifHandler = {
-    test: 'hideif',
-
-    target: '*',
-
-    init: function (attr, value, $el) {
-        $el.hide(); //hide by default; if not this shows text until data is fetched
-    },
-    handle: function (value, prop, $el) {
-        if (Array.isArray(value)) {
-            value = value[value.length - 1];
-        }
-        if (value && ('' + value).trim()) {
-            $el.hide();
-        } else {
-            $el.show();
-        }
+ * @param {any} val 
+ * @returns {Promise}
+ */
+function makePromise(val) {
+    //Can be replaced with Promise.resolve when we drop IE11;
+    // if (isFunction(val)) {
+    //     return Promise.resolve(val());
+    // }
+    // return Promise.resolve(val);
+    if (val && val.then) {
+        return val;
     }
-};
+    var $def = $.Deferred();
+    if (Object(__WEBPACK_IMPORTED_MODULE_0_lodash__["isFunction"])(val)) {
+        try {
+            var toReturn = val();
+            if (toReturn && toReturn.then) {
+                return toReturn.then(function (r) {
+                    return $def.resolve(r);
+                }, function (e) {
+                    return $def.reject(e);
+                });
+            }
+            $def.resolve(toReturn);
+        } catch (e) {
+            $def.reject(e);
+        }
+    } else {
+        $def.resolve(val);
+    }
+    return $def.promise();
+}
 
-/* harmony default export */ __webpack_exports__["default"] = (hideifHandler);
+/**
+ * 
+ * @param {function(*)} fn 
+ * @returns {function(...any): Promise}
+ */
+function promisify(fn) {
+    if (!Object(__WEBPACK_IMPORTED_MODULE_0_lodash__["isFunction"])(fn)) {
+        throw new Error('Promisify requires a function, received ' + typeof fn);
+    }
+    /**
+     * @param {...*} args 
+     * @returns {Promise}
+     */
+    return function promisifiedFunction(args) {
+        var $def = $.Deferred();
+        try {
+            var toReturn = fn.apply(fn, arguments);
+            if (toReturn && toReturn.then) {
+                return toReturn.then(function (r) {
+                    return $def.resolve(r);
+                }, function (e) {
+                    return $def.reject(e);
+                });
+            } else {
+                $def.resolve(toReturn);
+            }
+        } catch (e) {
+            $def.reject(e);
+        }
+        return $def.promise();
+    };
+}
 
 /***/ }),
-/* 16 */
+/* 15 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -1303,7 +1295,7 @@ function makeConsensusService(consensisAPIResponse) {
 }
 
 /***/ }),
-/* 17 */
+/* 16 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -1337,88 +1329,28 @@ function interpolateWithValues(topic, data) {
 }
 
 /***/ }),
-/* 18 */
-/***/ (function(module, exports, __webpack_require__) {
+/* 17 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
 
-/**
- * ## Flow.js Initialization
- *
- * To use Flow.js in your project, simply call `Flow.initialize()` in your user interface. In the basic case, `Flow.initialize()` can be called without any arguments. While Flow.js needs to know the account, project, and model you are using, by default these values are extracted from the URL of Epicenter project and by the use of `data-f-model` in your `<body>` tag. See more on the [basics of using Flow.js in your project.](../../#using_in_project).
- *
- * However, sometimes you want to be explicit in your initialization call, and there are also some additional parameters that let you customize your use of Flow.js.
- *
- * #### Parameters
- *
- * The parameters for initializing Flow.js include:
- *
- * * `channel` Configuration details for the channel Flow.js uses in connecting with underlying APIs.
- * * `channel.strategy` The run creation strategy describes when to create new runs when an end user visits this page. The default is `new-if-persisted`, which creates a new run when the end user is idle for longer than your project's **Model Session Timeout** (configured in your project's [Settings](../../../updating_your_settings/)), but otherwise uses the current run.. See more on [Run Strategies](../../../api_adapters/generated/strategies/).
- * * `channel.run` Configuration details for each run created.
- * * `channel.run.account` The **User ID** or **Team ID** for this project. By default, taken from the URL where the user interface is hosted, so you only need to supply this is you are running your project's user interface [on your own server](../../../how_to/self_hosting/).
- * * `channel.run.project` The **Project ID** for this project.
- * * `channel.run.model` Name of the primary model file for this project. By default, taken from `data-f-model` in your HTML `<body>` tag.
- * * `channel.run.variables` Configuration options for the variables being listened to on this channel.
- * * `channel.run.variables.silent` Provides granular control over when user interface updates happen for changes on this channel. See below for possible values.
- * * `channel.run.variables.autoFetch` Options for fetching variables from the API as they're being subscribed. See [Variables Channel](../channels/variables-channel/) for details.
- * * `channel.run.operations` Configuration options for the operations being listened to on this channel. Currently there is only one configuration option: `silent`.
- * * `channel.run.operations.silent` Provides granular control over when user interface updates happen for changes on this channel. See below for possible values.
- * * `channel.run.server` Object with additional server configuration, defaults to `host: 'api.forio.com'`.
- * * `channel.run.transport` An object which takes all of the jquery.ajax options at <a href="http://api.jquery.com/jQuery.ajax/">http://api.jquery.com/jQuery.ajax/</a>.
- * * `dom` Configuration options for the DOM where this instance of Flow.js is created.
- * * `dom.root` The root HTML element being managed by the Flow.js DOM Manager. Defaults to `body`.
- * * `dom.autoBind` If `true` (default), automatically parse variables added to the DOM after this `Flow.initialize()` call. Note, this does not work in IE versions < 11.
- *
- * The `silent` configuration option for the `run.variables` and `run.operations` is a flag for providing more granular control over when user interface updates happen for changes on this channel. Values can be:
- *
- * * `false`: Always update the UI for any changes (variables updated, operations called) on this channel. This is the default behavior.
- * * `true`: Never update the UI for any on changes (variables updated, operations called) on this channel.
- * * Array of variables or operations for which the UI *should not* be updated. For example, `variables: { silent: [ 'price', 'sales' ] }` means this channel is silent (no updates for the UI) when the variables 'price' or 'sales' change, and the UI is always updated for any changes to other variables. This is useful if you know that changing 'price' or 'sales' does not impact anything else in the UI directly, for instance.
- * * `except`: With array of variables or operations for which the UI *should* be updated. For example, `variables { silent: { except: [ 'price', 'sales' ] } }` is the converse of the above. The UI is always updated when anything on this channel changes *except* when the variables 'price' or 'sales' are updated.
- *
- * Although Flow.js provides a bi-directional binding between the model and the user interface, the `silent` configuration option applies only for the binding from the model to the user interface; updates in the user interface (including calls to operations) are still sent to the model.
- *
- * The `Flow.initialize()` call is based on the Epicenter.js [Run Service](../../../api_adapters/generated/run-api-service/) from the [API Adapters](../../../api_adapters/). See those pages for additional information on parameters.
- *
- * The `Flow.initialize()` call returns a promise, which is resolved when initialization is complete.
- *
- * #### Example
- *
- *      Flow.initialize({
- *          channel: {
- *              strategy: 'new-if-persisted',
- *              run: {
- *                  model: 'supply-chain-game.py',
- *                  account: 'acme-simulations',
- *                  project: 'supply-chain-game',
- *                  server: { host: 'api.forio.com' },
- *                  variables: { silent: ['price', 'sales'] },
- *                  operations: { silent: false },
- *                  transport: {
- *                      beforeSend: function() { $('body').addClass('loading'); },
- *                      complete: function() { $('body').removeClass('loading'); }
- *                  }
- *              }
- *          }
- *      }).then(function() {
- *          // code that depends on initialization
- *      });
- *
- */
+"use strict";
+Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__dom_dom_manager__ = __webpack_require__(18);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_channels_configured_channel_manager__ = __webpack_require__(52);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_config__ = __webpack_require__(1);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_config___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_2_config__);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__utils__ = __webpack_require__(81);
 
-var domManager = __webpack_require__(19);
-var BaseView = __webpack_require__(13);
 
-var ChannelManager = __webpack_require__(52).default;
-var config = __webpack_require__(1);
+
+
+
+
 
 var Flow = {
-    dom: domManager,
-    utils: {
-        BaseView: BaseView
-    },
+    dom: __WEBPACK_IMPORTED_MODULE_0__dom_dom_manager__["a" /* default */],
+    utils: __WEBPACK_IMPORTED_MODULE_3__utils__,
     initialize: function (config) {
         var model = $('body').data('f-model');
-
         var defaults = {
             channel: {
                 //FIXME: Defaults can't be here..
@@ -1436,78 +1368,71 @@ var Flow = {
 
         var options = $.extend(true, {}, defaults, config);
 
-        if (config && config.channel && config.channel instanceof ChannelManager) {
+        if (config && config.channel && config.channel instanceof __WEBPACK_IMPORTED_MODULE_1_channels_configured_channel_manager__["a" /* default */]) {
             this.channel = config.channel;
         } else {
-            this.channel = new ChannelManager(options.channel);
+            this.channel = new __WEBPACK_IMPORTED_MODULE_1_channels_configured_channel_manager__["a" /* default */](options.channel);
         }
 
-        var prom = domManager.initialize($.extend(true, {
+        var prom = __WEBPACK_IMPORTED_MODULE_0__dom_dom_manager__["a" /* default */].initialize($.extend(true, {
             channel: this.channel
         }, options.dom));
 
         this.channel.subscribe('operations:reset', function () {
-            domManager.unbindAll();
-            domManager.bindAll();
+            __WEBPACK_IMPORTED_MODULE_0__dom_dom_manager__["a" /* default */].unbindAll();
+            __WEBPACK_IMPORTED_MODULE_0__dom_dom_manager__["a" /* default */].bindAll();
         });
 
         return prom;
     }
 };
-Flow.ChannelManager = ChannelManager;
-Flow.constants = config;
+Flow.ChannelManager = __WEBPACK_IMPORTED_MODULE_1_channels_configured_channel_manager__["a" /* default */];
+Flow.constants = __WEBPACK_IMPORTED_MODULE_2_config___default.a;
 //set by grunt
 if (true) Flow.version = "0.11.0"; //eslint-disable-line no-undef
-module.exports = Flow;
+/* harmony default export */ __webpack_exports__["default"] = (Flow);
 
 /***/ }),
-/* 19 */
-/***/ (function(module, exports, __webpack_require__) {
+/* 18 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
 
+"use strict";
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__dom_manager_utils_dom_parse_helpers__ = __webpack_require__(19);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__dom_manager_utils_dom_channel_prefix_helpers__ = __webpack_require__(23);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_utils_parse_utils__ = __webpack_require__(4);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3_lodash__ = __webpack_require__(0);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3_lodash___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_3_lodash__);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__config__ = __webpack_require__(1);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__config___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_4__config__);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5_converter_manager__ = __webpack_require__(24);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_6__nodes_node_manager__ = __webpack_require__(33);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_7__attribute_manager__ = __webpack_require__(36);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_8__plugins_auto_update_bindings__ = __webpack_require__(51);
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
-/**
- * ## DOM Manager
- *
- * The Flow.js DOM Manager provides two-way data bindings from your project's user interface to the channel. The DOM Manager is the 'glue' through which HTML DOM elements -- including the attributes and attribute handlers provided by Flow.js for [variables](../../attributes-overview/), [operations](../../operations-overview/) and [conversion](../../converter-overview/), and those [you create](./attributes/attribute-manager/) -- are bound to the variable and operations [channels](../../channel-overview/) to link them with your project's model. See the [Epicenter architecture details](../../../creating_your_interface/arch_details/) for a visual description of how the DOM Manager relates to the [rest of the Epicenter stack](../../../creating_your_interface/).
- *
- * The DOM Manager is an integral part of the Flow.js architecture but, in keeping with our general philosophy of extensibility and configurability, it is also replaceable. For instance, if you want to manage your DOM state with [Backbone Views](http://backbonejs.org) or [Angular.js](https://angularjs.org), while still using the channels to handle the communication with your model, this is the piece you'd replace. [Contact us](http://forio.com/about/contact/) if you are interested in extending Flow.js in this way -- we'll be happy to talk about it in more detail.
- *
- */
 
-var _require = __webpack_require__(20),
-    getConvertersForEl = _require.getConvertersForEl,
-    getChannelForAttribute = _require.getChannelForAttribute,
-    getChannelConfigForElement = _require.getChannelConfigForElement,
-    parseTopicsFromAttributeValue = _require.parseTopicsFromAttributeValue;
 
-var _require2 = __webpack_require__(24),
-    addPrefixToTopics = _require2.addPrefixToTopics,
-    addDefaultPrefix = _require2.addDefaultPrefix;
 
-var _require3 = __webpack_require__(4),
-    toImplicitType = _require3.toImplicitType;
 
-var _require4 = __webpack_require__(0),
-    pick = _require4.pick,
-    isEqual = _require4.isEqual;
 
-var config = __webpack_require__(1);
 
-var converterManager = __webpack_require__(25).default;
-var nodeManager = __webpack_require__(34).default;
-var attrManager = __webpack_require__(36).default;
-var autoUpdatePlugin = __webpack_require__(51).default;
 
-module.exports = function () {
+
+
+
+
+
+
+
+/* harmony default export */ __webpack_exports__["a"] = ((function () {
     //Jquery selector to return everything which has a f- property set
-    $.expr.pseudos[config.prefix] = function (el) {
+    $.expr.pseudos[__WEBPACK_IMPORTED_MODULE_4__config__["prefix"]] = function (el) {
         if (!el || !el.attributes) {
             return false;
         }
         for (var i = 0; i < el.attributes.length; i++) {
             var attr = el.attributes[i].nodeName;
-            if (attr.indexOf('data-' + config.prefix) === 0) {
+            if (attr.indexOf('data-' + __WEBPACK_IMPORTED_MODULE_4__config__["prefix"]) === 0) {
                 return true;
             }
         }
@@ -1520,8 +1445,8 @@ module.exports = function () {
      */
     function getMatchingElements(root) {
         var $root = $(root);
-        var matchedElements = $root.find(':' + config.prefix);
-        if ($root.is(':' + config.prefix)) {
+        var matchedElements = $root.find(':' + __WEBPACK_IMPORTED_MODULE_4__config__["prefix"]);
+        if ($root.is(':' + __WEBPACK_IMPORTED_MODULE_4__config__["prefix"])) {
             matchedElements = matchedElements.add($root);
         }
         return matchedElements;
@@ -1554,7 +1479,7 @@ module.exports = function () {
             var wantedPrefix = 'data-f-';
             if (attr.indexOf(wantedPrefix) === 0) {
                 attr = attr.replace(wantedPrefix, '');
-                var handler = attrManager.getHandler(attr, $el);
+                var handler = __WEBPACK_IMPORTED_MODULE_7__attribute_manager__["a" /* default */].getHandler(attr, $el);
                 if (handler.unbind) {
                     handler.unbind(attr, $el);
                 }
@@ -1564,7 +1489,7 @@ module.exports = function () {
     function unbindAllNodeHandlers(domEl) {
         var $el = $(domEl);
         //FIXME: have to readd events to be able to remove them. Ugly
-        var Handler = nodeManager.getHandler($el);
+        var Handler = __WEBPACK_IMPORTED_MODULE_6__nodes_node_manager__["a" /* default */].getHandler($el);
         var h = new Handler.handle({
             el: domEl
         });
@@ -1573,11 +1498,18 @@ module.exports = function () {
         }
     }
 
+    function triggerError($el, e) {
+        var msg = e.message || e;
+        if ($.isPlainObject(msg)) {
+            msg = JSON.stringify(msg);
+        }
+        $el.attr(__WEBPACK_IMPORTED_MODULE_4__config__["errorAttr"], msg).trigger(__WEBPACK_IMPORTED_MODULE_4__config__["events"].error, e);
+    }
     var publicAPI = {
 
-        nodes: nodeManager,
-        attributes: attrManager,
-        converters: converterManager,
+        nodes: __WEBPACK_IMPORTED_MODULE_6__nodes_node_manager__["a" /* default */],
+        attributes: __WEBPACK_IMPORTED_MODULE_7__attribute_manager__["a" /* default */],
+        converters: __WEBPACK_IMPORTED_MODULE_5_converter_manager__["a" /* default */],
 
         matchedElements: new Map(),
 
@@ -1595,7 +1527,7 @@ module.exports = function () {
             var domEl = getElementOrError(element);
             var $el = $(element);
             var existingData = this.matchedElements.get(domEl);
-            if (!$el.is(':' + config.prefix) || !existingData) {
+            if (!$el.is(':' + __WEBPACK_IMPORTED_MODULE_4__config__["prefix"]) || !existingData) {
                 return;
             }
             this.matchedElements.delete(element);
@@ -1609,7 +1541,7 @@ module.exports = function () {
             unbindAllAttributes(domEl);
             removeAllSubscriptions(subscriptions, channel);
 
-            var animAttrs = Object.keys(config.animation).join(' ');
+            var animAttrs = Object.keys(__WEBPACK_IMPORTED_MODULE_4__config__["animation"]).join(' ');
             $el.removeAttr(animAttrs);
 
             Object.keys($el.data()).forEach(function (key) {
@@ -1633,17 +1565,17 @@ module.exports = function () {
             // this.unbindElement(element); //unbind actually removes the data,and jquery doesn't refetch when .data() is called..
             var domEl = getElementOrError(element);
             var $el = $(domEl);
-            if (!$el.is(':' + config.prefix)) {
+            if (!$el.is(':' + __WEBPACK_IMPORTED_MODULE_4__config__["prefix"])) {
                 return;
             }
 
             //Send to node manager to handle ui changes
-            var Handler = nodeManager.getHandler($el);
+            var Handler = __WEBPACK_IMPORTED_MODULE_6__nodes_node_manager__["a" /* default */].getHandler($el);
             new Handler.handle({
                 el: domEl
             });
 
-            var filterPrefix = 'data-' + config.prefix + '-';
+            var filterPrefix = 'data-' + __WEBPACK_IMPORTED_MODULE_4__config__["prefix"] + '-';
             var attrList = {};
             $(domEl.attributes).each(function (index, nodeMap) {
                 var attr = nodeMap.nodeName;
@@ -1653,9 +1585,9 @@ module.exports = function () {
                 attr = attr.replace(filterPrefix, '');
 
                 var attrVal = nodeMap.value;
-                var topics = parseTopicsFromAttributeValue(attrVal);
+                var topics = Object(__WEBPACK_IMPORTED_MODULE_0__dom_manager_utils_dom_parse_helpers__["d" /* parseTopicsFromAttributeValue */])(attrVal);
 
-                var handler = attrManager.getHandler(attr, $el);
+                var handler = __WEBPACK_IMPORTED_MODULE_7__attribute_manager__["a" /* default */].getHandler(attr, $el);
                 if (handler && handler.init) {
                     handler.init(attr, topics, $el);
                 }
@@ -1663,10 +1595,10 @@ module.exports = function () {
                     topics = [].concat(handler.parse(topics));
                 }
 
-                var channelPrefix = getChannelForAttribute($el, attr);
-                topics = addPrefixToTopics(topics, channelPrefix);
+                var channelPrefix = Object(__WEBPACK_IMPORTED_MODULE_0__dom_manager_utils_dom_parse_helpers__["b" /* getChannelForAttribute */])($el, attr);
+                topics = Object(__WEBPACK_IMPORTED_MODULE_1__dom_manager_utils_dom_channel_prefix_helpers__["b" /* addPrefixToTopics */])(topics, channelPrefix);
 
-                var converters = getConvertersForEl($el, attr);
+                var converters = Object(__WEBPACK_IMPORTED_MODULE_0__dom_manager_utils_dom_parse_helpers__["c" /* getConvertersForEl */])($el, attr);
                 attrList[attr] = {
                     channelPrefix: channelPrefix,
                     topics: topics,
@@ -1676,7 +1608,7 @@ module.exports = function () {
             //Need this to be set before subscribing or callback maybe called before it's set
             this.matchedElements.set(domEl, attrList);
 
-            var channelConfig = getChannelConfigForElement(domEl);
+            var channelConfig = Object(__WEBPACK_IMPORTED_MODULE_0__dom_manager_utils_dom_parse_helpers__["a" /* getChannelConfigForElement */])(domEl);
             var attrsWithSubscriptions = Object.keys(attrList).reduce(function (accum, name) {
                 var attr = attrList[name];
                 var topics = attr.topics,
@@ -1691,18 +1623,14 @@ module.exports = function () {
                     batch: true,
                     onError: function (e) {
                         console.error('DomManager: Subscription error', domEl, e);
-                        var msg = e.message || e;
-                        if ($.isPlainObject(msg)) {
-                            msg = JSON.stringify(msg);
-                        }
-                        $el.attr(config.errorAttr, msg).trigger(config.events.error, e);
+                        triggerError($el, e);
                     }
                 }, channelConfig);
                 var subscribableTopics = topics.map(function (t) {
                     return t.name;
                 });
                 var subsid = channel.subscribe(subscribableTopics, function (data, meta) {
-                    if (meta && isEqual(data, meta.previousData)) {
+                    if (meta && Object(__WEBPACK_IMPORTED_MODULE_3_lodash__["isEqual"])(data, meta.previousData)) {
                         return;
                     }
                     var toConvert = {};
@@ -1710,7 +1638,7 @@ module.exports = function () {
                         //If I'm only interested in 1 thing pass in value directly, else make a map;
                         toConvert[name] = data[subscribableTopics[0]];
                     } else {
-                        var dataForAttr = pick(data, subscribableTopics) || {};
+                        var dataForAttr = Object(__WEBPACK_IMPORTED_MODULE_3_lodash__["pick"])(data, subscribableTopics) || {};
                         toConvert[name] = Object.keys(dataForAttr).reduce(function (accum, key) {
                             //If this was through a auto-prefixed channel attr return what was bound
                             var toReplace = new RegExp('^' + channelPrefix + ':');
@@ -1719,7 +1647,7 @@ module.exports = function () {
                             return accum;
                         }, {});
                     }
-                    $el.removeAttr(config.errorAttr).trigger(config.events.convert, toConvert);
+                    $el.removeAttr(__WEBPACK_IMPORTED_MODULE_4__config__["errorAttr"]).trigger(__WEBPACK_IMPORTED_MODULE_4__config__["events"].convert, toConvert);
                 }, subsOptions);
 
                 accum[name] = Object.assign({}, attr, { subscriptionId: subsid });
@@ -1809,14 +1737,14 @@ module.exports = function () {
                 function parseValue(value, converters) {
                     if (Array.isArray(value)) {
                         var parsed = value.map(function (val) {
-                            return toImplicitType(val);
+                            return Object(__WEBPACK_IMPORTED_MODULE_2_utils_parse_utils__["b" /* toImplicitType */])(val);
                         });
-                        return converterManager.parse(parsed, converters);
+                        return __WEBPACK_IMPORTED_MODULE_5_converter_manager__["a" /* default */].parse(parsed, converters);
                     }
-                    return converterManager.parse(toImplicitType(value), converters);
+                    return __WEBPACK_IMPORTED_MODULE_5_converter_manager__["a" /* default */].parse(Object(__WEBPACK_IMPORTED_MODULE_2_utils_parse_utils__["b" /* toImplicitType */])(value), converters);
                 }
 
-                $root.off(config.events.trigger).on(config.events.trigger, function (evt, params) {
+                $root.off(__WEBPACK_IMPORTED_MODULE_4__config__["events"].trigger).on(__WEBPACK_IMPORTED_MODULE_4__config__["events"].trigger, function (evt, params) {
                     var elMeta = me.matchedElements.get(evt.target);
                     var data = params.data,
                         source = params.source,
@@ -1837,7 +1765,7 @@ module.exports = function () {
 
                         var parsedValue = parseValue(value, converters);
                         var actualName = name.split('|')[0].trim(); //FIXME: this shouldn't know about the pipe syntax
-                        var prefixedName = addDefaultPrefix(actualName, source, channelPrefix);
+                        var prefixedName = Object(__WEBPACK_IMPORTED_MODULE_1__dom_manager_utils_dom_channel_prefix_helpers__["a" /* addDefaultPrefix */])(actualName, source, channelPrefix);
                         return { name: prefixedName, value: parsedValue };
                     }, []);
 
@@ -1846,20 +1774,16 @@ module.exports = function () {
                             return;
                         }
                         var last = result[result.length - 1];
-                        $el.trigger(config.events.convert, _defineProperty({}, source, last.value));
+                        $el.trigger(__WEBPACK_IMPORTED_MODULE_4__config__["events"].convert, _defineProperty({}, source, last.value));
                     }, function (e) {
-                        var msg = e.message || e;
-                        if ($.isPlainObject(msg)) {
-                            msg = JSON.stringify(msg);
-                        }
-                        $el.attr(config.errorAttr, msg).trigger(config.events.error, e);
+                        triggerError($el, e);
                     });
                 });
             }
 
             function attachConversionListner($root) {
                 // data = {proptoupdate: value}
-                $root.off(config.events.convert).on(config.events.convert, function (evt, data) {
+                $root.off(__WEBPACK_IMPORTED_MODULE_4__config__["events"].convert).on(__WEBPACK_IMPORTED_MODULE_4__config__["events"].convert, function (evt, data) {
                     var $el = $(evt.target);
 
                     var elMeta = me.matchedElements.get(evt.target);
@@ -1873,9 +1797,9 @@ module.exports = function () {
                             converters = _elMeta$prop.converters,
                             topics = _elMeta$prop.topics;
 
-                        var convertedValue = converterManager.convert(val, converters);
+                        var convertedValue = __WEBPACK_IMPORTED_MODULE_5_converter_manager__["a" /* default */].convert(val, converters);
 
-                        var handler = attrManager.getHandler(prop, $el);
+                        var handler = __WEBPACK_IMPORTED_MODULE_7__attribute_manager__["a" /* default */].getHandler(prop, $el);
                         handler.handle(convertedValue, prop, $el, topics);
                     });
                 });
@@ -1888,7 +1812,7 @@ module.exports = function () {
                 attachUIListeners($root);
                 attachConversionListner($root);
 
-                me.plugins.autoBind = autoUpdatePlugin($root.get(0), me, me.options.autoBind);
+                me.plugins.autoBind = Object(__WEBPACK_IMPORTED_MODULE_8__plugins_auto_update_bindings__["a" /* default */])($root.get(0), me, me.options.autoBind);
 
                 deferred.resolve($root);
                 $root.trigger('f.domready');
@@ -1899,21 +1823,20 @@ module.exports = function () {
     };
 
     return $.extend(this, publicAPI);
-}();
+})());
 
 /***/ }),
-/* 20 */
+/* 19 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__parse_converters__ = __webpack_require__(21);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__parse_channel__ = __webpack_require__(22);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__parse_topics__ = __webpack_require__(23);
-/* harmony reexport (binding) */ __webpack_require__.d(__webpack_exports__, "getConvertersForEl", function() { return __WEBPACK_IMPORTED_MODULE_0__parse_converters__["a"]; });
-/* harmony reexport (binding) */ __webpack_require__.d(__webpack_exports__, "getChannelForAttribute", function() { return __WEBPACK_IMPORTED_MODULE_1__parse_channel__["b"]; });
-/* harmony reexport (binding) */ __webpack_require__.d(__webpack_exports__, "getChannelConfigForElement", function() { return __WEBPACK_IMPORTED_MODULE_1__parse_channel__["a"]; });
-/* harmony reexport (binding) */ __webpack_require__.d(__webpack_exports__, "parseTopicsFromAttributeValue", function() { return __WEBPACK_IMPORTED_MODULE_2__parse_topics__["a"]; });
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__parse_converters__ = __webpack_require__(20);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__parse_channel__ = __webpack_require__(21);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__parse_topics__ = __webpack_require__(22);
+/* harmony reexport (binding) */ __webpack_require__.d(__webpack_exports__, "c", function() { return __WEBPACK_IMPORTED_MODULE_0__parse_converters__["a"]; });
+/* harmony reexport (binding) */ __webpack_require__.d(__webpack_exports__, "b", function() { return __WEBPACK_IMPORTED_MODULE_1__parse_channel__["b"]; });
+/* harmony reexport (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return __WEBPACK_IMPORTED_MODULE_1__parse_channel__["a"]; });
+/* harmony reexport (binding) */ __webpack_require__.d(__webpack_exports__, "d", function() { return __WEBPACK_IMPORTED_MODULE_2__parse_topics__["a"]; });
 
 
 
@@ -1921,7 +1844,7 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 
 
 /***/ }),
-/* 21 */
+/* 20 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -1996,7 +1919,7 @@ function getConvertersForEl($el, attribute) {
 }
 
 /***/ }),
-/* 22 */
+/* 21 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -2042,7 +1965,7 @@ function getChannelConfigForElement(el) {
 }
 
 /***/ }),
-/* 23 */
+/* 22 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -2068,13 +1991,12 @@ function parseTopicsFromAttributeValue(attrVal) {
 }
 
 /***/ }),
-/* 24 */
+/* 23 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
-/* harmony export (immutable) */ __webpack_exports__["addPrefixToTopics"] = addPrefixToTopics;
-/* harmony export (immutable) */ __webpack_exports__["addDefaultPrefix"] = addDefaultPrefix;
+/* harmony export (immutable) */ __webpack_exports__["b"] = addPrefixToTopics;
+/* harmony export (immutable) */ __webpack_exports__["a"] = addDefaultPrefix;
 /**
  * 
  * @param {NormalizedTopic[]} topics 
@@ -2116,11 +2038,10 @@ function addDefaultPrefix(name, source, channelPrefix) {
 }
 
 /***/ }),
-/* 25 */
+/* 24 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_lodash__ = __webpack_require__(0);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_lodash___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_lodash__);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__utils_parse_utils__ = __webpack_require__(4);
@@ -2225,8 +2146,8 @@ var converterManager = {
     },
 
     getConverter: function (alias) {
-        var norm = Object(__WEBPACK_IMPORTED_MODULE_1__utils_parse_utils__["splitNameArgs"])(alias);
-        norm.args = norm.args.map(__WEBPACK_IMPORTED_MODULE_1__utils_parse_utils__["toImplicitType"]);
+        var norm = Object(__WEBPACK_IMPORTED_MODULE_1__utils_parse_utils__["a" /* splitNameArgs */])(alias);
+        norm.args = norm.args.map(__WEBPACK_IMPORTED_MODULE_1__utils_parse_utils__["b" /* toImplicitType */]);
 
         var conv = Object(__WEBPACK_IMPORTED_MODULE_0_lodash__["find"])(this.list, function (converter) {
             return matchConverter(norm.name, converter);
@@ -2320,7 +2241,7 @@ var converterManager = {
 };
 
 //Bootstrap
-var defaultconverters = [__webpack_require__(26), __webpack_require__(27), __webpack_require__(28), __webpack_require__(29), __webpack_require__(30), __webpack_require__(31), __webpack_require__(32), __webpack_require__(33)];
+var defaultconverters = [__webpack_require__(25), __webpack_require__(26), __webpack_require__(27), __webpack_require__(28), __webpack_require__(29), __webpack_require__(30), __webpack_require__(31), __webpack_require__(32)];
 
 defaultconverters.reverse().forEach(function (converter) {
     if (Array.isArray(converter)) {
@@ -2332,10 +2253,10 @@ defaultconverters.reverse().forEach(function (converter) {
     }
 });
 
-/* harmony default export */ __webpack_exports__["default"] = (converterManager);
+/* harmony default export */ __webpack_exports__["a"] = (converterManager);
 
 /***/ }),
-/* 26 */
+/* 25 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -2374,7 +2295,7 @@ module.exports = {
 };
 
 /***/ }),
-/* 27 */
+/* 26 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -2468,7 +2389,7 @@ module.exports = {
 };
 
 /***/ }),
-/* 28 */
+/* 27 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /**
@@ -2665,7 +2586,7 @@ var mapped = Object.keys(list).map(function (alias) {
 module.exports = mapped;
 
 /***/ }),
-/* 29 */
+/* 28 */
 /***/ (function(module, exports) {
 
 function parseArgs(toCompare, trueVal, falseVal, valueToCompare, matchString) {
@@ -2695,7 +2616,7 @@ module.exports = [{
 }];
 
 /***/ }),
-/* 30 */
+/* 29 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /**
@@ -3086,7 +3007,7 @@ module.exports = {
 };
 
 /***/ }),
-/* 31 */
+/* 30 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -3264,7 +3185,7 @@ module.exports = {
 };
 
 /***/ }),
-/* 32 */
+/* 31 */
 /***/ (function(module, exports) {
 
 /**
@@ -3376,7 +3297,7 @@ module.exports = {
 };
 
 /***/ }),
-/* 33 */
+/* 32 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var _ = __webpack_require__(0);
@@ -3476,11 +3397,10 @@ var converters = Object.keys(list).map(function (name) {
 module.exports = converters;
 
 /***/ }),
-/* 34 */
+/* 33 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_lodash__ = __webpack_require__(0);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_lodash___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_lodash__);
 
@@ -3558,21 +3478,20 @@ var nodeManager = {
 };
 
 //bootstraps
-var defaultHandlers = [__webpack_require__(35).default, __webpack_require__(11), __webpack_require__(12)];
+var defaultHandlers = [__webpack_require__(34).default, __webpack_require__(11).default, __webpack_require__(12)];
 defaultHandlers.reverse().forEach(function (handler) {
     nodeManager.register(handler.selector, handler);
 });
 
-/* harmony default export */ __webpack_exports__["default"] = (nodeManager);
+/* harmony default export */ __webpack_exports__["a"] = (nodeManager);
 
 /***/ }),
-/* 35 */
+/* 34 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__default_input_node__ = __webpack_require__(11);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__default_input_node___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0__default_input_node__);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_config__ = __webpack_require__(1);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_config___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1_config__);
 
@@ -3580,7 +3499,7 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 
 var offAttr = __WEBPACK_IMPORTED_MODULE_1_config___default.a.attrs.checkboxOffValue;
 
-/* harmony default export */ __webpack_exports__["default"] = (__WEBPACK_IMPORTED_MODULE_0__default_input_node___default.a.extend({
+/* harmony default export */ __webpack_exports__["default"] = (__WEBPACK_IMPORTED_MODULE_0__default_input_node__["default"].extend({
     propertyHandlers: [],
 
     getUIValue: function () {
@@ -3596,63 +3515,80 @@ var offAttr = __WEBPACK_IMPORTED_MODULE_1_config___default.a.attrs.checkboxOffVa
         return val;
     },
     initialize: function () {
-        __WEBPACK_IMPORTED_MODULE_0__default_input_node___default.a.prototype.initialize.apply(this, arguments);
+        __WEBPACK_IMPORTED_MODULE_0__default_input_node__["default"].prototype.initialize.apply(this, arguments);
     }
 }, { selector: ':checkbox,:radio' }));
+
+/***/ }),
+/* 35 */
+/***/ (function(module, exports, __webpack_require__) {
+
+var _require = __webpack_require__(0),
+    extend = _require.extend,
+    has = _require.has;
+
+var extendView = function (protoProps, staticProps) {
+    var me = this;
+    var child;
+
+    // The constructor function for the new subclass is either defined by you
+    // (the "constructor" property in your `extend` definition), or defaulted
+    // by us to simply call the parent's constructor.
+    if (protoProps && has(protoProps, 'constructor')) {
+        child = protoProps.constructor;
+    } else {
+        child = function () {
+            return me.apply(this, arguments);
+        };
+    }
+
+    // Add static properties to the constructor function, if supplied.
+    extend(child, me, staticProps);
+
+    // Set the prototype chain to inherit from `parent`, without calling
+    // `parent`'s constructor function.
+    var Surrogate = function () {
+        this.constructor = child;
+    };
+    Surrogate.prototype = me.prototype;
+    child.prototype = new Surrogate();
+
+    // Add prototype properties (instance properties) to the subclass,
+    // if supplied.
+    if (protoProps) {
+        extend(child.prototype, protoProps);
+    }
+
+    // Set a convenience property in case the parent's prototype is needed
+    // later.
+    child.__super__ = me.prototype; //eslint-disable-line no-underscore-dangle
+
+    return child;
+};
+
+var View = function (options) {
+    this.$el = options.$el || $(options.el);
+    this.el = options.el;
+    this.initialize.apply(this, arguments);
+};
+extend(View.prototype, {
+    initialize: function () {}
+});
+
+View.extend = extendView;
+
+module.exports = View;
 
 /***/ }),
 /* 36 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_lodash__ = __webpack_require__(0);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_lodash___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_lodash__);
-/**
- * ## Attribute Manager
- *
- * Flow.js provides a set of custom DOM attributes that serve as a data binding between variables and operations in your project's model and HTML elements in your project's user interface. Under the hood, Flow.js is doing automatic conversion of these custom attributes, like `data-f-bind`, into HTML specific to the attribute's assigned value, like the current value of `myModelVar`.
- *
- * If you are looking for examples of using particular attributes, see the [specific attributes subpages](../../../../attributes-overview/).
- *
- * If you would like to extend Flow.js with your own custom attributes, you can add them to Flow.js using the Attribute Manager.
- *
- * The Attribute Manager is specific to adding custom attributes and describing their implementation (handlers). (The [Dom Manager](../../) contains the general implementation.)
- *
- *
- * **Examples**
- *
- * Built-in attribute handlers like `data-f-value` and `data-f-foreach` automatically bind variables in your project's model to particular HTML elements. However, your UI may sometimes require displaying only part of the variable (e.g. if it's an object), or "doing something" with the value of the variable, rather than simply displaying it.
- *
- * One example of when custom attribute handlers are useful is when your model variable is a complex object and you want to display the fields in a particular way, or you only want to display some of the fields. While the combination of the [`data-f-foreach` attribute](../loop-attrs/foreach-attr/) and [templating](../../../../#templates) can help with this, sometimes it's easier to write your own attribute handler. (This is especially true if you will be reusing the attribute handler -- you won't have to copy your templating code over and over.)
- *
- *      Flow.dom.attributes.register('showSched', '*', function (sched) {
- *            // display all the schedule milestones
- *            // sched is an object, each element is an array
- *            // of ['Formal Milestone Name', milestoneMonth, completionPercentage]
- *
- *            const schedStr = '<ul>';
- *            const sortedSched = sortBy(sched, function(el) { return el[1]; });
- *
- *            for (let i = 0; i < sortedSched.length; i++) {
- *                  schedStr += '<li><strong>' + sortedSched[i][0]
- *                        + '</strong> currently scheduled for <strong>Month '
- *                        + sortedSched[i][1] + '</strong></li>';
- *            }
- *            schedStr += '</ul>';
- *
- *            this.html(schedStr);
- *      });
- *
- * Then, you can use the attribute handler in your HTML just like other Flow.js attributes:
- *
- *      <div data-f-showSched="schedule"></div>
- *
- */
 
 
-
-var defaultHandlers = [__webpack_require__(37).default, __webpack_require__(38).default, __webpack_require__(39).default, __webpack_require__(40).default, __webpack_require__(43).default, __webpack_require__(44).default, __webpack_require__(45).default, __webpack_require__(15).default, __webpack_require__(46).default, __webpack_require__(47).default, __webpack_require__(48).default, __webpack_require__(50).default];
+var defaultHandlers = [__webpack_require__(37).default, __webpack_require__(38).default, __webpack_require__(39).default, __webpack_require__(40).default, __webpack_require__(42).default, __webpack_require__(43).default, __webpack_require__(44).default, __webpack_require__(45).default, __webpack_require__(46).default, __webpack_require__(47).default, __webpack_require__(48).default, __webpack_require__(50).default];
 
 var handlersList = [];
 
@@ -3746,19 +3682,19 @@ var attributeManager = {
     /**
      *  Retrieve the appropriate handler for a particular attribute. There may be multiple matching handlers, but the first (most exact) match is always used.
      *
-     * @param {string} property The attribute.
+     * @param {string} attr The attribute.
      * @param {string|JQuery<HTMLElement>} $el The DOM element.
      *
      * @return {AttributeHandler|undefined} The attribute handler, if a matching one is found
      */
-    getHandler: function (property, $el) {
-        var filtered = this.filter(property, $el);
+    getHandler: function (attr, $el) {
+        var filtered = this.filter(attr, $el);
         //There could be multiple matches, but the top first has the most priority
         return filtered[0];
     }
 };
 
-/* harmony default export */ __webpack_exports__["default"] = (attributeManager);
+/* harmony default export */ __webpack_exports__["a"] = (attributeManager);
 
 /***/ }),
 /* 37 */
@@ -3828,7 +3764,7 @@ var defaultEventAttr = {
         var matching = topics[0] && topics[0].name; //multiple topics aren't really relevant here
         $el.off(eventName).on(eventName, function (evt) {
             evt.preventDefault();
-            var listOfOperations = Object(__WEBPACK_IMPORTED_MODULE_1_utils_parse_utils__["toPublishableFormat"])(matching);
+            var listOfOperations = Object(__WEBPACK_IMPORTED_MODULE_1_utils_parse_utils__["c" /* toPublishableFormat */])(matching);
             $el.trigger(__WEBPACK_IMPORTED_MODULE_0_config__["events"].trigger, { data: listOfOperations, source: attr });
         });
     }
@@ -3843,13 +3779,13 @@ var defaultEventAttr = {
 "use strict";
 Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_utils_parse_utils__ = __webpack_require__(4);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__config__ = __webpack_require__(1);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__config___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1__config__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__loop_attr_utils__ = __webpack_require__(14);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_config__ = __webpack_require__(1);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_config___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1_config__);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__loop_attr_utils__ = __webpack_require__(13);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_3_utils_animation__ = __webpack_require__(9);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_4_lodash__ = __webpack_require__(0);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_4_lodash___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_4_lodash__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__attr_template_utils__ = __webpack_require__(10);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5_dom_attribute_manager_attr_template_utils__ = __webpack_require__(10);
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
 
@@ -3876,13 +3812,13 @@ var foreachAttr = {
         var el = $el.get(0);
         elAnimatedMap.delete(el);
 
-        var template = Object(__WEBPACK_IMPORTED_MODULE_5__attr_template_utils__["e" /* getOriginalContents */])($el);
+        var template = Object(__WEBPACK_IMPORTED_MODULE_5_dom_attribute_manager_attr_template_utils__["e" /* getOriginalContents */])($el);
         var current = $el.html();
         if (template && current !== template) {
             $el.html(template);
         }
-        Object(__WEBPACK_IMPORTED_MODULE_5__attr_template_utils__["b" /* clearOriginalContents */])($el);
-        Object(__WEBPACK_IMPORTED_MODULE_5__attr_template_utils__["g" /* removeKnownData */])($el);
+        Object(__WEBPACK_IMPORTED_MODULE_5_dom_attribute_manager_attr_template_utils__["b" /* clearOriginalContents */])($el);
+        Object(__WEBPACK_IMPORTED_MODULE_5_dom_attribute_manager_attr_template_utils__["g" /* removeKnownData */])($el);
     },
 
     parse: function (topics) {
@@ -3896,12 +3832,12 @@ var foreachAttr = {
             keyAlias = _aliasesFromTopics.keyAlias,
             valueAlias = _aliasesFromTopics.valueAlias;
 
-        var originalHTML = Object(__WEBPACK_IMPORTED_MODULE_5__attr_template_utils__["e" /* getOriginalContents */])($el, function ($el) {
+        var originalHTML = Object(__WEBPACK_IMPORTED_MODULE_5_dom_attribute_manager_attr_template_utils__["e" /* getOriginalContents */])($el, function ($el) {
             return $el.html();
         });
-        var knownData = Object(__WEBPACK_IMPORTED_MODULE_5__attr_template_utils__["d" /* getKnownDataForEl */])($el);
-        var missingReferences = Object(__WEBPACK_IMPORTED_MODULE_5__attr_template_utils__["c" /* findMissingReferences */])(originalHTML, [keyAlias, valueAlias].concat(Object.keys(knownData)));
-        var stubbedTemplate = Object(__WEBPACK_IMPORTED_MODULE_5__attr_template_utils__["h" /* stubMissingReferences */])(originalHTML, missingReferences);
+        var knownData = Object(__WEBPACK_IMPORTED_MODULE_5_dom_attribute_manager_attr_template_utils__["d" /* getKnownDataForEl */])($el);
+        var missingReferences = Object(__WEBPACK_IMPORTED_MODULE_5_dom_attribute_manager_attr_template_utils__["c" /* findMissingReferences */])(originalHTML, [keyAlias, valueAlias].concat(Object.keys(knownData)));
+        var stubbedTemplate = Object(__WEBPACK_IMPORTED_MODULE_5_dom_attribute_manager_attr_template_utils__["h" /* stubMissingReferences */])(originalHTML, missingReferences);
 
         var templateFn = Object(__WEBPACK_IMPORTED_MODULE_4_lodash__["template"])(stubbedTemplate);
         var $dummyEl = $('<div></div>');
@@ -3917,20 +3853,20 @@ var foreachAttr = {
             var isTemplated = void 0;
             try {
                 var templated = templateFn(templateData);
-                var templatedWithReferences = Object(__WEBPACK_IMPORTED_MODULE_5__attr_template_utils__["a" /* addBackMissingReferences */])(templated, missingReferences);
+                var templatedWithReferences = Object(__WEBPACK_IMPORTED_MODULE_5_dom_attribute_manager_attr_template_utils__["a" /* addBackMissingReferences */])(templated, missingReferences);
                 isTemplated = templatedWithReferences !== stubbedTemplate;
                 nodes = $(templatedWithReferences);
             } catch (e) {
                 //you don't have all the references you need;
                 nodes = $(stubbedTemplate);
                 isTemplated = true;
-                Object(__WEBPACK_IMPORTED_MODULE_5__attr_template_utils__["i" /* updateKnownDataForEl */])($(nodes), templateData);
+                Object(__WEBPACK_IMPORTED_MODULE_5_dom_attribute_manager_attr_template_utils__["i" /* updateKnownDataForEl */])($(nodes), templateData);
             }
 
             nodes.each(function (i, newNode) {
                 var $newNode = $(newNode);
                 Object(__WEBPACK_IMPORTED_MODULE_4_lodash__["each"])($newNode.data(), function (val, key) {
-                    $newNode.data(key, Object(__WEBPACK_IMPORTED_MODULE_0_utils_parse_utils__["toImplicitType"])(val));
+                    $newNode.data(key, Object(__WEBPACK_IMPORTED_MODULE_0_utils_parse_utils__["b" /* toImplicitType */])(val));
                 });
                 if (!isTemplated && !$newNode.html().trim()) {
                     $newNode.html(dataval);
@@ -3941,7 +3877,7 @@ var foreachAttr = {
 
         var el = $el.get(0);
         var isInitialAnim = !elAnimatedMap.get(el);
-        var $withAnimAttrs = Object(__WEBPACK_IMPORTED_MODULE_3_utils_animation__["a" /* addChangeClassesToList */])($el.children(), $dummyEl.children(), isInitialAnim, __WEBPACK_IMPORTED_MODULE_1__config__["animation"]);
+        var $withAnimAttrs = Object(__WEBPACK_IMPORTED_MODULE_3_utils_animation__["a" /* addChangeClassesToList */])($el.children(), $dummyEl.children(), isInitialAnim, __WEBPACK_IMPORTED_MODULE_1_config__["animation"]);
         $el.empty().append($withAnimAttrs);
 
         elAnimatedMap.set(el, true);
@@ -3960,12 +3896,11 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_lodash___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_lodash__);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_utils_parse_utils__ = __webpack_require__(4);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_utils_general__ = __webpack_require__(7);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__config__ = __webpack_require__(1);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__config___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_3__config__);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3_config__ = __webpack_require__(1);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3_config___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_3_config__);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_4_utils_animation__ = __webpack_require__(9);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__attr_template_utils__ = __webpack_require__(10);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_6__loop_attr_utils__ = __webpack_require__(14);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_7__toggles_hide_if_attr__ = __webpack_require__(15);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5_dom_attribute_manager_attr_template_utils__ = __webpack_require__(10);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_6__loop_attr_utils__ = __webpack_require__(13);
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
 
@@ -3973,12 +3908,11 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 
 
 
-var templateIdAttr = __WEBPACK_IMPORTED_MODULE_3__config__["attrs"].repeat.templateId;
+var templateIdAttr = __WEBPACK_IMPORTED_MODULE_3_config__["attrs"].repeat.templateId;
 
 
 
 var elAnimatedMap = new WeakMap(); //TODO: Can probably get rid of this if we make subscribe a promise and distinguish between initial value
-
 
 
 
@@ -4002,13 +3936,13 @@ var loopAttrHandler = {
         var el = $el.get(0);
         elAnimatedMap.delete(el);
 
-        var originalHTML = Object(__WEBPACK_IMPORTED_MODULE_5__attr_template_utils__["e" /* getOriginalContents */])($el);
+        var originalHTML = Object(__WEBPACK_IMPORTED_MODULE_5_dom_attribute_manager_attr_template_utils__["e" /* getOriginalContents */])($el);
         var current = $el.get(0).outerHTML;
         if (originalHTML && current !== originalHTML) {
             $el.replaceWith(originalHTML);
         }
-        Object(__WEBPACK_IMPORTED_MODULE_5__attr_template_utils__["b" /* clearOriginalContents */])($el);
-        Object(__WEBPACK_IMPORTED_MODULE_5__attr_template_utils__["g" /* removeKnownData */])($el);
+        Object(__WEBPACK_IMPORTED_MODULE_5_dom_attribute_manager_attr_template_utils__["b" /* clearOriginalContents */])($el);
+        Object(__WEBPACK_IMPORTED_MODULE_5_dom_attribute_manager_attr_template_utils__["g" /* removeKnownData */])($el);
     },
 
     parse: function (topics) {
@@ -4022,7 +3956,7 @@ var loopAttrHandler = {
         var id = $el.data(templateIdAttr);
 
         $el.removeAttr('hidden');
-        var originalHTML = Object(__WEBPACK_IMPORTED_MODULE_5__attr_template_utils__["e" /* getOriginalContents */])($el, function ($el) {
+        var originalHTML = Object(__WEBPACK_IMPORTED_MODULE_5_dom_attribute_manager_attr_template_utils__["e" /* getOriginalContents */])($el, function ($el) {
             return $el.get(0).outerHTML;
         });
 
@@ -4039,9 +3973,9 @@ var loopAttrHandler = {
             keyAlias = _aliasesFromTopics.keyAlias,
             valueAlias = _aliasesFromTopics.valueAlias;
 
-        var knownData = Object(__WEBPACK_IMPORTED_MODULE_5__attr_template_utils__["d" /* getKnownDataForEl */])($el);
-        var missingReferences = Object(__WEBPACK_IMPORTED_MODULE_5__attr_template_utils__["c" /* findMissingReferences */])(originalHTML, [keyAlias, valueAlias].concat(Object.keys(knownData)));
-        var stubbedTemplate = Object(__WEBPACK_IMPORTED_MODULE_5__attr_template_utils__["h" /* stubMissingReferences */])(originalHTML, missingReferences);
+        var knownData = Object(__WEBPACK_IMPORTED_MODULE_5_dom_attribute_manager_attr_template_utils__["d" /* getKnownDataForEl */])($el);
+        var missingReferences = Object(__WEBPACK_IMPORTED_MODULE_5_dom_attribute_manager_attr_template_utils__["c" /* findMissingReferences */])(originalHTML, [keyAlias, valueAlias].concat(Object.keys(knownData)));
+        var stubbedTemplate = Object(__WEBPACK_IMPORTED_MODULE_5_dom_attribute_manager_attr_template_utils__["h" /* stubMissingReferences */])(originalHTML, missingReferences);
 
         if (Object(__WEBPACK_IMPORTED_MODULE_0_lodash__["isEmpty"])(value)) {
             $el.attr('hidden', true); //There's always going to be 1 el otherwise
@@ -4062,14 +3996,14 @@ var loopAttrHandler = {
             var isTemplated = void 0;
             try {
                 var templated = templateFn(templateData);
-                var templatedWithReferences = Object(__WEBPACK_IMPORTED_MODULE_5__attr_template_utils__["a" /* addBackMissingReferences */])(templated, missingReferences);
+                var templatedWithReferences = Object(__WEBPACK_IMPORTED_MODULE_5_dom_attribute_manager_attr_template_utils__["a" /* addBackMissingReferences */])(templated, missingReferences);
                 isTemplated = templatedWithReferences !== stubbedTemplate;
                 nodes = $(templatedWithReferences);
             } catch (e) {
                 //you don't have all the references you need;
                 nodes = $(stubbedTemplate);
                 isTemplated = true;
-                Object(__WEBPACK_IMPORTED_MODULE_5__attr_template_utils__["i" /* updateKnownDataForEl */])($(nodes), templateData);
+                Object(__WEBPACK_IMPORTED_MODULE_5_dom_attribute_manager_attr_template_utils__["i" /* updateKnownDataForEl */])($(nodes), templateData);
             }
 
             var hasData = dataval !== null && dataval !== undefined;
@@ -4078,9 +4012,9 @@ var loopAttrHandler = {
                 $newNode.removeAttr('data-f-repeat').removeAttr('data-' + templateIdAttr);
                 Object(__WEBPACK_IMPORTED_MODULE_0_lodash__["each"])($newNode.data(), function (val, key) {
                     if (!last) {
-                        $el.data(key, Object(__WEBPACK_IMPORTED_MODULE_1_utils_parse_utils__["toImplicitType"])(val));
+                        $el.data(key, Object(__WEBPACK_IMPORTED_MODULE_1_utils_parse_utils__["b" /* toImplicitType */])(val));
                     } else {
-                        $newNode.data(key, Object(__WEBPACK_IMPORTED_MODULE_1_utils_parse_utils__["toImplicitType"])(val));
+                        $newNode.data(key, Object(__WEBPACK_IMPORTED_MODULE_1_utils_parse_utils__["b" /* toImplicitType */])(val));
                     }
                 });
                 $newNode.attr('data-' + id, true);
@@ -4099,7 +4033,7 @@ var loopAttrHandler = {
 
         var el = $el.get(0);
         var isInitialAnim = !elAnimatedMap.get(el);
-        Object(__WEBPACK_IMPORTED_MODULE_4_utils_animation__["a" /* addChangeClassesToList */])($dummyOldDiv.children(), $newEls, isInitialAnim, __WEBPACK_IMPORTED_MODULE_3__config__["animation"]);
+        Object(__WEBPACK_IMPORTED_MODULE_4_utils_animation__["a" /* addChangeClassesToList */])($dummyOldDiv.children(), $newEls, isInitialAnim, __WEBPACK_IMPORTED_MODULE_3_config__["animation"]);
 
         elAnimatedMap.set(el, true);
     }
@@ -4112,68 +4046,22 @@ var loopAttrHandler = {
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* harmony export (immutable) */ __webpack_exports__["a"] = makePromise;
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_lodash__ = __webpack_require__(0);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_lodash___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_lodash__);
-
-
-/**
- * @param {any} val 
- * @returns {Promise}
- */
-function makePromise(val) {
-    //Can be replaced with Promise.resolve when we drop IE11;
-    // if (isFunction(val)) {
-    //     return Promise.resolve(val());
-    // }
-    // return Promise.resolve(val);
-    if (val.then) {
-        return val;
-    }
-    var $def = $.Deferred();
-    if (Object(__WEBPACK_IMPORTED_MODULE_0_lodash__["isFunction"])(val)) {
-        try {
-            var toReturn = val();
-            if (toReturn && toReturn.then) {
-                return toReturn.then(function (r) {
-                    return $def.resolve(r);
-                }).catch(function (e) {
-                    return $def.reject(e);
-                });
-            }
-            $def.resolve(toReturn);
-        } catch (e) {
-            $def.reject(e);
-        }
-    } else {
-        $def.resolve(val);
-    }
-    return $def.promise();
-}
-
-/***/ }),
-/* 42 */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
 /* harmony export (immutable) */ __webpack_exports__["a"] = debounceAndMerge;
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_lodash__ = __webpack_require__(0);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_lodash___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_lodash__);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__promise_utils__ = __webpack_require__(14);
+
 
 
 /**
  * Returns debounced version of original (optionally promise returning) function
  * 
- * @param {Function} fn function to debounce
+ * @param {function(*):Promise} fn function to debounce
  * @param {number} debounceInterval 
  * @param {Function[]} [argumentsReducers] pass in 1 reducer for each option your function takes
  * @return {Function} debounced function
  */
 function debounceAndMerge(fn, debounceInterval, argumentsReducers) {
-    var timer = null;
-    var $def = null;
-    var prom = null;
-
     var argsToPass = [];
     if (!argumentsReducers) {
         var arrayReducer = function (accum, newVal) {
@@ -4185,6 +4073,11 @@ function debounceAndMerge(fn, debounceInterval, argumentsReducers) {
         argumentsReducers = [arrayReducer];
     }
 
+    var queue = [];
+
+    var timer = null;
+    var isExecuting = false;
+    var $def = $.Deferred();
     /**
      * @returns {Promise}
      */
@@ -4198,49 +4091,44 @@ function debounceAndMerge(fn, debounceInterval, argumentsReducers) {
                 return arg;
             }
         });
-        if (timer) {
-            clearTimeout(timer);
+
+        if (isExecuting || $def.isComplete) {
+            $def = $.Deferred();
+        }
+        if (timer && !isExecuting) {
+            clearTimeout(timer); //caught within debounce period, reuse old deferred
+        } else {
+            queue.push($def);
         }
 
-        if (!$def) {
-            $def = $.Deferred();
-            prom = $def.promise();
-        }
         timer = setTimeout(function () {
+            isExecuting = true;
             timer = null;
-            var res;
-            try {
-                res = fn.apply(fn, argsToPass);
-            } catch (e) {
-                argsToPass = [];
-                $def.reject(e);
-            }
-            if (res && res.then) {
-                return res.then(function (arg) {
-                    argsToPass = [];
-                    $def.resolve(arg);
-                }, function (e) {
-                    argsToPass = [];
-                    $def.reject(e);
-                });
-            } else {
-                argsToPass = [];
-                $def.resolve(res);
-            }
+
+            var argsClone = [].concat(argsToPass);
+            argsToPass = [];
+
+            var promisifiedFn = Object(__WEBPACK_IMPORTED_MODULE_1__promise_utils__["b" /* promisify */])(fn);
+            promisifiedFn.apply(fn, argsClone).then(function (args) {
+                isExecuting = false;
+                var $def = queue.shift();
+                $def.isComplete = true;
+                return $def.resolve(args);
+            }, function (e) {
+                isExecuting = false;
+                var $def = queue.shift();
+                $def.isComplete = true;
+                return $def.reject(e);
+            });
         }, debounceInterval);
-        prom.then(function (r) {
-            $def = prom = null;
-            return r;
-        }, function (err) {
-            $def = prom = null;
-            throw err;
-        });
+        var prom = $def.promise();
+
         return prom;
     };
 }
 
 /***/ }),
-/* 43 */
+/* 42 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -4292,7 +4180,7 @@ var classAttr = {
 /* harmony default export */ __webpack_exports__["default"] = (classAttr);
 
 /***/ }),
-/* 44 */
+/* 43 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -4317,7 +4205,7 @@ var booleanAttrHandler = {
 /* harmony default export */ __webpack_exports__["default"] = (booleanAttrHandler);
 
 /***/ }),
-/* 45 */
+/* 44 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -4343,6 +4231,37 @@ var showifHandler = {
 };
 
 /* harmony default export */ __webpack_exports__["default"] = (showifHandler);
+
+/***/ }),
+/* 45 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
+/**
+  * @type AttributeHandler
+  */
+var hideifHandler = {
+    test: 'hideif',
+
+    target: '*',
+
+    init: function (attr, value, $el) {
+        $el.hide(); //hide by default; if not this shows text until data is fetched
+    },
+    handle: function (value, prop, $el) {
+        if (Array.isArray(value)) {
+            value = value[value.length - 1];
+        }
+        if (value && ('' + value).trim()) {
+            $el.hide();
+        } else {
+            $el.show();
+        }
+    }
+};
+
+/* harmony default export */ __webpack_exports__["default"] = (hideifHandler);
 
 /***/ }),
 /* 46 */
@@ -4409,7 +4328,7 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_config__ = __webpack_require__(1);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_config___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_2_config__);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__bind_utils__ = __webpack_require__(49);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__attr_template_utils__ = __webpack_require__(10);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4_dom_attribute_manager_attr_template_utils__ = __webpack_require__(10);
 
 
 
@@ -4428,25 +4347,25 @@ function toAliasMap(topics) {
 }
 
 function getNewContent(currentContents, value, $el, topics) {
-    if (!Object(__WEBPACK_IMPORTED_MODULE_4__attr_template_utils__["f" /* isTemplated */])(currentContents)) {
+    if (!Object(__WEBPACK_IMPORTED_MODULE_4_dom_attribute_manager_attr_template_utils__["f" /* isTemplated */])(currentContents)) {
         return Object(__WEBPACK_IMPORTED_MODULE_3__bind_utils__["c" /* translateDataToInsertable */])(value);
     }
 
     var templateData = Object(__WEBPACK_IMPORTED_MODULE_3__bind_utils__["d" /* translateDataToTemplatable */])(value, toAliasMap(topics));
-    var knownData = Object(__WEBPACK_IMPORTED_MODULE_4__attr_template_utils__["d" /* getKnownDataForEl */])($el);
+    var knownData = Object(__WEBPACK_IMPORTED_MODULE_4_dom_attribute_manager_attr_template_utils__["d" /* getKnownDataForEl */])($el);
     $.extend(templateData, knownData);
 
-    var missingReferences = Object(__WEBPACK_IMPORTED_MODULE_4__attr_template_utils__["c" /* findMissingReferences */])(currentContents, Object.keys(templateData));
-    var stubbedTemplate = Object(__WEBPACK_IMPORTED_MODULE_4__attr_template_utils__["h" /* stubMissingReferences */])(currentContents, missingReferences);
+    var missingReferences = Object(__WEBPACK_IMPORTED_MODULE_4_dom_attribute_manager_attr_template_utils__["c" /* findMissingReferences */])(currentContents, Object.keys(templateData));
+    var stubbedTemplate = Object(__WEBPACK_IMPORTED_MODULE_4_dom_attribute_manager_attr_template_utils__["h" /* stubMissingReferences */])(currentContents, missingReferences);
 
     var templateFn = Object(__WEBPACK_IMPORTED_MODULE_0_lodash__["template"])(stubbedTemplate);
     try {
         var templatedHTML = templateFn(templateData);
-        var templatedWithReferences = Object(__WEBPACK_IMPORTED_MODULE_4__attr_template_utils__["a" /* addBackMissingReferences */])(templatedHTML, missingReferences);
+        var templatedWithReferences = Object(__WEBPACK_IMPORTED_MODULE_4_dom_attribute_manager_attr_template_utils__["a" /* addBackMissingReferences */])(templatedHTML, missingReferences);
         return templatedWithReferences;
     } catch (e) {
         //you don't have all the references you need;
-        Object(__WEBPACK_IMPORTED_MODULE_4__attr_template_utils__["i" /* updateKnownDataForEl */])($el, templateData);
+        Object(__WEBPACK_IMPORTED_MODULE_4_dom_attribute_manager_attr_template_utils__["i" /* updateKnownDataForEl */])($el, templateData);
         return currentContents;
     }
 }
@@ -4483,18 +4402,18 @@ var bindAttrHandler = {
         var el = $el.get(0);
         elAnimatedMap.delete(el);
 
-        var bindTemplate = Object(__WEBPACK_IMPORTED_MODULE_4__attr_template_utils__["e" /* getOriginalContents */])($el);
+        var bindTemplate = Object(__WEBPACK_IMPORTED_MODULE_4_dom_attribute_manager_attr_template_utils__["e" /* getOriginalContents */])($el);
         var current = $el.html();
         if (bindTemplate && current !== bindTemplate) {
             $el.html(bindTemplate);
         }
-        Object(__WEBPACK_IMPORTED_MODULE_4__attr_template_utils__["b" /* clearOriginalContents */])($el);
-        Object(__WEBPACK_IMPORTED_MODULE_4__attr_template_utils__["g" /* removeKnownData */])($el);
+        Object(__WEBPACK_IMPORTED_MODULE_4_dom_attribute_manager_attr_template_utils__["b" /* clearOriginalContents */])($el);
+        Object(__WEBPACK_IMPORTED_MODULE_4_dom_attribute_manager_attr_template_utils__["g" /* removeKnownData */])($el);
     },
 
     handle: function (value, prop, $el, topics) {
         var el = $el.get(0);
-        var originalContents = Object(__WEBPACK_IMPORTED_MODULE_4__attr_template_utils__["e" /* getOriginalContents */])($el, function ($el) {
+        var originalContents = Object(__WEBPACK_IMPORTED_MODULE_4_dom_attribute_manager_attr_template_utils__["e" /* getOriginalContents */])($el, function ($el) {
             return $el.html();
         });
         var contents = getNewContent(originalContents, value, $el, topics);
@@ -4597,7 +4516,6 @@ var defaultAttr = {
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 /**
  * Hooks up dom elements to mutation observer
  * @param  {HTMLElement} target     root to start observing from
@@ -4605,7 +4523,7 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
  * @param  {boolean} isEnabled Determines if it's enabled by default
  * @return {object}
  */
-/* harmony default export */ __webpack_exports__["default"] = (function (target, domManager, isEnabled) {
+/* harmony default export */ __webpack_exports__["a"] = (function (target, domManager, isEnabled) {
     if (typeof MutationObserver === 'undefined') {
         return;
     }
@@ -4654,8 +4572,7 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
-/* harmony export (immutable) */ __webpack_exports__["default"] = ChannelManager;
+/* harmony export (immutable) */ __webpack_exports__["a"] = ChannelManager;
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__channel_manager__ = __webpack_require__(53);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_channels_channel_router__ = __webpack_require__(3);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__route_handlers__ = __webpack_require__(58);
@@ -5148,7 +5065,7 @@ function excludeReadOnly(publishable, readOnlyOptions) {
 
 
 function match(topic) {
-    var parsed = Object(__WEBPACK_IMPORTED_MODULE_0_utils_parse_utils__["toImplicitType"])(topic);
+    var parsed = Object(__WEBPACK_IMPORTED_MODULE_0_utils_parse_utils__["b" /* toImplicitType */])(topic);
     return typeof parsed !== 'string' ? '' : false;
 }
 
@@ -5159,7 +5076,7 @@ function match(topic) {
         var parsed = topics.map(function (t) {
             return {
                 name: t,
-                value: Object(__WEBPACK_IMPORTED_MODULE_0_utils_parse_utils__["toImplicitType"])(t)
+                value: Object(__WEBPACK_IMPORTED_MODULE_0_utils_parse_utils__["b" /* toImplicitType */])(t)
             };
         });
         return parsed;
@@ -5405,6 +5322,17 @@ function RunMetaRouteHandler($runServicePromise, notifier) {
 
 // import { optimizedFetch } from './optimized-variables-fetch';
 
+function mergeVariables(accum, newval) {
+    if (!accum) {
+        accum = [];
+    }
+    var merged = Object(__WEBPACK_IMPORTED_MODULE_2_lodash__["uniq"])(accum.concat(newval)).filter(function (v) {
+        return !!(v && v.trim());
+    });
+    // console.log(merged, 'merged');
+    return merged;
+}
+
 function RunVariablesRouteHandler($runServicePromise, notifier) {
     var id = Object(__WEBPACK_IMPORTED_MODULE_2_lodash__["uniqueId"])('variable-route-handler');
 
@@ -5415,23 +5343,25 @@ function RunVariablesRouteHandler($runServicePromise, notifier) {
         if (!runService.debouncedFetchers[id]) {
             runService.debouncedFetchers[id] = Object(__WEBPACK_IMPORTED_MODULE_0_utils_general__["a" /* debounceAndMerge */])(function (variables) {
                 return Object(__WEBPACK_IMPORTED_MODULE_3__retriable_variable_fetch__["a" /* retriableFetch */])(runService, variables);
-            }, debounceInterval, [function mergeVariables(accum, newval) {
-                if (!accum) {
-                    accum = [];
-                }
-                return Object(__WEBPACK_IMPORTED_MODULE_2_lodash__["uniq"])(accum.concat(newval)).filter(function (v) {
-                    return !!(v && v.trim());
-                });
-            }]);
+            }, debounceInterval, [mergeVariables]);
         }
         return runService.debouncedFetchers[id];
     }
 
     var knownTopics = [];
     return {
-        fetch: function () {
+        /**
+         * @param {{exclude:? boolean}} options 
+         * @return {Promise}
+         */
+        fetch: function (options) {
+            var opts = $.extend({ exclude: [] }, options);
             return $runServicePromise.then(function (runService) {
-                return Object(__WEBPACK_IMPORTED_MODULE_3__retriable_variable_fetch__["a" /* retriableFetch */])(runService, [].concat(knownTopics)).then(__WEBPACK_IMPORTED_MODULE_1_channels_channel_utils__["b" /* objectToPublishable */]).then(notifier);
+                var variablesToFetch = Object(__WEBPACK_IMPORTED_MODULE_2_lodash__["difference"])([].concat(knownTopics), opts.exclude);
+                if (!variablesToFetch.length) {
+                    return [];
+                }
+                return Object(__WEBPACK_IMPORTED_MODULE_3__retriable_variable_fetch__["a" /* retriableFetch */])(runService, [].concat(variablesToFetch)).then(__WEBPACK_IMPORTED_MODULE_1_channels_channel_utils__["b" /* objectToPublishable */]).then(notifier);
             });
         },
 
@@ -5441,6 +5371,7 @@ function RunVariablesRouteHandler($runServicePromise, notifier) {
             });
         },
         subscribeHandler: function (topics, options) {
+            console.log('subscribe', JSON.stringify(topics));
             var isAutoFetchEnabled = options.autoFetch;
             var debounceInterval = options.debounce;
 
@@ -5476,8 +5407,6 @@ function RunVariablesRouteHandler($runServicePromise, notifier) {
                     var variables = Object.keys(toSave);
                     //Get the latest from the server because what you think you saved may not be what was saved
                     //bool -> 1, scalar to array for time-based models etc
-                    //FIXME: This causes dupe requests, one here and one after fetch by the run-variables channel
-                    //FIXME: Other publish can't do anything till this is done, so debouncing won't help. Only way out is caching
                     return Object(__WEBPACK_IMPORTED_MODULE_3__retriable_variable_fetch__["a" /* retriableFetch */])(runService, variables).then(__WEBPACK_IMPORTED_MODULE_1_channels_channel_utils__["b" /* objectToPublishable */]);
                 });
             });
@@ -5491,10 +5420,7 @@ function RunVariablesRouteHandler($runServicePromise, notifier) {
 
 "use strict";
 /* harmony export (immutable) */ __webpack_exports__["a"] = retriableFetch;
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_lodash__ = __webpack_require__(0);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_lodash___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_lodash__);
-
-
+//Opaquely handle missing variables
 function retriableFetch(runService, variables) {
     if (!variables || !variables.length) {
         return $.Deferred().resolve({}).promise();
@@ -5505,7 +5431,11 @@ function retriableFetch(runService, variables) {
         if (info.code !== 'VARIABLE_NOT_FOUND') {
             throw e;
         }
-        var goodVariables = Object(__WEBPACK_IMPORTED_MODULE_0_lodash__["difference"])(variables, info.context.names);
+        var goodVariables = variables.filter(function (vName) {
+            var baseName = vName.split('[')[0];
+            var isBad = info.context.names.indexOf(baseName) !== -1;
+            return !isBad;
+        });
         return retriableFetch(runService, goodVariables);
     });
 }
@@ -5536,9 +5466,6 @@ function RunOperationsRouteHandler($runServicePromise, notifier) {
                         return { name: topics[index].name, value: response.result };
                     });
                     return toReturn;
-                }).catch(function (e) {
-                    console.log('Caught by run opns', e);
-                    throw e;
                 });
             });
         }
@@ -6076,7 +6003,7 @@ function ConsensusRouteHandler(config, notifier) {
 
 "use strict";
 /* harmony export (immutable) */ __webpack_exports__["a"] = ConsensusOperationsHandler;
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__consensus_utils__ = __webpack_require__(16);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__consensus_utils__ = __webpack_require__(15);
 
 
 function ConsensusOperationsHandler(config, notifier) {
@@ -6112,7 +6039,7 @@ function ConsensusOperationsHandler(config, notifier) {
 
 "use strict";
 /* harmony export (immutable) */ __webpack_exports__["a"] = ConsensusStatusHandler;
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__consensus_utils__ = __webpack_require__(16);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__consensus_utils__ = __webpack_require__(15);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_channels_channel_utils__ = __webpack_require__(5);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_lodash__ = __webpack_require__(0);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_lodash___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_2_lodash__);
@@ -6381,7 +6308,7 @@ function interpolatable(ChannelManager) {
 /* unused harmony export interpolateWithDependencies */
 /* unused harmony export mergeInterpolatedTopicsWithData */
 /* harmony export (immutable) */ __webpack_exports__["a"] = subscribeInterpolator;
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__interpolatable_utils__ = __webpack_require__(17);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__interpolatable_utils__ = __webpack_require__(16);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_lodash__ = __webpack_require__(0);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_lodash___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1_lodash__);
 
@@ -6442,8 +6369,10 @@ function subscribeInterpolator(subscribeFn, onDependencyChange) {
             return subscribeFn(topics, cb, options);
         }
         var innerSubsId = subscribeFn(dependencies, function handleDependencyValueChange(data, dependenciesMeta) {
-            var interpolatedTopics = interpolateWithDependencies(topics, data);
+            var isSameData = Object(__WEBPACK_IMPORTED_MODULE_1_lodash__["isEqual"])(data, dependenciesMeta.previousData);
+            if (isSameData) return;
 
+            var interpolatedTopics = interpolateWithDependencies(topics, data);
             var outerSubsId = subscribeFn(interpolatedTopics, function handleInterpolatedValueChange(actualData, actualMeta) {
                 var toSendback = mergeInterpolatedTopicsWithData(topics, interpolatedTopics, actualData);
 
@@ -6466,7 +6395,7 @@ function subscribeInterpolator(subscribeFn, onDependencyChange) {
 /* unused harmony export getDependencies */
 /* unused harmony export interpolateWithDependencies */
 /* harmony export (immutable) */ __webpack_exports__["a"] = publishInterpolator;
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__interpolatable_utils__ = __webpack_require__(17);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__interpolatable_utils__ = __webpack_require__(16);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_channels_channel_utils__ = __webpack_require__(5);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_lodash__ = __webpack_require__(0);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_lodash___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_2_lodash__);
@@ -6601,7 +6530,7 @@ function withRouter(BaseChannelManager, router) {
 
                 var subsid = _get(ChannelWithRouter.prototype.__proto__ || Object.getPrototypeOf(ChannelWithRouter.prototype), 'subscribe', this).call(this, topics, cb, options);
                 this.router.subscribeHandler([].concat(topics), options).then(function (topicsWithData) {
-                    if (topicsWithData.length) {
+                    if (topicsWithData && topicsWithData.length) {
                         _this2.notify([].concat(topicsWithData));
                     }
                 }, function (err) {
@@ -6628,10 +6557,7 @@ function withRouter(BaseChannelManager, router) {
 
                 var publishData = Object(__WEBPACK_IMPORTED_MODULE_0__channel_utils__["a" /* normalizeParamOptions */])(topic, value, options);
                 return this.router.publishHandler(publishData.params, publishData.options).then(function (published) {
-                    return _get(ChannelWithRouter.prototype.__proto__ || Object.getPrototypeOf(ChannelWithRouter.prototype), 'publish', _this3).call(_this3, published, publishData.options).catch(function (e) {
-                        console.log('Caught by routable', e);
-                        throw e;
-                    });
+                    return _get(ChannelWithRouter.prototype.__proto__ || Object.getPrototypeOf(ChannelWithRouter.prototype), 'publish', _this3).call(_this3, published, publishData.options);
                 });
             }
 
@@ -6671,6 +6597,17 @@ function withRouter(BaseChannelManager, router) {
     }(BaseChannelManager);
 }
 
+/***/ }),
+/* 81 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__general__ = __webpack_require__(7);
+/* harmony reexport (binding) */ __webpack_require__.d(__webpack_exports__, "makePromise", function() { return __WEBPACK_IMPORTED_MODULE_0__general__["b"]; });
+/* harmony reexport (binding) */ __webpack_require__.d(__webpack_exports__, "debounceAndMerge", function() { return __WEBPACK_IMPORTED_MODULE_0__general__["a"]; });
+
+
 /***/ })
-/******/ ]);
+/******/ ])["default"];
 //# sourceMappingURL=flow.js.map

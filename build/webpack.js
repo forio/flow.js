@@ -98,6 +98,7 @@ module.exports = function (grunt) {
             entry: path.resolve('./src/flow.js'),
             output: {
                 path: path.resolve('./dist/'),
+                filename: 'flow.min.js',
                 ...opOptions,
             },
             module: {
@@ -119,6 +120,7 @@ module.exports = function (grunt) {
             entry: path.resolve('./src/add-ons/flow-inspector/flow-inspector.js'),
             devtool: 'source-map',
             output: {
+                ...opOptions,
                 path: path.resolve('./dist/add-ons/'),
                 filename: 'flow-inspector.min.js'
             },

@@ -58,7 +58,6 @@ export function notifyUnsubscribeHandlers(handlers, recentlyUnsubscribedTopics, 
         handler.unsubscribeHandler(unprefixedUnsubs, unprefixedRemaining);
     });
 }
-
 /**
  * 
  * @param {Handler[]} handlers 
