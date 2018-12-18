@@ -1,4 +1,4 @@
-import nc from '../bool-conditional-converters';
+import nc from '../boolean-conditional-converters';
 import cm from 'converter-manager';
 
 describe('Boolean Conditional', function () {

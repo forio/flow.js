@@ -1,9 +1,3 @@
----
-title: "Flow.js Converters"
-layout: "flow"
-isPage: true
----
-
 ## Flow.js: Converters
 
 

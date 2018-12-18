@@ -192,13 +192,13 @@ var converterManager = {
 
 //Bootstrap
 var defaultconverters = [
-    require('./converters/number-converter'),
-    require('./converters/string-converter'),
-    require('./converters/array-converter'),
+    require('./converters/number-converters'),
+    require('./converters/string-converters'),
+    require('./converters/array-converters'),
     require('./converters/general-util-converters'),
     require('./converters/numberformat-converter'),
     require('./converters/number-compare-converters'),
-    require('./converters/bool-conditional-converters'),
+    require('./converters/boolean-conditional-converters'),
     require('./converters/collection-converters')
 ];
 
