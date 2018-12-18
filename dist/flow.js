@@ -300,7 +300,6 @@ function notifyUnsubscribeHandlers(handlers, recentlyUnsubscribedTopics, remaini
         handler.unsubscribeHandler(unprefixedUnsubs, unprefixedRemaining);
     });
 }
-
 /**
  * 
  * @param {Handler[]} handlers 
@@ -5371,7 +5370,7 @@ function RunVariablesRouteHandler($runServicePromise, notifier) {
             });
         },
         subscribeHandler: function (topics, options) {
-            console.log('subscribe', JSON.stringify(topics));
+            // console.log('subscribe', JSON.stringify(topics));
             var isAutoFetchEnabled = options.autoFetch;
             var debounceInterval = options.debounce;
 

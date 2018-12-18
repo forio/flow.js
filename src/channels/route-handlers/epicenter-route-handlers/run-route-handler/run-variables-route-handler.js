@@ -49,7 +49,7 @@ export default function RunVariablesRouteHandler($runServicePromise, notifier) {
             knownTopics = knownTopics.filter((t)=> unsubscribedTopics.indexOf(t) === -1);
         },
         subscribeHandler: function (topics, options) {
-            console.log('subscribe', JSON.stringify(topics));
+            // console.log('subscribe', JSON.stringify(topics));
             const isAutoFetchEnabled = options.autoFetch;
             const debounceInterval = options.debounce;
 
