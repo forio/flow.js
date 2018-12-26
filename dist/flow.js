@@ -772,7 +772,7 @@ function GenericRunRouteHandler(config, notifier) {
             //FIXME: Exclude silenced -- let notify take care of this?
             //FIXME: Provide subscription fn to individual channels and let them handle it
             rs.channel.subscribe(TOPICS.RUN_VARIABLES, function (data, meta) {
-                console.log('variables', data, meta);
+                // console.log('variables', data, meta);
                 variablesHandler.notify(data, meta);
                 variablesHandler.fetch();
             }, _this, subscribeOpts);
@@ -2256,62 +2256,31 @@ defaultconverters.reverse().forEach(function (converter) {
 
 /***/ }),
 /* 25 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-/**
- * ## Number Converters
- *
- * Converters allow you to change how data is displayed. They let you display the value of any model variable in a different format than it is stored in the model -- converting the output value from one format to another.
- *
- * There are two ways to specify conversion or formatting for the display output of a particular model variable:
- *
- * * Use the `|` (pipe) character within the value of any `data-f-` attribute. Converters are chainable, so you can apply several in a row to a particular variable.
- * * Add the attribute `data-f-convert` to any element to convert all of the model variables referenced within that element's scope.
- *
- */
-
-
+/***/ (function(module, exports) {
 
 module.exports = {
-  alias: 'i',
-  /**
-   * Convert the model variable to an integer. Often used for chaining to another converter.
-   *
-   * **Example**
-   *
-   *      <div>
-   *          Your car has driven
-   *          <span data-f-bind="Odometer | i | s0.0"></span> miles.
-   *      </div>
-   *
-   * @param {string} value The model variable.
-   * @return {number}
-   */
-  convert: function (value) {
-    return parseFloat(value);
-  }
+    alias: 'i',
+    /**
+     * Convert the model variable to an integer. Often used for chaining to another converter.
+     *
+     * **Example**
+     *
+     *      <div>
+     *          Your car has driven
+     *          <span data-f-bind="Odometer | i | s0.0"></span> miles.
+     *      </div>
+     *
+     * @param {string} value The model variable.
+     * @return {number}
+     */
+    convert: function (value) {
+        return parseFloat(value);
+    }
 };
 
 /***/ }),
 /* 26 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-/**
- * ## String Converters
- *
- * Converters allow you to change how data is displayed. They let you display the value of any model variable in a different format than it is stored in the model -- converting the output value from one format to another.
- *
- * There are two ways to specify conversion or formatting for the display output of a particular model variable:
- *
- * * Use the `|` (pipe) character within the value of any `data-f-` attribute. Converters are chainable, so you can apply several in a row to a particular variable.
- * * Add the attribute `data-f-convert` to any element to convert all of the model variables referenced within that element's scope.
- *
- * For model variables that are strings (or that have been converted to strings), there are several special string formats you can apply.
- */
-
-
+/***/ (function(module, exports) {
 
 module.exports = {
 
@@ -2390,20 +2359,6 @@ module.exports = {
 /***/ }),
 /* 27 */
 /***/ (function(module, exports, __webpack_require__) {
-
-/**
- * ## Array Converters
- *
- * Converters allow you to change how data is displayed. They let you display the value of any model variable in a different format than it is stored in the model -- converting the output value from one format to another.
- *
- * There are two ways to specify conversion or formatting for the display output of a particular model variable:
- *
- * * Use the `|` (pipe) character within the value of any `data-f-` attribute. Converters are chainable, so you can apply several in a row to a particular variable.
- * * Add the attribute `data-f-convert` to any element to convert all of the model variables referenced within that element's scope.
- *
- * In general, if the model variable is an array, the converter is applied to each element of the array. There are a few built in array converters which, rather than converting all elements of an array, select particular elements from within the array or otherwise treat array variables specially.
- *
- */
 
 var _ = __webpack_require__(0);
 
@@ -2617,70 +2572,6 @@ module.exports = [{
 /***/ }),
 /* 29 */
 /***/ (function(module, exports, __webpack_require__) {
-
-/**
- * ## Number Format Converters
- *
- * Converters allow you to change how data is displayed. They let you display the value of any model variable in a different format than it is stored in the model -- converting the output value from one format to another.
- *
- * There are two ways to specify conversion or formatting for the display output of a particular model variable:
- *
- * * Use the `|` (pipe) character within the value of any `data-f-` attribute. Converters are chainable, so you can apply several in a row to a particular variable.
- * * Add the attribute `data-f-convert` to any element to convert all of the model variables referenced within that element's scope.
- *
- * For model variables that are numbers (or that have been [converted to numbers](../number-converter/)), there are several special number formats you can apply.
- *
- * #### Currency Number Format
- *
- * After the `|` (pipe) character, use `$` (dollar sign), `0`, and `.` (decimal point) in your converter to describe how currency should appear. The specifications follow the Excel currency formatting conventions.
- *
- * **Example**
- *
- *      <!-- convert to dollars (include cents) -->
- *      <input type="text" data-f-bind="price[car]" data-f-convert="$0.00" />
- *      <input type="text" data-f-bind="price[car] | $0.00" />
- *
- *      <!-- convert to dollars (truncate cents) -->
- *      <input type="text" data-f-bind="price[car]" data-f-convert="$0." />
- *      <input type="text" data-f-bind="price[car] | $0." />
- *
- *
- * #### Specific Digits Number Format
- *
- * After the `|` (pipe) character, use `#` (pound) and `,` (comma) in your converter to describe how the number should appear. The specifications follow the Excel number formatting conventions.
- *
- * **Example**
- *
- *      <!-- convert to thousands -->
- *      <input type="text" data-f-bind="sales[car]" data-f-convert="#,###" />
- *      <input type="text" data-f-bind="sales[car] | #,###" />
- *
- *
- * #### Percentage Number Format
- *
- * After the `|` (pipe) character, use `%` (percent) and `0` in your converter to display the number as a percent.
- *
- * **Example**
- *
- *      <!-- convert to percentage -->
- *      <input type="text" data-f-bind="profitMargin[car]" data-f-convert="0%" />
- *      <input type="text" data-f-bind="profitMargin[car] | 0%" />
- *
- *
- * #### Short Number Format
- *
- * After the `|` (pipe) character, use `s` and `0` in your converter to describe how the number should appear.
- *
- * The `0`s describe the significant digits.
- *
- * The `s` describes the "short format," which uses 'K' for thousands, 'M' for millions, 'B' for billions. For example, `2468` converted with `s0.0` displays as `2.5K`.
- *
- * **Example**
- *
- *      <!-- convert to thousands (show 12,468 as 12.5K) -->
- *      <span type="text" data-f-bind="price[car] | s0.0"></span>
- *
- */
 
 var _require = __webpack_require__(0),
     isString = _require.isString,
@@ -3007,47 +2898,7 @@ module.exports = {
 
 /***/ }),
 /* 30 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-/**
- * ## Number Comparison Converters
- *
- * Converters allow you to change how data is displayed. They let you display the value of any model variable in a different format than it is stored in the model -- converting the output value from one format to another.
- *
- * For a number comparison converter, the original format is your model variable, and the resulting "format" is a (possibly unrelated) value of your choosing. This resulting value is selected based on how the value of the model variable compares to a reference value that you pass to the converter.
- *
- * There are two ways to specify conversion or formatting for the display output of a particular model variable:
- *
- * * Use the `|` (pipe) character within the value of any `data-f-` attribute. Converters are chainable, so you can apply several in a row to a particular variable.
- * * Add the attribute `data-f-convert` to any element to convert all of the model variables referenced within that element's scope.
- *
- * For example:
- *
- *      <!-- displays "true" or the number of widgets -->
- *      <span data-f-bind="widgets | greaterThan(50)"></span>
- *
- *      <!-- displays the first string if true, the second if false -->
- *      <span data-f-bind="widgets | greaterThan(50, 'nice job!', 'not enough widgets')"></span>
- *
- * You can also chain multiple converters to simulate evaluating multiple if\else conditions; for e.g. the following logic
- *
- *      if (temperature > 80) {
- *          return 'hot';
- *      } else if (temperature > 60) {
- *          return 'pleasant';
- *      } else if (temperature >= 30) {
- *          return 'cold';
- *      } else {
- *          return 'freezing!';
- *      }
- *
- * can be represented as
- *
- *      <h4 data-f-bind="temperature | greaterThan(80, hot) | greaterThan(60, pleasant) | greaterThanEqual(30, cold, freezing!)"></h4>
- */
-
-
+/***/ (function(module, exports) {
 
 function parseArgs(limit, trueVal, falseVal, valueToCompare, matchString) {
     var toReturn = { trueVal: true, falseVal: false };
@@ -3082,7 +2933,7 @@ module.exports = {
      * @param {Number} limit The reference value to compare the model variable against.
      * @param {String} trueVal (Optional) The format (value) to display if the model variable is greater than `limit`. If not included, the display is `true`. If there are commas in this argument, they must be escaped with `\`.
      * @param {String} falseVal (Optional) The format (value) to display if the model variable is less than or equal to `limit`. If not included, the display is the value of the model variable. If there are commas in this argument, they must be escaped with `\`.
-     * @return {Any} If the model variable is greater than `limit`, returns trueVal or `true`. Otherwise returns falseVal if provided, or echoes the input.
+     * @return {*} If the model variable is greater than `limit`, returns trueVal or `true`. Otherwise returns falseVal if provided, or echoes the input.
      */
     greaterThan: function (limit) {
         var args = parseArgs.apply(null, arguments);
@@ -3105,7 +2956,7 @@ module.exports = {
      * @param {Number} limit The reference value to compare the model variable against.
      * @param {String} trueVal (Optional) The format (value) to display if the model variable is greater than or equal to `limit`. If not included, the display is `true`. If there are commas in this argument, they must be escaped with `\`.
      * @param {String} falseVal (Optional) The format (value) to display if the model variable is less than `limit`. If not included, the display is the value of the model variable. If there are commas in this argument, they must be escaped with `\`.
-     * @return {Any} If the model variable is greater than or equal to `limit`, returns trueVal or `true`. Otherwise returns falseVal if provided, or echoes the input.
+     * @return {*} If the model variable is greater than or equal to `limit`, returns trueVal or `true`. Otherwise returns falseVal if provided, or echoes the input.
      */
     greaterThanEqual: function (limit) {
         var args = parseArgs.apply(null, arguments);
@@ -3129,7 +2980,7 @@ module.exports = {
      * @param {Number} limit The reference value to compare the model variable against.
      * @param {String} trueVal (Optional) The format (value) to display if the model variable is equal to `limit`. If not included, the display is `true`. If there are commas in this argument, they must be escaped with `\`.
      * @param {String} falseVal (Optional) The format (value) to display if the model variable is not equal to `limit`. If not included, the display is the value of the model variable. If there are commas in this argument, they must be escaped with `\`.
-     * @return {Any} If the model variable equals `limit`, returns trueVal or `true`. Otherwise returns falseVal if provided, or echoes the input.
+     * @return {*} If the model variable equals `limit`, returns trueVal or `true`. Otherwise returns falseVal if provided, or echoes the input.
      */
     equalsNumber: function (limit) {
         var args = parseArgs.apply(null, arguments);
@@ -3152,7 +3003,7 @@ module.exports = {
      * @param {Number} limit The reference value to compare the model variable against.
      * @param {String} trueVal (Optional) The format (value) to display if the model variable is less than `limit`. If not included, the display is `true`. If there are commas in this argument, they must be escaped with `\`.
      * @param {String} falseVal (Optional) The format (value) to display if the model variable is less than `limit`. If not included, the display is the value of the model variable. If there are commas in this argument, they must be escaped with `\`.
-     * @return {Any} If the model variable is less than `limit`, returns trueVal or `true`. Otherwise returns falseVal if provided, or echoes the input.
+     * @return {*} If the model variable is less than `limit`, returns trueVal or `true`. Otherwise returns falseVal if provided, or echoes the input.
      */
     lessThan: function (limit) {
         var args = parseArgs.apply(null, arguments);
@@ -3175,7 +3026,7 @@ module.exports = {
      * @param {Number} limit The reference value to compare the model variable against.
      * @param {String} trueVal (Optional) The format (value) to display if the model variable is less than or equal to `limit`. If not included, the display is `true`. If there are commas in this argument, they must be escaped with `\`.
      * @param {String} falseVal (Optional) The format (value) to display if the model variable is less than or equal to `limit`. If not included, the display is the value of the model variable. If there are commas in this argument, they must be escaped with `\`.
-     * @return {Any} If the model variable is less than or equal to `limit`, returns trueVal or `true`. Otherwise returns falseVal if provided, or echoes the input.
+     * @return {*} If the model variable is less than or equal to `limit`, returns trueVal or `true`. Otherwise returns falseVal if provided, or echoes the input.
      */
     lessThanEqual: function (limit) {
         var args = parseArgs.apply(null, arguments);
@@ -3186,27 +3037,6 @@ module.exports = {
 /***/ }),
 /* 31 */
 /***/ (function(module, exports) {
-
-/**
- * ## Boolean Conditional Converters
- *
- * Converters allow you to change how data is displayed. They let you display the value of any model variable in a different format than it is stored in the model -- converting the output value from one format to another.
- *
- * For a boolean conditional converter, the original format is your model variable, and the resulting "format" is a boolean value, or another value of your choosing.
- *
- * There are two ways to specify conversion or formatting for the display output of a particular model variable:
- *
- * * Use the `|` (pipe) character within the value of any `data-f-` attribute. Converters are chainable, so you can apply several in a row to a particular variable.
- * * Add the attribute `data-f-convert` to any element to convert all of the model variables referenced within that element's scope.
- *
- * For example:
- *
- *      <!-- displays "true" or "false" -->
- *      <!-- in particular, true if sampleVar is truthy (1, true, 'some string', [] etc.), 
- *            false if sampleVar is falsy (0, false, '') -->
- *      <span data-f-bind="sampleVar | toBool"></span>
- *
- */
 
 function parseArgs(trueVal, falseVal, input, matchString) {
     var toReturn = { trueVal: true, falseVal: false };
@@ -3702,25 +3532,18 @@ var attributeManager = {
 "use strict";
 Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 /**
- * ## No-op Attributes
- *
- * Flow.js provides special handling for both `data-f-model` (described [here](../../../../#using_in_project)) and `data-f-convert` (described [here](../../../../converter-overview/)). For these attributes, the default behavior is to do nothing, so that this additional special handling can take precendence.
- *
- */
-
-/**
  * @type AttributeHandler 
  */
 var noopAttr = {
 
-  target: '*',
+    target: '*',
 
-  test: /^(?:model|convert|channel|on-init)/i,
+    test: /^(?:model|convert|channel|on-init)/i,
 
-  handle: function () {},
-  parse: function () {
-    return [];
-  }
+    handle: function () {},
+    parse: function () {
+        return [];
+    }
 };
 
 /* harmony default export */ __webpack_exports__["default"] = (noopAttr);
@@ -6170,7 +5993,6 @@ function MultiRunRouteHandler(options, notifier, channelManagerContext) {
         fetch: fetch,
 
         unsubscribeHandler: function (unsubscribedTopics, remainingTopics) {
-            console.log('unsubs');
             // knownTopics = remainingTopics;
         },
         subscribeHandler: function (topics, options) {

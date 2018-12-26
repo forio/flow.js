@@ -1,8 +1,9 @@
-'use strict';
+const sass = require('node-sass');
 
 module.exports = function (grunt) {
     grunt.config.set('sass', {
         options: {
+            implementation: sass,
             sourceMap: true
         },
         addons: {
