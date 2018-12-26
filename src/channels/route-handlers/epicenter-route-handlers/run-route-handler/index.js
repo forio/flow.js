@@ -82,7 +82,7 @@ export default function GenericRunRouteHandler(config, notifier) {
             //FIXME: Exclude silenced -- let notify take care of this?
             //FIXME: Provide subscription fn to individual channels and let them handle it
             rs.channel.subscribe(TOPICS.RUN_VARIABLES, (data, meta)=> {
-                console.log('variables', data, meta);
+                // console.log('variables', data, meta);
                 variablesHandler.notify(data, meta);
                 variablesHandler.fetch();
             }, this, subscribeOpts);

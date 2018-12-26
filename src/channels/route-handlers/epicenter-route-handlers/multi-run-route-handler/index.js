@@ -38,7 +38,6 @@ export default function MultiRunRouteHandler(options, notifier, channelManagerCo
         fetch: fetch,
 
         unsubscribeHandler: function (unsubscribedTopics, remainingTopics) {
-            console.log('unsubs');
             // knownTopics = remainingTopics;
         },
         subscribeHandler: function (topics, options) {
