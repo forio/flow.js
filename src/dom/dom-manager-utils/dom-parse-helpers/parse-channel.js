@@ -21,7 +21,7 @@ export function getChannelForAttribute($el, attr) {
 
 /**
  * @param {HTMLElement} el
- * @return {object}
+ * @returns {Object}
  */ 
 export function getChannelConfigForElement(el) {
     //TODO: Should this look at parents too?

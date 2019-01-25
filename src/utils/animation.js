@@ -52,7 +52,7 @@ const defaults = {
  * Compares 2 lists and Adds add or update classes
  * @param {JQuery<HTMLElement>} $currentEls existing elements
  * @param {JQuery<HTMLElement>} $newEls   new elements
- * @param {Boolean} isInitial check if this is initial data or it's updating
+ * @param {boolean} isInitial check if this is initial data or it's updating
  * @param {{ addAttr: string, changeAttr: string}} [options]
  * @returns {JQuery<HTMLElement>} elements with updated attributes
  */

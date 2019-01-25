@@ -7,7 +7,7 @@ import { promisify } from './promise-utils';
  * @param {function(*):Promise} fn function to debounce
  * @param {number} debounceInterval 
  * @param {Function[]} [argumentsReducers] pass in 1 reducer for each option your function takes
- * @return {Function} debounced function
+ * @returns {Function} debounced function
  */
 export default function debounceAndMerge(fn, debounceInterval, argumentsReducers) {
     var argsToPass = [];

@@ -3,7 +3,7 @@ const KEY_VALUE_REGEX = /(.*),(.*)/;
 
 /**
  * @param {string} attrVal 
- * @return {string}
+ * @returns {string}
  */
 export function extractVariableName(attrVal) {
     const inMatch = attrVal.trim().match(IN_OF_REGEX);
@@ -13,7 +13,7 @@ export function extractVariableName(attrVal) {
 
 /**
  * @param {string} attrVal 
- * @return {string}
+ * @returns {string}
  */
 export function parseKeyAlias(attrVal) {
     const inMatch = attrVal.match(IN_OF_REGEX);
@@ -27,7 +27,7 @@ export function parseKeyAlias(attrVal) {
 
 /**
  * @param {string} attrVal 
- * @return {string}
+ * @returns {string}
  */
 export function parseValueAlias(attrVal) {
     const inMatch = attrVal.match(IN_OF_REGEX);

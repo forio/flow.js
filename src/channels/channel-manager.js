@@ -3,10 +3,10 @@ import { normalizeParamOptions, publishableToObject } from './channel-utils';
 import { uniqueId, isFunction, intersection, uniq } from 'lodash';
 /**
  * 
- * @param {String[]|String} topics 
+ * @param {Array<string>|string} topics 
  * @param {Function} callback 
  * @param {Object} options
- * @return {Subscription}
+ * @returns {Subscription}
  */
 function makeSubs(topics, callback, options) {
     const id = uniqueId('subs-');
@@ -29,7 +29,7 @@ function makeSubs(topics, callback, options) {
          * `cache: false` is useful if you know if your topics will *always* be published together and they'll be called at the same time.
          *
          * Note this has no discernible effect if batch is false
-         * @type {Boolean}
+         * @type {boolean}
          */
         cache: true,
     };
@@ -112,7 +112,7 @@ function checkAndNotify(topics, subscription) {
 
 /**
 * @param {Subscription[]} subcriptionList
-* @return {String[]}
+* @returns {Array<string>}
 */
 function getTopicsFromSubsList(subcriptionList) {
     return subcriptionList.reduce(function (accum, subs) {
@@ -130,10 +130,10 @@ class ChannelManager {
     }
 
     /**
-     * @param {String | Publishable } topic
+     * @param {string|Publishable} topic
      * @param {any} [value] item to publish
      * @param {PublishOptions} [options]
-     * @return {Promise}
+     * @returns {Promise}
      */
     publish(topic, value, options) {
         const normalized = normalizeParamOptions(topic, value, options);
@@ -155,10 +155,10 @@ class ChannelManager {
     }
 
     /**
-     * @param {String[] | String} topics
+     * @param {Array<string>|string} topics
      * @param {Function} cb
      * @param {Object} [options]
-     * @return {String}
+     * @returns {string}
      */
     subscribe(topics, cb, options) {
         const subs = makeSubs(topics, cb, options);
@@ -170,7 +170,7 @@ class ChannelManager {
         
 
     /**
-     * @param {String} token
+     * @param {string} token
      */
     unsubscribe(token) {
         const olderLength = this.subscriptions.length;
@@ -191,7 +191,7 @@ class ChannelManager {
     }
 
     /**
-     * @return {String[]}
+     * @returns {Array<string>}
      */
     getSubscribedTopics() {
         const list = uniq(getTopicsFromSubsList(this.subscriptions));
@@ -199,8 +199,8 @@ class ChannelManager {
     }
 
     /**
-     * @param {String} [topic] optional topic to filter by
-     * @return {Subscription[]}
+     * @param {string} [topic] optional topic to filter by
+     * @returns {Subscription[]}
      */
     getSubscribers(topic) {
         if (!topic) {

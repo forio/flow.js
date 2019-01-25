@@ -1,9 +1,9 @@
 /**
  * Hooks up dom elements to mutation observer
  * @param  {HTMLElement} target     root to start observing from
- * @param  {object} domManager 
+ * @param  {Object} domManager 
  * @param  {boolean} isEnabled Determines if it's enabled by default
- * @return {object}
+ * @returns {Object}
  */
 export default function (target, domManager, isEnabled) {
     if (typeof MutationObserver === 'undefined') {

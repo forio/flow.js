@@ -5,7 +5,7 @@ import { uniq } from 'lodash';
 
 /**
  * @param {Publishable[]} publishInputs
- * @returns {String[]} dependencies for inputs
+ * @returns {string[]} dependencies for inputs
  */
 export function getDependencies(publishInputs) {
     var deps = publishInputs.reduce((accum, input)=> {
@@ -34,7 +34,7 @@ export function interpolateWithDependencies(publishInputs, valuesToInterpolate) 
  * Publish function to wrap
  * @param  {Function} publishFunction
  * @param  {function(string[], function({string: any}):void):void} fetchFn         function to get interpolated values from
- * @return {Function}                 wrapped function
+ * @returns {Function}                 wrapped function
  */
 export default function publishInterpolator(publishFunction, fetchFn) {
     return function interpolatedPublishfunction(topic, value, options) {

@@ -9,7 +9,7 @@ import { isString, isFunction } from 'lodash';
 /**
  * @param {string | undefined} selector
  * @param {Function | NodeHandler } handler
- * @return {NodeHandler}
+ * @returns {NodeHandler}
  */
 const normalize = function (selector, handler) {
     if (!selector) {
@@ -29,7 +29,7 @@ const normalize = function (selector, handler) {
 /**
  * @param {string|HTMLElement|JQuery<HTMLElement>} toMatch
  * @param { {selector:string} } node
- * @return {boolean}
+ * @returns {boolean}
  */ 
 const match = function (toMatch, node) {
     if (isString(toMatch)) {
@@ -44,7 +44,7 @@ const nodeManager = {
     /**
      * Add a new node handler
      * @param  {string} selector jQuery-compatible selector to use to match nodes
-     * @param  {function} handler  Handlers are new-able functions. They will be called with $el as context.? TODO: Think this through
+     * @param  {Function} handler  Handlers are new-able functions. They will be called with $el as context.? TODO: Think this through
      * @returns {void}
      */
     register: function (selector, handler) {
@@ -53,7 +53,7 @@ const nodeManager = {
 
     /**
      * @param {string|HTMLElement|JQuery<HTMLElement>} selector
-     * @return NodeHandler
+     * @returns NodeHandler
      */ 
     getHandler: function (selector) {
         return this.list.find(function (node) {

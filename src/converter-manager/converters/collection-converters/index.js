@@ -10,7 +10,7 @@ const list = {
      * 
      * @param  {string|number|boolean} valueToFilterBy value to reject
      * @param  {any[]} source The arrayed model variable
-     * @return {any[]}     filtered lsit
+     * @returns {any[]}     filtered lsit
      */
     filter: function (valueToFilterBy, source) {
         source = [].concat(source);
@@ -29,7 +29,7 @@ const list = {
      * 
      * @param  {string|number|boolean} valueToReject value to reject
      * @param  {any[]} source The arrayed model variable
-     * @return {any[]}     filtered lsit
+     * @returns {any[]}     filtered lsit
      */
     except: function (valueToReject, source) {
         source = [].concat(source);
@@ -47,9 +47,9 @@ const list = {
      * <button data-f-hideif="users | any(isOnline) | not">Get Started</button>
      * <button data-f-hideif="users | any({ isOnline: false })">Get Started</button>
      * 
-     * @param  {string|object} value value to check for
+     * @param  {string|Object} value value to check for
      * @param  {any[]} source The arrayed model variable
-     * @return {boolean}     True if match found in array
+     * @returns {boolean}     True if match found in array
      */
     any: function (value, source) {
         source = [].concat(source);
@@ -66,9 +66,9 @@ const list = {
      * <!-- shows button if any of the users are not online -->
      * <button data-f-showif="users | every(isOnline)">Get Started</button>
      * 
-     * @param  {string|object} value value to check for
+     * @param  {string|Object} value value to check for
      * @param  {any[]} source The arrayed model variable
-     * @return {boolean}     True if match found in array
+     * @returns {boolean}     True if match found in array
      */
     every: function (value, source) {
         source = [].concat(source);

@@ -1,7 +1,7 @@
 /**
  * @param {Publishable[]} published 
- * @param {boolean|String[]|{except: String[]}} [silentOptions]
- * @return {Publishable[]} filtered list
+ * @param {boolean|Array<string>|{except: Array<string>}} [silentOptions]
+ * @returns {Publishable[]} filtered list
  */
 export default function silencable(published, silentOptions) {
     if (silentOptions === true || !published) {

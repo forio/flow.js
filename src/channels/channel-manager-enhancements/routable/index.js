@@ -12,7 +12,8 @@ function getTopicsFromSubsList(subcriptionList) {
 /**
  * Decorates passed channel manager with middleware functionality
  * @param  {ChannelManager} BaseChannelManager
- * @return {ChannelManager} wrapped channel manager
+ * @param  {Object} router
+ * @returns {ChannelManager} wrapped channel manager
  */
 export default function withRouter(BaseChannelManager, router) {
     /**
@@ -37,7 +38,7 @@ export default function withRouter(BaseChannelManager, router) {
          * @param  {string | string[]}   topics
          * @param  {Function} cb
          * @param  {Object}   options
-         * @return {string}           subscription id
+         * @returns {string}           subscription id
          */
         subscribe(topics, cb, options) {
             const subsid = super.subscribe(topics, cb, options);
@@ -59,7 +60,7 @@ export default function withRouter(BaseChannelManager, router) {
          * @param {string | Publishable } topic
          * @param {any} [value] item to publish
          * @param {Object} [options]
-         * @return {Promise}
+         * @returns {Promise}
          */
         publish(topic, value, options) {
             const publishData = normalizeParamOptions(topic, value, options);
@@ -72,7 +73,7 @@ export default function withRouter(BaseChannelManager, router) {
         /**
          * Calls unsubscribe middleware *after* unsubscription with a list of recently unsubscribed topics
          * @param  {string} token
-         * @return {void}
+         * @returns {void}
          */
         unsubscribe(token) {
             const originalTopics = getTopicsFromSubsList(this.subscriptions);
@@ -85,7 +86,7 @@ export default function withRouter(BaseChannelManager, router) {
 
         /**
          * Calls unsubscribe middleware after unsubscribeAll on the channel
-         * @return {void}
+         * @returns {void}
          */
         unsubscribeAll() {
             const originalTopics = getTopicsFromSubsList(this.subscriptions);

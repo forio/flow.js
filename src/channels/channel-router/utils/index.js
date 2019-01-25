@@ -6,7 +6,7 @@ export { default as excludeReadOnly } from './exclude-read-only';
 /**
  * 
  * @param {string} text
- * @return {string}
+ * @returns {string}
  */
 export function stripSuffixDelimiter(text) {
     if (text && text.indexOf(CHANNEL_DELIMITER) === (text.length - 1)) {
@@ -19,7 +19,7 @@ export function stripSuffixDelimiter(text) {
  * 
  * @param {Publishable[]} dataArray 
  * @param {string} prefix 
- * @return {Publishable[]} array with name prefixed
+ * @returns {Publishable[]} array with name prefixed
  */
 export function mapWithPrefix(dataArray, prefix) {
     if (!prefix) return dataArray;
@@ -33,7 +33,7 @@ export function mapWithPrefix(dataArray, prefix) {
  * 
  * @param {Function} callback 
  * @param {string|string[]} prefixList
- * @return {Function}
+ * @returns {Function}
  */
 export function withPrefix(callback, prefixList) {
     const arr = [].concat(prefixList);
@@ -53,7 +53,7 @@ export function withPrefix(callback, prefixList) {
  * 
  * @param {string[]} list 
  * @param {string} prefix
- * @return {string[]} Item with prefix removed
+ * @returns {string[]} Item with prefix removed
  */
 export function unprefixTopics(list, prefix) {
     if (!prefix) return list;
@@ -67,7 +67,7 @@ export function unprefixTopics(list, prefix) {
  * 
  * @param {Publishable[]} list 
  * @param {string} prefix
- * @return {Publishable[]} Item with prefix removed
+ * @returns {Publishable[]} Item with prefix removed
  */
 export function unprefix(list, prefix) {
     if (!prefix) return list;

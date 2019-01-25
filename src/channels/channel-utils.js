@@ -1,7 +1,7 @@
 /**
  * 
- * @param {object} obj
- * @return {Publishable[]}
+ * @param {Object} obj
+ * @returns {Publishable[]}
  */
 export function objectToPublishable(obj) {
     var mapped = Object.keys(obj || {}).map(function (t) {
@@ -13,8 +13,8 @@ export function objectToPublishable(obj) {
 /**
  * Converts arrays of the form [{ name: '', value: ''}] to {[name]: value}
  * @param {Publishable[]} arr
- * @param {object} [mergeWith]
- * @returns {object}
+ * @param {Object} [mergeWith]
+ * @returns {Object}
  */
 export function publishableToObject(arr, mergeWith) {
     var result = (arr || []).reduce(function (accum, topic) {
@@ -32,10 +32,10 @@ export function publishableToObject(arr, mergeWith) {
 
 /**
  *
- * @param {String|Object|array} topic 
+ * @param {string|Object|Array} topic 
  * @param {*} publishValue 
  * @param {Object} [options]
- * @return {NormalizedParam}
+ * @returns {NormalizedParam}
  */
 export function normalizeParamOptions(topic, publishValue, options) {
     if (!topic) {

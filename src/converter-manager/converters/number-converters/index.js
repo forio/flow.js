@@ -11,7 +11,7 @@ module.exports = {
      *      </div>
      *
      * @param {string} value The model variable.
-     * @return {number}
+     * @returns {number}
      */
     convert: function (value) {
         return parseFloat(value);

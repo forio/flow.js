@@ -7,9 +7,9 @@ import _ from 'lodash';
 /**
  * Handle subscriptions
  * @param  {Handler[]} handlers Array of the form [{ match: function (){}, }]
- * @param  {String[]} topics   Array of strings
+ * @param  {Array<string>} topics   Array of strings
  * @param  {SubscribeOptions} [options]
- * @return {Promise<Publishable[]>} Returns populated topics if available
+ * @returns {Promise<Publishable[]>} Returns populated topics if available
  */
 export function notifySubscribeHandlers(handlers, topics, options) {
     const grouped = groupByHandlers(topics, handlers);
@@ -36,8 +36,8 @@ export function notifySubscribeHandlers(handlers, topics, options) {
 /**
  * 
  * @param {Handler[]} handlers 
- * @param {String[]} recentlyUnsubscribedTopics
- * @param {String[]} remainingTopics 
+ * @param {Array<string>} recentlyUnsubscribedTopics
+ * @param {Array<string>} remainingTopics 
  */
 export function notifyUnsubscribeHandlers(handlers, recentlyUnsubscribedTopics, remainingTopics) {
     handlers = handlers.map(function (h, index) {
@@ -63,7 +63,7 @@ export function notifyUnsubscribeHandlers(handlers, recentlyUnsubscribedTopics, 
  * @param {Handler[]} handlers 
  * @param {Publishable[]} publishData 
  * @param {PublishOptions} [options]
- * @return {Promise}
+ * @returns {Promise}
  */
 export function passthroughPublishInterceptors(handlers, publishData, options) {
     const grouped = groupSequentiallyByHandlers(publishData, handlers);
@@ -99,9 +99,9 @@ export function passthroughPublishInterceptors(handlers, publishData, options) {
 /**
  * Router
  * @param  {Handler[]} handlers
- * @param {object} [options]
- * @param {function} [notifier]
- * @return {Router}
+ * @param {Object} [options]
+ * @param {Function} [notifier]
+ * @returns {Router}
  */
 export default function router(handlers, options, notifier) {
     let myHandlers = (handlers || []).map((Handler)=> {
@@ -136,17 +136,17 @@ export default function router(handlers, options, notifier) {
         },
 
         /**
-         * @param {String[]} topics
+         * @param {Array<string>} topics
          * @param {SubscribeOptions} [options]
-         * @return {Promise<Publishable[]>} Returns populated topics if available
+         * @returns {Promise<Publishable[]>} Returns populated topics if available
          */
         subscribeHandler: function (topics, options) {
             return notifySubscribeHandlers(myHandlers, topics, options);
         },
         /**
-         * @param {String[]} recentlyUnsubscribedTopics
-         * @param {String[]} remainingTopics
-         * @return {void}
+         * @param {Array<string>} recentlyUnsubscribedTopics
+         * @param {Array<string>} remainingTopics
+         * @returns {void}
          */
         unsubscribeHandler: function (recentlyUnsubscribedTopics, remainingTopics) {
             return notifyUnsubscribeHandlers(myHandlers, recentlyUnsubscribedTopics, remainingTopics);
@@ -155,7 +155,7 @@ export default function router(handlers, options, notifier) {
         /**
          * @param {Publishable[]} data
          * @param {PublishOptions} [options]
-         * @return {Promise}
+         * @returns {Promise}
          */
         publishHandler: function (data, options) {
             return passthroughPublishInterceptors(myHandlers, data, options);

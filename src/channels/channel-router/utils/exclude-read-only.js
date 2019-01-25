@@ -4,7 +4,7 @@ import { isFunction } from 'lodash';
  * 
  * @param {Publishable[]} publishable 
  * @param {boolean|string[]|Function} readOnlyOptions 
- * @return {Publishable[]} filtered list
+ * @returns {Publishable[]} filtered list
  */
 export default function excludeReadOnly(publishable, readOnlyOptions) {
     if (isFunction(readOnlyOptions)) {

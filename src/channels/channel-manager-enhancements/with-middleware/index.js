@@ -12,7 +12,7 @@ function getTopicsFromSubsList(subcriptionList) {
 /**
  * Decorates passed channel manager with middleware functionality
  * @param  {ChannelManager} ChannelManager
- * @return {ChannelManager}                wrapped channel manager
+ * @returns {ChannelManager}                wrapped channel manager
  */
 export default function withMiddleware(ChannelManager) {
     /**
@@ -33,7 +33,7 @@ export default function withMiddleware(ChannelManager) {
          * @param {string | Publishable } topic
          * @param {any} [value] item to publish
          * @param {Object} [options]
-         * @return {Promise}
+         * @returns {Promise}
          */
         publish(topic, value, options) {
             var normalized = normalizeParamOptions(topic, value, options);
@@ -58,7 +58,7 @@ export default function withMiddleware(ChannelManager) {
          * @param  {string | string[]}   topics
          * @param  {Function} cb
          * @param  {Object}   options
-         * @return {string}           subscription id
+         * @returns {string}           subscription id
          */
         subscribe(topics, cb, options) {
             const subsid = super.subscribe(topics, cb, options);
@@ -74,7 +74,7 @@ export default function withMiddleware(ChannelManager) {
         /**
          * Calls unsubscribe middleware *after* unsubscription with a list of recently unsubscribed topics
          * @param  {string} token
-         * @return {void}
+         * @returns {void}
          */
         unsubscribe(token) {
             var currentTopics = getTopicsFromSubsList(this.subscriptions);
@@ -90,7 +90,7 @@ export default function withMiddleware(ChannelManager) {
 
         /**
          * Calls unsubscribe middleware after unsubscribeAll on the channel
-         * @return {void}
+         * @returns {void}
          */
         unsubscribeAll() {
             var currentlySubscribed = this.getSubscribedTopics();

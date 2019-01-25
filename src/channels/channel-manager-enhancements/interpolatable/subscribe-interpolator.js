@@ -2,8 +2,8 @@ import { extractDependencies, interpolateWithValues } from './interpolatable-uti
 import { uniq, isEqual } from 'lodash';
 
 /**
- * @param {String[]} topics
- * @return {String[]} interpolated
+ * @param {string[]} topics
+ * @returns {string[]} interpolated
  */
 export function getDependencies(topics) {
     var deps = topics.reduce((accum, topic)=> {
@@ -15,9 +15,9 @@ export function getDependencies(topics) {
 }
 
 /**
- * @param {String[]} topics
+ * @param {string[]} topics
  * @param {Object} data
- * @return {String[]}
+ * @returns {string[]}
  */
 export function interpolateWithDependencies(topics, data) {
     return topics.map((topic)=> {
@@ -26,10 +26,10 @@ export function interpolateWithDependencies(topics, data) {
 }
 
 /**
- * @param  {String[]} originalTopics     
- * @param  {String[]} interpolatedTopics 
+ * @param  {string[]} originalTopics     
+ * @param  {string[]} interpolatedTopics 
  * @param  {Object} data               
- * @return {Object}                    Interpolated
+ * @returns {Object}                    Interpolated
  */
 export function mergeInterpolatedTopicsWithData(originalTopics, interpolatedTopics, data) {
     return interpolatedTopics.reduce((accum, interpolatedTopic, index)=> {
@@ -46,7 +46,7 @@ export function mergeInterpolatedTopicsWithData(originalTopics, interpolatedTopi
  * Takes a subscribe function and resolves any interpolated inputs
  * @param  {Function} subscribeFn        function to wrap
  * @param  {Function} onDependencyChange callback function when any dependencies change
- * @return {Function}                    wrapped function
+ * @returns {Function}                    wrapped function
  */
 export default function subscribeInterpolator(subscribeFn, onDependencyChange) {
     return function interpolatedSubscribe(topics, cb, options) {

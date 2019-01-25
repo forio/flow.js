@@ -29,7 +29,7 @@ export default (function () {
 
     /**
      * @param {JQuery<HTMLElement>} root
-     * @return {JQuery<HTMLElement>}
+     * @returns {JQuery<HTMLElement>}
      */ 
     function getMatchingElements(root) {
         const $root = $(root);
@@ -43,7 +43,7 @@ export default (function () {
     /**
      * @param {JQuery<HTMLElement> | HTMLElement} element
      * @param {*} [context]
-     * @return {HTMLElement}
+     * @returns {HTMLElement}
      */ 
     function getElementOrError(element, context) {
         const el = (element instanceof $) ? element.get(0) : element;

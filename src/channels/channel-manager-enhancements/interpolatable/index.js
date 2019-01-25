@@ -4,7 +4,7 @@ import publishInterpolator from './publish-interpolator';
 /**
  * Decorates passed channel manager with interpolation functionality
  * @param  {ChannelManager} ChannelManager
- * @return {ChannelManager}                wrapped channel manager
+ * @returns {ChannelManager}                wrapped channel manager
  */
 export default function interpolatable(ChannelManager) {
     var subsidMap = {};

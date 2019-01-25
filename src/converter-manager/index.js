@@ -70,8 +70,8 @@ var converterManager = {
      *          The current sales manager is <span data-f-bind="salesMgr | sig"></span>.
      *      </div>
      *
-     * @param  {string|function|RegExp} alias Formatter name.
-     * @param  {function|object} [converter] If a function, `converter` is called with the value. If an object, should include fields for `alias` (name), `parse` (function), and `convert` (function).
+     * @param  {string|Function|RegExp} alias Formatter name.
+     * @param  {Function|Object} [converter] If a function, `converter` is called with the value. If an object, should include fields for `alias` (name), `parse` (function), and `convert` (function).
      * @param {boolean} [acceptList] Determines if the converter is a 'list' converter or not. List converters take in arrays as inputs, others expect single values.
      * @returns {void}
      */
@@ -84,7 +84,7 @@ var converterManager = {
      * Replace an already registered converter with a new one of the same name.
      *
      * @param {string} alias Formatter name.
-     * @param {function|object} converter If a function, `converter` is called with the value. If an object, should include fields for `alias` (name), `parse` (function), and `convert` (function).
+     * @param {Function|Object} converter If a function, `converter` is called with the value. If an object, should include fields for `alias` (name), `parse` (function), and `convert` (function).
      * @returns {void}
      */
     replace: function (alias, converter) {
@@ -117,7 +117,7 @@ var converterManager = {
      * @param  {*} value Input for the converter to tag.
      * @param  {string|string[]} list List of converters (maps to converter alias).
      *
-     * @return {*} Converted value.
+     * @returns {*} Converted value.
      */
     convert: function (value, list) {
         if (!list || !list.length) {
@@ -166,7 +166,7 @@ var converterManager = {
      *
      * @param  {*} value Value to parse.
      * @param  {string|string[]} list  List of parsers to run the value through. Outermost is invoked first.
-     * @return {*} Original value.
+     * @returns {*} Original value.
      */
     parse: function (value, list) {
         if (!list || !list.length) {

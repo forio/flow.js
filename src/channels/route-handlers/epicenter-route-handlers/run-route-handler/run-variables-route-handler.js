@@ -32,7 +32,7 @@ export default function RunVariablesRouteHandler($runServicePromise, notifier) {
     return { 
         /**
          * @param {{exclude:? boolean}} options 
-         * @return {Promise}
+         * @returns {Promise}
          */
         fetch: function (options) {
             const opts = $.extend({ exclude: [] }, options);

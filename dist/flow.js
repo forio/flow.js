@@ -149,7 +149,7 @@ var CHANNEL_DELIMITER = ':';
 /**
  * 
  * @param {string} text
- * @return {string}
+ * @returns {string}
  */
 function stripSuffixDelimiter(text) {
     if (text && text.indexOf(CHANNEL_DELIMITER) === text.length - 1) {
@@ -162,7 +162,7 @@ function stripSuffixDelimiter(text) {
  * 
  * @param {Publishable[]} dataArray 
  * @param {string} prefix 
- * @return {Publishable[]} array with name prefixed
+ * @returns {Publishable[]} array with name prefixed
  */
 function mapWithPrefix(dataArray, prefix) {
     if (!prefix) return dataArray;
@@ -176,7 +176,7 @@ function mapWithPrefix(dataArray, prefix) {
  * 
  * @param {Function} callback 
  * @param {string|string[]} prefixList
- * @return {Function}
+ * @returns {Function}
  */
 function withPrefix(callback, prefixList) {
     var arr = [].concat(prefixList);
@@ -196,7 +196,7 @@ function withPrefix(callback, prefixList) {
  * 
  * @param {string[]} list 
  * @param {string} prefix
- * @return {string[]} Item with prefix removed
+ * @returns {string[]} Item with prefix removed
  */
 function unprefixTopics(list, prefix) {
     if (!prefix) return list;
@@ -210,7 +210,7 @@ function unprefixTopics(list, prefix) {
  * 
  * @param {Publishable[]} list 
  * @param {string} prefix
- * @return {Publishable[]} Item with prefix removed
+ * @returns {Publishable[]} Item with prefix removed
  */
 function unprefix(list, prefix) {
     if (!prefix) return list;
@@ -245,9 +245,9 @@ function unprefix(list, prefix) {
 /**
  * Handle subscriptions
  * @param  {Handler[]} handlers Array of the form [{ match: function (){}, }]
- * @param  {String[]} topics   Array of strings
+ * @param  {Array<string>} topics   Array of strings
  * @param  {SubscribeOptions} [options]
- * @return {Promise<Publishable[]>} Returns populated topics if available
+ * @returns {Promise<Publishable[]>} Returns populated topics if available
  */
 function notifySubscribeHandlers(handlers, topics, options) {
     var grouped = Object(__WEBPACK_IMPORTED_MODULE_0__utils_handler_utils__["a" /* groupByHandlers */])(topics, handlers);
@@ -276,8 +276,8 @@ function notifySubscribeHandlers(handlers, topics, options) {
 /**
  * 
  * @param {Handler[]} handlers 
- * @param {String[]} recentlyUnsubscribedTopics
- * @param {String[]} remainingTopics 
+ * @param {Array<string>} recentlyUnsubscribedTopics
+ * @param {Array<string>} remainingTopics 
  */
 function notifyUnsubscribeHandlers(handlers, recentlyUnsubscribedTopics, remainingTopics) {
     handlers = handlers.map(function (h, index) {
@@ -305,7 +305,7 @@ function notifyUnsubscribeHandlers(handlers, recentlyUnsubscribedTopics, remaini
  * @param {Handler[]} handlers 
  * @param {Publishable[]} publishData 
  * @param {PublishOptions} [options]
- * @return {Promise}
+ * @returns {Promise}
  */
 function passthroughPublishInterceptors(handlers, publishData, options) {
     var grouped = Object(__WEBPACK_IMPORTED_MODULE_0__utils_handler_utils__["b" /* groupSequentiallyByHandlers */])(publishData, handlers);
@@ -341,9 +341,9 @@ function passthroughPublishInterceptors(handlers, publishData, options) {
 /**
  * Router
  * @param  {Handler[]} handlers
- * @param {object} [options]
- * @param {function} [notifier]
- * @return {Router}
+ * @param {Object} [options]
+ * @param {Function} [notifier]
+ * @returns {Router}
  */
 function router(handlers, options, notifier) {
     var _this = this;
@@ -382,17 +382,17 @@ function router(handlers, options, notifier) {
         },
 
         /**
-         * @param {String[]} topics
+         * @param {Array<string>} topics
          * @param {SubscribeOptions} [options]
-         * @return {Promise<Publishable[]>} Returns populated topics if available
+         * @returns {Promise<Publishable[]>} Returns populated topics if available
          */
         subscribeHandler: function (topics, options) {
             return notifySubscribeHandlers(myHandlers, topics, options);
         },
         /**
-         * @param {String[]} recentlyUnsubscribedTopics
-         * @param {String[]} remainingTopics
-         * @return {void}
+         * @param {Array<string>} recentlyUnsubscribedTopics
+         * @param {Array<string>} remainingTopics
+         * @returns {void}
          */
         unsubscribeHandler: function (recentlyUnsubscribedTopics, remainingTopics) {
             return notifyUnsubscribeHandlers(myHandlers, recentlyUnsubscribedTopics, remainingTopics);
@@ -401,7 +401,7 @@ function router(handlers, options, notifier) {
         /**
          * @param {Publishable[]} data
          * @param {PublishOptions} [options]
-         * @return {Promise}
+         * @returns {Promise}
          */
         publishHandler: function (data, options) {
             return passthroughPublishInterceptors(myHandlers, data, options);
@@ -502,7 +502,7 @@ function splitNameArgs(value) {
 
 /**
  * @param  {string} value
- * @return {{ name: string, value: any}[]}       [description]
+ * @returns {{ name: string, value: any}[]}       [description]
  */
 function toPublishableFormat(value) {
     var OPERATIONS_SEPERATOR = '&&';
@@ -530,8 +530,8 @@ function toPublishableFormat(value) {
 /* harmony export (immutable) */ __webpack_exports__["a"] = normalizeParamOptions;
 /**
  * 
- * @param {object} obj
- * @return {Publishable[]}
+ * @param {Object} obj
+ * @returns {Publishable[]}
  */
 function objectToPublishable(obj) {
     var mapped = Object.keys(obj || {}).map(function (t) {
@@ -543,8 +543,8 @@ function objectToPublishable(obj) {
 /**
  * Converts arrays of the form [{ name: '', value: ''}] to {[name]: value}
  * @param {Publishable[]} arr
- * @param {object} [mergeWith]
- * @returns {object}
+ * @param {Object} [mergeWith]
+ * @returns {Object}
  */
 function publishableToObject(arr, mergeWith) {
     var result = (arr || []).reduce(function (accum, topic) {
@@ -562,10 +562,10 @@ function publishableToObject(arr, mergeWith) {
 
 /**
  *
- * @param {String|Object|array} topic 
+ * @param {string|Object|Array} topic 
  * @param {*} publishValue 
  * @param {Object} [options]
- * @return {NormalizedParam}
+ * @returns {NormalizedParam}
  */
 function normalizeParamOptions(topic, publishValue, options) {
     if (!topic) {
@@ -895,7 +895,7 @@ var defaults = {
  * Compares 2 lists and Adds add or update classes
  * @param {JQuery<HTMLElement>} $currentEls existing elements
  * @param {JQuery<HTMLElement>} $newEls   new elements
- * @param {Boolean} isInitial check if this is initial data or it's updating
+ * @param {boolean} isInitial check if this is initial data or it's updating
  * @param {{ addAttr: string, changeAttr: string}} [options]
  * @returns {JQuery<HTMLElement>} elements with updated attributes
  */
@@ -1145,7 +1145,7 @@ var KEY_VALUE_REGEX = /(.*),(.*)/;
 
 /**
  * @param {string} attrVal 
- * @return {string}
+ * @returns {string}
  */
 function extractVariableName(attrVal) {
     var inMatch = attrVal.trim().match(IN_OF_REGEX);
@@ -1155,7 +1155,7 @@ function extractVariableName(attrVal) {
 
 /**
  * @param {string} attrVal 
- * @return {string}
+ * @returns {string}
  */
 function parseKeyAlias(attrVal) {
     var inMatch = attrVal.match(IN_OF_REGEX);
@@ -1169,7 +1169,7 @@ function parseKeyAlias(attrVal) {
 
 /**
  * @param {string} attrVal 
- * @return {string}
+ * @returns {string}
  */
 function parseValueAlias(attrVal) {
     var inMatch = attrVal.match(IN_OF_REGEX);
@@ -1303,8 +1303,8 @@ function makeConsensusService(consensisAPIResponse) {
 var interpolationRegex = /<(.*?)>/g;
 /**
  *  
- * @param {String} topic topic to extract dependencies from
- * @return {String[]} dependencies
+ * @param {string} topic topic to extract dependencies from
+ * @returns {string[]} dependencies
  */
 function extractDependencies(topic) {
     var deps = (topic.match(interpolationRegex) || []).map(function (val) {
@@ -1314,9 +1314,9 @@ function extractDependencies(topic) {
 }
 
 /**
- * @param {String} topic topic with dependencies
- * @param {Object} data object with values of dependencies
- * @return {String} interpolated string
+ * @param {string} topic topic with dependencies
+ * @param {{string: any}} data object with values of dependencies
+ * @returns {string} interpolated string
  */
 function interpolateWithValues(topic, data) {
     var interpolatedTopic = topic.replace(interpolationRegex, function (match, dependency) {
@@ -1440,7 +1440,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 
     /**
      * @param {JQuery<HTMLElement>} root
-     * @return {JQuery<HTMLElement>}
+     * @returns {JQuery<HTMLElement>}
      */
     function getMatchingElements(root) {
         var $root = $(root);
@@ -1454,7 +1454,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
     /**
      * @param {JQuery<HTMLElement> | HTMLElement} element
      * @param {*} [context]
-     * @return {HTMLElement}
+     * @returns {HTMLElement}
      */
     function getElementOrError(element, context) {
         var el = element instanceof $ ? element.get(0) : element;
@@ -1466,10 +1466,12 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
     }
 
     //Unbind utils
-    function removeAllSubscriptions(subscriptions, channel) {
-        [].concat(subscriptions).forEach(function (subs) {
-            channel.unsubscribe(subs);
-        });
+    function triggerError($el, e) {
+        var msg = e.message || e;
+        if ($.isPlainObject(msg)) {
+            msg = JSON.stringify(msg);
+        }
+        $el.attr(__WEBPACK_IMPORTED_MODULE_4__config__["errorAttr"], msg).trigger(__WEBPACK_IMPORTED_MODULE_4__config__["events"].error, e);
     }
     function unbindAllAttributes(domEl) {
         var $el = $(domEl);
@@ -1496,14 +1498,16 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
             h.removeEvents();
         }
     }
-
-    function triggerError($el, e) {
-        var msg = e.message || e;
-        if ($.isPlainObject(msg)) {
-            msg = JSON.stringify(msg);
-        }
-        $el.attr(__WEBPACK_IMPORTED_MODULE_4__config__["errorAttr"], msg).trigger(__WEBPACK_IMPORTED_MODULE_4__config__["events"].error, e);
+    function removeAllSubscriptions(subscriptions, channel, el) {
+        [].concat(subscriptions).forEach(function (subs) {
+            try {
+                channel.unsubscribe(subs);
+            } catch (e) {
+                triggerError(el.e);
+            }
+        });
     }
+
     var publicAPI = {
 
         nodes: __WEBPACK_IMPORTED_MODULE_6__nodes_node_manager__["a" /* default */],
@@ -1538,7 +1542,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 
             unbindAllNodeHandlers(domEl);
             unbindAllAttributes(domEl);
-            removeAllSubscriptions(subscriptions, channel);
+            removeAllSubscriptions(subscriptions, channel, $el);
 
             var animAttrs = Object.keys(__WEBPACK_IMPORTED_MODULE_4__config__["animation"]).join(' ');
             $el.removeAttr(animAttrs);
@@ -1947,7 +1951,7 @@ function getChannelForAttribute($el, attr) {
 
 /**
  * @param {HTMLElement} el
- * @return {object}
+ * @returns {Object}
  */
 function getChannelConfigForElement(el) {
     //TODO: Should this look at parents too?
@@ -2116,8 +2120,8 @@ var converterManager = {
      *          The current sales manager is <span data-f-bind="salesMgr | sig"></span>.
      *      </div>
      *
-     * @param  {string|function|RegExp} alias Formatter name.
-     * @param  {function|object} [converter] If a function, `converter` is called with the value. If an object, should include fields for `alias` (name), `parse` (function), and `convert` (function).
+     * @param  {string|Function|RegExp} alias Formatter name.
+     * @param  {Function|Object} [converter] If a function, `converter` is called with the value. If an object, should include fields for `alias` (name), `parse` (function), and `convert` (function).
      * @param {boolean} [acceptList] Determines if the converter is a 'list' converter or not. List converters take in arrays as inputs, others expect single values.
      * @returns {void}
      */
@@ -2130,7 +2134,7 @@ var converterManager = {
      * Replace an already registered converter with a new one of the same name.
      *
      * @param {string} alias Formatter name.
-     * @param {function|object} converter If a function, `converter` is called with the value. If an object, should include fields for `alias` (name), `parse` (function), and `convert` (function).
+     * @param {Function|Object} converter If a function, `converter` is called with the value. If an object, should include fields for `alias` (name), `parse` (function), and `convert` (function).
      * @returns {void}
      */
     replace: function (alias, converter) {
@@ -2163,7 +2167,7 @@ var converterManager = {
      * @param  {*} value Input for the converter to tag.
      * @param  {string|string[]} list List of converters (maps to converter alias).
      *
-     * @return {*} Converted value.
+     * @returns {*} Converted value.
      */
     convert: function (value, list) {
         if (!list || !list.length) {
@@ -2214,7 +2218,7 @@ var converterManager = {
      *
      * @param  {*} value Value to parse.
      * @param  {string|string[]} list  List of parsers to run the value through. Outermost is invoked first.
-     * @return {*} Original value.
+     * @returns {*} Original value.
      */
     parse: function (value, list) {
         if (!list || !list.length) {
@@ -2271,7 +2275,7 @@ module.exports = {
      *      </div>
      *
      * @param {string} value The model variable.
-     * @return {number}
+     * @returns {number}
      */
     convert: function (value) {
         return parseFloat(value);
@@ -2479,7 +2483,7 @@ var list = {
      * Total Items: <h6 data-f-bind="items | size"></h6>
      * 
      * @param  {any[]} src array
-     * @return {number}     length of array
+     * @returns {number}     length of array
      */
     size: function (src) {
         return [].concat(src).length;
@@ -2497,7 +2501,7 @@ var list = {
      * @param  {number} n          nth item to select
      * @param  {number} [startIndex] index to start from
      * @param  {any[]} [val]        source array
-     * @return {any[]}            shortened array
+     * @returns {any[]}            shortened array
      */
     pickEvery: function (n, startIndex, val) {
         if (arguments.length === 3) {
@@ -2930,10 +2934,10 @@ module.exports = {
      *          <span data-f-bind="widgets | greaterThan(50, 'Congratulations!', 'Better luck next year')"></span>
      *      </div>
      *
-     * @param {Number} limit The reference value to compare the model variable against.
-     * @param {String} trueVal (Optional) The format (value) to display if the model variable is greater than `limit`. If not included, the display is `true`. If there are commas in this argument, they must be escaped with `\`.
-     * @param {String} falseVal (Optional) The format (value) to display if the model variable is less than or equal to `limit`. If not included, the display is the value of the model variable. If there are commas in this argument, they must be escaped with `\`.
-     * @return {*} If the model variable is greater than `limit`, returns trueVal or `true`. Otherwise returns falseVal if provided, or echoes the input.
+     * @param {number} limit The reference value to compare the model variable against.
+     * @param {string} trueVal (Optional) The format (value) to display if the model variable is greater than `limit`. If not included, the display is `true`. If there are commas in this argument, they must be escaped with `\`.
+     * @param {string} falseVal (Optional) The format (value) to display if the model variable is less than or equal to `limit`. If not included, the display is the value of the model variable. If there are commas in this argument, they must be escaped with `\`.
+     * @returns {*} If the model variable is greater than `limit`, returns trueVal or `true`. Otherwise returns falseVal if provided, or echoes the input.
      */
     greaterThan: function (limit) {
         var args = parseArgs.apply(null, arguments);
@@ -2953,10 +2957,10 @@ module.exports = {
      *          <span data-f-bind="widgets | greaterThan(50, 'Congratulations!', 'Better luck next year')"></span>
      *      </div>
      *
-     * @param {Number} limit The reference value to compare the model variable against.
-     * @param {String} trueVal (Optional) The format (value) to display if the model variable is greater than or equal to `limit`. If not included, the display is `true`. If there are commas in this argument, they must be escaped with `\`.
-     * @param {String} falseVal (Optional) The format (value) to display if the model variable is less than `limit`. If not included, the display is the value of the model variable. If there are commas in this argument, they must be escaped with `\`.
-     * @return {*} If the model variable is greater than or equal to `limit`, returns trueVal or `true`. Otherwise returns falseVal if provided, or echoes the input.
+     * @param {number} limit The reference value to compare the model variable against.
+     * @param {string} trueVal (Optional) The format (value) to display if the model variable is greater than or equal to `limit`. If not included, the display is `true`. If there are commas in this argument, they must be escaped with `\`.
+     * @param {string} falseVal (Optional) The format (value) to display if the model variable is less than `limit`. If not included, the display is the value of the model variable. If there are commas in this argument, they must be escaped with `\`.
+     * @returns {*} If the model variable is greater than or equal to `limit`, returns trueVal or `true`. Otherwise returns falseVal if provided, or echoes the input.
      */
     greaterThanEqual: function (limit) {
         var args = parseArgs.apply(null, arguments);
@@ -2977,10 +2981,10 @@ module.exports = {
      *          <span data-f-bind="widgets | equalsNumber(50, 'Met the goal exactly!', 'Not an exact match')"></span>
      *      </div>
      *
-     * @param {Number} limit The reference value to compare the model variable against.
-     * @param {String} trueVal (Optional) The format (value) to display if the model variable is equal to `limit`. If not included, the display is `true`. If there are commas in this argument, they must be escaped with `\`.
-     * @param {String} falseVal (Optional) The format (value) to display if the model variable is not equal to `limit`. If not included, the display is the value of the model variable. If there are commas in this argument, they must be escaped with `\`.
-     * @return {*} If the model variable equals `limit`, returns trueVal or `true`. Otherwise returns falseVal if provided, or echoes the input.
+     * @param {number} limit The reference value to compare the model variable against.
+     * @param {string} trueVal (Optional) The format (value) to display if the model variable is equal to `limit`. If not included, the display is `true`. If there are commas in this argument, they must be escaped with `\`.
+     * @param {string} falseVal (Optional) The format (value) to display if the model variable is not equal to `limit`. If not included, the display is the value of the model variable. If there are commas in this argument, they must be escaped with `\`.
+     * @returns {*} If the model variable equals `limit`, returns trueVal or `true`. Otherwise returns falseVal if provided, or echoes the input.
      */
     equalsNumber: function (limit) {
         var args = parseArgs.apply(null, arguments);
@@ -3000,10 +3004,10 @@ module.exports = {
      *          <span data-f-bind="widgets | lessThan(50, 'Oops didn't make quite enough!', 'Built a lot of widgets this year!')"></span>
      *      </div>
      *
-     * @param {Number} limit The reference value to compare the model variable against.
-     * @param {String} trueVal (Optional) The format (value) to display if the model variable is less than `limit`. If not included, the display is `true`. If there are commas in this argument, they must be escaped with `\`.
-     * @param {String} falseVal (Optional) The format (value) to display if the model variable is less than `limit`. If not included, the display is the value of the model variable. If there are commas in this argument, they must be escaped with `\`.
-     * @return {*} If the model variable is less than `limit`, returns trueVal or `true`. Otherwise returns falseVal if provided, or echoes the input.
+     * @param {number} limit The reference value to compare the model variable against.
+     * @param {string} trueVal (Optional) The format (value) to display if the model variable is less than `limit`. If not included, the display is `true`. If there are commas in this argument, they must be escaped with `\`.
+     * @param {string} falseVal (Optional) The format (value) to display if the model variable is less than `limit`. If not included, the display is the value of the model variable. If there are commas in this argument, they must be escaped with `\`.
+     * @returns {*} If the model variable is less than `limit`, returns trueVal or `true`. Otherwise returns falseVal if provided, or echoes the input.
      */
     lessThan: function (limit) {
         var args = parseArgs.apply(null, arguments);
@@ -3023,10 +3027,10 @@ module.exports = {
      *          <span data-f-bind="widgets | lessThanEqual(50, 'Oops didn't make quite enough!', 'Built a lot of widgets this year!')"></span>
      *      </div>
      *
-     * @param {Number} limit The reference value to compare the model variable against.
-     * @param {String} trueVal (Optional) The format (value) to display if the model variable is less than or equal to `limit`. If not included, the display is `true`. If there are commas in this argument, they must be escaped with `\`.
-     * @param {String} falseVal (Optional) The format (value) to display if the model variable is less than or equal to `limit`. If not included, the display is the value of the model variable. If there are commas in this argument, they must be escaped with `\`.
-     * @return {*} If the model variable is less than or equal to `limit`, returns trueVal or `true`. Otherwise returns falseVal if provided, or echoes the input.
+     * @param {number} limit The reference value to compare the model variable against.
+     * @param {string} trueVal (Optional) The format (value) to display if the model variable is less than or equal to `limit`. If not included, the display is `true`. If there are commas in this argument, they must be escaped with `\`.
+     * @param {string} falseVal (Optional) The format (value) to display if the model variable is less than or equal to `limit`. If not included, the display is the value of the model variable. If there are commas in this argument, they must be escaped with `\`.
+     * @returns {*} If the model variable is less than or equal to `limit`, returns trueVal or `true`. Otherwise returns falseVal if provided, or echoes the input.
      */
     lessThanEqual: function (limit) {
         var args = parseArgs.apply(null, arguments);
@@ -3064,7 +3068,7 @@ module.exports = {
      *      <span data-f-bind="sampleVar | toBool"></span>
      * 
      * @param {Any} value
-     * @return {Boolean}
+     * @returns {boolean}
      */
     toBool: function (value) {
         return !!value;
@@ -3079,7 +3083,7 @@ module.exports = {
      *      <input type="text" data-f-disabled="isGameInProgress | not" />
      * 
      * @param {Any} value
-     * @return {Boolean}
+     * @returns {boolean}
      */
     not: function (value) {
         return !value;
@@ -3095,10 +3099,10 @@ module.exports = {
      *          <span data-f-bind="sampleVar | ifTrue('yes! please move forward')"></span>
      *      </div>
      *
-     * @param {String} trueVal The value to display if the input is true. If there are commas in this argument, they must be escaped with `\`.
-     * @param {String} falseVal (Optional) The value to display if the input is false. If not included, returns the input. If there are commas in this argument, they must be escaped with `\`.
+     * @param {string} trueVal The value to display if the input is true. If there are commas in this argument, they must be escaped with `\`.
+     * @param {string} falseVal (Optional) The value to display if the input is false. If not included, returns the input. If there are commas in this argument, they must be escaped with `\`.
      * @param {Any} input (Optional) The input to test. If not included, the output of the previous argument is used.
-     * @return {Any} If input is true, returns trueVal. If input is false, returns falseVal if provided, or echoes the input.
+     * @returns {Any} If input is true, returns trueVal. If input is false, returns falseVal if provided, or echoes the input.
      */
     ifTrue: function () {
         var args = parseArgs.apply(null, arguments);
@@ -3114,10 +3118,10 @@ module.exports = {
      *          <span data-f-bind="sampleVar | ifFalse('not ready to proceed')"></span>
      *      </div>
      *
-     * @param {String} trueVal The value to display if the input is false. If there are commas in this argument, they must be escaped with `\`.
-     * @param {String} falseVal (Optional) The value to display if the input is true. If not included, returns the input. If there are commas in this argument, they must be escaped with `\`.
+     * @param {string} trueVal The value to display if the input is false. If there are commas in this argument, they must be escaped with `\`.
+     * @param {string} falseVal (Optional) The value to display if the input is true. If not included, returns the input. If there are commas in this argument, they must be escaped with `\`.
      * @param {Any} input (Optional) The input to test. If not included, the output of the previous argument is used.
-     * @return {Any} If input is false, returns trueVal. If input is true, returns falseVal if provided, or echoes the input.
+     * @returns {Any} If input is false, returns trueVal. If input is true, returns falseVal if provided, or echoes the input.
      */
     ifFalse: function () {
         var args = parseArgs.apply(null, arguments);
@@ -3141,7 +3145,7 @@ var list = {
      * 
      * @param  {string|number|boolean} valueToFilterBy value to reject
      * @param  {any[]} source The arrayed model variable
-     * @return {any[]}     filtered lsit
+     * @returns {any[]}     filtered lsit
      */
     filter: function (valueToFilterBy, source) {
         source = [].concat(source);
@@ -3162,7 +3166,7 @@ var list = {
      * 
      * @param  {string|number|boolean} valueToReject value to reject
      * @param  {any[]} source The arrayed model variable
-     * @return {any[]}     filtered lsit
+     * @returns {any[]}     filtered lsit
      */
     except: function (valueToReject, source) {
         source = [].concat(source);
@@ -3182,9 +3186,9 @@ var list = {
      * <button data-f-hideif="users | any(isOnline) | not">Get Started</button>
      * <button data-f-hideif="users | any({ isOnline: false })">Get Started</button>
      * 
-     * @param  {string|object} value value to check for
+     * @param  {string|Object} value value to check for
      * @param  {any[]} source The arrayed model variable
-     * @return {boolean}     True if match found in array
+     * @returns {boolean}     True if match found in array
      */
     any: function (value, source) {
         source = [].concat(source);
@@ -3201,9 +3205,9 @@ var list = {
      * <!-- shows button if any of the users are not online -->
      * <button data-f-showif="users | every(isOnline)">Get Started</button>
      * 
-     * @param  {string|object} value value to check for
+     * @param  {string|Object} value value to check for
      * @param  {any[]} source The arrayed model variable
-     * @return {boolean}     True if match found in array
+     * @returns {boolean}     True if match found in array
      */
     every: function (value, source) {
         source = [].concat(source);
@@ -3242,7 +3246,7 @@ module.exports = converters;
 /**
  * @param {string | undefined} selector
  * @param {Function | NodeHandler } handler
- * @return {NodeHandler}
+ * @returns {NodeHandler}
  */
 var normalize = function (selector, handler) {
     if (!selector) {
@@ -3262,7 +3266,7 @@ var normalize = function (selector, handler) {
 /**
  * @param {string|HTMLElement|JQuery<HTMLElement>} toMatch
  * @param { {selector:string} } node
- * @return {boolean}
+ * @returns {boolean}
  */
 var match = function (toMatch, node) {
     if (Object(__WEBPACK_IMPORTED_MODULE_0_lodash__["isString"])(toMatch)) {
@@ -3277,7 +3281,7 @@ var nodeManager = {
     /**
      * Add a new node handler
      * @param  {string} selector jQuery-compatible selector to use to match nodes
-     * @param  {function} handler  Handlers are new-able functions. They will be called with $el as context.? TODO: Think this through
+     * @param  {Function} handler  Handlers are new-able functions. They will be called with $el as context.? TODO: Think this through
      * @returns {void}
      */
     register: function (selector, handler) {
@@ -3286,7 +3290,7 @@ var nodeManager = {
 
     /**
      * @param {string|HTMLElement|JQuery<HTMLElement>} selector
-     * @return NodeHandler
+     * @returns NodeHandler
      */
     getHandler: function (selector) {
         return this.list.find(function (node) {
@@ -3462,7 +3466,7 @@ var attributeManager = {
      *
      * @param  {string|Function|RegExp} attributeMatcher Description of which attributes to match.
      * @param  {string|JQuery<HTMLElement>} nodeMatcher Which nodes to add attributes to. Use [jquery Selector syntax](https://api.jquery.com/category/selectors/).
-     * @param  {Function|object} handler If `handler` is a function, the function is called with `$element` as context, and attribute value + name. If `handler` is an object, it should include two functions, and have the form: `{ init: fn,  handle: fn }`. The `init` function is called when the page loads; use this to define event handlers. The `handle` function is called with `$element` as context, and attribute value + name.
+     * @param  {Function|Object} handler If `handler` is a function, the function is called with `$element` as context, and attribute value + name. If `handler` is an object, it should include two functions, and have the form: `{ init: fn,  handle: fn }`. The `init` function is called when the page loads; use this to define event handlers. The `handle` function is called with `$element` as context, and attribute value + name.
      * @returns {void}
      */
     register: function (attributeMatcher, nodeMatcher, handler) {
@@ -3475,7 +3479,7 @@ var attributeManager = {
      * @param  {string} attrFilter Attribute to match.
      * @param  {string|JQuery<HTMLElement>} nodeFilter Node to match.
      *
-     * @return {AttributeHandler[]} An array of matching attribute handlers, or null if no matches found.
+     * @returns {AttributeHandler[]} An array of matching attribute handlers, or null if no matches found.
      */
     filter: function (attrFilter, nodeFilter) {
         var filtered = handlersList.filter(function (handler) {
@@ -3494,7 +3498,7 @@ var attributeManager = {
      *
      * @param  {string} attrFilter Attribute to match.
      * @param  {string|JQuery<HTMLElement>} nodeFilter Node to match.
-     * @param  {Function|object} handler The updated attribute handler. If `handler` is a function, the function is called with `$element` as context, and attribute value + name. If `handler` is an object, it should include two functions, and have the form: `{ init: fn,  handle: fn }`. The `init` function is called when the page loads; use this to define event handlers. The `handle` function is called with `$element` as context, and attribute value + name.
+     * @param  {Function|Object} handler The updated attribute handler. If `handler` is a function, the function is called with `$element` as context, and attribute value + name. If `handler` is an object, it should include two functions, and have the form: `{ init: fn,  handle: fn }`. The `init` function is called when the page loads; use this to define event handlers. The `handle` function is called with `$element` as context, and attribute value + name.
      * @returns {void}
      */
     replace: function (attrFilter, nodeFilter, handler) {
@@ -3514,7 +3518,7 @@ var attributeManager = {
      * @param {string} attr The attribute.
      * @param {string|JQuery<HTMLElement>} $el The DOM element.
      *
-     * @return {AttributeHandler|undefined} The attribute handler, if a matching one is found
+     * @returns {AttributeHandler|undefined} The attribute handler, if a matching one is found
      */
     getHandler: function (attr, $el) {
         var filtered = this.filter(attr, $el);
@@ -3881,7 +3885,7 @@ var loopAttrHandler = {
  * @param {function(*):Promise} fn function to debounce
  * @param {number} debounceInterval 
  * @param {Function[]} [argumentsReducers] pass in 1 reducer for each option your function takes
- * @return {Function} debounced function
+ * @returns {Function} debounced function
  */
 function debounceAndMerge(fn, debounceInterval, argumentsReducers) {
     var argsToPass = [];
@@ -4266,7 +4270,7 @@ function translateDataToInsertable(value) {
 
 /**
  * @param {any} value
- * @param {object} aliasMap
+ * @param {Object} aliasMap
  * @returns {{value: any}}
  */
 function translateDataToTemplatable(value, aliasMap) {
@@ -4341,9 +4345,9 @@ var defaultAttr = {
 /**
  * Hooks up dom elements to mutation observer
  * @param  {HTMLElement} target     root to start observing from
- * @param  {object} domManager 
+ * @param  {Object} domManager 
  * @param  {boolean} isEnabled Determines if it's enabled by default
- * @return {object}
+ * @returns {Object}
  */
 /* harmony default export */ __webpack_exports__["a"] = (function (target, domManager, isEnabled) {
     if (typeof MutationObserver === 'undefined') {
@@ -4437,10 +4441,10 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 
 /**
  * 
- * @param {String[]|String} topics 
+ * @param {Array<string>|string} topics 
  * @param {Function} callback 
  * @param {Object} options
- * @return {Subscription}
+ * @returns {Subscription}
  */
 function makeSubs(topics, callback, options) {
     var id = Object(__WEBPACK_IMPORTED_MODULE_2_lodash__["uniqueId"])('subs-');
@@ -4463,7 +4467,7 @@ function makeSubs(topics, callback, options) {
          * `cache: false` is useful if you know if your topics will *always* be published together and they'll be called at the same time.
          *
          * Note this has no discernible effect if batch is false
-         * @type {Boolean}
+         * @type {boolean}
          */
         cache: true
     };
@@ -4547,7 +4551,7 @@ function checkAndNotify(topics, subscription) {
 
 /**
 * @param {Subscription[]} subcriptionList
-* @return {String[]}
+* @returns {Array<string>}
 */
 function getTopicsFromSubsList(subcriptionList) {
     return subcriptionList.reduce(function (accum, subs) {
@@ -4568,10 +4572,10 @@ var ChannelManager = function () {
     }
 
     /**
-     * @param {String | Publishable } topic
+     * @param {string|Publishable} topic
      * @param {any} [value] item to publish
      * @param {PublishOptions} [options]
-     * @return {Promise}
+     * @returns {Promise}
      */
 
 
@@ -4600,10 +4604,10 @@ var ChannelManager = function () {
         }
 
         /**
-         * @param {String[] | String} topics
+         * @param {Array<string>|string} topics
          * @param {Function} cb
          * @param {Object} [options]
-         * @return {String}
+         * @returns {string}
          */
 
     }, {
@@ -4617,7 +4621,7 @@ var ChannelManager = function () {
         }
 
         /**
-         * @param {String} token
+         * @param {string} token
          */
 
     }, {
@@ -4643,7 +4647,7 @@ var ChannelManager = function () {
         }
 
         /**
-         * @return {String[]}
+         * @returns {Array<string>}
          */
 
     }, {
@@ -4654,8 +4658,8 @@ var ChannelManager = function () {
         }
 
         /**
-         * @param {String} [topic] optional topic to filter by
-         * @return {Subscription[]}
+         * @param {string} [topic] optional topic to filter by
+         * @returns {Subscription[]}
          */
 
     }, {
@@ -4695,10 +4699,10 @@ module.exports = jQuery;
 
 
 /**
- * @param {String} topic
+ * @param {string} topic
  * @param {Handler[]} handlers
  * @param {any} [matchOptions] options to pass on to matcher
- * @return {Handler | undefined}
+ * @returns {Handler | undefined}
  */
 function findBestHandler(topic, handlers, matchOptions) {
     for (var i = 0; i < handlers.length; i++) {
@@ -4713,9 +4717,9 @@ function findBestHandler(topic, handlers, matchOptions) {
 
 /**
  * [groupByHandlers description]
- * @param  {String[]} topics   List of topics to match. Format can be anything your handler.match function handles
+ * @param  {Array<string>} topics   List of topics to match. Format can be anything your handler.match function handles
  * @param  {Handler[]} handlers Handlers of type [{ match: func }]
- * @return {HandlerWithTopics[]} The handler array with each item now having an additional 'data' attr added to it with the matching topics
+ * @returns {HandlerWithTopics[]} The handler array with each item now having an additional 'data' attr added to it with the matching topics
  */
 function groupByHandlers(topics, handlers) {
     handlers = handlers.map(function (h, index) {
@@ -4742,7 +4746,7 @@ function groupByHandlers(topics, handlers) {
  * Takes a `publish` dataset and groups it by handler maintaining the data sequence
  * @param  {Publishable[]} data     Of the form [{ name: 'X', }]
  * @param  {Handler[]} handlers Handlers of type [{ match: func }]
- * @return {HandlerWithData[]} The handler array with each item now having an additional 'data' attr added to it with the publishable data
+ * @returns {HandlerWithData[]} The handler array with each item now having an additional 'data' attr added to it with the publishable data
  */
 function groupSequentiallyByHandlers(data, handlers) {
     handlers = handlers.map(function (h, index) {
@@ -4802,8 +4806,8 @@ function normalizeSubscribeResponse(response, topics) {
 /* harmony export (immutable) */ __webpack_exports__["a"] = silencable;
 /**
  * @param {Publishable[]} published 
- * @param {boolean|String[]|{except: String[]}} [silentOptions]
- * @return {Publishable[]} filtered list
+ * @param {boolean|Array<string>|{except: Array<string>}} [silentOptions]
+ * @returns {Publishable[]} filtered list
  */
 function silencable(published, silentOptions) {
     if (silentOptions === true || !published) {
@@ -4836,7 +4840,7 @@ function silencable(published, silentOptions) {
  * 
  * @param {Publishable[]} publishable 
  * @param {boolean|string[]|Function} readOnlyOptions 
- * @return {Publishable[]} filtered list
+ * @returns {Publishable[]} filtered list
  */
 function excludeReadOnly(publishable, readOnlyOptions) {
     if (Object(__WEBPACK_IMPORTED_MODULE_0_lodash__["isFunction"])(readOnlyOptions)) {
@@ -5174,7 +5178,7 @@ function RunVariablesRouteHandler($runServicePromise, notifier) {
     return {
         /**
          * @param {{exclude:? boolean}} options 
-         * @return {Promise}
+         * @returns {Promise}
          */
         fetch: function (options) {
             var opts = $.extend({ exclude: [] }, options);
@@ -6002,9 +6006,9 @@ function MultiRunRouteHandler(options, notifier, channelManagerContext) {
             var variables = options && options.include;
 
             var debounceInterval = 300;
-            var debouncedFetch = Object(__WEBPACK_IMPORTED_MODULE_0_utils_general__["a" /* debounceAndMerge */])(fetch, debounceInterval, function (accum, newval) {
+            var debouncedFetch = Object(__WEBPACK_IMPORTED_MODULE_0_utils_general__["a" /* debounceAndMerge */])(fetch, debounceInterval, [function (accum, newval) {
                 return newval;
-            });
+            }]);
             return fetch(topic, variables).then(function (runs) {
                 var subsMap = {};
                 //TODO: Provide this meta information to runs-factory so it doesn't trigger a fetch to get meta for each run
@@ -6062,7 +6066,7 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 /**
  * Decorates passed channel manager with interpolation functionality
  * @param  {ChannelManager} ChannelManager
- * @return {ChannelManager}                wrapped channel manager
+ * @returns {ChannelManager}                wrapped channel manager
  */
 function interpolatable(ChannelManager) {
     var subsidMap = {};
@@ -6136,8 +6140,8 @@ function interpolatable(ChannelManager) {
 
 
 /**
- * @param {String[]} topics
- * @return {String[]} interpolated
+ * @param {string[]} topics
+ * @returns {string[]} interpolated
  */
 function getDependencies(topics) {
     var deps = topics.reduce(function (accum, topic) {
@@ -6149,9 +6153,9 @@ function getDependencies(topics) {
 }
 
 /**
- * @param {String[]} topics
+ * @param {string[]} topics
  * @param {Object} data
- * @return {String[]}
+ * @returns {string[]}
  */
 function interpolateWithDependencies(topics, data) {
     return topics.map(function (topic) {
@@ -6160,10 +6164,10 @@ function interpolateWithDependencies(topics, data) {
 }
 
 /**
- * @param  {String[]} originalTopics     
- * @param  {String[]} interpolatedTopics 
+ * @param  {string[]} originalTopics     
+ * @param  {string[]} interpolatedTopics 
  * @param  {Object} data               
- * @return {Object}                    Interpolated
+ * @returns {Object}                    Interpolated
  */
 function mergeInterpolatedTopicsWithData(originalTopics, interpolatedTopics, data) {
     return interpolatedTopics.reduce(function (accum, interpolatedTopic, index) {
@@ -6180,7 +6184,7 @@ function mergeInterpolatedTopicsWithData(originalTopics, interpolatedTopics, dat
  * Takes a subscribe function and resolves any interpolated inputs
  * @param  {Function} subscribeFn        function to wrap
  * @param  {Function} onDependencyChange callback function when any dependencies change
- * @return {Function}                    wrapped function
+ * @returns {Function}                    wrapped function
  */
 function subscribeInterpolator(subscribeFn, onDependencyChange) {
     return function interpolatedSubscribe(topics, cb, options) {
@@ -6227,7 +6231,7 @@ function subscribeInterpolator(subscribeFn, onDependencyChange) {
 
 /**
  * @param {Publishable[]} publishInputs
- * @returns {String[]} dependencies for inputs
+ * @returns {string[]} dependencies for inputs
  */
 function getDependencies(publishInputs) {
     var deps = publishInputs.reduce(function (accum, input) {
@@ -6240,7 +6244,7 @@ function getDependencies(publishInputs) {
 
 /**
  * @param {Publishable[]} publishInputs
- * @param {Object} valuesToInterpolate
+ * @param {{string: any}} valuesToInterpolate
  * @returns {Publishable[]} inputs with resolved dependencies
  */
 function interpolateWithDependencies(publishInputs, valuesToInterpolate) {
@@ -6255,8 +6259,8 @@ function interpolateWithDependencies(publishInputs, valuesToInterpolate) {
 /**
  * Publish function to wrap
  * @param  {Function} publishFunction
- * @param  {Function} fetchFn         function to get interpolated values from
- * @return {Function}                 wrapped function
+ * @param  {function(string[], function({string: any}):void):void} fetchFn         function to get interpolated values from
+ * @returns {Function}                 wrapped function
  */
 function publishInterpolator(publishFunction, fetchFn) {
     return function interpolatedPublishfunction(topic, value, options) {
@@ -6309,7 +6313,8 @@ function getTopicsFromSubsList(subcriptionList) {
 /**
  * Decorates passed channel manager with middleware functionality
  * @param  {ChannelManager} BaseChannelManager
- * @return {ChannelManager} wrapped channel manager
+ * @param  {Object} router
+ * @returns {ChannelManager} wrapped channel manager
  */
 function withRouter(BaseChannelManager, router) {
     /**
@@ -6340,7 +6345,7 @@ function withRouter(BaseChannelManager, router) {
          * @param  {string | string[]}   topics
          * @param  {Function} cb
          * @param  {Object}   options
-         * @return {string}           subscription id
+         * @returns {string}           subscription id
          */
 
 
@@ -6368,7 +6373,7 @@ function withRouter(BaseChannelManager, router) {
              * @param {string | Publishable } topic
              * @param {any} [value] item to publish
              * @param {Object} [options]
-             * @return {Promise}
+             * @returns {Promise}
              */
 
         }, {
@@ -6385,7 +6390,7 @@ function withRouter(BaseChannelManager, router) {
             /**
              * Calls unsubscribe middleware *after* unsubscription with a list of recently unsubscribed topics
              * @param  {string} token
-             * @return {void}
+             * @returns {void}
              */
 
         }, {
@@ -6401,7 +6406,7 @@ function withRouter(BaseChannelManager, router) {
 
             /**
              * Calls unsubscribe middleware after unsubscribeAll on the channel
-             * @return {void}
+             * @returns {void}
              */
 
         }, {

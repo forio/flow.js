@@ -22,7 +22,7 @@ module.exports = {
      *      <span data-f-bind="sampleVar | toBool"></span>
      * 
      * @param {Any} value
-     * @return {Boolean}
+     * @returns {boolean}
      */
     toBool: (value)=> !!value,
 
@@ -35,7 +35,7 @@ module.exports = {
      *      <input type="text" data-f-disabled="isGameInProgress | not" />
      * 
      * @param {Any} value
-     * @return {Boolean}
+     * @returns {boolean}
      */
     not: (value)=> !value,
 
@@ -49,10 +49,10 @@ module.exports = {
      *          <span data-f-bind="sampleVar | ifTrue('yes! please move forward')"></span>
      *      </div>
      *
-     * @param {String} trueVal The value to display if the input is true. If there are commas in this argument, they must be escaped with `\`.
-     * @param {String} falseVal (Optional) The value to display if the input is false. If not included, returns the input. If there are commas in this argument, they must be escaped with `\`.
+     * @param {string} trueVal The value to display if the input is true. If there are commas in this argument, they must be escaped with `\`.
+     * @param {string} falseVal (Optional) The value to display if the input is false. If not included, returns the input. If there are commas in this argument, they must be escaped with `\`.
      * @param {Any} input (Optional) The input to test. If not included, the output of the previous argument is used.
-     * @return {Any} If input is true, returns trueVal. If input is false, returns falseVal if provided, or echoes the input.
+     * @returns {Any} If input is true, returns trueVal. If input is false, returns falseVal if provided, or echoes the input.
      */
     ifTrue: function () {
         var args = parseArgs.apply(null, arguments);
@@ -68,10 +68,10 @@ module.exports = {
      *          <span data-f-bind="sampleVar | ifFalse('not ready to proceed')"></span>
      *      </div>
      *
-     * @param {String} trueVal The value to display if the input is false. If there are commas in this argument, they must be escaped with `\`.
-     * @param {String} falseVal (Optional) The value to display if the input is true. If not included, returns the input. If there are commas in this argument, they must be escaped with `\`.
+     * @param {string} trueVal The value to display if the input is false. If there are commas in this argument, they must be escaped with `\`.
+     * @param {string} falseVal (Optional) The value to display if the input is true. If not included, returns the input. If there are commas in this argument, they must be escaped with `\`.
      * @param {Any} input (Optional) The input to test. If not included, the output of the previous argument is used.
-     * @return {Any} If input is false, returns trueVal. If input is true, returns falseVal if provided, or echoes the input.
+     * @returns {Any} If input is false, returns trueVal. If input is true, returns falseVal if provided, or echoes the input.
      */
     ifFalse: function () {
         var args = parseArgs.apply(null, arguments);

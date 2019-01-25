@@ -8,7 +8,7 @@ export function translateDataToInsertable(value) {
 
 /**
  * @param {any} value
- * @param {object} aliasMap
+ * @param {Object} aliasMap
  * @returns {{value: any}}
  */
 export function translateDataToTemplatable(value, aliasMap) {

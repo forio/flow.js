@@ -240,11 +240,7 @@
         "jsdoc/require-param-type": 2
     },
     "settings": {
-        "jsdoc": {
-            "tagNamePreference": {
-                "returns": "return"
-            }
-        }
+       
     },
     "overrides": [{
         "files": ["**/tests/*.js", "./tests/specs/**/*js"],

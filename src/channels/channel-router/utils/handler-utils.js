@@ -1,10 +1,10 @@
 import _ from 'lodash';
 
 /**
- * @param {String} topic
+ * @param {string} topic
  * @param {Handler[]} handlers
  * @param {any} [matchOptions] options to pass on to matcher
- * @return {Handler | undefined}
+ * @returns {Handler | undefined}
  */
 export function findBestHandler(topic, handlers, matchOptions) {
     for (var i = 0; i < handlers.length; i++) {
@@ -19,9 +19,9 @@ export function findBestHandler(topic, handlers, matchOptions) {
 
 /**
  * [groupByHandlers description]
- * @param  {String[]} topics   List of topics to match. Format can be anything your handler.match function handles
+ * @param  {Array<string>} topics   List of topics to match. Format can be anything your handler.match function handles
  * @param  {Handler[]} handlers Handlers of type [{ match: func }]
- * @return {HandlerWithTopics[]} The handler array with each item now having an additional 'data' attr added to it with the matching topics
+ * @returns {HandlerWithTopics[]} The handler array with each item now having an additional 'data' attr added to it with the matching topics
  */
 export function groupByHandlers(topics, handlers) {
     handlers = handlers.map(function (h, index) {
@@ -48,7 +48,7 @@ export function groupByHandlers(topics, handlers) {
  * Takes a `publish` dataset and groups it by handler maintaining the data sequence
  * @param  {Publishable[]} data     Of the form [{ name: 'X', }]
  * @param  {Handler[]} handlers Handlers of type [{ match: func }]
- * @return {HandlerWithData[]} The handler array with each item now having an additional 'data' attr added to it with the publishable data
+ * @returns {HandlerWithData[]} The handler array with each item now having an additional 'data' attr added to it with the publishable data
  */
 export function groupSequentiallyByHandlers(data, handlers) {
     handlers = handlers.map(function (h, index) {

@@ -112,7 +112,7 @@ const list = {
      * Total Items: <h6 data-f-bind="items | size"></h6>
      * 
      * @param  {any[]} src array
-     * @return {number}     length of array
+     * @returns {number}     length of array
      */
     size: (src)=> [].concat(src).length,
 
@@ -128,7 +128,7 @@ const list = {
      * @param  {number} n          nth item to select
      * @param  {number} [startIndex] index to start from
      * @param  {any[]} [val]        source array
-     * @return {any[]}            shortened array
+     * @returns {any[]}            shortened array
      */
     pickEvery: function (n, startIndex, val) {
         if (arguments.length === 3) { //eslint-disable-line

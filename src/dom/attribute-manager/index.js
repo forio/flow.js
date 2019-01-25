@@ -59,7 +59,7 @@ const attributeManager = {
      *
      * @param  {string|Function|RegExp} attributeMatcher Description of which attributes to match.
      * @param  {string|JQuery<HTMLElement>} nodeMatcher Which nodes to add attributes to. Use [jquery Selector syntax](https://api.jquery.com/category/selectors/).
-     * @param  {Function|object} handler If `handler` is a function, the function is called with `$element` as context, and attribute value + name. If `handler` is an object, it should include two functions, and have the form: `{ init: fn,  handle: fn }`. The `init` function is called when the page loads; use this to define event handlers. The `handle` function is called with `$element` as context, and attribute value + name.
+     * @param  {Function|Object} handler If `handler` is a function, the function is called with `$element` as context, and attribute value + name. If `handler` is an object, it should include two functions, and have the form: `{ init: fn,  handle: fn }`. The `init` function is called when the page loads; use this to define event handlers. The `handle` function is called with `$element` as context, and attribute value + name.
      * @returns {void}
      */
     register: function (attributeMatcher, nodeMatcher, handler) {
@@ -72,7 +72,7 @@ const attributeManager = {
      * @param  {string} attrFilter Attribute to match.
      * @param  {string|JQuery<HTMLElement>} nodeFilter Node to match.
      *
-     * @return {AttributeHandler[]} An array of matching attribute handlers, or null if no matches found.
+     * @returns {AttributeHandler[]} An array of matching attribute handlers, or null if no matches found.
      */
     filter: function (attrFilter, nodeFilter) {
         let filtered = handlersList.filter(function (handler) {
@@ -91,7 +91,7 @@ const attributeManager = {
      *
      * @param  {string} attrFilter Attribute to match.
      * @param  {string|JQuery<HTMLElement>} nodeFilter Node to match.
-     * @param  {Function|object} handler The updated attribute handler. If `handler` is a function, the function is called with `$element` as context, and attribute value + name. If `handler` is an object, it should include two functions, and have the form: `{ init: fn,  handle: fn }`. The `init` function is called when the page loads; use this to define event handlers. The `handle` function is called with `$element` as context, and attribute value + name.
+     * @param  {Function|Object} handler The updated attribute handler. If `handler` is a function, the function is called with `$element` as context, and attribute value + name. If `handler` is an object, it should include two functions, and have the form: `{ init: fn,  handle: fn }`. The `init` function is called when the page loads; use this to define event handlers. The `handle` function is called with `$element` as context, and attribute value + name.
      * @returns {void}
      */
     replace: function (attrFilter, nodeFilter, handler) {
@@ -111,7 +111,7 @@ const attributeManager = {
      * @param {string} attr The attribute.
      * @param {string|JQuery<HTMLElement>} $el The DOM element.
      *
-     * @return {AttributeHandler|undefined} The attribute handler, if a matching one is found
+     * @returns {AttributeHandler|undefined} The attribute handler, if a matching one is found
      */
     getHandler: function (attr, $el) {
         const filtered = this.filter(attr, $el);

@@ -66,7 +66,7 @@ function splitNameArgs(value) {
 
 /**
  * @param  {string} value
- * @return {{ name: string, value: any}[]}       [description]
+ * @returns {{ name: string, value: any}[]}       [description]
  */
 function toPublishableFormat(value) {
     const OPERATIONS_SEPERATOR = '&&';
