@@ -18,7 +18,7 @@ export function getDependencies(publishInputs) {
 
 /**
  * @param {Publishable[]} publishInputs
- * @param {Object} valuesToInterpolate
+ * @param {{string: any}} valuesToInterpolate
  * @returns {Publishable[]} inputs with resolved dependencies
  */
 export function interpolateWithDependencies(publishInputs, valuesToInterpolate) {
@@ -33,7 +33,7 @@ export function interpolateWithDependencies(publishInputs, valuesToInterpolate) 
 /**
  * Publish function to wrap
  * @param  {Function} publishFunction
- * @param  {Function} fetchFn         function to get interpolated values from
+ * @param  {function(string[], function({string: any}):void):void} fetchFn         function to get interpolated values from
  * @return {Function}                 wrapped function
  */
 export default function publishInterpolator(publishFunction, fetchFn) {

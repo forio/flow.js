@@ -16,6 +16,7 @@
         "$": false,
         "F": false
     },
+    "plugins": ["jsdoc"],
     "rules": {
         "array-callback-return": 2,
         "no-useless-escape": 2,
@@ -45,12 +46,6 @@
         "no-unexpected-multiline": 1,
         "no-unreachable": 2,
         "use-isnan": 1,
-        "valid-jsdoc": [1, {
-            "requireReturn": false,
-            "requireReturnType": false,
-            "requireParamDescription": false,
-            "requireReturnDescription": false
-        }],
         "valid-typeof": 2,
 
         "accessor-pairs": 2,
@@ -236,7 +231,20 @@
         "prefer-arrow-callback": 0,
         "prefer-const": 1,
         "prefer-spread": 0,
-        "prefer-template": 0
+        "prefer-template": 0,
+
+        "jsdoc/check-tag-names": 2,
+        "jsdoc/check-types": 2,
+        "jsdoc/require-param": 2,
+        "jsdoc/require-param-name": 2,
+        "jsdoc/require-param-type": 2
+    },
+    "settings": {
+        "jsdoc": {
+            "tagNamePreference": {
+                "returns": "return"
+            }
+        }
     },
     "overrides": [{
         "files": ["**/tests/*.js", "./tests/specs/**/*js"],

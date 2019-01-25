@@ -1,8 +1,8 @@
 var interpolationRegex = /<(.*?)>/g;
 /**
  *  
- * @param {String} topic topic to extract dependencies from
- * @return {String[]} dependencies
+ * @param {string} topic topic to extract dependencies from
+ * @return {string[]} dependencies
  */
 export function extractDependencies(topic) {
     var deps = (topic.match(interpolationRegex) || []).map((val)=> {
@@ -12,9 +12,9 @@ export function extractDependencies(topic) {
 }
 
 /**
- * @param {String} topic topic with dependencies
- * @param {Object} data object with values of dependencies
- * @return {String} interpolated string
+ * @param {string} topic topic with dependencies
+ * @param {{string: any}} data object with values of dependencies
+ * @return {string} interpolated string
  */
 export function interpolateWithValues(topic, data) {
     var interpolatedTopic = topic.replace(interpolationRegex, (match, dependency)=> {

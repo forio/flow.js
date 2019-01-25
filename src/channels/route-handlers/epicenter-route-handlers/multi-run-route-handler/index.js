@@ -47,7 +47,7 @@ export default function MultiRunRouteHandler(options, notifier, channelManagerCo
             var variables = options && options.include;
 
             var debounceInterval = 300;
-            var debouncedFetch = debounceAndMerge(fetch, debounceInterval, (accum, newval)=> newval);
+            var debouncedFetch = debounceAndMerge(fetch, debounceInterval, [(accum, newval)=> newval]);
             return fetch(topic, variables).then(function (runs) {
                 var subsMap = {};
                 //TODO: Provide this meta information to runs-factory so it doesn't trigger a fetch to get meta for each run
