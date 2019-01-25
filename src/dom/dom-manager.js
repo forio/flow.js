@@ -55,10 +55,12 @@ export default (function () {
     }
 
     //Unbind utils
-    function removeAllSubscriptions(subscriptions, channel) {
-        [].concat(subscriptions).forEach(function (subs) {
-            channel.unsubscribe(subs);
-        });
+    function triggerError($el, e) {
+        let msg = e.message || e;
+        if ($.isPlainObject(msg)) {
+            msg = JSON.stringify(msg);
+        }
+        $el.attr(errorAttr, msg).trigger(events.error, e);
     }
     function unbindAllAttributes(domEl) {
         const $el = $(domEl);
@@ -85,14 +87,17 @@ export default (function () {
             h.removeEvents();
         }
     }
-
-    function triggerError($el, e) {
-        let msg = e.message || e;
-        if ($.isPlainObject(msg)) {
-            msg = JSON.stringify(msg);
-        }
-        $el.attr(errorAttr, msg).trigger(events.error, e);
+    function removeAllSubscriptions(subscriptions, channel, el) {
+        [].concat(subscriptions).forEach(function (subs) {
+            try {
+                channel.unsubscribe(subs);
+            } catch (e) {
+                triggerError(el. e);
+            } 
+        });
     }
+
+
     const publicAPI = {
 
         nodes: nodeManager,
@@ -127,7 +132,7 @@ export default (function () {
 
             unbindAllNodeHandlers(domEl);
             unbindAllAttributes(domEl);
-            removeAllSubscriptions(subscriptions, channel);
+            removeAllSubscriptions(subscriptions, channel, $el);
             
             const animAttrs = Object.keys(animation).join(' ');
             $el.removeAttr(animAttrs);
