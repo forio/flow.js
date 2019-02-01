@@ -92,7 +92,7 @@ export default (function () {
             try {
                 channel.unsubscribe(subs);
             } catch (e) {
-                triggerError(el. e);
+                triggerError(el, e);
             } 
         });
     }
