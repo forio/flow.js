@@ -14,7 +14,6 @@
     <script src="/dist/flow-edge.js"></script>
 
     <!-- <script src="/dist/flow.min.js"></script> -->
-    <script src="/dist/add-ons/flow-inspector.min.js"></script>
     <title>Foo</title>
 </head>
 <body data-f-model="PlatformSimSuperSlimv2.xlsx" data-f-on-init="step(10)" class="flow-debug">
@@ -22,6 +21,12 @@
     <input type="range" min="0" max="1" step=".05" data-f-bind="D_Percentage_of_marketing_for_buyers[0,<Step>]">
 
     <script>
+        const startTime = Date.now();
+        function logGrouped(group, ...rest) {
+            const color = ['green', 'red', 'blue', 'brown'][group];
+            const time = Date.now() - startTime;
+            console.log(`%cGroup ${group} +${time}`, `color: white; background: ${color}`, ...rest);
+        }
         function asyncSlowFn(ip) {
             return new Promise((resolve, reject)=> {
                 setTimeout(() => {
@@ -39,23 +44,52 @@
         const debouncedFast = Flow.utils.debounceAndMerge(asyncFastFn, 200);
 
         debouncedSlow('First').then(((i)=> {
-            console.log('Slow: First cb', i);
+            logGrouped(0, 'Debounced Slow: First cb', i);
         }));
         setTimeout(()=> {
+            //While first is in progress, 2 others hit it at the same time
             debouncedSlow('Second').then(((i)=> {
-                console.log('Slow: Second cb', i);
+                logGrouped(0, 'Debounced Slow: Second cb', i);
             }));
-        }, 300);
+            debouncedSlow('Third').then(((i)=> {
+                logGrouped(0, 'Debounced Slow: Third cb', i);
+            }));
+        }, 250);
 
+        // asyncSlowFn('First').then(((i)=> {
+        //     logGrouped(2, 'Regular Slow: First cb', i);
+        // }));
+        // setTimeout(()=> {
+        //     asyncSlowFn('Second').then(((i)=> {
+        //         logGrouped(2, 'Regular Slow: Second cb', i);
+        //     }));
+        //     asyncSlowFn('Third').then(((i)=> {
+        //         logGrouped(2, 'Regular Slow: Third cb', i);
+        //     }));
+        // }, 250);
 
         debouncedFast('FirstFast').then(((i)=> {
-            console.log('FirstFast: First cb', i);
+            logGrouped(1, 'Debounced FirstFast: First cb', i);
         }));
         setTimeout(()=> {
             debouncedFast('SecondFast').then(((i)=> {
-                console.log('SecondFast: Second cb', i);
+                logGrouped(1, 'Debounced SecondFast: Second cb', i);
+            }));
+            debouncedFast('ThirdFast').then(((i)=> {
+                logGrouped(1, 'Debounced ThirdFast: Third cb', i);
             }));
         }, 300);
+
+ 
+        // asyncFastFn('FirstFast').then(((i)=> {
+        //     logGrouped(3, 'Regular FirstFast: First cb', i);
+        // }));
+        // setTimeout(()=> {
+        //     asyncFastFn('SecondFast').then(((i)=> {
+        //         logGrouped(3, 'Regular SecondFast: Second cb', i);
+        //     }));
+        // }, 300);
+
     </script>
 </body>
 </html>

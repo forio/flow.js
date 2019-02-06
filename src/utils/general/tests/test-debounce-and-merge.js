@@ -43,9 +43,12 @@ describe('#debounceAndMerge', ()=> {
 
         debounced();
         clock.tick(100);
+        expect(fnToDebounce).to.have.not.have.been.called; 
+
         debounced();
         clock.tick(100);
         expect(fnToDebounce).to.have.not.have.been.called; 
+
         clock.tick(100);
         expect(fnToDebounce).to.have.have.been.calledOnce; 
     });
@@ -100,7 +103,8 @@ describe('#debounceAndMerge', ()=> {
             expect(prom.then).to.exist;
         });
         it('should call all chained callbacks in the right order', ()=> {
-            var fnToDebounce = sinon.spy((input)=> input.reduce((a, v)=> a + v, 0));
+            const summer = (input)=> input.reduce((a, v)=> a + v, 0);
+            var fnToDebounce = sinon.spy(summer);
             var spy1 = sinon.spy();
             var spy2 = sinon.spy();
             var spy3 = sinon.spy();
@@ -155,6 +159,7 @@ describe('#debounceAndMerge', ()=> {
 
             expect(spy3).to.have.have.been.calledWith(2); 
         });
+   
         it('Should be resolved with the latest result', ()=> { //NOTE: See integration-test-utils for errors which only happen in a browser
             var fnToDebounce = sinon.spy((input)=> {
                 const $d = $.Deferred(); //NOTE: This doesn't work with native promises for some reason
@@ -214,20 +219,55 @@ describe('#debounceAndMerge', ()=> {
             clock.tick(200);
             clock.tick(100);
             expect(fnToDebounce).to.have.been.calledOnce;
-            // expect(fnToDebounce).to.have.have.been.calledWith([1, 2]);
+            expect(fnToDebounce).to.have.have.been.calledWith([1, 2]);
 
-            // expect(spy1).to.not.have.been.called;
-            // expect(spy2).to.not.have.been.called;
+            expect(spy1).to.not.have.been.called;
+            expect(spy2).to.not.have.been.called;
 
-            // expect(spy1Fail).to.have.been.calledOnce;
-            // expect(spy2Fail).to.have.been.calledOnce;
+            expect(spy1Fail).to.have.been.calledOnce;
+            expect(spy2Fail).to.have.been.calledOnce;
                 
-            // debounced([2]).then(spy3).catch(spy3Fail);
-            // clock.tick(200);
-            // clock.tick(10);
-            // expect(fnToDebounce).to.have.have.been.calledWith([2]); 
-            // expect(spy3).to.have.have.been.calledWith(2); 
-            // expect(spy3Fail).to.not.have.been.called;
+            debounced([2]).then(spy3).catch(spy3Fail);
+            clock.tick(200);
+            clock.tick(10);
+            expect(fnToDebounce).to.have.have.been.calledWith([2]); 
+            expect(spy3).to.have.have.been.calledWith(2); 
+            expect(spy3Fail).to.not.have.been.called;
+        });
+    });
+
+    describe('Edge Cases', ()=> {
+        it('should handle if 2 others hit it while first is in progress', (done)=> {
+            function asyncSlowFn(ip) {
+                const $def = $.Deferred();
+                setTimeout(()=> {
+                    $def.resolve(JSON.stringify(ip));
+                }, 300);
+                return $def.promise();
+            }
+            var debouncedSlow = debounce(asyncSlowFn, 200);
+            const spy1 = sinon.spy();
+            const spy2 = sinon.spy();
+            const spy3 = sinon.spy();
+
+            debouncedSlow('First').then(spy1);
+            
+            clock.tick(250);
+
+            debouncedSlow('Second').then(spy2);
+            debouncedSlow('Third').then(spy3);
+            clock.tick(550);
+
+            expect(spy1).to.have.been.calledOnce;
+            expect(spy1).to.have.been.calledWith(JSON.stringify(['First']));
+
+            expect(spy2).to.have.been.calledOnce;
+            expect(spy2).to.have.been.calledWith(JSON.stringify(['Second', 'Third']));
+
+            expect(spy3).to.have.been.calledOnce;
+            expect(spy3).to.have.been.calledWith(JSON.stringify(['Second', 'Third']));
+
+            done();
         });
     });
 });

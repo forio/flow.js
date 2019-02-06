@@ -1503,7 +1503,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
             try {
                 channel.unsubscribe(subs);
             } catch (e) {
-                triggerError(el.e);
+                triggerError(el, e);
             }
         });
     }
@@ -3873,11 +3873,17 @@ var loopAttrHandler = {
 
 "use strict";
 /* harmony export (immutable) */ __webpack_exports__["a"] = debounceAndMerge;
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_lodash__ = __webpack_require__(0);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_lodash___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_lodash__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__promise_utils__ = __webpack_require__(14);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__promise_utils__ = __webpack_require__(14);
 
 
+function executeAndResolve(fn, args, $def) {
+    var promisifiedFn = Object(__WEBPACK_IMPORTED_MODULE_0__promise_utils__["b" /* promisify */])(fn);
+    return promisifiedFn.apply(fn, args).then(function (result) {
+        $def.resolve(result);
+    }, function (e) {
+        $def.reject(e);
+    });
+}
 
 /**
  * Returns debounced version of original (optionally promise returning) function
@@ -3888,68 +3894,51 @@ var loopAttrHandler = {
  * @returns {Function} debounced function
  */
 function debounceAndMerge(fn, debounceInterval, argumentsReducers) {
-    var argsToPass = [];
     if (!argumentsReducers) {
         var arrayReducer = function (accum, newVal) {
-            if (!accum) {
-                accum = [];
-            }
-            return accum.concat(newVal);
+            return (accum || []).concat(newVal);
         };
         argumentsReducers = [arrayReducer];
     }
 
     var queue = [];
-
     var timer = null;
-    var isExecuting = false;
-    var $def = $.Deferred();
+
+    function mergeArgs(oldArgs, newArgs) {
+        var merged = newArgs.map(function (newArg, index) {
+            var reducer = argumentsReducers[index];
+            if (reducer) {
+                return reducer(oldArgs[index], newArg);
+            }
+            return newArg;
+        });
+        return merged;
+    }
+
     /**
      * @returns {Promise}
      */
     return function debouncedFunction() {
-        var newArgs = Object(__WEBPACK_IMPORTED_MODULE_0_lodash__["toArray"])(arguments);
-        argsToPass = newArgs.map(function (arg, index) {
-            var reducer = argumentsReducers[index];
-            if (reducer) {
-                return reducer(argsToPass[index], arg);
-            } else {
-                return arg;
-            }
-        });
-
-        if (isExecuting || $def.isComplete) {
-            $def = $.Deferred();
-        }
-        if (timer && !isExecuting) {
-            clearTimeout(timer); //caught within debounce period, reuse old deferred
+        var newArgs = Array.prototype.slice.call(arguments);
+        if (timer) {
+            clearTimeout(timer);
+            var mergedArgs = mergeArgs(queue[0].args, newArgs);
+            queue[0].args = mergedArgs;
         } else {
-            queue.push($def);
+            var args = mergeArgs([], newArgs);
+            queue.push({
+                $def: $.Deferred(),
+                args: args
+            });
         }
 
         timer = setTimeout(function () {
-            isExecuting = true;
             timer = null;
-
-            var argsClone = [].concat(argsToPass);
-            argsToPass = [];
-
-            var promisifiedFn = Object(__WEBPACK_IMPORTED_MODULE_1__promise_utils__["b" /* promisify */])(fn);
-            promisifiedFn.apply(fn, argsClone).then(function (args) {
-                isExecuting = false;
-                var $def = queue.shift();
-                $def.isComplete = true;
-                return $def.resolve(args);
-            }, function (e) {
-                isExecuting = false;
-                var $def = queue.shift();
-                $def.isComplete = true;
-                return $def.reject(e);
-            });
+            var item = queue.pop();
+            executeAndResolve(fn, item.args, item.$def);
         }, debounceInterval);
-        var prom = $def.promise();
 
-        return prom;
+        return queue[0].$def.promise();
     };
 }
 
@@ -5251,7 +5240,10 @@ function retriableFetch(runService, variables) {
     if (!variables || !variables.length) {
         return $.Deferred().resolve({}).promise();
     }
-    return runService.variables().query(variables).catch(function (e) {
+    return runService.variables().query(variables).then(function (variables) {
+        console.log('Fetcged', variables);
+        return variables;
+    }).catch(function (e) {
         var response = e.responseJSON;
         var info = response.information;
         if (info.code !== 'VARIABLE_NOT_FOUND') {

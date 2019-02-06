@@ -1,5 +1,13 @@
-import { toArray } from 'lodash';
 import { promisify } from './promise-utils';
+
+function executeAndResolve(fn, args, $def) {
+    const promisifiedFn = promisify(fn);
+    return promisifiedFn.apply(fn, args).then((result)=> {
+        $def.resolve(result);
+    }, (e)=> {
+        $def.reject(e);
+    });
+}
 
 /**
  * Returns debounced version of original (optionally promise returning) function
@@ -10,69 +18,50 @@ import { promisify } from './promise-utils';
  * @returns {Function} debounced function
  */
 export default function debounceAndMerge(fn, debounceInterval, argumentsReducers) {
-    var argsToPass = [];
     if (!argumentsReducers) {
         var arrayReducer = function (accum, newVal) {
-            if (!accum) {
-                accum = [];
-            }
-            return accum.concat(newVal);
+            return (accum || []).concat(newVal);
         };
-        argumentsReducers = [
-            arrayReducer
-        ];
+        argumentsReducers = [arrayReducer];
     }
 
     const queue = [];
-
     let timer = null;
-    let isExecuting = false;
-    let $def = $.Deferred();
+
+    function mergeArgs(oldArgs, newArgs) {
+        const merged = newArgs.map(function (newArg, index) {
+            var reducer = argumentsReducers[index];
+            if (reducer) {
+                return reducer(oldArgs[index], newArg);
+            }
+            return newArg;
+        });
+        return merged;
+    }
+
     /**
      * @returns {Promise}
      */
     return function debouncedFunction() {
-        var newArgs = toArray(arguments);
-        argsToPass = newArgs.map(function (arg, index) {
-            var reducer = argumentsReducers[index];
-            if (reducer) {
-                return reducer(argsToPass[index], arg);
-            } else {
-                return arg;
-            }
-        });
-
-        if (isExecuting || $def.isComplete) {
-            $def = $.Deferred();
-        }
-        if (timer && !isExecuting) {
-            clearTimeout(timer);//caught within debounce period, reuse old deferred
+        const newArgs = Array.prototype.slice.call(arguments);
+        if (timer) {
+            clearTimeout(timer);
+            const mergedArgs = mergeArgs(queue[0].args, newArgs);
+            queue[0].args = mergedArgs;
         } else {
-            queue.push($def);
-        }
-        
-        timer = setTimeout(()=> {
-            isExecuting = true;
-            timer = null;
-
-            const argsClone = [].concat(argsToPass);
-            argsToPass = [];
-
-            const promisifiedFn = promisify(fn);
-            promisifiedFn.apply(fn, argsClone).then((args)=> {
-                isExecuting = false;
-                const $def = queue.shift();
-                $def.isComplete = true;
-                return $def.resolve(args);
-            }, (e)=> {
-                isExecuting = false;
-                const $def = queue.shift();
-                $def.isComplete = true;
-                return $def.reject(e);
+            const args = mergeArgs([], newArgs);
+            queue.push({
+                $def: $.Deferred(),
+                args: args
             });
-        }, debounceInterval);
-        const prom = $def.promise();
+        }
 
-        return prom;
+        timer = setTimeout(()=> {
+            timer = null;
+            const item = queue.pop();
+            executeAndResolve(fn, item.args, item.$def);
+        }, debounceInterval);
+
+        return queue[0].$def.promise();
     };
 }
