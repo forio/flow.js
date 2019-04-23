@@ -87,5 +87,24 @@ describe('Default Event attribute', function () {
 
             expect(spy).to.have.been.calledOnce;
         });
+        it('should not remove event listeners it did not add', ()=> {
+            var $node = $('<button> Click </button>');
+            defaultEventAttr.init('on-click', [{ name: 'stuff' }], $node);
+
+            var flowSpy = sinon.spy();
+            var thirdPartySpy = sinon.spy();
+            $node.on(events.trigger, flowSpy);
+            $node.on('click', thirdPartySpy);
+            $node.trigger('click');
+
+            expect(flowSpy).to.have.been.calledOnce;
+            expect(thirdPartySpy).to.have.been.calledOnce;
+
+            defaultEventAttr.unbind('on-click', $node);
+            $node.trigger('click');
+
+            expect(flowSpy).to.have.been.calledOnce;
+            expect(thirdPartySpy).to.have.been.calledTwice;
+        });
     });
 });
