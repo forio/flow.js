@@ -1091,7 +1091,7 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 /* harmony default export */ __webpack_exports__["default"] = (__WEBPACK_IMPORTED_MODULE_1__default_node___default.a.extend({
     propertyHandlers: [],
 
-    uiChangeEvent: 'change',
+    uiChangeEvent: 'change.f-node-event',
     getUIValue: function () {
         return this.$el.val();
     },
@@ -3564,6 +3564,11 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 
 
 
+function eventNameFromAttr(attr) {
+    var eventName = attr.replace('on-', '');
+    var nameSpacedEvent = eventName + '.f-event';
+    return nameSpacedEvent;
+}
 /**
  * @type AttributeHandler 
  */
@@ -3576,7 +3581,7 @@ var defaultEventAttr = {
     },
 
     unbind: function (attr, $el) {
-        var eventName = attr.replace('on-', '');
+        var eventName = eventNameFromAttr(attr);
         $el.off(eventName);
     },
 
@@ -3586,8 +3591,8 @@ var defaultEventAttr = {
     handle: function () {},
 
     init: function (attr, topics, $el) {
-        var eventName = attr.replace('on-', '');
         var matching = topics[0] && topics[0].name; //multiple topics aren't really relevant here
+        var eventName = eventNameFromAttr(attr);
         $el.off(eventName).on(eventName, function (evt) {
             evt.preventDefault();
             var listOfOperations = Object(__WEBPACK_IMPORTED_MODULE_1_utils_parse_utils__["c" /* toPublishableFormat */])(matching);
@@ -5240,10 +5245,7 @@ function retriableFetch(runService, variables) {
     if (!variables || !variables.length) {
         return $.Deferred().resolve({}).promise();
     }
-    return runService.variables().query(variables).then(function (variables) {
-        console.log('Fetcged', variables);
-        return variables;
-    }).catch(function (e) {
+    return runService.variables().query(variables).catch(function (e) {
         var response = e.responseJSON;
         var info = response.information;
         if (info.code !== 'VARIABLE_NOT_FOUND') {

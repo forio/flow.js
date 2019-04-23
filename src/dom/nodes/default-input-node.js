@@ -4,7 +4,7 @@ import BaseView from './default-node';
 export default BaseView.extend({
     propertyHandlers: [],
 
-    uiChangeEvent: 'change',
+    uiChangeEvent: 'change.f-node-event',
     getUIValue: function () {
         return this.$el.val();
     },
