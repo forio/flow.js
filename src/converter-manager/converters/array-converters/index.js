@@ -134,7 +134,7 @@ const list = {
         if (arguments.length === 3) { //eslint-disable-line
             //last item is match string
             val = startIndex;
-            startIndex = n - 1;
+            startIndex = 0;
         }
         val = [].concat(val);
         val = val.slice(startIndex);
