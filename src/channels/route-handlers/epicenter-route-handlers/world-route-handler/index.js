@@ -57,7 +57,7 @@ export default function WorldRoutesHandler(config, notifier) {
         return rm.run;
     });
 
-    const currentRunHandlerOpts = $.extend(true, { serviceOptions: $runPromise }, opts.defaults, opts.current);
+    const currentRunHandlerOpts = $.extend(true, { serviceOptions: $runPromise, channelOptions: opts.channelOptions }, opts.defaults, opts.current);
     const currentRunHandler = new RunRouteHandler(currentRunHandlerOpts, withPrefix(notifier, [RUN_PREFIX, '']));
 
     const handlers = [];
@@ -97,7 +97,7 @@ export default function WorldRoutesHandler(config, notifier) {
             getSession: ()=> am.getCurrentUserSessionInfo(),
             getChannel: getChannelForWorld,
         },
-        channelOptions: {}
+        channelOptions: opts.channelOptions
     };
     
     const usersRouteHandler = new WorldUsersRouteHandler(handlerOptions, withPrefix(notifier, MULTI_USER_PREFIX));

@@ -14,7 +14,7 @@
     <script src="/dist/flow-edge.js"></script>
 
     <!-- <script src="/dist/flow.min.js"></script> -->
-    <script src="/dist/add-ons/flow-inspector.min.js"></script>
+    <!-- <script src="/dist/add-ons/flow-inspector.min.js"></script> -->
     <title>Foo</title>
 </head>
 <body data-f-model="gglasses.vmf" data-f-on-init="step(10)" class="flow-debug">
@@ -30,10 +30,11 @@
             <button class="btn" data-ub-component="Button"  data-f-on-click="reset">Reset</button>
 
         </div>
-        <!--  
         <div>
             You typed <strong data-f-bind="Price"></strong>
         </div>
+        <!--  
+        
         <br/>
         Current Year <strong data-f-bind="Time"></strong>
         You have <strong data-f-bind="Time"> <%= (2020 - value) %> </strong> years left.
@@ -81,6 +82,11 @@
                                 complete: function () {
                                     $('body').removeClass('loading');
                                 }
+                            }
+                        },
+                        channelOptions: {
+                            variables: {
+                                silent: true
                             }
                         }
                     }

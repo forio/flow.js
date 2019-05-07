@@ -22,7 +22,7 @@ export default function RunManagerRouteHandler(config, notifier) {
         return rm.run;
     });
     const currentChannelOpts = $.extend(true, 
-        { serviceOptions: $creationPromise }, opts.defaults, opts.current);
+        { serviceOptions: $creationPromise, channelOptions: opts.channelOptions }, opts.defaults, opts.current);
     const currentRunChannel = new RunRouteHandler(currentChannelOpts, withPrefix(notifier, [RUN_PREFIX, '']));
 
     const runRouteHandler = $.extend(currentRunChannel, { 

@@ -2508,7 +2508,7 @@ var list = {
             //eslint-disable-line
             //last item is match string
             val = startIndex;
-            startIndex = n - 1;
+            startIndex = 0;
         }
         val = [].concat(val);
         val = val.slice(startIndex);
@@ -5051,7 +5051,7 @@ function RunManagerRouteHandler(config, notifier) {
     var $creationPromise = rm.getRun().then(function (run) {
         return rm.run;
     });
-    var currentChannelOpts = $.extend(true, { serviceOptions: $creationPromise }, opts.defaults, opts.current);
+    var currentChannelOpts = $.extend(true, { serviceOptions: $creationPromise, channelOptions: opts.channelOptions }, opts.defaults, opts.current);
     var currentRunChannel = new __WEBPACK_IMPORTED_MODULE_0__run_route_handler__["a" /* default */](currentChannelOpts, Object(__WEBPACK_IMPORTED_MODULE_1_channels_channel_router_utils__["g" /* withPrefix */])(notifier, [RUN_PREFIX, '']));
 
     var runRouteHandler = $.extend(currentRunChannel, {
@@ -5484,7 +5484,7 @@ function WorldRoutesHandler(config, notifier) {
         return rm.run;
     });
 
-    var currentRunHandlerOpts = $.extend(true, { serviceOptions: $runPromise }, opts.defaults, opts.current);
+    var currentRunHandlerOpts = $.extend(true, { serviceOptions: $runPromise, channelOptions: opts.channelOptions }, opts.defaults, opts.current);
     var currentRunHandler = new __WEBPACK_IMPORTED_MODULE_5__run_route_handler__["a" /* default */](currentRunHandlerOpts, Object(__WEBPACK_IMPORTED_MODULE_3_channels_channel_router_utils__["g" /* withPrefix */])(notifier, [RUN_PREFIX, '']));
 
     var handlers = [];
@@ -5526,7 +5526,7 @@ function WorldRoutesHandler(config, notifier) {
             },
             getChannel: getChannelForWorld
         },
-        channelOptions: {}
+        channelOptions: opts.channelOptions
     };
 
     var usersRouteHandler = new __WEBPACK_IMPORTED_MODULE_0__world_users_route_handler__["a" /* default */](handlerOptions, Object(__WEBPACK_IMPORTED_MODULE_3_channels_channel_router_utils__["g" /* withPrefix */])(notifier, MULTI_USER_PREFIX));
