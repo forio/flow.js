@@ -4967,7 +4967,7 @@ function EpicenterRouteHandler(config, notifier, channelManagerContext) {
     var runManagerOpts = getOptions(opts, 'runManager');
     if (opts.runManager || !opts.scenarioManager && runManagerOpts.serviceOptions.run) {
         var rm;
-        var isMultiplayer = runManagerOpts.serviceOptions.strategy === 'multiplayer';
+        var isMultiplayer = runManagerOpts.serviceOptions.strategy === 'multiplayer' || runManagerOpts.serviceOptions.isMultiplayer;
         if (opts.scenarioManager) {
             rm = new __WEBPACK_IMPORTED_MODULE_0__default_run_route_handler__["a" /* default */](runManagerOpts, Object(__WEBPACK_IMPORTED_MODULE_5_channels_channel_router_utils__["g" /* withPrefix */])(notifier, RUN_PREFIX));
             handlers.push($.extend({}, rm, {

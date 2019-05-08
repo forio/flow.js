@@ -56,7 +56,7 @@ export default function EpicenterRouteHandler(config, notifier, channelManagerCo
     var runManagerOpts = getOptions(opts, 'runManager');
     if (opts.runManager || (!opts.scenarioManager && runManagerOpts.serviceOptions.run)) {
         var rm;
-        const isMultiplayer = runManagerOpts.serviceOptions.strategy === 'multiplayer';
+        const isMultiplayer = runManagerOpts.serviceOptions.strategy === 'multiplayer' || runManagerOpts.serviceOptions.isMultiplayer;
         if (opts.scenarioManager) {
             rm = new DefaultRunRouteHandler(runManagerOpts, withPrefix(notifier, RUN_PREFIX));
             handlers.push($.extend({}, rm, { 
