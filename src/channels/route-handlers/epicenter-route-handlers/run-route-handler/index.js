@@ -3,10 +3,11 @@ import VariablesRouteHandler from './run-variables-route-handler';
 import OperationsRouteHandler from './run-operations-route-hander';
 
 import router from 'channels/channel-router';
-import { withPrefix } from 'channels/channel-router/utils';
+import { withPrefix, silencable } from 'channels/channel-router/utils';
 import { matchPrefix, matchDefaultPrefix } from 'channels/route-handlers/route-matchers';
 
 import _ from 'lodash';
+import { objectToPublishable } from 'channels/channel-utils';
 
 export const VARIABLES_PREFIX = 'variables:';
 export const META_PREFIX = 'meta:';
@@ -79,15 +80,23 @@ export default function GenericRunRouteHandler(config, notifier) {
             subscribed = true;
             const { TOPICS } = rs.channel;
             const subscribeOpts = { includeMine: false };
-            //FIXME: Exclude silenced -- let notify take care of this?
-            //FIXME: Provide subscription fn to individual channels and let them handle it
+            //TODO: Provide subscription fn to individual channels and let them handle it?
             rs.channel.subscribe(TOPICS.RUN_VARIABLES, (data, meta)=> {
-                // console.log('variables', data, meta);
-                variablesHandler.notify(data, meta);
-                variablesHandler.fetch();
+                const publishable = objectToPublishable(data);
+                const excludingSilenced = silencable(publishable, opts.variables.silent);
+                if (!excludingSilenced.length) {
+                    return;
+                }
+                variablesHandler.notify(publishable, meta);
+                variablesHandler.fetch();//Variables channel #notify also does a fetch, but this is not supposed to know about that. Debouncing will take care of duplicate fetches anyway.
             }, this, subscribeOpts);
             rs.channel.subscribe(TOPICS.RUN_OPERATIONS, (data, meta)=> {
-                operationsHandler.notify(data, meta);
+                const publishable = [{ name: data.name, value: data.result }];
+                const excludingSilenced = silencable(publishable, opts.operations.silent);
+                if (!excludingSilenced.length) {
+                    return;
+                }
+                operationsHandler.notify(publishable, meta);
                 variablesHandler.fetch();
             }, this, subscribeOpts);
             rs.channel.subscribe(TOPICS.CONSENSUS_UPDATE, (consensus, meta)=> {
@@ -98,7 +107,12 @@ export default function GenericRunRouteHandler(config, notifier) {
                 }
             }, this, { includeMine: true });
             rs.channel.subscribe(TOPICS.RUN_RESET, (data, meta)=> {
-                operationsHandler.notify({ name: 'reset', result: data }, meta);
+                const publishable = [{ name: 'reset', value: data }];
+                const excludingSilenced = silencable(publishable, opts.operations.silent);
+                if (!excludingSilenced.length) {
+                    return;
+                }
+                operationsHandler.notify(publishable, meta);
             }, this, subscribeOpts);
 
 

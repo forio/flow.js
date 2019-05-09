@@ -72,9 +72,14 @@ export default function RunVariablesRouteHandler($runServicePromise, notifier) {
                 });
             });
         },
-        notify: function (variableObj) {
+        /**
+         * 
+         * @param {Publishable[]} variableData
+         */
+        notify: function (variableData) {
             return $runServicePromise.then(function (runService) {
-                const variables = Object.keys(variableObj); 
+                const variables = variableData.map((v)=> v.name);
+                //Need to fetch again because for Vensim, i'm notified about the Current value, while i need the value over time
                 return retriableFetch(runService, variables).then(objectToPublishable).then(notifier);
             });
         },

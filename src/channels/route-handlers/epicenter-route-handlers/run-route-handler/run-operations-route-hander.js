@@ -1,12 +1,15 @@
 export default function RunOperationsRouteHandler($runServicePromise, notifier) {
     return {
+        /**
+         * 
+         * @param {Publishable[]} operationsResponse 
+         */
         notify: function (operationsResponse) {
-            const parsed = [{ name: operationsResponse.name, value: operationsResponse.result }];
-            return notifier(parsed);
+            return notifier([].concat(operationsResponse));
         },
 
         subscribeHandler: function () {
-            return [];
+            return []; //Cannot subscribe to operations
         },
         publishHandler: function (topics, options) {
             return $runServicePromise.then(function (runService) {

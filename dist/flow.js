@@ -228,6 +228,66 @@ function unprefix(list, prefix) {
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
+/* harmony export (immutable) */ __webpack_exports__["b"] = objectToPublishable;
+/* harmony export (immutable) */ __webpack_exports__["c"] = publishableToObject;
+/* harmony export (immutable) */ __webpack_exports__["a"] = normalizeParamOptions;
+/**
+ * 
+ * @param {Object} obj
+ * @returns {Publishable[]}
+ */
+function objectToPublishable(obj) {
+    var mapped = Object.keys(obj || {}).map(function (t) {
+        return { name: t, value: obj[t] };
+    });
+    return mapped;
+}
+
+/**
+ * Converts arrays of the form [{ name: '', value: ''}] to {[name]: value}
+ * @param {Publishable[]} arr
+ * @param {Object} [mergeWith]
+ * @returns {Object}
+ */
+function publishableToObject(arr, mergeWith) {
+    var result = (arr || []).reduce(function (accum, topic) {
+        accum[topic.name] = topic.value;
+        return accum;
+    }, $.extend(true, {}, mergeWith));
+    return result;
+}
+
+/**
+ * @typedef NormalizedParam
+ * @property {Publishable[]} params
+ * @property {Object} options
+ */
+
+/**
+ *
+ * @param {string|Object|Array} topic 
+ * @param {*} publishValue 
+ * @param {Object} [options]
+ * @returns {NormalizedParam}
+ */
+function normalizeParamOptions(topic, publishValue, options) {
+    if (!topic) {
+        return { params: [], options: {} };
+    }
+    if ($.isPlainObject(topic)) {
+        return { params: objectToPublishable(topic), options: publishValue };
+    }
+    if (Array.isArray(topic)) {
+        return { params: topic, options: publishValue };
+    }
+    return { params: [{ name: topic, value: publishValue }], options: options };
+}
+
+/***/ }),
+/* 4 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
 /* unused harmony export notifySubscribeHandlers */
 /* unused harmony export notifyUnsubscribeHandlers */
 /* unused harmony export passthroughPublishInterceptors */
@@ -424,7 +484,7 @@ function router(handlers, options, notifier) {
 }
 
 /***/ }),
-/* 4 */
+/* 5 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -519,66 +579,6 @@ function toPublishableFormat(value) {
 }
 
 
-
-/***/ }),
-/* 5 */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-/* harmony export (immutable) */ __webpack_exports__["b"] = objectToPublishable;
-/* harmony export (immutable) */ __webpack_exports__["c"] = publishableToObject;
-/* harmony export (immutable) */ __webpack_exports__["a"] = normalizeParamOptions;
-/**
- * 
- * @param {Object} obj
- * @returns {Publishable[]}
- */
-function objectToPublishable(obj) {
-    var mapped = Object.keys(obj || {}).map(function (t) {
-        return { name: t, value: obj[t] };
-    });
-    return mapped;
-}
-
-/**
- * Converts arrays of the form [{ name: '', value: ''}] to {[name]: value}
- * @param {Publishable[]} arr
- * @param {Object} [mergeWith]
- * @returns {Object}
- */
-function publishableToObject(arr, mergeWith) {
-    var result = (arr || []).reduce(function (accum, topic) {
-        accum[topic.name] = topic.value;
-        return accum;
-    }, $.extend(true, {}, mergeWith));
-    return result;
-}
-
-/**
- * @typedef NormalizedParam
- * @property {Publishable[]} params
- * @property {Object} options
- */
-
-/**
- *
- * @param {string|Object|Array} topic 
- * @param {*} publishValue 
- * @param {Object} [options]
- * @returns {NormalizedParam}
- */
-function normalizeParamOptions(topic, publishValue, options) {
-    if (!topic) {
-        return { params: [], options: {} };
-    }
-    if ($.isPlainObject(topic)) {
-        return { params: objectToPublishable(topic), options: publishValue };
-    }
-    if (Array.isArray(topic)) {
-        return { params: topic, options: publishValue };
-    }
-    return { params: [{ name: topic, value: publishValue }], options: options };
-}
 
 /***/ }),
 /* 6 */
@@ -680,11 +680,13 @@ function random(prefix, min, max) {
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__run_meta_route_handler__ = __webpack_require__(62);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__run_variables_route_handler__ = __webpack_require__(63);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__run_operations_route_hander__ = __webpack_require__(65);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3_channels_channel_router__ = __webpack_require__(3);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3_channels_channel_router__ = __webpack_require__(4);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_4_channels_channel_router_utils__ = __webpack_require__(2);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_5_channels_route_handlers_route_matchers__ = __webpack_require__(6);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_6_lodash__ = __webpack_require__(0);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_6_lodash___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_6_lodash__);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_7_channels_channel_utils__ = __webpack_require__(3);
+
 
 
 
@@ -769,15 +771,23 @@ function GenericRunRouteHandler(config, notifier) {
             var TOPICS = rs.channel.TOPICS;
 
             var subscribeOpts = { includeMine: false };
-            //FIXME: Exclude silenced -- let notify take care of this?
-            //FIXME: Provide subscription fn to individual channels and let them handle it
+            //TODO: Provide subscription fn to individual channels and let them handle it?
             rs.channel.subscribe(TOPICS.RUN_VARIABLES, function (data, meta) {
-                // console.log('variables', data, meta);
-                variablesHandler.notify(data, meta);
-                variablesHandler.fetch();
+                var publishable = Object(__WEBPACK_IMPORTED_MODULE_7_channels_channel_utils__["b" /* objectToPublishable */])(data);
+                var excludingSilenced = Object(__WEBPACK_IMPORTED_MODULE_4_channels_channel_router_utils__["c" /* silencable */])(publishable, opts.variables.silent);
+                if (!excludingSilenced.length) {
+                    return;
+                }
+                variablesHandler.notify(publishable, meta);
+                variablesHandler.fetch(); //Variables channel #notify also does a fetch, but this is not supposed to know about that. Debouncing will take care of duplicate fetches anyway.
             }, _this, subscribeOpts);
             rs.channel.subscribe(TOPICS.RUN_OPERATIONS, function (data, meta) {
-                operationsHandler.notify(data, meta);
+                var publishable = [{ name: data.name, value: data.result }];
+                var excludingSilenced = Object(__WEBPACK_IMPORTED_MODULE_4_channels_channel_router_utils__["c" /* silencable */])(publishable, opts.operations.silent);
+                if (!excludingSilenced.length) {
+                    return;
+                }
+                operationsHandler.notify(publishable, meta);
                 variablesHandler.fetch();
             }, _this, subscribeOpts);
             rs.channel.subscribe(TOPICS.CONSENSUS_UPDATE, function (consensus, meta) {
@@ -788,7 +798,12 @@ function GenericRunRouteHandler(config, notifier) {
                 }
             }, _this, { includeMine: true });
             rs.channel.subscribe(TOPICS.RUN_RESET, function (data, meta) {
-                operationsHandler.notify({ name: 'reset', result: data }, meta);
+                var publishable = [{ name: 'reset', value: data }];
+                var excludingSilenced = Object(__WEBPACK_IMPORTED_MODULE_4_channels_channel_router_utils__["c" /* silencable */])(publishable, opts.operations.silent);
+                if (!excludingSilenced.length) {
+                    return;
+                }
+                operationsHandler.notify(publishable, meta);
             }, _this, subscribeOpts);
 
             // rs.channel.subscribe('', (data, meta)=> {
@@ -1398,7 +1413,7 @@ if (true) Flow.version = "0.11.0"; //eslint-disable-line no-undef
 "use strict";
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__dom_manager_utils_dom_parse_helpers__ = __webpack_require__(19);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__dom_manager_utils_dom_channel_prefix_helpers__ = __webpack_require__(23);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_utils_parse_utils__ = __webpack_require__(4);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_utils_parse_utils__ = __webpack_require__(5);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_3_lodash__ = __webpack_require__(0);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_3_lodash___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_3_lodash__);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__config__ = __webpack_require__(1);
@@ -2047,7 +2062,7 @@ function addDefaultPrefix(name, source, channelPrefix) {
 "use strict";
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_lodash__ = __webpack_require__(0);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_lodash___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_lodash__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__utils_parse_utils__ = __webpack_require__(4);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__utils_parse_utils__ = __webpack_require__(5);
 
 
 
@@ -3560,7 +3575,7 @@ var noopAttr = {
 Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_config__ = __webpack_require__(1);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_config___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_config__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_utils_parse_utils__ = __webpack_require__(4);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_utils_parse_utils__ = __webpack_require__(5);
 
 
 
@@ -3609,7 +3624,7 @@ var defaultEventAttr = {
 
 "use strict";
 Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_utils_parse_utils__ = __webpack_require__(4);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_utils_parse_utils__ = __webpack_require__(5);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_config__ = __webpack_require__(1);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_config___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1_config__);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__loop_attr_utils__ = __webpack_require__(13);
@@ -3725,7 +3740,7 @@ var foreachAttr = {
 Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_lodash__ = __webpack_require__(0);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_lodash___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_lodash__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_utils_parse_utils__ = __webpack_require__(4);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_utils_parse_utils__ = __webpack_require__(5);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_utils_general__ = __webpack_require__(7);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_3_config__ = __webpack_require__(1);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_3_config___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_3_config__);
@@ -4397,7 +4412,7 @@ var defaultAttr = {
 "use strict";
 /* harmony export (immutable) */ __webpack_exports__["a"] = ChannelManager;
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__channel_manager__ = __webpack_require__(53);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_channels_channel_router__ = __webpack_require__(3);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_channels_channel_router__ = __webpack_require__(4);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__route_handlers__ = __webpack_require__(58);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__channel_manager_enhancements__ = __webpack_require__(76);
 
@@ -4424,7 +4439,7 @@ function ChannelManager(opts) {
 "use strict";
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_jquery__ = __webpack_require__(54);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_jquery___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_jquery__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__channel_utils__ = __webpack_require__(5);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__channel_utils__ = __webpack_require__(3);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_lodash__ = __webpack_require__(0);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_lodash___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_2_lodash__);
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
@@ -4884,7 +4899,7 @@ function excludeReadOnly(publishable, readOnlyOptions) {
 
 "use strict";
 /* unused harmony export match */
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_utils_parse_utils__ = __webpack_require__(4);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_utils_parse_utils__ = __webpack_require__(5);
 
 
 function match(topic) {
@@ -4919,7 +4934,7 @@ function match(topic) {
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__multi_run_route_handler__ = __webpack_require__(75);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_5_channels_channel_router_utils__ = __webpack_require__(2);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_6_channels_route_handlers_route_matchers__ = __webpack_require__(6);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_7_channels_channel_router__ = __webpack_require__(3);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_7_channels_channel_router__ = __webpack_require__(4);
 
 
 
@@ -5027,7 +5042,7 @@ function EpicenterRouteHandler(config, notifier, channelManagerContext) {
 /* harmony export (immutable) */ __webpack_exports__["a"] = RunManagerRouteHandler;
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__run_route_handler__ = __webpack_require__(8);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_channels_channel_router_utils__ = __webpack_require__(2);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_channels_channel_router__ = __webpack_require__(3);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_channels_channel_router__ = __webpack_require__(4);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_3_channels_route_handlers_route_matchers__ = __webpack_require__(6);
 
 
@@ -5077,7 +5092,7 @@ function RunManagerRouteHandler(config, notifier) {
 
 "use strict";
 /* harmony export (immutable) */ __webpack_exports__["a"] = RunMetaRouteHandler;
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_channels_channel_utils__ = __webpack_require__(5);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_channels_channel_utils__ = __webpack_require__(3);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_lodash__ = __webpack_require__(0);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_lodash___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1_lodash__);
 
@@ -5135,7 +5150,7 @@ function RunMetaRouteHandler($runServicePromise, notifier) {
 "use strict";
 /* harmony export (immutable) */ __webpack_exports__["a"] = RunVariablesRouteHandler;
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_utils_general__ = __webpack_require__(7);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_channels_channel_utils__ = __webpack_require__(5);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_channels_channel_utils__ = __webpack_require__(3);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_lodash__ = __webpack_require__(0);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_lodash___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_2_lodash__);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__retriable_variable_fetch__ = __webpack_require__(64);
@@ -5217,9 +5232,16 @@ function RunVariablesRouteHandler($runServicePromise, notifier) {
                 });
             });
         },
-        notify: function (variableObj) {
+        /**
+         * 
+         * @param {Publishable[]} variableData
+         */
+        notify: function (variableData) {
             return $runServicePromise.then(function (runService) {
-                var variables = Object.keys(variableObj);
+                var variables = variableData.map(function (v) {
+                    return v.name;
+                });
+                //Need to fetch again because for Vensim, i'm notified about the Current value, while i need the value over time
                 return Object(__WEBPACK_IMPORTED_MODULE_3__retriable_variable_fetch__["a" /* retriableFetch */])(runService, variables).then(__WEBPACK_IMPORTED_MODULE_1_channels_channel_utils__["b" /* objectToPublishable */]).then(notifier);
             });
         },
@@ -5271,13 +5293,16 @@ function retriableFetch(runService, variables) {
 /* harmony export (immutable) */ __webpack_exports__["a"] = RunOperationsRouteHandler;
 function RunOperationsRouteHandler($runServicePromise, notifier) {
     return {
+        /**
+         * 
+         * @param {Publishable[]} operationsResponse 
+         */
         notify: function (operationsResponse) {
-            var parsed = [{ name: operationsResponse.name, value: operationsResponse.result }];
-            return notifier(parsed);
+            return notifier([].concat(operationsResponse));
         },
 
         subscribeHandler: function () {
-            return [];
+            return []; //Cannot subscribe to operations
         },
         publishHandler: function (topics, options) {
             return $runServicePromise.then(function (runService) {
@@ -5303,7 +5328,7 @@ function RunOperationsRouteHandler($runServicePromise, notifier) {
 /* harmony export (immutable) */ __webpack_exports__["a"] = ScenarioManagerRouteHandler;
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__run_route_handler__ = __webpack_require__(8);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_channels_channel_router_utils__ = __webpack_require__(2);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_channels_channel_router__ = __webpack_require__(3);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_channels_channel_router__ = __webpack_require__(4);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_3_channels_route_handlers_route_matchers__ = __webpack_require__(6);
 
 
@@ -5423,7 +5448,7 @@ var knownRunIDServiceChannels = {};
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_3_channels_channel_router_utils__ = __webpack_require__(2);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_4_channels_route_handlers_route_matchers__ = __webpack_require__(6);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__run_route_handler__ = __webpack_require__(8);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_6_channels_channel_router__ = __webpack_require__(3);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_6_channels_channel_router__ = __webpack_require__(4);
 
 
 
@@ -5734,7 +5759,7 @@ function WorldCurrentUserRouteHandler(config, notifier) {
 /* harmony export (immutable) */ __webpack_exports__["a"] = ConsensusRouteHandler;
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__consensus_operations_handler__ = __webpack_require__(73);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__consensus_status_handler__ = __webpack_require__(74);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_channels_channel_router__ = __webpack_require__(3);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_channels_channel_router__ = __webpack_require__(4);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_3_channels_route_handlers_route_matchers__ = __webpack_require__(6);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_4_channels_channel_router_utils__ = __webpack_require__(2);
 
@@ -5863,7 +5888,7 @@ function ConsensusOperationsHandler(config, notifier) {
 "use strict";
 /* harmony export (immutable) */ __webpack_exports__["a"] = ConsensusStatusHandler;
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__consensus_utils__ = __webpack_require__(15);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_channels_channel_utils__ = __webpack_require__(5);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_channels_channel_utils__ = __webpack_require__(3);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_lodash__ = __webpack_require__(0);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_lodash___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_2_lodash__);
 
@@ -6218,7 +6243,7 @@ function subscribeInterpolator(subscribeFn, onDependencyChange) {
 /* unused harmony export interpolateWithDependencies */
 /* harmony export (immutable) */ __webpack_exports__["a"] = publishInterpolator;
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__interpolatable_utils__ = __webpack_require__(16);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_channels_channel_utils__ = __webpack_require__(5);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_channels_channel_utils__ = __webpack_require__(3);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_lodash__ = __webpack_require__(0);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_lodash___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_2_lodash__);
 
@@ -6283,7 +6308,7 @@ function publishInterpolator(publishFunction, fetchFn) {
 
 "use strict";
 /* harmony export (immutable) */ __webpack_exports__["a"] = withRouter;
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__channel_utils__ = __webpack_require__(5);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__channel_utils__ = __webpack_require__(3);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_lodash__ = __webpack_require__(0);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_lodash___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1_lodash__);
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
