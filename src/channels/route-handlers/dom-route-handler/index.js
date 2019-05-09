@@ -40,6 +40,16 @@ export default function DOMRouteHandler(options, notifier) {
                 $el.off('change.dom-handler');
                 knownEls.delete($el);
             });
+        },
+        /**
+         * 
+         * @param {Publishable[]} publishable 
+         */
+        publishHandler: function (publishable) {
+            publishable.forEach((p)=> {
+                $(p.name).val(p.value);
+            });
+            return publishable;
         }
     };
 }

@@ -26,8 +26,22 @@
         </tbody>
     </table>
 
+    <h6>Source input with id</h6>
     <input type="text" id="test-input" value="foo">
+
+    <h6>Mirrored input bound to #test-input</h6>
+    <input data-f-bind="#test-input"></input>
+
+    <h6>Mirrored output</h6>
     <span data-f-bind="#test-input"></span>
+    
+    <br/>
+    <select id="select-input1">
+        <option value="1">One</option>
+        <option value="2">Two</option>
+        <option value="3">Three</option>
+    </select>
+    <span data-f-bind="#select-input1"></span>
     <script>
     Flow.initialize();
 
