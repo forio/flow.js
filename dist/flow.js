@@ -765,6 +765,7 @@ function GenericRunRouteHandler(config, notifier) {
     var variablesHandler = new __WEBPACK_IMPORTED_MODULE_1__run_variables_route_handler__["a" /* default */]($initialProm, variableNotifier);
 
     var subscribed = false;
+    var channelOptions = opts.channelOptions;
     $initialProm.then(function (rs) {
         if (rs.channel && !subscribed) {
             subscribed = true;
@@ -774,20 +775,20 @@ function GenericRunRouteHandler(config, notifier) {
             //TODO: Provide subscription fn to individual channels and let them handle it?
             rs.channel.subscribe(TOPICS.RUN_VARIABLES, function (data, meta) {
                 var publishable = Object(__WEBPACK_IMPORTED_MODULE_7_channels_channel_utils__["b" /* objectToPublishable */])(data);
-                var excludingSilenced = Object(__WEBPACK_IMPORTED_MODULE_4_channels_channel_router_utils__["c" /* silencable */])(publishable, opts.variables.silent);
+                var excludingSilenced = Object(__WEBPACK_IMPORTED_MODULE_4_channels_channel_router_utils__["c" /* silencable */])(publishable, channelOptions.variables.silent);
                 if (!excludingSilenced.length) {
                     return;
                 }
-                variablesHandler.notify(publishable, meta);
+                variablesHandler.notify(excludingSilenced, meta);
                 variablesHandler.fetch(); //Variables channel #notify also does a fetch, but this is not supposed to know about that. Debouncing will take care of duplicate fetches anyway.
             }, _this, subscribeOpts);
             rs.channel.subscribe(TOPICS.RUN_OPERATIONS, function (data, meta) {
                 var publishable = [{ name: data.name, value: data.result }];
-                var excludingSilenced = Object(__WEBPACK_IMPORTED_MODULE_4_channels_channel_router_utils__["c" /* silencable */])(publishable, opts.operations.silent);
+                var excludingSilenced = Object(__WEBPACK_IMPORTED_MODULE_4_channels_channel_router_utils__["c" /* silencable */])(publishable, channelOptions.operations.silent);
                 if (!excludingSilenced.length) {
                     return;
                 }
-                operationsHandler.notify(publishable, meta);
+                operationsHandler.notify(excludingSilenced, meta);
                 variablesHandler.fetch();
             }, _this, subscribeOpts);
             rs.channel.subscribe(TOPICS.CONSENSUS_UPDATE, function (consensus, meta) {
@@ -799,11 +800,11 @@ function GenericRunRouteHandler(config, notifier) {
             }, _this, { includeMine: true });
             rs.channel.subscribe(TOPICS.RUN_RESET, function (data, meta) {
                 var publishable = [{ name: 'reset', value: data }];
-                var excludingSilenced = Object(__WEBPACK_IMPORTED_MODULE_4_channels_channel_router_utils__["c" /* silencable */])(publishable, opts.operations.silent);
+                var excludingSilenced = Object(__WEBPACK_IMPORTED_MODULE_4_channels_channel_router_utils__["c" /* silencable */])(publishable, channelOptions.operations.silent);
                 if (!excludingSilenced.length) {
                     return;
                 }
-                operationsHandler.notify(publishable, meta);
+                operationsHandler.notify(excludingSilenced, meta);
             }, _this, subscribeOpts);
 
             // rs.channel.subscribe('', (data, meta)=> {

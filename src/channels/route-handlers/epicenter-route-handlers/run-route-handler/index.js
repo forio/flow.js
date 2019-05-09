@@ -75,6 +75,7 @@ export default function GenericRunRouteHandler(config, notifier) {
     const variablesHandler = new VariablesRouteHandler($initialProm, variableNotifier);
 
     let subscribed = false;
+    const channelOptions = opts.channelOptions;
     $initialProm.then((rs)=> {
         if (rs.channel && !subscribed) {
             subscribed = true;
@@ -83,20 +84,20 @@ export default function GenericRunRouteHandler(config, notifier) {
             //TODO: Provide subscription fn to individual channels and let them handle it?
             rs.channel.subscribe(TOPICS.RUN_VARIABLES, (data, meta)=> {
                 const publishable = objectToPublishable(data);
-                const excludingSilenced = silencable(publishable, opts.variables.silent);
+                const excludingSilenced = silencable(publishable, channelOptions.variables.silent);
                 if (!excludingSilenced.length) {
                     return;
                 }
-                variablesHandler.notify(publishable, meta);
+                variablesHandler.notify(excludingSilenced, meta);
                 variablesHandler.fetch();//Variables channel #notify also does a fetch, but this is not supposed to know about that. Debouncing will take care of duplicate fetches anyway.
             }, this, subscribeOpts);
             rs.channel.subscribe(TOPICS.RUN_OPERATIONS, (data, meta)=> {
                 const publishable = [{ name: data.name, value: data.result }];
-                const excludingSilenced = silencable(publishable, opts.operations.silent);
+                const excludingSilenced = silencable(publishable, channelOptions.operations.silent);
                 if (!excludingSilenced.length) {
                     return;
                 }
-                operationsHandler.notify(publishable, meta);
+                operationsHandler.notify(excludingSilenced, meta);
                 variablesHandler.fetch();
             }, this, subscribeOpts);
             rs.channel.subscribe(TOPICS.CONSENSUS_UPDATE, (consensus, meta)=> {
@@ -108,11 +109,11 @@ export default function GenericRunRouteHandler(config, notifier) {
             }, this, { includeMine: true });
             rs.channel.subscribe(TOPICS.RUN_RESET, (data, meta)=> {
                 const publishable = [{ name: 'reset', value: data }];
-                const excludingSilenced = silencable(publishable, opts.operations.silent);
+                const excludingSilenced = silencable(publishable, channelOptions.operations.silent);
                 if (!excludingSilenced.length) {
                     return;
                 }
-                operationsHandler.notify(publishable, meta);
+                operationsHandler.notify(excludingSilenced, meta);
             }, this, subscribeOpts);
 
 
