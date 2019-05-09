@@ -26,6 +26,7 @@ const WORLD_PREFIX = 'world:';
 var sampleRunidLength = '000001593dd81950d4ee4f3df14841769a0b'.length;
 var runidRegex = '(?:.{' + sampleRunidLength + '})';
 
+/* eslint-disable complexity */
 export default function EpicenterRouteHandler(config, notifier, channelManagerContext) {
     var opts = $.extend(true, {}, config);
 
@@ -56,8 +57,13 @@ export default function EpicenterRouteHandler(config, notifier, channelManagerCo
     var runManagerOpts = getOptions(opts, 'runManager');
     if (opts.runManager || (!opts.scenarioManager && runManagerOpts.serviceOptions.run)) {
         var rm;
+        const hasEnoughInfo = runManagerOpts.serviceOptions.run && runManagerOpts.serviceOptions.run.model;
         const isMultiplayer = runManagerOpts.serviceOptions.strategy === 'multiplayer' || runManagerOpts.serviceOptions.isMultiplayer;
-        if (opts.scenarioManager) {
+        
+        if (!hasEnoughInfo) {
+            console.warn('No model specified, not initializing run manager channel', opts);
+            rm = { expose: {} };
+        } else if (opts.scenarioManager) {
             rm = new DefaultRunRouteHandler(runManagerOpts, withPrefix(notifier, RUN_PREFIX));
             handlers.push($.extend({}, rm, { 
                 name: 'run',
