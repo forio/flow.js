@@ -7,8 +7,8 @@ import { pick, isEqual } from 'lodash';
 
 import { prefix, errorAttr, events, animation } from '../config';
 
-import converterManager from 'converter-manager';
-import nodeManager from './nodes/node-manager';
+import converterManager from './converter-manager';
+import nodeManager from './node-manager';
 import attrManager from './attribute-manager';
 import autoUpdatePlugin from './plugins/auto-update-bindings';
 

@@ -1,5 +1,5 @@
 import { isFunction, isString, isRegExp, find, mapValues } from 'lodash';
-import { splitNameArgs, toImplicitType } from '../utils/parse-utils';
+import { splitNameArgs, toImplicitType } from 'utils/parse-utils';
 
 var normalize = function (alias, converter, acceptList) {
     var ret = [];

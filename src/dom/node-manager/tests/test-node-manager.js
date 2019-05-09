@@ -1,4 +1,4 @@
-import nm from '../node-manager';
+import nm from '../index';
 import { expect } from 'chai';
 
 describe('Node Manager', function () {

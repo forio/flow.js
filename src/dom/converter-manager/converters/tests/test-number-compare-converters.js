@@ -1,5 +1,5 @@
 import { greaterThan, lessThan } from '../number-compare-converters';
-import cm from 'converter-manager';
+import cm from '../../index';
 
 describe('Number compare converters', ()=> {
     describe('greaterThan', ()=> {

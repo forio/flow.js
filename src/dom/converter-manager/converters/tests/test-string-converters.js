@@ -1,4 +1,4 @@
-import cm from 'converter-manager';
+import cm from '../../index';
 
 describe('String converter', ()=> {
     describe('upperCase', ()=> {

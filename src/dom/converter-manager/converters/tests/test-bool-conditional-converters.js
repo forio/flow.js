@@ -1,5 +1,5 @@
 import nc from '../boolean-conditional-converters';
-import cm from 'converter-manager';
+import cm from '../../index';
 
 describe('Boolean Conditional', function () {
     describe('toBool', ()=> {

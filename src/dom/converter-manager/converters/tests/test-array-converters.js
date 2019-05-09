@@ -1,4 +1,4 @@
-import cm from 'converter-manager';
+import cm from '../../index';
 import { expect } from 'chai';
 
 describe('#Array converters', ()=> {

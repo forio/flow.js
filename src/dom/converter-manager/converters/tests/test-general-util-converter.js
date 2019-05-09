@@ -1,5 +1,5 @@
 import conv from '../general-util-converters';
-import cm from 'converter-manager';
+import cm from '../../index';
 
 const fn = conv[0].convert;
 
