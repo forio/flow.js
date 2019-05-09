@@ -4125,6 +4125,9 @@ var inputBindAttr = {
     test: 'bind',
 
     handle: function (value, prop, $el) {
+        if ($el.is(':focus')) {
+            return; //If an user is actively typing in a value, don't overwrite it
+        }
         if (value === undefined) {
             value = '';
         } else if (Array.isArray(value)) {
