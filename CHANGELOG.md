@@ -1,6 +1,191 @@
-- Change in options format
-- Change in publish/subscribe
-- Change in on-init behavior
+<a name="1.0.0"></a>
+## 1.0.0 (2017-05-26)
+
+This update includes several major, breaking changes. 
+
+### New Features: Explicit Routers, Meta Channel
+
+Routers allow Flow.js to route incoming requests to the correct underlying API. 
+
+Channels allow Flow.js to actually make requests of these underlying APIs.
+
+In previous releases, there was only one (default) router available: a "run manager" router which routed requests to the current run.
+
+New in this release, there are now several routers for connecting to Epicenter:
+
+* **Run Manager Router**: routes to the current run (for "current" defined by the run `strategy`)
+* **Scenario Manager Router**: routes to an underlying scenario manager, which can address aset of runs, including `baseline`, `current`, and `saved`.
+* **Multiple Runs Router**: routes to a set of runs matching a particular query
+* **Single Run Router**: routes to a single existing run, based on the run id
+
+The existing channels, for model variables and model operations, are unchanged. There is now also a "meta" channel, which provides access to metadata from the run record.
+
+Together, these changes allow you to use Flow.js more easily in multipage projects and in run comparison projects.
+
+
+##### Changes to Flow.initialize()
+
+This is a **breaking change**. The options for a `Flow.initialize()` call have been restructured, to accommodate the new routers.
+
+Previous versions of Flow.js had one `channel` option, which included `strategy` and `run` information for all channels on the only available router:
+
+	Flow.initialize({
+		channel: {
+			strategy: 'aStrategy',
+			run: {
+				account: 'teamId',
+				project: 'projectId',
+				model: 'model.py',
+				variables: { silent: ['sampleVar'] },
+				operations: { silent: false },
+				server: { host: 'api.forio.com' }
+			}
+		}
+	});
+
+
+New in Flow.js version 1.0, there are separate options for each router: `defaults`, `runManager`, `scenarioManager`, and `runid` (the single run router can only inherit options from the default). Each of these can take `run`  and `channelOptions` information, and takes `strategy` information when relevant:
+
+	Flow.initialize({
+		// default options apply to all routers
+		defaults: {
+			run: { 
+				account: 'teamId',
+				project: 'projectId',
+				model: 'model.py',
+				server: { host: 'api.forio.com' }
+			},
+			channelOptions: {
+				variables: { },
+				operations: { }
+			}
+		},
+		
+		// runManager options apply only to the run manager router
+		runManager: {
+			strategy: 'aStrategy',
+			run: {
+			
+			},
+			channelOptions: {
+				variables: { silent: ['sampleVar'] },
+				operations: { silent: false }			
+			}
+		},
+		
+		// scenarioManager options apply only to the scenario manager router
+		scenarioManager: {
+			run: {
+			
+			},
+			channelOptions: {
+				variables: { silent: ['sampleVar'] },
+				operations: { silent: false }
+			}	
+		}
+	});
+
+
+##### New Run Manager Router
+
+The Run Manager Router connects Flow.js to the Epicenter.js [Run Manager](https://forio.com/epicenter/docs/public/api_adapters/generated/run-manager/), which allows you to interact the current run. The current run is determined by the run strategy for your project.
+
+Working with the Run Manager Router was previously the default behavior in Flow.js. In version 1.0, it remains the default behavior, however, the way in which you specify options for it when initializing Flow has changed (see above).
+
+See more information: [Run Manager Router](https://forio.com/epicenter/docs/public/data_binding_flow_js/generated/channels/run-manager-router/). 
+
+##### New Scenario Manager Router
+
+The Scenario Manager Router connects Flow.js to the Epicenter.js [Scenario Manager](https://forio.com/epicenter/docs/public/api_adapters/generated/scenario-manager/), which allows you to interact with several different runs, including a `baseline`, `current`, and set of `saved` runs. 
+
+Use the Scenario Manager Router for "run comparison" or "scenario comparison" projects. In these projects, end users set some initial decisions, then simulate the model to its end. Typically end users will do this several times, creating several runs, and compare the results. To facilitate this, the Scenario Manager Channel provides access to a current run in which to make decisions; a list of saved runs (that is, all runs that you want to use for comparisons); and a baseline run to compare against (that is, a run advanced to the end of your model using just the model defaults).
+
+See more information: [Scenario Manager Router](https://forio.com/epicenter/docs/public/data_binding_flow_js/generated/channels/scenario-manager-router/). 
+
+##### New Multiple Runs Router
+
+The Multiple Runs Router connects Flow.js to the Epicenter.js [Run Service](https://forio.com/epicenter/docs/public/api_adapters/generated/run-api-service/), querying it for multiple runs matching the filter.
+
+Using a Multiple Runs Router can help build "scenario comparison" projects, in which end users set some initial decisions, then simulate the model to its end. Typically end users will do this several times, creating several runs, and a results page will compare model variables from across many runs. A Run Filter Router is also common for facilitator pages, where a facilitator may want to view information from many runs.
+
+See more information: [Multiple Runs Router](https://forio.com/epicenter/docs/public/data_binding_flow_js/generated/channels/multiple-runs-router/).
+
+##### New Single Run Router
+
+The Single Run Router connects Flow.js to the Epicenter.js [Run Manager](https://forio.com/epicenter/docs/public/api_adapters/generated/run-manager/), which allows you to interact with a single run. Unlike the Run Manager Router, which works only with the "current" run defined by a particular strategy, the Run ID Channel works with a particular, existing run, specified by the run id.
+
+See more information: [Single Run Router](https://forio.com/epicenter/docs/public/data_binding_flow_js/generated/channels/single-run-router/).
+
+##### New Meta Channel
+
+Channels allow Flow.js to make requests of underlying APIs. 
+
+The [Variables Channel](https://forio.com/epicenter/docs/public/data_binding_flow_js/generated/channels/variables-channel/) lets you track when model variables are updated. It is unchanged in this release. 
+
+The [Operations Channel](https://forio.com/epicenter/docs/public/data_binding_flow_js/generated/channels/operations-channel/) lets you track when model operations are called. It is unchanged in this release. 
+
+The new [Meta Channel](https://forio.com/epicenter/docs/public/data_binding_flow_js/generated/channels/meta-channel/) lets you track when run metadata (fields in the run record) are updated -- both default run metadata and any additional metadata you choose to add to a run.
+
+In addition to `publish`, `subscribe`, and [other common methods](https://forio.com/epicenter/docs/public/data_binding_flow_js/generated/channels/channel-manager/), you can also reference specific channels within the Flow.js custom HTML attributes: `data-f-bind="meta:runName"`, `data-f-bind="variables:price"`.
+
+##### Changes to Channel Access
+
+This is a **breaking change**. In previous releases, each channel had its own methods:
+
+	Flow.channel.variables.publish('myVariable', newValue);
+	Flow.channel.operations.publish('myOperation', myOperParam);
+
+New in Flow.js 1.0, all channels share methods, and the particular channel is now part of the first argument to the method: 
+
+	Flow.channel.publish('variables:myVariable', newValue);
+	Flow.channel.publish('operations:myOperation', myOperParam);
+
+
+### Improvements
+
+There are also several improvements in this release, including:
+
+* A `cache` argument for `channel.subscribe()`, which can improve performance. 
+
+		// subscriber function "callback_withcache" is called 
+		// only when if both price and cost are published together
+		channel.subscribe(['price', 'cost'], callback_withcache, { batch: true, cache: true });
+		
+		// subscriber function "callback_withoutcache" is called
+		// when either price or cost is published
+ 
+	When `cache: true` is passed in, if the `subscribe()` call also takes a `batch: true` argument, then the `subscriber` argument is called only if all topics (variables) being subscribed to are published (updated) at once.
+
+
+### Dependencies
+
+New in the Flow.js 1.0 release, jquery 3.x is now required.
+
+
+<a name"0.11.0"></a>
+## 0.11.0 (2016-12-14)
+
+This update includes several new features:
+
+* Both the `data-f-foreach` and the `data-f-repeat` attributes now support "aliasing": You can add an alias when you initially introduce your model variable in one of these attributes, then reference the alias in templates. This can simplify your template code, and also allows you to nest HTML elements that have repeated sub-elements.
+
+	For example:
+	
+		<ul data-f-foreach="r in Regions">
+			<li>Region <%= r %>: 
+				<ul data-f-foreach="s in Sales">
+					<li>Sales <%= s %></li>
+				</ul>
+			</li>
+		</ul>
+	
+	See complete details and additional examples on the [data-f-foreach page](https://forio.com/epicenter/docs/public/data_binding_flow_js/generated/dom/attributes/foreach/default-foreach-attr/) and the [data-f-repeat page](https://forio.com/epicenter/docs/public/data_binding_flow_js/generated/dom/attributes/repeat-attr/). You can also learn more about [working with templates in Flow.js](https://forio.com/epicenter/docs/public/data_binding_flow_js/#templates).
+	
+* Both the [variables channel](https://forio.com/epicenter/docs/public/data_binding_flow_js/generated/channels/variables-channel/) and the [operations channel](https://forio.com/epicenter/docs/public/data_binding_flow_js/generated/channels/operations-channel/) now include a `readOnly` configuration option, so that you can allow using the channel for subscribing but disallow publishing. This is useful if you want to display information about the variables or operations without updating the run.
+
+* Internal improvements, including removing the `bower` dependency and upgrading the `jQuery` support to jQuery 3 (matching Epicenter.js 2.0 and later).
+
+* New `/src/config.js` lists all of the attributes used by Flow.js and the events triggered by Flow.js. 
 
 <a name="0.12.0"></a>
 ## 0.12.0 (2017-05-18)

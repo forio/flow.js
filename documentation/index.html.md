@@ -8,7 +8,7 @@ isPage: true
 
 Flow.js provides two-way data bindings between variables and operations in your project's model and HTML elements in your project's user interface. In this way, Flow.js decouples the model from its interface. This is beneficial as a general design principle, and can be especially helpful for larger development teams where the UI developers and the modelers are different people. If you are comfortable writing HTML and basic JavaScript, using Flow.js can save you significant development time.
 
-In particular, Flow.js provides a channel between the variables and operations in your model and the HTML elements in your interface. You simply reference model variables directly within HTML elements, and these values automatically update as the model changes; Flow.js takes care of all of the details.
+In particular, Flow.js provides several *routes* between the variables and operations in different runs and the HTML elements in your interface. The default router allows you to simply reference model variables from the current run directly within HTML elements, and these values automatically update as the model changes; Flow.js takes care of all of the details.
 
 
 Learn more about the basics:
@@ -26,7 +26,7 @@ Learn more about advanced topics:
 * [Flow.js and data visualization: graphing with Contour](./graphing-overview/)
 * [Flow Inspector: debugging with Flow.js](./inspector-overview/)
 
-**The current version of Flow is 0.12.0.** See the [Using Flow.js in your Project](#using_in_project) section below. You can also view the history of releases on <a href="https://github.com/forio/flow.js/releases/" "target=_blank">GitHub</a>.
+**The current version of Flow is 1.0.0.** See the [Using Flow.js in your Project](#using_in_project) section below. You can also view the history of releases on <a href="https://github.com/forio/flow.js/releases/" "target=_blank">GitHub</a>.
 
 
 <a name="using_in_project"></a>
@@ -40,7 +40,7 @@ Learn more about advanced topics:
 	* [`lodash.js`](http://lodash.com): utilities and performance enhancements used by Flow.js; also used in [templating](#templates)
 		* NOTE: Flow.js requires version 2.x of `lodash.js`.
 	* [`epicenter.js`](../api_adapters/): [Epicenter API Adapters](../api_adapters/) with services and utilities for connecting to project models using the underlying Epicenter RESTful APIs.
-2. Add Flow.js itself to your project. The latest version of the Flow.js library is available from our set of tools: <a href="https://forio.com/tools/js-libs/flow/latest/flow.min.js" target="_blank">https://forio.com/tools/js-libs/flow/latest/flow.min.js</a>. (You can also review previous versions and detailed release notes on <a href="https://github.com/forio/flow.js/releases" target="_blank">GitHub</a>.)
+2. Add Flow.js itself to your project. The latest version of the Flow.js library is available from our set of tools: <a href="https://forio.com/tools/js-libs/flow/1.0.0/flow.min.js" target="_blank">https://forio.com/tools/js-libs/flow/1.0.0/flow.min.js</a>. (You can also review previous versions and detailed release notes on <a href="https://github.com/forio/flow.js/releases" target="_blank">GitHub</a>.)
 3. Call the `Flow.initialize()` method. This tells Flow.js to create and initialize a run for you. (Runs are sets of particular user interactions with your project.)
 4. In order to finish initializing a run, Flow.js needs to know the name of the model. Add the attribute `data-f-model` to the `<body>` tag. Set the value to the name of your [model file](../writing_your_model/).
 
@@ -51,7 +51,7 @@ Learn more about advanced topics:
 				<script src="//ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script>
 				<script src="//cdnjs.cloudflare.com/ajax/libs/lodash.js/2.4.1/lodash.js"></script>
 				<script src="//forio.com/tools/js-libs/2.2.0/epicenter.min.js"></script>
-				<script src="//forio.com/tools/js-libs/flow/latest/flow.js"></script>
+				<script src="//forio.com/tools/js-libs/flow/1.0.0/flow.js"></script>
 				
 				<script>
 				$(function() { Flow.initialize(); });
@@ -87,13 +87,11 @@ These parameters are optional because the `run` information defaults correctly b
 			}
 		});
 	
-In fact, you can add any of the [Model Run API parameters](../rest_apis/other_apis/model_apis/run/) to the `run` object here. See also more details on [customizing the Flow.initialize() method](./generated/flow-js/).
+In fact, you can add any of the [Run Manager parameters](../api_adapters/generated/run-manager/) to the `run` object here. See also more details on [customizing the Flow.initialize() method](./generated/flow-js/).
 
-Additionally, the `Flow.initialize()` call returns a promise, which is resolved when initialization is complete:
-
-		Flow.initialize(...).then(function() {
-			// code that depends on initialization goes here
-		});
+The `defaults` object sets the default parameters for all the routers used on the page. If you are using other [routers](./channel-overview/), then the `Flow.initialize()` can take additional parameters for each one. See the [Routers &amp; Channels](./channel-overview/) page for more information. 
+ See also more details on [customizing the Flow.initialize() method](./generated/flow-js/).
+ The `Flow.initialize()` call returns a promise, which is resolved when initialization is complete:
 
 
 <a name="templates"></a>
