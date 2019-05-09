@@ -49,7 +49,10 @@
             <option value="2">2007</option>
         </select>
 
-        <p data-f-bind="Price[<#year-chooser>]"></p>
+
+        <p>
+            Price in year <b data-f-bind="#year-chooser | plus(1)"></b> was <strong data-f-bind="Price[<#year-chooser>]"></strong>
+        </p>
 
     </section>
     <script>
