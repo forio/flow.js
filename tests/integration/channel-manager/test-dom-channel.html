@@ -1,0 +1,37 @@
+<html>
+
+<head>
+    <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css">
+    <script src="/node_modules/jquery/dist/jquery.min.js"></script>
+    <script src="/node_modules/lodash/lodash.js"></script>
+    <!-- <script src="http://local.forio.com:8084/dist/epicenter-edge.js"></script> -->
+    <script src="/node_modules/epicenter-js/dist/epicenter.min.js"></script>
+    <script src="/dist/flow-edge.js"></script>
+</head>
+
+<body data-f-model="">
+    <section>
+        <button id="btnStep">Step</button>
+    </section>
+
+    <table class="table" style="width: 600px;">
+        <thead>
+            <tr>
+                <th>Type</th>
+                <th>Input</th>
+                <th>Output</th>
+            </tr>
+        </thead>
+        <tbody id="outputs">
+        </tbody>
+    </table>
+
+    <input type="text" id="test-input" value="foo">
+    <span data-f-bind="#test-input"></span>
+    <script>
+    Flow.initialize();
+
+    </script>
+</body>
+
+</html>

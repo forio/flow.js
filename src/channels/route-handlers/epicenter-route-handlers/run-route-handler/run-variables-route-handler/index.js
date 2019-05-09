@@ -46,7 +46,11 @@ export default function RunVariablesRouteHandler($runServicePromise, notifier) {
         },
 
         unsubscribeHandler: function (unsubscribedTopics, remainingTopics) {
-            knownTopics = knownTopics.filter((t)=> unsubscribedTopics.indexOf(t) === -1);
+            knownTopics = knownTopics.filter((t)=> {
+                const isUnsubscribed = unsubscribedTopics.indexOf(t) !== -1;
+                const isRemaining = remainingTopics.indexOf(t) !== -1;
+                return !isUnsubscribed || isRemaining;
+            });
         },
         subscribeHandler: function (topics, options) {
             // console.log('subscribe', JSON.stringify(topics));
