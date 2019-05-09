@@ -1,4 +1,4 @@
-import Handler from '../run-meta-route-handler';
+import Handler from '../index';
 import sinon from 'sinon';
 import chai from 'chai';
 chai.use(require('sinon-chai'));

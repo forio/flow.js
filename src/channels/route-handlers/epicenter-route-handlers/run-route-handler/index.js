@@ -1,6 +1,6 @@
 import MetaRouteHandler from './run-meta-route-handler';
 import VariablesRouteHandler from './run-variables-route-handler';
-import OperationsRouteHandler from './run-operations-route-hander';
+import OperationsRouteHandler from './run-operations-route-handler';
 
 import router from 'channels/channel-router';
 import { withPrefix, silencable } from 'channels/channel-router/utils';
