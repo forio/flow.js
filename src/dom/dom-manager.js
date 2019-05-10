@@ -159,7 +159,8 @@ export default (function () {
             // this.unbindElement(element); //unbind actually removes the data,and jquery doesn't refetch when .data() is called..
             const domEl = getElementOrError(element);
             const $el = $(domEl);
-            if (!$el.is(`:${prefix}`)) {
+            const isExcluded = opts.exclude && $el.is(opts.exclude);
+            if (!$el.is(`:${prefix}`) || isExcluded) {
                 return;
             }
 
@@ -311,6 +312,11 @@ export default (function () {
                 root: 'body',
                 channel: null,
 
+                /**
+                 * Exclude elements matching these selectors from being bound
+                 */
+                exclude: 'pre *',
+                
                 /**
                  * Any elements added to the DOM after `Flow.initialize()` has been called will be automatically bound, and subscriptions added to channels.
                  * @type {boolean}

@@ -367,7 +367,7 @@ describe('DOM Manager', function () {
                 <input id="ip2" data-f-bind="door" />
             </div>`, domManager, null, {
                 uiChangeEvents: {
-                    '#ip2': 'keypress'
+                    '#ip2': 'click'
                 }
             }).then(function ($node) {
 
@@ -382,7 +382,7 @@ describe('DOM Manager', function () {
                 $node.find('#ip2').trigger('change');
                 expect(textspy).to.have.been.calledOnce;
 
-                $node.find('#ip2').trigger('keypress');
+                $node.find('#ip2').trigger('click');
                 expect(textspy).to.have.been.calledTwice;
             });
         });
