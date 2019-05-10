@@ -19,11 +19,15 @@ export default BaseView.extend({
             this.uiChangeEvent = options.triggerChangeOn;
         }
         if (propName) {
-            this.$el.off(this.uiChangeEvent).on(this.uiChangeEvent, ()=> {
+            const changeHandler = function () {
                 const val = this.getUIValue();
                 const payload = [{ name: propName, value: val }];
                 this.$el.trigger(events.trigger, { data: payload, source: 'bind' });
-            });
+            }.bind(this);
+
+            const debouncedHandler = _.debounce(changeHandler, 200);
+            const handler = this.uiChangeEvent.indexOf('key') !== -1 ? debouncedHandler : changeHandler;
+            this.$el.off(this.uiChangeEvent).on(this.uiChangeEvent, handler);
         }
         BaseView.prototype.initialize.apply(this, arguments);
     }

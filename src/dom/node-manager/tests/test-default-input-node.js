@@ -1,5 +1,4 @@
 import NodeClass from '../default-input-node';
-import sinon from 'sinon';
 
 import { create as make } from 'tests/testing-utils';
 
@@ -53,7 +52,7 @@ describe('Input node', function () {
             var $el = $('<input type="text" value="4" data-f-bind="stuff"/>');
             new NodeClass({
                 $el: $el,
-                triggerChangeOn: 'keypress'
+                triggerChangeOn: 'click'
             });
 
             var s = sinon.spy();
@@ -62,7 +61,7 @@ describe('Input node', function () {
 
             s.should.not.have.been.called;
 
-            $el.val('ruthere').trigger('keypress');
+            $el.val('ruthere').trigger('click');
             s.should.have.been.calledOnce;
 
         });
@@ -90,17 +89,17 @@ describe('Input node', function () {
             var $el = $('<input type="text" value="4" data-f-bind="stuff"/>');
             var n = new NodeClass({
                 $el: $el,
-                triggerChangeOn: 'keypress'
+                triggerChangeOn: 'blur'
             });
 
             var s = sinon.spy();
             $el.on('update.f.ui', s);
     
-            $el.val('ruthere').trigger('keypress');
+            $el.val('ruthere').trigger('blur');
             s.should.have.been.calledOnce;
             n.removeEvents();
 
-            $el.val('rutherenow').trigger('keypress');
+            $el.val('rutherenow').trigger('blur');
             s.should.have.been.calledOnce;
 
             $el.val('rutherenowww').trigger('change');
