@@ -17,7 +17,7 @@ describe('Number converters', ()=> {
     describe('minus', ()=> {
         it('should subtract 2 numbers', ()=> {
             minus('50', 50).should.equal(0);
-            minus('50.001', '1').should.equal(49.001);
+            minus('1', '50.001').should.equal(49.001);
         });
     });
     describe('multiplyBy', ()=> {
@@ -29,11 +29,11 @@ describe('Number converters', ()=> {
     describe('divideBy', ()=> {
         it('should subtract 2 numbers', ()=> {
             divideBy('50', 50).should.equal(1);
-            divideBy('50', '2').should.equal(25);
+            divideBy('2', '50').should.equal(25);
         });
     });
     describe('Integration', ()=> {
-        it.only('accept convert syntax', ()=> {
+        it('accept convert syntax', ()=> {
             cm.convert('1', 'plus(1)').should.equal(2);
             cm.convert('1', 'minus(10)').should.eql(-9.0);
             cm.convert('1', 'multiplyBy(10)').should.equal(10);

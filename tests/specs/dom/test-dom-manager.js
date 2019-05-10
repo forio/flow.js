@@ -361,5 +361,30 @@ describe('DOM Manager', function () {
                 domManager.matchedElements.size.should.equal(3);
             });
         });
+        it('should allow overriding change events', function () {
+            return utils.initWithNode(`<div>
+                <input id="ip1" data-f-bind="hoo" />
+                <input id="ip2" data-f-bind="door" />
+            </div>`, domManager, null, {
+                uiChangeEvents: {
+                    '#ip2': 'keypress'
+                }
+            }).then(function ($node) {
+
+                var textspy = sinon.spy();
+                $node.on('update.f.ui', textspy);
+
+                domManager.bindAll($node.find('div').get(0));
+                $node.find('#ip1').trigger('change');
+
+                expect(textspy).to.have.been.calledOnce;
+
+                $node.find('#ip2').trigger('change');
+                expect(textspy).to.have.been.calledOnce;
+
+                $node.find('#ip2').trigger('keypress');
+                expect(textspy).to.have.been.calledTwice;
+            });
+        });
     });
 });

@@ -61,16 +61,16 @@ export function createDummyChannel(options, knownData) {
     return dummyChannel();
 }
 
-export function initWithNode(str, domManager, channel) {
+export function initWithNode(str, domManager, channel, otheroptions) {
     if (!channel) {
         channel = createDummyChannel();
     }
     var $node = $(create(str));
 
-    return domManager.initialize({
+    return domManager.initialize($.extend(true, {
         root: $node,
         channel: channel
-    });
+    }, otheroptions));
 }
 
 export function spyOnNode($node, spy) {

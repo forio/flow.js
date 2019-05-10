@@ -48,6 +48,24 @@ describe('Input node', function () {
 
             s.should.not.have.been.called;
         });
+
+        it('should allow changing default change event', ()=> {
+            var $el = $('<input type="text" value="4" data-f-bind="stuff"/>');
+            new NodeClass({
+                $el: $el,
+                triggerChangeOn: 'keypress'
+            });
+
+            var s = sinon.spy();
+            $el.on('update.f.ui', s);
+            $el.val('hello').trigger('change');
+
+            s.should.not.have.been.called;
+
+            $el.val('ruthere').trigger('keypress');
+            s.should.have.been.calledOnce;
+
+        });
     });
 
     describe('#removeEvents', function () {
@@ -65,6 +83,27 @@ describe('Input node', function () {
             n.removeEvents();
 
             $el.val('hello').trigger('change');
+            s.should.have.been.calledOnce;
+        });
+
+        it('should remove custom change events', ()=> {
+            var $el = $('<input type="text" value="4" data-f-bind="stuff"/>');
+            var n = new NodeClass({
+                $el: $el,
+                triggerChangeOn: 'keypress'
+            });
+
+            var s = sinon.spy();
+            $el.on('update.f.ui', s);
+    
+            $el.val('ruthere').trigger('keypress');
+            s.should.have.been.calledOnce;
+            n.removeEvents();
+
+            $el.val('rutherenow').trigger('keypress');
+            s.should.have.been.calledOnce;
+
+            $el.val('rutherenowww').trigger('change');
             s.should.have.been.calledOnce;
         });
     });

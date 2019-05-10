@@ -152,8 +152,9 @@ export default (function () {
          * @returns {void}
          */
         bindElement: function (element, channel) {
+            const opts = this.options || {};
             if (!channel) {
-                channel = this.options.channel;
+                channel = opts.channel;
             }
             // this.unbindElement(element); //unbind actually removes the data,and jquery doesn't refetch when .data() is called..
             const domEl = getElementOrError(element);
@@ -163,9 +164,15 @@ export default (function () {
             }
 
             //Send to node manager to handle ui changes
+            const changeEventOverrides = opts.uiChangeEvents || {};
+            const triggerSelector = Object.keys(changeEventOverrides).find((selector)=> {
+                return $el.is(selector);
+            });
+            const matchingEvent = triggerSelector && changeEventOverrides[triggerSelector];
             const Handler = nodeManager.getHandler($el);
             new Handler.handle({
-                el: domEl
+                el: domEl,
+                triggerChangeOn: matchingEvent
             });
 
             const filterPrefix = `data-${prefix}-`;
@@ -305,10 +312,17 @@ export default (function () {
                 channel: null,
 
                 /**
-                 * Any variables added to the DOM after `Flow.initialize()` has been called will be automatically parsed, and subscriptions added to channels. Note, this does not work in IE versions < 11.
+                 * Any elements added to the DOM after `Flow.initialize()` has been called will be automatically bound, and subscriptions added to channels.
                  * @type {boolean}
                  */
-                autoBind: true
+                autoBind: true,
+
+                /**
+                 * By default Flow triggers events on 'change', but you may want to trigger on, say, 'keypress' for specific inputs. Set { uiChangeEvents: { [selector]: 'keypress' } } for such cases
+                 */
+                uiChangeEvents: {
+
+                }
             };
             $.extend(defaults, options);
 

@@ -13,15 +13,16 @@ export default BaseView.extend({
         this.$el.off(this.uiChangeEvent);
     },
 
-    initialize: function () {
-        const me = this;
+    initialize: function (options) {
         const propName = this.$el.data(binderAttr);
-
+        if (options && options.triggerChangeOn) {
+            this.uiChangeEvent = options.triggerChangeOn;
+        }
         if (propName) {
-            this.$el.off(this.uiChangeEvent).on(this.uiChangeEvent, function () {
-                const val = me.getUIValue();
+            this.$el.off(this.uiChangeEvent).on(this.uiChangeEvent, ()=> {
+                const val = this.getUIValue();
                 const payload = [{ name: propName, value: val }];
-                me.$el.trigger(events.trigger, { data: payload, source: 'bind' });
+                this.$el.trigger(events.trigger, { data: payload, source: 'bind' });
             });
         }
         BaseView.prototype.initialize.apply(this, arguments);
