@@ -1,9 +1,3 @@
----
-title: default bind attr
-layout: "flow"
-isPage: true
----
-
 ## Default Bi-directional Binding: data-f-bind
 
 The most commonly used attribute provided by Flow.js is the `data-f-bind` attribute.

@@ -21,7 +21,6 @@
 	<td>id=update01</td>
 	<td>hello world flow</td>
 </tr>
-<!--# skip testing for data-f-on-init: requires lookups w/ postman-->
 <!--# testing data-f-on-click-->
 <tr>
 	<td>click</td>

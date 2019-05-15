@@ -1,9 +1,3 @@
----
-title: default attr
-layout: "flow"
-isPage: true
----
-
 ## Default Attribute Handling: Read-only Binding
 
 Flow.js uses the HTML5 convention of prepending data- to any custom HTML attribute. Flow.js also adds `f` for easy identification of Flow.js. For example, Flow.js provides several custom attributes and attribute handlers -- including [data-f-bind](../binds/default-bind-attr), [data-f-foreach](../loop-attrs/foreach-attr/), etc. You can also [add your own attribute handlers](../attribute-manager/).

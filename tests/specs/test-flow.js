@@ -194,48 +194,5 @@ describe.skip('Flow Epicenter integration', function () {
                 server.requests[1].method.toUpperCase().should.equal('GET');
             });
         });
-
-        describe('with on-init', function () {
-            var $elWithInit;
-            beforeEach(function () {
-                $elWithInit = $([
-                    '<div data-f-on-init="stuff">',
-                    '   <span data-f-bind="price"> X </span>',
-                    '</div>'
-                ].join(''));
-            });
-
-            it('should not fetch variables if there is an init operation', function () {
-                Flow.initialize({
-                    channel: $.extend(true, {}, channelOpts),
-                    dom: {
-                        root: $elWithInit
-                    }
-                }).then(function () {
-                    // server.respond();
-                    clock.tick(500);
-                    server.requests.length.should.equal(3); //POST, POST, GET
-
-                    server.requests[0].method.toUpperCase().should.equal('POST');
-                    server.requests[1].method.toUpperCase().should.equal('POST');
-                    server.requests[2].method.toUpperCase().should.equal('GET');
-                });
-            });
-
-            //Skipping this because the sion server is failing because of a timing issue, not sure where. Maybe in runchannel debounce?
-            it.skip('should auto-fetch after initial operation', function () {
-                Flow.initialize({
-                    channel: $.extend(true, {}, channelOpts),
-                    dom: {
-                        root: $elWithInit
-                    }
-                }).then(function () {
-                    server.requests.length.should.equal(3); //POST, POST, GET
-
-                    $elWithInit.append('<span data-f-bind="sales">Y</span>');
-                    server.requests.length.should.equal(4); //POST, POST, GET, GET
-                });
-            });
-        });
     });
 });

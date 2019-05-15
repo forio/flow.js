@@ -32,8 +32,8 @@ Also broadcast on runid:something whenever an indvidual run changes (i.e. run ro
 This needs to know about the custom-run channel so it can intelligently refetch?
 
 <table>
-    <tbody data-f-foreach="run in savedruns:Price">
-        <tr> <!-- Auto populate context? -->
+    <tbody data-f-foreach="run in savedruns:Price,Time">
+        <tr> 
             <td data-f-bind=""><%= run.name %></td>
         </tr>
     </tbody>

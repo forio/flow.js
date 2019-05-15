@@ -1,9 +1,3 @@
----
-title: class attr
-layout: "flow"
-isPage: true
----
-
 ## Class Attribute: data-f-class
 
 You can bind model variables to names of CSS classes, so that you can easily change the styling of HTML elements based on the values of model variables.

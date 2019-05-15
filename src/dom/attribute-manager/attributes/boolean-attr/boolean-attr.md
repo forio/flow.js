@@ -1,9 +1,3 @@
----
-title: boolean attr
-layout: "flow"
-isPage: true
----
-
 ## Binding for data-f-[boolean]
 
 Flow.js provides special handling for HTML attributes that take Boolean values.
@@ -13,7 +7,7 @@ In particular, for most HTML attributes that expect Boolean values, the attribut
 **Example**
 
 ```html
-<!-- this checkbox is CHECKED when sampleBool is TRUE,
-    and UNCHECKED when sampleBool is FALSE -->
-<input type="checkbox" data-f-checked="sampleBool" />
+<!-- this checkbox is CHECKED when allowSelection is TRUE,
+    and UNCHECKED when allowSelection is FALSE -->
+<input type="checkbox" data-f-checked="allowSelection" />
 ```

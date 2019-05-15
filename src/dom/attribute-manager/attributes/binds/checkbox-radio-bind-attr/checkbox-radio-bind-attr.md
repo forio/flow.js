@@ -1,9 +1,3 @@
----
-title: checkbox radio bind attr
-layout: "flow"
-isPage: true
----
-
 ## Checkboxes and Radio Buttons
 
 In the [default case](../default-bind-attr/), the `data-f-bind` attribute creates a bi-directional binding between the DOM element and the model variable. This binding is **bi-directional**, meaning that as the model changes, the interface is automatically updated; and when end users change values in the interface, the model is automatically updated.

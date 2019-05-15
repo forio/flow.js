@@ -14,8 +14,6 @@ By default, all HTML elements update for any call to an operation. However, you 
 
 #### How do I ... ?
 
-* Call an operation from the model when the run is first created? 
-	* Use the [`data-f-on-init` attribute](../generated/dom/attributes/events/init-event-attr/).
 * Call an operation from the model on user action? 
 	* Use a [`data-f-on-event` attribute](../generated/dom/attributes/events/default-event-attr/), for example `data-f-on-click`. 
 * Call multiple operations at once? 
