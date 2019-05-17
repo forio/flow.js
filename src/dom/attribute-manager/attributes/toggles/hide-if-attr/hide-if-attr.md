@@ -1,10 +1,4 @@
----
-title: hideif attr
-layout: "flow"
-isPage: true
----
-
-## Display Elements Conditionally (hideif)
+## hideif
 
 The `data-f-hideif` attribute allows you to hide DOM elements based on either the value of the model variable (true or false), or the value of a [comparison (Number Comparison Converter)](../../../../converters/number-compare-converter/) using a model variable.
 

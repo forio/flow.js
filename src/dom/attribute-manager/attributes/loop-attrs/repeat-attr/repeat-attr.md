@@ -1,10 +1,4 @@
----
-title: repeat attr
-layout: "flow"
-isPage: true
----
-
-## Display Array Variables: data-f-repeat
+## data-f-repeat
 
 The `data-f-repeat` attribute allows you to automatically loop over a referenced variable. The most common use case is in time-based models, like those written in [SimLang](../../../../../model_code/forio_simlang/) or [Vensim](../../../../../model_code/vensim/), when you want to report the value of the variable at every time step so far. The `data-f-repeat` attribute automatically repeats the DOM element it's attached to, filling in the value.
 

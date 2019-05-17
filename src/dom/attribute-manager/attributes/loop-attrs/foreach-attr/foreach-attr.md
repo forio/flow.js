@@ -1,10 +1,4 @@
----
-title: default foreach attr
-layout: "flow"
-isPage: true
----
-
-## Display Array and Object Variables: data-f-foreach
+## data-f-foreach
 
 If your model variable is an array, you can reference specific elements of the array using `data-f-bind`: `data-f-bind="sales[3]"` or `data-f-bind="sales[<currentRegion>]"`, as described under [data-f-bind](../../binds/default-bind-attr/).
 

@@ -1,10 +1,4 @@
----
-title: showif attr
-layout: "flow"
-isPage: true
----
-
-## Display Elements Conditionally (showif)
+## showif
 
 The `data-f-showif` attribute allows you to display DOM elements based on either the value of the model variable (true or false), or the value of a [comparison (Number Comparison Converter)](../../../../converters/number-compare-converter/) using a model variable.
 

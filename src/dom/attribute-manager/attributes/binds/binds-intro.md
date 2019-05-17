@@ -1,5 +1,3 @@
-## Flow.js: Attributes 
-
 ### Displaying and Updating data
 
 You can "bind" variables from, say,  your project's model to your project's user interface by setting the `data-f-bind` attribute of any HTML element. (Flow.js uses the HTML5 convention of prepending `data-` to any custom HTML attribute. Flow.js also adds `f` for easy identification of Flow.js and Forio.)
