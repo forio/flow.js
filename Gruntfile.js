@@ -1,5 +1,6 @@
 module.exports = function (grunt) {
     'use strict';
+    var r = require;
 
     // require('time-grunt')(grunt);
     require('jit-grunt')(grunt, {

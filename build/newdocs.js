@@ -1,4 +1,4 @@
-const attrManagerDocs = require('../src/dom/attribute-manager/docs-index').default;
+const attrManagerDocs = require('../src/dom/attribute-manager/docs-index');
 const fs = require('fs');
 
 function filenameFromTitle(title) {
@@ -25,14 +25,20 @@ function normalize(rootPath, docItem) {
 }
 
 const allDocs = [attrManagerDocs];
-const index = {};
+const index = [];
 allDocs.forEach(function (sectionDocs) {
-    sectionDocs.list.forEach(function (section) {
-        const val = normalize(section);
+    if (sectionDocs.list) {
+        sectionDocs.list.forEach(function (section) {
+            const val = normalize('src/dom/attribute-manager/attributes', section);
 
-        index.push({
-            title: section.label,
+            index.push({
+                title: section.label,
 
+            });
         });
-    });
+    }
 });
+
+module.exports = function() {
+    console.log('newdocs not implemented');
+}
