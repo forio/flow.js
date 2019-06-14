@@ -21,6 +21,10 @@ export default BaseView.extend({
         if (propName) {
             const changeHandler = function () {
                 const val = this.getUIValue();
+
+                if (val.length && val.length === 0) {
+                    //TODO: Can i do a fetch here to get the model value if val is invalid?
+                }
                 const payload = [{ name: propName, value: val }];
                 this.$el.trigger(events.trigger, { data: payload, source: 'bind' });
             }.bind(this);
