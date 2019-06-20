@@ -30,7 +30,7 @@ export default (function () {
     /**
      * @param {JQuery<HTMLElement>} root
      * @returns {JQuery<HTMLElement>}
-     */ 
+     */
     function getMatchingElements(root) {
         const $root = $(root);
         let matchedElements = $root.find(':' + prefix);
@@ -44,7 +44,7 @@ export default (function () {
      * @param {JQuery<HTMLElement> | HTMLElement} element
      * @param {*} [context]
      * @returns {HTMLElement}
-     */ 
+     */
     function getElementOrError(element, context) {
         const el = (element instanceof $) ? element.get(0) : element;
         if (!el || !el.nodeName) {
@@ -93,7 +93,7 @@ export default (function () {
                 channel.unsubscribe(subs);
             } catch (e) {
                 triggerError(el, e);
-            } 
+            }
         });
     }
 
@@ -103,7 +103,7 @@ export default (function () {
         nodes: nodeManager,
         attributes: attrManager,
         converters: converterManager,
-            
+
         matchedElements: new Map(),
 
         /**
@@ -133,7 +133,7 @@ export default (function () {
             unbindAllNodeHandlers(domEl);
             unbindAllAttributes(domEl);
             removeAllSubscriptions(subscriptions, channel, $el);
-            
+
             const animAttrs = Object.keys(animation).join(' ');
             $el.removeAttr(animAttrs);
 
@@ -182,12 +182,12 @@ export default (function () {
                 let attr = nodeMap.nodeName;
                 if (attr.indexOf(filterPrefix) !== 0) {
                     return;
-                } 
+                }
                 attr = attr.replace(filterPrefix, '');
 
                 const attrVal = nodeMap.value;
                 let topics = parseTopicsFromAttributeValue(attrVal);
-                
+
                 const handler = attrManager.getHandler(attr, $el);
                 if (handler && handler.init) {
                     handler.init(attr, topics, $el);
@@ -195,7 +195,7 @@ export default (function () {
                 if (topics.length && handler && handler.parse) {
                     topics = [].concat(handler.parse(topics));
                 }
-                
+
                 const channelPrefix = getChannelForAttribute($el, attr);
                 topics = addPrefixToTopics(topics, channelPrefix);
 
@@ -208,7 +208,7 @@ export default (function () {
             });
             //Need this to be set before subscribing or callback maybe called before it's set
             this.matchedElements.set(domEl, attrList);
-            
+
             const channelConfig = getChannelConfigForElement(domEl);
             const attrsWithSubscriptions = Object.keys(attrList).reduce((accum, name)=> {
                 const attr = attrList[name];
@@ -218,7 +218,7 @@ export default (function () {
                     return accum;
                 }
 
-                const subsOptions = $.extend({ 
+                const subsOptions = $.extend({
                     batch: true,
                     onError: (e)=> {
                         console.error('DomManager: Subscription error', domEl, e);
@@ -316,7 +316,7 @@ export default (function () {
                  * Exclude elements matching these selectors from being bound
                  */
                 exclude: 'pre *',
-                
+
                 /**
                  * Any elements added to the DOM after `Flow.initialize()` has been called will be automatically bound, and subscriptions added to channels.
                  * @type {boolean}
@@ -352,7 +352,8 @@ export default (function () {
 
                 $root.off(events.trigger).on(events.trigger, function (evt, params) {
                     const elMeta = me.matchedElements.get(evt.target);
-                    const { data, source, options } = params;
+                    const { data, source, options, restoreOriginal } = params;
+
                     if (!elMeta || !data) {
                         return;
                     }
@@ -367,6 +368,13 @@ export default (function () {
                         const prefixedName = addDefaultPrefix(actualName, source, channelPrefix);
                         return { name: prefixedName, value: parsedValue };
                     }, []);
+
+                    if (restoreOriginal) {
+                        //Ideally this should simply be a fetch to the previous version of the variable to use that.
+                        me.unbindElement($el, channel);
+                        me.bindElement($el, channel);
+                        return;
+                    }
 
                     channel.publish(parsed, options).then((result)=> {
                         if (!result || !result.length) {
@@ -400,16 +408,16 @@ export default (function () {
                     });
                 });
             }
-            
+
             const deferred = $.Deferred();
             $(function () {
                 me.bindAll();
-            
+
                 attachUIListeners($root);
                 attachConversionListner($root);
 
                 me.plugins.autoBind = autoUpdatePlugin($root.get(0), me, me.options.autoBind);
-                
+
                 deferred.resolve($root);
                 $root.trigger('f.domready');
             });

@@ -22,7 +22,8 @@ export default BaseView.extend({
             const changeHandler = function () {
                 const val = this.getUIValue();
                 const payload = [{ name: propName, value: val }];
-                this.$el.trigger(events.trigger, { data: payload, source: 'bind' });
+                
+                this.$el.trigger(events.trigger, { data: payload, source: 'bind', restoreOriginal: val.length === 0 });
             }.bind(this);
 
             const debouncedHandler = _.debounce(changeHandler, 200);
