@@ -1,3 +1,4 @@
+/*eslint no-undef: 0*/
 import NodeClass from '../default-input-node';
 
 import { create as make } from 'tests/testing-utils';

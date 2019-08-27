@@ -234,7 +234,7 @@ class ChannelManager {
     /**
      * Stop receiving notifications for all operations. No parameters.
      *
-     * @return {void} No return value.
+     * @returns {void} No return value.
      */ 
     unsubscribeAll() {
         cacheBySubsId = {};

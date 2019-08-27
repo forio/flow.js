@@ -7,3 +7,29 @@ dist/** merge=ours
 *.js text eol=lf
 *.html text eol=lf
 *.md text eol=lf
+
+# Denote all files that are truly binary and should not be modified.
+*.ai binary
+*.dll binary
+*.eot binary
+*.gif binary
+*.ico binary
+*.jpg binary
+*.otf binary
+*.pdf binary
+*.png binary
+*.pptx binary
+*.sim binary
+*.sip binary
+*.swf binary
+*.ttf binary
+*.vmf binary
+*.woff binary
+*.xls binary
+*.xlsx binary
+*.pyc binary
+*.so binary
+*.deb binary
+*.zip binary
+*.tar binary
+*.tar.gz binary

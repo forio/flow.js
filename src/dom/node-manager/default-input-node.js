@@ -1,3 +1,4 @@
+/*eslint no-undef: 0*/
 import { binderAttr, events } from '../../config';
 import BaseView from './default-node';
 
@@ -26,7 +27,8 @@ export default BaseView.extend({
                 this.$el.trigger(events.trigger, { data: payload, source: 'bind', restoreOriginal: val.length === 0 });
             }.bind(this);
 
-            const debouncedHandler = _.debounce(changeHandler, 200);
+            const handlerDebounceTime = 200;
+            const debouncedHandler = _.debounce(changeHandler, handlerDebounceTime);
             const handler = this.uiChangeEvent.indexOf('key') !== -1 ? debouncedHandler : changeHandler;
             this.$el.off(this.uiChangeEvent).on(this.uiChangeEvent, handler);
         }
