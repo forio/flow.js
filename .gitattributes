@@ -1,2 +1,9 @@
 dist/** -diff binary minified
 dist/** merge=ours 
+
+* text=input
+
+*.sh text eol=lf
+*.js text eol=lf
+*.html text eol=lf
+*.md text eol=lf
