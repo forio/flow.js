@@ -39,15 +39,15 @@ export default function ScenarioManagerRouteHandler(config, notifier) {
             match: matchPrefix('baseline:'),
             options: baselineOptions.channelOptions,
         }),
-        $.extend(currentRunHandler, { 
-            isDefault: true, 
+        $.extend(currentRunHandler, {
+            isDefault: true,
             name: 'current',
             match: matchDefaultPrefix('current:'),
             options: runOptions.channelOptions,
         }),
 
     ];
-    
+
     var scenarioManagerRouter = router(handlers, notifier);
     scenarioManagerRouter.expose = { scenarioManager: sm };
     return scenarioManagerRouter;

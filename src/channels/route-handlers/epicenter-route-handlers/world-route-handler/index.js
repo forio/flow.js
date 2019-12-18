@@ -25,7 +25,7 @@ export default function WorldRoutesHandler(config, notifier) {
 
     const rmOptions = opts.serviceOptions;
     const rm = new F.manager.RunManager(rmOptions);
-    
+
     let runPromise = null;
     function getRun() {
         if (!runPromise) {
@@ -47,6 +47,10 @@ export default function WorldRoutesHandler(config, notifier) {
         if (alreadyStubbedRunChannel) {
             return rm.run;
         }
+        const { server = {} } = opts.serviceOptions;
+        // TODO - We should ideally pass server.host to channel manager too
+        // Running into issues, need to still take a look at this
+        // const channelManager = new F.manager.ChannelManager({ server });
         const channelManager = new F.manager.ChannelManager();
         const worldChannel = channelManager.getWorldChannel(run.world);
 
@@ -62,7 +66,7 @@ export default function WorldRoutesHandler(config, notifier) {
 
     const handlers = [];
 
-    const runRouteHandler = $.extend(currentRunHandler, { 
+    const runRouteHandler = $.extend(currentRunHandler, {
         match: matchDefaultPrefix(RUN_PREFIX),
         name: 'World Run',
         isDefault: true,
@@ -81,6 +85,10 @@ export default function WorldRoutesHandler(config, notifier) {
     }
 
     const worldChannelMap = {};
+    const { server = {} } = opts.serviceOptions;
+    // TODO - We should ideally pass server.host to channel manager too
+    // Running into issues, need to still take a look at this
+    // const channelManager = new F.manager.ChannelManager({ server });
     const channelManager = new F.manager.ChannelManager();
     function getChannelForWorld(worldid) {
         if (!worldChannelMap[worldid]) {
@@ -89,7 +97,7 @@ export default function WorldRoutesHandler(config, notifier) {
         return worldChannelMap[worldid];
     }
 
-    const am = new F.manager.AuthManager();
+    const am = new F.manager.AuthManager({ server });
     const handlerOptions = {
         serviceOptions: {
             getRun: getRun,
@@ -99,24 +107,23 @@ export default function WorldRoutesHandler(config, notifier) {
         },
         channelOptions: opts.channelOptions
     };
-    
+
     const usersRouteHandler = new WorldUsersRouteHandler(handlerOptions, withPrefix(notifier, MULTI_USER_PREFIX));
-    const usersHandler = $.extend(usersRouteHandler, { 
+    const usersHandler = $.extend(usersRouteHandler, {
         match: matchPrefix(MULTI_USER_PREFIX),
         name: 'world users',
     });
     handlers.unshift(usersHandler);
-    
+
     const currentUserRouteHandler = new WorldCurrentUserRouteHandler(handlerOptions, withPrefix(notifier, USER_PREFIX));
     const currentUserHandler = $.extend(currentUserRouteHandler, {
         match: matchPrefix(USER_PREFIX),
         name: 'world current user',
     });
     handlers.unshift(currentUserHandler);
-
     const ConsensusManager = window.F.manager.ConsensusManager;
     if (ConsensusManager) { //epijs < 2.80 did not have this
-        const consensusRouteHandler = new ConsensusRouteHandler(handlerOptions, withPrefix(notifier, CONSENSUS_PREFIX));
+        const consensusRouteHandler = new ConsensusRouteHandler(handlerOptions, withPrefix(notifier, CONSENSUS_PREFIX), opts);
         const consensusHandler = $.extend(consensusRouteHandler, {
             match: matchPrefix(CONSENSUS_PREFIX),
             name: 'consensus',

@@ -8,15 +8,15 @@ const ConsensusManager = window.F.manager.ConsensusManager;
 
 const OPERATIONS_PREFIX = 'operations:';
 
-export default function ConsensusRouteHandler(config, notifier) {
+export default function ConsensusRouteHandler(config, notifier, opts) {
     const options = $.extend(true, {
         serviceOptions: {},
         channelOptions: {},
-    }, config);
+    }, config, opts);
 
-    const { getWorld, getRun, getSession, getChannel } = options.serviceOptions;
+    const { getWorld, getRun, getSession, getChannel, server = {} } = options.serviceOptions;
 
-    const cm = new ConsensusManager();
+    const cm = new ConsensusManager({ server });
 
     let consensusProm = null;
     function getConsensus(force) {
@@ -40,12 +40,12 @@ export default function ConsensusRouteHandler(config, notifier) {
     const statusHandler = StatusHandler(handlerOptions, notifier);
 
     const handlers = [
-        $.extend({}, opnHandler, { 
+        $.extend({}, opnHandler, {
             name: 'consensus operations',
             match: matchPrefix(OPERATIONS_PREFIX),
             options: handlerOptions.channelOptions.operations,
         }),
-        $.extend({}, statusHandler, { 
+        $.extend({}, statusHandler, {
             name: 'consensus status',
             match: matchPrefix(''),
             isDefault: true,
@@ -75,6 +75,6 @@ export default function ConsensusRouteHandler(config, notifier) {
 
     var consensusRouteHandler = router(handlers, notifier);
     consensusRouteHandler.expose = { consensusManager: cm };
-    
+
     return consensusRouteHandler;
 }
