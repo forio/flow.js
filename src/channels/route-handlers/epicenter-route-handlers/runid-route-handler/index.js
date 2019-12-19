@@ -6,6 +6,11 @@ export default function RunidRouteHandler(options, notifier) {
 
     var opts = {};
     opts.serviceOptions = options.serviceOptions && options.serviceOptions.run ? options.serviceOptions.run : {};
+    opts.serviceOptions = $.extend(true, {},
+        opts.serviceOptions,
+        options.serviceOptions && options.serviceOptions.server ?
+            { server: options.serviceOptions.server } : undefined
+    );
     opts.channelOptions = options.channelOptions;
 
     return {

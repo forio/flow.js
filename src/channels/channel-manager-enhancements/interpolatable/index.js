@@ -23,7 +23,6 @@ export default function interpolatable(ChannelManager) {
                 }
                 subsidMap[dependencySubsId] = newDependentId;
             });
-
             this.publish = publishInterpolator(this.publish.bind(this), (variables, cb)=> {
                 super.subscribe(variables, (response, meta)=> {
                     this.unsubscribe(meta.id);

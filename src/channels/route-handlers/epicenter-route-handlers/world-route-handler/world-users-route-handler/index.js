@@ -20,7 +20,7 @@ export default function WorldUsersRouteHandler(config, notifier) {
             return store.users;
         }
     };
-    
+
     const parsedUsersPromise = getWorld().then((world)=> {
         const session = getSession();
         const parsed = world.users.map((u)=> {
@@ -32,9 +32,9 @@ export default function WorldUsersRouteHandler(config, notifier) {
         store.users = parsed;
         return parsed;
     });
-    
+
     let presenceSubsId;
-    return { 
+    return {
         unsubscribeHandler: function (knownTopics, remainingTopics) {
             if (remainingTopics.length || !presenceSubsId) {
                 return;

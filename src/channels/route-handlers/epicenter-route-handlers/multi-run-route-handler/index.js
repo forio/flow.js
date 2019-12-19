@@ -2,7 +2,8 @@ import { debounceAndMerge } from 'utils/general';
 var { F } = window;
 
 export default function MultiRunRouteHandler(options, notifier, channelManagerContext) {
-    var runService = new F.service.Run(options.serviceOptions.run);
+    var serviceOpts = $.extend(true, {}, options.serviceOptions.run, options.serviceOptions.server ? { server: options.serviceOptions.server } : undefined);
+    var runService = new F.service.Run(serviceOpts);
 
     var topicParamMap = {};
 
