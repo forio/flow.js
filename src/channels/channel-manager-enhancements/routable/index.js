@@ -64,7 +64,6 @@ export default function withRouter(BaseChannelManager, router) {
          */
         publish(topic, value, options) {
             const publishData = normalizeParamOptions(topic, value, options);
-            debugger
             return this.router.publishHandler(publishData.params, publishData.options).then((published)=> {
                 return super.publish(published, publishData.options);
             });
