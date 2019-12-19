@@ -16,6 +16,7 @@ export default function ConsensusRouteHandler(config, notifier, opts) {
 
     const { getWorld, getRun, getSession, getChannel, server = {} } = options.serviceOptions;
 
+    // TODO: Need to update package.json and babel to more updated version to allow this to be written as simply { server }
     const cm = new ConsensusManager({ server: server });
 
     let consensusProm = null;
