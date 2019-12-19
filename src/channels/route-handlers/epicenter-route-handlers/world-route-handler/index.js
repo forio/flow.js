@@ -50,7 +50,7 @@ export default function WorldRoutesHandler(config, notifier) {
         const { server = {} } = opts.serviceOptions;
         // TODO - We should ideally pass server.host to channel manager too
         // Running into issues, need to still take a look at this
-        // const channelManager = new F.manager.ChannelManager({ server });
+        // const channelManager = new F.manager.ChannelManager({ server: server });
         const channelManager = new F.manager.ChannelManager();
         const worldChannel = channelManager.getWorldChannel(run.world);
 
@@ -88,7 +88,7 @@ export default function WorldRoutesHandler(config, notifier) {
     const { server = {} } = opts.serviceOptions;
     // TODO - We should ideally pass server.host to channel manager too
     // Running into issues, need to still take a look at this
-    // const channelManager = new F.manager.ChannelManager({ server });
+    // const channelManager = new F.manager.ChannelManager({ server: server });
     const channelManager = new F.manager.ChannelManager();
     function getChannelForWorld(worldid) {
         if (!worldChannelMap[worldid]) {
@@ -97,7 +97,7 @@ export default function WorldRoutesHandler(config, notifier) {
         return worldChannelMap[worldid];
     }
 
-    const am = new F.manager.AuthManager({ server });
+    const am = new F.manager.AuthManager({ server: server });
     const handlerOptions = {
         serviceOptions: {
             getRun: getRun,

@@ -16,7 +16,7 @@ export default function ConsensusRouteHandler(config, notifier, opts) {
 
     const { getWorld, getRun, getSession, getChannel, server = {} } = options.serviceOptions;
 
-    const cm = new ConsensusManager({ server });
+    const cm = new ConsensusManager({ server: server });
 
     let consensusProm = null;
     function getConsensus(force) {
