@@ -1,7 +1,7 @@
 /*!
  * 
  * ++++++++   ++++++++   ++++++++         Flow.js
- * ++++++++   ,+++++++~   ++++++++        v1.0.3
+ * ++++++++   ,+++++++~   ++++++++        v1.0.1
  *  ++++++++   ++++++++   ++++++++
  *  ~+++++++~   ++++++++   ++++++++       Github: https://github.com/forio/flow.js
  *   ++++++++   ++++++++   ++++++++:
@@ -1412,7 +1412,7 @@ var Flow = {
 Flow.ChannelManager = __WEBPACK_IMPORTED_MODULE_1_channels_configured_channel_manager__["a" /* default */];
 Flow.constants = __WEBPACK_IMPORTED_MODULE_2_config___default.a;
 //set by grunt
-if (true) Flow.version = "1.0.3"; //eslint-disable-line no-undef
+if (true) Flow.version = "1.0.1"; //eslint-disable-line no-undef
 /* harmony default export */ __webpack_exports__["default"] = (Flow);
 
 /***/ }),
