@@ -14,6 +14,8 @@ Questions?  Contact us at support@forio.com or file an issue on github!
 
 ## Getting started with development
 
+Assuming Node v8.17.0 and NPM v6.13.4
+
 To run locally
 ```
     npm install
