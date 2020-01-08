@@ -42,8 +42,11 @@ function hasValidBrackets(variable) {
     return isValid;
 }
 
+const MAX_RETRIES = 5;
+
 //Opaquely handle missing variables
-export function retriableFetch(runService, variables) {
+export function retriableFetch(runService, variables, retries) {
+    retries = retries || 0;
     if (!variables || !variables.length) {
         return $.Deferred().resolve({}).promise();
     }
@@ -51,7 +54,7 @@ export function retriableFetch(runService, variables) {
     return runService.variables().query(validVariables).catch((e)=> {
         const response = e.responseJSON;
         const info = response.information;
-        if (info.code !== 'VARIABLE_NOT_FOUND') {
+        if (info.code !== 'VARIABLE_NOT_FOUND' || retries >= MAX_RETRIES) {
             throw e;
         }
 
@@ -59,6 +62,6 @@ export function retriableFetch(runService, variables) {
             const isBad = info.context.names.indexOf(vName) !== -1;
             return !isBad;
         });
-        return retriableFetch(runService, goodVariables);
+        return retriableFetch(runService, goodVariables, retries + 1);
     });
 }
