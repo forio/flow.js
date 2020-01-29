@@ -1,3 +1,10 @@
+<a name="1.0.2"></a>
+## 1.0.2 (2020-01-29)
+
+This update includes a minor fix that prevents repeated invalid run api calls.
+
+This fix prevents Flow from repeatedly making calls to invalid variable names when the base variable name is correct but the brackets or time/step variable inside the brackets are incorrect or invalid.
+
 <a name="1.0.0"></a>
 ## 1.0.0 (2017-05-26)
 
