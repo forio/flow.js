@@ -1,7 +1,7 @@
 /*!
  * 
  * ++++++++   ++++++++   ++++++++         Flow.js
- * ++++++++   ,+++++++~   ++++++++        v1.0.3
+ * ++++++++   ,+++++++~   ++++++++        v1.0.2
  *  ++++++++   ++++++++   ++++++++
  *  ~+++++++~   ++++++++   ++++++++       Github: https://github.com/forio/flow.js
  *   ++++++++   ++++++++   ++++++++:
@@ -1412,7 +1412,7 @@ var Flow = {
 Flow.ChannelManager = __WEBPACK_IMPORTED_MODULE_1_channels_configured_channel_manager__["a" /* default */];
 Flow.constants = __WEBPACK_IMPORTED_MODULE_2_config___default.a;
 //set by grunt
-if (true) Flow.version = "1.0.3"; //eslint-disable-line no-undef
+if (true) Flow.version = "1.0.2"; //eslint-disable-line no-undef
 /* harmony default export */ __webpack_exports__["default"] = (Flow);
 
 /***/ }),
@@ -5432,23 +5432,75 @@ function RunVariablesRouteHandler($runServicePromise, notifier) {
 
 "use strict";
 /* harmony export (immutable) */ __webpack_exports__["a"] = retriableFetch;
+function hasValidBrackets(variable) {
+    var brackets = {
+        '[': 0,
+        '{': 0,
+        '(': 0,
+        '<': 0
+    };
+    var isValid = true;
+    for (var i = 0; i < variable.length; i++) {
+        var char = variable[i];
+        if ('[{(<'.indexOf(char) >= 0) {
+            // Opening bracket
+            brackets[char] = brackets[char] + 1;
+        } else if (']})>'.indexOf(char) >= 0) {
+            // Closing bracket
+            var correspondingChar = void 0;
+            switch (char) {
+                case ']':
+                    correspondingChar = '[';
+                    break;
+                case '}':
+                    correspondingChar = '{';
+                    break;
+                case ')':
+                    correspondingChar = '(';
+                    break;
+                case '>':
+                    correspondingChar = '<';
+                    break;
+                default:
+                    break;
+            }
+            if (brackets[correspondingChar] === 0) {
+                isValid = false;
+                break; // Break loop if there is a closing bracket before an opening bracket
+            } else {
+                brackets[correspondingChar] = brackets[correspondingChar] - 1;
+            }
+        }
+    }
+    isValid = isValid && Object.keys(brackets).reduce(function (acc, key) {
+        return acc + brackets[key];
+    }, 0) === 0;
+    return isValid;
+}
+
+var MAX_RETRIES = 5;
+
 //Opaquely handle missing variables
-function retriableFetch(runService, variables) {
+function retriableFetch(runService, variables, retries) {
+    retries = retries || 0;
     if (!variables || !variables.length) {
         return $.Deferred().resolve({}).promise();
     }
-    return runService.variables().query(variables).catch(function (e) {
+    var validVariables = variables.filter(function (v) {
+        return hasValidBrackets(v);
+    });
+    return runService.variables().query(validVariables).catch(function (e) {
         var response = e.responseJSON;
         var info = response.information;
-        if (info.code !== 'VARIABLE_NOT_FOUND') {
+        if (info.code !== 'VARIABLE_NOT_FOUND' || retries >= MAX_RETRIES) {
             throw e;
         }
+
         var goodVariables = variables.filter(function (vName) {
-            var baseName = vName.split('[')[0];
-            var isBad = info.context.names.indexOf(baseName) !== -1;
+            var isBad = info.context.names.indexOf(vName) !== -1;
             return !isBad;
         });
-        return retriableFetch(runService, goodVariables);
+        return retriableFetch(runService, goodVariables, retries + 1);
     });
 }
 
