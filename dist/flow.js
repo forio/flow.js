@@ -1,7 +1,7 @@
 /*!
  * 
  * ++++++++   ++++++++   ++++++++         Flow.js
- * ++++++++   ,+++++++~   ++++++++        v1.0.1
+ * ++++++++   ,+++++++~   ++++++++        v1.0.2
  *  ++++++++   ++++++++   ++++++++
  *  ~+++++++~   ++++++++   ++++++++       Github: https://github.com/forio/flow.js
  *   ++++++++   ++++++++   ++++++++:
@@ -702,9 +702,9 @@ var META_PREFIX = 'meta:';
 var OPERATIONS_PREFIX = 'operations:';
 
 /**
- * 
- * @param {Publishable[]} result 
- * @param {string[]} ignoreOperations 
+ *
+ * @param {Publishable[]} result
+ * @param {string[]} ignoreOperations
  * @returns {boolean}
  */
 function _shouldFetch(result, ignoreOperations) {
@@ -1412,7 +1412,7 @@ var Flow = {
 Flow.ChannelManager = __WEBPACK_IMPORTED_MODULE_1_channels_configured_channel_manager__["a" /* default */];
 Flow.constants = __WEBPACK_IMPORTED_MODULE_2_config___default.a;
 //set by grunt
-if (true) Flow.version = "1.0.1"; //eslint-disable-line no-undef
+if (true) Flow.version = "1.0.2"; //eslint-disable-line no-undef
 /* harmony default export */ __webpack_exports__["default"] = (Flow);
 
 /***/ }),
@@ -1822,7 +1822,6 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
                         me.bindElement($el, channel);
                         return;
                     }
-
                     channel.publish(parsed, options).then(function (result) {
                         if (!result || !result.length) {
                             return;
@@ -5107,7 +5106,7 @@ function match(topic) {
 
 
 function getOptions(opts, key) {
-    var serviceOptions = $.extend(true, {}, opts.defaults, opts[key]);
+    var serviceOptions = $.extend(true, {}, opts.defaults, opts.server, opts[key]);
     var channelOptions = $.extend(true, {}, serviceOptions.channelOptions);
     delete serviceOptions.channelOptions;
 
@@ -5432,23 +5431,75 @@ function RunVariablesRouteHandler($runServicePromise, notifier) {
 
 "use strict";
 /* harmony export (immutable) */ __webpack_exports__["a"] = retriableFetch;
+function hasValidBrackets(variable) {
+    var brackets = {
+        '[': 0,
+        '{': 0,
+        '(': 0,
+        '<': 0
+    };
+    var isValid = true;
+    for (var i = 0; i < variable.length; i++) {
+        var char = variable[i];
+        if ('[{(<'.indexOf(char) >= 0) {
+            // Opening bracket
+            brackets[char] = brackets[char] + 1;
+        } else if (']})>'.indexOf(char) >= 0) {
+            // Closing bracket
+            var correspondingChar = void 0;
+            switch (char) {
+                case ']':
+                    correspondingChar = '[';
+                    break;
+                case '}':
+                    correspondingChar = '{';
+                    break;
+                case ')':
+                    correspondingChar = '(';
+                    break;
+                case '>':
+                    correspondingChar = '<';
+                    break;
+                default:
+                    break;
+            }
+            if (brackets[correspondingChar] === 0) {
+                isValid = false;
+                break; // Break loop if there is a closing bracket before an opening bracket
+            } else {
+                brackets[correspondingChar] = brackets[correspondingChar] - 1;
+            }
+        }
+    }
+    isValid = isValid && Object.keys(brackets).reduce(function (acc, key) {
+        return acc + brackets[key];
+    }, 0) === 0;
+    return isValid;
+}
+
+var MAX_RETRIES = 5;
+
 //Opaquely handle missing variables
-function retriableFetch(runService, variables) {
+function retriableFetch(runService, variables, retries) {
+    retries = retries || 0;
     if (!variables || !variables.length) {
         return $.Deferred().resolve({}).promise();
     }
-    return runService.variables().query(variables).catch(function (e) {
+    var validVariables = variables.filter(function (v) {
+        return hasValidBrackets(v);
+    });
+    return runService.variables().query(validVariables).catch(function (e) {
         var response = e.responseJSON;
         var info = response.information;
-        if (info.code !== 'VARIABLE_NOT_FOUND') {
+        if (info.code !== 'VARIABLE_NOT_FOUND' || retries >= MAX_RETRIES) {
             throw e;
         }
+
         var goodVariables = variables.filter(function (vName) {
-            var baseName = vName.split('[')[0];
-            var isBad = info.context.names.indexOf(baseName) !== -1;
+            var isBad = info.context.names.indexOf(vName) !== -1;
             return !isBad;
         });
-        return retriableFetch(runService, goodVariables);
+        return retriableFetch(runService, goodVariables, retries + 1);
     });
 }
 
@@ -5567,6 +5618,7 @@ function RunidRouteHandler(options, notifier) {
 
     var opts = {};
     opts.serviceOptions = options.serviceOptions && options.serviceOptions.run ? options.serviceOptions.run : {};
+    opts.serviceOptions = $.extend(true, {}, opts.serviceOptions, options.serviceOptions && options.serviceOptions.server ? { server: options.serviceOptions.server } : undefined);
     opts.channelOptions = options.channelOptions;
 
     return {
@@ -5669,6 +5721,12 @@ function WorldRoutesHandler(config, notifier) {
         if (alreadyStubbedRunChannel) {
             return rm.run;
         }
+        var _opts$serviceOptions$ = opts.serviceOptions.server,
+            server = _opts$serviceOptions$ === undefined ? {} : _opts$serviceOptions$;
+        // TODO - We should ideally pass server.host to channel manager too
+        // Running into issues, need to still take a look at this
+        // const channelManager = new F.manager.ChannelManager({ server: server });
+
         var channelManager = new F.manager.ChannelManager();
         var worldChannel = channelManager.getWorldChannel(run.world);
 
@@ -5703,6 +5761,12 @@ function WorldRoutesHandler(config, notifier) {
     }
 
     var worldChannelMap = {};
+    var _opts$serviceOptions$2 = opts.serviceOptions.server,
+        server = _opts$serviceOptions$2 === undefined ? {} : _opts$serviceOptions$2;
+    // TODO - We should ideally pass server.host to channel manager too
+    // Running into issues, need to still take a look at this
+    // const channelManager = new F.manager.ChannelManager({ server: server });
+
     var channelManager = new F.manager.ChannelManager();
     function getChannelForWorld(worldid) {
         if (!worldChannelMap[worldid]) {
@@ -5711,7 +5775,7 @@ function WorldRoutesHandler(config, notifier) {
         return worldChannelMap[worldid];
     }
 
-    var am = new F.manager.AuthManager();
+    var am = new F.manager.AuthManager({ server: server });
     var handlerOptions = {
         serviceOptions: {
             getRun: getRun,
@@ -5737,11 +5801,10 @@ function WorldRoutesHandler(config, notifier) {
         name: 'world current user'
     });
     handlers.unshift(currentUserHandler);
-
     var ConsensusManager = window.F.manager.ConsensusManager;
     if (ConsensusManager) {
         //epijs < 2.80 did not have this
-        var consensusRouteHandler = new __WEBPACK_IMPORTED_MODULE_2__consensus_route_handler__["a" /* default */](handlerOptions, Object(__WEBPACK_IMPORTED_MODULE_3_channels_channel_router_utils__["g" /* withPrefix */])(notifier, CONSENSUS_PREFIX));
+        var consensusRouteHandler = new __WEBPACK_IMPORTED_MODULE_2__consensus_route_handler__["a" /* default */](handlerOptions, Object(__WEBPACK_IMPORTED_MODULE_3_channels_channel_router_utils__["g" /* withPrefix */])(notifier, CONSENSUS_PREFIX), opts);
         var consensusHandler = $.extend(consensusRouteHandler, {
             match: Object(__WEBPACK_IMPORTED_MODULE_4_channels_route_handlers_route_matchers__["b" /* matchPrefix */])(CONSENSUS_PREFIX),
             name: 'consensus'
@@ -5939,20 +6002,23 @@ var ConsensusManager = window.F.manager.ConsensusManager;
 
 var OPERATIONS_PREFIX = 'operations:';
 
-function ConsensusRouteHandler(config, notifier) {
+function ConsensusRouteHandler(config, notifier, opts) {
     var options = $.extend(true, {
         serviceOptions: {},
         channelOptions: {}
-    }, config);
+    }, config, opts);
 
     var _options$serviceOptio = options.serviceOptions,
         getWorld = _options$serviceOptio.getWorld,
         getRun = _options$serviceOptio.getRun,
         getSession = _options$serviceOptio.getSession,
-        getChannel = _options$serviceOptio.getChannel;
+        getChannel = _options$serviceOptio.getChannel,
+        _options$serviceOptio2 = _options$serviceOptio.server,
+        server = _options$serviceOptio2 === undefined ? {} : _options$serviceOptio2;
 
+    // TODO: Need to update package.json and babel to more updated version to allow this to be written as simply { server }
 
-    var cm = new ConsensusManager();
+    var cm = new ConsensusManager({ server: server });
 
     var consensusProm = null;
     function getConsensus(force) {
@@ -6146,7 +6212,8 @@ var _window = window,
 
 
 function MultiRunRouteHandler(options, notifier, channelManagerContext) {
-    var runService = new F.service.Run(options.serviceOptions.run);
+    var serviceOpts = $.extend(true, {}, options.serviceOptions.run, options.serviceOptions.server ? { server: options.serviceOptions.server } : undefined);
+    var runService = new F.service.Run(serviceOpts);
 
     var topicParamMap = {};
 
@@ -6361,7 +6428,6 @@ function interpolatable(ChannelManager) {
                 }
                 subsidMap[dependencySubsId] = newDependentId;
             });
-
             _this.publish = Object(__WEBPACK_IMPORTED_MODULE_1__publish_interpolator__["a" /* default */])(_this.publish.bind(_this), function (variables, cb) {
                 _get(InterpolatedChannelManager.prototype.__proto__ || Object.getPrototypeOf(InterpolatedChannelManager.prototype), 'subscribe', _this).call(_this, variables, function (response, meta) {
                     _this.unsubscribe(meta.id);
