@@ -14,9 +14,9 @@ export const META_PREFIX = 'meta:';
 export const OPERATIONS_PREFIX = 'operations:';
 
 /**
- * 
- * @param {Publishable[]} result 
- * @param {string[]} ignoreOperations 
+ *
+ * @param {Publishable[]} result
+ * @param {string[]} ignoreOperations
  * @returns {boolean}
  */
 export function _shouldFetch(result, ignoreOperations) {
@@ -102,7 +102,7 @@ export default function GenericRunRouteHandler(config, notifier) {
             }, this, subscribeOpts);
             rs.channel.subscribe(TOPICS.CONSENSUS_UPDATE, (consensus, meta)=> {
                 if (consensus.closed) {
-                    variablesHandler.fetch(); 
+                    variablesHandler.fetch();
                     // I should also do operationsHandler.notify but I don't know what to notify them about
                     //Just remove the 'include Mine' check for operations? That's just cached anyway
                 }
@@ -123,17 +123,17 @@ export default function GenericRunRouteHandler(config, notifier) {
     });
 
     const handlers = [
-        $.extend({}, metaHandler, { 
+        $.extend({}, metaHandler, {
             name: 'meta',
             match: matchPrefix(META_PREFIX),
             options: opts.channelOptions.meta,
         }),
-        $.extend({}, operationsHandler, { 
+        $.extend({}, operationsHandler, {
             name: 'operations',
             match: matchPrefix(OPERATIONS_PREFIX),
             options: opts.channelOptions.operations,
         }),
-        $.extend({}, variablesHandler, { 
+        $.extend({}, variablesHandler, {
             isDefault: true,
             name: 'variables',
             match: matchDefaultPrefix(VARIABLES_PREFIX),

@@ -14,7 +14,7 @@ export default function UserRouteHandler(options, notifier) {
         });
         return state;
     }
-    
+
     const supportedActions = {
         login: ()=> {
 

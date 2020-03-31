@@ -375,7 +375,6 @@ export default (function () {
                         me.bindElement($el, channel);
                         return;
                     }
-
                     channel.publish(parsed, options).then((result)=> {
                         if (!result || !result.length) {
                             return;

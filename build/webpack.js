@@ -23,8 +23,8 @@ module.exports = function (grunt) {
     var banner = grunt.file.read('banner.txt');
     banner = banner.replace('RELEASE_VERSION', version);
 
-    var babelloader = { 
-        test: /\.js$/, 
+    var babelloader = {
+        test: /\.js$/,
         exclude: /node_modules\/(?!(autotrack|dom-utils))/,
         loader: 'babel-loader',
         options: {
@@ -61,11 +61,10 @@ module.exports = function (grunt) {
         },
         edge: {
             entry: path.resolve('./src/flow.js'),
-            output: {
+            output: Object.assign({}, {
                 filename: 'flow-edge.js',
                 pathinfo: true,
-                ...opOptions,
-            },
+            }, opOptions),
             module: {
                 rules: [] //meant for testing in a new browser so no babel transpiling required
             },
@@ -76,10 +75,9 @@ module.exports = function (grunt) {
         },
         mapped: {
             entry: path.resolve('./src/flow.js'),
-            output: {
+            output: Object.assign({}, {
                 filename: 'flow.js',
-                ...opOptions,
-            },
+            }, opOptions),
             module: {
                 rules: [babelloader]
             },
@@ -96,11 +94,10 @@ module.exports = function (grunt) {
         },
         min: {
             entry: path.resolve('./src/flow.js'),
-            output: {
+            output: Object.assign({}, {
                 path: path.resolve('./dist/'),
                 filename: 'flow.min.js',
-                ...opOptions,
-            },
+            }, opOptions),
             module: {
                 rules: [babelloader]
             },
@@ -119,11 +116,10 @@ module.exports = function (grunt) {
         addons: {
             entry: path.resolve('./src/add-ons/flow-inspector/flow-inspector.js'),
             devtool: 'source-map',
-            output: {
-                ...opOptions,
+            output: Object.assign({}, opOptions, {
                 path: path.resolve('./dist/add-ons/'),
                 filename: 'flow-inspector.min.js'
-            },
+            }),
             plugins: [
                 new webpack.optimize.UglifyJsPlugin(uglifyOptions)
             ],

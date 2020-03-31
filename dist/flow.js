@@ -702,9 +702,9 @@ var META_PREFIX = 'meta:';
 var OPERATIONS_PREFIX = 'operations:';
 
 /**
- * 
- * @param {Publishable[]} result 
- * @param {string[]} ignoreOperations 
+ *
+ * @param {Publishable[]} result
+ * @param {string[]} ignoreOperations
  * @returns {boolean}
  */
 function _shouldFetch(result, ignoreOperations) {
@@ -1822,7 +1822,6 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
                         me.bindElement($el, channel);
                         return;
                     }
-
                     channel.publish(parsed, options).then(function (result) {
                         if (!result || !result.length) {
                             return;
@@ -5107,7 +5106,7 @@ function match(topic) {
 
 
 function getOptions(opts, key) {
-    var serviceOptions = $.extend(true, {}, opts.defaults, opts[key]);
+    var serviceOptions = $.extend(true, {}, opts.defaults, opts.server, opts[key]);
     var channelOptions = $.extend(true, {}, serviceOptions.channelOptions);
     delete serviceOptions.channelOptions;
 
@@ -5619,6 +5618,7 @@ function RunidRouteHandler(options, notifier) {
 
     var opts = {};
     opts.serviceOptions = options.serviceOptions && options.serviceOptions.run ? options.serviceOptions.run : {};
+    opts.serviceOptions = $.extend(true, {}, opts.serviceOptions, options.serviceOptions && options.serviceOptions.server ? { server: options.serviceOptions.server } : undefined);
     opts.channelOptions = options.channelOptions;
 
     return {
@@ -5721,6 +5721,12 @@ function WorldRoutesHandler(config, notifier) {
         if (alreadyStubbedRunChannel) {
             return rm.run;
         }
+        var _opts$serviceOptions$ = opts.serviceOptions.server,
+            server = _opts$serviceOptions$ === undefined ? {} : _opts$serviceOptions$;
+        // TODO - We should ideally pass server.host to channel manager too
+        // Running into issues, need to still take a look at this
+        // const channelManager = new F.manager.ChannelManager({ server: server });
+
         var channelManager = new F.manager.ChannelManager();
         var worldChannel = channelManager.getWorldChannel(run.world);
 
@@ -5755,6 +5761,12 @@ function WorldRoutesHandler(config, notifier) {
     }
 
     var worldChannelMap = {};
+    var _opts$serviceOptions$2 = opts.serviceOptions.server,
+        server = _opts$serviceOptions$2 === undefined ? {} : _opts$serviceOptions$2;
+    // TODO - We should ideally pass server.host to channel manager too
+    // Running into issues, need to still take a look at this
+    // const channelManager = new F.manager.ChannelManager({ server: server });
+
     var channelManager = new F.manager.ChannelManager();
     function getChannelForWorld(worldid) {
         if (!worldChannelMap[worldid]) {
@@ -5763,7 +5775,7 @@ function WorldRoutesHandler(config, notifier) {
         return worldChannelMap[worldid];
     }
 
-    var am = new F.manager.AuthManager();
+    var am = new F.manager.AuthManager({ server: server });
     var handlerOptions = {
         serviceOptions: {
             getRun: getRun,
@@ -5789,11 +5801,10 @@ function WorldRoutesHandler(config, notifier) {
         name: 'world current user'
     });
     handlers.unshift(currentUserHandler);
-
     var ConsensusManager = window.F.manager.ConsensusManager;
     if (ConsensusManager) {
         //epijs < 2.80 did not have this
-        var consensusRouteHandler = new __WEBPACK_IMPORTED_MODULE_2__consensus_route_handler__["a" /* default */](handlerOptions, Object(__WEBPACK_IMPORTED_MODULE_3_channels_channel_router_utils__["g" /* withPrefix */])(notifier, CONSENSUS_PREFIX));
+        var consensusRouteHandler = new __WEBPACK_IMPORTED_MODULE_2__consensus_route_handler__["a" /* default */](handlerOptions, Object(__WEBPACK_IMPORTED_MODULE_3_channels_channel_router_utils__["g" /* withPrefix */])(notifier, CONSENSUS_PREFIX), opts);
         var consensusHandler = $.extend(consensusRouteHandler, {
             match: Object(__WEBPACK_IMPORTED_MODULE_4_channels_route_handlers_route_matchers__["b" /* matchPrefix */])(CONSENSUS_PREFIX),
             name: 'consensus'
@@ -5991,20 +6002,23 @@ var ConsensusManager = window.F.manager.ConsensusManager;
 
 var OPERATIONS_PREFIX = 'operations:';
 
-function ConsensusRouteHandler(config, notifier) {
+function ConsensusRouteHandler(config, notifier, opts) {
     var options = $.extend(true, {
         serviceOptions: {},
         channelOptions: {}
-    }, config);
+    }, config, opts);
 
     var _options$serviceOptio = options.serviceOptions,
         getWorld = _options$serviceOptio.getWorld,
         getRun = _options$serviceOptio.getRun,
         getSession = _options$serviceOptio.getSession,
-        getChannel = _options$serviceOptio.getChannel;
+        getChannel = _options$serviceOptio.getChannel,
+        _options$serviceOptio2 = _options$serviceOptio.server,
+        server = _options$serviceOptio2 === undefined ? {} : _options$serviceOptio2;
 
+    // TODO: Need to update package.json and babel to more updated version to allow this to be written as simply { server }
 
-    var cm = new ConsensusManager();
+    var cm = new ConsensusManager({ server: server });
 
     var consensusProm = null;
     function getConsensus(force) {
@@ -6198,7 +6212,8 @@ var _window = window,
 
 
 function MultiRunRouteHandler(options, notifier, channelManagerContext) {
-    var runService = new F.service.Run(options.serviceOptions.run);
+    var serviceOpts = $.extend(true, {}, options.serviceOptions.run, options.serviceOptions.server ? { server: options.serviceOptions.server } : undefined);
+    var runService = new F.service.Run(serviceOpts);
 
     var topicParamMap = {};
 
@@ -6413,7 +6428,6 @@ function interpolatable(ChannelManager) {
                 }
                 subsidMap[dependencySubsId] = newDependentId;
             });
-
             _this.publish = Object(__WEBPACK_IMPORTED_MODULE_1__publish_interpolator__["a" /* default */])(_this.publish.bind(_this), function (variables, cb) {
                 _get(InterpolatedChannelManager.prototype.__proto__ || Object.getPrototypeOf(InterpolatedChannelManager.prototype), 'subscribe', _this).call(_this, variables, function (response, meta) {
                     _this.unsubscribe(meta.id);

@@ -12,7 +12,7 @@ import { matchPrefix, matchDefaultPrefix, matchRegex } from 'channels/route-hand
 import router from 'channels/channel-router';
 
 function getOptions(opts, key) {
-    var serviceOptions = $.extend(true, {}, opts.defaults, opts[key]);
+    var serviceOptions = $.extend(true, {}, opts.defaults, opts.server, opts[key]);
     var channelOptions = $.extend(true, {}, serviceOptions.channelOptions);
     delete serviceOptions.channelOptions;
 
@@ -34,19 +34,19 @@ export default function EpicenterRouteHandler(config, notifier, channelManagerCo
     var runidHandler = new RunidRouteHandler(runidHandlerOpts, notifier);
     var multiRunHandler = new MultiRunRouteHandler(runidHandlerOpts, withPrefix(notifier, 'runs'), channelManagerContext);
     // var userChannel = new UserRouter(getOptions(opts, 'runManager').run, withPrefix(notifier, 'user:'), channelManagerContext);
-    
+
     /** @type {Handler[]} **/
     var handlers = [
-        $.extend({}, runidHandler, { 
+        $.extend({}, runidHandler, {
             name: 'customRun',
             match: matchRegex(runidRegex),
             options: runidHandlerOpts.channelOptions,
-        }), 
+        }),
         $.extend({}, multiRunHandler, {
             name: 'archiveRuns',
             match: matchPrefix('runs:'),
             options: runidHandlerOpts.channelOptions,
-        }),  
+        }),
         // $.extend({}, userChannel, {
         //     name: 'User Channel',
         //     match: matchPrefix('user:'),
@@ -59,13 +59,13 @@ export default function EpicenterRouteHandler(config, notifier, channelManagerCo
         var rm;
         const hasEnoughInfo = runManagerOpts.serviceOptions.run && runManagerOpts.serviceOptions.run.model;
         const isMultiplayer = runManagerOpts.serviceOptions.strategy === 'multiplayer' || runManagerOpts.serviceOptions.isMultiplayer;
-        
+
         if (!hasEnoughInfo) {
             console.warn('No model specified, not initializing run manager channel', opts);
             rm = { expose: {} };
         } else if (opts.scenarioManager) {
             rm = new DefaultRunRouteHandler(runManagerOpts, withPrefix(notifier, RUN_PREFIX));
-            handlers.push($.extend({}, rm, { 
+            handlers.push($.extend({}, rm, {
                 name: 'run',
                 match: matchPrefix(RUN_PREFIX), //if both scenario manager and run manager are being used, require a prefix
                 options: runManagerOpts.channelOptions,
@@ -73,7 +73,7 @@ export default function EpicenterRouteHandler(config, notifier, channelManagerCo
         } else if (isMultiplayer) {
             //Ignore case where both scenario manager and multiplayer are being used
             rm = new WorldRouteHandler(runManagerOpts, withPrefix(notifier, [WORLD_PREFIX, '']));
-            handlers.push($.extend({}, rm, { 
+            handlers.push($.extend({}, rm, {
                 name: 'World run',
                 match: matchDefaultPrefix(WORLD_PREFIX),
                 isDefault: true,
@@ -81,7 +81,7 @@ export default function EpicenterRouteHandler(config, notifier, channelManagerCo
             }));
         } else {
             rm = new DefaultRunRouteHandler(runManagerOpts, withPrefix(notifier, [RUN_PREFIX, '']));
-            handlers.push($.extend({}, rm, { 
+            handlers.push($.extend({}, rm, {
                 name: 'run',
                 match: matchDefaultPrefix(RUN_PREFIX),
                 isDefault: true,
@@ -95,7 +95,7 @@ export default function EpicenterRouteHandler(config, notifier, channelManagerCo
     if (opts.scenarioManager) {
         var scenarioManagerOpts = getOptions(opts, 'scenarioManager');
         var sm = new ScenarioRouteHandler(scenarioManagerOpts, withPrefix(notifier, [SCENARIO_PREFIX, '']));
-        handlers.push($.extend({}, sm, { 
+        handlers.push($.extend({}, sm, {
             name: 'scenario',
             match: matchDefaultPrefix(SCENARIO_PREFIX),
             options: scenarioManagerOpts.channelOptions,
@@ -107,6 +107,6 @@ export default function EpicenterRouteHandler(config, notifier, channelManagerCo
 
     var epicenterRouter = router(handlers, notifier);
     epicenterRouter.expose = exposable;
-    
+
     return epicenterRouter;
 }

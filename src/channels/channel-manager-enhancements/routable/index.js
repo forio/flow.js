@@ -68,7 +68,7 @@ export default function withRouter(BaseChannelManager, router) {
                 return super.publish(published, publishData.options);
             });
         }
-        
+
 
         /**
          * Calls unsubscribe middleware *after* unsubscription with a list of recently unsubscribed topics
