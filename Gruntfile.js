@@ -18,7 +18,7 @@ module.exports = function (grunt) {
         require('./' + task)(grunt);
     });
 
-    grunt.registerTask('addons', ['webpack:addons']);
+    grunt.registerTask('addons', ['sass:addons', 'webpack:addons']);
     grunt.registerTask('addonsDev', ['watch:scriptsAddons', 'watch:stylesAddons']);
 
     grunt.registerTask('test', ['karma:testWithCoverage']);
