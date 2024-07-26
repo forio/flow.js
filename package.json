@@ -1,6 +1,6 @@
 {
   "name": "flow.js",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Data binding library",
   "main": "src/flow.js",
   "directories": {

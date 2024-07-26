@@ -18,14 +18,14 @@ module.exports = function (grunt) {
         require('./' + task)(grunt);
     });
 
-    grunt.registerTask('addons', ['webpack:addons', 'sass:addons']);
+    grunt.registerTask('addons', ['sass:addons', 'webpack:addons']);
     grunt.registerTask('addonsDev', ['watch:scriptsAddons', 'watch:stylesAddons']);
 
     grunt.registerTask('test', ['karma:testWithCoverage']);
     grunt.registerTask('documentation', ['eslint', 'markdox']);
     
     grunt.registerTask('validate', ['eslint', 'test']);
-    grunt.registerTask('production', ['validate', 'addons', 'webpack:mapped', 'webpack:min']);
+    grunt.registerTask('production', ['validate', 'webpack:mapped', 'webpack:min', 'addons']);
 
     grunt.registerTask('release', function (type) {
         type = type ? type : 'patch';
