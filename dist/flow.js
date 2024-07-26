@@ -1,7 +1,7 @@
 /*!
  * 
  * ++++++++   ++++++++   ++++++++         Flow.js
- * ++++++++   ,+++++++~   ++++++++        v1.0.2
+ * ++++++++   ,+++++++~   ++++++++        v1.0.3
  *  ++++++++   ++++++++   ++++++++
  *  ~+++++++~   ++++++++   ++++++++       Github: https://github.com/forio/flow.js
  *   ++++++++   ++++++++   ++++++++:
@@ -1412,7 +1412,7 @@ var Flow = {
 Flow.ChannelManager = __WEBPACK_IMPORTED_MODULE_1_channels_configured_channel_manager__["a" /* default */];
 Flow.constants = __WEBPACK_IMPORTED_MODULE_2_config___default.a;
 //set by grunt
-if (true) Flow.version = "1.0.2"; //eslint-disable-line no-undef
+if (true) Flow.version = "1.0.3"; //eslint-disable-line no-undef
 /* harmony default export */ __webpack_exports__["default"] = (Flow);
 
 /***/ }),
@@ -1822,15 +1822,37 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
                         me.bindElement($el, channel);
                         return;
                     }
-                    channel.publish(parsed, options).then(function (result) {
-                        if (!result || !result.length) {
-                            return;
+
+                    var publishFunc = function () {
+                        channel.publish(parsed, options).then(function (result) {
+                            if (!result || !result.length) {
+                                return;
+                            }
+                            var last = result[result.length - 1];
+                            $el.trigger(__WEBPACK_IMPORTED_MODULE_4__config__["events"].convert, _defineProperty({}, source, last.value));
+                        }, function (e) {
+                            triggerError($el, e);
+                        });
+                    };
+                    var checkForPreActions = function () {
+                        var willReset = parsed.some(function (obj) {
+                            return obj.name && obj.name.includes('operations:reset');
+                        });
+                        var prePromise = Promise.resolve();
+                        if (willReset) {
+                            prePromise = channel.runManager.getRun().then(function (run) {
+                                channel.runManager.run.removeFromMemory(run.id);
+                            });
                         }
-                        var last = result[result.length - 1];
-                        $el.trigger(__WEBPACK_IMPORTED_MODULE_4__config__["events"].convert, _defineProperty({}, source, last.value));
-                    }, function (e) {
-                        triggerError($el, e);
-                    });
+                        prePromise.then(function () {
+                            return publishFunc();
+                        });
+                    };
+                    if (channel.runManager) {
+                        checkForPreActions();
+                    } else {
+                        publishFunc();
+                    }
                 });
             }
 
