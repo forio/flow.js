@@ -375,15 +375,34 @@ export default (function () {
                         me.bindElement($el, channel);
                         return;
                     }
-                    channel.publish(parsed, options).then((result)=> {
-                        if (!result || !result.length) {
-                            return;
+
+                    const publishFunc = ()=> {
+                        channel.publish(parsed, options).then((result)=> {
+                            if (!result || !result.length) {
+                                return;
+                            }
+                            const last = result[result.length - 1];
+                            $el.trigger(events.convert, { [source]: last.value });
+                        }, (e)=> {
+                            triggerError($el, e);
+                        });
+                    };
+                    const checkForPreActions = ()=> {
+                        const willReset = parsed.some((obj)=> obj.name && obj.name.includes('operations:reset'));
+                        let prePromise = Promise.resolve();
+                        if (willReset) {
+                            prePromise = channel.runManager.getRun()
+                                .then((run)=> {
+                                    channel.runManager.run.removeFromMemory(run.id);
+                                });
                         }
-                        const last = result[result.length - 1];
-                        $el.trigger(events.convert, { [source]: last.value });
-                    }, (e)=> {
-                        triggerError($el, e);
-                    });
+                        prePromise.then(()=> publishFunc());
+                    };
+                    if (channel.runManager) {
+                        checkForPreActions();
+                    } else {
+                        publishFunc();
+                    }
                 });
             }
 
