@@ -25,7 +25,6 @@ const loopAttrHandler = {
         var id = $el.data(templateIdAttr);
         if (id) {
             $el.nextUntil(':not([data-' + id + '])').remove();
-            // $el.removeAttr('data-' + templateIdAttr); //FIXME: Something about calling rebind multiple times in IB makes this happen without the removal
         }
 
         const el = $el.get(0);
@@ -43,6 +42,11 @@ const loopAttrHandler = {
             const templateInnerHTML = $(originalHTML).html();
             $el.html(templateInnerHTML);
             $el.removeAttr('hidden');
+            // Drop the render-time bookkeeping id so the element is restored to its pristine
+            // template form. The old replaceWith(originalHTML) removed it implicitly; since we now
+            // keep the live node we must strip it explicitly. Removed here (after the sibling
+            // cleanup above, which still needs the id) rather than in the `if (id)` block.
+            $el.removeAttr('data-' + templateIdAttr);
         }
         clearOriginalContents($el);
         removeKnownData($el);
