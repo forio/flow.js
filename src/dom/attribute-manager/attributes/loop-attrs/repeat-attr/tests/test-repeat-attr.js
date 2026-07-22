@@ -277,5 +277,87 @@ describe('Repeat', function () {
             repeatHandler.unbind('repeat', $rootNode.find('li:first'));
             $rootNode.children().length.should.equal(3);
         });
+
+        it('should preserve edits to the element`s own attributes instead of reverting them (TEMPLATE-570)', ()=> {
+            var $rootNode = $('<ul> <li data-f-repeat="oldVar"> <%= value %> </li> </ul>');
+            const topics = [{ name: 'oldVar' }];
+            const $el = $rootNode.find('li:first');
+            const originalNode = $el.get(0);
+
+            // First render captures the template snapshot and generates sibling clones.
+            repeatHandler.handle([1, 2, 3], 'repeat', $el, topics);
+            $rootNode.children().length.should.equal(3);
+
+            // Simulate an interface-builder edit of the bound variable.
+            $el.attr('data-f-repeat', 'newVar');
+
+            repeatHandler.unbind('repeat', $el);
+
+            // Generated siblings are cleaned up, leaving only the template element...
+            $rootNode.children().length.should.equal(1);
+            // ...the same node stays in the DOM (not detached/replaced)...
+            $rootNode.children().get(0).should.equal(originalNode);
+            // ...and the edited attribute survives rather than reverting to "oldVar".
+            // NOTE: read the node actually left in the DOM, not the $el handle. Under the old
+            // buggy replaceWith the $el handle pointed at the *detached* node (which still carried
+            // "newVar"), so asserting on $el would pass even against the bug.
+            $($rootNode.children().get(0)).attr('data-f-repeat').should.equal('newVar');
+            // ...and the inner content is restored to the template, not left as rendered data.
+            // Use .text(): serializing a text node via .html() would HTML-escape the < and >.
+            $($rootNode.children().get(0)).text().trim().should.equal('<%= value %>');
+        });
+
+        it('should preserve attribute edits on table elements (data-f-repeat on <td>) (TEMPLATE-570)', ()=> {
+            var $rootNode = $('<table><tbody><tr><td data-f-repeat="oldVar"> <%= value %> </td></tr></tbody></table>');
+            const topics = [{ name: 'oldVar' }];
+            const $el = $rootNode.find('td:first');
+            const originalNode = $el.get(0);
+
+            repeatHandler.handle([1, 2, 3], 'repeat', $el, topics);
+            // The template td plus its two generated sibling clones.
+            $rootNode.find('tr:first').children().length.should.equal(3);
+
+            $el.attr('data-f-repeat', 'newVar');
+            repeatHandler.unbind('repeat', $el);
+
+            const $cells = $rootNode.find('tr:first').children();
+            // Siblings cleaned up, same node kept, edit preserved, inner template restored.
+            $cells.length.should.equal(1);
+            $cells.get(0).should.equal(originalNode);
+            $($cells.get(0)).attr('data-f-repeat').should.equal('newVar');
+            $($cells.get(0)).text().trim().should.equal('<%= value %>');
+        });
+
+        it('should stay idempotent across repeated handle/unbind cycles (no row growth)', ()=> {
+            var $rootNode = $('<ul> <li data-f-repeat="somearray"> <%= value %> </li> </ul>');
+            const topics = [{ name: 'somearray' }];
+            const $el = $rootNode.find('li:first');
+            const data = [1, 2, 3];
+
+            for (var i = 0; i < 3; i++) {
+                repeatHandler.handle(data, 'repeat', $el, topics);
+                // One template element + one clone per data item.
+                $rootNode.children().length.should.equal(data.length);
+
+                repeatHandler.unbind('repeat', $el);
+                // Back down to just the template element; clones fully cleaned up.
+                $rootNode.children().length.should.equal(1);
+            }
+        });
+
+        it('should remove the hidden attribute set by the empty-value path on unbind', ()=> {
+            var $rootNode = $('<ul> <li data-f-repeat="somearray"> <%= value %> </li> </ul>');
+            const topics = [{ name: 'somearray' }];
+            const $el = $rootNode.find('li:first');
+
+            // A first render establishes the template snapshot...
+            repeatHandler.handle([1, 2], 'repeat', $el, topics);
+            // ...then an empty value hides the element.
+            repeatHandler.handle([], 'repeat', $el, topics);
+            $el.is('[hidden]').should.equal(true);
+
+            repeatHandler.unbind('repeat', $el);
+            $el.is('[hidden]').should.equal(false);
+        });
     });
 });

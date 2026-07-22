@@ -34,7 +34,15 @@ const loopAttrHandler = {
         const originalHTML = getOriginalContents($el);
         const current = $el.get(0).outerHTML;
         if (originalHTML && current !== originalHTML) {
-            $el.replaceWith(originalHTML);
+            // TEMPLATE-570: Restore the element to its pristine template form by resetting only its inner
+            // content, keeping the element itself and its current attributes. We intentionally
+            // do NOT replace the whole element with the captured snapshot: the snapshot is taken
+            // on first render, so replacing would revert any later edit to the element's own
+            // attributes (e.g. changing data-f-repeat in the interface builder) and detach the
+            // live node, discarding the change.
+            const templateInnerHTML = $(originalHTML).html();
+            $el.html(templateInnerHTML);
+            $el.removeAttr('hidden');
         }
         clearOriginalContents($el);
         removeKnownData($el);
