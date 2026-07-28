@@ -25,7 +25,6 @@ const loopAttrHandler = {
         var id = $el.data(templateIdAttr);
         if (id) {
             $el.nextUntil(':not([data-' + id + '])').remove();
-            // $el.removeAttr('data-' + templateIdAttr); //FIXME: Something about calling rebind multiple times in IB makes this happen without the removal
         }
 
         const el = $el.get(0);
@@ -34,7 +33,20 @@ const loopAttrHandler = {
         const originalHTML = getOriginalContents($el);
         const current = $el.get(0).outerHTML;
         if (originalHTML && current !== originalHTML) {
-            $el.replaceWith(originalHTML);
+            // TEMPLATE-570: Restore the element to its pristine template form by resetting only its inner
+            // content, keeping the element itself and its current attributes. We intentionally
+            // do NOT replace the whole element with the captured snapshot: the snapshot is taken
+            // on first render, so replacing would revert any later edit to the element's own
+            // attributes (e.g. changing data-f-repeat in the interface builder) and detach the
+            // live node, discarding the change.
+            const templateInnerHTML = $(originalHTML).html();
+            $el.html(templateInnerHTML);
+            $el.removeAttr('hidden');
+            // Drop the render-time bookkeeping id so the element is restored to its pristine
+            // template form. The old replaceWith(originalHTML) removed it implicitly; since we now
+            // keep the live node we must strip it explicitly. Removed here (after the sibling
+            // cleanup above, which still needs the id) rather than in the `if (id)` block.
+            $el.removeAttr('data-' + templateIdAttr);
         }
         clearOriginalContents($el);
         removeKnownData($el);
